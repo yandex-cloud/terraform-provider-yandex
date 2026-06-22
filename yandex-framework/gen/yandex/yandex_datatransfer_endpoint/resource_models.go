@@ -13838,6 +13838,7 @@ func expandYandexDatatransferEndpointSettingsMysqlTargetSecurityGroups(ctx conte
 }
 
 type yandexDatatransferEndpointSettingsPostgresSourceModel struct {
+	CollapseInheritTable   types.Bool    `tfsdk:"collapse_inherit_table"`
 	Connection             types.List    `tfsdk:"connection"`
 	Database               types.String  `tfsdk:"database"`
 	ExcludeTables          types.List    `tfsdk:"exclude_tables"`
@@ -13850,6 +13851,9 @@ type yandexDatatransferEndpointSettingsPostgresSourceModel struct {
 	User                   types.String  `tfsdk:"user"`
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) GetCollapseInheritTable() types.Bool {
+	return m.CollapseInheritTable
+}
 func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) GetConnection() types.List {
 	return m.Connection
 }
@@ -13881,6 +13885,9 @@ func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) GetUser() types.
 	return m.User
 }
 
+func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetCollapseInheritTable(target types.Bool) {
+	m.CollapseInheritTable = target
+}
 func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetConnection(target types.List) {
 	m.Connection = target
 }
@@ -13914,6 +13921,7 @@ func (m *yandexDatatransferEndpointSettingsPostgresSourceModel) SetUser(target t
 
 func NewYandexDatatransferEndpointSettingsPostgresSourceModel() yandexDatatransferEndpointSettingsPostgresSourceModel {
 	return yandexDatatransferEndpointSettingsPostgresSourceModel{
+		CollapseInheritTable:   types.BoolNull(),
 		Connection:             types.ListNull(yandexDatatransferEndpointSettingsPostgresSourceConnectionModelType),
 		Database:               types.StringNull(),
 		ExcludeTables:          types.ListNull(types.StringType),
@@ -13928,6 +13936,9 @@ func NewYandexDatatransferEndpointSettingsPostgresSourceModel() yandexDatatransf
 }
 
 func yandexDatatransferEndpointSettingsPostgresSourceModelFillUnknown(target yandexDatatransferEndpointSettingsPostgresSourceModel) yandexDatatransferEndpointSettingsPostgresSourceModel {
+	if target.CollapseInheritTable.IsUnknown() || target.CollapseInheritTable.IsNull() {
+		target.CollapseInheritTable = types.BoolNull()
+	}
 	if target.Connection.IsUnknown() || target.Connection.IsNull() {
 		target.Connection = types.ListNull(yandexDatatransferEndpointSettingsPostgresSourceConnectionModelType)
 	}
@@ -13963,6 +13974,7 @@ func yandexDatatransferEndpointSettingsPostgresSourceModelFillUnknown(target yan
 
 var yandexDatatransferEndpointSettingsPostgresSourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"collapse_inherit_table":   types.BoolType,
 		"connection":               types.ListType{ElemType: yandexDatatransferEndpointSettingsPostgresSourceConnectionModelType},
 		"database":                 types.StringType,
 		"exclude_tables":           types.ListType{ElemType: types.StringType},
@@ -14007,6 +14019,7 @@ func flattenYandexDatatransferEndpointSettingsPostgresSource(ctx context.Context
 		state = yandexDatatransferEndpointSettingsPostgresSourceType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsPostgresSourceModelType.AttrTypes, yandexDatatransferEndpointSettingsPostgresSourceModel{
+		CollapseInheritTable:   types.BoolValue(yandexDatatransferEndpointSettingsPostgresSource.GetCollapseInheritTable()),
 		Connection:             flattenYandexDatatransferEndpointSettingsPostgresSourceConnection(ctx, yandexDatatransferEndpointSettingsPostgresSource.GetConnection(), state.Connection, diags),
 		Database:               types.StringValue(yandexDatatransferEndpointSettingsPostgresSource.GetDatabase()),
 		ExcludeTables:          flattenYandexDatatransferEndpointSettingsPostgresSourceExcludeTables(ctx, yandexDatatransferEndpointSettingsPostgresSource.GetExcludeTables(), state.ExcludeTables, diags),
@@ -14041,6 +14054,7 @@ func expandYandexDatatransferEndpointSettingsPostgresSource(ctx context.Context,
 
 func expandYandexDatatransferEndpointSettingsPostgresSourceModel(ctx context.Context, yandexDatatransferEndpointSettingsPostgresSourceState yandexDatatransferEndpointSettingsPostgresSourceModel, diags *diag.Diagnostics) *endpoint.PostgresSource {
 	value := &endpoint.PostgresSource{}
+	value.SetCollapseInheritTable(yandexDatatransferEndpointSettingsPostgresSourceState.CollapseInheritTable.ValueBool())
 	value.SetConnection(expandYandexDatatransferEndpointSettingsPostgresSourceConnection(ctx, yandexDatatransferEndpointSettingsPostgresSourceState.Connection, diags))
 	value.SetDatabase(yandexDatatransferEndpointSettingsPostgresSourceState.Database.ValueString())
 	value.SetExcludeTables(expandYandexDatatransferEndpointSettingsPostgresSourceExcludeTables(ctx, yandexDatatransferEndpointSettingsPostgresSourceState.ExcludeTables, diags))

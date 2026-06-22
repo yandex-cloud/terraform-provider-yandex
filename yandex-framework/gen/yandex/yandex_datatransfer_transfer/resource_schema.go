@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
@@ -49,8 +50,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 			},
 
 			"folder_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the folder to create the transfer in.\n \n To get the folder ID, make a\n [yandex.cloud.resourcemanager.v1.FolderService.List] request.",
-				Description: "ID of the folder to create the transfer in.\n \n To get the folder ID, make a\n [yandex.cloud.resourcemanager.v1.FolderService.List] request." +
+				MarkdownDescription: "ID of the folder to create the transfer in.\n\n To get the folder ID, make a\n [yandex.cloud.resourcemanager.v1.FolderService.List] request.",
+				Description: "ID of the folder to create the transfer in.\n\n To get the folder ID, make a\n [yandex.cloud.resourcemanager.v1.FolderService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.folder_id
 					// -> yandex.cloud.datatransfer.v1.Transfer.folder_id
@@ -67,8 +68,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 
 			"labels": schema.MapAttribute{
 				ElementType:         types.StringType,
-				MarkdownDescription: "Transfer labels as `key:value` pairs.\n \n For details about the concept, see [documentation]( api-url-prefix\n /resource-manager/concepts/labels).",
-				Description: "Transfer labels as `key:value` pairs.\n \n For details about the concept, see [documentation]( api-url-prefix\n /resource-manager/concepts/labels)." +
+				MarkdownDescription: "Transfer labels as `key:value` pairs.\n\n For details about the concept, see [documentation]( api-url-prefix\n /resource-manager/concepts/labels).",
+				Description: "Transfer labels as `key:value` pairs.\n\n For details about the concept, see [documentation]( api-url-prefix\n /resource-manager/concepts/labels)." +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.labels
 					// -> yandex.cloud.datatransfer.v1.Transfer.labels
@@ -139,8 +140,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 			},
 
 			"transfer_id": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the transfer to be returned.\n \n To get the list of all available transfers, make a [List] request.",
-				Description: "Identifier of the transfer to be returned.\n \n To get the list of all available transfers, make a [List] request." +
+				MarkdownDescription: "Identifier of the transfer to be returned.\n\n To get the list of all available transfers, make a [List] request.",
+				Description: "Identifier of the transfer to be returned.\n\n To get the list of all available transfers, make a [List] request." +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.DeleteTransferRequest.transfer_id
 					// -> yandex.cloud.datatransfer.v1.GetTransferRequest.transfer_id
@@ -157,8 +158,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the transfer to be returned.\n \n To get the list of all available transfers, make a [List] request.",
-				Description: "Identifier of the transfer to be returned.\n \n To get the list of all available transfers, make a [List] request." +
+				MarkdownDescription: "Identifier of the transfer to be returned.\n\n To get the list of all available transfers, make a [List] request.",
+				Description: "Identifier of the transfer to be returned.\n\n To get the list of all available transfers, make a [List] request." +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.DeleteTransferRequest.transfer_id
 					// -> yandex.cloud.datatransfer.v1.GetTransferRequest.transfer_id
@@ -297,8 +298,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 								Attributes: map[string]schema.Attribute{
 
 									"cron_expression": schema.StringAttribute{
-										MarkdownDescription: "Use a cron expression to schedule transfer regular snapshots in UTC time. \n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week), \n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set",
-										Description: "Use a cron expression to schedule transfer regular snapshots in UTC time. \n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week), \n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set" +
+										MarkdownDescription: "Use a cron expression to schedule transfer regular snapshots in UTC time.\n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week),\n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set",
+										Description: "Use a cron expression to schedule transfer regular snapshots in UTC time.\n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week),\n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.cron_expression
 											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.cron_expression
@@ -314,8 +315,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 									},
 
 									"increment_delay_seconds": schema.Int64Attribute{
-										MarkdownDescription: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot. \n This may be useful if source cannot guarantee that cursor values grows\n monotonically - \n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order",
-										Description: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot. \n This may be useful if source cannot guarantee that cursor values grows\n monotonically - \n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order" +
+										MarkdownDescription: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot.\n This may be useful if source cannot guarantee that cursor values grows\n monotonically -\n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order",
+										Description: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot.\n This may be useful if source cannot guarantee that cursor values grows\n monotonically -\n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.increment_delay_seconds
 											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.increment_delay_seconds
@@ -466,8 +467,8 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 												},
 											},
 										},
-										MarkdownDescription: "Incremental tables configuration for regular snapshot. \n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value.",
-										Description: "Incremental tables configuration for regular snapshot. \n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value." +
+										MarkdownDescription: "Incremental tables configuration for regular snapshot.\n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value.",
+										Description: "Incremental tables configuration for regular snapshot.\n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables
 											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables
@@ -816,6 +817,25 @@ func YandexDatatransferTransferResourceSchema(ctx context.Context) schema.Schema
 									"convert_to_string": schema.ListNestedBlock{
 										NestedObject: schema.NestedBlockObject{
 
+											Attributes: map[string]schema.Attribute{
+
+												"skip_utc_conversion": schema.BoolAttribute{
+													MarkdownDescription: "When true, time values keep their original timezone, otherwise time values converts (normalizes) to UTC.",
+													Description: "When true, time values keep their original timezone, otherwise time values converts (normalizes) to UTC." +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.skip_utc_conversion
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.skip_utc_conversion
+														// -> yandex.cloud.datatransfer.v1.UpdateTransferRequest.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.skip_utc_conversion
+														"package: yandex.cloud.datatransfer.v1\n" +
+														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.Bool{
+														boolplanmodifier.UseStateForUnknown(),
+													},
+												},
+											},
 											Blocks: map[string]schema.Block{
 
 												"columns": schema.ListNestedBlock{

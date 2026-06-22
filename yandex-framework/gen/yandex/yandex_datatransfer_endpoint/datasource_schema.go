@@ -27,8 +27,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 			},
 
 			"endpoint_id": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the endpoint to return.\n \n To get the endpoint ID, make an [EndpointService.List] request.",
-				Description: "Identifier of the endpoint to return.\n \n To get the endpoint ID, make an [EndpointService.List] request." +
+				MarkdownDescription: "Identifier of the endpoint to return.\n\n To get the endpoint ID, make an [EndpointService.List] request.",
+				Description: "Identifier of the endpoint to return.\n\n To get the endpoint ID, make an [EndpointService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.Endpoint.id
 					// -> yandex.cloud.datatransfer.v1.GetEndpointRequest.endpoint_id
@@ -39,8 +39,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the endpoint to return.\n \n To get the endpoint ID, make an [EndpointService.List] request.",
-				Description: "Identifier of the endpoint to return.\n \n To get the endpoint ID, make an [EndpointService.List] request." +
+				MarkdownDescription: "Identifier of the endpoint to return.\n\n To get the endpoint ID, make an [EndpointService.List] request.",
+				Description: "Identifier of the endpoint to return.\n\n To get the endpoint ID, make an [EndpointService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.datatransfer.v1.Endpoint.id
 					// -> yandex.cloud.datatransfer.v1.GetEndpointRequest.endpoint_id
@@ -128,8 +128,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																		},
 
 																		"subnet_id": schema.StringAttribute{
-																			MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																			Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																			MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																			Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																				// proto paths: +
 																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -484,8 +484,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																		},
 
 																		"subnet_id": schema.StringAttribute{
-																			MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																			Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																			MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																			Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																				// proto paths: +
 																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -977,8 +977,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 											Attributes: map[string]schema.Attribute{
 
 												"cluster_id": schema.StringAttribute{
-													MarkdownDescription: "Managed Service for Kafka cluster ID. \n Set only one of: cluster_id/on_premise/connection_manager_connection",
-													Description: "Managed Service for Kafka cluster ID. \n Set only one of: cluster_id/on_premise/connection_manager_connection" +
+													MarkdownDescription: "Managed Service for Kafka cluster ID.\n Set only one of: cluster_id/on_premise/connection_manager_connection",
+													Description: "Managed Service for Kafka cluster ID.\n Set only one of: cluster_id/on_premise/connection_manager_connection" +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.cluster_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -1002,8 +1002,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -1038,8 +1038,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -1674,8 +1674,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 											Attributes: map[string]schema.Attribute{
 
 												"cluster_id": schema.StringAttribute{
-													MarkdownDescription: "Managed Service for Kafka cluster ID. \n Set only one of: cluster_id/on_premise/connection_manager_connection",
-													Description: "Managed Service for Kafka cluster ID. \n Set only one of: cluster_id/on_premise/connection_manager_connection" +
+													MarkdownDescription: "Managed Service for Kafka cluster ID.\n Set only one of: cluster_id/on_premise/connection_manager_connection",
+													Description: "Managed Service for Kafka cluster ID.\n Set only one of: cluster_id/on_premise/connection_manager_connection" +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.cluster_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -1699,8 +1699,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -1735,8 +1735,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2386,8 +2386,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"subnet_id": schema.StringAttribute{
-										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2660,8 +2660,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"subnet_id": schema.StringAttribute{
-										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2705,8 +2705,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2842,8 +2842,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"database": schema.StringAttribute{
-										MarkdownDescription: "Name of the database to transfer\n \n You can leave it empty, then it will be possible to transfer tables from several\n databases at the same time from this source.",
-										Description: "Name of the database to transfer\n \n You can leave it empty, then it will be possible to transfer tables from several\n databases at the same time from this source." +
+										MarkdownDescription: "Name of the database to transfer\n\n You can leave it empty, then it will be possible to transfer tables from several\n databases at the same time from this source.",
+										Description: "Name of the database to transfer\n\n You can leave it empty, then it will be possible to transfer tables from several\n databases at the same time from this source." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2879,8 +2879,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 											Attributes: map[string]schema.Attribute{
 
 												"routine": schema.StringAttribute{
-													MarkdownDescription: "Routines\n \n CREATE PROCEDURE ... ; CREATE FUNCTION ... ;",
-													Description: "Routines\n \n CREATE PROCEDURE ... ; CREATE FUNCTION ... ;" +
+													MarkdownDescription: "Routines\n\n CREATE PROCEDURE ... ; CREATE FUNCTION ... ;",
+													Description: "Routines\n\n CREATE PROCEDURE ... ; CREATE FUNCTION ... ;" +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.routine
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2899,8 +2899,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"trigger": schema.StringAttribute{
-													MarkdownDescription: "Triggers\n \n CREATE TRIGGER ...",
-													Description: "Triggers\n \n CREATE TRIGGER ..." +
+													MarkdownDescription: "Triggers\n\n CREATE TRIGGER ...",
+													Description: "Triggers\n\n CREATE TRIGGER ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.trigger
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2909,8 +2909,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"view": schema.StringAttribute{
-													MarkdownDescription: "Views\n \n CREATE VIEW ...",
-													Description: "Views\n \n CREATE VIEW ..." +
+													MarkdownDescription: "Views\n\n CREATE VIEW ...",
+													Description: "Views\n\n CREATE VIEW ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.view
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2919,8 +2919,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 											},
 										},
-										MarkdownDescription: "Schema migration\n Defines which database schema objects should be transferred, e.g. views,\n routines, etc. \n All of the attrubutes in the block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`.\"",
-										Description: "Schema migration\n Defines which database schema objects should be transferred, e.g. views,\n routines, etc. \n All of the attrubutes in the block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`.\"" +
+										MarkdownDescription: "Schema migration\n Defines which database schema objects should be transferred, e.g. views,\n routines, etc.\n All of the attrubutes in the block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`.\"",
+										Description: "Schema migration\n Defines which database schema objects should be transferred, e.g. views,\n routines, etc.\n All of the attrubutes in the block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`.\"" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settings
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -2976,8 +2976,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"timezone": schema.StringAttribute{
-										MarkdownDescription: "Database timezone\n \n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone.",
-										Description: "Database timezone\n \n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone." +
+										MarkdownDescription: "Database timezone\n\n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone.",
+										Description: "Database timezone\n\n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.timezone
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3011,8 +3011,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 								Attributes: map[string]schema.Attribute{
 
 									"cleanup_policy": schema.StringAttribute{
-										MarkdownDescription: "Cleanup policy for activate, reactivate and reupload processes.  \n One of `DISABLED`, `DROP` or `TRUNCATE` Default is `DISABLED`.",
-										Description: "Cleanup policy for activate, reactivate and reupload processes.  \n One of `DISABLED`, `DROP` or `TRUNCATE` Default is `DISABLED`." +
+										MarkdownDescription: "Cleanup policy for activate, reactivate and reupload processes.\n One of `DISABLED`, `DROP` or `TRUNCATE` Default is `DISABLED`.",
+										Description: "Cleanup policy for activate, reactivate and reupload processes.\n One of `DISABLED`, `DROP` or `TRUNCATE` Default is `DISABLED`." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.cleanup_policy
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3041,8 +3041,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3178,8 +3178,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"database": schema.StringAttribute{
-										MarkdownDescription: "Database name\n \n Allowed to leave it empty, then the tables will be created in databases with the\n same names as on the source. If this field is empty, then you must fill below db\n schema for service table.",
-										Description: "Database name\n \n Allowed to leave it empty, then the tables will be created in databases with the\n same names as on the source. If this field is empty, then you must fill below db\n schema for service table." +
+										MarkdownDescription: "Database name\n\n Allowed to leave it empty, then the tables will be created in databases with the\n same names as on the source. If this field is empty, then you must fill below db\n schema for service table.",
+										Description: "Database name\n\n Allowed to leave it empty, then the tables will be created in databases with the\n same names as on the source. If this field is empty, then you must fill below db\n schema for service table." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3255,8 +3255,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"sql_mode": schema.StringAttribute{
-										MarkdownDescription: "[sql_mode](https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html) to use when\n interacting with the server. \n Defaults to `NO_AUTO_VALUE_ON_ZERO,NO_DIR_IN_CREATE,NO_ENGINE_SUBSTITUTION`",
-										Description: "[sql_mode](https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html) to use when\n interacting with the server. \n Defaults to `NO_AUTO_VALUE_ON_ZERO,NO_DIR_IN_CREATE,NO_ENGINE_SUBSTITUTION`" +
+										MarkdownDescription: "[sql_mode](https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html) to use when\n interacting with the server.\n Defaults to `NO_AUTO_VALUE_ON_ZERO,NO_DIR_IN_CREATE,NO_ENGINE_SUBSTITUTION`",
+										Description: "[sql_mode](https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html) to use when\n interacting with the server.\n Defaults to `NO_AUTO_VALUE_ON_ZERO,NO_DIR_IN_CREATE,NO_ENGINE_SUBSTITUTION`" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.sql_mode
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3265,8 +3265,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"timezone": schema.StringAttribute{
-										MarkdownDescription: "Database timezone\n \n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone.",
-										Description: "Database timezone\n \n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone." +
+										MarkdownDescription: "Database timezone\n\n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone.",
+										Description: "Database timezone\n\n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.timezone
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3299,6 +3299,16 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 
 								Attributes: map[string]schema.Attribute{
 
+									"collapse_inherit_table": schema.BoolAttribute{
+										MarkdownDescription: "Will collapse pg_inherit table into one big table in replication process",
+										Description: "Will collapse pg_inherit table into one big table in replication process" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.collapse_inherit_table
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
+										Computed: true,
+									},
+
 									"connection": schema.ListNestedAttribute{
 										NestedObject: schema.NestedAttributeObject{
 
@@ -3320,8 +3330,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3376,8 +3386,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3468,8 +3478,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 
 									"exclude_tables": schema.ListAttribute{
 										ElementType:         types.StringType,
-										MarkdownDescription: "List of tables which will not be transfered, formatted as `schemaname.tablename`\n If omitted or empty list is specified, all tables are replicated. \n Can contain schema_name.* patterns.",
-										Description: "List of tables which will not be transfered, formatted as `schemaname.tablename`\n If omitted or empty list is specified, all tables are replicated. \n Can contain schema_name.* patterns." +
+										MarkdownDescription: "List of tables which will not be transfered, formatted as `schemaname.tablename`\n If omitted or empty list is specified, all tables are replicated.\n Can contain schema_name.* patterns.",
+										Description: "List of tables which will not be transfered, formatted as `schemaname.tablename`\n If omitted or empty list is specified, all tables are replicated.\n Can contain schema_name.* patterns." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.exclude_tables
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3479,8 +3489,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 
 									"include_tables": schema.ListAttribute{
 										ElementType:         types.StringType,
-										MarkdownDescription: "List of tables to transfer, formatted as `schemaname.tablename`. \n If omitted or an empty list is specified, all tables will be transferred.\n Can contain schema_name.* patterns.",
-										Description: "List of tables to transfer, formatted as `schemaname.tablename`. \n If omitted or an empty list is specified, all tables will be transferred.\n Can contain schema_name.* patterns." +
+										MarkdownDescription: "List of tables to transfer, formatted as `schemaname.tablename`.\n If omitted or an empty list is specified, all tables will be transferred.\n Can contain schema_name.* patterns.",
+										Description: "List of tables to transfer, formatted as `schemaname.tablename`.\n If omitted or an empty list is specified, all tables will be transferred.\n Can contain schema_name.* patterns." +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.include_tables
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3494,8 +3504,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 											Attributes: map[string]schema.Attribute{
 
 												"cast": schema.StringAttribute{
-													MarkdownDescription: "Casts\n \n CREATE CAST ...",
-													Description: "Casts\n \n CREATE CAST ..." +
+													MarkdownDescription: "Casts\n\n CREATE CAST ...",
+													Description: "Casts\n\n CREATE CAST ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.cast
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3504,8 +3514,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"collation": schema.StringAttribute{
-													MarkdownDescription: "Collations\n \n CREATE COLLATION ...",
-													Description: "Collations\n \n CREATE COLLATION ..." +
+													MarkdownDescription: "Collations\n\n CREATE COLLATION ...",
+													Description: "Collations\n\n CREATE COLLATION ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.collation
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3514,8 +3524,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"constraint": schema.StringAttribute{
-													MarkdownDescription: "Constraints\n \n ALTER TABLE ... ADD CONSTRAINT ...",
-													Description: "Constraints\n \n ALTER TABLE ... ADD CONSTRAINT ..." +
+													MarkdownDescription: "Constraints\n\n ALTER TABLE ... ADD CONSTRAINT ...",
+													Description: "Constraints\n\n ALTER TABLE ... ADD CONSTRAINT ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.constraint
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3524,8 +3534,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"default_values": schema.StringAttribute{
-													MarkdownDescription: "Default values\n \n ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ...",
-													Description: "Default values\n \n ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ..." +
+													MarkdownDescription: "Default values\n\n ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ...",
+													Description: "Default values\n\n ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.default_values
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3534,8 +3544,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"fk_constraint": schema.StringAttribute{
-													MarkdownDescription: "Foreign keys\n \n ALTER TABLE ... ADD FOREIGN KEY ...",
-													Description: "Foreign keys\n \n ALTER TABLE ... ADD FOREIGN KEY ..." +
+													MarkdownDescription: "Foreign keys\n\n ALTER TABLE ... ADD FOREIGN KEY ...",
+													Description: "Foreign keys\n\n ALTER TABLE ... ADD FOREIGN KEY ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.fk_constraint
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3544,8 +3554,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"function": schema.StringAttribute{
-													MarkdownDescription: "Functions\n \n CREATE FUNCTION ...",
-													Description: "Functions\n \n CREATE FUNCTION ..." +
+													MarkdownDescription: "Functions\n\n CREATE FUNCTION ...",
+													Description: "Functions\n\n CREATE FUNCTION ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.function
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3554,8 +3564,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"index": schema.StringAttribute{
-													MarkdownDescription: "Indexes\n \n CREATE INDEX ...",
-													Description: "Indexes\n \n CREATE INDEX ..." +
+													MarkdownDescription: "Indexes\n\n CREATE INDEX ...",
+													Description: "Indexes\n\n CREATE INDEX ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.index
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3564,8 +3574,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"materialized_view": schema.StringAttribute{
-													MarkdownDescription: "Materialized views\n \n CREATE MATERIALIZED VIEW ...",
-													Description: "Materialized views\n \n CREATE MATERIALIZED VIEW ..." +
+													MarkdownDescription: "Materialized views\n\n CREATE MATERIALIZED VIEW ...",
+													Description: "Materialized views\n\n CREATE MATERIALIZED VIEW ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.materialized_view
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3574,8 +3584,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"policy": schema.StringAttribute{
-													MarkdownDescription: "Policies\n \n CREATE POLICY ...",
-													Description: "Policies\n \n CREATE POLICY ..." +
+													MarkdownDescription: "Policies\n\n CREATE POLICY ...",
+													Description: "Policies\n\n CREATE POLICY ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.policy
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3584,8 +3594,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"primary_key": schema.StringAttribute{
-													MarkdownDescription: "Primary keys\n \n ALTER TABLE ... ADD PRIMARY KEY ...",
-													Description: "Primary keys\n \n ALTER TABLE ... ADD PRIMARY KEY ..." +
+													MarkdownDescription: "Primary keys\n\n ALTER TABLE ... ADD PRIMARY KEY ...",
+													Description: "Primary keys\n\n ALTER TABLE ... ADD PRIMARY KEY ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.primary_key
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3594,8 +3604,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"rule": schema.StringAttribute{
-													MarkdownDescription: "Rules\n \n CREATE RULE ...",
-													Description: "Rules\n \n CREATE RULE ..." +
+													MarkdownDescription: "Rules\n\n CREATE RULE ...",
+													Description: "Rules\n\n CREATE RULE ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.rule
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3604,8 +3614,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"sequence": schema.StringAttribute{
-													MarkdownDescription: "Sequences\n \n CREATE SEQUENCE ...",
-													Description: "Sequences\n \n CREATE SEQUENCE ..." +
+													MarkdownDescription: "Sequences\n\n CREATE SEQUENCE ...",
+													Description: "Sequences\n\n CREATE SEQUENCE ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.sequence
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3614,8 +3624,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"sequence_owned_by": schema.StringAttribute{
-													MarkdownDescription: "Owned sequences\n \n CREATE SEQUENCE ... OWNED BY ...",
-													Description: "Owned sequences\n \n CREATE SEQUENCE ... OWNED BY ..." +
+													MarkdownDescription: "Owned sequences\n\n CREATE SEQUENCE ... OWNED BY ...",
+													Description: "Owned sequences\n\n CREATE SEQUENCE ... OWNED BY ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.sequence_owned_by
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3634,8 +3644,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"table": schema.StringAttribute{
-													MarkdownDescription: "Tables\n \n CREATE TABLE ...",
-													Description: "Tables\n \n CREATE TABLE ..." +
+													MarkdownDescription: "Tables\n\n CREATE TABLE ...",
+													Description: "Tables\n\n CREATE TABLE ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.table
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3644,8 +3654,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"trigger": schema.StringAttribute{
-													MarkdownDescription: "Triggers\n \n CREATE TRIGGER ...",
-													Description: "Triggers\n \n CREATE TRIGGER ..." +
+													MarkdownDescription: "Triggers\n\n CREATE TRIGGER ...",
+													Description: "Triggers\n\n CREATE TRIGGER ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.trigger
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3654,8 +3664,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"type": schema.StringAttribute{
-													MarkdownDescription: "Types\n \n CREATE TYPE ...",
-													Description: "Types\n \n CREATE TYPE ..." +
+													MarkdownDescription: "Types\n\n CREATE TYPE ...",
+													Description: "Types\n\n CREATE TYPE ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.type
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3664,8 +3674,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 
 												"view": schema.StringAttribute{
-													MarkdownDescription: "Views\n \n CREATE VIEW ...",
-													Description: "Views\n \n CREATE VIEW ..." +
+													MarkdownDescription: "Views\n\n CREATE VIEW ...",
+													Description: "Views\n\n CREATE VIEW ..." +
 														// proto paths: +
 														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.view
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3674,8 +3684,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 												},
 											},
 										},
-										MarkdownDescription: "Defines which database schema objects should be transferred, e.g. views,\n functions, etc. \n All of the attributes in this block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`",
-										Description: "Defines which database schema objects should be transferred, e.g. views,\n functions, etc. \n All of the attributes in this block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`" +
+										MarkdownDescription: "Defines which database schema objects should be transferred, e.g. views,\n functions, etc.\n All of the attributes in this block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`",
+										Description: "Defines which database schema objects should be transferred, e.g. views,\n functions, etc.\n All of the attributes in this block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3721,8 +3731,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"service_schema": schema.StringAttribute{
-										MarkdownDescription: "Name of the database schema in which auxiliary tables needed for the transfer\n will be created (__consumer_keeper, __data_transfer_mole_finder). \n Empty `service_schema` implies schema `public`",
-										Description: "Name of the database schema in which auxiliary tables needed for the transfer\n will be created (__consumer_keeper, __data_transfer_mole_finder). \n Empty `service_schema` implies schema `public`" +
+										MarkdownDescription: "Name of the database schema in which auxiliary tables needed for the transfer\n will be created (__consumer_keeper, __data_transfer_mole_finder).\n Empty `service_schema` implies schema `public`",
+										Description: "Name of the database schema in which auxiliary tables needed for the transfer\n will be created (__consumer_keeper, __data_transfer_mole_finder).\n Empty `service_schema` implies schema `public`" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.service_schema
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3731,8 +3741,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"slot_gigabyte_lag_limit": schema.Float64Attribute{
-										MarkdownDescription: "Maximum WAL size held by the replication slot (API - in bytes, terraform - in\n gigabytes); \n Exceeding this limit will result in a replication failure and deletion of the\n replication slot.\n Default is 50 gigabytes",
-										Description: "Maximum WAL size held by the replication slot (API - in bytes, terraform - in\n gigabytes); \n Exceeding this limit will result in a replication failure and deletion of the\n replication slot.\n Default is 50 gigabytes" +
+										MarkdownDescription: "Maximum WAL size held by the replication slot (API - in bytes, terraform - in\n gigabytes);\n Exceeding this limit will result in a replication failure and deletion of the\n replication slot.\n Default is 50 gigabytes",
+										Description: "Maximum WAL size held by the replication slot (API - in bytes, terraform - in\n gigabytes);\n Exceeding this limit will result in a replication failure and deletion of the\n replication slot.\n Default is 50 gigabytes" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.slot_byte_lag_limit
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3766,8 +3776,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 								Attributes: map[string]schema.Attribute{
 
 									"cleanup_policy": schema.StringAttribute{
-										MarkdownDescription: "Cleanup policy for activate, reactivate and reupload processes. \n One of: DISABLED, DROP, TRUNCATE. Default is TRUNCATE",
-										Description: "Cleanup policy for activate, reactivate and reupload processes. \n One of: DISABLED, DROP, TRUNCATE. Default is TRUNCATE" +
+										MarkdownDescription: "Cleanup policy for activate, reactivate and reupload processes.\n One of: DISABLED, DROP, TRUNCATE. Default is TRUNCATE",
+										Description: "Cleanup policy for activate, reactivate and reupload processes.\n One of: DISABLED, DROP, TRUNCATE. Default is TRUNCATE" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.cleanup_policy
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3796,8 +3806,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -3852,8 +3862,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 															},
 
 															"subnet_id": schema.StringAttribute{
-																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
 																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -4035,8 +4045,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"database": schema.StringAttribute{
-										MarkdownDescription: "Database path in YDB where tables are stored. \n Example: `/ru/transfer_manager/prod/data-transfer-yt`",
-										Description: "Database path in YDB where tables are stored. \n Example: `/ru/transfer_manager/prod/data-transfer-yt`" +
+										MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer-yt`",
+										Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer-yt`" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -4124,8 +4134,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 								Attributes: map[string]schema.Attribute{
 
 									"cleanup_policy": schema.StringAttribute{
-										MarkdownDescription: "Cleanup policy determine how to clean collections when activating the transfer. \n One of `YDB_CLEANUP_POLICY_DISABLED` or `YDB_CLEANUP_POLICY_DROP`",
-										Description: "Cleanup policy determine how to clean collections when activating the transfer. \n One of `YDB_CLEANUP_POLICY_DISABLED` or `YDB_CLEANUP_POLICY_DROP`" +
+										MarkdownDescription: "Cleanup policy determine how to clean collections when activating the transfer.\n One of `YDB_CLEANUP_POLICY_DISABLED` or `YDB_CLEANUP_POLICY_DROP`",
+										Description: "Cleanup policy determine how to clean collections when activating the transfer.\n One of `YDB_CLEANUP_POLICY_DISABLED` or `YDB_CLEANUP_POLICY_DROP`" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.cleanup_policy
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -4134,8 +4144,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"database": schema.StringAttribute{
-										MarkdownDescription: "Database path in YDB where tables are stored. \n Example: `/ru/transfer_manager/prod/data-transfer`",
-										Description: "Database path in YDB where tables are stored. \n Example: `/ru/transfer_manager/prod/data-transfer`" +
+										MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
+										Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -4174,8 +4184,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"is_table_column_oriented": schema.BoolAttribute{
-										MarkdownDescription: "Whether a column-oriented (i.e. OLAP) tables should be created. \n Default is `false` (create row-oriented OLTP tables)",
-										Description: "Whether a column-oriented (i.e. OLAP) tables should be created. \n Default is `false` (create row-oriented OLTP tables)" +
+										MarkdownDescription: "Whether a column-oriented (i.e. OLAP) tables should be created.\n Default is `false` (create row-oriented OLTP tables)",
+										Description: "Whether a column-oriented (i.e. OLAP) tables should be created.\n Default is `false` (create row-oriented OLTP tables)" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.is_table_column_oriented
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -4227,8 +4237,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"subnet_id": schema.StringAttribute{
-										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet",
-										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. \n If omitted, the server has to be accessible via Internet" +
+										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
+										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -4272,8 +4282,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"database": schema.StringAttribute{
-										MarkdownDescription: "Database path in YDB for streams \n Example: `/ru/transfer_manager/prod/data-transfer`",
-										Description: "Database path in YDB for streams \n Example: `/ru/transfer_manager/prod/data-transfer`" +
+										MarkdownDescription: "Database path in YDB for streams\n Example: `/ru/transfer_manager/prod/data-transfer`",
+										Description: "Database path in YDB for streams\n Example: `/ru/transfer_manager/prod/data-transfer`" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
@@ -4709,8 +4719,8 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 									},
 
 									"database": schema.StringAttribute{
-										MarkdownDescription: "Database path in YDB for streams \n Example: `/ru/transfer_manager/prod/data-transfer`",
-										Description: "Database path in YDB for streams \n Example: `/ru/transfer_manager/prod/data-transfer`" +
+										MarkdownDescription: "Database path in YDB for streams\n Example: `/ru/transfer_manager/prod/data-transfer`",
+										Description: "Database path in YDB for streams\n Example: `/ru/transfer_manager/prod/data-transfer`" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +

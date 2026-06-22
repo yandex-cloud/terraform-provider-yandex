@@ -311,10 +311,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.EndpointId.Equal(state.EndpointId) {
+	if !plan.EndpointId.IsUnknown() && !plan.EndpointId.Equal(state.EndpointId) {
 		updatePaths = append(updatePaths, "endpoint_id")
 	}
 	if plan.Labels.IsNull() {
@@ -323,10 +323,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 
@@ -338,9 +338,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 	}
 
 	if (plan.Settings.IsNull() || state.Settings.IsNull()) &&
-		!(plan.Settings.IsNull() && state.Settings.IsNull()) {
+		!(plan.Settings.IsNull() && state.Settings.IsNull()) &&
+		!plan.Settings.IsUnknown() {
 		updatePaths = append(updatePaths, "settings")
-	} else {
+	} else if !plan.Settings.IsUnknown() {
 		var yandexDatatransferEndpointSettingsListState, yandexDatatransferEndpointSettingsListPlan []yandexDatatransferEndpointSettingsModel = make([]yandexDatatransferEndpointSettingsModel, 0, len(state.Settings.Elements())), make([]yandexDatatransferEndpointSettingsModel, 0, len(plan.Settings.Elements()))
 		resp.Diagnostics.Append(plan.Settings.ElementsAs(ctx, &yandexDatatransferEndpointSettingsListPlan, false)...)
 		resp.Diagnostics.Append(state.Settings.ElementsAs(ctx, &yandexDatatransferEndpointSettingsListState, false)...)
@@ -363,9 +364,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.ClickhouseSource.IsNull() || yandexDatatransferEndpointSettingsState.ClickhouseSource.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.ClickhouseSource.IsNull() && yandexDatatransferEndpointSettingsState.ClickhouseSource.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.ClickhouseSource.IsNull() && yandexDatatransferEndpointSettingsState.ClickhouseSource.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.ClickhouseSource.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.clickhouse_source")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.ClickhouseSource.IsUnknown() {
 			var yandexDatatransferEndpointSettingsClickhouseSourceListState, yandexDatatransferEndpointSettingsClickhouseSourceListPlan []yandexDatatransferEndpointSettingsClickhouseSourceModel = make([]yandexDatatransferEndpointSettingsClickhouseSourceModel, 0, len(yandexDatatransferEndpointSettingsState.ClickhouseSource.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseSourceModel, 0, len(yandexDatatransferEndpointSettingsPlan.ClickhouseSource.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.ClickhouseSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.ClickhouseSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceListState, false)...)
@@ -380,7 +382,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsClickhouseSourcePlan = yandexDatatransferEndpointSettingsClickhouseSourceListPlan[0]
 			}
 
-			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.ClickhouseClusterName.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.ClickhouseClusterName) {
+			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.ClickhouseClusterName.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourcePlan.ClickhouseClusterName.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.ClickhouseClusterName) {
 				updatePaths = append(updatePaths, "settings.clickhouse_source.clickhouse_cluster_name")
 			}
 
@@ -392,9 +394,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsClickhouseSourcePlan.Connection.IsNull() || yandexDatatransferEndpointSettingsClickhouseSourceState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsClickhouseSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsClickhouseSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsClickhouseSourcePlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.clickhouse_source.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsClickhouseSourceConnectionListState, yandexDatatransferEndpointSettingsClickhouseSourceConnectionListPlan []yandexDatatransferEndpointSettingsClickhouseSourceConnectionModel = make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourcePlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourcePlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionListState, false)...)
@@ -417,9 +420,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsClickhouseSourceConnectionPlan.ConnectionOptions.IsNull() || yandexDatatransferEndpointSettingsClickhouseSourceConnectionState.ConnectionOptions.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionPlan.ConnectionOptions.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionState.ConnectionOptions.IsNull()) {
+					!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionPlan.ConnectionOptions.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionState.ConnectionOptions.IsNull()) &&
+					!yandexDatatransferEndpointSettingsClickhouseSourceConnectionPlan.ConnectionOptions.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionPlan.ConnectionOptions.IsUnknown() {
 					var yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsListState, yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsListPlan []yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel = make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionState.ConnectionOptions.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionPlan.ConnectionOptions.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionPlan.ConnectionOptions.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionState.ConnectionOptions.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsListState, false)...)
@@ -442,9 +446,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) {
+						!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) &&
+						!yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.connection_manager_connection")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsUnknown() {
 						var yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionListState, false)...)
@@ -459,17 +464,17 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionState.ConnectionId) {
+						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionState.ConnectionId) {
 							updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.connection_manager_connection.connection_id")
 						}
-						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionState.SubnetId) {
+						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsConnectionManagerConnectionState.SubnetId) {
 							updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.connection_manager_connection.subnet_id")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Database.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.Database) {
+					if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Database.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.Database) {
 						updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.database")
 					}
-					if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.MdbClusterId) {
+					if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.MdbClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.MdbClusterId) {
 						updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.mdb_cluster_id")
 					}
 
@@ -481,9 +486,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.OnPremise.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.OnPremise.IsNull()) {
+						!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.OnPremise.IsNull()) &&
+						!yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.OnPremise.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.on_premise")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.OnPremise.IsUnknown() {
 						var yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseListState, yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseListPlan []yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel = make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.OnPremise.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseListState, false)...)
@@ -498,10 +504,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan = yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.HttpPort.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.HttpPort) {
+						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.HttpPort.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.HttpPort.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.HttpPort) {
 							updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.on_premise.http_port")
 						}
-						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.NativePort.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.NativePort) {
+						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.NativePort.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.NativePort.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.NativePort) {
 							updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.on_premise.native_port")
 						}
 						if yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.Shards.IsNull() {
@@ -510,7 +516,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						if yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.Shards.IsNull() {
 							yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.Shards = types.ListNull(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseClickhouseShardStructModelType)
 						}
-						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.Shards.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.Shards) {
+						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.Shards.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.Shards.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.Shards) {
 							updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.on_premise.shards")
 						}
 
@@ -522,9 +528,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) {
+							!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) &&
+							!yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.on_premise.tls_mode")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsUnknown() {
 							var yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeListState, false)...)
@@ -547,9 +554,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							}
 
 							if (yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) &&
-								!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) {
+								!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) &&
+								!yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsUnknown() {
 								updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.on_premise.tls_mode.enabled")
-							} else {
+							} else if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsUnknown() {
 								var yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.Elements()))
 								resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan, false)...)
 								resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListState, false)...)
@@ -564,7 +572,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 									yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan[0]
 								}
 
-								if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledState.CaCertificate) {
+								if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledState.CaCertificate) {
 									updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.on_premise.tls_mode.enabled.ca_certificate")
 								}
 							}
@@ -579,9 +587,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Password.IsNull() || yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.Password.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Password.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.Password.IsNull()) {
+						!(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Password.IsNull() && yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.Password.IsNull()) &&
+						!yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.password")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Password.IsUnknown() {
 						var yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordListState, yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordListPlan []yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordModel = make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.Password.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordModel, 0, len(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Password.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordListState, false)...)
@@ -596,11 +605,11 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordPlan = yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordState.Raw) {
+						if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPasswordState.Raw) {
 							updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.password.raw")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.User.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.User) {
+					if !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPlan.User.Equal(yandexDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsState.User) {
 						updatePaths = append(updatePaths, "settings.clickhouse_source.connection.connection_options.user")
 					}
 				}
@@ -611,7 +620,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsClickhouseSourceState.ExcludeTables.IsNull() {
 				yandexDatatransferEndpointSettingsClickhouseSourceState.ExcludeTables = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.ExcludeTables.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.ExcludeTables) {
+			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.ExcludeTables.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourcePlan.ExcludeTables.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.ExcludeTables) {
 				updatePaths = append(updatePaths, "settings.clickhouse_source.exclude_tables")
 			}
 			if yandexDatatransferEndpointSettingsClickhouseSourcePlan.IncludeTables.IsNull() {
@@ -620,7 +629,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsClickhouseSourceState.IncludeTables.IsNull() {
 				yandexDatatransferEndpointSettingsClickhouseSourceState.IncludeTables = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.IncludeTables.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.IncludeTables) {
+			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.IncludeTables.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourcePlan.IncludeTables.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.IncludeTables) {
 				updatePaths = append(updatePaths, "settings.clickhouse_source.include_tables")
 			}
 			if yandexDatatransferEndpointSettingsClickhouseSourcePlan.SecurityGroups.IsNull() {
@@ -629,10 +638,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsClickhouseSourceState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsClickhouseSourceState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.clickhouse_source.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.SubnetId) {
+			if !yandexDatatransferEndpointSettingsClickhouseSourcePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseSourcePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsClickhouseSourceState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.clickhouse_source.subnet_id")
 			}
 		}
@@ -645,9 +654,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.ClickhouseTarget.IsNull() || yandexDatatransferEndpointSettingsState.ClickhouseTarget.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.ClickhouseTarget.IsNull() && yandexDatatransferEndpointSettingsState.ClickhouseTarget.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.ClickhouseTarget.IsNull() && yandexDatatransferEndpointSettingsState.ClickhouseTarget.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.ClickhouseTarget.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.clickhouse_target")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.ClickhouseTarget.IsUnknown() {
 			var yandexDatatransferEndpointSettingsClickhouseTargetListState, yandexDatatransferEndpointSettingsClickhouseTargetListPlan []yandexDatatransferEndpointSettingsClickhouseTargetModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetModel, 0, len(yandexDatatransferEndpointSettingsState.ClickhouseTarget.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetModel, 0, len(yandexDatatransferEndpointSettingsPlan.ClickhouseTarget.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.ClickhouseTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.ClickhouseTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetListState, false)...)
@@ -668,13 +678,13 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsClickhouseTargetState.AltNames.IsNull() {
 				yandexDatatransferEndpointSettingsClickhouseTargetState.AltNames = types.ListNull(yandexDatatransferEndpointSettingsClickhouseTargetAltNameStructModelType)
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.AltNames.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.AltNames) {
+			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.AltNames.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetPlan.AltNames.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.AltNames) {
 				updatePaths = append(updatePaths, "settings.clickhouse_target.alt_names")
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.CleanupPolicy) {
+			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.CleanupPolicy.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.CleanupPolicy) {
 				updatePaths = append(updatePaths, "settings.clickhouse_target.cleanup_policy")
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.ClickhouseClusterName.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.ClickhouseClusterName) {
+			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.ClickhouseClusterName.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetPlan.ClickhouseClusterName.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.ClickhouseClusterName) {
 				updatePaths = append(updatePaths, "settings.clickhouse_target.clickhouse_cluster_name")
 			}
 
@@ -686,9 +696,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsClickhouseTargetPlan.Connection.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsClickhouseTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsClickhouseTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsClickhouseTargetPlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.clickhouse_target.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsClickhouseTargetConnectionListState, yandexDatatransferEndpointSettingsClickhouseTargetConnectionListPlan []yandexDatatransferEndpointSettingsClickhouseTargetConnectionModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetPlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetPlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionListState, false)...)
@@ -711,9 +722,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsClickhouseTargetConnectionPlan.ConnectionOptions.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetConnectionState.ConnectionOptions.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionPlan.ConnectionOptions.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionState.ConnectionOptions.IsNull()) {
+					!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionPlan.ConnectionOptions.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionState.ConnectionOptions.IsNull()) &&
+					!yandexDatatransferEndpointSettingsClickhouseTargetConnectionPlan.ConnectionOptions.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionPlan.ConnectionOptions.IsUnknown() {
 					var yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsListState, yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsListPlan []yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionState.ConnectionOptions.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionPlan.ConnectionOptions.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionPlan.ConnectionOptions.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionState.ConnectionOptions.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsListState, false)...)
@@ -736,9 +748,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) {
+						!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) &&
+						!yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.connection_manager_connection")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsUnknown() {
 						var yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionListState, false)...)
@@ -753,17 +766,17 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionState.ConnectionId) {
+						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionState.ConnectionId) {
 							updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.connection_manager_connection.connection_id")
 						}
-						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionState.SubnetId) {
+						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsConnectionManagerConnectionState.SubnetId) {
 							updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.connection_manager_connection.subnet_id")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Database.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.Database) {
+					if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Database.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.Database) {
 						updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.database")
 					}
-					if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.MdbClusterId) {
+					if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.MdbClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.MdbClusterId) {
 						updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.mdb_cluster_id")
 					}
 
@@ -775,9 +788,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.OnPremise.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.OnPremise.IsNull()) {
+						!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.OnPremise.IsNull()) &&
+						!yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.OnPremise.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.on_premise")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.OnPremise.IsUnknown() {
 						var yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseListState, yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseListPlan []yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.OnPremise.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseListState, false)...)
@@ -792,10 +806,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan = yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.HttpPort.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.HttpPort) {
+						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.HttpPort.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.HttpPort.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.HttpPort) {
 							updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.on_premise.http_port")
 						}
-						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.NativePort.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.NativePort) {
+						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.NativePort.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.NativePort.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.NativePort) {
 							updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.on_premise.native_port")
 						}
 						if yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.Shards.IsNull() {
@@ -804,7 +818,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						if yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.Shards.IsNull() {
 							yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.Shards = types.ListNull(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseClickhouseShardStructModelType)
 						}
-						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.Shards.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.Shards) {
+						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.Shards.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.Shards.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.Shards) {
 							updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.on_premise.shards")
 						}
 
@@ -816,9 +830,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) {
+							!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) &&
+							!yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.on_premise.tls_mode")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsUnknown() {
 							var yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeListState, false)...)
@@ -841,9 +856,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							}
 
 							if (yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) &&
-								!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) {
+								!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) &&
+								!yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsUnknown() {
 								updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.on_premise.tls_mode.enabled")
-							} else {
+							} else if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsUnknown() {
 								var yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.Elements()))
 								resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan, false)...)
 								resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListState, false)...)
@@ -858,7 +874,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 									yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan[0]
 								}
 
-								if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledState.CaCertificate) {
+								if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledState.CaCertificate) {
 									updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.on_premise.tls_mode.enabled.ca_certificate")
 								}
 							}
@@ -873,9 +889,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Password.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.Password.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Password.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.Password.IsNull()) {
+						!(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Password.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.Password.IsNull()) &&
+						!yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.password")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Password.IsUnknown() {
 						var yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordListState, yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordListPlan []yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.Password.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Password.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordListState, false)...)
@@ -890,16 +907,16 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordPlan = yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordState.Raw) {
+						if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPasswordState.Raw) {
 							updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.password.raw")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.User.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.User) {
+					if !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPlan.User.Equal(yandexDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsState.User) {
 						updatePaths = append(updatePaths, "settings.clickhouse_target.connection.connection_options.user")
 					}
 				}
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.IsSchemaMigrationDisabled.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.IsSchemaMigrationDisabled) {
+			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.IsSchemaMigrationDisabled.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetPlan.IsSchemaMigrationDisabled.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.IsSchemaMigrationDisabled) {
 				updatePaths = append(updatePaths, "settings.clickhouse_target.is_schema_migration_disabled")
 			}
 			if yandexDatatransferEndpointSettingsClickhouseTargetPlan.SecurityGroups.IsNull() {
@@ -908,7 +925,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsClickhouseTargetState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsClickhouseTargetState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.clickhouse_target.security_groups")
 			}
 
@@ -920,9 +937,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsClickhouseTargetPlan.Sharding.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetState.Sharding.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsClickhouseTargetPlan.Sharding.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetState.Sharding.IsNull()) {
+				!(yandexDatatransferEndpointSettingsClickhouseTargetPlan.Sharding.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetState.Sharding.IsNull()) &&
+				!yandexDatatransferEndpointSettingsClickhouseTargetPlan.Sharding.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.clickhouse_target.sharding")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.Sharding.IsUnknown() {
 				var yandexDatatransferEndpointSettingsClickhouseTargetShardingListState, yandexDatatransferEndpointSettingsClickhouseTargetShardingListPlan []yandexDatatransferEndpointSettingsClickhouseTargetShardingModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetShardingModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetState.Sharding.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetShardingModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetPlan.Sharding.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetPlan.Sharding.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetShardingListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetState.Sharding.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetShardingListState, false)...)
@@ -945,9 +963,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.ColumnValueHash.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetShardingState.ColumnValueHash.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.ColumnValueHash.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetShardingState.ColumnValueHash.IsNull()) {
+					!(yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.ColumnValueHash.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetShardingState.ColumnValueHash.IsNull()) &&
+					!yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.ColumnValueHash.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.clickhouse_target.sharding.column_value_hash")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.ColumnValueHash.IsUnknown() {
 					var yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashListState, yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashListPlan []yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetShardingState.ColumnValueHash.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.ColumnValueHash.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.ColumnValueHash.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetShardingState.ColumnValueHash.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashListState, false)...)
@@ -962,7 +981,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashPlan = yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashPlan.ColumnName.Equal(yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashState.ColumnName) {
+					if !yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashPlan.ColumnName.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashPlan.ColumnName.Equal(yandexDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHashState.ColumnName) {
 						updatePaths = append(updatePaths, "settings.clickhouse_target.sharding.column_value_hash.column_name")
 					}
 				}
@@ -975,9 +994,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.CustomMapping.IsNull() || yandexDatatransferEndpointSettingsClickhouseTargetShardingState.CustomMapping.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.CustomMapping.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetShardingState.CustomMapping.IsNull()) {
+					!(yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.CustomMapping.IsNull() && yandexDatatransferEndpointSettingsClickhouseTargetShardingState.CustomMapping.IsNull()) &&
+					!yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.CustomMapping.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.clickhouse_target.sharding.custom_mapping")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.CustomMapping.IsUnknown() {
 					var yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingListState, yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingListPlan []yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingModel = make([]yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetShardingState.CustomMapping.Elements())), make([]yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingModel, 0, len(yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.CustomMapping.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetShardingPlan.CustomMapping.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsClickhouseTargetShardingState.CustomMapping.ElementsAs(ctx, &yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingListState, false)...)
@@ -992,7 +1012,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingPlan = yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingPlan.ColumnName.Equal(yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingState.ColumnName) {
+					if !yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingPlan.ColumnName.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingPlan.ColumnName.Equal(yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingState.ColumnName) {
 						updatePaths = append(updatePaths, "settings.clickhouse_target.sharding.custom_mapping.column_name")
 					}
 					if yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingPlan.Mapping.IsNull() {
@@ -1001,12 +1021,12 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					if yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingState.Mapping.IsNull() {
 						yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingState.Mapping = types.ListNull(yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingValueToShardStructModelType)
 					}
-					if !yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingPlan.Mapping.Equal(yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingState.Mapping) {
+					if !yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingPlan.Mapping.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingPlan.Mapping.Equal(yandexDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingState.Mapping) {
 						updatePaths = append(updatePaths, "settings.clickhouse_target.sharding.custom_mapping.mapping")
 					}
 				}
 			}
-			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.SubnetId) {
+			if !yandexDatatransferEndpointSettingsClickhouseTargetPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsClickhouseTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsClickhouseTargetState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.clickhouse_target.subnet_id")
 			}
 		}
@@ -1019,9 +1039,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.KafkaSource.IsNull() || yandexDatatransferEndpointSettingsState.KafkaSource.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.KafkaSource.IsNull() && yandexDatatransferEndpointSettingsState.KafkaSource.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.KafkaSource.IsNull() && yandexDatatransferEndpointSettingsState.KafkaSource.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.KafkaSource.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.kafka_source")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.KafkaSource.IsUnknown() {
 			var yandexDatatransferEndpointSettingsKafkaSourceListState, yandexDatatransferEndpointSettingsKafkaSourceListPlan []yandexDatatransferEndpointSettingsKafkaSourceModel = make([]yandexDatatransferEndpointSettingsKafkaSourceModel, 0, len(yandexDatatransferEndpointSettingsState.KafkaSource.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceModel, 0, len(yandexDatatransferEndpointSettingsPlan.KafkaSource.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.KafkaSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.KafkaSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceListState, false)...)
@@ -1044,9 +1065,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsKafkaSourcePlan.Auth.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceState.Auth.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsKafkaSourcePlan.Auth.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceState.Auth.IsNull()) {
+				!(yandexDatatransferEndpointSettingsKafkaSourcePlan.Auth.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceState.Auth.IsNull()) &&
+				!yandexDatatransferEndpointSettingsKafkaSourcePlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.kafka_source.auth")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsKafkaSourcePlan.Auth.IsUnknown() {
 				var yandexDatatransferEndpointSettingsKafkaSourceAuthListState, yandexDatatransferEndpointSettingsKafkaSourceAuthListPlan []yandexDatatransferEndpointSettingsKafkaSourceAuthModel = make([]yandexDatatransferEndpointSettingsKafkaSourceAuthModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceState.Auth.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceAuthModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourcePlan.Auth.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourcePlan.Auth.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceAuthListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceState.Auth.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceAuthListState, false)...)
@@ -1069,9 +1091,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaSourceAuthPlan.Sasl.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceAuthState.Sasl.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaSourceAuthPlan.Sasl.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceAuthState.Sasl.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaSourceAuthPlan.Sasl.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceAuthState.Sasl.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaSourceAuthPlan.Sasl.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_source.auth.sasl")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaSourceAuthPlan.Sasl.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaSourceAuthSaslListState, yandexDatatransferEndpointSettingsKafkaSourceAuthSaslListPlan []yandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel = make([]yandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceAuthState.Sasl.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceAuthSaslModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceAuthPlan.Sasl.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceAuthPlan.Sasl.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceAuthSaslListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceAuthState.Sasl.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceAuthSaslListState, false)...)
@@ -1086,7 +1109,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan = yandexDatatransferEndpointSettingsKafkaSourceAuthSaslListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Mechanism.Equal(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslState.Mechanism) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Mechanism.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Mechanism.Equal(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslState.Mechanism) {
 						updatePaths = append(updatePaths, "settings.kafka_source.auth.sasl.mechanism")
 					}
 
@@ -1098,9 +1121,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Password.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceAuthSaslState.Password.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Password.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceAuthSaslState.Password.IsNull()) {
+						!(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Password.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceAuthSaslState.Password.IsNull()) &&
+						!yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.kafka_source.auth.sasl.password")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Password.IsUnknown() {
 						var yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordListState, yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordListPlan []yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordModel = make([]yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslState.Password.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Password.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordListState, false)...)
@@ -1115,11 +1139,11 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordPlan = yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordState.Raw) {
+						if !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPasswordState.Raw) {
 							updatePaths = append(updatePaths, "settings.kafka_source.auth.sasl.password.raw")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.User.Equal(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslState.User) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceAuthSaslPlan.User.Equal(yandexDatatransferEndpointSettingsKafkaSourceAuthSaslState.User) {
 						updatePaths = append(updatePaths, "settings.kafka_source.auth.sasl.user")
 					}
 				}
@@ -1133,9 +1157,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsKafkaSourcePlan.Connection.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsKafkaSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsKafkaSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsKafkaSourcePlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.kafka_source.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsKafkaSourcePlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsKafkaSourceConnectionListState, yandexDatatransferEndpointSettingsKafkaSourceConnectionListPlan []yandexDatatransferEndpointSettingsKafkaSourceConnectionModel = make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourcePlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourcePlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionListState, false)...)
@@ -1150,7 +1175,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan = yandexDatatransferEndpointSettingsKafkaSourceConnectionListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ClusterId.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionState.ClusterId) {
+				if !yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ClusterId.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionState.ClusterId) {
 					updatePaths = append(updatePaths, "settings.kafka_source.connection.cluster_id")
 				}
 
@@ -1162,9 +1187,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceConnectionState.ConnectionManagerConnection.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceConnectionState.ConnectionManagerConnection.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceConnectionState.ConnectionManagerConnection.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_source.connection.connection_manager_connection")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceConnectionState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ConnectionManagerConnection.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceConnectionState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionListState, false)...)
@@ -1179,10 +1205,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionState.ConnectionId) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionState.ConnectionId) {
 						updatePaths = append(updatePaths, "settings.kafka_source.connection.connection_manager_connection.connection_id")
 					}
-					if !yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionConnectionManagerConnectionState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.kafka_source.connection.connection_manager_connection.subnet_id")
 					}
 				}
@@ -1195,9 +1221,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceConnectionState.OnPremise.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceConnectionState.OnPremise.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.OnPremise.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_source.connection.on_premise")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.OnPremise.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseListState, yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.OnPremise.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseListState, false)...)
@@ -1218,10 +1245,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					if yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.BrokerUrls.IsNull() {
 						yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.BrokerUrls = types.ListNull(types.StringType)
 					}
-					if !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.BrokerUrls.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.BrokerUrls) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.BrokerUrls.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.BrokerUrls.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.BrokerUrls) {
 						updatePaths = append(updatePaths, "settings.kafka_source.connection.on_premise.broker_urls")
 					}
-					if !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.kafka_source.connection.on_premise.subnet_id")
 					}
 
@@ -1233,9 +1260,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.TlsMode.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.TlsMode.IsNull()) {
+						!(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.kafka_source.connection.on_premise.tls_mode")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						var yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.TlsMode.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeListState, false)...)
@@ -1258,9 +1286,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeState.Enabled.IsNull()) {
+							!(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.kafka_source.connection.on_premise.tls_mode.enabled")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							var yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModePlan.Enabled.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledListState, false)...)
@@ -1275,7 +1304,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 								yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledListPlan[0]
 							}
 
-							if !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+							if !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
 								updatePaths = append(updatePaths, "settings.kafka_source.connection.on_premise.tls_mode.enabled.ca_certificate")
 							}
 						}
@@ -1291,9 +1320,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsKafkaSourcePlan.Parser.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceState.Parser.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsKafkaSourcePlan.Parser.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceState.Parser.IsNull()) {
+				!(yandexDatatransferEndpointSettingsKafkaSourcePlan.Parser.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceState.Parser.IsNull()) &&
+				!yandexDatatransferEndpointSettingsKafkaSourcePlan.Parser.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.kafka_source.parser")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsKafkaSourcePlan.Parser.IsUnknown() {
 				var yandexDatatransferEndpointSettingsKafkaSourceParserListState, yandexDatatransferEndpointSettingsKafkaSourceParserListPlan []yandexDatatransferEndpointSettingsKafkaSourceParserModel = make([]yandexDatatransferEndpointSettingsKafkaSourceParserModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceState.Parser.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceParserModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourcePlan.Parser.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourcePlan.Parser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceState.Parser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserListState, false)...)
@@ -1316,9 +1346,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaSourceParserPlan.JsonParser.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserState.JsonParser.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaSourceParserPlan.JsonParser.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserState.JsonParser.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaSourceParserPlan.JsonParser.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserState.JsonParser.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaSourceParserPlan.JsonParser.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_source.parser.json_parser")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaSourceParserPlan.JsonParser.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserListState, yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserListPlan []yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel = make([]yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserState.JsonParser.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserPlan.JsonParser.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserPlan.JsonParser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserState.JsonParser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserListState, false)...)
@@ -1333,7 +1364,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan = yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.AddRestColumn.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.AddRestColumn) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.AddRestColumn.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.AddRestColumn.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.AddRestColumn) {
 						updatePaths = append(updatePaths, "settings.kafka_source.parser.json_parser.add_rest_column")
 					}
 
@@ -1345,9 +1376,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.DataSchema.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.DataSchema.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.DataSchema.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.DataSchema.IsNull()) {
+						!(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.DataSchema.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.DataSchema.IsNull()) &&
+						!yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.DataSchema.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.kafka_source.parser.json_parser.data_schema")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.DataSchema.IsUnknown() {
 						var yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaListState, yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaListPlan []yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaModel = make([]yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.DataSchema.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.DataSchema.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.DataSchema.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.DataSchema.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaListState, false)...)
@@ -1370,9 +1402,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.Fields.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaState.Fields.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.Fields.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaState.Fields.IsNull()) {
+							!(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.Fields.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaState.Fields.IsNull()) &&
+							!yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.Fields.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.kafka_source.parser.json_parser.data_schema.fields")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.Fields.IsUnknown() {
 							var yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsListState, yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsListPlan []yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsModel = make([]yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaState.Fields.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.Fields.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.Fields.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaState.Fields.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsListState, false)...)
@@ -1393,18 +1426,18 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							if yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsState.Fields.IsNull() {
 								yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsState.Fields = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsColSchemaStructModelType)
 							}
-							if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsPlan.Fields.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsState.Fields) {
+							if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsPlan.Fields.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsPlan.Fields.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsState.Fields) {
 								updatePaths = append(updatePaths, "settings.kafka_source.parser.json_parser.data_schema.fields.fields")
 							}
 						}
-						if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.JsonFields.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaState.JsonFields) {
+						if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.JsonFields.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaPlan.JsonFields.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaState.JsonFields) {
 							updatePaths = append(updatePaths, "settings.kafka_source.parser.json_parser.data_schema.json_fields")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.NullKeysAllowed.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.NullKeysAllowed) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.NullKeysAllowed.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.NullKeysAllowed.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.NullKeysAllowed) {
 						updatePaths = append(updatePaths, "settings.kafka_source.parser.json_parser.null_keys_allowed")
 					}
-					if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.UnescapeStringValues.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.UnescapeStringValues) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.UnescapeStringValues.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserPlan.UnescapeStringValues.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserState.UnescapeStringValues) {
 						updatePaths = append(updatePaths, "settings.kafka_source.parser.json_parser.unescape_string_values")
 					}
 				}
@@ -1417,9 +1450,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaSourceParserPlan.TskvParser.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserState.TskvParser.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaSourceParserPlan.TskvParser.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserState.TskvParser.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaSourceParserPlan.TskvParser.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserState.TskvParser.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaSourceParserPlan.TskvParser.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_source.parser.tskv_parser")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaSourceParserPlan.TskvParser.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserListState, yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserListPlan []yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel = make([]yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserState.TskvParser.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserPlan.TskvParser.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserPlan.TskvParser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserState.TskvParser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserListState, false)...)
@@ -1434,7 +1468,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan = yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.AddRestColumn.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.AddRestColumn) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.AddRestColumn.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.AddRestColumn.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.AddRestColumn) {
 						updatePaths = append(updatePaths, "settings.kafka_source.parser.tskv_parser.add_rest_column")
 					}
 
@@ -1446,9 +1480,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.DataSchema.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.DataSchema.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.DataSchema.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.DataSchema.IsNull()) {
+						!(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.DataSchema.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.DataSchema.IsNull()) &&
+						!yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.DataSchema.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.kafka_source.parser.tskv_parser.data_schema")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.DataSchema.IsUnknown() {
 						var yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaListState, yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaListPlan []yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaModel = make([]yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.DataSchema.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.DataSchema.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.DataSchema.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.DataSchema.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaListState, false)...)
@@ -1471,9 +1506,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.Fields.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaState.Fields.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.Fields.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaState.Fields.IsNull()) {
+							!(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.Fields.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaState.Fields.IsNull()) &&
+							!yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.Fields.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.kafka_source.parser.tskv_parser.data_schema.fields")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.Fields.IsUnknown() {
 							var yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsListState, yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsListPlan []yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsModel = make([]yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaState.Fields.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.Fields.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.Fields.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaState.Fields.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsListState, false)...)
@@ -1494,18 +1530,18 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							if yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsState.Fields.IsNull() {
 								yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsState.Fields = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsColSchemaStructModelType)
 							}
-							if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsPlan.Fields.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsState.Fields) {
+							if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsPlan.Fields.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsPlan.Fields.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsState.Fields) {
 								updatePaths = append(updatePaths, "settings.kafka_source.parser.tskv_parser.data_schema.fields.fields")
 							}
 						}
-						if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.JsonFields.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaState.JsonFields) {
+						if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.JsonFields.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaPlan.JsonFields.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaState.JsonFields) {
 							updatePaths = append(updatePaths, "settings.kafka_source.parser.tskv_parser.data_schema.json_fields")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.NullKeysAllowed.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.NullKeysAllowed) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.NullKeysAllowed.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.NullKeysAllowed.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.NullKeysAllowed) {
 						updatePaths = append(updatePaths, "settings.kafka_source.parser.tskv_parser.null_keys_allowed")
 					}
-					if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.UnescapeStringValues.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.UnescapeStringValues) {
+					if !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.UnescapeStringValues.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserPlan.UnescapeStringValues.Equal(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserState.UnescapeStringValues) {
 						updatePaths = append(updatePaths, "settings.kafka_source.parser.tskv_parser.unescape_string_values")
 					}
 				}
@@ -1516,10 +1552,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsKafkaSourceState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsKafkaSourceState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsKafkaSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsKafkaSourceState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsKafkaSourcePlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsKafkaSourceState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.kafka_source.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsKafkaSourcePlan.TopicName.Equal(yandexDatatransferEndpointSettingsKafkaSourceState.TopicName) {
+			if !yandexDatatransferEndpointSettingsKafkaSourcePlan.TopicName.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourcePlan.TopicName.Equal(yandexDatatransferEndpointSettingsKafkaSourceState.TopicName) {
 				updatePaths = append(updatePaths, "settings.kafka_source.topic_name")
 			}
 			if yandexDatatransferEndpointSettingsKafkaSourcePlan.TopicNames.IsNull() {
@@ -1528,7 +1564,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsKafkaSourceState.TopicNames.IsNull() {
 				yandexDatatransferEndpointSettingsKafkaSourceState.TopicNames = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsKafkaSourcePlan.TopicNames.Equal(yandexDatatransferEndpointSettingsKafkaSourceState.TopicNames) {
+			if !yandexDatatransferEndpointSettingsKafkaSourcePlan.TopicNames.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourcePlan.TopicNames.Equal(yandexDatatransferEndpointSettingsKafkaSourceState.TopicNames) {
 				updatePaths = append(updatePaths, "settings.kafka_source.topic_names")
 			}
 
@@ -1540,9 +1576,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsKafkaSourcePlan.Transformer.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceState.Transformer.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsKafkaSourcePlan.Transformer.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceState.Transformer.IsNull()) {
+				!(yandexDatatransferEndpointSettingsKafkaSourcePlan.Transformer.IsNull() && yandexDatatransferEndpointSettingsKafkaSourceState.Transformer.IsNull()) &&
+				!yandexDatatransferEndpointSettingsKafkaSourcePlan.Transformer.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.kafka_source.transformer")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsKafkaSourcePlan.Transformer.IsUnknown() {
 				var yandexDatatransferEndpointSettingsKafkaSourceTransformerListState, yandexDatatransferEndpointSettingsKafkaSourceTransformerListPlan []yandexDatatransferEndpointSettingsKafkaSourceTransformerModel = make([]yandexDatatransferEndpointSettingsKafkaSourceTransformerModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceState.Transformer.Elements())), make([]yandexDatatransferEndpointSettingsKafkaSourceTransformerModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourcePlan.Transformer.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourcePlan.Transformer.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceTransformerListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaSourceState.Transformer.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceTransformerListState, false)...)
@@ -1557,22 +1594,22 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan = yandexDatatransferEndpointSettingsKafkaSourceTransformerListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.BufferFlushInterval.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.BufferFlushInterval) {
+				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.BufferFlushInterval.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.BufferFlushInterval.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.BufferFlushInterval) {
 					updatePaths = append(updatePaths, "settings.kafka_source.transformer.buffer_flush_interval")
 				}
-				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.BufferSize.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.BufferSize) {
+				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.BufferSize.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.BufferSize.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.BufferSize) {
 					updatePaths = append(updatePaths, "settings.kafka_source.transformer.buffer_size")
 				}
-				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.CloudFunction.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.CloudFunction) {
+				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.CloudFunction.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.CloudFunction.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.CloudFunction) {
 					updatePaths = append(updatePaths, "settings.kafka_source.transformer.cloud_function")
 				}
-				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.InvocationTimeout.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.InvocationTimeout) {
+				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.InvocationTimeout.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.InvocationTimeout.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.InvocationTimeout) {
 					updatePaths = append(updatePaths, "settings.kafka_source.transformer.invocation_timeout")
 				}
-				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.NumberOfRetries.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.NumberOfRetries) {
+				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.NumberOfRetries.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.NumberOfRetries.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.NumberOfRetries) {
 					updatePaths = append(updatePaths, "settings.kafka_source.transformer.number_of_retries")
 				}
-				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.ServiceAccountId) {
+				if !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.ServiceAccountId.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaSourceTransformerPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsKafkaSourceTransformerState.ServiceAccountId) {
 					updatePaths = append(updatePaths, "settings.kafka_source.transformer.service_account_id")
 				}
 			}
@@ -1586,9 +1623,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.KafkaTarget.IsNull() || yandexDatatransferEndpointSettingsState.KafkaTarget.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.KafkaTarget.IsNull() && yandexDatatransferEndpointSettingsState.KafkaTarget.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.KafkaTarget.IsNull() && yandexDatatransferEndpointSettingsState.KafkaTarget.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.KafkaTarget.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.kafka_target")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.KafkaTarget.IsUnknown() {
 			var yandexDatatransferEndpointSettingsKafkaTargetListState, yandexDatatransferEndpointSettingsKafkaTargetListPlan []yandexDatatransferEndpointSettingsKafkaTargetModel = make([]yandexDatatransferEndpointSettingsKafkaTargetModel, 0, len(yandexDatatransferEndpointSettingsState.KafkaTarget.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetModel, 0, len(yandexDatatransferEndpointSettingsPlan.KafkaTarget.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.KafkaTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.KafkaTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetListState, false)...)
@@ -1611,9 +1649,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsKafkaTargetPlan.Auth.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetState.Auth.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsKafkaTargetPlan.Auth.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetState.Auth.IsNull()) {
+				!(yandexDatatransferEndpointSettingsKafkaTargetPlan.Auth.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetState.Auth.IsNull()) &&
+				!yandexDatatransferEndpointSettingsKafkaTargetPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.kafka_target.auth")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsKafkaTargetPlan.Auth.IsUnknown() {
 				var yandexDatatransferEndpointSettingsKafkaTargetAuthListState, yandexDatatransferEndpointSettingsKafkaTargetAuthListPlan []yandexDatatransferEndpointSettingsKafkaTargetAuthModel = make([]yandexDatatransferEndpointSettingsKafkaTargetAuthModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetState.Auth.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetAuthModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetPlan.Auth.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetPlan.Auth.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetAuthListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetState.Auth.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetAuthListState, false)...)
@@ -1636,9 +1675,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaTargetAuthPlan.Sasl.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetAuthState.Sasl.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaTargetAuthPlan.Sasl.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetAuthState.Sasl.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaTargetAuthPlan.Sasl.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetAuthState.Sasl.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaTargetAuthPlan.Sasl.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_target.auth.sasl")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaTargetAuthPlan.Sasl.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaTargetAuthSaslListState, yandexDatatransferEndpointSettingsKafkaTargetAuthSaslListPlan []yandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel = make([]yandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetAuthState.Sasl.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetAuthSaslModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetAuthPlan.Sasl.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetAuthPlan.Sasl.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetAuthSaslListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetAuthState.Sasl.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetAuthSaslListState, false)...)
@@ -1653,7 +1693,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan = yandexDatatransferEndpointSettingsKafkaTargetAuthSaslListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Mechanism.Equal(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslState.Mechanism) {
+					if !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Mechanism.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Mechanism.Equal(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslState.Mechanism) {
 						updatePaths = append(updatePaths, "settings.kafka_target.auth.sasl.mechanism")
 					}
 
@@ -1665,9 +1705,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Password.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetAuthSaslState.Password.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Password.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetAuthSaslState.Password.IsNull()) {
+						!(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Password.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetAuthSaslState.Password.IsNull()) &&
+						!yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.kafka_target.auth.sasl.password")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Password.IsUnknown() {
 						var yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordListState, yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordListPlan []yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordModel = make([]yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslState.Password.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Password.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordListState, false)...)
@@ -1682,11 +1723,11 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordPlan = yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordState.Raw) {
+						if !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPasswordState.Raw) {
 							updatePaths = append(updatePaths, "settings.kafka_target.auth.sasl.password.raw")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.User.Equal(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslState.User) {
+					if !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetAuthSaslPlan.User.Equal(yandexDatatransferEndpointSettingsKafkaTargetAuthSaslState.User) {
 						updatePaths = append(updatePaths, "settings.kafka_target.auth.sasl.user")
 					}
 				}
@@ -1700,9 +1741,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsKafkaTargetPlan.Connection.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsKafkaTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsKafkaTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsKafkaTargetPlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.kafka_target.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsKafkaTargetPlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsKafkaTargetConnectionListState, yandexDatatransferEndpointSettingsKafkaTargetConnectionListPlan []yandexDatatransferEndpointSettingsKafkaTargetConnectionModel = make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetPlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetPlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionListState, false)...)
@@ -1717,7 +1759,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan = yandexDatatransferEndpointSettingsKafkaTargetConnectionListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ClusterId.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionState.ClusterId) {
+				if !yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ClusterId.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionState.ClusterId) {
 					updatePaths = append(updatePaths, "settings.kafka_target.connection.cluster_id")
 				}
 
@@ -1729,9 +1771,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetConnectionState.ConnectionManagerConnection.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetConnectionState.ConnectionManagerConnection.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetConnectionState.ConnectionManagerConnection.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_target.connection.connection_manager_connection")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetConnectionState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ConnectionManagerConnection.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetConnectionState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionListState, false)...)
@@ -1746,10 +1789,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionState.ConnectionId) {
+					if !yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionState.ConnectionId) {
 						updatePaths = append(updatePaths, "settings.kafka_target.connection.connection_manager_connection.connection_id")
 					}
-					if !yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionConnectionManagerConnectionState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.kafka_target.connection.connection_manager_connection.subnet_id")
 					}
 				}
@@ -1762,9 +1805,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetConnectionState.OnPremise.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetConnectionState.OnPremise.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.OnPremise.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_target.connection.on_premise")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.OnPremise.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseListState, yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.OnPremise.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseListState, false)...)
@@ -1785,10 +1829,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					if yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.BrokerUrls.IsNull() {
 						yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.BrokerUrls = types.ListNull(types.StringType)
 					}
-					if !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.BrokerUrls.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.BrokerUrls) {
+					if !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.BrokerUrls.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.BrokerUrls.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.BrokerUrls) {
 						updatePaths = append(updatePaths, "settings.kafka_target.connection.on_premise.broker_urls")
 					}
-					if !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.kafka_target.connection.on_premise.subnet_id")
 					}
 
@@ -1800,9 +1844,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.TlsMode.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.TlsMode.IsNull()) {
+						!(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.kafka_target.connection.on_premise.tls_mode")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						var yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.TlsMode.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeListState, false)...)
@@ -1825,9 +1870,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeState.Enabled.IsNull()) {
+							!(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.kafka_target.connection.on_premise.tls_mode.enabled")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							var yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModePlan.Enabled.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledListState, false)...)
@@ -1842,7 +1888,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 								yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledListPlan[0]
 							}
 
-							if !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+							if !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
 								updatePaths = append(updatePaths, "settings.kafka_target.connection.on_premise.tls_mode.enabled.ca_certificate")
 							}
 						}
@@ -1855,7 +1901,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsKafkaTargetState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsKafkaTargetState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsKafkaTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsKafkaTargetState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsKafkaTargetPlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsKafkaTargetState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.kafka_target.security_groups")
 			}
 
@@ -1867,9 +1913,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsKafkaTargetPlan.Serializer.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetState.Serializer.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsKafkaTargetPlan.Serializer.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetState.Serializer.IsNull()) {
+				!(yandexDatatransferEndpointSettingsKafkaTargetPlan.Serializer.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetState.Serializer.IsNull()) &&
+				!yandexDatatransferEndpointSettingsKafkaTargetPlan.Serializer.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.kafka_target.serializer")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsKafkaTargetPlan.Serializer.IsUnknown() {
 				var yandexDatatransferEndpointSettingsKafkaTargetSerializerListState, yandexDatatransferEndpointSettingsKafkaTargetSerializerListPlan []yandexDatatransferEndpointSettingsKafkaTargetSerializerModel = make([]yandexDatatransferEndpointSettingsKafkaTargetSerializerModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetState.Serializer.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetSerializerModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetPlan.Serializer.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetPlan.Serializer.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetSerializerListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetState.Serializer.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetSerializerListState, false)...)
@@ -1892,9 +1939,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaTargetSerializerPlan.SerializerDebezium.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetSerializerState.SerializerDebezium.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaTargetSerializerPlan.SerializerDebezium.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetSerializerState.SerializerDebezium.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaTargetSerializerPlan.SerializerDebezium.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetSerializerState.SerializerDebezium.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaTargetSerializerPlan.SerializerDebezium.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_target.serializer.serializer_debezium")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaTargetSerializerPlan.SerializerDebezium.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumListState, yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumListPlan []yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumModel = make([]yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetSerializerState.SerializerDebezium.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetSerializerPlan.SerializerDebezium.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetSerializerPlan.SerializerDebezium.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetSerializerState.SerializerDebezium.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumListState, false)...)
@@ -1915,7 +1963,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					if yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumState.SerializerParameters.IsNull() {
 						yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumState.SerializerParameters = types.ListNull(yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModelType)
 					}
-					if !yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumPlan.SerializerParameters.Equal(yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumState.SerializerParameters) {
+					if !yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumPlan.SerializerParameters.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumPlan.SerializerParameters.Equal(yandexDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumState.SerializerParameters) {
 						updatePaths = append(updatePaths, "settings.kafka_target.serializer.serializer_debezium.serializer_parameters")
 					}
 				}
@@ -1929,9 +1977,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsKafkaTargetPlan.TopicSettings.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetState.TopicSettings.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsKafkaTargetPlan.TopicSettings.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetState.TopicSettings.IsNull()) {
+				!(yandexDatatransferEndpointSettingsKafkaTargetPlan.TopicSettings.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetState.TopicSettings.IsNull()) &&
+				!yandexDatatransferEndpointSettingsKafkaTargetPlan.TopicSettings.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.kafka_target.topic_settings")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsKafkaTargetPlan.TopicSettings.IsUnknown() {
 				var yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsListState, yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsListPlan []yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsModel = make([]yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetState.TopicSettings.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetPlan.TopicSettings.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetPlan.TopicSettings.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetState.TopicSettings.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsListState, false)...)
@@ -1954,9 +2003,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.Topic.IsNull() || yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsState.Topic.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.Topic.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsState.Topic.IsNull()) {
+					!(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.Topic.IsNull() && yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsState.Topic.IsNull()) &&
+					!yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.Topic.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.kafka_target.topic_settings.topic")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.Topic.IsUnknown() {
 					var yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicListState, yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicListPlan []yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModel = make([]yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsState.Topic.Elements())), make([]yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicModel, 0, len(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.Topic.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.Topic.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsState.Topic.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicListState, false)...)
@@ -1971,14 +2021,14 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicPlan = yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicPlan.SaveTxOrder.Equal(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicState.SaveTxOrder) {
+					if !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicPlan.SaveTxOrder.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicPlan.SaveTxOrder.Equal(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicState.SaveTxOrder) {
 						updatePaths = append(updatePaths, "settings.kafka_target.topic_settings.topic.save_tx_order")
 					}
-					if !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicPlan.TopicName.Equal(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicState.TopicName) {
+					if !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicPlan.TopicName.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicPlan.TopicName.Equal(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsTopicState.TopicName) {
 						updatePaths = append(updatePaths, "settings.kafka_target.topic_settings.topic.topic_name")
 					}
 				}
-				if !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.TopicPrefix.Equal(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsState.TopicPrefix) {
+				if !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.TopicPrefix.IsUnknown() && !yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsPlan.TopicPrefix.Equal(yandexDatatransferEndpointSettingsKafkaTargetTopicSettingsState.TopicPrefix) {
 					updatePaths = append(updatePaths, "settings.kafka_target.topic_settings.topic_prefix")
 				}
 			}
@@ -1992,9 +2042,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.MetrikaSource.IsNull() || yandexDatatransferEndpointSettingsState.MetrikaSource.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.MetrikaSource.IsNull() && yandexDatatransferEndpointSettingsState.MetrikaSource.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.MetrikaSource.IsNull() && yandexDatatransferEndpointSettingsState.MetrikaSource.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.MetrikaSource.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.metrika_source")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.MetrikaSource.IsUnknown() {
 			var yandexDatatransferEndpointSettingsMetrikaSourceListState, yandexDatatransferEndpointSettingsMetrikaSourceListPlan []yandexDatatransferEndpointSettingsMetrikaSourceModel = make([]yandexDatatransferEndpointSettingsMetrikaSourceModel, 0, len(yandexDatatransferEndpointSettingsState.MetrikaSource.Elements())), make([]yandexDatatransferEndpointSettingsMetrikaSourceModel, 0, len(yandexDatatransferEndpointSettingsPlan.MetrikaSource.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.MetrikaSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMetrikaSourceListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.MetrikaSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMetrikaSourceListState, false)...)
@@ -2015,7 +2066,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMetrikaSourceState.CounterIds.IsNull() {
 				yandexDatatransferEndpointSettingsMetrikaSourceState.CounterIds = types.ListNull(types.Int64Type)
 			}
-			if !yandexDatatransferEndpointSettingsMetrikaSourcePlan.CounterIds.Equal(yandexDatatransferEndpointSettingsMetrikaSourceState.CounterIds) {
+			if !yandexDatatransferEndpointSettingsMetrikaSourcePlan.CounterIds.IsUnknown() && !yandexDatatransferEndpointSettingsMetrikaSourcePlan.CounterIds.Equal(yandexDatatransferEndpointSettingsMetrikaSourceState.CounterIds) {
 				updatePaths = append(updatePaths, "settings.metrika_source.counter_ids")
 			}
 			if yandexDatatransferEndpointSettingsMetrikaSourcePlan.Streams.IsNull() {
@@ -2024,7 +2075,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMetrikaSourceState.Streams.IsNull() {
 				yandexDatatransferEndpointSettingsMetrikaSourceState.Streams = types.ListNull(yandexDatatransferEndpointSettingsMetrikaSourceMetrikaStreamStructModelType)
 			}
-			if !yandexDatatransferEndpointSettingsMetrikaSourcePlan.Streams.Equal(yandexDatatransferEndpointSettingsMetrikaSourceState.Streams) {
+			if !yandexDatatransferEndpointSettingsMetrikaSourcePlan.Streams.IsUnknown() && !yandexDatatransferEndpointSettingsMetrikaSourcePlan.Streams.Equal(yandexDatatransferEndpointSettingsMetrikaSourceState.Streams) {
 				updatePaths = append(updatePaths, "settings.metrika_source.streams")
 			}
 
@@ -2036,9 +2087,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsMetrikaSourcePlan.Token.IsNull() || yandexDatatransferEndpointSettingsMetrikaSourceState.Token.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsMetrikaSourcePlan.Token.IsNull() && yandexDatatransferEndpointSettingsMetrikaSourceState.Token.IsNull()) {
+				!(yandexDatatransferEndpointSettingsMetrikaSourcePlan.Token.IsNull() && yandexDatatransferEndpointSettingsMetrikaSourceState.Token.IsNull()) &&
+				!yandexDatatransferEndpointSettingsMetrikaSourcePlan.Token.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.metrika_source.token")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsMetrikaSourcePlan.Token.IsUnknown() {
 				var yandexDatatransferEndpointSettingsMetrikaSourceTokenListState, yandexDatatransferEndpointSettingsMetrikaSourceTokenListPlan []yandexDatatransferEndpointSettingsMetrikaSourceTokenModel = make([]yandexDatatransferEndpointSettingsMetrikaSourceTokenModel, 0, len(yandexDatatransferEndpointSettingsMetrikaSourceState.Token.Elements())), make([]yandexDatatransferEndpointSettingsMetrikaSourceTokenModel, 0, len(yandexDatatransferEndpointSettingsMetrikaSourcePlan.Token.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMetrikaSourcePlan.Token.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMetrikaSourceTokenListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMetrikaSourceState.Token.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMetrikaSourceTokenListState, false)...)
@@ -2053,7 +2105,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsMetrikaSourceTokenPlan = yandexDatatransferEndpointSettingsMetrikaSourceTokenListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsMetrikaSourceTokenPlan.Raw.Equal(yandexDatatransferEndpointSettingsMetrikaSourceTokenState.Raw) {
+				if !yandexDatatransferEndpointSettingsMetrikaSourceTokenPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsMetrikaSourceTokenPlan.Raw.Equal(yandexDatatransferEndpointSettingsMetrikaSourceTokenState.Raw) {
 					updatePaths = append(updatePaths, "settings.metrika_source.token.raw")
 				}
 			}
@@ -2067,9 +2119,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.MongoSource.IsNull() || yandexDatatransferEndpointSettingsState.MongoSource.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.MongoSource.IsNull() && yandexDatatransferEndpointSettingsState.MongoSource.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.MongoSource.IsNull() && yandexDatatransferEndpointSettingsState.MongoSource.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.MongoSource.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.mongo_source")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.MongoSource.IsUnknown() {
 			var yandexDatatransferEndpointSettingsMongoSourceListState, yandexDatatransferEndpointSettingsMongoSourceListPlan []yandexDatatransferEndpointSettingsMongoSourceModel = make([]yandexDatatransferEndpointSettingsMongoSourceModel, 0, len(yandexDatatransferEndpointSettingsState.MongoSource.Elements())), make([]yandexDatatransferEndpointSettingsMongoSourceModel, 0, len(yandexDatatransferEndpointSettingsPlan.MongoSource.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.MongoSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.MongoSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceListState, false)...)
@@ -2090,7 +2143,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMongoSourceState.Collections.IsNull() {
 				yandexDatatransferEndpointSettingsMongoSourceState.Collections = types.ListNull(yandexDatatransferEndpointSettingsMongoSourceMongoCollectionStructModelType)
 			}
-			if !yandexDatatransferEndpointSettingsMongoSourcePlan.Collections.Equal(yandexDatatransferEndpointSettingsMongoSourceState.Collections) {
+			if !yandexDatatransferEndpointSettingsMongoSourcePlan.Collections.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourcePlan.Collections.Equal(yandexDatatransferEndpointSettingsMongoSourceState.Collections) {
 				updatePaths = append(updatePaths, "settings.mongo_source.collections")
 			}
 
@@ -2102,9 +2155,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsMongoSourcePlan.Connection.IsNull() || yandexDatatransferEndpointSettingsMongoSourceState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsMongoSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsMongoSourceState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsMongoSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsMongoSourceState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsMongoSourcePlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.mongo_source.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsMongoSourcePlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsMongoSourceConnectionListState, yandexDatatransferEndpointSettingsMongoSourceConnectionListPlan []yandexDatatransferEndpointSettingsMongoSourceConnectionModel = make([]yandexDatatransferEndpointSettingsMongoSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsMongoSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsMongoSourcePlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourcePlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionListState, false)...)
@@ -2127,9 +2181,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsMongoSourceConnectionPlan.ConnectionOptions.IsNull() || yandexDatatransferEndpointSettingsMongoSourceConnectionState.ConnectionOptions.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsMongoSourceConnectionPlan.ConnectionOptions.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionState.ConnectionOptions.IsNull()) {
+					!(yandexDatatransferEndpointSettingsMongoSourceConnectionPlan.ConnectionOptions.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionState.ConnectionOptions.IsNull()) &&
+					!yandexDatatransferEndpointSettingsMongoSourceConnectionPlan.ConnectionOptions.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsMongoSourceConnectionPlan.ConnectionOptions.IsUnknown() {
 					var yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsListState, yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsListPlan []yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel = make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionState.ConnectionOptions.Elements())), make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionPlan.ConnectionOptions.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionPlan.ConnectionOptions.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionState.ConnectionOptions.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsListState, false)...)
@@ -2144,7 +2199,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan = yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.AuthSource.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.AuthSource) {
+					if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.AuthSource.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.AuthSource.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.AuthSource) {
 						updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.auth_source")
 					}
 
@@ -2156,9 +2211,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) {
+						!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) &&
+						!yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.connection_manager_connection")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsUnknown() {
 						var yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionListState, false)...)
@@ -2173,14 +2229,14 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionState.ConnectionId) {
+						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionState.ConnectionId) {
 							updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.connection_manager_connection.connection_id")
 						}
-						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.ReplicaSet.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionState.ReplicaSet) {
+						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.ReplicaSet.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionPlan.ReplicaSet.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsConnectionManagerConnectionState.ReplicaSet) {
 							updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.connection_manager_connection.replica_set")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.MdbClusterId) {
+					if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.MdbClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.MdbClusterId) {
 						updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.mdb_cluster_id")
 					}
 
@@ -2192,9 +2248,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.OnPremise.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.OnPremise.IsNull()) {
+						!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.OnPremise.IsNull()) &&
+						!yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.OnPremise.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.on_premise")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.OnPremise.IsUnknown() {
 						var yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseListState, yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseListPlan []yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel = make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.OnPremise.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseListState, false)...)
@@ -2215,13 +2272,13 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						if yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.Hosts.IsNull() {
 							yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.Hosts = types.ListNull(types.StringType)
 						}
-						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.Hosts) {
+						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.Hosts.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.Hosts) {
 							updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.on_premise.hosts")
 						}
-						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.Port) {
+						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.Port.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.Port) {
 							updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.on_premise.port")
 						}
-						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.ReplicaSet.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.ReplicaSet) {
+						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.ReplicaSet.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.ReplicaSet.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.ReplicaSet) {
 							updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.on_premise.replica_set")
 						}
 
@@ -2233,9 +2290,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) {
+							!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) &&
+							!yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.on_premise.tls_mode")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.IsUnknown() {
 							var yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeListState, false)...)
@@ -2258,9 +2316,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							}
 
 							if (yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) &&
-								!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) {
+								!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) &&
+								!yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsUnknown() {
 								updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.on_premise.tls_mode.enabled")
-							} else {
+							} else if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsUnknown() {
 								var yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.Elements()))
 								resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan, false)...)
 								resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListState, false)...)
@@ -2275,7 +2334,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 									yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan[0]
 								}
 
-								if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledState.CaCertificate) {
+								if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsOnPremiseTlsModeEnabledState.CaCertificate) {
 									updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.on_premise.tls_mode.enabled.ca_certificate")
 								}
 							}
@@ -2290,9 +2349,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.Password.IsNull() || yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.Password.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.Password.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.Password.IsNull()) {
+						!(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.Password.IsNull() && yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.Password.IsNull()) &&
+						!yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.password")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.Password.IsUnknown() {
 						var yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordListState, yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordListPlan []yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordModel = make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.Password.Elements())), make([]yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordModel, 0, len(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.Password.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordListState, false)...)
@@ -2307,11 +2367,11 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordPlan = yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordState.Raw) {
+						if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPasswordState.Raw) {
 							updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.password.raw")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.User.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.User) {
+					if !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsPlan.User.Equal(yandexDatatransferEndpointSettingsMongoSourceConnectionConnectionOptionsState.User) {
 						updatePaths = append(updatePaths, "settings.mongo_source.connection.connection_options.user")
 					}
 				}
@@ -2322,10 +2382,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMongoSourceState.ExcludedCollections.IsNull() {
 				yandexDatatransferEndpointSettingsMongoSourceState.ExcludedCollections = types.ListNull(yandexDatatransferEndpointSettingsMongoSourceMongoCollectionStructModelType)
 			}
-			if !yandexDatatransferEndpointSettingsMongoSourcePlan.ExcludedCollections.Equal(yandexDatatransferEndpointSettingsMongoSourceState.ExcludedCollections) {
+			if !yandexDatatransferEndpointSettingsMongoSourcePlan.ExcludedCollections.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourcePlan.ExcludedCollections.Equal(yandexDatatransferEndpointSettingsMongoSourceState.ExcludedCollections) {
 				updatePaths = append(updatePaths, "settings.mongo_source.excluded_collections")
 			}
-			if !yandexDatatransferEndpointSettingsMongoSourcePlan.SecondaryPreferredMode.Equal(yandexDatatransferEndpointSettingsMongoSourceState.SecondaryPreferredMode) {
+			if !yandexDatatransferEndpointSettingsMongoSourcePlan.SecondaryPreferredMode.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourcePlan.SecondaryPreferredMode.Equal(yandexDatatransferEndpointSettingsMongoSourceState.SecondaryPreferredMode) {
 				updatePaths = append(updatePaths, "settings.mongo_source.secondary_preferred_mode")
 			}
 			if yandexDatatransferEndpointSettingsMongoSourcePlan.SecurityGroups.IsNull() {
@@ -2334,10 +2394,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMongoSourceState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsMongoSourceState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsMongoSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsMongoSourceState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsMongoSourcePlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsMongoSourceState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.mongo_source.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsMongoSourcePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMongoSourceState.SubnetId) {
+			if !yandexDatatransferEndpointSettingsMongoSourcePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsMongoSourcePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMongoSourceState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.mongo_source.subnet_id")
 			}
 		}
@@ -2350,9 +2410,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.MongoTarget.IsNull() || yandexDatatransferEndpointSettingsState.MongoTarget.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.MongoTarget.IsNull() && yandexDatatransferEndpointSettingsState.MongoTarget.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.MongoTarget.IsNull() && yandexDatatransferEndpointSettingsState.MongoTarget.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.MongoTarget.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.mongo_target")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.MongoTarget.IsUnknown() {
 			var yandexDatatransferEndpointSettingsMongoTargetListState, yandexDatatransferEndpointSettingsMongoTargetListPlan []yandexDatatransferEndpointSettingsMongoTargetModel = make([]yandexDatatransferEndpointSettingsMongoTargetModel, 0, len(yandexDatatransferEndpointSettingsState.MongoTarget.Elements())), make([]yandexDatatransferEndpointSettingsMongoTargetModel, 0, len(yandexDatatransferEndpointSettingsPlan.MongoTarget.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.MongoTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.MongoTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetListState, false)...)
@@ -2367,7 +2428,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsMongoTargetPlan = yandexDatatransferEndpointSettingsMongoTargetListPlan[0]
 			}
 
-			if !yandexDatatransferEndpointSettingsMongoTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsMongoTargetState.CleanupPolicy) {
+			if !yandexDatatransferEndpointSettingsMongoTargetPlan.CleanupPolicy.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsMongoTargetState.CleanupPolicy) {
 				updatePaths = append(updatePaths, "settings.mongo_target.cleanup_policy")
 			}
 
@@ -2379,9 +2440,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsMongoTargetPlan.Connection.IsNull() || yandexDatatransferEndpointSettingsMongoTargetState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsMongoTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsMongoTargetState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsMongoTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsMongoTargetState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsMongoTargetPlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.mongo_target.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsMongoTargetPlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsMongoTargetConnectionListState, yandexDatatransferEndpointSettingsMongoTargetConnectionListPlan []yandexDatatransferEndpointSettingsMongoTargetConnectionModel = make([]yandexDatatransferEndpointSettingsMongoTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsMongoTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetPlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetPlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionListState, false)...)
@@ -2404,9 +2466,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsMongoTargetConnectionPlan.ConnectionOptions.IsNull() || yandexDatatransferEndpointSettingsMongoTargetConnectionState.ConnectionOptions.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsMongoTargetConnectionPlan.ConnectionOptions.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionState.ConnectionOptions.IsNull()) {
+					!(yandexDatatransferEndpointSettingsMongoTargetConnectionPlan.ConnectionOptions.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionState.ConnectionOptions.IsNull()) &&
+					!yandexDatatransferEndpointSettingsMongoTargetConnectionPlan.ConnectionOptions.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsMongoTargetConnectionPlan.ConnectionOptions.IsUnknown() {
 					var yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsListState, yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsListPlan []yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel = make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionState.ConnectionOptions.Elements())), make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionPlan.ConnectionOptions.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionPlan.ConnectionOptions.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionState.ConnectionOptions.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsListState, false)...)
@@ -2421,7 +2484,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan = yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.AuthSource.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.AuthSource) {
+					if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.AuthSource.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.AuthSource.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.AuthSource) {
 						updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.auth_source")
 					}
 
@@ -2433,9 +2496,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) {
+						!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.ConnectionManagerConnection.IsNull()) &&
+						!yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.connection_manager_connection")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.IsUnknown() {
 						var yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionListState, false)...)
@@ -2450,14 +2514,14 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionState.ConnectionId) {
+						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionState.ConnectionId) {
 							updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.connection_manager_connection.connection_id")
 						}
-						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.ReplicaSet.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionState.ReplicaSet) {
+						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.ReplicaSet.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionPlan.ReplicaSet.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsConnectionManagerConnectionState.ReplicaSet) {
 							updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.connection_manager_connection.replica_set")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.MdbClusterId) {
+					if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.MdbClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.MdbClusterId) {
 						updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.mdb_cluster_id")
 					}
 
@@ -2469,9 +2533,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.OnPremise.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.OnPremise.IsNull()) {
+						!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.OnPremise.IsNull()) &&
+						!yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.OnPremise.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.on_premise")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.OnPremise.IsUnknown() {
 						var yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseListState, yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseListPlan []yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel = make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.OnPremise.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseListState, false)...)
@@ -2492,13 +2557,13 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						if yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.Hosts.IsNull() {
 							yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.Hosts = types.ListNull(types.StringType)
 						}
-						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.Hosts) {
+						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.Hosts.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.Hosts) {
 							updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.on_premise.hosts")
 						}
-						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.Port) {
+						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.Port.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.Port) {
 							updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.on_premise.port")
 						}
-						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.ReplicaSet.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.ReplicaSet) {
+						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.ReplicaSet.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.ReplicaSet.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.ReplicaSet) {
 							updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.on_premise.replica_set")
 						}
 
@@ -2510,9 +2575,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) {
+							!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.TlsMode.IsNull()) &&
+							!yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.on_premise.tls_mode")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.IsUnknown() {
 							var yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeListState, false)...)
@@ -2535,9 +2601,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							}
 
 							if (yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) &&
-								!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) {
+								!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.IsNull()) &&
+								!yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsUnknown() {
 								updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.on_premise.tls_mode.enabled")
-							} else {
+							} else if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.IsUnknown() {
 								var yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.Elements()))
 								resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan, false)...)
 								resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListState, false)...)
@@ -2552,7 +2619,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 									yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledListPlan[0]
 								}
 
-								if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledState.CaCertificate) {
+								if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsOnPremiseTlsModeEnabledState.CaCertificate) {
 									updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.on_premise.tls_mode.enabled.ca_certificate")
 								}
 							}
@@ -2567,9 +2634,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.Password.IsNull() || yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.Password.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.Password.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.Password.IsNull()) {
+						!(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.Password.IsNull() && yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.Password.IsNull()) &&
+						!yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.password")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.Password.IsUnknown() {
 						var yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordListState, yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordListPlan []yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordModel = make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.Password.Elements())), make([]yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordModel, 0, len(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.Password.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordListState, false)...)
@@ -2584,16 +2652,16 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordPlan = yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordListPlan[0]
 						}
 
-						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordState.Raw) {
+						if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPasswordState.Raw) {
 							updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.password.raw")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.User.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.User) {
+					if !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsPlan.User.Equal(yandexDatatransferEndpointSettingsMongoTargetConnectionConnectionOptionsState.User) {
 						updatePaths = append(updatePaths, "settings.mongo_target.connection.connection_options.user")
 					}
 				}
 			}
-			if !yandexDatatransferEndpointSettingsMongoTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsMongoTargetState.Database) {
+			if !yandexDatatransferEndpointSettingsMongoTargetPlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsMongoTargetState.Database) {
 				updatePaths = append(updatePaths, "settings.mongo_target.database")
 			}
 			if yandexDatatransferEndpointSettingsMongoTargetPlan.SecurityGroups.IsNull() {
@@ -2602,10 +2670,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMongoTargetState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsMongoTargetState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsMongoTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsMongoTargetState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsMongoTargetPlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsMongoTargetState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.mongo_target.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsMongoTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMongoTargetState.SubnetId) {
+			if !yandexDatatransferEndpointSettingsMongoTargetPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsMongoTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMongoTargetState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.mongo_target.subnet_id")
 			}
 		}
@@ -2618,9 +2686,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.MysqlSource.IsNull() || yandexDatatransferEndpointSettingsState.MysqlSource.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.MysqlSource.IsNull() && yandexDatatransferEndpointSettingsState.MysqlSource.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.MysqlSource.IsNull() && yandexDatatransferEndpointSettingsState.MysqlSource.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.MysqlSource.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.mysql_source")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.MysqlSource.IsUnknown() {
 			var yandexDatatransferEndpointSettingsMysqlSourceListState, yandexDatatransferEndpointSettingsMysqlSourceListPlan []yandexDatatransferEndpointSettingsMysqlSourceModel = make([]yandexDatatransferEndpointSettingsMysqlSourceModel, 0, len(yandexDatatransferEndpointSettingsState.MysqlSource.Elements())), make([]yandexDatatransferEndpointSettingsMysqlSourceModel, 0, len(yandexDatatransferEndpointSettingsPlan.MysqlSource.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.MysqlSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.MysqlSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceListState, false)...)
@@ -2643,9 +2712,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsMysqlSourcePlan.Connection.IsNull() || yandexDatatransferEndpointSettingsMysqlSourceState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsMysqlSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsMysqlSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsMysqlSourcePlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.mysql_source.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsMysqlSourcePlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsMysqlSourceConnectionListState, yandexDatatransferEndpointSettingsMysqlSourceConnectionListPlan []yandexDatatransferEndpointSettingsMysqlSourceConnectionModel = make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourcePlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourcePlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionListState, false)...)
@@ -2668,9 +2738,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsMysqlSourceConnectionState.ConnectionManagerConnection.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceConnectionState.ConnectionManagerConnection.IsNull()) {
+					!(yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceConnectionState.ConnectionManagerConnection.IsNull()) &&
+					!yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.mysql_source.connection.connection_manager_connection")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					var yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceConnectionState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.ConnectionManagerConnection.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceConnectionState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionListState, false)...)
@@ -2685,14 +2756,14 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionState.ConnectionId) {
+					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionState.ConnectionId) {
 						updatePaths = append(updatePaths, "settings.mysql_source.connection.connection_manager_connection.connection_id")
 					}
-					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionConnectionManagerConnectionState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.mysql_source.connection.connection_manager_connection.subnet_id")
 					}
 				}
-				if !yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionState.MdbClusterId) {
+				if !yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.MdbClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionState.MdbClusterId) {
 					updatePaths = append(updatePaths, "settings.mysql_source.connection.mdb_cluster_id")
 				}
 
@@ -2704,9 +2775,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsMysqlSourceConnectionState.OnPremise.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceConnectionState.OnPremise.IsNull()) {
+					!(yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.OnPremise.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.mysql_source.connection.on_premise")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.OnPremise.IsUnknown() {
 					var yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseListState, yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.OnPremise.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseListState, false)...)
@@ -2727,13 +2799,13 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					if yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.Hosts.IsNull() {
 						yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.Hosts = types.ListNull(types.StringType)
 					}
-					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.Hosts) {
+					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.Hosts.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.Hosts) {
 						updatePaths = append(updatePaths, "settings.mysql_source.connection.on_premise.hosts")
 					}
-					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.Port) {
+					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.Port.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.Port) {
 						updatePaths = append(updatePaths, "settings.mysql_source.connection.on_premise.port")
 					}
-					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.mysql_source.connection.on_premise.subnet_id")
 					}
 
@@ -2745,9 +2817,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.TlsMode.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.TlsMode.IsNull()) {
+						!(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.mysql_source.connection.on_premise.tls_mode")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						var yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.TlsMode.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeListState, false)...)
@@ -2770,9 +2843,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeState.Enabled.IsNull()) {
+							!(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.mysql_source.connection.on_premise.tls_mode.enabled")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							var yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModePlan.Enabled.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledListState, false)...)
@@ -2787,14 +2861,14 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 								yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledListPlan[0]
 							}
 
-							if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+							if !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsMysqlSourceConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
 								updatePaths = append(updatePaths, "settings.mysql_source.connection.on_premise.tls_mode.enabled.ca_certificate")
 							}
 						}
 					}
 				}
 			}
-			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.Database.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.Database) {
+			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourcePlan.Database.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.Database) {
 				updatePaths = append(updatePaths, "settings.mysql_source.database")
 			}
 			if yandexDatatransferEndpointSettingsMysqlSourcePlan.ExcludeTablesRegex.IsNull() {
@@ -2803,7 +2877,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMysqlSourceState.ExcludeTablesRegex.IsNull() {
 				yandexDatatransferEndpointSettingsMysqlSourceState.ExcludeTablesRegex = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.ExcludeTablesRegex.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.ExcludeTablesRegex) {
+			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.ExcludeTablesRegex.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourcePlan.ExcludeTablesRegex.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.ExcludeTablesRegex) {
 				updatePaths = append(updatePaths, "settings.mysql_source.exclude_tables_regex")
 			}
 			if yandexDatatransferEndpointSettingsMysqlSourcePlan.IncludeTablesRegex.IsNull() {
@@ -2812,7 +2886,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMysqlSourceState.IncludeTablesRegex.IsNull() {
 				yandexDatatransferEndpointSettingsMysqlSourceState.IncludeTablesRegex = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.IncludeTablesRegex.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.IncludeTablesRegex) {
+			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.IncludeTablesRegex.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourcePlan.IncludeTablesRegex.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.IncludeTablesRegex) {
 				updatePaths = append(updatePaths, "settings.mysql_source.include_tables_regex")
 			}
 
@@ -2824,9 +2898,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsMysqlSourcePlan.ObjectTransferSettings.IsNull() || yandexDatatransferEndpointSettingsMysqlSourceState.ObjectTransferSettings.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsMysqlSourcePlan.ObjectTransferSettings.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceState.ObjectTransferSettings.IsNull()) {
+				!(yandexDatatransferEndpointSettingsMysqlSourcePlan.ObjectTransferSettings.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceState.ObjectTransferSettings.IsNull()) &&
+				!yandexDatatransferEndpointSettingsMysqlSourcePlan.ObjectTransferSettings.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.mysql_source.object_transfer_settings")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsMysqlSourcePlan.ObjectTransferSettings.IsUnknown() {
 				var yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsListState, yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsListPlan []yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel = make([]yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceState.ObjectTransferSettings.Elements())), make([]yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourcePlan.ObjectTransferSettings.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourcePlan.ObjectTransferSettings.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceState.ObjectTransferSettings.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsListState, false)...)
@@ -2841,16 +2916,16 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan = yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.Routine.Equal(yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsState.Routine) {
+				if !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.Routine.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.Routine.Equal(yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsState.Routine) {
 					updatePaths = append(updatePaths, "settings.mysql_source.object_transfer_settings.routine")
 				}
-				if !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.Tables.Equal(yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsState.Tables) {
+				if !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.Tables.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.Tables.Equal(yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsState.Tables) {
 					updatePaths = append(updatePaths, "settings.mysql_source.object_transfer_settings.tables")
 				}
-				if !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.Trigger.Equal(yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsState.Trigger) {
+				if !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.Trigger.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.Trigger.Equal(yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsState.Trigger) {
 					updatePaths = append(updatePaths, "settings.mysql_source.object_transfer_settings.trigger")
 				}
-				if !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.View.Equal(yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsState.View) {
+				if !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.View.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsPlan.View.Equal(yandexDatatransferEndpointSettingsMysqlSourceObjectTransferSettingsState.View) {
 					updatePaths = append(updatePaths, "settings.mysql_source.object_transfer_settings.view")
 				}
 			}
@@ -2863,9 +2938,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsMysqlSourcePlan.Password.IsNull() || yandexDatatransferEndpointSettingsMysqlSourceState.Password.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsMysqlSourcePlan.Password.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceState.Password.IsNull()) {
+				!(yandexDatatransferEndpointSettingsMysqlSourcePlan.Password.IsNull() && yandexDatatransferEndpointSettingsMysqlSourceState.Password.IsNull()) &&
+				!yandexDatatransferEndpointSettingsMysqlSourcePlan.Password.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.mysql_source.password")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsMysqlSourcePlan.Password.IsUnknown() {
 				var yandexDatatransferEndpointSettingsMysqlSourcePasswordListState, yandexDatatransferEndpointSettingsMysqlSourcePasswordListPlan []yandexDatatransferEndpointSettingsMysqlSourcePasswordModel = make([]yandexDatatransferEndpointSettingsMysqlSourcePasswordModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourceState.Password.Elements())), make([]yandexDatatransferEndpointSettingsMysqlSourcePasswordModel, 0, len(yandexDatatransferEndpointSettingsMysqlSourcePlan.Password.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourcePlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourcePasswordListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlSourceState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlSourcePasswordListState, false)...)
@@ -2880,7 +2956,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsMysqlSourcePasswordPlan = yandexDatatransferEndpointSettingsMysqlSourcePasswordListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsMysqlSourcePasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsMysqlSourcePasswordState.Raw) {
+				if !yandexDatatransferEndpointSettingsMysqlSourcePasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourcePasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsMysqlSourcePasswordState.Raw) {
 					updatePaths = append(updatePaths, "settings.mysql_source.password.raw")
 				}
 			}
@@ -2890,16 +2966,16 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMysqlSourceState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsMysqlSourceState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.mysql_source.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.ServiceDatabase.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.ServiceDatabase) {
+			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.ServiceDatabase.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourcePlan.ServiceDatabase.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.ServiceDatabase) {
 				updatePaths = append(updatePaths, "settings.mysql_source.service_database")
 			}
-			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.Timezone.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.Timezone) {
+			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.Timezone.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourcePlan.Timezone.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.Timezone) {
 				updatePaths = append(updatePaths, "settings.mysql_source.timezone")
 			}
-			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.User.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.User) {
+			if !yandexDatatransferEndpointSettingsMysqlSourcePlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlSourcePlan.User.Equal(yandexDatatransferEndpointSettingsMysqlSourceState.User) {
 				updatePaths = append(updatePaths, "settings.mysql_source.user")
 			}
 		}
@@ -2912,9 +2988,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.MysqlTarget.IsNull() || yandexDatatransferEndpointSettingsState.MysqlTarget.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.MysqlTarget.IsNull() && yandexDatatransferEndpointSettingsState.MysqlTarget.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.MysqlTarget.IsNull() && yandexDatatransferEndpointSettingsState.MysqlTarget.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.MysqlTarget.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.mysql_target")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.MysqlTarget.IsUnknown() {
 			var yandexDatatransferEndpointSettingsMysqlTargetListState, yandexDatatransferEndpointSettingsMysqlTargetListPlan []yandexDatatransferEndpointSettingsMysqlTargetModel = make([]yandexDatatransferEndpointSettingsMysqlTargetModel, 0, len(yandexDatatransferEndpointSettingsState.MysqlTarget.Elements())), make([]yandexDatatransferEndpointSettingsMysqlTargetModel, 0, len(yandexDatatransferEndpointSettingsPlan.MysqlTarget.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.MysqlTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.MysqlTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetListState, false)...)
@@ -2929,7 +3006,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsMysqlTargetPlan = yandexDatatransferEndpointSettingsMysqlTargetListPlan[0]
 			}
 
-			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.CleanupPolicy) {
+			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.CleanupPolicy.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.CleanupPolicy) {
 				updatePaths = append(updatePaths, "settings.mysql_target.cleanup_policy")
 			}
 
@@ -2941,9 +3018,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsMysqlTargetPlan.Connection.IsNull() || yandexDatatransferEndpointSettingsMysqlTargetState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsMysqlTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsMysqlTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsMysqlTargetPlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.mysql_target.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsMysqlTargetPlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsMysqlTargetConnectionListState, yandexDatatransferEndpointSettingsMysqlTargetConnectionListPlan []yandexDatatransferEndpointSettingsMysqlTargetConnectionModel = make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetPlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetPlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionListState, false)...)
@@ -2966,9 +3044,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsMysqlTargetConnectionState.ConnectionManagerConnection.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetConnectionState.ConnectionManagerConnection.IsNull()) {
+					!(yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetConnectionState.ConnectionManagerConnection.IsNull()) &&
+					!yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.mysql_target.connection.connection_manager_connection")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					var yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetConnectionState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.ConnectionManagerConnection.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetConnectionState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionListState, false)...)
@@ -2983,14 +3062,14 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionState.ConnectionId) {
+					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionState.ConnectionId) {
 						updatePaths = append(updatePaths, "settings.mysql_target.connection.connection_manager_connection.connection_id")
 					}
-					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionConnectionManagerConnectionState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.mysql_target.connection.connection_manager_connection.subnet_id")
 					}
 				}
-				if !yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionState.MdbClusterId) {
+				if !yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.MdbClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionState.MdbClusterId) {
 					updatePaths = append(updatePaths, "settings.mysql_target.connection.mdb_cluster_id")
 				}
 
@@ -3002,9 +3081,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsMysqlTargetConnectionState.OnPremise.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetConnectionState.OnPremise.IsNull()) {
+					!(yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.OnPremise.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.mysql_target.connection.on_premise")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.OnPremise.IsUnknown() {
 					var yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseListState, yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.OnPremise.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseListState, false)...)
@@ -3025,13 +3105,13 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					if yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.Hosts.IsNull() {
 						yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.Hosts = types.ListNull(types.StringType)
 					}
-					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.Hosts) {
+					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.Hosts.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.Hosts) {
 						updatePaths = append(updatePaths, "settings.mysql_target.connection.on_premise.hosts")
 					}
-					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.Port) {
+					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.Port.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.Port) {
 						updatePaths = append(updatePaths, "settings.mysql_target.connection.on_premise.port")
 					}
-					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.mysql_target.connection.on_premise.subnet_id")
 					}
 
@@ -3043,9 +3123,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.TlsMode.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.TlsMode.IsNull()) {
+						!(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.mysql_target.connection.on_premise.tls_mode")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						var yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.TlsMode.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeListState, false)...)
@@ -3068,9 +3149,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeState.Enabled.IsNull()) {
+							!(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.mysql_target.connection.on_premise.tls_mode.enabled")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							var yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModePlan.Enabled.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledListState, false)...)
@@ -3085,17 +3167,17 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 								yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledListPlan[0]
 							}
 
-							if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+							if !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsMysqlTargetConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
 								updatePaths = append(updatePaths, "settings.mysql_target.connection.on_premise.tls_mode.enabled.ca_certificate")
 							}
 						}
 					}
 				}
 			}
-			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.Database) {
+			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.Database) {
 				updatePaths = append(updatePaths, "settings.mysql_target.database")
 			}
-			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.IsSchemaMigrationDisabled.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.IsSchemaMigrationDisabled) {
+			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.IsSchemaMigrationDisabled.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPlan.IsSchemaMigrationDisabled.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.IsSchemaMigrationDisabled) {
 				updatePaths = append(updatePaths, "settings.mysql_target.is_schema_migration_disabled")
 			}
 
@@ -3107,9 +3189,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsMysqlTargetPlan.Password.IsNull() || yandexDatatransferEndpointSettingsMysqlTargetState.Password.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsMysqlTargetPlan.Password.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetState.Password.IsNull()) {
+				!(yandexDatatransferEndpointSettingsMysqlTargetPlan.Password.IsNull() && yandexDatatransferEndpointSettingsMysqlTargetState.Password.IsNull()) &&
+				!yandexDatatransferEndpointSettingsMysqlTargetPlan.Password.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.mysql_target.password")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsMysqlTargetPlan.Password.IsUnknown() {
 				var yandexDatatransferEndpointSettingsMysqlTargetPasswordListState, yandexDatatransferEndpointSettingsMysqlTargetPasswordListPlan []yandexDatatransferEndpointSettingsMysqlTargetPasswordModel = make([]yandexDatatransferEndpointSettingsMysqlTargetPasswordModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetState.Password.Elements())), make([]yandexDatatransferEndpointSettingsMysqlTargetPasswordModel, 0, len(yandexDatatransferEndpointSettingsMysqlTargetPlan.Password.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetPlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetPasswordListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsMysqlTargetState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsMysqlTargetPasswordListState, false)...)
@@ -3124,7 +3207,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsMysqlTargetPasswordPlan = yandexDatatransferEndpointSettingsMysqlTargetPasswordListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsMysqlTargetPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsMysqlTargetPasswordState.Raw) {
+				if !yandexDatatransferEndpointSettingsMysqlTargetPasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsMysqlTargetPasswordState.Raw) {
 					updatePaths = append(updatePaths, "settings.mysql_target.password.raw")
 				}
 			}
@@ -3134,22 +3217,22 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsMysqlTargetState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsMysqlTargetState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.mysql_target.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.ServiceDatabase.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.ServiceDatabase) {
+			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.ServiceDatabase.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPlan.ServiceDatabase.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.ServiceDatabase) {
 				updatePaths = append(updatePaths, "settings.mysql_target.service_database")
 			}
-			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.SkipConstraintChecks.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.SkipConstraintChecks) {
+			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.SkipConstraintChecks.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPlan.SkipConstraintChecks.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.SkipConstraintChecks) {
 				updatePaths = append(updatePaths, "settings.mysql_target.skip_constraint_checks")
 			}
-			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.SqlMode.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.SqlMode) {
+			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.SqlMode.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPlan.SqlMode.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.SqlMode) {
 				updatePaths = append(updatePaths, "settings.mysql_target.sql_mode")
 			}
-			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.Timezone.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.Timezone) {
+			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.Timezone.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPlan.Timezone.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.Timezone) {
 				updatePaths = append(updatePaths, "settings.mysql_target.timezone")
 			}
-			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.User.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.User) {
+			if !yandexDatatransferEndpointSettingsMysqlTargetPlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsMysqlTargetPlan.User.Equal(yandexDatatransferEndpointSettingsMysqlTargetState.User) {
 				updatePaths = append(updatePaths, "settings.mysql_target.user")
 			}
 		}
@@ -3162,9 +3245,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.PostgresSource.IsNull() || yandexDatatransferEndpointSettingsState.PostgresSource.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.PostgresSource.IsNull() && yandexDatatransferEndpointSettingsState.PostgresSource.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.PostgresSource.IsNull() && yandexDatatransferEndpointSettingsState.PostgresSource.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.PostgresSource.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.postgres_source")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.PostgresSource.IsUnknown() {
 			var yandexDatatransferEndpointSettingsPostgresSourceListState, yandexDatatransferEndpointSettingsPostgresSourceListPlan []yandexDatatransferEndpointSettingsPostgresSourceModel = make([]yandexDatatransferEndpointSettingsPostgresSourceModel, 0, len(yandexDatatransferEndpointSettingsState.PostgresSource.Elements())), make([]yandexDatatransferEndpointSettingsPostgresSourceModel, 0, len(yandexDatatransferEndpointSettingsPlan.PostgresSource.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.PostgresSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.PostgresSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceListState, false)...)
@@ -3179,6 +3263,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsPostgresSourcePlan = yandexDatatransferEndpointSettingsPostgresSourceListPlan[0]
 			}
 
+			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.CollapseInheritTable.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourcePlan.CollapseInheritTable.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.CollapseInheritTable) {
+				updatePaths = append(updatePaths, "settings.postgres_source.collapse_inherit_table")
+			}
+
 			if yandexDatatransferEndpointSettingsPostgresSourcePlan.Connection.IsNull() {
 				yandexDatatransferEndpointSettingsPostgresSourcePlan.Connection = types.ListNull(yandexDatatransferEndpointSettingsPostgresSourceConnectionModelType)
 			}
@@ -3187,9 +3275,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsPostgresSourcePlan.Connection.IsNull() || yandexDatatransferEndpointSettingsPostgresSourceState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsPostgresSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsPostgresSourcePlan.Connection.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsPostgresSourcePlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.postgres_source.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsPostgresSourcePlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsPostgresSourceConnectionListState, yandexDatatransferEndpointSettingsPostgresSourceConnectionListPlan []yandexDatatransferEndpointSettingsPostgresSourceConnectionModel = make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourcePlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourcePlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionListState, false)...)
@@ -3212,9 +3301,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsPostgresSourceConnectionState.ConnectionManagerConnection.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceConnectionState.ConnectionManagerConnection.IsNull()) {
+					!(yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceConnectionState.ConnectionManagerConnection.IsNull()) &&
+					!yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.postgres_source.connection.connection_manager_connection")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					var yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceConnectionState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.ConnectionManagerConnection.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceConnectionState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionListState, false)...)
@@ -3229,14 +3319,14 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionState.ConnectionId) {
+					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionState.ConnectionId) {
 						updatePaths = append(updatePaths, "settings.postgres_source.connection.connection_manager_connection.connection_id")
 					}
-					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionConnectionManagerConnectionState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.postgres_source.connection.connection_manager_connection.subnet_id")
 					}
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionState.MdbClusterId) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.MdbClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionState.MdbClusterId) {
 					updatePaths = append(updatePaths, "settings.postgres_source.connection.mdb_cluster_id")
 				}
 
@@ -3248,9 +3338,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsPostgresSourceConnectionState.OnPremise.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceConnectionState.OnPremise.IsNull()) {
+					!(yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.OnPremise.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.postgres_source.connection.on_premise")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.OnPremise.IsUnknown() {
 					var yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseListState, yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.OnPremise.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseListState, false)...)
@@ -3271,13 +3362,13 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					if yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.Hosts.IsNull() {
 						yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.Hosts = types.ListNull(types.StringType)
 					}
-					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.Hosts) {
+					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.Hosts.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.Hosts) {
 						updatePaths = append(updatePaths, "settings.postgres_source.connection.on_premise.hosts")
 					}
-					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.Port) {
+					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.Port.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.Port) {
 						updatePaths = append(updatePaths, "settings.postgres_source.connection.on_premise.port")
 					}
-					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.postgres_source.connection.on_premise.subnet_id")
 					}
 
@@ -3289,9 +3380,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.TlsMode.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.TlsMode.IsNull()) {
+						!(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.postgres_source.connection.on_premise.tls_mode")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						var yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.TlsMode.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeListState, false)...)
@@ -3314,9 +3406,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeState.Enabled.IsNull()) {
+							!(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.postgres_source.connection.on_premise.tls_mode.enabled")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							var yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModePlan.Enabled.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledListState, false)...)
@@ -3331,14 +3424,14 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 								yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledListPlan[0]
 							}
 
-							if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+							if !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
 								updatePaths = append(updatePaths, "settings.postgres_source.connection.on_premise.tls_mode.enabled.ca_certificate")
 							}
 						}
 					}
 				}
 			}
-			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.Database.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.Database) {
+			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourcePlan.Database.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.Database) {
 				updatePaths = append(updatePaths, "settings.postgres_source.database")
 			}
 			if yandexDatatransferEndpointSettingsPostgresSourcePlan.ExcludeTables.IsNull() {
@@ -3347,7 +3440,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsPostgresSourceState.ExcludeTables.IsNull() {
 				yandexDatatransferEndpointSettingsPostgresSourceState.ExcludeTables = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.ExcludeTables.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.ExcludeTables) {
+			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.ExcludeTables.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourcePlan.ExcludeTables.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.ExcludeTables) {
 				updatePaths = append(updatePaths, "settings.postgres_source.exclude_tables")
 			}
 			if yandexDatatransferEndpointSettingsPostgresSourcePlan.IncludeTables.IsNull() {
@@ -3356,7 +3449,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsPostgresSourceState.IncludeTables.IsNull() {
 				yandexDatatransferEndpointSettingsPostgresSourceState.IncludeTables = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.IncludeTables.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.IncludeTables) {
+			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.IncludeTables.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourcePlan.IncludeTables.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.IncludeTables) {
 				updatePaths = append(updatePaths, "settings.postgres_source.include_tables")
 			}
 
@@ -3368,9 +3461,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsPostgresSourcePlan.ObjectTransferSettings.IsNull() || yandexDatatransferEndpointSettingsPostgresSourceState.ObjectTransferSettings.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsPostgresSourcePlan.ObjectTransferSettings.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceState.ObjectTransferSettings.IsNull()) {
+				!(yandexDatatransferEndpointSettingsPostgresSourcePlan.ObjectTransferSettings.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceState.ObjectTransferSettings.IsNull()) &&
+				!yandexDatatransferEndpointSettingsPostgresSourcePlan.ObjectTransferSettings.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsPostgresSourcePlan.ObjectTransferSettings.IsUnknown() {
 				var yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsListState, yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsListPlan []yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel = make([]yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceState.ObjectTransferSettings.Elements())), make([]yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourcePlan.ObjectTransferSettings.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourcePlan.ObjectTransferSettings.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceState.ObjectTransferSettings.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsListState, false)...)
@@ -3385,58 +3479,58 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan = yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Cast.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Cast) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Cast.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Cast.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Cast) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.cast")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Collation.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Collation) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Collation.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Collation.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Collation) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.collation")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Constraint.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Constraint) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Constraint.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Constraint.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Constraint) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.constraint")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.DefaultValues.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.DefaultValues) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.DefaultValues.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.DefaultValues.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.DefaultValues) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.default_values")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.FkConstraint.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.FkConstraint) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.FkConstraint.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.FkConstraint.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.FkConstraint) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.fk_constraint")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Function.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Function) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Function.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Function.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Function) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.function")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Index.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Index) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Index.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Index.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Index) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.index")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.MaterializedView.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.MaterializedView) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.MaterializedView.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.MaterializedView.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.MaterializedView) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.materialized_view")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Policy.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Policy) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Policy.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Policy.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Policy) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.policy")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.PrimaryKey.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.PrimaryKey) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.PrimaryKey.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.PrimaryKey.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.PrimaryKey) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.primary_key")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Rule.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Rule) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Rule.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Rule.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Rule) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.rule")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Sequence.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Sequence) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Sequence.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Sequence.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Sequence) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.sequence")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.SequenceOwnedBy.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.SequenceOwnedBy) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.SequenceOwnedBy.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.SequenceOwnedBy.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.SequenceOwnedBy) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.sequence_owned_by")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.SequenceSet.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.SequenceSet) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.SequenceSet.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.SequenceSet.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.SequenceSet) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.sequence_set")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Table.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Table) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Table.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Table.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Table) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.table")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Trigger.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Trigger) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Trigger.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Trigger.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Trigger) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.trigger")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Type.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Type) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Type.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.Type.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.Type) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.type")
 				}
-				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.View.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.View) {
+				if !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.View.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsPlan.View.Equal(yandexDatatransferEndpointSettingsPostgresSourceObjectTransferSettingsState.View) {
 					updatePaths = append(updatePaths, "settings.postgres_source.object_transfer_settings.view")
 				}
 			}
@@ -3449,9 +3543,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsPostgresSourcePlan.Password.IsNull() || yandexDatatransferEndpointSettingsPostgresSourceState.Password.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsPostgresSourcePlan.Password.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceState.Password.IsNull()) {
+				!(yandexDatatransferEndpointSettingsPostgresSourcePlan.Password.IsNull() && yandexDatatransferEndpointSettingsPostgresSourceState.Password.IsNull()) &&
+				!yandexDatatransferEndpointSettingsPostgresSourcePlan.Password.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.postgres_source.password")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsPostgresSourcePlan.Password.IsUnknown() {
 				var yandexDatatransferEndpointSettingsPostgresSourcePasswordListState, yandexDatatransferEndpointSettingsPostgresSourcePasswordListPlan []yandexDatatransferEndpointSettingsPostgresSourcePasswordModel = make([]yandexDatatransferEndpointSettingsPostgresSourcePasswordModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourceState.Password.Elements())), make([]yandexDatatransferEndpointSettingsPostgresSourcePasswordModel, 0, len(yandexDatatransferEndpointSettingsPostgresSourcePlan.Password.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourcePlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourcePasswordListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresSourceState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresSourcePasswordListState, false)...)
@@ -3466,7 +3561,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsPostgresSourcePasswordPlan = yandexDatatransferEndpointSettingsPostgresSourcePasswordListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsPostgresSourcePasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsPostgresSourcePasswordState.Raw) {
+				if !yandexDatatransferEndpointSettingsPostgresSourcePasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourcePasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsPostgresSourcePasswordState.Raw) {
 					updatePaths = append(updatePaths, "settings.postgres_source.password.raw")
 				}
 			}
@@ -3476,16 +3571,16 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsPostgresSourceState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsPostgresSourceState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.postgres_source.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.ServiceSchema.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.ServiceSchema) {
+			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.ServiceSchema.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourcePlan.ServiceSchema.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.ServiceSchema) {
 				updatePaths = append(updatePaths, "settings.postgres_source.service_schema")
 			}
-			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.SlotGigabyteLagLimit.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.SlotGigabyteLagLimit) {
+			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.SlotGigabyteLagLimit.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourcePlan.SlotGigabyteLagLimit.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.SlotGigabyteLagLimit) {
 				updatePaths = append(updatePaths, "settings.postgres_source.slot_byte_lag_limit")
 			}
-			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.User.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.User) {
+			if !yandexDatatransferEndpointSettingsPostgresSourcePlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresSourcePlan.User.Equal(yandexDatatransferEndpointSettingsPostgresSourceState.User) {
 				updatePaths = append(updatePaths, "settings.postgres_source.user")
 			}
 		}
@@ -3498,9 +3593,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.PostgresTarget.IsNull() || yandexDatatransferEndpointSettingsState.PostgresTarget.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.PostgresTarget.IsNull() && yandexDatatransferEndpointSettingsState.PostgresTarget.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.PostgresTarget.IsNull() && yandexDatatransferEndpointSettingsState.PostgresTarget.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.PostgresTarget.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.postgres_target")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.PostgresTarget.IsUnknown() {
 			var yandexDatatransferEndpointSettingsPostgresTargetListState, yandexDatatransferEndpointSettingsPostgresTargetListPlan []yandexDatatransferEndpointSettingsPostgresTargetModel = make([]yandexDatatransferEndpointSettingsPostgresTargetModel, 0, len(yandexDatatransferEndpointSettingsState.PostgresTarget.Elements())), make([]yandexDatatransferEndpointSettingsPostgresTargetModel, 0, len(yandexDatatransferEndpointSettingsPlan.PostgresTarget.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.PostgresTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.PostgresTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetListState, false)...)
@@ -3515,7 +3611,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsPostgresTargetPlan = yandexDatatransferEndpointSettingsPostgresTargetListPlan[0]
 			}
 
-			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.CleanupPolicy) {
+			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.CleanupPolicy.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.CleanupPolicy) {
 				updatePaths = append(updatePaths, "settings.postgres_target.cleanup_policy")
 			}
 
@@ -3527,9 +3623,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsPostgresTargetPlan.Connection.IsNull() || yandexDatatransferEndpointSettingsPostgresTargetState.Connection.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsPostgresTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetState.Connection.IsNull()) {
+				!(yandexDatatransferEndpointSettingsPostgresTargetPlan.Connection.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetState.Connection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsPostgresTargetPlan.Connection.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.postgres_target.connection")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsPostgresTargetPlan.Connection.IsUnknown() {
 				var yandexDatatransferEndpointSettingsPostgresTargetConnectionListState, yandexDatatransferEndpointSettingsPostgresTargetConnectionListPlan []yandexDatatransferEndpointSettingsPostgresTargetConnectionModel = make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetState.Connection.Elements())), make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetPlan.Connection.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetPlan.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetState.Connection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionListState, false)...)
@@ -3552,9 +3649,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.ConnectionManagerConnection.IsNull() || yandexDatatransferEndpointSettingsPostgresTargetConnectionState.ConnectionManagerConnection.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetConnectionState.ConnectionManagerConnection.IsNull()) {
+					!(yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.ConnectionManagerConnection.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetConnectionState.ConnectionManagerConnection.IsNull()) &&
+					!yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.postgres_target.connection.connection_manager_connection")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.ConnectionManagerConnection.IsUnknown() {
 					var yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionListState, yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionListPlan []yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionModel = make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetConnectionState.ConnectionManagerConnection.Elements())), make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.ConnectionManagerConnection.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetConnectionState.ConnectionManagerConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionListState, false)...)
@@ -3569,14 +3667,14 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionPlan = yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionState.ConnectionId) {
+					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionPlan.ConnectionId.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionPlan.ConnectionId.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionState.ConnectionId) {
 						updatePaths = append(updatePaths, "settings.postgres_target.connection.connection_manager_connection.connection_id")
 					}
-					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionConnectionManagerConnectionState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.postgres_target.connection.connection_manager_connection.subnet_id")
 					}
 				}
-				if !yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionState.MdbClusterId) {
+				if !yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.MdbClusterId.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.MdbClusterId.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionState.MdbClusterId) {
 					updatePaths = append(updatePaths, "settings.postgres_target.connection.mdb_cluster_id")
 				}
 
@@ -3588,9 +3686,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsPostgresTargetConnectionState.OnPremise.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetConnectionState.OnPremise.IsNull()) {
+					!(yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.OnPremise.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.postgres_target.connection.on_premise")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.OnPremise.IsUnknown() {
 					var yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseListState, yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.OnPremise.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseListState, false)...)
@@ -3611,13 +3710,13 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					if yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.Hosts.IsNull() {
 						yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.Hosts = types.ListNull(types.StringType)
 					}
-					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.Hosts) {
+					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.Hosts.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.Hosts.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.Hosts) {
 						updatePaths = append(updatePaths, "settings.postgres_target.connection.on_premise.hosts")
 					}
-					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.Port) {
+					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.Port.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.Port.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.Port) {
 						updatePaths = append(updatePaths, "settings.postgres_target.connection.on_premise.port")
 					}
-					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.SubnetId) {
+					if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.SubnetId) {
 						updatePaths = append(updatePaths, "settings.postgres_target.connection.on_premise.subnet_id")
 					}
 
@@ -3629,9 +3728,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.TlsMode.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.TlsMode.IsNull()) {
+						!(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.postgres_target.connection.on_premise.tls_mode")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.TlsMode.IsUnknown() {
 						var yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.TlsMode.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeListState, false)...)
@@ -3654,9 +3754,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeState.Enabled.IsNull()) {
+							!(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.postgres_target.connection.on_premise.tls_mode.enabled")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
 							var yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModePlan.Enabled.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledListState, false)...)
@@ -3671,17 +3772,17 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 								yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledListPlan[0]
 							}
 
-							if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+							if !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsPostgresTargetConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
 								updatePaths = append(updatePaths, "settings.postgres_target.connection.on_premise.tls_mode.enabled.ca_certificate")
 							}
 						}
 					}
 				}
 			}
-			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.Database) {
+			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.Database) {
 				updatePaths = append(updatePaths, "settings.postgres_target.database")
 			}
-			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.IsSchemaMigrationDisabled.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.IsSchemaMigrationDisabled) {
+			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.IsSchemaMigrationDisabled.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetPlan.IsSchemaMigrationDisabled.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.IsSchemaMigrationDisabled) {
 				updatePaths = append(updatePaths, "settings.postgres_target.is_schema_migration_disabled")
 			}
 
@@ -3693,9 +3794,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsPostgresTargetPlan.Password.IsNull() || yandexDatatransferEndpointSettingsPostgresTargetState.Password.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsPostgresTargetPlan.Password.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetState.Password.IsNull()) {
+				!(yandexDatatransferEndpointSettingsPostgresTargetPlan.Password.IsNull() && yandexDatatransferEndpointSettingsPostgresTargetState.Password.IsNull()) &&
+				!yandexDatatransferEndpointSettingsPostgresTargetPlan.Password.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.postgres_target.password")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsPostgresTargetPlan.Password.IsUnknown() {
 				var yandexDatatransferEndpointSettingsPostgresTargetPasswordListState, yandexDatatransferEndpointSettingsPostgresTargetPasswordListPlan []yandexDatatransferEndpointSettingsPostgresTargetPasswordModel = make([]yandexDatatransferEndpointSettingsPostgresTargetPasswordModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetState.Password.Elements())), make([]yandexDatatransferEndpointSettingsPostgresTargetPasswordModel, 0, len(yandexDatatransferEndpointSettingsPostgresTargetPlan.Password.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetPlan.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetPasswordListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPostgresTargetState.Password.ElementsAs(ctx, &yandexDatatransferEndpointSettingsPostgresTargetPasswordListState, false)...)
@@ -3710,7 +3812,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					yandexDatatransferEndpointSettingsPostgresTargetPasswordPlan = yandexDatatransferEndpointSettingsPostgresTargetPasswordListPlan[0]
 				}
 
-				if !yandexDatatransferEndpointSettingsPostgresTargetPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsPostgresTargetPasswordState.Raw) {
+				if !yandexDatatransferEndpointSettingsPostgresTargetPasswordPlan.Raw.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetPasswordPlan.Raw.Equal(yandexDatatransferEndpointSettingsPostgresTargetPasswordState.Raw) {
 					updatePaths = append(updatePaths, "settings.postgres_target.password.raw")
 				}
 			}
@@ -3720,10 +3822,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsPostgresTargetState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsPostgresTargetState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.postgres_target.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.User.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.User) {
+			if !yandexDatatransferEndpointSettingsPostgresTargetPlan.User.IsUnknown() && !yandexDatatransferEndpointSettingsPostgresTargetPlan.User.Equal(yandexDatatransferEndpointSettingsPostgresTargetState.User) {
 				updatePaths = append(updatePaths, "settings.postgres_target.user")
 			}
 		}
@@ -3736,9 +3838,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.YdbSource.IsNull() || yandexDatatransferEndpointSettingsState.YdbSource.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.YdbSource.IsNull() && yandexDatatransferEndpointSettingsState.YdbSource.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.YdbSource.IsNull() && yandexDatatransferEndpointSettingsState.YdbSource.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.YdbSource.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.ydb_source")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.YdbSource.IsUnknown() {
 			var yandexDatatransferEndpointSettingsYdbSourceListState, yandexDatatransferEndpointSettingsYdbSourceListPlan []yandexDatatransferEndpointSettingsYdbSourceModel = make([]yandexDatatransferEndpointSettingsYdbSourceModel, 0, len(yandexDatatransferEndpointSettingsState.YdbSource.Elements())), make([]yandexDatatransferEndpointSettingsYdbSourceModel, 0, len(yandexDatatransferEndpointSettingsPlan.YdbSource.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.YdbSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.YdbSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceListState, false)...)
@@ -3753,16 +3856,16 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsYdbSourcePlan = yandexDatatransferEndpointSettingsYdbSourceListPlan[0]
 			}
 
-			if !yandexDatatransferEndpointSettingsYdbSourcePlan.ChangefeedCustomConsumerName.Equal(yandexDatatransferEndpointSettingsYdbSourceState.ChangefeedCustomConsumerName) {
+			if !yandexDatatransferEndpointSettingsYdbSourcePlan.ChangefeedCustomConsumerName.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.ChangefeedCustomConsumerName.Equal(yandexDatatransferEndpointSettingsYdbSourceState.ChangefeedCustomConsumerName) {
 				updatePaths = append(updatePaths, "settings.ydb_source.changefeed_custom_consumer_name")
 			}
-			if !yandexDatatransferEndpointSettingsYdbSourcePlan.ChangefeedCustomName.Equal(yandexDatatransferEndpointSettingsYdbSourceState.ChangefeedCustomName) {
+			if !yandexDatatransferEndpointSettingsYdbSourcePlan.ChangefeedCustomName.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.ChangefeedCustomName.Equal(yandexDatatransferEndpointSettingsYdbSourceState.ChangefeedCustomName) {
 				updatePaths = append(updatePaths, "settings.ydb_source.changefeed_custom_name")
 			}
-			if !yandexDatatransferEndpointSettingsYdbSourcePlan.Database.Equal(yandexDatatransferEndpointSettingsYdbSourceState.Database) {
+			if !yandexDatatransferEndpointSettingsYdbSourcePlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.Database.Equal(yandexDatatransferEndpointSettingsYdbSourceState.Database) {
 				updatePaths = append(updatePaths, "settings.ydb_source.database")
 			}
-			if !yandexDatatransferEndpointSettingsYdbSourcePlan.Instance.Equal(yandexDatatransferEndpointSettingsYdbSourceState.Instance) {
+			if !yandexDatatransferEndpointSettingsYdbSourcePlan.Instance.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.Instance.Equal(yandexDatatransferEndpointSettingsYdbSourceState.Instance) {
 				updatePaths = append(updatePaths, "settings.ydb_source.instance")
 			}
 			if yandexDatatransferEndpointSettingsYdbSourcePlan.Paths.IsNull() {
@@ -3771,10 +3874,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsYdbSourceState.Paths.IsNull() {
 				yandexDatatransferEndpointSettingsYdbSourceState.Paths = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsYdbSourcePlan.Paths.Equal(yandexDatatransferEndpointSettingsYdbSourceState.Paths) {
+			if !yandexDatatransferEndpointSettingsYdbSourcePlan.Paths.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.Paths.Equal(yandexDatatransferEndpointSettingsYdbSourceState.Paths) {
 				updatePaths = append(updatePaths, "settings.ydb_source.paths")
 			}
-			if !yandexDatatransferEndpointSettingsYdbSourcePlan.SaKeyContent.Equal(yandexDatatransferEndpointSettingsYdbSourceState.SaKeyContent) {
+			if !yandexDatatransferEndpointSettingsYdbSourcePlan.SaKeyContent.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.SaKeyContent.Equal(yandexDatatransferEndpointSettingsYdbSourceState.SaKeyContent) {
 				updatePaths = append(updatePaths, "settings.ydb_source.sa_key_content")
 			}
 			if yandexDatatransferEndpointSettingsYdbSourcePlan.SecurityGroups.IsNull() {
@@ -3783,13 +3886,13 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsYdbSourceState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsYdbSourceState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsYdbSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsYdbSourceState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsYdbSourcePlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsYdbSourceState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.ydb_source.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsYdbSourcePlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdbSourceState.ServiceAccountId) {
+			if !yandexDatatransferEndpointSettingsYdbSourcePlan.ServiceAccountId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdbSourceState.ServiceAccountId) {
 				updatePaths = append(updatePaths, "settings.ydb_source.service_account_id")
 			}
-			if !yandexDatatransferEndpointSettingsYdbSourcePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdbSourceState.SubnetId) {
+			if !yandexDatatransferEndpointSettingsYdbSourcePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdbSourceState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.ydb_source.subnet_id")
 			}
 		}
@@ -3802,9 +3905,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.YdbTarget.IsNull() || yandexDatatransferEndpointSettingsState.YdbTarget.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.YdbTarget.IsNull() && yandexDatatransferEndpointSettingsState.YdbTarget.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.YdbTarget.IsNull() && yandexDatatransferEndpointSettingsState.YdbTarget.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.YdbTarget.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.ydb_target")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.YdbTarget.IsUnknown() {
 			var yandexDatatransferEndpointSettingsYdbTargetListState, yandexDatatransferEndpointSettingsYdbTargetListPlan []yandexDatatransferEndpointSettingsYdbTargetModel = make([]yandexDatatransferEndpointSettingsYdbTargetModel, 0, len(yandexDatatransferEndpointSettingsState.YdbTarget.Elements())), make([]yandexDatatransferEndpointSettingsYdbTargetModel, 0, len(yandexDatatransferEndpointSettingsPlan.YdbTarget.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.YdbTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.YdbTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetListState, false)...)
@@ -3819,28 +3923,28 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsYdbTargetPlan = yandexDatatransferEndpointSettingsYdbTargetListPlan[0]
 			}
 
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsYdbTargetState.CleanupPolicy) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.CleanupPolicy.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsYdbTargetState.CleanupPolicy) {
 				updatePaths = append(updatePaths, "settings.ydb_target.cleanup_policy")
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsYdbTargetState.Database) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsYdbTargetState.Database) {
 				updatePaths = append(updatePaths, "settings.ydb_target.database")
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.DefaultCompression.Equal(yandexDatatransferEndpointSettingsYdbTargetState.DefaultCompression) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.DefaultCompression.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.DefaultCompression.Equal(yandexDatatransferEndpointSettingsYdbTargetState.DefaultCompression) {
 				updatePaths = append(updatePaths, "settings.ydb_target.default_compression")
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.Instance.Equal(yandexDatatransferEndpointSettingsYdbTargetState.Instance) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.Instance.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.Instance.Equal(yandexDatatransferEndpointSettingsYdbTargetState.Instance) {
 				updatePaths = append(updatePaths, "settings.ydb_target.instance")
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.IsSchemaMigrationDisabled.Equal(yandexDatatransferEndpointSettingsYdbTargetState.IsSchemaMigrationDisabled) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.IsSchemaMigrationDisabled.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.IsSchemaMigrationDisabled.Equal(yandexDatatransferEndpointSettingsYdbTargetState.IsSchemaMigrationDisabled) {
 				updatePaths = append(updatePaths, "settings.ydb_target.is_schema_migration_disabled")
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.IsTableColumnOriented.Equal(yandexDatatransferEndpointSettingsYdbTargetState.IsTableColumnOriented) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.IsTableColumnOriented.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.IsTableColumnOriented.Equal(yandexDatatransferEndpointSettingsYdbTargetState.IsTableColumnOriented) {
 				updatePaths = append(updatePaths, "settings.ydb_target.is_table_column_oriented")
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.Path.Equal(yandexDatatransferEndpointSettingsYdbTargetState.Path) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.Path.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.Path.Equal(yandexDatatransferEndpointSettingsYdbTargetState.Path) {
 				updatePaths = append(updatePaths, "settings.ydb_target.path")
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.SaKeyContent.Equal(yandexDatatransferEndpointSettingsYdbTargetState.SaKeyContent) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.SaKeyContent.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.SaKeyContent.Equal(yandexDatatransferEndpointSettingsYdbTargetState.SaKeyContent) {
 				updatePaths = append(updatePaths, "settings.ydb_target.sa_key_content")
 			}
 			if yandexDatatransferEndpointSettingsYdbTargetPlan.SecurityGroups.IsNull() {
@@ -3849,13 +3953,13 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsYdbTargetState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsYdbTargetState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsYdbTargetState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsYdbTargetState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.ydb_target.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdbTargetState.ServiceAccountId) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.ServiceAccountId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdbTargetState.ServiceAccountId) {
 				updatePaths = append(updatePaths, "settings.ydb_target.service_account_id")
 			}
-			if !yandexDatatransferEndpointSettingsYdbTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdbTargetState.SubnetId) {
+			if !yandexDatatransferEndpointSettingsYdbTargetPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdbTargetState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.ydb_target.subnet_id")
 			}
 		}
@@ -3868,9 +3972,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.YdsSource.IsNull() || yandexDatatransferEndpointSettingsState.YdsSource.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.YdsSource.IsNull() && yandexDatatransferEndpointSettingsState.YdsSource.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.YdsSource.IsNull() && yandexDatatransferEndpointSettingsState.YdsSource.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.YdsSource.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.yds_source")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.YdsSource.IsUnknown() {
 			var yandexDatatransferEndpointSettingsYdsSourceListState, yandexDatatransferEndpointSettingsYdsSourceListPlan []yandexDatatransferEndpointSettingsYdsSourceModel = make([]yandexDatatransferEndpointSettingsYdsSourceModel, 0, len(yandexDatatransferEndpointSettingsState.YdsSource.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceModel, 0, len(yandexDatatransferEndpointSettingsPlan.YdsSource.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.YdsSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.YdsSource.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceListState, false)...)
@@ -3885,16 +3990,16 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsYdsSourcePlan = yandexDatatransferEndpointSettingsYdsSourceListPlan[0]
 			}
 
-			if !yandexDatatransferEndpointSettingsYdsSourcePlan.AllowTtlRewind.Equal(yandexDatatransferEndpointSettingsYdsSourceState.AllowTtlRewind) {
+			if !yandexDatatransferEndpointSettingsYdsSourcePlan.AllowTtlRewind.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.AllowTtlRewind.Equal(yandexDatatransferEndpointSettingsYdsSourceState.AllowTtlRewind) {
 				updatePaths = append(updatePaths, "settings.yds_source.allow_ttl_rewind")
 			}
-			if !yandexDatatransferEndpointSettingsYdsSourcePlan.Consumer.Equal(yandexDatatransferEndpointSettingsYdsSourceState.Consumer) {
+			if !yandexDatatransferEndpointSettingsYdsSourcePlan.Consumer.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.Consumer.Equal(yandexDatatransferEndpointSettingsYdsSourceState.Consumer) {
 				updatePaths = append(updatePaths, "settings.yds_source.consumer")
 			}
-			if !yandexDatatransferEndpointSettingsYdsSourcePlan.Database.Equal(yandexDatatransferEndpointSettingsYdsSourceState.Database) {
+			if !yandexDatatransferEndpointSettingsYdsSourcePlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.Database.Equal(yandexDatatransferEndpointSettingsYdsSourceState.Database) {
 				updatePaths = append(updatePaths, "settings.yds_source.database")
 			}
-			if !yandexDatatransferEndpointSettingsYdsSourcePlan.Endpoint.Equal(yandexDatatransferEndpointSettingsYdsSourceState.Endpoint) {
+			if !yandexDatatransferEndpointSettingsYdsSourcePlan.Endpoint.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.Endpoint.Equal(yandexDatatransferEndpointSettingsYdsSourceState.Endpoint) {
 				updatePaths = append(updatePaths, "settings.yds_source.endpoint")
 			}
 
@@ -3906,9 +4011,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsYdsSourcePlan.Parser.IsNull() || yandexDatatransferEndpointSettingsYdsSourceState.Parser.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsYdsSourcePlan.Parser.IsNull() && yandexDatatransferEndpointSettingsYdsSourceState.Parser.IsNull()) {
+				!(yandexDatatransferEndpointSettingsYdsSourcePlan.Parser.IsNull() && yandexDatatransferEndpointSettingsYdsSourceState.Parser.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdsSourcePlan.Parser.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.yds_source.parser")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsYdsSourcePlan.Parser.IsUnknown() {
 				var yandexDatatransferEndpointSettingsYdsSourceParserListState, yandexDatatransferEndpointSettingsYdsSourceParserListPlan []yandexDatatransferEndpointSettingsYdsSourceParserModel = make([]yandexDatatransferEndpointSettingsYdsSourceParserModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceState.Parser.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceParserModel, 0, len(yandexDatatransferEndpointSettingsYdsSourcePlan.Parser.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourcePlan.Parser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceState.Parser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserListState, false)...)
@@ -3931,9 +4037,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsYdsSourceParserPlan.JsonParser.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserState.JsonParser.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsYdsSourceParserPlan.JsonParser.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserState.JsonParser.IsNull()) {
+					!(yandexDatatransferEndpointSettingsYdsSourceParserPlan.JsonParser.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserState.JsonParser.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdsSourceParserPlan.JsonParser.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.yds_source.parser.json_parser")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsYdsSourceParserPlan.JsonParser.IsUnknown() {
 					var yandexDatatransferEndpointSettingsYdsSourceParserJsonParserListState, yandexDatatransferEndpointSettingsYdsSourceParserJsonParserListPlan []yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel = make([]yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserState.JsonParser.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserPlan.JsonParser.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserPlan.JsonParser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserJsonParserListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserState.JsonParser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserJsonParserListState, false)...)
@@ -3948,7 +4055,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan = yandexDatatransferEndpointSettingsYdsSourceParserJsonParserListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.AddRestColumn.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.AddRestColumn) {
+					if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.AddRestColumn.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.AddRestColumn.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.AddRestColumn) {
 						updatePaths = append(updatePaths, "settings.yds_source.parser.json_parser.add_rest_column")
 					}
 
@@ -3960,9 +4067,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.DataSchema.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.DataSchema.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.DataSchema.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.DataSchema.IsNull()) {
+						!(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.DataSchema.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.DataSchema.IsNull()) &&
+						!yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.DataSchema.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.yds_source.parser.json_parser.data_schema")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.DataSchema.IsUnknown() {
 						var yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaListState, yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaListPlan []yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaModel = make([]yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.DataSchema.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.DataSchema.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.DataSchema.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.DataSchema.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaListState, false)...)
@@ -3985,9 +4093,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.Fields.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaState.Fields.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.Fields.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaState.Fields.IsNull()) {
+							!(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.Fields.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaState.Fields.IsNull()) &&
+							!yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.Fields.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.yds_source.parser.json_parser.data_schema.fields")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.Fields.IsUnknown() {
 							var yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsListState, yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsListPlan []yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsModel = make([]yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaState.Fields.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.Fields.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.Fields.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaState.Fields.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsListState, false)...)
@@ -4008,18 +4117,18 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							if yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsState.Fields.IsNull() {
 								yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsState.Fields = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsColSchemaStructModelType)
 							}
-							if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsPlan.Fields.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsState.Fields) {
+							if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsPlan.Fields.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsPlan.Fields.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaFieldsState.Fields) {
 								updatePaths = append(updatePaths, "settings.yds_source.parser.json_parser.data_schema.fields.fields")
 							}
 						}
-						if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.JsonFields.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaState.JsonFields) {
+						if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.JsonFields.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaPlan.JsonFields.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserDataSchemaState.JsonFields) {
 							updatePaths = append(updatePaths, "settings.yds_source.parser.json_parser.data_schema.json_fields")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.NullKeysAllowed.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.NullKeysAllowed) {
+					if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.NullKeysAllowed.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.NullKeysAllowed.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.NullKeysAllowed) {
 						updatePaths = append(updatePaths, "settings.yds_source.parser.json_parser.null_keys_allowed")
 					}
-					if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.UnescapeStringValues.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.UnescapeStringValues) {
+					if !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.UnescapeStringValues.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserJsonParserPlan.UnescapeStringValues.Equal(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserState.UnescapeStringValues) {
 						updatePaths = append(updatePaths, "settings.yds_source.parser.json_parser.unescape_string_values")
 					}
 				}
@@ -4032,9 +4141,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsYdsSourceParserPlan.TskvParser.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserState.TskvParser.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsYdsSourceParserPlan.TskvParser.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserState.TskvParser.IsNull()) {
+					!(yandexDatatransferEndpointSettingsYdsSourceParserPlan.TskvParser.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserState.TskvParser.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdsSourceParserPlan.TskvParser.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.yds_source.parser.tskv_parser")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsYdsSourceParserPlan.TskvParser.IsUnknown() {
 					var yandexDatatransferEndpointSettingsYdsSourceParserTskvParserListState, yandexDatatransferEndpointSettingsYdsSourceParserTskvParserListPlan []yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel = make([]yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserState.TskvParser.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserPlan.TskvParser.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserPlan.TskvParser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserTskvParserListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserState.TskvParser.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserTskvParserListState, false)...)
@@ -4049,7 +4159,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan = yandexDatatransferEndpointSettingsYdsSourceParserTskvParserListPlan[0]
 					}
 
-					if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.AddRestColumn.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.AddRestColumn) {
+					if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.AddRestColumn.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.AddRestColumn.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.AddRestColumn) {
 						updatePaths = append(updatePaths, "settings.yds_source.parser.tskv_parser.add_rest_column")
 					}
 
@@ -4061,9 +4171,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					}
 
 					if (yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.DataSchema.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.DataSchema.IsNull()) &&
-						!(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.DataSchema.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.DataSchema.IsNull()) {
+						!(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.DataSchema.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.DataSchema.IsNull()) &&
+						!yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.DataSchema.IsUnknown() {
 						updatePaths = append(updatePaths, "settings.yds_source.parser.tskv_parser.data_schema")
-					} else {
+					} else if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.DataSchema.IsUnknown() {
 						var yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaListState, yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaListPlan []yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaModel = make([]yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.DataSchema.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.DataSchema.Elements()))
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.DataSchema.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaListPlan, false)...)
 						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.DataSchema.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaListState, false)...)
@@ -4086,9 +4197,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 						}
 
 						if (yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.Fields.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaState.Fields.IsNull()) &&
-							!(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.Fields.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaState.Fields.IsNull()) {
+							!(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.Fields.IsNull() && yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaState.Fields.IsNull()) &&
+							!yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.Fields.IsUnknown() {
 							updatePaths = append(updatePaths, "settings.yds_source.parser.tskv_parser.data_schema.fields")
-						} else {
+						} else if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.Fields.IsUnknown() {
 							var yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsListState, yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsListPlan []yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsModel = make([]yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaState.Fields.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.Fields.Elements()))
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.Fields.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsListPlan, false)...)
 							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaState.Fields.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsListState, false)...)
@@ -4109,18 +4221,18 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 							if yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsState.Fields.IsNull() {
 								yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsState.Fields = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsColSchemaStructModelType)
 							}
-							if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsPlan.Fields.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsState.Fields) {
+							if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsPlan.Fields.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsPlan.Fields.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaFieldsState.Fields) {
 								updatePaths = append(updatePaths, "settings.yds_source.parser.tskv_parser.data_schema.fields.fields")
 							}
 						}
-						if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.JsonFields.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaState.JsonFields) {
+						if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.JsonFields.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaPlan.JsonFields.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserDataSchemaState.JsonFields) {
 							updatePaths = append(updatePaths, "settings.yds_source.parser.tskv_parser.data_schema.json_fields")
 						}
 					}
-					if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.NullKeysAllowed.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.NullKeysAllowed) {
+					if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.NullKeysAllowed.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.NullKeysAllowed.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.NullKeysAllowed) {
 						updatePaths = append(updatePaths, "settings.yds_source.parser.tskv_parser.null_keys_allowed")
 					}
-					if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.UnescapeStringValues.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.UnescapeStringValues) {
+					if !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.UnescapeStringValues.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceParserTskvParserPlan.UnescapeStringValues.Equal(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserState.UnescapeStringValues) {
 						updatePaths = append(updatePaths, "settings.yds_source.parser.tskv_parser.unescape_string_values")
 					}
 				}
@@ -4131,16 +4243,16 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsYdsSourceState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsYdsSourceState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsYdsSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsYdsSourceState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsYdsSourcePlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsYdsSourceState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.yds_source.security_groups")
 			}
-			if !yandexDatatransferEndpointSettingsYdsSourcePlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdsSourceState.ServiceAccountId) {
+			if !yandexDatatransferEndpointSettingsYdsSourcePlan.ServiceAccountId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdsSourceState.ServiceAccountId) {
 				updatePaths = append(updatePaths, "settings.yds_source.service_account_id")
 			}
-			if !yandexDatatransferEndpointSettingsYdsSourcePlan.Stream.Equal(yandexDatatransferEndpointSettingsYdsSourceState.Stream) {
+			if !yandexDatatransferEndpointSettingsYdsSourcePlan.Stream.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.Stream.Equal(yandexDatatransferEndpointSettingsYdsSourceState.Stream) {
 				updatePaths = append(updatePaths, "settings.yds_source.stream")
 			}
-			if !yandexDatatransferEndpointSettingsYdsSourcePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdsSourceState.SubnetId) {
+			if !yandexDatatransferEndpointSettingsYdsSourcePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdsSourceState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.yds_source.subnet_id")
 			}
 			if yandexDatatransferEndpointSettingsYdsSourcePlan.SupportedCodecs.IsNull() {
@@ -4149,7 +4261,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsYdsSourceState.SupportedCodecs.IsNull() {
 				yandexDatatransferEndpointSettingsYdsSourceState.SupportedCodecs = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsYdsSourcePlan.SupportedCodecs.Equal(yandexDatatransferEndpointSettingsYdsSourceState.SupportedCodecs) {
+			if !yandexDatatransferEndpointSettingsYdsSourcePlan.SupportedCodecs.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.SupportedCodecs.Equal(yandexDatatransferEndpointSettingsYdsSourceState.SupportedCodecs) {
 				updatePaths = append(updatePaths, "settings.yds_source.supported_codecs")
 			}
 		}
@@ -4162,9 +4274,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 
 		if (yandexDatatransferEndpointSettingsPlan.YdsTarget.IsNull() || yandexDatatransferEndpointSettingsState.YdsTarget.IsNull()) &&
-			!(yandexDatatransferEndpointSettingsPlan.YdsTarget.IsNull() && yandexDatatransferEndpointSettingsState.YdsTarget.IsNull()) {
+			!(yandexDatatransferEndpointSettingsPlan.YdsTarget.IsNull() && yandexDatatransferEndpointSettingsState.YdsTarget.IsNull()) &&
+			!yandexDatatransferEndpointSettingsPlan.YdsTarget.IsUnknown() {
 			updatePaths = append(updatePaths, "settings.yds_target")
-		} else {
+		} else if !yandexDatatransferEndpointSettingsPlan.YdsTarget.IsUnknown() {
 			var yandexDatatransferEndpointSettingsYdsTargetListState, yandexDatatransferEndpointSettingsYdsTargetListPlan []yandexDatatransferEndpointSettingsYdsTargetModel = make([]yandexDatatransferEndpointSettingsYdsTargetModel, 0, len(yandexDatatransferEndpointSettingsState.YdsTarget.Elements())), make([]yandexDatatransferEndpointSettingsYdsTargetModel, 0, len(yandexDatatransferEndpointSettingsPlan.YdsTarget.Elements()))
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsPlan.YdsTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetListPlan, false)...)
 			resp.Diagnostics.Append(yandexDatatransferEndpointSettingsState.YdsTarget.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetListState, false)...)
@@ -4179,16 +4292,16 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsYdsTargetPlan = yandexDatatransferEndpointSettingsYdsTargetListPlan[0]
 			}
 
-			if !yandexDatatransferEndpointSettingsYdsTargetPlan.CompressionCodec.Equal(yandexDatatransferEndpointSettingsYdsTargetState.CompressionCodec) {
+			if !yandexDatatransferEndpointSettingsYdsTargetPlan.CompressionCodec.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.CompressionCodec.Equal(yandexDatatransferEndpointSettingsYdsTargetState.CompressionCodec) {
 				updatePaths = append(updatePaths, "settings.yds_target.compression_codec")
 			}
-			if !yandexDatatransferEndpointSettingsYdsTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsYdsTargetState.Database) {
+			if !yandexDatatransferEndpointSettingsYdsTargetPlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.Database.Equal(yandexDatatransferEndpointSettingsYdsTargetState.Database) {
 				updatePaths = append(updatePaths, "settings.yds_target.database")
 			}
-			if !yandexDatatransferEndpointSettingsYdsTargetPlan.Endpoint.Equal(yandexDatatransferEndpointSettingsYdsTargetState.Endpoint) {
+			if !yandexDatatransferEndpointSettingsYdsTargetPlan.Endpoint.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.Endpoint.Equal(yandexDatatransferEndpointSettingsYdsTargetState.Endpoint) {
 				updatePaths = append(updatePaths, "settings.yds_target.endpoint")
 			}
-			if !yandexDatatransferEndpointSettingsYdsTargetPlan.SaveTxOrder.Equal(yandexDatatransferEndpointSettingsYdsTargetState.SaveTxOrder) {
+			if !yandexDatatransferEndpointSettingsYdsTargetPlan.SaveTxOrder.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.SaveTxOrder.Equal(yandexDatatransferEndpointSettingsYdsTargetState.SaveTxOrder) {
 				updatePaths = append(updatePaths, "settings.yds_target.save_tx_order")
 			}
 			if yandexDatatransferEndpointSettingsYdsTargetPlan.SecurityGroups.IsNull() {
@@ -4197,7 +4310,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if yandexDatatransferEndpointSettingsYdsTargetState.SecurityGroups.IsNull() {
 				yandexDatatransferEndpointSettingsYdsTargetState.SecurityGroups = types.ListNull(types.StringType)
 			}
-			if !yandexDatatransferEndpointSettingsYdsTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsYdsTargetState.SecurityGroups) {
+			if !yandexDatatransferEndpointSettingsYdsTargetPlan.SecurityGroups.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.SecurityGroups.Equal(yandexDatatransferEndpointSettingsYdsTargetState.SecurityGroups) {
 				updatePaths = append(updatePaths, "settings.yds_target.security_groups")
 			}
 
@@ -4209,9 +4322,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 
 			if (yandexDatatransferEndpointSettingsYdsTargetPlan.Serializer.IsNull() || yandexDatatransferEndpointSettingsYdsTargetState.Serializer.IsNull()) &&
-				!(yandexDatatransferEndpointSettingsYdsTargetPlan.Serializer.IsNull() && yandexDatatransferEndpointSettingsYdsTargetState.Serializer.IsNull()) {
+				!(yandexDatatransferEndpointSettingsYdsTargetPlan.Serializer.IsNull() && yandexDatatransferEndpointSettingsYdsTargetState.Serializer.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdsTargetPlan.Serializer.IsUnknown() {
 				updatePaths = append(updatePaths, "settings.yds_target.serializer")
-			} else {
+			} else if !yandexDatatransferEndpointSettingsYdsTargetPlan.Serializer.IsUnknown() {
 				var yandexDatatransferEndpointSettingsYdsTargetSerializerListState, yandexDatatransferEndpointSettingsYdsTargetSerializerListPlan []yandexDatatransferEndpointSettingsYdsTargetSerializerModel = make([]yandexDatatransferEndpointSettingsYdsTargetSerializerModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetState.Serializer.Elements())), make([]yandexDatatransferEndpointSettingsYdsTargetSerializerModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetPlan.Serializer.Elements()))
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetPlan.Serializer.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetSerializerListPlan, false)...)
 				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetState.Serializer.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetSerializerListState, false)...)
@@ -4234,9 +4348,10 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				}
 
 				if (yandexDatatransferEndpointSettingsYdsTargetSerializerPlan.SerializerDebezium.IsNull() || yandexDatatransferEndpointSettingsYdsTargetSerializerState.SerializerDebezium.IsNull()) &&
-					!(yandexDatatransferEndpointSettingsYdsTargetSerializerPlan.SerializerDebezium.IsNull() && yandexDatatransferEndpointSettingsYdsTargetSerializerState.SerializerDebezium.IsNull()) {
+					!(yandexDatatransferEndpointSettingsYdsTargetSerializerPlan.SerializerDebezium.IsNull() && yandexDatatransferEndpointSettingsYdsTargetSerializerState.SerializerDebezium.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdsTargetSerializerPlan.SerializerDebezium.IsUnknown() {
 					updatePaths = append(updatePaths, "settings.yds_target.serializer.serializer_debezium")
-				} else {
+				} else if !yandexDatatransferEndpointSettingsYdsTargetSerializerPlan.SerializerDebezium.IsUnknown() {
 					var yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumListState, yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumListPlan []yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumModel = make([]yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetSerializerState.SerializerDebezium.Elements())), make([]yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetSerializerPlan.SerializerDebezium.Elements()))
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetSerializerPlan.SerializerDebezium.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumListPlan, false)...)
 					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetSerializerState.SerializerDebezium.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumListState, false)...)
@@ -4257,18 +4372,18 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 					if yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumState.SerializerParameters.IsNull() {
 						yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumState.SerializerParameters = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumDebeziumSerializerParameterStructModelType)
 					}
-					if !yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumPlan.SerializerParameters.Equal(yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumState.SerializerParameters) {
+					if !yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumPlan.SerializerParameters.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumPlan.SerializerParameters.Equal(yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerDebeziumState.SerializerParameters) {
 						updatePaths = append(updatePaths, "settings.yds_target.serializer.serializer_debezium.serializer_parameters")
 					}
 				}
 			}
-			if !yandexDatatransferEndpointSettingsYdsTargetPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdsTargetState.ServiceAccountId) {
+			if !yandexDatatransferEndpointSettingsYdsTargetPlan.ServiceAccountId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdsTargetState.ServiceAccountId) {
 				updatePaths = append(updatePaths, "settings.yds_target.service_account_id")
 			}
-			if !yandexDatatransferEndpointSettingsYdsTargetPlan.Stream.Equal(yandexDatatransferEndpointSettingsYdsTargetState.Stream) {
+			if !yandexDatatransferEndpointSettingsYdsTargetPlan.Stream.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.Stream.Equal(yandexDatatransferEndpointSettingsYdsTargetState.Stream) {
 				updatePaths = append(updatePaths, "settings.yds_target.stream")
 			}
-			if !yandexDatatransferEndpointSettingsYdsTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdsTargetState.SubnetId) {
+			if !yandexDatatransferEndpointSettingsYdsTargetPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdsTargetState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.yds_target.subnet_id")
 			}
 		}

@@ -579,12 +579,16 @@ func expandYandexDatatransferTransferTransformationTransformerStructModel(ctx co
 }
 
 type yandexDatatransferTransferTransformationTransformerStructConvertToStringModel struct {
-	Columns types.List `tfsdk:"columns"`
-	Tables  types.List `tfsdk:"tables"`
+	Columns           types.List `tfsdk:"columns"`
+	SkipUtcConversion types.Bool `tfsdk:"skip_utc_conversion"`
+	Tables            types.List `tfsdk:"tables"`
 }
 
 func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringModel) GetColumns() types.List {
 	return m.Columns
+}
+func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringModel) GetSkipUtcConversion() types.Bool {
+	return m.SkipUtcConversion
 }
 func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringModel) GetTables() types.List {
 	return m.Tables
@@ -593,20 +597,27 @@ func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStrin
 func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringModel) SetColumns(target types.List) {
 	m.Columns = target
 }
+func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringModel) SetSkipUtcConversion(target types.Bool) {
+	m.SkipUtcConversion = target
+}
 func (m *yandexDatatransferTransferTransformationTransformerStructConvertToStringModel) SetTables(target types.List) {
 	m.Tables = target
 }
 
 func NewYandexDatatransferTransferTransformationTransformerStructConvertToStringModel() yandexDatatransferTransferTransformationTransformerStructConvertToStringModel {
 	return yandexDatatransferTransferTransformationTransformerStructConvertToStringModel{
-		Columns: types.ListNull(yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModelType),
-		Tables:  types.ListNull(yandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModelType),
+		Columns:           types.ListNull(yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModelType),
+		SkipUtcConversion: types.BoolNull(),
+		Tables:            types.ListNull(yandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModelType),
 	}
 }
 
 func yandexDatatransferTransferTransformationTransformerStructConvertToStringModelFillUnknown(target yandexDatatransferTransferTransformationTransformerStructConvertToStringModel) yandexDatatransferTransferTransformationTransformerStructConvertToStringModel {
 	if target.Columns.IsUnknown() || target.Columns.IsNull() {
 		target.Columns = types.ListNull(yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModelType)
+	}
+	if target.SkipUtcConversion.IsUnknown() || target.SkipUtcConversion.IsNull() {
+		target.SkipUtcConversion = types.BoolNull()
 	}
 	if target.Tables.IsUnknown() || target.Tables.IsNull() {
 		target.Tables = types.ListNull(yandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModelType)
@@ -616,8 +627,9 @@ func yandexDatatransferTransferTransformationTransformerStructConvertToStringMod
 
 var yandexDatatransferTransferTransformationTransformerStructConvertToStringModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"columns": types.ListType{ElemType: yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModelType},
-		"tables":  types.ListType{ElemType: yandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModelType},
+		"columns":             types.ListType{ElemType: yandexDatatransferTransferTransformationTransformerStructConvertToStringColumnsModelType},
+		"skip_utc_conversion": types.BoolType,
+		"tables":              types.ListType{ElemType: yandexDatatransferTransferTransformationTransformerStructConvertToStringTablesModelType},
 	},
 }
 
@@ -652,8 +664,9 @@ func flattenYandexDatatransferTransferTransformationTransformerStructConvertToSt
 		state = yandexDatatransferTransferTransformationTransformerStructConvertToStringType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferTransferTransformationTransformerStructConvertToStringModelType.AttrTypes, yandexDatatransferTransferTransformationTransformerStructConvertToStringModel{
-		Columns: flattenYandexDatatransferTransferTransformationTransformerStructConvertToStringColumns(ctx, yandexDatatransferTransferTransformationTransformerStructConvertToString.GetColumns(), state.Columns, diags),
-		Tables:  flattenYandexDatatransferTransferTransformationTransformerStructConvertToStringTables(ctx, yandexDatatransferTransferTransformationTransformerStructConvertToString.GetTables(), state.Tables, diags),
+		Columns:           flattenYandexDatatransferTransferTransformationTransformerStructConvertToStringColumns(ctx, yandexDatatransferTransferTransformationTransformerStructConvertToString.GetColumns(), state.Columns, diags),
+		SkipUtcConversion: types.BoolValue(yandexDatatransferTransferTransformationTransformerStructConvertToString.GetSkipUtcConversion()),
+		Tables:            flattenYandexDatatransferTransferTransformationTransformerStructConvertToStringTables(ctx, yandexDatatransferTransferTransformationTransformerStructConvertToString.GetTables(), state.Tables, diags),
 	})
 	diags.Append(diag...)
 	valueList, diag := types.ListValue(yandexDatatransferTransferTransformationTransformerStructConvertToStringModelType, []attr.Value{value})
@@ -679,6 +692,7 @@ func expandYandexDatatransferTransferTransformationTransformerStructConvertToStr
 func expandYandexDatatransferTransferTransformationTransformerStructConvertToStringModel(ctx context.Context, yandexDatatransferTransferTransformationTransformerStructConvertToStringState yandexDatatransferTransferTransformationTransformerStructConvertToStringModel, diags *diag.Diagnostics) *datatransfer.ToStringTransformer {
 	value := &datatransfer.ToStringTransformer{}
 	value.SetColumns(expandYandexDatatransferTransferTransformationTransformerStructConvertToStringColumns(ctx, yandexDatatransferTransferTransformationTransformerStructConvertToStringState.Columns, diags))
+	value.SetSkipUtcConversion(yandexDatatransferTransferTransformationTransformerStructConvertToStringState.SkipUtcConversion.ValueBool())
 	value.SetTables(expandYandexDatatransferTransferTransformationTransformerStructConvertToStringTables(ctx, yandexDatatransferTransferTransformationTransformerStructConvertToStringState.Tables, diags))
 	if diags.HasError() {
 		return nil
