@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_mysql_user_v2"
 	"os"
 	"strconv"
 	"sync"
@@ -321,6 +322,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		mdb_redis_user.NewResource,
 		mdb_mysql_cluster_v2.NewMySQLClusterResourceV2,
 		mdb_mysql_database_v2.NewResource,
+		mdb_mysql_user_v2.NewResource,
 		kubernetes_marketplace_helm_release.NewResource,
 		organizationmanager_idp_application_oauth_application_assignment.NewResource,
 		organizationmanager_idp_application_saml_application_assignment.NewResource,
@@ -371,6 +373,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		mdb_mongodb_database.NewDataSource,
 		mdb_mongodb_user.NewDataSource,
 		mdb_mysql_database_v2.NewDataSource,
+		mdb_mysql_user_v2.NewDataSource,
 		mdb_redis_cluster_v2.NewDataSource,
 		mdb_redis_user.NewDataSource,
 		mdb_opensearch_cluster.NewDataSource,
