@@ -195,9 +195,11 @@ func (p *PostgresqlAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diags *d
 }
 
 func (p *PostgresqlAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) {
-	op, err := sdk.WrapOperation(sdk.MDB().PostgreSQL().Cluster().Delete(ctx, &postgresql.DeleteClusterRequest{
-		ClusterId: cid,
-	}))
+	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
+		return sdk.MDB().PostgreSQL().Cluster().Delete(ctx, &postgresql.DeleteClusterRequest{
+			ClusterId: cid,
+		})
+	})
 
 	if err != nil {
 		diags.AddError(
@@ -252,7 +254,7 @@ func (p *PostgresqlAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 			"Failed to create resource",
 			fmt.Sprintf("Error while waiting for operation %q to create PostgreSQL cluster: %s", op.Id(), err.Error()),
 		)
-		return ""
+		return md.ClusterId
 	}
 
 	return md.ClusterId
@@ -293,7 +295,7 @@ func (p *PostgresqlAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diag
 			"Failed to restore resource from backup",
 			fmt.Sprintf("Error while waiting for operation %q to restore PostgreSQL cluster from backup: %s", op.Id(), err.Error()),
 		)
-		return ""
+		return md.ClusterId
 	}
 
 	return md.ClusterId

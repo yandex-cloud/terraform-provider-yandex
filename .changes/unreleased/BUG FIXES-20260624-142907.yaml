@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: yandex_mdb_postgresql_cluster_v2 now keeps a cluster in state on failed create/restore, so it stays managed by terraform instead of being orphan'
+time: 2026-06-24T14:29:07.219190455+03:00

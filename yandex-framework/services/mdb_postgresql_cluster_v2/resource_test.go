@@ -1672,6 +1672,136 @@ func testAccCheckClusterHasResources(r *postgresql.Cluster, resourcePresetID str
 	}
 }
 
+func TestAccMDBPostgreSQLCluster_failedCreateIsCleanedUp(t *testing.T) {
+	t.Parallel()
+
+	clusterName := acctest.RandomWithPrefix("tf-pg-failed-create")
+	version := pgVersions[rand.Intn(len(pgVersions))]
+	resources := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-hdd"
+	`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBPGClusterDestroy,
+			testAccCheckMDBPGClusterAbsentByName(clusterName),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccMDBPGClusterCreateTimeout(clusterName, version, resources, "20s"),
+				ExpectError: regexp.MustCompile("Failed to create resource"),
+			},
+		},
+	})
+}
+
+func testAccCheckMDBPGClusterAbsentByName(name string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := test.AccProvider.(*provider.Provider).GetConfig()
+		resp, err := config.SDK.MDB().PostgreSQL().Cluster().List(context.Background(), &postgresql.ListClustersRequest{
+			FolderId: test.GetExampleFolderID(),
+			PageSize: defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+		for _, c := range resp.Clusters {
+			if c.Name == name {
+				return fmt.Errorf("PostgreSQL cluster %q (%s) was left orphaned after a failed create", name, c.Id)
+			}
+		}
+		return nil
+	}
+}
+
+func testAccMDBPGClusterCreateTimeout(name, version, resources, createTimeout string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "foo" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+  }
+
+  config {
+    version = "%s"
+    resources {
+      %s
+    }
+  }
+
+  timeouts = {
+    create = "%s"
+  }
+}
+`, name, version, resources, createTimeout)
+}
+
+func TestAccMDBPostgreSQLCluster_failedRestoreIsCleanedUp(t *testing.T) {
+	t.Parallel()
+
+	clusterName := acctest.RandomWithPrefix("tf-pg-failed-restore")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBPGClusterDestroy,
+			testAccCheckMDBPGClusterAbsentByName(clusterName),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccMDBPGClusterRestoreTimeout(clusterName, "20s"),
+				ExpectError: regexp.MustCompile("Failed to restore resource from backup"),
+			},
+		},
+	})
+}
+
+func testAccMDBPGClusterRestoreTimeout(clusterName, createTimeout string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "foo" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+  folder_id   = "%s"
+
+  restore = {
+    backup_id = "%s"
+  }
+
+  config {
+    version = "15"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+
+  hosts = {
+    "host" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+  }
+
+  timeouts = {
+    create = "%s"
+  }
+}
+`, clusterName, test.GetExampleFolderID(), pgRestoreBackupId, createTimeout)
+}
+
 func testAccMDBPGClusterBasic(resourceId, name, description, environment, labels, version, resources string) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster_v2" "%s" {

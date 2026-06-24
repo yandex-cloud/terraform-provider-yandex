@@ -624,6 +624,13 @@ func (r *clusterResource) createCluster(
 
 	cid := postgresqlApi.CreateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
 	if resp.Diagnostics.HasError() {
+		// A failed create may still leave the cluster created. Keep tracking it by
+		// its id so terraform manages it instead of leaving it orphaned.
+		if cid != "" {
+			plan.Id = types.StringValue(cid)
+			r.refreshResourceState(ctx, &plan, &resp.Diagnostics)
+			resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+		}
 		return
 	}
 	plan.Id = types.StringValue(cid)
@@ -676,7 +683,9 @@ func (r *clusterResource) restoreCluster(
 	}
 
 	cid := postgresqlApi.RestoreCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
-	if resp.Diagnostics.HasError() {
+	// A failed restore may still leave the cluster created. Keep tracking it by
+	// its id so terraform manages it instead of leaving it orphaned.
+	if cid == "" {
 		return
 	}
 	plan.Id = types.StringValue(cid)
