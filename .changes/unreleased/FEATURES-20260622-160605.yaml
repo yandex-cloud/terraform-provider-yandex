@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'datatransfer: add collapse_inherit_table to pg_source `yandex_datatransfer_endpoint` and skip_utc_conversion to `yandex_datatransfer_transfer`'
-time: 2026-06-22T16:06:05.309823+02:00

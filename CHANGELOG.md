@@ -2,6 +2,13 @@
 
 
 
+## 0.212.0 (June 25, 2026)
+##### FEATURES:
+* mysql: add yandex_mdb_mysql_user_v2 resource and datasource
+* datatransfer: add collapse_inherit_table to pg_source `yandex_datatransfer_endpoint` and skip_utc_conversion to `yandex_datatransfer_transfer`
+##### BUG FIXES:
+* postgresql: yandex_mdb_postgresql_cluster_v2 now keeps a cluster in state on failed create/restore, so it stays managed by terraform instead of being orphan
+
 ## 0.211.0 (June 22, 2026)
 ##### FEATURES:
 * yandex_storage_bucket: support INTELLIGENT_TIERING storage class
