@@ -1294,6 +1294,22 @@ func DataSourceExternalDictionarySchema() schema.MapNestedAttribute {
 							Computed:    true,
 							Description: "Allows to retrieve key attribute using dictGetString function.",
 						},
+						"block_size": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Block size for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.",
+						},
+						"file_size": schema.Int64Attribute{
+							Computed:    true,
+							Description: "Maximum cache file size in bytes for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.",
+						},
+						"read_buffer_size": schema.Int64Attribute{
+							Computed:    true,
+							Description: "RAM buffer size for reading from SSD in bytes for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.",
+						},
+						"write_buffer_size": schema.Int64Attribute{
+							Computed:    true,
+							Description: "RAM buffer size for writing to SSD in bytes for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.",
+						},
 					},
 				},
 

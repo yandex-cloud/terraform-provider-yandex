@@ -443,6 +443,10 @@ type DictionaryLayout struct {
 	InitialArraySize                   types.Int64  `tfsdk:"initial_array_size"`
 	MaxArraySize                       types.Int64  `tfsdk:"max_array_size"`
 	AccessToKeyFromAttributes          types.Bool   `tfsdk:"access_to_key_from_attributes"`
+	BlockSize                          types.Int64  `tfsdk:"block_size"`
+	FileSize                           types.Int64  `tfsdk:"file_size"`
+	ReadBufferSize                     types.Int64  `tfsdk:"read_buffer_size"`
+	WriteBufferSize                    types.Int64  `tfsdk:"write_buffer_size"`
 }
 
 var DictionaryLayoutAttrTypes = map[string]attr.Type{
@@ -456,6 +460,10 @@ var DictionaryLayoutAttrTypes = map[string]attr.Type{
 	"initial_array_size":                     types.Int64Type,
 	"max_array_size":                         types.Int64Type,
 	"access_to_key_from_attributes":          types.BoolType,
+	"block_size":                             types.Int64Type,
+	"file_size":                              types.Int64Type,
+	"read_buffer_size":                       types.Int64Type,
+	"write_buffer_size":                      types.Int64Type,
 }
 
 func flattenDictionaryLayout(ctx context.Context, layout *clickhouseConfig.ClickhouseConfig_ExternalDictionary_Layout, diags *diag.Diagnostics) types.Object {
@@ -475,6 +483,10 @@ func flattenDictionaryLayout(ctx context.Context, layout *clickhouseConfig.Click
 			InitialArraySize:                   types.Int64Value(layout.InitialArraySize),
 			MaxArraySize:                       types.Int64Value(layout.MaxArraySize),
 			AccessToKeyFromAttributes:          flattenBoolWrapperOrFalse(layout.AccessToKeyFromAttributes),
+			BlockSize:                          types.Int64Value(layout.BlockSize),
+			FileSize:                           types.Int64Value(layout.FileSize),
+			ReadBufferSize:                     types.Int64Value(layout.ReadBufferSize),
+			WriteBufferSize:                    types.Int64Value(layout.WriteBufferSize),
 		},
 	)
 	diags.Append(d...)
@@ -509,6 +521,10 @@ func expandDictionaryLayout(ctx context.Context, c types.Object, diags *diag.Dia
 		InitialArraySize:                   layout.InitialArraySize.ValueInt64(),
 		MaxArraySize:                       layout.MaxArraySize.ValueInt64(),
 		AccessToKeyFromAttributes:          mdbcommon.ExpandBoolWrapper(ctx, layout.AccessToKeyFromAttributes, diags),
+		BlockSize:                          layout.BlockSize.ValueInt64(),
+		FileSize:                           layout.FileSize.ValueInt64(),
+		ReadBufferSize:                     layout.ReadBufferSize.ValueInt64(),
+		WriteBufferSize:                    layout.WriteBufferSize.ValueInt64(),
 	}
 }
 

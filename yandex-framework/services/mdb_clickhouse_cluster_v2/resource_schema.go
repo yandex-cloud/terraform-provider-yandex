@@ -1972,8 +1972,26 @@ func ExternalDictionarySchema() schema.MapNestedAttribute {
 					Required:    true,
 					Attributes: map[string]schema.Attribute{
 						"type": schema.StringAttribute{
-							Description: "Layout type (FLAT, HASHED, CACHE, etc.).",
+							Description: "Layout type.",
 							Required:    true,
+							Validators: []validator.String{
+								stringvalidator.OneOf(
+									"FLAT",
+									"HASHED",
+									"COMPLEX_KEY_HASHED",
+									"RANGE_HASHED",
+									"CACHE",
+									"COMPLEX_KEY_CACHE",
+									"SPARSE_HASHED",
+									"COMPLEX_KEY_SPARSE_HASHED",
+									"COMPLEX_KEY_RANGE_HASHED",
+									"DIRECT",
+									"COMPLEX_KEY_DIRECT",
+									"IP_TRIE",
+									"SSD_CACHE",
+									"COMPLEX_KEY_SSD_CACHE",
+								),
+							},
 						},
 						"size_in_cells": schema.Int64Attribute{
 							Description: "Number of cells in the cache or initial array size.",
@@ -2045,6 +2063,38 @@ func ExternalDictionarySchema() schema.MapNestedAttribute {
 							Computed:    true,
 							PlanModifiers: []planmodifier.Bool{
 								boolplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"block_size": schema.Int64Attribute{
+							Description: "Block size for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"file_size": schema.Int64Attribute{
+							Description: "Maximum cache file size in bytes for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"read_buffer_size": schema.Int64Attribute{
+							Description: "RAM buffer size for reading from SSD in bytes for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
+						"write_buffer_size": schema.Int64Attribute{
+							Description: "RAM buffer size for writing to SSD in bytes for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.",
+							Optional:    true,
+							Computed:    true,
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
 							},
 						},
 					},

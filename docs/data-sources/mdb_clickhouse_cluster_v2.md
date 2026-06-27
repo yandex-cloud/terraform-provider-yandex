@@ -224,14 +224,18 @@ output "network_id" {
   - `layout` [Block]. Layout of the external dictionary.
     - `access_to_key_from_attributes` (Bool). Allows to retrieve key attribute using dictGetString function.
     - `allow_read_expired_keys` (Bool). Allow reading expired keys.
+    - `block_size` (Number). Block size for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.
+    - `file_size` (Number). Maximum cache file size in bytes for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.
     - `initial_array_size` (Number). Initial dictionary key size for FLAT layout.
     - `max_array_size` (Number). Maximum dictionary key size for FLAT layout.
     - `max_threads_for_updates` (Number). Max threads for cache dictionary update.
     - `max_update_queue_size` (Number). Max size of update queue.
     - `query_wait_timeout_milliseconds` (Number). Max wait timeout in milliseconds for update task to complete.
+    - `read_buffer_size` (Number). RAM buffer size for reading from SSD in bytes for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.
     - `size_in_cells` (Number). Number of cells in the cache or initial array size.
-    - `type` (**Required**)(String). Layout type (FLAT, HASHED, CACHE, etc.).
+    - `type` (**Required**)(String). Layout type.
     - `update_queue_push_timeout_milliseconds` (Number). Max timeout in milliseconds for push update task into queue.
+    - `write_buffer_size` (Number). RAM buffer size for writing to SSD in bytes for SSD_CACHE and COMPLEX_KEY_SSD_CACHE layout types.
   - `lifetime` [Block]. Lifetime of the dictionary data.
     - `fixed_lifetime` (Number). Fixed reload interval in seconds.
     - `range` [Block]. Random reload interval in seconds.

@@ -668,6 +668,27 @@ var (
 		"initial_array_size":                     types.Int64Value(0),
 		"max_array_size":                         types.Int64Value(0),
 		"access_to_key_from_attributes":          types.BoolNull(),
+		"block_size":                             types.Int64Value(0),
+		"file_size":                              types.Int64Value(0),
+		"read_buffer_size":                       types.Int64Value(0),
+		"write_buffer_size":                      types.Int64Value(0),
+	})
+
+	dictSsdCacheLayoutTF = types.ObjectValueMust(models.DictionaryLayoutAttrTypes, map[string]attr.Value{
+		"type":                                   types.StringValue("SSD_CACHE"),
+		"size_in_cells":                          types.Int64Value(0),
+		"allow_read_expired_keys":                types.BoolNull(),
+		"max_update_queue_size":                  types.Int64Value(0),
+		"update_queue_push_timeout_milliseconds": types.Int64Value(0),
+		"query_wait_timeout_milliseconds":        types.Int64Value(0),
+		"max_threads_for_updates":                types.Int64Value(0),
+		"initial_array_size":                     types.Int64Value(0),
+		"max_array_size":                         types.Int64Value(0),
+		"access_to_key_from_attributes":          types.BoolNull(),
+		"block_size":                             types.Int64Value(4096),
+		"file_size":                              types.Int64Value(4294967296),
+		"read_buffer_size":                       types.Int64Value(65536),
+		"write_buffer_size":                      types.Int64Value(4096),
 	})
 
 	dictFixed300LifetimeTF = types.ObjectValueMust(models.DictionaryLifetimeAttrTypes, map[string]attr.Value{
@@ -1931,6 +1952,43 @@ func TestYandexProvider_MDBClickHouseClusterPrepareExternalDictionaryCreateReque
 								Port:     9000,
 								User:     "ch_user",
 								Password: "ch_pass",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "ssd_cache_layout",
+			dicts: makeDictMapTF(map[string]types.Object{
+				"ssd_dict": types.ObjectValueMust(
+					models.ExternalDictionaryAttrTypes,
+					map[string]attr.Value{
+						"structure": dictStructure,
+						"layout":    dictSsdCacheLayoutTF,
+						"lifetime":  dictFixed300LifetimeTF,
+						"source":    httpSource,
+					},
+				),
+			}),
+			expectedRequests: []*clickhouse.CreateClusterExternalDictionaryRequest{
+				{
+					ClusterId: clusterId,
+					ExternalDictionary: &clickhouseConfig.ClickhouseConfig_ExternalDictionary{
+						Name:      "ssd_dict",
+						Structure: expectedStructure,
+						Layout: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_Layout{
+							Type:            clickhouseConfig.ClickhouseConfig_ExternalDictionary_Layout_SSD_CACHE,
+							BlockSize:       4096,
+							FileSize:        4294967296,
+							ReadBufferSize:  65536,
+							WriteBufferSize: 4096,
+						},
+						Lifetime: expectedFixedLifetime,
+						Source: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_HttpSource_{
+							HttpSource: &clickhouseConfig.ClickhouseConfig_ExternalDictionary_HttpSource{
+								Url:    "https://example.com/dict",
+								Format: "CSV",
 							},
 						},
 					},

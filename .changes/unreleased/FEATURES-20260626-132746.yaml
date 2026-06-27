@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_clickhouse: SSD cache dictionaries support'
+time: 2026-06-26T13:27:46.147012+05:00
