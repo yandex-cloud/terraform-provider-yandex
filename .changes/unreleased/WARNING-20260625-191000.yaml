@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'loadtesting: `yandex_loadtesting_agent` resource and data source have been removed because the Yandex Cloud Load Testing service is shut down'
-time: 2026-06-25T19:10:00.000000000+03:00

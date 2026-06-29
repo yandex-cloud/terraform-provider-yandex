@@ -2,6 +2,12 @@
 
 
 
+## 0.213.0 (June 29, 2026)
+##### FEATURES:
+* mdb_clickhouse: SSD cache dictionaries support
+##### WARNING:
+* loadtesting: `yandex_loadtesting_agent` resource and data source have been removed because the Yandex Cloud Load Testing service is shut down
+
 ## 0.212.0 (June 25, 2026)
 ##### FEATURES:
 * mysql: add yandex_mdb_mysql_user_v2 resource and datasource
