@@ -20,6 +20,7 @@ import (
 	accessbinding "github.com/yandex-cloud/terraform-provider-yandex/pkg/iam_access"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -320,6 +321,11 @@ func (u *IAMUpdater) refreshBindingState(ctx context.Context, req accessbinding.
 
 	policy, err := u.GetResourceIamPolicy(ctx)
 	if err != nil {
+		if accessbinding.IsStatusWithCode(err, codes.NotFound) {
+			tflog.Debug(ctx, fmt.Sprintf("Resource yandex_iam_service_account_iam_binding '%s' not found, removing from state", u.service_accountId))
+			resp.RemoveResource(ctx)
+			return
+		}
 		diag.AddError(
 			"Unable to Refresh Resource Policies",
 			fmt.Sprintf("An unexpected error occurred while refreshing resource policies"+
