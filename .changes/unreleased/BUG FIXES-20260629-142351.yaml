@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'iam: yandex_*_iam_binding resources are now removed from state when the parent resource is deleted outside terraform, instead of failing refresh'
+time: 2026-06-29T14:23:51.425170581+03:00
