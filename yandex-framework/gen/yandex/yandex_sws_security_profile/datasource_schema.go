@@ -9994,6 +9994,16 @@ func YandexSwsSecurityProfileDatasourceSchema(ctx context.Context) schema.Schema
 					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 				Computed: true,
 			},
+
+			"updated_at": schema.StringAttribute{
+				MarkdownDescription: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.",
+				Description: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format." +
+					// proto paths: +
+					// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.updated_at
+					"package: yandex.cloud.smartwebsecurity.v1\n" +
+					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+				Computed: true,
+			},
 		},
 
 		Blocks: map[string]schema.Block{

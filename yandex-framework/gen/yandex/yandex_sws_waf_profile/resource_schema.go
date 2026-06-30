@@ -161,6 +161,16 @@ func YandexSwsWafProfileResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 
+			"updated_at": schema.StringAttribute{
+				MarkdownDescription: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.",
+				Description: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format." +
+					// proto paths: +
+					// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.updated_at
+					"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+					"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+				Computed: true,
+			},
+
 			"waf_profile_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the WafProfile resource to return.",
 				Description: "ID of the WafProfile resource to return." +
@@ -6154,6 +6164,25 @@ func YandexSwsWafProfileResourceSchema(ctx context.Context) schema.Schema {
 									"body_matcher": schema.ListNestedBlock{
 										NestedObject: schema.NestedBlockObject{
 
+											Attributes: map[string]schema.Attribute{
+
+												"is_excluded": schema.BoolAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.is_excluded
+														// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.is_excluded
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.is_excluded
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.Bool{
+														boolplanmodifier.UseStateForUnknown(),
+													},
+												},
+											},
 											Blocks: map[string]schema.Block{
 
 												"body_value": schema.ListNestedBlock{
@@ -6212,8 +6241,8 @@ func YandexSwsWafProfileResourceSchema(ctx context.Context) schema.Schema {
 												},
 											},
 										},
-										MarkdownDescription: "Matcher for request body.",
-										Description: "Matcher for request body." +
+										MarkdownDescription: "Matcher for request body exclusion flag.",
+										Description: "Matcher for request body exclusion flag." +
 											// proto paths: +
 											// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher
 											// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher

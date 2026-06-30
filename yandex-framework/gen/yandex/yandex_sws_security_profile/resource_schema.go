@@ -96,10 +96,17 @@ func YandexSwsSecurityProfileResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "ID of the default custom page shown to the user when a request is denied.",
 				Description: "ID of the default custom page shown to the user when a request is denied." +
 					// proto paths: +
+					// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.custom_page_id
 					// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.custom_page_id
+					// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.custom_page_id
 					"package: yandex.cloud.smartwebsecurity.v1\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+				Optional: true,
 				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 
 			"default_action": schema.StringAttribute{
@@ -145,10 +152,17 @@ func YandexSwsSecurityProfileResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Disables the use of HTTP request data for training and improving the service's ML models.",
 				Description: "Disables the use of HTTP request data for training and improving the service's ML models." +
 					// proto paths: +
+					// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.disallow_data_processing
 					// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.disallow_data_processing
+					// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.disallow_data_processing
 					"package: yandex.cloud.smartwebsecurity.v1\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+				Optional: true,
 				Computed: true,
+
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 
 			"folder_id": schema.StringAttribute{
@@ -202,84 +216,6 @@ func YandexSwsSecurityProfileResourceSchema(ctx context.Context) schema.Schema {
 				Description: "ID of the Cloud Logging log group to write SWS logs to." +
 					// proto paths: +
 					// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_group_id
-					"package: yandex.cloud.smartwebsecurity.v1\n" +
-					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
-				Computed: true,
-			},
-
-			"log_options": schema.ListNestedAttribute{
-				NestedObject: schema.NestedAttributeObject{
-
-					Attributes: map[string]schema.Attribute{
-
-						"discard_allow_percentage": schema.Int64Attribute{
-							MarkdownDescription: "Percentage of ALLOW verdicts to discard from logging (0-100).",
-							Description: "Percentage of ALLOW verdicts to discard from logging (0-100)." +
-								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.discard_allow_percentage
-								"package: yandex.cloud.smartwebsecurity.v1\n" +
-								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
-							Computed: true,
-						},
-
-						"enable": schema.BoolAttribute{
-							MarkdownDescription: "Enables logging of requests processed by SWS.",
-							Description: "Enables logging of requests processed by SWS." +
-								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enable
-								"package: yandex.cloud.smartwebsecurity.v1\n" +
-								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
-							Computed: true,
-						},
-
-						"enabled_actions": schema.ListAttribute{
-							ElementType:         types.StringType,
-							MarkdownDescription: "List of verdicts for which requests will be logged.",
-							Description: "List of verdicts for which requests will be logged." +
-								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_actions
-								"package: yandex.cloud.smartwebsecurity.v1\n" +
-								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
-							Computed: true,
-						},
-
-						"enabled_modules": schema.ListAttribute{
-							ElementType:         types.StringType,
-							MarkdownDescription: "List of modules whose requests will be logged.",
-							Description: "List of modules whose requests will be logged." +
-								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_modules
-								"package: yandex.cloud.smartwebsecurity.v1\n" +
-								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
-							Computed: true,
-						},
-
-						"log_group_id": schema.StringAttribute{
-							MarkdownDescription: "ID of the Cloud Logging log group to write SWS logs to.",
-							Description: "ID of the Cloud Logging log group to write SWS logs to." +
-								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.log_group_id
-								"package: yandex.cloud.smartwebsecurity.v1\n" +
-								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
-							Computed: true,
-						},
-
-						"outputs": schema.ListAttribute{
-							ElementType:         types.StringType,
-							MarkdownDescription: "List of log destinations: Cloud Logging and/or Audit Trails.",
-							Description: "List of log destinations: Cloud Logging and/or Audit Trails." +
-								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.outputs
-								"package: yandex.cloud.smartwebsecurity.v1\n" +
-								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
-							Computed: true,
-						},
-					},
-				},
-				MarkdownDescription: "Configures logging of requests processed by SWS to Audit Trails and Cloud Logging.",
-				Description: "Configures logging of requests processed by SWS to Audit Trails and Cloud Logging." +
-					// proto paths: +
-					// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_options
 					"package: yandex.cloud.smartwebsecurity.v1\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 				Computed: true,
@@ -340,6 +276,16 @@ func YandexSwsSecurityProfileResourceSchema(ctx context.Context) schema.Schema {
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+
+			"updated_at": schema.StringAttribute{
+				MarkdownDescription: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.",
+				Description: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format." +
+					// proto paths: +
+					// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.updated_at
+					"package: yandex.cloud.smartwebsecurity.v1\n" +
+					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+				Computed: true,
+			},
 		},
 
 		Blocks: map[string]schema.Block{
@@ -395,6 +341,164 @@ func YandexSwsSecurityProfileResourceSchema(ctx context.Context) schema.Schema {
 					// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.analyze_request_body
 					// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.analyze_request_body
 					// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.analyze_request_body
+					"package: yandex.cloud.smartwebsecurity.v1\n" +
+					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(1),
+				},
+			},
+
+			"log_options": schema.ListNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+
+					Attributes: map[string]schema.Attribute{
+
+						"discard_allow_percentage": schema.Int64Attribute{
+							MarkdownDescription: "Percentage of ALLOW verdicts to discard from logging (0-100).",
+							Description: "Percentage of ALLOW verdicts to discard from logging (0-100)." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.discard_allow_percentage
+								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.discard_allow_percentage
+								// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.discard_allow_percentage
+								"package: yandex.cloud.smartwebsecurity.v1\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.Int64{
+								int64validator.Between(0, 100),
+							},
+						},
+
+						"enable": schema.BoolAttribute{
+							MarkdownDescription: "Enables logging of requests processed by SWS.",
+							Description: "Enables logging of requests processed by SWS." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enable
+								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enable
+								// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enable
+								"package: yandex.cloud.smartwebsecurity.v1\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.Bool{
+								boolplanmodifier.UseStateForUnknown(),
+							},
+						},
+
+						"enabled_actions": schema.ListAttribute{
+							ElementType:         types.StringType,
+							MarkdownDescription: "List of verdicts for which requests will be logged.",
+							Description: "List of verdicts for which requests will be logged." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_actions
+								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_actions
+								// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_actions
+								"package: yandex.cloud.smartwebsecurity.v1\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.List{
+								listplanmodifier.UseStateForUnknown(),
+								planmodifiers.NilRelaxedList(),
+							},
+							Validators: []validator.List{
+								listvalidator.ValueStringsAre(
+									stringvalidator.OneOf(converter.MapKeys(smartwebsecurity.SecurityProfile_LogOptions_Action_value)...),
+								),
+								listvalidator.ValueStringsAre(
+									stringvalidator.OneOf(converter.MapKeys(smartwebsecurity.SecurityProfile_LogOptions_Action_value)...),
+								),
+							},
+						},
+
+						"enabled_modules": schema.ListAttribute{
+							ElementType:         types.StringType,
+							MarkdownDescription: "List of modules whose requests will be logged.",
+							Description: "List of modules whose requests will be logged." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_modules
+								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_modules
+								// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_modules
+								"package: yandex.cloud.smartwebsecurity.v1\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.List{
+								listplanmodifier.UseStateForUnknown(),
+								planmodifiers.NilRelaxedList(),
+							},
+							Validators: []validator.List{
+								listvalidator.ValueStringsAre(
+									stringvalidator.OneOf(converter.MapKeys(smartwebsecurity.SecurityProfile_LogOptions_Module_value)...),
+								),
+								listvalidator.ValueStringsAre(
+									stringvalidator.OneOf(converter.MapKeys(smartwebsecurity.SecurityProfile_LogOptions_Module_value)...),
+								),
+							},
+						},
+
+						"log_group_id": schema.StringAttribute{
+							MarkdownDescription: "ID of the Cloud Logging log group to write SWS logs to.",
+							Description: "ID of the Cloud Logging log group to write SWS logs to." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.log_group_id
+								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.log_group_id
+								// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.log_group_id
+								"package: yandex.cloud.smartwebsecurity.v1\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+
+						"outputs": schema.ListAttribute{
+							ElementType:         types.StringType,
+							MarkdownDescription: "List of log destinations: Cloud Logging and/or Audit Trails.",
+							Description: "List of log destinations: Cloud Logging and/or Audit Trails." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.outputs
+								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.outputs
+								// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.log_optionsyandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.outputs
+								"package: yandex.cloud.smartwebsecurity.v1\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.List{
+								listplanmodifier.UseStateForUnknown(),
+								planmodifiers.NilRelaxedList(),
+							},
+							Validators: []validator.List{
+								listvalidator.ValueStringsAre(
+									stringvalidator.OneOf(converter.MapKeys(smartwebsecurity.SecurityProfile_LogOptions_Output_value)...),
+								),
+								listvalidator.ValueStringsAre(
+									stringvalidator.OneOf(converter.MapKeys(smartwebsecurity.SecurityProfile_LogOptions_Output_value)...),
+								),
+							},
+						},
+					},
+				},
+				MarkdownDescription: "Configures logging of requests processed by SWS to Audit Trails and Cloud Logging.",
+				Description: "Configures logging of requests processed by SWS to Audit Trails and Cloud Logging." +
+					// proto paths: +
+					// -> yandex.cloud.smartwebsecurity.v1.CreateSecurityProfileRequest.log_options
+					// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_options
+					// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.log_options
 					"package: yandex.cloud.smartwebsecurity.v1\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 

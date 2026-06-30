@@ -158,7 +158,10 @@ func (r *yandexSwsSecurityProfileResource) Create(ctx context.Context, req resou
 	createReq.SetSecurityRules(expandYandexSwsSecurityProfileSecurityRule(ctx, plan.SecurityRule, &diags))
 	createReq.SetCaptchaId(plan.CaptchaId.ValueString())
 	createReq.SetAdvancedRateLimiterProfileId(plan.AdvancedRateLimiterProfileId.ValueString())
+	createReq.SetDisallowDataProcessing(plan.DisallowDataProcessing.ValueBool())
 	createReq.SetAnalyzeRequestBody(expandYandexSwsSecurityProfileAnalyzeRequestBody(ctx, plan.AnalyzeRequestBody, &diags))
+	createReq.SetLogOptions(expandYandexSwsSecurityProfileLogOptions(ctx, plan.LogOptions, &diags))
+	createReq.SetCustomPageId(plan.CustomPageId.ValueString())
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -355,11 +358,17 @@ func (r *yandexSwsSecurityProfileResource) Update(ctx context.Context, req resou
 	if !plan.CaptchaId.IsUnknown() && !plan.CaptchaId.Equal(state.CaptchaId) {
 		updatePaths = append(updatePaths, "captcha_id")
 	}
+	if !plan.CustomPageId.IsUnknown() && !plan.CustomPageId.Equal(state.CustomPageId) {
+		updatePaths = append(updatePaths, "custom_page_id")
+	}
 	if !plan.DefaultAction.IsUnknown() && !plan.DefaultAction.Equal(state.DefaultAction) {
 		updatePaths = append(updatePaths, "default_action")
 	}
 	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
+	}
+	if !plan.DisallowDataProcessing.IsUnknown() && !plan.DisallowDataProcessing.Equal(state.DisallowDataProcessing) {
+		updatePaths = append(updatePaths, "disallow_data_processing")
 	}
 	if plan.Labels.IsNull() {
 		plan.Labels = types.MapNull(types.StringType)
@@ -369,6 +378,70 @@ func (r *yandexSwsSecurityProfileResource) Update(ctx context.Context, req resou
 	}
 	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
+	}
+
+	if plan.LogOptions.IsNull() {
+		plan.LogOptions = types.ListNull(yandexSwsSecurityProfileLogOptionsModelType)
+	}
+	if state.LogOptions.IsNull() {
+		state.LogOptions = types.ListNull(yandexSwsSecurityProfileLogOptionsModelType)
+	}
+
+	if (plan.LogOptions.IsNull() || state.LogOptions.IsNull()) &&
+		!(plan.LogOptions.IsNull() && state.LogOptions.IsNull()) &&
+		!plan.LogOptions.IsUnknown() {
+		updatePaths = append(updatePaths, "log_options")
+	} else if !plan.LogOptions.IsUnknown() {
+		var yandexSwsSecurityProfileLogOptionsListState, yandexSwsSecurityProfileLogOptionsListPlan []yandexSwsSecurityProfileLogOptionsModel = make([]yandexSwsSecurityProfileLogOptionsModel, 0, len(state.LogOptions.Elements())), make([]yandexSwsSecurityProfileLogOptionsModel, 0, len(plan.LogOptions.Elements()))
+		resp.Diagnostics.Append(plan.LogOptions.ElementsAs(ctx, &yandexSwsSecurityProfileLogOptionsListPlan, false)...)
+		resp.Diagnostics.Append(state.LogOptions.ElementsAs(ctx, &yandexSwsSecurityProfileLogOptionsListState, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		var yandexSwsSecurityProfileLogOptionsState, yandexSwsSecurityProfileLogOptionsPlan yandexSwsSecurityProfileLogOptionsModel
+		if len(yandexSwsSecurityProfileLogOptionsListState) != 0 {
+			yandexSwsSecurityProfileLogOptionsState = yandexSwsSecurityProfileLogOptionsListState[0]
+		}
+		if len(yandexSwsSecurityProfileLogOptionsListPlan) != 0 {
+			yandexSwsSecurityProfileLogOptionsPlan = yandexSwsSecurityProfileLogOptionsListPlan[0]
+		}
+
+		if !yandexSwsSecurityProfileLogOptionsPlan.DiscardAllowPercentage.IsUnknown() && !yandexSwsSecurityProfileLogOptionsPlan.DiscardAllowPercentage.Equal(yandexSwsSecurityProfileLogOptionsState.DiscardAllowPercentage) {
+			updatePaths = append(updatePaths, "log_options.discard_allow_percentage")
+		}
+		if !yandexSwsSecurityProfileLogOptionsPlan.Enable.IsUnknown() && !yandexSwsSecurityProfileLogOptionsPlan.Enable.Equal(yandexSwsSecurityProfileLogOptionsState.Enable) {
+			updatePaths = append(updatePaths, "log_options.enable")
+		}
+		if yandexSwsSecurityProfileLogOptionsPlan.EnabledActions.IsNull() {
+			yandexSwsSecurityProfileLogOptionsPlan.EnabledActions = types.ListNull(types.StringType)
+		}
+		if yandexSwsSecurityProfileLogOptionsState.EnabledActions.IsNull() {
+			yandexSwsSecurityProfileLogOptionsState.EnabledActions = types.ListNull(types.StringType)
+		}
+		if !yandexSwsSecurityProfileLogOptionsPlan.EnabledActions.IsUnknown() && !yandexSwsSecurityProfileLogOptionsPlan.EnabledActions.Equal(yandexSwsSecurityProfileLogOptionsState.EnabledActions) {
+			updatePaths = append(updatePaths, "log_options.enabled_actions")
+		}
+		if yandexSwsSecurityProfileLogOptionsPlan.EnabledModules.IsNull() {
+			yandexSwsSecurityProfileLogOptionsPlan.EnabledModules = types.ListNull(types.StringType)
+		}
+		if yandexSwsSecurityProfileLogOptionsState.EnabledModules.IsNull() {
+			yandexSwsSecurityProfileLogOptionsState.EnabledModules = types.ListNull(types.StringType)
+		}
+		if !yandexSwsSecurityProfileLogOptionsPlan.EnabledModules.IsUnknown() && !yandexSwsSecurityProfileLogOptionsPlan.EnabledModules.Equal(yandexSwsSecurityProfileLogOptionsState.EnabledModules) {
+			updatePaths = append(updatePaths, "log_options.enabled_modules")
+		}
+		if !yandexSwsSecurityProfileLogOptionsPlan.LogGroupId.IsUnknown() && !yandexSwsSecurityProfileLogOptionsPlan.LogGroupId.Equal(yandexSwsSecurityProfileLogOptionsState.LogGroupId) {
+			updatePaths = append(updatePaths, "log_options.log_group_id")
+		}
+		if yandexSwsSecurityProfileLogOptionsPlan.Outputs.IsNull() {
+			yandexSwsSecurityProfileLogOptionsPlan.Outputs = types.ListNull(types.StringType)
+		}
+		if yandexSwsSecurityProfileLogOptionsState.Outputs.IsNull() {
+			yandexSwsSecurityProfileLogOptionsState.Outputs = types.ListNull(types.StringType)
+		}
+		if !yandexSwsSecurityProfileLogOptionsPlan.Outputs.IsUnknown() && !yandexSwsSecurityProfileLogOptionsPlan.Outputs.Equal(yandexSwsSecurityProfileLogOptionsState.Outputs) {
+			updatePaths = append(updatePaths, "log_options.outputs")
+		}
 	}
 	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
@@ -400,7 +473,10 @@ func (r *yandexSwsSecurityProfileResource) Update(ctx context.Context, req resou
 		updateReq.SetSecurityRules(expandYandexSwsSecurityProfileSecurityRule(ctx, plan.SecurityRule, &diags))
 		updateReq.SetCaptchaId(plan.CaptchaId.ValueString())
 		updateReq.SetAdvancedRateLimiterProfileId(plan.AdvancedRateLimiterProfileId.ValueString())
+		updateReq.SetDisallowDataProcessing(plan.DisallowDataProcessing.ValueBool())
 		updateReq.SetAnalyzeRequestBody(expandYandexSwsSecurityProfileAnalyzeRequestBody(ctx, plan.AnalyzeRequestBody, &diags))
+		updateReq.SetLogOptions(expandYandexSwsSecurityProfileLogOptions(ctx, plan.LogOptions, &diags))
+		updateReq.SetCustomPageId(plan.CustomPageId.ValueString())
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

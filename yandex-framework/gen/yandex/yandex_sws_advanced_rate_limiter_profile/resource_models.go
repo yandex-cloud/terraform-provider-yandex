@@ -28310,6 +28310,7 @@ type yandexSwsAdvancedRateLimiterProfileModel struct {
 	FolderId                     types.String   `tfsdk:"folder_id"`
 	Labels                       types.Map      `tfsdk:"labels"`
 	Name                         types.String   `tfsdk:"name"`
+	UpdatedAt                    types.String   `tfsdk:"updated_at"`
 	Timeouts                     timeouts.Value `tfsdk:"timeouts"`
 }
 
@@ -28340,6 +28341,9 @@ func (m *yandexSwsAdvancedRateLimiterProfileModel) GetLabels() types.Map {
 func (m *yandexSwsAdvancedRateLimiterProfileModel) GetName() types.String {
 	return m.Name
 }
+func (m *yandexSwsAdvancedRateLimiterProfileModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
+}
 
 func (m *yandexSwsAdvancedRateLimiterProfileModel) SetAdvancedRateLimiterProfileId(target types.String) {
 	m.AdvancedRateLimiterProfileId = target
@@ -28368,6 +28372,9 @@ func (m *yandexSwsAdvancedRateLimiterProfileModel) SetLabels(target types.Map) {
 func (m *yandexSwsAdvancedRateLimiterProfileModel) SetName(target types.String) {
 	m.Name = target
 }
+func (m *yandexSwsAdvancedRateLimiterProfileModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
 
 func NewYandexSwsAdvancedRateLimiterProfileModel() yandexSwsAdvancedRateLimiterProfileModel {
 	return yandexSwsAdvancedRateLimiterProfileModel{
@@ -28380,6 +28387,7 @@ func NewYandexSwsAdvancedRateLimiterProfileModel() yandexSwsAdvancedRateLimiterP
 		FolderId:                     types.StringNull(),
 		Labels:                       types.MapNull(types.StringType),
 		Name:                         types.StringNull(),
+		UpdatedAt:                    types.StringNull(),
 	}
 }
 
@@ -28411,6 +28419,9 @@ func yandexSwsAdvancedRateLimiterProfileModelFillUnknown(target yandexSwsAdvance
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
 	}
+	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
+		target.UpdatedAt = types.StringNull()
+	}
 	return target
 }
 
@@ -28425,6 +28436,7 @@ var yandexSwsAdvancedRateLimiterProfileModelType = types.ObjectType{
 		"folder_id":                        types.StringType,
 		"labels":                           types.MapType{ElemType: types.StringType},
 		"name":                             types.StringType,
+		"updated_at":                       types.StringType,
 		"timeouts":                         timeouts.BlockAll(context.Background()).Type(),
 	},
 }
@@ -28447,6 +28459,7 @@ func flattenYandexSwsAdvancedRateLimiterProfile(ctx context.Context,
 		FolderId:                     types.StringValue(yandexSwsAdvancedRateLimiterProfile.GetFolderId()),
 		Labels:                       flattenYandexSwsAdvancedRateLimiterProfileLabels(ctx, yandexSwsAdvancedRateLimiterProfile.GetLabels(), state.Labels, diags),
 		Name:                         types.StringValue(yandexSwsAdvancedRateLimiterProfile.GetName()),
+		UpdatedAt:                    types.StringValue(yandexSwsAdvancedRateLimiterProfile.GetUpdatedAt().AsTime().Format(time.RFC3339)),
 		Timeouts:                     to,
 	})
 	diags.Append(diag...)
@@ -28476,6 +28489,7 @@ func expandYandexSwsAdvancedRateLimiterProfileModel(ctx context.Context, yandexS
 	value.SetFolderId(yandexSwsAdvancedRateLimiterProfileState.FolderId.ValueString())
 	value.SetLabels(expandYandexSwsAdvancedRateLimiterProfileLabels(ctx, yandexSwsAdvancedRateLimiterProfileState.Labels, diags))
 	value.SetName(yandexSwsAdvancedRateLimiterProfileState.Name.ValueString())
+	value.SetUpdatedAt(converter.ParseTimestamp(yandexSwsAdvancedRateLimiterProfileState.UpdatedAt.ValueString(), diags))
 	if diags.HasError() {
 		return nil
 	}

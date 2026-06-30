@@ -41836,6 +41836,7 @@ type yandexSwsSecurityProfileModel struct {
 	SecurityProfileId            types.String   `tfsdk:"security_profile_id"`
 	ID                           types.String   `tfsdk:"id"`
 	SecurityRule                 types.List     `tfsdk:"security_rule"`
+	UpdatedAt                    types.String   `tfsdk:"updated_at"`
 	Timeouts                     timeouts.Value `tfsdk:"timeouts"`
 }
 
@@ -41890,6 +41891,9 @@ func (m *yandexSwsSecurityProfileModel) GetID() types.String {
 func (m *yandexSwsSecurityProfileModel) GetSecurityRule() types.List {
 	return m.SecurityRule
 }
+func (m *yandexSwsSecurityProfileModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
+}
 
 func (m *yandexSwsSecurityProfileModel) SetAdvancedRateLimiterProfileId(target types.String) {
 	m.AdvancedRateLimiterProfileId = target
@@ -41942,6 +41946,9 @@ func (m *yandexSwsSecurityProfileModel) SetID(target types.String) {
 func (m *yandexSwsSecurityProfileModel) SetSecurityRule(target types.List) {
 	m.SecurityRule = target
 }
+func (m *yandexSwsSecurityProfileModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
 
 func NewYandexSwsSecurityProfileModel() yandexSwsSecurityProfileModel {
 	return yandexSwsSecurityProfileModel{
@@ -41962,6 +41969,7 @@ func NewYandexSwsSecurityProfileModel() yandexSwsSecurityProfileModel {
 		SecurityProfileId:            types.StringNull(),
 		ID:                           types.StringNull(),
 		SecurityRule:                 types.ListNull(yandexSwsSecurityProfileSecurityRuleStructModelType),
+		UpdatedAt:                    types.StringNull(),
 	}
 }
 
@@ -42017,6 +42025,9 @@ func yandexSwsSecurityProfileModelFillUnknown(target yandexSwsSecurityProfileMod
 	if target.SecurityRule.IsUnknown() || target.SecurityRule.IsNull() {
 		target.SecurityRule = types.ListNull(yandexSwsSecurityProfileSecurityRuleStructModelType)
 	}
+	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
+		target.UpdatedAt = types.StringNull()
+	}
 	return target
 }
 
@@ -42039,6 +42050,7 @@ var yandexSwsSecurityProfileModelType = types.ObjectType{
 		"security_profile_id":              types.StringType,
 		"id":                               types.StringType,
 		"security_rule":                    types.ListType{ElemType: yandexSwsSecurityProfileSecurityRuleStructModelType},
+		"updated_at":                       types.StringType,
 		"timeouts":                         timeouts.BlockAll(context.Background()).Type(),
 	},
 }
@@ -42069,6 +42081,7 @@ func flattenYandexSwsSecurityProfile(ctx context.Context,
 		SecurityProfileId:            types.StringValue(yandexSwsSecurityProfile.GetId()),
 		ID:                           types.StringValue(yandexSwsSecurityProfile.GetId()),
 		SecurityRule:                 flattenYandexSwsSecurityProfileSecurityRule(ctx, yandexSwsSecurityProfile.GetSecurityRules(), state.SecurityRule, diags),
+		UpdatedAt:                    types.StringValue(yandexSwsSecurityProfile.GetUpdatedAt().AsTime().Format(time.RFC3339)),
 		Timeouts:                     to,
 	})
 	diags.Append(diag...)
@@ -42106,6 +42119,7 @@ func expandYandexSwsSecurityProfileModel(ctx context.Context, yandexSwsSecurityP
 	value.SetId(yandexSwsSecurityProfileState.SecurityProfileId.ValueString())
 	value.SetId(yandexSwsSecurityProfileState.SecurityProfileId.ValueString())
 	value.SetSecurityRules(expandYandexSwsSecurityProfileSecurityRule(ctx, yandexSwsSecurityProfileState.SecurityRule, diags))
+	value.SetUpdatedAt(converter.ParseTimestamp(yandexSwsSecurityProfileState.UpdatedAt.ValueString(), diags))
 	if diags.HasError() {
 		return nil
 	}

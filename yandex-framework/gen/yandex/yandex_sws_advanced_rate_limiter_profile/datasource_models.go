@@ -23,6 +23,7 @@ type yandexSwsAdvancedRateLimiterProfileDatasourceModel struct {
 	FolderId                     types.String   `tfsdk:"folder_id"`
 	Labels                       types.Map      `tfsdk:"labels"`
 	Name                         types.String   `tfsdk:"name"`
+	UpdatedAt                    types.String   `tfsdk:"updated_at"`
 	Timeouts                     timeouts.Value `tfsdk:"timeouts"`
 }
 
@@ -53,6 +54,9 @@ func (m *yandexSwsAdvancedRateLimiterProfileDatasourceModel) GetLabels() types.M
 func (m *yandexSwsAdvancedRateLimiterProfileDatasourceModel) GetName() types.String {
 	return m.Name
 }
+func (m *yandexSwsAdvancedRateLimiterProfileDatasourceModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
+}
 
 func (m *yandexSwsAdvancedRateLimiterProfileDatasourceModel) SetAdvancedRateLimiterProfileId(target types.String) {
 	m.AdvancedRateLimiterProfileId = target
@@ -81,6 +85,9 @@ func (m *yandexSwsAdvancedRateLimiterProfileDatasourceModel) SetLabels(target ty
 func (m *yandexSwsAdvancedRateLimiterProfileDatasourceModel) SetName(target types.String) {
 	m.Name = target
 }
+func (m *yandexSwsAdvancedRateLimiterProfileDatasourceModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
 
 func NewYandexSwsAdvancedRateLimiterProfileDatasourceModel() yandexSwsAdvancedRateLimiterProfileDatasourceModel {
 	return yandexSwsAdvancedRateLimiterProfileDatasourceModel{
@@ -93,6 +100,7 @@ func NewYandexSwsAdvancedRateLimiterProfileDatasourceModel() yandexSwsAdvancedRa
 		FolderId:                     types.StringNull(),
 		Labels:                       types.MapNull(types.StringType),
 		Name:                         types.StringNull(),
+		UpdatedAt:                    types.StringNull(),
 	}
 }
 
@@ -124,6 +132,9 @@ func yandexSwsAdvancedRateLimiterProfileDatasourceModelFillUnknown(target yandex
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
 	}
+	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
+		target.UpdatedAt = types.StringNull()
+	}
 	return target
 }
 
@@ -138,6 +149,7 @@ var yandexSwsAdvancedRateLimiterProfileDatasourceModelType = types.ObjectType{
 		"folder_id":                        types.StringType,
 		"labels":                           types.MapType{ElemType: types.StringType},
 		"name":                             types.StringType,
+		"updated_at":                       types.StringType,
 		"timeouts":                         timeouts.BlockAll(context.Background()).Type(),
 	},
 }
@@ -160,6 +172,7 @@ func flattenYandexSwsAdvancedRateLimiterProfileDatasource(ctx context.Context,
 		FolderId:                     types.StringValue(yandexSwsAdvancedRateLimiterProfileDatasource.GetFolderId()),
 		Labels:                       flattenYandexSwsAdvancedRateLimiterProfileLabels(ctx, yandexSwsAdvancedRateLimiterProfileDatasource.GetLabels(), state.Labels, diags),
 		Name:                         types.StringValue(yandexSwsAdvancedRateLimiterProfileDatasource.GetName()),
+		UpdatedAt:                    types.StringValue(yandexSwsAdvancedRateLimiterProfileDatasource.GetUpdatedAt().AsTime().Format(time.RFC3339)),
 		Timeouts:                     to,
 	})
 	diags.Append(diag...)

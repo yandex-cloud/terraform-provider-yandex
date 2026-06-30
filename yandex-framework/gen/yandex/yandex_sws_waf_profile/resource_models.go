@@ -14515,20 +14515,28 @@ func expandYandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionModel
 }
 
 type yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel struct {
-	BodyValue types.List `tfsdk:"body_value"`
+	BodyValue  types.List `tfsdk:"body_value"`
+	IsExcluded types.Bool `tfsdk:"is_excluded"`
 }
 
 func (m *yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel) GetBodyValue() types.List {
 	return m.BodyValue
 }
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel) GetIsExcluded() types.Bool {
+	return m.IsExcluded
+}
 
 func (m *yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel) SetBodyValue(target types.List) {
 	m.BodyValue = target
 }
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel) SetIsExcluded(target types.Bool) {
+	m.IsExcluded = target
+}
 
 func NewYandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel() yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel {
 	return yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel{
-		BodyValue: types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherStringMatcherStructModelType),
+		BodyValue:  types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherStringMatcherStructModelType),
+		IsExcluded: types.BoolNull(),
 	}
 }
 
@@ -14536,12 +14544,16 @@ func yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcher
 	if target.BodyValue.IsUnknown() || target.BodyValue.IsNull() {
 		target.BodyValue = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherStringMatcherStructModelType)
 	}
+	if target.IsExcluded.IsUnknown() || target.IsExcluded.IsNull() {
+		target.IsExcluded = types.BoolNull()
+	}
 	return target
 }
 
 var yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"body_value": types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherStringMatcherStructModelType},
+		"body_value":  types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherStringMatcherStructModelType},
+		"is_excluded": types.BoolType,
 	},
 }
 
@@ -14576,7 +14588,8 @@ func flattenYandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBody
 		state = yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel{
-		BodyValue: flattenYandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherBodyValue(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcher.GetBodyValues(), state.BodyValue, diags),
+		BodyValue:  flattenYandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherBodyValue(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcher.GetBodyValues(), state.BodyValue, diags),
+		IsExcluded: types.BoolValue(yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcher.GetIsExcluded()),
 	})
 	diags.Append(diag...)
 	valueList, diag := types.ListValue(yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModelType, []attr.Value{value})
@@ -14602,6 +14615,7 @@ func expandYandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyM
 func expandYandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherState yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherModel, diags *diag.Diagnostics) *waf.WafProfileExclusionRule_RequestCondition_BodyMatcher {
 	value := &waf.WafProfileExclusionRule_RequestCondition_BodyMatcher{}
 	value.SetBodyValues(expandYandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherBodyValue(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherState.BodyValue, diags))
+	value.SetIsExcluded(yandexSwsWafProfileWafProfileExclusionRuleStructRequestConditionBodyMatcherState.IsExcluded.ValueBool())
 	if diags.HasError() {
 		return nil
 	}
@@ -16293,6 +16307,7 @@ type yandexSwsWafProfileModel struct {
 	Name               types.String   `tfsdk:"name"`
 	Rule               types.List     `tfsdk:"rule"`
 	RuleSet            types.List     `tfsdk:"rule_set"`
+	UpdatedAt          types.String   `tfsdk:"updated_at"`
 	WafProfileId       types.String   `tfsdk:"waf_profile_id"`
 	ID                 types.String   `tfsdk:"id"`
 	Timeouts           timeouts.Value `tfsdk:"timeouts"`
@@ -16333,6 +16348,9 @@ func (m *yandexSwsWafProfileModel) GetRule() types.List {
 }
 func (m *yandexSwsWafProfileModel) GetRuleSet() types.List {
 	return m.RuleSet
+}
+func (m *yandexSwsWafProfileModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
 }
 func (m *yandexSwsWafProfileModel) GetWafProfileId() types.String {
 	return m.WafProfileId
@@ -16377,6 +16395,9 @@ func (m *yandexSwsWafProfileModel) SetRule(target types.List) {
 func (m *yandexSwsWafProfileModel) SetRuleSet(target types.List) {
 	m.RuleSet = target
 }
+func (m *yandexSwsWafProfileModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
 func (m *yandexSwsWafProfileModel) SetWafProfileId(target types.String) {
 	m.WafProfileId = target
 }
@@ -16398,6 +16419,7 @@ func NewYandexSwsWafProfileModel() yandexSwsWafProfileModel {
 		Name:               types.StringNull(),
 		Rule:               types.ListNull(yandexSwsWafProfileWafProfileRuleStructModelType),
 		RuleSet:            types.ListNull(yandexSwsWafProfileWafProfileRuleSetStructModelType),
+		UpdatedAt:          types.StringNull(),
 		WafProfileId:       types.StringNull(),
 		ID:                 types.StringNull(),
 	}
@@ -16440,6 +16462,9 @@ func yandexSwsWafProfileModelFillUnknown(target yandexSwsWafProfileModel) yandex
 	if target.RuleSet.IsUnknown() || target.RuleSet.IsNull() {
 		target.RuleSet = types.ListNull(yandexSwsWafProfileWafProfileRuleSetStructModelType)
 	}
+	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
+		target.UpdatedAt = types.StringNull()
+	}
 	if target.WafProfileId.IsUnknown() || target.WafProfileId.IsNull() {
 		target.WafProfileId = types.StringNull()
 	}
@@ -16463,6 +16488,7 @@ var yandexSwsWafProfileModelType = types.ObjectType{
 		"name":                 types.StringType,
 		"rule":                 types.ListType{ElemType: yandexSwsWafProfileWafProfileRuleStructModelType},
 		"rule_set":             types.ListType{ElemType: yandexSwsWafProfileWafProfileRuleSetStructModelType},
+		"updated_at":           types.StringType,
 		"waf_profile_id":       types.StringType,
 		"id":                   types.StringType,
 		"timeouts":             timeouts.BlockAll(context.Background()).Type(),
@@ -16490,6 +16516,7 @@ func flattenYandexSwsWafProfile(ctx context.Context,
 		Name:               types.StringValue(yandexSwsWafProfile.GetName()),
 		Rule:               flattenYandexSwsWafProfileRule(ctx, yandexSwsWafProfile.GetRules(), state.Rule, diags),
 		RuleSet:            flattenYandexSwsWafProfileRuleSet(ctx, yandexSwsWafProfile.GetRuleSets(), state.RuleSet, diags),
+		UpdatedAt:          types.StringValue(yandexSwsWafProfile.GetUpdatedAt().AsTime().Format(time.RFC3339)),
 		WafProfileId:       types.StringValue(yandexSwsWafProfile.GetId()),
 		ID:                 types.StringValue(yandexSwsWafProfile.GetId()),
 		Timeouts:           to,
@@ -16526,6 +16553,7 @@ func expandYandexSwsWafProfileModel(ctx context.Context, yandexSwsWafProfileStat
 	value.SetName(yandexSwsWafProfileState.Name.ValueString())
 	value.SetRules(expandYandexSwsWafProfileRule(ctx, yandexSwsWafProfileState.Rule, diags))
 	value.SetRuleSets(expandYandexSwsWafProfileRuleSet(ctx, yandexSwsWafProfileState.RuleSet, diags))
+	value.SetUpdatedAt(converter.ParseTimestamp(yandexSwsWafProfileState.UpdatedAt.ValueString(), diags))
 	value.SetId(yandexSwsWafProfileState.WafProfileId.ValueString())
 	value.SetId(yandexSwsWafProfileState.WafProfileId.ValueString())
 	if diags.HasError() {

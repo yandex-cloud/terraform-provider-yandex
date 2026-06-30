@@ -3485,10 +3485,20 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
 												},
+
+												"is_excluded": schema.BoolAttribute{
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.is_excluded
+														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+													Computed: true,
+												},
 											},
 										},
-										MarkdownDescription: "Matcher for request body.",
-										Description: "Matcher for request body." +
+										MarkdownDescription: "Matcher for request body exclusion flag.",
+										Description: "Matcher for request body exclusion flag." +
 											// proto paths: +
 											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
@@ -4139,6 +4149,16 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 				Description: "List of rule sets." +
 					// proto paths: +
 					// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets
+					"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
+					"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
+				Computed: true,
+			},
+
+			"updated_at": schema.StringAttribute{
+				MarkdownDescription: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.",
+				Description: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format." +
+					// proto paths: +
+					// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.updated_at
 					"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 				Computed: true,

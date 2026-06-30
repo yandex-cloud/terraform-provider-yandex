@@ -26,6 +26,7 @@ type yandexSwsWafProfileDatasourceModel struct {
 	Name               types.String   `tfsdk:"name"`
 	Rule               types.List     `tfsdk:"rule"`
 	RuleSet            types.List     `tfsdk:"rule_set"`
+	UpdatedAt          types.String   `tfsdk:"updated_at"`
 	WafProfileId       types.String   `tfsdk:"waf_profile_id"`
 	ID                 types.String   `tfsdk:"id"`
 	Timeouts           timeouts.Value `tfsdk:"timeouts"`
@@ -66,6 +67,9 @@ func (m *yandexSwsWafProfileDatasourceModel) GetRule() types.List {
 }
 func (m *yandexSwsWafProfileDatasourceModel) GetRuleSet() types.List {
 	return m.RuleSet
+}
+func (m *yandexSwsWafProfileDatasourceModel) GetUpdatedAt() types.String {
+	return m.UpdatedAt
 }
 func (m *yandexSwsWafProfileDatasourceModel) GetWafProfileId() types.String {
 	return m.WafProfileId
@@ -110,6 +114,9 @@ func (m *yandexSwsWafProfileDatasourceModel) SetRule(target types.List) {
 func (m *yandexSwsWafProfileDatasourceModel) SetRuleSet(target types.List) {
 	m.RuleSet = target
 }
+func (m *yandexSwsWafProfileDatasourceModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
 func (m *yandexSwsWafProfileDatasourceModel) SetWafProfileId(target types.String) {
 	m.WafProfileId = target
 }
@@ -131,6 +138,7 @@ func NewYandexSwsWafProfileDatasourceModel() yandexSwsWafProfileDatasourceModel 
 		Name:               types.StringNull(),
 		Rule:               types.ListNull(yandexSwsWafProfileWafProfileRuleStructModelType),
 		RuleSet:            types.ListNull(yandexSwsWafProfileWafProfileRuleSetStructModelType),
+		UpdatedAt:          types.StringNull(),
 		WafProfileId:       types.StringNull(),
 		ID:                 types.StringNull(),
 	}
@@ -173,6 +181,9 @@ func yandexSwsWafProfileDatasourceModelFillUnknown(target yandexSwsWafProfileDat
 	if target.RuleSet.IsUnknown() || target.RuleSet.IsNull() {
 		target.RuleSet = types.ListNull(yandexSwsWafProfileWafProfileRuleSetStructModelType)
 	}
+	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
+		target.UpdatedAt = types.StringNull()
+	}
 	if target.WafProfileId.IsUnknown() || target.WafProfileId.IsNull() {
 		target.WafProfileId = types.StringNull()
 	}
@@ -196,6 +207,7 @@ var yandexSwsWafProfileDatasourceModelType = types.ObjectType{
 		"name":                 types.StringType,
 		"rule":                 types.ListType{ElemType: yandexSwsWafProfileWafProfileRuleStructModelType},
 		"rule_set":             types.ListType{ElemType: yandexSwsWafProfileWafProfileRuleSetStructModelType},
+		"updated_at":           types.StringType,
 		"waf_profile_id":       types.StringType,
 		"id":                   types.StringType,
 		"timeouts":             timeouts.BlockAll(context.Background()).Type(),
@@ -223,6 +235,7 @@ func flattenYandexSwsWafProfileDatasource(ctx context.Context,
 		Name:               types.StringValue(yandexSwsWafProfileDatasource.GetName()),
 		Rule:               flattenYandexSwsWafProfileRule(ctx, yandexSwsWafProfileDatasource.GetRules(), state.Rule, diags),
 		RuleSet:            flattenYandexSwsWafProfileRuleSet(ctx, yandexSwsWafProfileDatasource.GetRuleSets(), state.RuleSet, diags),
+		UpdatedAt:          types.StringValue(yandexSwsWafProfileDatasource.GetUpdatedAt().AsTime().Format(time.RFC3339)),
 		WafProfileId:       types.StringValue(yandexSwsWafProfileDatasource.GetId()),
 		ID:                 types.StringValue(yandexSwsWafProfileDatasource.GetId()),
 		Timeouts:           to,

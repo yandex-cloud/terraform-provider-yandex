@@ -179,6 +179,16 @@ func YandexSwsAdvancedRateLimiterProfileResourceSchema(ctx context.Context) sche
 					stringvalidator.LengthBetween(1, 50),
 				},
 			},
+
+			"updated_at": schema.StringAttribute{
+				MarkdownDescription: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.",
+				Description: "Update timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format." +
+					// proto paths: +
+					// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.updated_at
+					"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
+					"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
+				Computed: true,
+			},
 		},
 
 		Blocks: map[string]schema.Block{
