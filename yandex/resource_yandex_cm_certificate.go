@@ -514,6 +514,8 @@ func resourceYandexCMCertificateRead(ctx context.Context, d *schema.ResourceData
 func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceData, meta interface{}, fromDataSource bool) diag.Diagnostics {
 	config := meta.(*Config)
 
+	var challengeCountMismatch string
+
 	err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutRead), func() *resource.RetryError {
 		req := &certificatemanager.GetCertificateRequest{
 			CertificateId: id,
@@ -525,6 +527,12 @@ func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceD
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
+
+		if resp.Status == certificatemanager.Certificate_INVALID {
+			log.Printf("[ERROR] Certificate %s is INVALID", id)
+			return resource.NonRetryableError(fmt.Errorf("[ERROR] Certificate %s is INVALID", id))
+		}
+
 		if resp.Status == certificatemanager.Certificate_VALIDATING ||
 			resp.Status == certificatemanager.Certificate_RENEWING {
 			if fromDataSource {
@@ -641,16 +649,6 @@ func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceD
 				var exists = make(map[string]bool)
 				var key string
 
-				_, isManaged := d.GetOk("managed")
-				if !fromDataSource && isManaged {
-					if challengeCount, ok := d.GetOk("managed.0.challenge_count"); ok {
-						if len(resp.Domains) != challengeCount {
-							log.Printf("[ERROR] managed.challenge_count must be equal to domain count (current value is %d while %d required)", challengeCount, len(resp.Domains))
-							return resource.NonRetryableError(fmt.Errorf("managed.challenge_count must be equal to domain count (current value is %d while %d required))", challengeCount, len(resp.Domains)))
-						}
-					}
-				}
-
 				for _, challenge := range resp.Challenges {
 					var flChallenge map[string]interface{}
 					switch challenge.Type {
@@ -704,12 +702,17 @@ func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceD
 					log.Printf("[ERROR] failed set field challenges: %s", err)
 					return resource.NonRetryableError(err)
 				}
-				_, isManaged = d.GetOk("managed")
+				_, isManaged := d.GetOk("managed")
 				if !fromDataSource && isManaged {
-					if challengeCount, ok := d.GetOk("managed.0.challenge_count"); ok {
+					if _, ok := d.GetOk("managed.0.challenge_count"); ok {
+						challengeCount := d.Get("managed.0.challenge_count").(int)
 						if len(challenges) != challengeCount {
-							log.Printf("[ERROR] managed.challenge_count must be equals %d", len(challenges))
-							return resource.NonRetryableError(fmt.Errorf("managed.challenge_count must be equals %d", len(challenges)))
+							log.Printf("[WARN] managed.challenge_count was %d but actual challenge count is %d", challengeCount, len(challenges))
+							challengeCountMismatch = fmt.Sprintf(
+								"managed.challenge_count was set to %d but the actual number of challenges is %d. "+
+									"Update challenge_count in your configuration to %d.",
+								challengeCount, len(challenges), len(challenges),
+							)
 						}
 					}
 				}
@@ -731,6 +734,13 @@ func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceD
 	})
 	if err != nil {
 		return diag.FromErr(err)
+	}
+	if challengeCountMismatch != "" {
+		return diag.Diagnostics{{
+			Severity: diag.Warning,
+			Summary:  "managed.challenge_count mismatch",
+			Detail:   challengeCountMismatch,
+		}}
 	}
 	return nil
 }

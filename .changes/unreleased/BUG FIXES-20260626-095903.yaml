@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'crypto: managed certificate `challenge_count` parameter now does not make certificate creation to fail if mispredicted'
+time: 2026-06-26T09:59:03.181075+03:00
