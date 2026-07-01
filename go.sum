@@ -851,6 +851,8 @@ github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.3 h1:LP57siL
 github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.3/go.mod h1:jaP83cP/Zryfh7yWilIgf7hGpoHo2rwpgRperFe/gG4=
 github.com/yandex-cloud/go-sdk/services/serverless/functions v0.0.3 h1:GARKs/dpes2MKZMTORw4ZCN9KOxVLDZvbaalEUhjgQU=
 github.com/yandex-cloud/go-sdk/services/serverless/functions v0.0.3/go.mod h1:Zxez24zg2Ggh6Y1VwHY19vWura571QcygTowZ8XHfXo=
+github.com/yandex-cloud/go-sdk/services/serverless/workflows v0.0.59 h1:yRPuPR3l8olO+DMbMq5XRsgzgvEbnM3YdBidGuhO+A4=
+github.com/yandex-cloud/go-sdk/services/serverless/workflows v0.0.59/go.mod h1:0giUTRd6DoqA39Y94FrwiQQ2F+B/PZqUOWxyg1QSYJk=
 github.com/yandex-cloud/go-sdk/services/smartcaptcha v0.0.29 h1:cdfHqPyBjThLyRVA5jekFH/+jT4O9oc0G4x8RGLfyvI=
 github.com/yandex-cloud/go-sdk/services/smartcaptcha v0.0.29/go.mod h1:jdvgntltOW8sXQNJjvORmeqhn8d40Ow5bbsQjxIvWfY=
 github.com/yandex-cloud/go-sdk/services/smartwebsecurity v0.0.73 h1:ybtLnrNpLAXpfyhb7f/BDPSSwEN4abLfra8Il6A+boA=

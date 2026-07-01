@@ -74,6 +74,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.1
 	github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.3
 	github.com/yandex-cloud/go-sdk/services/serverless/functions v0.0.3
+	github.com/yandex-cloud/go-sdk/services/serverless/workflows v0.0.59
 	github.com/yandex-cloud/go-sdk/services/smartcaptcha v0.0.29
 	github.com/yandex-cloud/go-sdk/services/smartwebsecurity v0.0.73
 	github.com/yandex-cloud/go-sdk/services/spark v0.0.26
