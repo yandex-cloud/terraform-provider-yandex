@@ -6,6 +6,17 @@ subcategory: "Cloud Registry"
 
 A Artifact resource.
 
+## Example usage
+
+```terraform
+//
+// Create a new Cloud Registry Folder.
+//
+resource "yandex_cloudregistry_folder" "default" {
+  registry_id = "some_registry_id"
+  path        = "common-artifacts/some-folder"
+}
+```
 
 ## Arguments & Attributes Reference
 
@@ -49,4 +60,11 @@ A Artifact resource.
 - `with_history` (Bool). Also removes artifact history.
  This allows rewriting artifacts in registries with enabled immutable artifact policy.
 
+## Import
 
+The resource can be imported by using their `resource ID`. For getting it you can use Yandex Cloud [Web Console](https://console.yandex.cloud) or Yandex Cloud [CLI](https://yandex.cloud/docs/cli/quickstart).
+
+```shell
+# terraform import yandex_cloudregistry_folder.<resource Name> <artifact Id>
+terraform import yandex_cloudregistry_folder.my_folder crpa1**********f0ldr
+```
