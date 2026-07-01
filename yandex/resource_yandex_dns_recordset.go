@@ -11,6 +11,59 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
 )
 
+// canonicalizeTXTRecordValue joins a TXT value that the DNS API may return as
+// several quoted character-strings (RFC 1035 caps each at 255 bytes) into a
+// single quoted string, so it compares equal to the single-string form used in
+// configuration. Escapes are preserved and malformed input is returned as-is.
+func canonicalizeTXTRecordValue(s string) string {
+	if len(s) == 0 || s[0] != '"' {
+		return s
+	}
+	var joined []byte
+	i := 1
+	for {
+		closed := false
+		for i < len(s) {
+			b := s[i]
+			if b == '\\' {
+				if i+1 >= len(s) {
+					return s
+				}
+				joined = append(joined, b, s[i+1])
+				i += 2
+			} else if b == '"' {
+				i++
+				closed = true
+				break
+			} else {
+				joined = append(joined, b)
+				i++
+			}
+			if i == len(s) {
+				return s
+			}
+		}
+		if !closed {
+			return s
+		}
+		for i < len(s) && (s[i] == ' ' || s[i] == '\t' || s[i] == '\r' || s[i] == '\n') {
+			i++
+		}
+		if i == len(s) {
+			break
+		}
+		if s[i] != '"' {
+			return s
+		}
+		i++
+	}
+	return `"` + string(joined) + `"`
+}
+
+func dnsRecordSetDataHash(v interface{}) int {
+	return schema.HashString(canonicalizeTXTRecordValue(v.(string)))
+}
+
 func resourceYandexDnsRecordSet() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manages a DNS RecordSet within Yandex Cloud.",
@@ -77,7 +130,7 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringLenBetween(1, 1024),
 				},
-				Set: schema.HashString,
+				Set: dnsRecordSetDataHash,
 			},
 		},
 	}
@@ -140,7 +193,15 @@ func resourceYandexDnsRecordSetRead(d *schema.ResourceData, meta interface{}) er
 
 	d.Set("description", rs.Description)
 	d.Set("ttl", int(rs.Ttl))
-	d.Set("data", convertStringArrToInterface(rs.Data))
+	data := rs.Data
+	if strings.EqualFold(rs.Type, "TXT") {
+		normalized := make([]string, len(rs.Data))
+		for i, v := range rs.Data {
+			normalized[i] = canonicalizeTXTRecordValue(v)
+		}
+		data = normalized
+	}
+	d.Set("data", convertStringArrToInterface(data))
 
 	return nil
 }

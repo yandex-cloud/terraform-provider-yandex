@@ -1,0 +1,4 @@
+kind: BUG FIXES
+body: 'dns: fix perpetual diff for yandex_dns_recordset TXT records longer than 255
+  bytes'
+time: 2026-06-15T16:56:42.142684+03:00
