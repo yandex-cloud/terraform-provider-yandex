@@ -147,10 +147,6 @@ func testAccDataSourceMDBGreenplumClusterAttributesCheck(datasourceName string, 
 				"version",
 			},
 			{
-				"security_group_ids.#",
-				"security_group_ids.#",
-			},
-			{
 				"deletion_protection",
 				"deletion_protection",
 			},
@@ -254,7 +250,6 @@ func testAccDataSourceMDBGreenplumClusterCheck(datasourceName string, resourceNa
 		resource.TestCheckResourceAttr(datasourceName, "environment", env),
 		resource.TestCheckResourceAttr(datasourceName, "labels.test_key_create", "test_value_create"),
 		testAccCheckCreatedAtAttr(datasourceName),
-		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 	)
 }

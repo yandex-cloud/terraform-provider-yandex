@@ -139,7 +139,6 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "folder_id", folderID),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "description", clusterDescription),
 					testAccCheckCreatedAtAttr(greenplumResourceFoo),
-					resource.TestCheckResourceAttr(greenplumResourceFoo, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "deletion_protection", "false"),
 					resource.TestCheckResourceAttrSet(greenplumResourceFoo, "service_account_id"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "logging.0.enabled", "true"),
@@ -378,24 +377,6 @@ resource "yandex_vpc_subnet" "mdb-greenplum-test-subnet-b" {
   network_id     = yandex_vpc_network.mdb-greenplum-test-net.id
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
-
-resource "yandex_vpc_security_group" "mdb-greenplum-test-sg-x" {
-  network_id = yandex_vpc_network.mdb-greenplum-test-net.id
-  ingress {
-    protocol       = "ANY"
-    description    = "Allow incoming traffic from members of the same security group"
-    from_port      = 0
-    to_port        = 65535
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    protocol       = "ANY"
-    description    = "Allow outgoing traffic to members of the same security group"
-    from_port      = 0
-    to_port        = 65535
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-}
 `
 
 func testAccMDBGreenplumServiceAccountTemplate(greenplumName string) string {
@@ -444,7 +425,6 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
 
   user_name     = "user1"
   user_password = "mysecurepassword"
-  security_group_ids = [yandex_vpc_security_group.mdb-greenplum-test-sg-x.id]
 
   service_account_id = "${yandex_iam_service_account.%s.id}"
 

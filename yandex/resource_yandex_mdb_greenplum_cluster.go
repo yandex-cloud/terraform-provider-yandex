@@ -824,11 +824,11 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	gpConfig, err := flattenGreenplumClusterConfig(cluster.ClusterConfig)
+	dbmsConfig, err := flattenDbmsClusterConfig(cluster.ClusterConfig)
 	if err != nil {
 		return err
 	}
-	if err := d.Set("greenplum_config", gpConfig); err != nil {
+	if err := d.Set("greenplum_config", dbmsConfig); err != nil {
 		return err
 	}
 

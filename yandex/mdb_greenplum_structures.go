@@ -149,11 +149,11 @@ func expandGreenplumMaintenanceWindow(d *schema.ResourceData) (*greenplum.Mainte
 	return out, nil
 }
 
-func flattenGreenplumClusterConfig(c *greenplum.ClusterConfigSet) (map[string]string, error) {
+func flattenDbmsClusterConfig(c *greenplum.ClusterConfigSet) (map[string]string, error) {
 	var gpConfig interface{}
 
-	if cf, ok := c.GreenplumConfig.(*greenplum.ClusterConfigSet_GreenplumConfigSet_6); ok {
-		gpConfig = cf.GreenplumConfigSet_6.UserConfig
+	if set := c.GetDbmsConfigSet(); set != nil {
+		gpConfig = set.UserConfig
 	}
 
 	return flattenResourceGenerateMapS(gpConfig, false, mdbGreenplumSettingsFieldsInfo, false, true, nil)
@@ -412,7 +412,7 @@ func expandGreenplumConfigSpec(d *schema.ResourceData) (*greenplum.ConfigSpec, *
 		return nil, nil, err
 	}
 
-	config, configMask, err := expandGreenplumConfigSpecGreenplumConfig(d)
+	config, configMask, err := expandGreenplumConfigSpecDBMSConfig(d)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -426,13 +426,13 @@ func expandGreenplumConfigSpec(d *schema.ResourceData) (*greenplum.ConfigSpec, *
 		Pool:                 poolerConfig,
 		PxfConfig:            pxfConfig,
 		BackgroundActivities: backgroundActivities,
+		DbmsConfig:           config,
 	}
-	configSpec.GreenplumConfig = config
 
 	return configSpec, configMask, nil
 }
 
-func expandGreenplumConfigSpecGreenplumConfig(resourceData *schema.ResourceData) (greenplum.ConfigSpec_GreenplumConfig, *field_mask.FieldMask, error) {
+func expandGreenplumConfigSpecDBMSConfig(resourceData *schema.ResourceData) (*greenplum.DBMSConfig, *field_mask.FieldMask, error) {
 	version := resourceData.Get("version").(string)
 
 	// Since version 6.25 all config parameters stored in "greenplum_config_6" field regardless of minor version.
@@ -441,30 +441,31 @@ func expandGreenplumConfigSpecGreenplumConfig(resourceData *schema.ResourceData)
 	case slices.Contains([]string{"6.17", "6.19", "6.22"}, version):
 		return nil, nil, fmt.Errorf("unsupported Greenplum version '%s'", version)
 	case strings.HasPrefix(version, "6"):
-		cfg := &greenplum.ConfigSpec_GreenplumConfig_6{
-			GreenplumConfig_6: &greenplum.GreenplumConfig6{},
-		}
-
-		settingNames, err := expandResourceGenerateNonSkippedFields(
-			mdbGreenplumSettingsFieldsInfo,
-			resourceData,
-			cfg.GreenplumConfig_6,
-			"greenplum_config.",
-			true,
-		)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		paths := make([]string, 0, len(settingNames))
-		for _, settingName := range settingNames {
-			paths = append(paths, fmt.Sprintf("config_spec.greenplum_config_6.%s", settingName))
-		}
-
-		return cfg, &field_mask.FieldMask{Paths: paths}, nil
+		// Ok
+	case strings.HasSuffix(version, "-cb"):
+		return nil, nil, fmt.Errorf("an Apache Cloudberry supported in 'yandex_mdb_greenplum_cluster_v2'")
 	default:
 		return nil, nil, fmt.Errorf("unknown Greenplum version '%s'", version)
 	}
+
+	conf := &greenplum.DBMSConfig{}
+	settingNames, err := expandResourceGenerateNonSkippedFields(
+		mdbGreenplumSettingsFieldsInfo,
+		resourceData,
+		conf,
+		"greenplum_config.", // path in TF schema
+		true,
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	paths := make([]string, 0, len(settingNames))
+	for _, settingName := range settingNames {
+		paths = append(paths, fmt.Sprintf("config_spec.dbms_config.%s", settingName))
+	}
+
+	return conf, &field_mask.FieldMask{Paths: paths}, nil
 }
 
 func expandGreenplumPoolerConfig(d *schema.ResourceData) (*greenplum.ConnectionPoolerConfig, error) {
@@ -627,4 +628,4 @@ func parseGreenplumPoolingMode(s string) (greenplum.ConnectionPoolerConfig_PoolM
 }
 
 var mdbGreenplumSettingsFieldsInfo = newObjectFieldsInfo().
-	addType(greenplum.GreenplumConfig6{}, []reflect.Type{})
+	addType(greenplum.DBMSConfig{}, []reflect.Type{})
