@@ -2,6 +2,16 @@
 
 
 
+## 0.214.0 (July 6, 2026)
+##### FEATURES:
+* serverless: added new data source yandex_serverless_workflow
+* serverless: added new resource yandex_serverless_workflow_iam_binding
+* serverless: added new resource yandex_serverless_workflow
+* cloudregistry: add `yandex_cloudregistry_folder` resource and data source
+##### BUG FIXES:
+* crypto: managed certificate `challenge_count` parameter now does not make certificate creation to fail if mispredicted
+* iam: yandex_*_iam_binding resources are now removed from state when the parent resource is deleted outside terraform, instead of failing refresh
+
 ## 0.213.0 (June 29, 2026)
 ##### FEATURES:
 * mdb_clickhouse: SSD cache dictionaries support
