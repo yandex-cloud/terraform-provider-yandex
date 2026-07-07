@@ -27,6 +27,10 @@ func DataSourceUserSchema() schema.Schema {
 				Computed:            true,
 				Sensitive:           true,
 			},
+			"auth_method": schema.StringAttribute{
+				MarkdownDescription: "Authentication method for the user. Possible values are `password`, `iam`. Default is `password`.",
+				Computed:            true,
+			},
 			"connection_manager": DataSourceConnectionManagerSchema(),
 		},
 		Blocks: map[string]schema.Block{

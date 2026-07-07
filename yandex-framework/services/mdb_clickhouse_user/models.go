@@ -33,6 +33,7 @@ type ResourceUser struct {
 	Name              types.String   `tfsdk:"name"`
 	Password          types.String   `tfsdk:"password"`
 	GeneratePassword  types.Bool     `tfsdk:"generate_password"`
+	AuthMethod        types.String   `tfsdk:"auth_method"`
 	Permissions       types.Set      `tfsdk:"permission"`
 	Settings          types.Object   `tfsdk:"settings"`
 	Quotas            types.Set      `tfsdk:"quota"`
@@ -54,6 +55,10 @@ func (ru *ResourceUser) SetName(name types.String) {
 
 func (ru *ResourceUser) SetPassword(password types.String) {
 	ru.Password = password
+}
+
+func (ru *ResourceUser) SetAuthMethod(authMethod types.String) {
+	ru.AuthMethod = authMethod
 }
 
 func (ru *ResourceUser) SetPermissions(permissions types.Set) {
@@ -93,6 +98,7 @@ type DatasourceUser struct {
 	ClusterID         types.String `tfsdk:"cluster_id"`
 	Name              types.String `tfsdk:"name"`
 	Password          types.String `tfsdk:"password"`
+	AuthMethod        types.String `tfsdk:"auth_method"`
 	Permissions       types.Set    `tfsdk:"permission"`
 	Settings          types.Object `tfsdk:"settings"`
 	Quotas            types.Set    `tfsdk:"quota"`
@@ -113,6 +119,10 @@ func (du *DatasourceUser) SetName(name types.String) {
 
 func (du *DatasourceUser) SetPassword(password types.String) {
 	du.Password = password
+}
+
+func (du *DatasourceUser) SetAuthMethod(authMethod types.String) {
+	du.AuthMethod = authMethod
 }
 
 func (du *DatasourceUser) SetPermissions(permissions types.Set) {
@@ -527,6 +537,9 @@ func userToState(ctx context.Context, user *clickhouse.User, state User) diag.Di
 	log.Printf("[TRACE] mdb_clickhouse_user: flatten state from user: %+v\n", user)
 	state.SetName(types.StringValue(user.Name))
 	state.SetClusterId(types.StringValue(user.ClusterId))
+	if state, ok := state.(interface{ SetAuthMethod(types.String) }); ok {
+		state.SetAuthMethod(getAuthMethodName(user.AuthMethod))
+	}
 
 	state.SetPermissions(flattenPermissions(ctx, user.Permissions, &diags))
 	log.Printf("[TRACE] mdb_clickhouse_user: flattened permissions: %+v\n", state.GetPermissions())
@@ -561,5 +574,6 @@ func userFromState(ctx context.Context, state *ResourceUser) (*clickhouse.UserSp
 		Quotas:           quotas,
 		Settings:         settings,
 		GeneratePassword: wrapperspb.Bool(state.GeneratePassword.ValueBool()),
+		AuthMethod:       getAuthMethodValue(state.AuthMethod),
 	}, diags
 }

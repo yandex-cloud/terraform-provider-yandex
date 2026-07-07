@@ -64,6 +64,10 @@ func testAccDataSourceMDBClickHouseUserAttributesCheck(datasourceName string, re
 				"name",
 			},
 			{
+				"auth_method",
+				"auth_method",
+			},
+			{
 				"permission.#",
 				"permission.#",
 			},

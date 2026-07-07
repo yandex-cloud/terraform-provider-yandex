@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -51,10 +52,17 @@ func UserSchema(ctx context.Context) schema.Schema {
 				Sensitive:           true,
 			},
 			"generate_password": schema.BoolAttribute{
-				MarkdownDescription: "Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and is ignored during updating.\n\n~> **Must specify either password or generate_password**.\n",
+				MarkdownDescription: "Generate password using Connection Manager. Allowed values: `true` or `false`.\n\n~> **For password authentication, must specify exactly one of password or generate_password**.\n",
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
+			},
+			"auth_method": schema.StringAttribute{
+				MarkdownDescription: "Authentication method for the user. Possible values are `password`, `iam`. Default is `password`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString(defaultUserAuthMethod),
+				Validators:          UserAuthMethod_validator,
 			},
 			"connection_manager": ConnectionManagerSchema(),
 		},

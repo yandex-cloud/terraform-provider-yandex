@@ -113,10 +113,10 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	userSpec, diags := userFromState(ctx, &plan)
 	log.Printf("[DEBUG] User spec from state: %v\n", userSpec)
 
-	if !isValidPasswordConfiguration(userSpec) {
+	if err := validateAuthConfiguration(userSpec); err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid user configuration",
-			"must specify either password or generate_password",
+			err.Error(),
 		)
 	}
 
@@ -167,9 +167,10 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 func getUpdatePaths(plan, state *ResourceUser) []string {
 	log.Printf("[DEBUG] Calculate update paths plan: %v state: %v\n", plan, state)
 	var updatePaths []string
-	if state.Password != plan.Password {
-		updatePaths = append(updatePaths, "password")
+	if state.AuthMethod != plan.AuthMethod {
+		updatePaths = append(updatePaths, "auth_method")
 	}
+	updatePaths = append(updatePaths, getPasswordUpdatePaths(plan, state)...)
 	if !plan.Permissions.Equal(state.Permissions) {
 		updatePaths = append(updatePaths, "permissions")
 	}
@@ -203,10 +204,10 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	userPlan, diags := userFromState(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 
-	if !isValidPasswordConfiguration(userPlan) {
+	if err := validateAuthConfiguration(userPlan); err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid user configuration",
-			"must specify either password or generate_password",
+			err.Error(),
 		)
 	}
 
@@ -301,10 +302,42 @@ func (r *bindingResource) refreshResourceState(ctx context.Context, state *Resou
 	}
 }
 
-func isValidPasswordConfiguration(userSpec *clickhouse.UserSpec) bool {
-	passwordSpecified := len(userSpec.Password) > 0
+func getPasswordUpdatePaths(plan, state *ResourceUser) []string {
+	if getAuthMethodValue(plan.AuthMethod) != clickhouse.AuthMethod_AUTH_METHOD_PASSWORD {
+		return nil
+	}
 
-	isBothFieldNotSpecified := !passwordSpecified && !userSpec.GeneratePassword.GetValue()
-	isBothFieldSpecified := passwordSpecified && userSpec.GeneratePassword.GetValue()
-	return !isBothFieldNotSpecified && !isBothFieldSpecified
+	if plan.GeneratePassword.ValueBool() {
+		if state.GeneratePassword != plan.GeneratePassword {
+			return []string{"generate_password"}
+		}
+		return nil
+	}
+
+	var updatePaths []string
+	if state.Password != plan.Password {
+		updatePaths = append(updatePaths, "password")
+	}
+	if state.GeneratePassword != plan.GeneratePassword {
+		updatePaths = append(updatePaths, "generate_password")
+	}
+	return updatePaths
+}
+
+func validateAuthConfiguration(userSpec *clickhouse.UserSpec) error {
+	passwordSpecified := len(userSpec.Password) > 0
+	generatePassword := userSpec.GeneratePassword.GetValue()
+
+	switch normalizeAuthMethod(userSpec.AuthMethod) {
+	case clickhouse.AuthMethod_AUTH_METHOD_IAM:
+		if passwordSpecified || generatePassword {
+			return fmt.Errorf("iam auth_method does not support password or generate_password")
+		}
+	case clickhouse.AuthMethod_AUTH_METHOD_PASSWORD:
+		if passwordSpecified == generatePassword {
+			return fmt.Errorf("must specify exactly one of password or generate_password for password auth")
+		}
+	}
+
+	return nil
 }

@@ -97,6 +97,34 @@ func TestAccMDBClickHouseUser_basic(t *testing.T) {
 	})
 }
 
+func TestAccMDBClickHouseUser_iamAuth(t *testing.T) {
+	t.Parallel()
+
+	clusterName := acctest.RandomWithPrefix("tf-clickhouse-user-iam-auth")
+	description := "Clickhouse User Terraform IAM authentication Test"
+	chUserResourceID := makeCHUserResource("iam_user")
+	chUserName := "tesuser@domain.com"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBClickHouseUserDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBClickHouseUserConfig_iamAuth(clusterName, description, chUserName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseUserResourceIDField(chUserResourceID),
+					resource.TestCheckResourceAttr(chUserResourceID, "name", chUserName),
+					resource.TestCheckResourceAttr(chUserResourceID, "auth_method", "iam"),
+					resource.TestCheckResourceAttr(chUserResourceID, "generate_password", "false"),
+					testAccCheckMDBClickHouseUserAuthMethod(chUserResourceID, clickhouse.AuthMethod_AUTH_METHOD_IAM),
+				),
+			},
+			mdbClickHouseUserImportStep(chUserResourceID),
+		},
+	})
+}
+
 func TestAccMDBClickHouseUser_settings(t *testing.T) {
 	t.Parallel()
 
@@ -535,6 +563,16 @@ func testAccMDBClickHouseUserConfig_basic_several(name, description string, user
 	}
 
 	return planAll
+}
+
+func testAccMDBClickHouseUserConfig_iamAuth(name, description, userName string) string {
+	return testAccMDBClickHouseClusterConfigMain(name, description) + fmt.Sprintf(`
+	resource "yandex_mdb_clickhouse_user" "iam_user" {
+		cluster_id  = %s
+		name        = "%s"
+		auth_method = "iam"
+	}
+	`, chClusterResourceIDLink, userName)
 }
 
 func testAccMDBClickHouseUserWithFullSettings(name, desc, userName, dbName string, settings mdb_clickhouse_user.Setting) string {
@@ -1068,6 +1106,44 @@ func testAccCheckMDBClickHouseUserHasDatabases(r string, databases []string) res
 		sort.Strings(databases)
 		if fmt.Sprintf("%v", dbs) != fmt.Sprintf("%v", databases) {
 			return fmt.Errorf("User has wrong databases, %v. Expected %v", dbs, databases)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckMDBClickHouseUserAuthMethod(r string, authMethod clickhouse.AuthMethod) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Type != "yandex_mdb_clickhouse_user" {
+			return fmt.Errorf("Invalid resource type: %s", rs.Type)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		clusterId, userName, err := resourceid.Deconstruct(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
+
+		resp, err := config.SDK.MDB().Clickhouse().User().Get(context.Background(), &clickhouse.GetUserRequest{
+			ClusterId: clusterId,
+			UserName:  userName,
+		})
+		if err != nil {
+			return err
+		}
+
+		if resp.AuthMethod != authMethod {
+			return fmt.Errorf("User %s has auth method %s. Expected %s", userName, resp.AuthMethod.String(), authMethod.String())
 		}
 
 		return nil
