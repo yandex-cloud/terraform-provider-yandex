@@ -1600,6 +1600,8 @@
   "yandex-framework/services/cloud_desktops_image/datasource_models.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/cloud_desktops_image/datasource_models.go",
   "yandex-framework/services/cloud_desktops_image/datasource_schema.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/cloud_desktops_image/datasource_schema.go",
   "yandex-framework/services/cloud_desktops_image/datasource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/cloud_desktops_image/datasource_test.go",
+  "yandex-framework/services/cloudregistry_folder/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/cloudregistry_folder/resource_test.go",
+  "yandex-framework/services/cloudregistry_folder_iam_binding/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/cloudregistry_folder_iam_binding/resource_test.go",
   "yandex-framework/services/cloudregistry_registry_ip_permission/datasource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/cloudregistry_registry_ip_permission/datasource.go",
   "yandex-framework/services/cloudregistry_registry_ip_permission/datasource_models.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/cloudregistry_registry_ip_permission/datasource_models.go",
   "yandex-framework/services/cloudregistry_registry_ip_permission/datasource_schema.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/services/cloudregistry_registry_ip_permission/datasource_schema.go",
