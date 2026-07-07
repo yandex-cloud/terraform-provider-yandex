@@ -5,6 +5,7 @@ package yandex_cloudregistry_folder_iam_binding
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -44,7 +45,7 @@ func NewResource() resource.Resource {
 
 func (u *IAMUpdater) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Allows creation and management of a single binding within IAM policy for an existing `artifact`.",
+		MarkdownDescription: "Allows creation and management of a single binding within IAM policy for an existing `artifact`.\n\n~> **Warning:** This resource is authoritative for the given `role` on the target `artifact` and manages the complete set of its members. When you change or delete `yandex_cloudregistry_folder_iam_binding`, the `role` may be removed from other subjects on the `artifact` as well — including subjects granted outside of this resource (via the corresponding `*_iam_member` resource, the management console, CLI or API). Those subjects are not tracked in the Terraform state, so a plain `terraform plan` does not list them. Be careful.\n\n",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The ID of this resource.",
@@ -224,6 +225,89 @@ func (u *IAMUpdater) Delete(ctx context.Context, req resource.DeleteRequest, res
 	}
 
 	u.refreshBindingState(ctx, req.State, &resp.State, &resp.Diagnostics)
+}
+
+// ModifyPlan surfaces, at plan time, which subjects will lose the role once the change is applied.
+// Because yandex_cloudregistry_folder_iam_binding is authoritative for a single role and applies changes via SetAccessBindings
+// (a full rewrite of the role's members), every subject currently bound to the role that is not present
+// in the plan will be removed — including subjects granted outside of this resource and therefore not
+// tracked in the Terraform state (and thus invisible in a plain plan diff). This emits a warning listing them.
+func (u *IAMUpdater) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	// On create there is no prior binding and Create is non-destructive (it merges), so nothing to warn about.
+	if req.State.Raw.IsNull() {
+		return
+	}
+	// Without a configured provider we cannot read the live access bindings; skip the advisory check silently.
+	if u.providerConfig == nil {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
+	defer cancel()
+
+	u.Initialize(ctx, req.State, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var role types.String
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("role"), &role)...)
+	if resp.Diagnostics.HasError() || role.IsNull() {
+		return
+	}
+
+	policy, err := u.GetResourceIamPolicy(ctx)
+	if err != nil {
+		// Do not block planning (e.g. missing resource or missing credentials in CI); apply-time behaviour is
+		// unchanged and real errors surface during apply.
+		tflog.Debug(ctx, fmt.Sprintf("ModifyPlan: unable to read access bindings of yandex_cloudregistry_folder_iam_binding '%s': %s", u.artifactId, err))
+		return
+	}
+
+	liveMembers := accessbinding.RoleToMembersList(role.ValueString(), policy.Bindings)
+	if len(liveMembers) == 0 {
+		return
+	}
+
+	// Members that will remain after apply (empty set on destroy, i.e. plan is null).
+	planned := make(map[string]struct{})
+	if !req.Plan.Raw.IsNull() {
+		var members types.Set
+		resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("members"), &members)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		if !members.IsNull() && !members.IsUnknown() {
+			var membersStr []string
+			resp.Diagnostics.Append(members.ElementsAs(ctx, &membersStr, false)...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+			for _, m := range membersStr {
+				planned[m] = struct{}{}
+			}
+		}
+	}
+
+	var removed []string
+	for _, m := range liveMembers {
+		if _, ok := planned[m]; !ok {
+			removed = append(removed, m)
+		}
+	}
+	if len(removed) == 0 {
+		return
+	}
+	sort.Strings(removed)
+
+	resp.Diagnostics.AddWarning(
+		fmt.Sprintf("Role %q will be removed from %d subject(s) of yandex_cloudregistry_folder_iam_binding %q", role.ValueString(), len(removed), u.artifactId),
+		fmt.Sprintf("Applying this change calls SetAccessBindings and removes role %q from ALL of its current subjects "+
+			"that are not listed in this resource's \"members\", including subjects granted outside of Terraform "+
+			"(via the corresponding *_iam_member resource, the console, CLI or API). "+
+			"The following subject(s) will lose the role:\n  - %s",
+			role.ValueString(), strings.Join(removed, "\n  - ")),
+	)
 }
 
 func (u *IAMUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbinding.Policy, error) {
