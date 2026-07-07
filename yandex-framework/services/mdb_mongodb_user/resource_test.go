@@ -3,6 +3,7 @@ package mdb_mongodb_user_test
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -20,6 +21,7 @@ const (
 	mgClusterResourceName   = "yandex_mdb_mongodb_cluster.foo"
 	mgUserResourceNameAlice = "yandex_mdb_mongodb_user.alice"
 	mgUserResourceNameBob   = "yandex_mdb_mongodb_user.bob"
+	mgUserResourceNameIam   = "yandex_mdb_mongodb_user.iam_user"
 
 	VPCDependencies = `
 	resource "yandex_vpc_network" "foo" {}
@@ -78,8 +80,66 @@ func TestAccMDBMongoDBUser_full(t *testing.T) {
 				),
 			},
 			mdbMongoDBUserImportStep(mgUserResourceNameAlice),
+			// Enable deletion_protection on the user.
+			{
+				Config: testAccMDBMongoDBUserConfigDeletionProtection(clusterName, "alice", true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(mgUserResourceNameAlice, "deletion_protection", "true"),
+					testAccCheckMDBMongoDBUserDeletionProtection(t, "alice", true),
+				),
+			},
+			// Deleting the protected user (here via a name change that forces recreation)
+			// must be rejected by the API.
+			{
+				Config:      testAccMDBMongoDBUserConfigDeletionProtection(clusterName, "alice_protected", true),
+				ExpectError: regexp.MustCompile("(?i)deletion.protection"),
+			},
+			// Disable protection so the user can be destroyed at the end of the test.
+			{
+				Config: testAccMDBMongoDBUserConfigDeletionProtection(clusterName, "alice", false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(mgUserResourceNameAlice, "deletion_protection", "false"),
+					testAccCheckMDBMongoDBUserDeletionProtection(t, "alice", false),
+				),
+			},
 		},
 	})
+}
+
+func TestAccMDBMongoDBUser_iam(t *testing.T) {
+	t.Parallel()
+	clusterName := acctest.RandomWithPrefix("tf-mongodb-iam-user")
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBMongoDBUserConfigIam(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(mgUserResourceNameIam, "auth_type", "IAM"),
+					resource.TestCheckNoResourceAttr(mgUserResourceNameIam, "password"),
+					testAccCheckMDBMongoDBUserHasAuthType(t, mgUserResourceNameIam, mongodb.AuthType_AUTH_TYPE_IAM),
+				),
+			},
+			{
+				ResourceName:            mgUserResourceNameIam,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
+func testAccCheckMDBMongoDBUserDeletionProtection(t *testing.T, username string, expected bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		user, err := testAccLoadMongoDBUser(s, username)
+		if err != nil {
+			return err
+		}
+		assert.Equal(t, expected, user.GetDeletionProtection().GetValue())
+		return nil
+	}
 }
 
 func mdbMongoDBUserImportStep(name string) resource.TestStep {
@@ -138,6 +198,22 @@ func testAccCheckMDBMongoDBUserHasPermission(t *testing.T, username string, expe
 		slices.SortFunc(actual, cmp)
 		assert.Equal(t, expected, actual)
 
+		return nil
+	}
+}
+
+func testAccCheckMDBMongoDBUserHasAuthType(t *testing.T, resourceName string, expected mongodb.AuthType) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource %q not found", resourceName)
+		}
+		username := rs.Primary.Attributes["name"]
+		user, err := testAccLoadMongoDBUser(s, username)
+		if err != nil {
+			return err
+		}
+		assert.Equal(t, expected, user.GetAuthType())
 		return nil
 	}
 }
@@ -208,4 +284,33 @@ resource "yandex_mdb_mongodb_user" "alice" {
     	roles = ["readWrite"]
   	}
 }`
+}
+
+// Create the alice user with an explicit name and deletion_protection value.
+func testAccMDBMongoDBUserConfigDeletionProtection(name, userName string, protection bool) string {
+	return testAccMDBMongoDBUserConfigStep0(name) + fmt.Sprintf(`
+resource "yandex_mdb_mongodb_user" "alice" {
+	cluster_id          = yandex_mdb_mongodb_cluster.foo.id
+	name                = "%s"
+	password            = "mysecureP@ssw0rd"
+	deletion_protection = %t
+}`, userName, protection)
+}
+
+// Create an IAM user authenticated by a service account.
+func testAccMDBMongoDBUserConfigIam(name string) string {
+	return testAccMDBMongoDBUserConfigStep0(name) + fmt.Sprintf(`
+resource "yandex_iam_service_account" "iam_sa" {
+	name = "%s"
+}
+
+resource "yandex_mdb_mongodb_user" "iam_user" {
+	cluster_id = yandex_mdb_mongodb_cluster.foo.id
+	name       = yandex_iam_service_account.iam_sa.id
+	auth_type  = "IAM"
+	permission {
+    	database_name = yandex_mdb_mongodb_database.testdb.name
+    	roles         = ["readWrite"]
+  	}
+}`, name)
 }

@@ -7,7 +7,9 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	mongodbv1sdk "github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
 func readDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, dbName string) *mongodb.Database {
@@ -26,13 +28,11 @@ func readDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, c
 	return db
 }
 
-func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, dbName string) {
+func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, spec *mongodb.DatabaseSpec) {
 	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
 		return sdk.MDB().MongoDB().Database().Create(ctx, &mongodb.CreateDatabaseRequest{
-			ClusterId: cid,
-			DatabaseSpec: &mongodb.DatabaseSpec{
-				Name: dbName,
-			},
+			ClusterId:    cid,
+			DatabaseSpec: spec,
 		})
 	})
 
@@ -48,6 +48,26 @@ func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics,
 		diag.AddError(
 			"Failed to Create resource",
 			"Error while waiting for operation to create MongoDB database:"+err.Error(),
+		)
+	}
+}
+
+func updateDatabase(ctx context.Context, providerConfig *provider_config.Config, diag *diag.Diagnostics, req *mongodb.UpdateDatabaseRequest) {
+	op, err := retry.ConflictingOperationV2(ctx, providerConfig.SDKv2, func() (*mongodbv1sdk.DatabaseUpdateOperation, error) {
+		return mongodbv1sdk.NewDatabaseClient(providerConfig.SDKv2).Update(ctx, req)
+	})
+	if err != nil {
+		diag.AddError(
+			"Failed to Update resource",
+			"Error while requesting API to update MongoDB database:"+err.Error(),
+		)
+		return
+	}
+
+	if _, err = op.Wait(ctx); err != nil {
+		diag.AddError(
+			"Failed to Update resource",
+			"Error while waiting for operation to update MongoDB database:"+err.Error(),
 		)
 	}
 }

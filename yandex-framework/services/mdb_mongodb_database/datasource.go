@@ -62,6 +62,10 @@ func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaReque
 				MarkdownDescription: "The name of the database.",
 				Required:            true,
 			},
+			"deletion_protection": schema.BoolAttribute{
+				MarkdownDescription: "Inhibits deletion of the database.",
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -79,8 +83,7 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.ClusterID = types.StringValue(db.ClusterId)
-	state.Name = types.StringValue(db.Name)
+	databaseToState(db, &state)
 	state.Id = types.StringValue(resourceid.Construct(cid, dbName))
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

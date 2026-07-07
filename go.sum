@@ -827,8 +827,8 @@ github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.15 h1:ZuTOIiePKWMJGT3
 github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.15/go.mod h1:MFCR8wFLMKBlA+OSgJJI+fhakOO+haSV9ZyoOJDL9uk=
 github.com/yandex-cloud/go-sdk/services/mdb/kafka v0.0.16 h1:as2HH5AQ6xubR2lfBqqz4klynYOh+5uINVszbKy6TSA=
 github.com/yandex-cloud/go-sdk/services/mdb/kafka v0.0.16/go.mod h1:uMsFpZCH994/cnjN3XvEP0ovqoDBkveZsB2E/Cpnalg=
-github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.17 h1:DWR58jHDO+sleJcAgVq5S99BgdUkzoFQbJoIP+qfU/8=
-github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.17/go.mod h1:17EBxA2pkkNFRljLbuoUtuNMT6Fokl+jKW0x1NDtsvU=
+github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.62 h1:vNlT8zSd44Y0XvgoL6geu2xRj64IxRy2pijEJDnboqc=
+github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.62/go.mod h1:MpVrCRli1gh0Rg/zeMHrq1D0XfUiTNoZVsEOOqkF61w=
 github.com/yandex-cloud/go-sdk/services/mdb/mysql v0.0.58 h1:ARigUT7w+cn7zCUVP0CUxeYRMmMpTTHXecE+JwupmSU=
 github.com/yandex-cloud/go-sdk/services/mdb/mysql v0.0.58/go.mod h1:GADbYMYIei0FsLUYsNljK0/MUofa3IhgkM8PvbICN90=
 github.com/yandex-cloud/go-sdk/services/mdb/opensearch v0.0.16 h1:MmALezqmG3QQyP45x1DsknLc11Jws2VBDvh0KcpjsbM=

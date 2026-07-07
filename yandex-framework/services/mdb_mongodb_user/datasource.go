@@ -69,6 +69,14 @@ func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaReque
 				Computed:            true,
 				Sensitive:           true,
 			},
+			"auth_type": schema.StringAttribute{
+				MarkdownDescription: "The authentication type of the user. Either `PASSWORD` or `IAM`.",
+				Computed:            true,
+			},
+			"deletion_protection": schema.BoolAttribute{
+				MarkdownDescription: "Inhibits deletion of the user.",
+				Computed:            true,
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"permission": schema.SetNestedBlock{

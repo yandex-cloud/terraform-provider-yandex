@@ -54,11 +54,12 @@ func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, user *mongodb.UserSpec, updatePaths []string) {
 	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
 		return sdk.MDB().MongoDB().User().Update(ctx, &mongodb.UpdateUserRequest{
-			ClusterId:   cid,
-			UserName:    user.Name,
-			Password:    user.Password,
-			Permissions: user.Permissions,
-			UpdateMask:  &fieldmaskpb.FieldMask{Paths: updatePaths},
+			ClusterId:          cid,
+			UserName:           user.Name,
+			Password:           user.Password,
+			Permissions:        user.Permissions,
+			DeletionProtection: user.DeletionProtection,
+			UpdateMask:         &fieldmaskpb.FieldMask{Paths: updatePaths},
 		})
 	})
 

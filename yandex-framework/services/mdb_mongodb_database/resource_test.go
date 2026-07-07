@@ -3,6 +3,7 @@ package mdb_mongodb_database_test
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -67,6 +68,28 @@ func TestAccMDBMongoDBDatabase_full(t *testing.T) {
 				),
 			},
 			mdbMongoDBDatabaseImportStep(mgDatabaseResourceName1),
+			// Enable deletion_protection on the database.
+			{
+				Config: testAccMDBMongoDBDatabaseConfigDeletionProtection(clusterName, "testdb", true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(mgDatabaseResourceName, "deletion_protection", "true"),
+					testAccCheckMDBMongoDBDatabaseDeletionProtection(t, "testdb", true),
+				),
+			},
+			// Deleting the protected database (here via a name change that forces recreation)
+			// must be rejected by the API.
+			{
+				Config:      testAccMDBMongoDBDatabaseConfigDeletionProtection(clusterName, "testdb_protected", true),
+				ExpectError: regexp.MustCompile("(?i)deletion.protection"),
+			},
+			// Disable protection so the database can be destroyed at the end of the test.
+			{
+				Config: testAccMDBMongoDBDatabaseConfigDeletionProtection(clusterName, "testdb", false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(mgDatabaseResourceName, "deletion_protection", "false"),
+					testAccCheckMDBMongoDBDatabaseDeletionProtection(t, "testdb", false),
+				),
+			},
 		},
 	})
 }
@@ -107,6 +130,17 @@ func testAccCheckMDBMongoDBClusterHasDatabase(t *testing.T, dbname string) resou
 	}
 }
 
+func testAccCheckMDBMongoDBDatabaseDeletionProtection(t *testing.T, dbname string, expected bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		db, err := testAccLoadMongoDBDatabase(s, dbname)
+		if err != nil {
+			return err
+		}
+		assert.Equal(t, expected, db.GetDeletionProtection().GetValue())
+		return nil
+	}
+}
+
 func testAccMDBMongoDBDatabaseConfigStep0(name string) string {
 	return fmt.Sprintf(VPCDependencies+`
 resource "yandex_mdb_mongodb_cluster" "foo" {
@@ -130,6 +164,17 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 	    }
 }
 `, name)
+}
+
+// Create the testdb database with an explicit name and deletion_protection value.
+func testAccMDBMongoDBDatabaseConfigDeletionProtection(name, dbName string, protection bool) string {
+	return testAccMDBMongoDBDatabaseConfigStep0(name) + fmt.Sprintf(`
+resource "yandex_mdb_mongodb_database" "testdb" {
+	cluster_id          = yandex_mdb_mongodb_cluster.foo.id
+	name                = "%s"
+	deletion_protection = %t
+}
+`, dbName, protection)
 }
 
 // Create database

@@ -18,11 +18,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 const (
 	yandexMDBMongoDBDatabaseCreateTimeout = time.Hour
+	yandexMDBMongoDBDatabaseUpdateTimeout = time.Hour
 	yandexMDBMongoDBDatabaseDeleteTimeout = time.Hour
 )
 
@@ -62,6 +65,7 @@ func (r *bindingResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 		Attributes: map[string]schema.Attribute{
 			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
 				Create: true,
+				Update: true,
 				Delete: true,
 			}),
 			"id": schema.StringAttribute{
@@ -84,6 +88,10 @@ func (r *bindingResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+			},
+			"deletion_protection": schema.BoolAttribute{
+				MarkdownDescription: "Inhibits deletion of the database.",
+				Optional:            true,
 			},
 		},
 	}
@@ -117,8 +125,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 		)
 		return
 	}
-	state.ClusterID = types.StringValue(db.ClusterId)
-	state.Name = types.StringValue(db.Name)
+	databaseToState(db, &state)
 
 	state.Id = types.StringValue(resourceid.Construct(cid, dbName))
 	diags = resp.State.Set(ctx, &state)
@@ -143,7 +150,11 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 
 	cid := plan.ClusterID.ValueString()
 	dbName := plan.Name.ValueString()
-	createDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
+	spec := &mongodb.DatabaseSpec{
+		Name:               dbName,
+		DeletionProtection: wrappers.BoolFromTF(plan.DeletionProtection),
+	}
+	createDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, spec)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -153,9 +164,43 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	resp.Diagnostics.Append(diags...)
 }
 
-// Update when cluster_id changed
-func (r *bindingResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	panic("method not implemented")
+// Update changes mutable fields of the database (currently only deletion_protection;
+// cluster_id and name require replacement).
+func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan Database
+	var state Database
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBMongoDBDatabaseUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
+
+	cid := plan.ClusterID.ValueString()
+	dbName := plan.Name.ValueString()
+
+	if !plan.DeletionProtection.Equal(state.DeletionProtection) {
+		updateDatabase(ctx, r.providerConfig, &resp.Diagnostics, &mongodb.UpdateDatabaseRequest{
+			ClusterId:          cid,
+			DatabaseName:       dbName,
+			DeletionProtection: wrappers.BoolFromTF(plan.DeletionProtection),
+			UpdateMask:         &fieldmaskpb.FieldMask{Paths: []string{"deletion_protection"}},
+		})
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	plan.Id = types.StringValue(resourceid.Construct(cid, dbName))
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
 }
 
 func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -193,12 +238,13 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		return
 	}
 	var state Database
-	state.ClusterID = types.StringValue(db.ClusterId)
-	state.Name = types.StringValue(db.Name)
+	databaseToState(db, &state)
+	state.Id = types.StringValue(resourceid.Construct(clusterId, dbName))
 
 	state.Timeouts = timeouts.Value{
 		Object: types.ObjectNull(map[string]attr.Type{
 			"create": types.StringType,
+			"update": types.StringType,
 			"delete": types.StringType,
 		}),
 	}
