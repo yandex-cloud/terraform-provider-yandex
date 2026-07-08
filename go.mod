@@ -39,8 +39,8 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
-	github.com/yandex-cloud/go-genproto v0.91.0
-	github.com/yandex-cloud/go-sdk v0.31.0
+	github.com/yandex-cloud/go-genproto v0.93.0
+	github.com/yandex-cloud/go-sdk v0.32.0
 	github.com/yandex-cloud/go-sdk/services/airflow v0.0.26
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10
 	github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.2
@@ -62,11 +62,11 @@ require (
 	github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.16
 	github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.15
 	github.com/yandex-cloud/go-sdk/services/mdb/kafka v0.0.16
-	github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.62
-	github.com/yandex-cloud/go-sdk/services/mdb/mysql v0.0.58
+	github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.65
+	github.com/yandex-cloud/go-sdk/services/mdb/mysql v0.0.65
 	github.com/yandex-cloud/go-sdk/services/mdb/opensearch v0.0.16
-	github.com/yandex-cloud/go-sdk/services/mdb/postgresql v0.0.16
-	github.com/yandex-cloud/go-sdk/services/mdb/redis v0.0.16
+	github.com/yandex-cloud/go-sdk/services/mdb/postgresql v0.0.65
+	github.com/yandex-cloud/go-sdk/services/mdb/redis v0.0.65
 	github.com/yandex-cloud/go-sdk/services/mdb/spqr v0.0.16
 	github.com/yandex-cloud/go-sdk/services/metastore v0.0.26
 	github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.50
@@ -82,7 +82,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/vpc v0.0.62
 	github.com/yandex-cloud/go-sdk/services/ydb v0.0.12
 	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.36
-	github.com/yandex-cloud/go-sdk/v2 v2.126.0
+	github.com/yandex-cloud/go-sdk/v2 v2.130.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.29
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
 	golang.org/x/crypto v0.41.0

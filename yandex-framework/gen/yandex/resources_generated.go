@@ -66,10 +66,14 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_clickhouse_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_greenplum_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_kafka_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mongodb_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mongodb_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mysql_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mysql_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_opensearch_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_postgresql_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_postgresql_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_redis_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_redis_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_sharded_postgresql_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_metastore_cluster_iam_binding"
@@ -131,13 +135,17 @@ func init() {
 		yandex_kms_symmetric_key_iam_binding.NewResource,
 		yandex_kms_symmetric_key_iam_member.NewResource,
 		yandex_lb_target_group.NewResource,
+		yandex_mdb_mongodb_backup_retention_policy.NewResource,
 		yandex_mdb_mongodb_cluster_iam_binding.NewResource,
+		yandex_mdb_mysql_backup_retention_policy.NewResource,
 		yandex_mdb_mysql_cluster_iam_binding.NewResource,
+		yandex_mdb_postgresql_backup_retention_policy.NewResource,
 		yandex_mdb_postgresql_cluster_iam_binding.NewResource,
 		yandex_mdb_clickhouse_cluster_iam_binding.NewResource,
 		yandex_mdb_greenplum_cluster_iam_binding.NewResource,
 		yandex_mdb_kafka_cluster_iam_binding.NewResource,
 		yandex_mdb_opensearch_cluster_iam_binding.NewResource,
+		yandex_mdb_redis_backup_retention_policy.NewResource,
 		yandex_mdb_redis_cluster_iam_binding.NewResource,
 		yandex_mdb_sharded_postgresql_cluster_iam_binding.NewResource,
 		yandex_organizationmanager_idp_application_oauth_application.NewResource,

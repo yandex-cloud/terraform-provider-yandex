@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'valkey: add yandex_mdb_redis_backup_retention_policy resource and datasource'
+time: 2026-07-07T12:54:52.791721+03:00

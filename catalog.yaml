@@ -953,6 +953,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_mongodb_backup_retention_policy:
+    Category: "Managed Service for MongoDB"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
   mdb_mysql_cluster:
     Category: "Managed Service for MySQL"
     Type: sdk
@@ -977,6 +983,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_mysql_backup_retention_policy:
+    Category: "Managed Service for MySQL"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
   mdb_opensearch_cluster:
     Category: "Managed Service for OpenSearch"
     Type: fw
@@ -1009,6 +1021,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_postgresql_backup_retention_policy:
+    Category: "Managed Service for PostgreSQL"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
   mdb_postgresql_cluster_v2:
     Category: "V2 Resources"
     Type: fw
@@ -1041,6 +1059,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_redis_backup_retention_policy:
+    Category: "Managed Service for Redis"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
   message_queue:
     Category: "Message Queue"
     Type: sdk
