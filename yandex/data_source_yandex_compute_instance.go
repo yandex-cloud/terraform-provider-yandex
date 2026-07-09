@@ -539,6 +539,12 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				},
 				Computed: true,
 			},
+			"reserved_instance_pool_id": {
+				Type:        schema.TypeString,
+				Description: resourceYandexComputeInstance().Schema["reserved_instance_pool_id"].Description,
+				Optional:    true,
+				Computed:    true,
+			},
 		},
 	}
 
@@ -684,6 +690,10 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("hardware_generation", hardwareGeneration); err != nil {
+		return err
+	}
+
+	if err := d.Set("reserved_instance_pool_id", instance.ReservedInstancePoolId); err != nil {
 		return err
 	}
 

@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'compute: added `reserved_instance_pool_id` option to instance`'
+time: 2026-07-08T19:05:55.909225+03:00

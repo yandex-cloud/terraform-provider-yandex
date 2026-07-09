@@ -22,6 +22,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_image_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_instance_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_placement_group_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_reserved_instance_pool"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_snapshot_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_snapshot_schedule_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
@@ -185,6 +186,7 @@ func init() {
 		yandex_compute_image_iam_binding.NewResource,
 		yandex_compute_instance_iam_binding.NewResource,
 		yandex_compute_placement_group_iam_binding.NewResource,
+		yandex_compute_reserved_instance_pool.NewResource,
 		yandex_compute_snapshot_schedule_iam_binding.NewResource,
 		yandex_compute_snapshot_iam_binding.NewResource,
 		yandex_connectionmanager_connection.NewResource,

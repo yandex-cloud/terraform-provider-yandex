@@ -752,6 +752,13 @@ func resourceYandexComputeInstance() *schema.Resource {
 				},
 				Computed: true,
 			},
+
+			"reserved_instance_pool_id": {
+				Type:        schema.TypeString,
+				Description: "ID of the reserved instance pool to attach this instance to.",
+				Optional:    true,
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -938,6 +945,10 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	}
 
 	if err := d.Set("hardware_generation", hardwareGeneration); err != nil {
+		return err
+	}
+
+	if err := d.Set("reserved_instance_pool_id", instance.ReservedInstancePoolId); err != nil {
 		return err
 	}
 
@@ -1138,6 +1149,22 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		err = makeInstanceUpdateRequest(req, d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
+	reservedInstancePoolIdPropName := "reserved_instance_pool_id"
+	if d.HasChange(reservedInstancePoolIdPropName) {
+		req := &compute.UpdateInstanceRequest{
+			InstanceId:             d.Id(),
+			ReservedInstancePoolId: d.Get(reservedInstancePoolIdPropName).(string),
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{reservedInstancePoolIdPropName},
+			},
+		}
+
+		err := makeInstanceUpdateRequest(req, d, meta)
 		if err != nil {
 			return err
 		}
@@ -1601,6 +1628,8 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		return nil, fmt.Errorf("Error create 'maintenance_grace_period' object of api request: %s", err)
 	}
 
+	reservedInstancePoolId := d.Get("reserved_instance_pool_id").(string)
+
 	req := &compute.CreateInstanceRequest{
 		FolderId:               folderID,
 		Hostname:               d.Get("hostname").(string),
@@ -1624,6 +1653,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		GpuSettings:            gpuSettingsSpec,
 		MaintenancePolicy:      maintenancePolicy,
 		MaintenanceGracePeriod: maintenanceGracePeriod,
+		ReservedInstancePoolId: reservedInstancePoolId,
 	}
 
 	return req, nil

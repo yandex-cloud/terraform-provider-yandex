@@ -257,6 +257,14 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  compute_reserved_instance_pool:
+    Category: "Compute Cloud"
+    Type: fw
+    HasR: true
+    HasD: true
+    HasI: true
+    #HasF: false
+    #HasE: false
   compute_instance_group:
     Category: "Compute Cloud"
     Type: sdk
