@@ -170,7 +170,7 @@ resource "yandex_mdb_postgresql_user" "alice" {
 	name       			= "alice"
 	password   			= "mysecurepassword"
 	login      			= "true"
-	grants     			= ["mdb_admin", "mdb_replication"]
+	grants     			= ["mdb_admin", "mdb_read_all_data", "mdb_replication", "mdb_write_all_data"]
 }
 
 data "yandex_mdb_postgresql_user" "alice" {

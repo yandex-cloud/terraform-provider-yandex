@@ -39,7 +39,7 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "generate_password", "false"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "connection_manager.%", "1"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "user_password_encryption", "USER_PASSWORD_ENCRYPTION_MD5"),
-					testAccCheckMDBPostgreSQLUserHasGrants(t, "alice", []string{"mdb_admin", "mdb_replication"}),
+					testAccCheckMDBPostgreSQLUserHasGrants(t, "alice", []string{"mdb_admin", "mdb_read_all_data", "mdb_replication", "mdb_write_all_data"}),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "50"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "user_connection_manager.#", "1"),
 					resource.TestCheckResourceAttrSet(pgUserResourceNameAlice, "user_connection_manager.0.connection_id"),
@@ -450,7 +450,7 @@ resource "yandex_mdb_postgresql_user" "alice" {
 	name       = "alice"
 	password   = "mysecureP@ssw0rd"
 	login      = true
-	grants     = ["mdb_admin", "mdb_replication"]
+	grants     = ["mdb_admin", "mdb_read_all_data", "mdb_replication", "mdb_write_all_data"]
 	conn_limit = 50
 	settings = {
 		default_transaction_isolation = "read committed"
