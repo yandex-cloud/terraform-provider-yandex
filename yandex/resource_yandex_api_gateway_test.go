@@ -921,7 +921,7 @@ func testWriteResourceYandexAPIGateway(
 		fprintfLn(sb, "  name = \"%s\"", *name)
 	}
 	fprintfLn(sb, "  spec = <<EOF\n")
-	fprintfLn(sb, spec)
+	fprintfLn(sb, "%s", spec)
 	fprintfLn(sb, "EOF")
 	if logOptions := o.logOptions; logOptions != nil {
 		fprintfLn(sb, "  log_options {")
