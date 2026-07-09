@@ -861,14 +861,17 @@ func NewLifecycleRules(raw []interface{}, d *schema.ResourceData) ([]LifecycleRu
 		ncExpiration := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_expiration", i)).([]interface{})
 		if len(ncExpiration) > 0 && ncExpiration[0] != nil {
 			e := ncExpiration[0].(map[string]interface{})
-
 			if val, ok := e["days"].(int); ok && val > 0 {
-				rule.NoncurrentVersionExpiration = &LifecycleNoncurrentVersionExpiration{
-					NoncurrentDays: aws.Int64(int64(val)),
+				if rule.NoncurrentVersionExpiration == nil {
+					rule.NoncurrentVersionExpiration = &LifecycleNoncurrentVersionExpiration{}
 				}
-				if val, ok := e["newer_noncurrent_versions"].(int); ok && val > 0 {
-					rule.NoncurrentVersionExpiration.NewerNoncurrentVersions = aws.Int64(int64(val))
+				rule.NoncurrentVersionExpiration.NoncurrentDays = aws.Int64(int64(val))
+			}
+			if val, ok := e["newer_noncurrent_versions"].(int); ok && val > 0 {
+				if rule.NoncurrentVersionExpiration == nil {
+					rule.NoncurrentVersionExpiration = &LifecycleNoncurrentVersionExpiration{}
 				}
+				rule.NoncurrentVersionExpiration.NewerNoncurrentVersions = aws.Int64(int64(val))
 			}
 		}
 
