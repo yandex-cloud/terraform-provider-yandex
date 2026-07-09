@@ -307,6 +307,22 @@
             }
           },
           {
+            "name": "datacatalog",
+            "single_nested": {
+              "computed_optional_required": "optional",
+              "description": "Configuration of Datacatalog integration.",
+              "attributes": [
+                {
+                  "name": "enabled",
+                  "bool": {
+                    "computed_optional_required": "required",
+                    "description": "Enables integrations with Datacatalog."
+                  }
+                }
+              ]
+            }
+          },
+          {
             "name": "airflow_config",
             "map": {
               "computed_optional_required": "optional",

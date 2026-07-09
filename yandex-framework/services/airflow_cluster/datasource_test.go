@@ -119,6 +119,7 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "deb_packages.0", "tree"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "description", "airflow-cluster"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "lockbox_secrets_backend.enabled", "true"),
+		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "datacatalog.enabled", "true"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "logging.enabled", "true"),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "logging.folder_id", folderID),
 		resource.TestCheckResourceAttr("data.yandex_airflow_cluster.airflow_cluster", "logging.min_level", "INFO"),

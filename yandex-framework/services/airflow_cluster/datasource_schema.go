@@ -136,6 +136,21 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				MarkdownDescription: "Configuration of Lockbox Secrets Backend. [See documentation](https://yandex.cloud/docs/managed-airflow/tutorials/lockbox-secrets-in-maf-cluster) for details.",
 			},
+			"datacatalog": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Computed:            true,
+						MarkdownDescription: "Enables usage of Datacatalog integration.",
+					},
+				},
+				CustomType: DatacatalogType{
+					ObjectType: types.ObjectType{
+						AttrTypes: DatacatalogValue{}.AttributeTypes(ctx),
+					},
+				},
+				Computed:            true,
+				MarkdownDescription: "Configuration of Datacatalog integration.",
+			},
 			"logging": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{

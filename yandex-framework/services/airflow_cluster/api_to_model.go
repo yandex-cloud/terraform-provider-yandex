@@ -101,6 +101,11 @@ func ClusterToState(ctx context.Context, cluster *airflow.Cluster, state *Cluste
 		state.LockboxSecretsBackend = lockboxValue
 	}
 
+	datacatalogValue := datacatalogValueFromAPI(cluster.GetConfig().GetDatacatalog())
+	if !state.Datacatalog.IsNull() || datacatalogValue.IsNull() || datacatalogValue.Enabled.ValueBool() {
+		state.Datacatalog = datacatalogValue
+	}
+
 	airflowConfig, diags := airflowConfigFromAPI(ctx, cluster.GetConfig().GetAirflow())
 	if diags.HasError() {
 		return diags
@@ -276,6 +281,17 @@ func lockboxValueFromAPI(cfg *airflow.LockboxConfig) LockboxSecretsBackendValue 
 	}
 
 	return LockboxSecretsBackendValue{
+		Enabled: types.BoolValue(cfg.GetEnabled()),
+		state:   attr.ValueStateKnown,
+	}
+}
+
+func datacatalogValueFromAPI(cfg *airflow.DatacatalogConfig) DatacatalogValue {
+	if cfg == nil {
+		return NewDatacatalogValueNull()
+	}
+
+	return DatacatalogValue{
 		Enabled: types.BoolValue(cfg.GetEnabled()),
 		state:   attr.ValueStateKnown,
 	}

@@ -49,6 +49,7 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 			Worker:         common.Worker,
 			Dependencies:   common.Dependencies,
 			Lockbox:        common.Lockbox,
+			Datacatalog:    common.Datacatalog,
 			AirflowVersion: common.AirflowVersion,
 			PythonVersion:  common.PythonVersion,
 		},
@@ -90,6 +91,7 @@ type CommonForCreateAndUpdate struct {
 	Triggerer         *airflow.TriggererConfig
 	Dependencies      *airflow.Dependencies
 	Lockbox           *airflow.LockboxConfig
+	Datacatalog       *airflow.DatacatalogConfig
 	MaintenanceWindow *airflow.MaintenanceWindow
 }
 
@@ -245,6 +247,14 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		updateMaskPaths = append(updateMaskPaths, "config_spec.lockbox")
 	}
 
+	var datacatalogConfig *airflow.DatacatalogConfig
+	if !plan.Datacatalog.IsNull() {
+		datacatalogConfig = &airflow.DatacatalogConfig{Enabled: plan.Datacatalog.Enabled.ValueBool()}
+	}
+	if state != nil && !datacatalogValuesAreEqual(plan.Datacatalog, state.Datacatalog) {
+		updateMaskPaths = append(updateMaskPaths, "config_spec.datacatalog")
+	}
+
 	var airflowConfig *airflow.AirflowConfig
 	if !plan.AirflowConfig.IsNull() {
 		configWithSections := make(map[string]map[string]string, len(plan.AirflowConfig.Elements()))
@@ -376,6 +386,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 			DebPackages: debPackages,
 		},
 		Lockbox:           lockboxConfig,
+		Datacatalog:       datacatalogConfig,
 		MaintenanceWindow: maintenanceWindow,
 	}
 
@@ -418,6 +429,7 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 			Worker:         common.Worker,
 			Dependencies:   common.Dependencies,
 			Lockbox:        common.Lockbox,
+			Datacatalog:    common.Datacatalog,
 			AirflowVersion: common.AirflowVersion,
 			PythonVersion:  common.PythonVersion,
 		},
@@ -475,6 +487,22 @@ func (v LockboxSecretsBackendValue) IsExplicitlyDisabled() bool {
 }
 
 func lockboxSecretsBackendValuesAreEqual(val1, val2 LockboxSecretsBackendValue) bool {
+	if val1.Equal(val2) {
+		return true
+	}
+	// if one of values is null and the other is empty then we assume that they are equal
+	if (val1.IsExplicitlyDisabled() && val2.IsNull()) || (val1.IsNull() && val2.IsExplicitlyDisabled()) {
+		return true
+	}
+
+	return false
+}
+
+func (v DatacatalogValue) IsExplicitlyDisabled() bool {
+	return !v.IsNull() && !v.Enabled.ValueBool()
+}
+
+func datacatalogValuesAreEqual(val1, val2 DatacatalogValue) bool {
 	if val1.Equal(val2) {
 		return true
 	}

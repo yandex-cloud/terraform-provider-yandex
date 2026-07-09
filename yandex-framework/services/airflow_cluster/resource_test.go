@@ -188,6 +188,9 @@ resource "yandex_airflow_cluster" {{ .ResourceName }} {
   lockbox_secrets_backend = {
     enabled = true
   }
+  datacatalog = {
+  	enabled = true
+  }
   logging = {
     enabled   = true
     folder_id = "{{ .FolderID }}"
@@ -409,6 +412,7 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "deb_packages.0", "tree"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "description", "airflow-cluster"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "lockbox_secrets_backend.enabled", "true"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "datacatalog.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "logging.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "logging.folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "logging.min_level", "INFO"),
@@ -602,6 +606,7 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "deb_packages.0", "tree"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "description", "airflow-cluster"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "lockbox_secrets_backend.enabled", "true"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "datacatalog.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "logging.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "logging.folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "logging.min_level", "INFO"),

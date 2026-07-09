@@ -152,6 +152,23 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 					dagProcessorValidator(),
 				},
 			},
+			"datacatalog": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Required:            true,
+						Description:         "Enables integrations with Datacatalog.",
+						MarkdownDescription: "Enables integrations with Datacatalog.",
+					},
+				},
+				CustomType: DatacatalogType{
+					ObjectType: types.ObjectType{
+						AttrTypes: DatacatalogValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "Configuration of Datacatalog integration.",
+				MarkdownDescription: "Configuration of Datacatalog integration.",
+			},
 			"deb_packages": schema.SetAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -447,6 +464,7 @@ type ClusterModel struct {
 	CodeSync              CodeSyncValue              `tfsdk:"code_sync"`
 	CreatedAt             types.String               `tfsdk:"created_at"`
 	DagProcessor          DagProcessorValue          `tfsdk:"dag_processor"`
+	Datacatalog           DatacatalogValue           `tfsdk:"datacatalog"`
 	DebPackages           types.Set                  `tfsdk:"deb_packages"`
 	DeletionProtection    types.Bool                 `tfsdk:"deletion_protection"`
 	Description           types.String               `tfsdk:"description"`
@@ -2092,6 +2110,330 @@ func (v DagProcessorValue) AttributeTypes(ctx context.Context) map[string]attr.T
 	return map[string]attr.Type{
 		"count":              basetypes.Int64Type{},
 		"resource_preset_id": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = DatacatalogType{}
+
+type DatacatalogType struct {
+	basetypes.ObjectType
+}
+
+func (t DatacatalogType) Equal(o attr.Type) bool {
+	other, ok := o.(DatacatalogType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t DatacatalogType) String() string {
+	return "DatacatalogType"
+}
+
+func (t DatacatalogType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return DatacatalogValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDatacatalogValueNull() DatacatalogValue {
+	return DatacatalogValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewDatacatalogValueUnknown() DatacatalogValue {
+	return DatacatalogValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewDatacatalogValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (DatacatalogValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing DatacatalogValue Attribute Value",
+				"While creating a DatacatalogValue value, a missing attribute value was detected. "+
+					"A DatacatalogValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DatacatalogValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid DatacatalogValue Attribute Type",
+				"While creating a DatacatalogValue value, an invalid attribute value was detected. "+
+					"A DatacatalogValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DatacatalogValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("DatacatalogValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra DatacatalogValue Attribute Value",
+				"While creating a DatacatalogValue value, an extra attribute value was detected. "+
+					"A DatacatalogValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra DatacatalogValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewDatacatalogValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewDatacatalogValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewDatacatalogValueUnknown(), diags
+	}
+
+	return DatacatalogValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDatacatalogValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) DatacatalogValue {
+	object, diags := NewDatacatalogValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewDatacatalogValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t DatacatalogType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewDatacatalogValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewDatacatalogValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewDatacatalogValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewDatacatalogValueMust(DatacatalogValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t DatacatalogType) ValueType(ctx context.Context) attr.Value {
+	return DatacatalogValue{}
+}
+
+var _ basetypes.ObjectValuable = DatacatalogValue{}
+
+type DatacatalogValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v DatacatalogValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v DatacatalogValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v DatacatalogValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v DatacatalogValue) String() string {
+	return "DatacatalogValue"
+}
+
+func (v DatacatalogValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v DatacatalogValue) Equal(o attr.Value) bool {
+	other, ok := o.(DatacatalogValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v DatacatalogValue) Type(ctx context.Context) attr.Type {
+	return DatacatalogType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v DatacatalogValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
 	}
 }
 
