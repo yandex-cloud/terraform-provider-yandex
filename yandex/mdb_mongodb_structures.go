@@ -959,6 +959,11 @@ func flattenMongoDBClusterConfig(cc *mongodb.ClusterConfig, d *schema.ResourceDa
 		return nil, err
 	}
 
+	flattenedAutocompactConfig, err := flattenAutocompactConfig(cc)
+	if err != nil {
+		return nil, err
+	}
+
 	flattenConfig := []map[string]interface{}{
 		{
 			"backup_window_start": []*map[string]interface{}{
@@ -982,12 +987,92 @@ func flattenMongoDBClusterConfig(cc *mongodb.ClusterConfig, d *schema.ResourceDa
 					"enabled": cc.PerformanceDiagnostics.ProfilingEnabled,
 				},
 			},
-			"mongod":   flattenMongod,
-			"mongos":   flattenMongos,
-			"mongocfg": flattenMongocfg,
+			"autocompact_config": flattenedAutocompactConfig,
+			"mongod":             flattenMongod,
+			"mongos":             flattenMongos,
+			"mongocfg":           flattenMongocfg,
 		},
 	}
 	return flattenConfig, nil
+}
+
+func flattenAutocompactConfig(cc *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
+	if cc.AutocompactConfig == nil {
+		return nil, nil
+	}
+
+	result := map[string]interface{}{
+		"enabled":         cc.AutocompactConfig.Enabled,
+		"compaction_type": formatAutocompactionType(cc.AutocompactConfig.CompactionType),
+	}
+
+	if cc.AutocompactConfig.TargetFreeSpace != nil {
+		result["target_free_space"] = int(cc.AutocompactConfig.TargetFreeSpace.GetValue())
+	}
+
+	if cc.AutocompactConfig.BloatPercent != nil {
+		result["bloat_percent"] = float32(cc.AutocompactConfig.BloatPercent.GetValue())
+	}
+
+	return []map[string]interface{}{result}, nil
+}
+
+func expandAutocompactConfig(d *schema.ResourceData) (*mongodb.AutoCompactConfig, error) {
+	if _, ok := d.GetOk("cluster_config.0.autocompact_config"); !ok {
+		return nil, nil
+	}
+
+	ac := &mongodb.AutoCompactConfig{}
+
+	enabled, ok := d.GetOk("cluster_config.0.autocompact_config.0.enabled")
+	if ok {
+		ac.Enabled = enabled.(bool)
+	}
+
+	compactionType, ok := d.GetOk("cluster_config.0.autocompact_config.0.compaction_type")
+	if ok {
+		ct, err := parseAutocompactionType(compactionType.(string))
+		if err != nil {
+			return nil, err
+		}
+		ac.CompactionType = ct
+	}
+
+	targetFreeSpace, ok := d.GetOk("cluster_config.0.autocompact_config.0.target_free_space")
+	if ok {
+		ac.TargetFreeSpace = &wrappers.Int64Value{Value: int64(targetFreeSpace.(int))}
+	}
+
+	bloatPercent, ok := d.GetOk("cluster_config.0.autocompact_config.0.bloat_percent")
+	if ok {
+		ac.BloatPercent = &wrappers.DoubleValue{Value: bloatPercent.(float64)}
+	}
+	return ac, nil
+}
+
+var autocompactionTypeNames = map[string]mongodb.AutoCompactConfig_CompactionType{
+	"unspecified": mongodb.AutoCompactConfig_COMPACTION_TYPE_UNSPECIFIED,
+	"ignore":      mongodb.AutoCompactConfig_COMPACTION_TYPE_IGNORE_PRIMARY,
+	"switch":      mongodb.AutoCompactConfig_COMPACTION_TYPE_SWITCH_PRIMARY,
+}
+
+func parseAutocompactionType(at string) (mongodb.AutoCompactConfig_CompactionType, error) {
+	val, ok := autocompactionTypeNames[strings.ToLower(at)]
+	if !ok {
+		return mongodb.AutoCompactConfig_COMPACTION_TYPE_UNSPECIFIED,
+			fmt.Errorf("value for 'compaction_type' should be one of `unspecified`, `ignore`, `switch`, not `%s`", at)
+	}
+
+	return val, nil
+}
+
+func formatAutocompactionType(ct mongodb.AutoCompactConfig_CompactionType) string {
+	for name, val := range autocompactionTypeNames {
+		if val == ct {
+			return name
+		}
+	}
+	return "unspecified"
 }
 
 func parseMongoDBWeekDay(wd string) (mongodb.WeeklyMaintenanceWindow_WeekDay, error) {

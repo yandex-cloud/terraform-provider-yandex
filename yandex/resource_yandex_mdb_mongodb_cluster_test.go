@@ -132,7 +132,21 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 {{if .PerformanceDiagnostics}}
 	performance_diagnostics {
 		enabled = "{{.PerformanceDiagnostics.enabled}}"
-	} 
+	}
+{{end}}
+{{if .AutocompactConfig}}
+	autocompact_config {
+		enabled = {{.AutocompactConfig.enabled}}
+	{{- if .AutocompactConfig.compaction_type}}
+		compaction_type = "{{.AutocompactConfig.compaction_type}}"
+	{{- end}}
+	{{- if .AutocompactConfig.target_free_space}}
+		target_free_space = {{.AutocompactConfig.target_free_space}}
+	{{- end}}
+	{{- if .AutocompactConfig.bloat_percent}}
+		bloat_percent = {{.AutocompactConfig.bloat_percent}}
+	{{- end}}
+	}
 {{end}}
 {{if .BackupWindow}}
     backup_window_start {
@@ -722,6 +736,106 @@ func create8_0ConfigData() map[string]interface{} {
 		},
 		"DeletionProtection": true,
 	}
+}
+
+// Test that MongoDB Cluster autocompact_config is created, updated and read back correctly
+func TestAccMDBMongoDBCluster_autocompactConfig(t *testing.T) {
+	t.Parallel()
+
+	configData := create8_0ConfigData()
+	delete(configData, "DeletionProtection")
+	configData["AutocompactConfig"] = map[string]interface{}{
+		"enabled":           true,
+		"compaction_type":   "switch",
+		"target_free_space": 10737418240, // 10 GB
+		"bloat_percent":     20.5,
+	}
+
+	var r mongodb.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckVPCNetworkDestroy,
+		Steps: []resource.TestStep{
+			// Create cluster with autocompact_config
+			{
+				Config: makeConfig(t, &configData, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResourceFoo, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.compaction_type", "switch"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.target_free_space", "10737418240"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.bloat_percent", "20.5"),
+					testAccCheckMDBMongoDBClusterHasAutocompactConfig(&r, &mongodb.AutoCompactConfig{
+						Enabled:         true,
+						CompactionType:  mongodb.AutoCompactConfig_COMPACTION_TYPE_SWITCH_PRIMARY,
+						TargetFreeSpace: &wrapperspb.Int64Value{Value: 10737418240},
+						BloatPercent:    &wrapperspb.DoubleValue{Value: 20.5},
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// Update all autocompact_config fields
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"AutocompactConfig": map[string]interface{}{
+						"enabled":           true,
+						"compaction_type":   "ignore",
+						"target_free_space": 21474836480, // 20 GB
+						"bloat_percent":     35.0,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResourceFoo, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.enabled", "true"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.compaction_type", "ignore"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.target_free_space", "21474836480"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.bloat_percent", "35"),
+					testAccCheckMDBMongoDBClusterHasAutocompactConfig(&r, &mongodb.AutoCompactConfig{
+						Enabled:         true,
+						CompactionType:  mongodb.AutoCompactConfig_COMPACTION_TYPE_IGNORE_PRIMARY,
+						TargetFreeSpace: &wrapperspb.Int64Value{Value: 21474836480},
+						BloatPercent:    &wrapperspb.DoubleValue{Value: 35},
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// Disable autocompaction (other fields stay explicit: the API keeps
+			// the previous compaction_type when COMPACTION_TYPE_UNSPECIFIED is sent)
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"AutocompactConfig": map[string]interface{}{
+						"enabled":           false,
+						"compaction_type":   "ignore",
+						"target_free_space": 21474836480,
+						"bloat_percent":     35.0,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResourceFoo, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.enabled", "false"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo, "cluster_config.0.autocompact_config.0.compaction_type", "ignore"),
+					testAccCheckMDBMongoDBClusterHasAutocompactConfig(&r, &mongodb.AutoCompactConfig{
+						Enabled:         false,
+						CompactionType:  mongodb.AutoCompactConfig_COMPACTION_TYPE_IGNORE_PRIMARY,
+						TargetFreeSpace: &wrapperspb.Int64Value{Value: 21474836480},
+						BloatPercent:    &wrapperspb.DoubleValue{Value: 35},
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// Re-apply same config: must be a no-op (checks flatten/expand symmetry)
+			{
+				Config: makeConfig(t, &configData, nil),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
 }
 
 func createRestoreConfigData() map[string]interface{} {
@@ -2495,6 +2609,32 @@ func testAccCheckMDBMongoDBClusterHasRightVersion(r *mongodb.Cluster, version st
 	return func(s *terraform.State) error {
 		if r.Config.Version != version {
 			return fmt.Errorf("Expected version '%s', got '%s'", version, r.Config.Version)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckMDBMongoDBClusterHasAutocompactConfig(r *mongodb.Cluster,
+	expected *mongodb.AutoCompactConfig) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ac := r.Config.GetAutocompactConfig()
+		if ac == nil {
+			return fmt.Errorf("Expected autocompact config to be set, got nil")
+		}
+		if ac.Enabled != expected.Enabled {
+			return fmt.Errorf("Expected autocompact enabled '%t', got '%t'", expected.Enabled, ac.Enabled)
+		}
+		if ac.CompactionType != expected.CompactionType {
+			return fmt.Errorf("Expected compaction type '%s', got '%s'", expected.CompactionType, ac.CompactionType)
+		}
+		if ac.GetTargetFreeSpace().GetValue() != expected.GetTargetFreeSpace().GetValue() {
+			return fmt.Errorf("Expected target free space '%d', got '%d'",
+				expected.GetTargetFreeSpace().GetValue(), ac.GetTargetFreeSpace().GetValue())
+		}
+		if ac.GetBloatPercent().GetValue() != expected.GetBloatPercent().GetValue() {
+			return fmt.Errorf("Expected bloat percent '%f', got '%f'",
+				expected.GetBloatPercent().GetValue(), ac.GetBloatPercent().GetValue())
 		}
 
 		return nil

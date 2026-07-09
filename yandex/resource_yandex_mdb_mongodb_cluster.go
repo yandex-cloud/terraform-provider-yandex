@@ -530,6 +530,40 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 								},
 							},
 						},
+						"autocompact_config": {
+							Type:        schema.TypeList,
+							Description: "Autocompaction configuration for the MongoDB cluster.",
+							MaxItems:    1,
+							Optional:    true,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Description: "Enable or disable autocompaction.",
+										Optional:    true,
+									},
+									"target_free_space": {
+										Type:        schema.TypeInt,
+										Description: "Target free space for autocompaction.",
+										Optional:    true,
+									},
+									"bloat_percent": {
+										Type:        schema.TypeFloat,
+										Description: "Bloat percent for autocompaction.",
+										Optional:    true,
+									},
+									"compaction_type": {
+										Type:         schema.TypeString,
+										Description:  "Compaction type for autocompaction.",
+										Optional:     true,
+										Default:      "unspecified",
+										ValidateFunc: validation.StringInSlice([]string{"unspecified", "switch", "ignore"}, true),
+										StateFunc:    stateToLower,
+									},
+								},
+							},
+						},
 						"access": {
 							Type:        schema.TypeList,
 							Description: "Access policy to the MongoDB cluster.",
@@ -1275,6 +1309,10 @@ func stateToUpper(val interface{}) string {
 	return strings.ToUpper(val.(string))
 }
 
+func stateToLower(val interface{}) string {
+	return strings.ToLower(val.(string))
+}
+
 func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb.CreateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
@@ -1316,6 +1354,11 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		configSpec.PerformanceDiagnostics = &mongodb.PerformanceDiagnosticsConfig{
 			ProfilingEnabled: d.Get("cluster_config.0.performance_diagnostics.0.enabled").(bool),
 		}
+	}
+
+	configSpec.AutocompactConfig, err = expandAutocompactConfig(d)
+	if err != nil {
+		return nil, fmt.Errorf("error while expanding autocompaction config on MongoDB Cluster create: %s", err)
 	}
 
 	mongodbSpecHelper := GetMongodbSpecHelper()
@@ -1882,6 +1925,11 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 		return nil, fmt.Errorf("error expanding labels while updating MongoDB cluster: %s", err)
 	}
 
+	autocompactConfig, err := expandAutocompactConfig(d)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding autocompact config while updating MongoDB cluster: %s", err)
+	}
+
 	version := extractVersion(d)
 	mongodbSpecHelper := GetMongodbSpecHelper()
 	req := &mongodb.UpdateClusterRequest{
@@ -1903,6 +1951,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 				DataTransfer: d.Get("cluster_config.0.access.0.data_transfer").(bool),
 				WebSql:       d.Get("cluster_config.0.access.0.web_sql").(bool),
 			},
+			AutocompactConfig: autocompactConfig,
 		},
 		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
 		UpdateMask:       &field_mask.FieldMask{Paths: mongodbSpecHelper.GetUpdateMask(d)},
@@ -1911,17 +1960,21 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 }
 
 var mdbMongodbUpdateFieldsMap = map[string]string{
-	"name":                                           "name",
-	"labels":                                         "labels",
-	"description":                                    "description",
-	"cluster_config.0.access":                        "config_spec.access",
-	"security_group_ids":                             "security_group_ids",
-	"cluster_config.0.version":                       "config_spec.version",
-	"deletion_protection":                            "deletion_protection",
-	"cluster_config.0.backup_window_start":           "config_spec.backup_window_start",
-	"cluster_config.0.performance_diagnostics":       "config_spec.performance_diagnostics",
-	"cluster_config.0.backup_retain_period_days":     "config_spec.backup_retain_period_days",
-	"cluster_config.0.feature_compatibility_version": "config_spec.feature_compatibility_version",
+	"name":                                                    "name",
+	"labels":                                                  "labels",
+	"description":                                             "description",
+	"cluster_config.0.access":                                 "config_spec.access",
+	"security_group_ids":                                      "security_group_ids",
+	"cluster_config.0.version":                                "config_spec.version",
+	"deletion_protection":                                     "deletion_protection",
+	"cluster_config.0.backup_window_start":                    "config_spec.backup_window_start",
+	"cluster_config.0.performance_diagnostics":                "config_spec.performance_diagnostics",
+	"cluster_config.0.backup_retain_period_days":              "config_spec.backup_retain_period_days",
+	"cluster_config.0.feature_compatibility_version":          "config_spec.feature_compatibility_version",
+	"cluster_config.0.autocompact_config.0.enabled":           "config_spec.autocompact_config.enabled",
+	"cluster_config.0.autocompact_config.0.bloat_percent":     "config_spec.autocompact_config.bloat_percent",
+	"cluster_config.0.autocompact_config.0.target_free_space": "config_spec.autocompact_config.target_free_space",
+	"cluster_config.0.autocompact_config.0.compaction_type":   "config_spec.autocompact_config.compaction_type",
 }
 
 func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
