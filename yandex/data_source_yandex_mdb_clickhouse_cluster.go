@@ -11,7 +11,8 @@ import (
 
 func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 	return &schema.Resource{
-		Description: "Get information about a Yandex Managed ClickHouse cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).\n\n~> Either `cluster_id` or `name` should be specified.\n",
+		Description:        "Get information about a Yandex Managed ClickHouse cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).\n\n~> Either `cluster_id` or `name` should be specified.\n",
+		DeprecationMessage: "The `yandex_mdb_clickhouse_cluster` data source is deprecated and will be removed in a future version. Use `yandex_mdb_clickhouse_cluster_v2` instead.",
 
 		Read:   dataSourceYandexMDBClickHouseClusterRead,
 		Schema: convertToOptional(resourceYandexMDBClickHouseCluster().Schema),

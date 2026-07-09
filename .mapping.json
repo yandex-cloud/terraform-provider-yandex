@@ -111,6 +111,7 @@
   ".changes/unreleased/FEATURES-20260708-130330.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20260708-130330.yaml",
   ".changes/unreleased/FEATURES-20260708-190331.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20260708-190331.yaml",
   ".changes/unreleased/FEATURES-20260708-233117.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20260708-233117.yaml",
+  ".changes/unreleased/WARNING-20260708-143457.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/WARNING-20260708-143457.yaml",
   ".changie.yaml":"opensource/terraform-provider-yandex-mirror/.changie.yaml",
   ".github/workflows/release.yml":"opensource/terraform-provider-yandex-mirror/.github/workflows/release.yml",
   ".gitignore":"opensource/terraform-provider-yandex-mirror/.gitignore",

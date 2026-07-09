@@ -316,7 +316,8 @@ var schemaConfig = map[string]*schema.Schema{
 
 func resourceYandexMDBClickHouseCluster() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages a ClickHouse cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).",
+		Description:        "Manages a ClickHouse cluster within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).",
+		DeprecationMessage: "The `yandex_mdb_clickhouse_cluster` resource is deprecated and will be removed in a future version. Use `yandex_mdb_clickhouse_cluster_v2` instead.",
 
 		Create: resourceYandexMDBClickHouseClusterCreate,
 		Read:   resourceYandexMDBClickHouseClusterRead,
