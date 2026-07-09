@@ -336,6 +336,11 @@ func resourceYandexStorageBucketV0() *schema.Resource {
 										Optional:     true,
 										ValidateFunc: validation.IntAtLeast(1),
 									},
+									"newer_noncurrent_versions": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntAtLeast(1),
+									},
 								},
 							},
 						},
@@ -378,6 +383,11 @@ func resourceYandexStorageBucketV0() *schema.Resource {
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: validation.StringInSlice(storageClassSet, false),
+									},
+									"newer_noncurrent_versions": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntAtLeast(1),
 									},
 								},
 							},

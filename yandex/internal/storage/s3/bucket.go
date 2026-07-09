@@ -728,7 +728,8 @@ type LifecycleAbortIncompleteMultipartUpload struct {
 }
 
 type LifecycleNoncurrentVersionExpiration struct {
-	NoncurrentDays *int64
+	NoncurrentDays          *int64
+	NewerNoncurrentVersions *int64
 }
 
 type LifecycleTransition struct {
@@ -738,8 +739,9 @@ type LifecycleTransition struct {
 }
 
 type LifecycleNoncurrentVersionTransition struct {
-	NoncurrentDays *int64
-	StorageClass   *string
+	NoncurrentDays          *int64
+	StorageClass            *string
+	NewerNoncurrentVersions *int64
 }
 
 type LifecycleRule struct {
@@ -864,6 +866,9 @@ func NewLifecycleRules(raw []interface{}, d *schema.ResourceData) ([]LifecycleRu
 				rule.NoncurrentVersionExpiration = &LifecycleNoncurrentVersionExpiration{
 					NoncurrentDays: aws.Int64(int64(val)),
 				}
+				if val, ok := e["newer_noncurrent_versions"].(int); ok && val > 0 {
+					rule.NoncurrentVersionExpiration.NewerNoncurrentVersions = aws.Int64(int64(val))
+				}
 			}
 		}
 
@@ -902,6 +907,9 @@ func NewLifecycleRules(raw []interface{}, d *schema.ResourceData) ([]LifecycleRu
 				}
 				if val, ok := transition["storage_class"].(string); ok && val != "" {
 					i.StorageClass = aws.String(val)
+				}
+				if val, ok := transition["newer_noncurrent_versions"].(int); ok && val > 0 {
+					i.NewerNoncurrentVersions = aws.Int64(int64(val))
 				}
 
 				rule.NoncurrentVersionTransitions = append(rule.NoncurrentVersionTransitions, i)
@@ -978,7 +986,8 @@ func (c *Client) UpdateBucketLifecycle(ctx context.Context, bucket string, rules
 		}
 		if rule.NoncurrentVersionExpiration != nil {
 			awsRule.NoncurrentVersionExpiration = &s3.NoncurrentVersionExpiration{
-				NoncurrentDays: rule.NoncurrentVersionExpiration.NoncurrentDays,
+				NoncurrentDays:          rule.NoncurrentVersionExpiration.NoncurrentDays,
+				NewerNoncurrentVersions: rule.NoncurrentVersionExpiration.NewerNoncurrentVersions,
 			}
 		}
 		if rule.Transitions != nil {
@@ -1001,8 +1010,9 @@ func (c *Client) UpdateBucketLifecycle(ctx context.Context, bucket string, rules
 				awsRule.NoncurrentVersionTransitions = append(
 					awsRule.NoncurrentVersionTransitions,
 					&s3.NoncurrentVersionTransition{
-						NoncurrentDays: transition.NoncurrentDays,
-						StorageClass:   transition.StorageClass,
+						NoncurrentDays:          transition.NoncurrentDays,
+						StorageClass:            transition.StorageClass,
+						NewerNoncurrentVersions: transition.NewerNoncurrentVersions,
 					},
 				)
 			}
@@ -1783,6 +1793,9 @@ func (c *Client) getBucketLifecycle(ctx context.Context, bucket string) ([]map[s
 			if lifecycleRule.NoncurrentVersionExpiration.NoncurrentDays != nil {
 				e["days"] = int(aws.Int64Value(lifecycleRule.NoncurrentVersionExpiration.NoncurrentDays))
 			}
+			if lifecycleRule.NoncurrentVersionExpiration.NewerNoncurrentVersions != nil {
+				e["newer_noncurrent_versions"] = int(aws.Int64Value(lifecycleRule.NoncurrentVersionExpiration.NewerNoncurrentVersions))
+			}
 			rule["noncurrent_version_expiration"] = []interface{}{e}
 		}
 		//// transition
@@ -1813,6 +1826,9 @@ func (c *Client) getBucketLifecycle(ctx context.Context, bucket string) ([]map[s
 				}
 				if v.StorageClass != nil {
 					t["storage_class"] = aws.StringValue(v.StorageClass)
+				}
+				if v.NewerNoncurrentVersions != nil {
+					t["newer_noncurrent_versions"] = int(aws.Int64Value(v.NewerNoncurrentVersions))
 				}
 				transitions = append(transitions, t)
 			}
@@ -2012,6 +2028,9 @@ func TransitionHash(v interface{}) int {
 	}
 	if v, ok := m["storage_class"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	if v, ok := m["newer_noncurrent_versions"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
 	return hashcode.String(buf.String())
 }
