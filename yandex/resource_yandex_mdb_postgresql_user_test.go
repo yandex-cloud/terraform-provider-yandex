@@ -197,7 +197,7 @@ func mdbPostgreSQLUserImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"password", "generate_password", // password and generate_password is not returned
+			"password", "generate_password", "password_wo_version", // password and generate_password is not returned
 		},
 	}
 }

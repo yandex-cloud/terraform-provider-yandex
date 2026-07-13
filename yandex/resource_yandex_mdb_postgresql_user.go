@@ -38,6 +38,11 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			_, hasPassword := mdbcommon.LookupRawConfigPath(d, "password")
+			_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
+			if hasPassword && hasPasswordWo {
+				return fmt.Errorf("only one of `password` or `password_wo` can be specified")
+			}
 			return mdbcommon.CustomizeDiffUserConnectionManager(ctx, d, "user_connection_manager")
 		},
 
@@ -67,6 +72,18 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Description: "The password of the user.",
 				Optional:    true,
 				Sensitive:   true,
+			},
+			"password_wo": {
+				Type:        schema.TypeString,
+				Description: "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher",
+				Optional:    true,
+				WriteOnly:   true,
+				Sensitive:   true,
+			},
+			"password_wo_version": {
+				Type:        schema.TypeInt,
+				Description: "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:    true,
 			},
 			"login": {
 				Type:        schema.TypeBool,
@@ -221,6 +238,10 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 
 	if v, ok := d.GetOkExists("password"); ok {
 		user.Password = v.(string)
+	}
+
+	if pwWo, ok := mdbcommon.LookupRawConfigPath(d, "password_wo"); ok {
+		user.Password = pwWo.AsString()
 	}
 
 	if v, ok := d.GetOkExists("login"); ok {
@@ -385,6 +406,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta any) err
 	updatePath := []string{}
 	changeMask := map[string]string{
 		"password":                                     "password",
+		"password_wo_version":                          "password",
 		"permission":                                   "permissions",
 		"login":                                        "login",
 		"grants":                                       "grants",
