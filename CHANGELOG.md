@@ -2,6 +2,16 @@
 
 
 
+## 0.216.0 (July 13, 2026)
+##### FEATURES:
+* yandex_mdb_mongodb: support autocompact config settings
+* compute: added new data source and resource yandex_compute_reserved_instance_pool
+* airflow: datacatalog integration settings has been added
+##### ENHANCEMENTS:
+* compute: added `reserved_instance_pool_id` option to instance`
+##### WARNING:
+* mdb_clickhouse: mdb_clickhouse_cluster v1 deprecation
+
 ## 0.215.0 (July 9, 2026)
 ##### FEATURES:
 * yandex_mdb_mongodb_user: support creating IAM users via new `auth_type` attribute (`PASSWORD` or `IAM`)
