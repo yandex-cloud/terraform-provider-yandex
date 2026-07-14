@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'storage: yandex_storage_bucket_iam_binding is now removed from state when the bucket is deleted outside terraform, instead of failing refresh'
+time: 2026-07-14T13:04:44.773141269+03:00

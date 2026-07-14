@@ -12,9 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"golang.org/x/exp/maps"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"google.golang.org/grpc/codes"
 )
 
 type bindingResource struct {
@@ -51,17 +53,22 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	r.RefreshBindingState(ctx, req.Plan, &resp.State, resp.Diagnostics)
+	r.RefreshBindingState(ctx, req.Plan, &resp.State, &resp.Diagnostics)
 }
 
-func (r *bindingResource) RefreshBindingState(ctx context.Context, req Extractable, resp Settable, diag diag.Diagnostics) {
+func (r *bindingResource) RefreshBindingState(ctx context.Context, req Extractable, resp Settable, diag *diag.Diagnostics) {
 	var role types.String
 	diag.Append(req.GetAttribute(ctx, path.Root("role"), &role)...)
 
-	eBindings := getResourceIamBindings(ctx, req, &diag)
+	eBindings := getResourceIamBindings(ctx, req, diag)
 
 	policy, err := r.ResourceUpdater.GetResourceIamPolicy(ctx)
 	if err != nil {
+		if validate.IsStatusWithCode(err, codes.NotFound) {
+			tflog.Debug(ctx, fmt.Sprintf("Resource %s not found, removing from state", r.ResourceUpdater.DescribeResource()))
+			resp.RemoveResource(ctx)
+			return
+		}
 		diag.AddError(
 			"Unable to Refresh Resource Policies",
 			fmt.Sprintf("An unexpected error occurred while refreshing resource policies"+
@@ -109,7 +116,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	r.RefreshBindingState(ctx, req.State, &resp.State, resp.Diagnostics)
+	r.RefreshBindingState(ctx, req.State, &resp.State, &resp.Diagnostics)
 }
 
 func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -132,7 +139,7 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 				"Error: %s", err))
 		return
 	}
-	r.RefreshBindingState(ctx, req.Plan, &resp.State, resp.Diagnostics)
+	r.RefreshBindingState(ctx, req.Plan, &resp.State, &resp.Diagnostics)
 }
 
 func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -163,7 +170,7 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 				"Error: %s", err))
 		return
 	}
-	r.RefreshBindingState(ctx, req.State, &resp.State, resp.Diagnostics)
+	r.RefreshBindingState(ctx, req.State, &resp.State, &resp.Diagnostics)
 }
 
 func (r *bindingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {

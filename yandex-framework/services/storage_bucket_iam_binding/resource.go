@@ -72,20 +72,31 @@ func (u *BucketIAMUpdater) Initialize(ctx context.Context, state accessbinding.E
 	var id types.String
 	diag.Append(state.GetAttribute(ctx, path.Root("bucket"), &id)...)
 	u.Bucket = id.ValueString()
+}
+
+// Access bindings attach to Bucket.resource_id (the owning cloud entity), not to the bucket
+// name, and only the API knows the mapping.
+func (u *BucketIAMUpdater) resourceID(ctx context.Context) (string, error) {
+	if u.ResourceId != "" {
+		return u.ResourceId, nil
+	}
 
 	bucketResolver := sdkresolvers.BucketResolver(u.Bucket)
-	if err := u.ProviderConfig.SDK.Resolve(context.Background(), bucketResolver); err != nil {
-		diag.AddError(
-			"error while resolve instance",
-			fmt.Sprintf("Cannot get ResourceId for bucket %s (%s)", u.Bucket, err),
-		)
-		return
+	if err := u.ProviderConfig.SDK.Resolve(ctx, bucketResolver); err != nil {
+		return "", err
 	}
 	u.ResourceId = bucketResolver.ID()
+
+	return u.ResourceId, nil
 }
 
 func (u *BucketIAMUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbinding.Policy, error) {
-	bindings, err := u.GetAccessBindings(ctx, u.ResourceId)
+	id, err := u.resourceID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	bindings, err := u.GetAccessBindings(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +104,13 @@ func (u *BucketIAMUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbin
 }
 
 func (u *BucketIAMUpdater) SetResourceIamPolicy(ctx context.Context, policy *accessbinding.Policy) error {
+	id, err := u.resourceID(ctx)
+	if err != nil {
+		return err
+	}
+
 	req := &access.SetAccessBindingsRequest{
-		ResourceId:     u.ResourceId,
+		ResourceId:     id,
 		AccessBindings: policy.Bindings,
 	}
 
@@ -115,13 +131,18 @@ func (u *BucketIAMUpdater) SetResourceIamPolicy(ctx context.Context, policy *acc
 }
 
 func (u *BucketIAMUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *accessbinding.PolicyDelta) error {
+	id, err := u.resourceID(ctx)
+	if err != nil {
+		return err
+	}
+
 	bSize := 1000
 	deltas := policy.Deltas
 	dLen := len(deltas)
 
 	for i := 0; i < accessbinding.CountBatches(dLen, bSize); i++ {
 		req := &access.UpdateAccessBindingsRequest{
-			ResourceId:          u.ResourceId,
+			ResourceId:          id,
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 		op, err := u.ProviderConfig.SDK.WrapOperation(u.ProviderConfig.SDK.StorageAPI().Bucket().UpdateAccessBindings(ctx, req))
@@ -139,7 +160,7 @@ func (u *BucketIAMUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *
 }
 
 func (u *BucketIAMUpdater) GetMutexKey() string {
-	return fmt.Sprintf("iam-storage-bucket-%s", u.ResourceId)
+	return fmt.Sprintf("iam-storage-bucket-%s", u.Bucket)
 }
 
 func (u *BucketIAMUpdater) DescribeResource() string {

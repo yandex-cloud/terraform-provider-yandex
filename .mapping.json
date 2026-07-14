@@ -108,6 +108,7 @@
   ".changes/0.216.0.md":"opensource/terraform-provider-yandex-mirror/.changes/0.216.0.md",
   ".changes/header.tpl.md":"opensource/terraform-provider-yandex-mirror/.changes/header.tpl.md",
   ".changes/unreleased/.gitkeep":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/.gitkeep",
+  ".changes/unreleased/BUG FIXES-20260714-130444.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/BUG FIXES-20260714-130444.yaml",
   ".changes/unreleased/FEATURES-20260610-password-wo.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20260610-password-wo.yaml",
   ".changes/unreleased/FEATURES-20260713-171830.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20260713-171830.yaml",
   ".changie.yaml":"opensource/terraform-provider-yandex-mirror/.changie.yaml",
