@@ -290,8 +290,6 @@ func (u *IAMMemberUpdater) Delete(ctx context.Context, req resource.DeleteReques
 		)
 		return
 	}
-
-	u.refreshMemberState(ctx, req.State, &resp.State, &resp.Diagnostics)
 }
 
 func (u *IAMMemberUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbinding.Policy, error) {

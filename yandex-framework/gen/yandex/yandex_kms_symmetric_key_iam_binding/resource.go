@@ -223,8 +223,6 @@ func (u *IAMUpdater) Delete(ctx context.Context, req resource.DeleteRequest, res
 				"Error: %s", err))
 		return
 	}
-
-	u.refreshBindingState(ctx, req.State, &resp.State, &resp.Diagnostics)
 }
 
 // ModifyPlan surfaces, at plan time, which subjects will lose the role once the change is applied.

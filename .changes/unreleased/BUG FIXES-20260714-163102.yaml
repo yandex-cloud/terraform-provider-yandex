@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'iam: destroying a yandex_*_iam_binding or yandex_*_iam_member no longer emits a bogus warning about missing bindings'
+time: 2026-07-14T16:31:02.585959845+03:00

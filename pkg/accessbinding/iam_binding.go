@@ -170,7 +170,6 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 				"Error: %s", err))
 		return
 	}
-	r.RefreshBindingState(ctx, req.State, &resp.State, &resp.Diagnostics)
 }
 
 func (r *bindingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
