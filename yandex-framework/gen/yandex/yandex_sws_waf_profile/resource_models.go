@@ -16555,7 +16555,6 @@ func expandYandexSwsWafProfileModel(ctx context.Context, yandexSwsWafProfileStat
 	value.SetRuleSets(expandYandexSwsWafProfileRuleSet(ctx, yandexSwsWafProfileState.RuleSet, diags))
 	value.SetUpdatedAt(converter.ParseTimestamp(yandexSwsWafProfileState.UpdatedAt.ValueString(), diags))
 	value.SetId(yandexSwsWafProfileState.WafProfileId.ValueString())
-	value.SetId(yandexSwsWafProfileState.WafProfileId.ValueString())
 	if diags.HasError() {
 		return nil
 	}

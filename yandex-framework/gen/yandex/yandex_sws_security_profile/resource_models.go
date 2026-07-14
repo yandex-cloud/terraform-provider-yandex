@@ -42117,7 +42117,6 @@ func expandYandexSwsSecurityProfileModel(ctx context.Context, yandexSwsSecurityP
 	value.SetLogOptions(expandYandexSwsSecurityProfileLogOptions(ctx, yandexSwsSecurityProfileState.LogOptions, diags))
 	value.SetName(yandexSwsSecurityProfileState.Name.ValueString())
 	value.SetId(yandexSwsSecurityProfileState.SecurityProfileId.ValueString())
-	value.SetId(yandexSwsSecurityProfileState.SecurityProfileId.ValueString())
 	value.SetSecurityRules(expandYandexSwsSecurityProfileSecurityRule(ctx, yandexSwsSecurityProfileState.SecurityRule, diags))
 	value.SetUpdatedAt(converter.ParseTimestamp(yandexSwsSecurityProfileState.UpdatedAt.ValueString(), diags))
 	if diags.HasError() {

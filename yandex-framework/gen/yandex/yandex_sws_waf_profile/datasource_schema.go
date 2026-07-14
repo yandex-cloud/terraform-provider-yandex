@@ -28,7 +28,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Possible to turn analyzer on and turn if off.",
 							Description: "Possible to turn analyzer on and turn if off." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.analyze_request_bodyyandex.cloud.smartwebsecurity.v1.waf.WafProfile.AnalyzeRequestBody.is_enabled
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.analyze_request_body -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.AnalyzeRequestBody.is_enabled
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -38,7 +38,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Maximum size of body to pass to analyzer. In kilobytes.",
 							Description: "Maximum size of body to pass to analyzer. In kilobytes." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.analyze_request_bodyyandex.cloud.smartwebsecurity.v1.waf.WafProfile.AnalyzeRequestBody.size_limit
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.analyze_request_body -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.AnalyzeRequestBody.size_limit
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -48,7 +48,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Action to perform if maximum size of body exceeded.",
 							Description: "Action to perform if maximum size of body exceeded." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.analyze_request_bodyyandex.cloud.smartwebsecurity.v1.waf.WafProfile.AnalyzeRequestBody.size_limit_action
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.analyze_request_body -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.AnalyzeRequestBody.size_limit_action
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -84,7 +84,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Anomaly score.\n Enter an integer within the range of 2 and 10000.\n The higher this value, the more likely it is that the request that satisfies the rule is an attack.\n See [Rules](/docs/smartwebsecurity/concepts/waf#anomaly) for more details.",
 							Description: "Anomaly score.\n Enter an integer within the range of 2 and 10000.\n The higher this value, the more likely it is that the request that satisfies the rule is an attack.\n See [Rules](/docs/smartwebsecurity/concepts/waf#anomaly) for more details." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.inbound_anomaly_score
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.inbound_anomaly_score
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -94,7 +94,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Paranoia level.\n Enter an integer within the range of 1 and 4.\n Paranoia level classifies rules according to their aggression. The higher the paranoia level, the better your protection,\n but also the higher the probability of WAF false positives.\n See [Rules](/docs/smartwebsecurity/concepts/waf#paranoia) for more details.\n NOTE: this option has no effect on enabling or disabling rules.\n it is used only as recommendation for user to enable all rules with paranoia_level <= this value.",
 							Description: "Paranoia level.\n Enter an integer within the range of 1 and 4.\n Paranoia level classifies rules according to their aggression. The higher the paranoia level, the better your protection,\n but also the higher the probability of WAF false positives.\n See [Rules](/docs/smartwebsecurity/concepts/waf#paranoia) for more details.\n NOTE: this option has no effect on enabling or disabling rules.\n it is used only as recommendation for user to enable all rules with paranoia_level <= this value." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.paranoia_level
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.paranoia_level
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -109,7 +109,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "ID of rule set.",
 										Description: "ID of rule set." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.id
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.id
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -119,7 +119,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Name of rule set.",
 										Description: "Name of rule set." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.name
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.name
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Required: true,
@@ -129,7 +129,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Type of rule set.",
 										Description: "Type of rule set." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.type
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.type
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -139,7 +139,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Version of rule set.",
 										Description: "Version of rule set." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.version
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.version
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -149,7 +149,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Rule set.",
 							Description: "Rule set." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_set
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.CoreRuleSet.rule_set
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -209,7 +209,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -219,7 +219,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -229,7 +229,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -250,7 +250,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -260,7 +260,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -276,7 +276,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -286,7 +286,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -302,7 +302,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -312,7 +312,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -328,7 +328,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -338,7 +338,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -348,7 +348,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -358,7 +358,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -368,7 +368,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -378,7 +378,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -388,7 +388,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -398,7 +398,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "List of authorities. OR semantics implied.",
 													Description: "List of authorities. OR semantics implied." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -413,7 +413,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -423,7 +423,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -433,7 +433,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -454,7 +454,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -464,7 +464,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -480,7 +480,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -490,7 +490,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -506,7 +506,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -516,7 +516,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -532,7 +532,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -542,7 +542,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -552,7 +552,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -562,7 +562,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -572,7 +572,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -582,7 +582,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -592,7 +592,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -602,7 +602,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Authority matcher.",
 													Description: "Authority matcher." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -612,7 +612,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match authority (Host header).",
 										Description: "Match authority (Host header)." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.authority
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -633,7 +633,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																Description: "List of list IDs to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -643,7 +643,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Bot category lists to match with.",
 													Description: "Bot category lists to match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -659,7 +659,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																Description: "List of list IDs to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -669,7 +669,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Bot category lists to not match with.",
 													Description: "Bot category lists to not match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -679,7 +679,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match bot category.",
 										Description: "Match bot category." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_category
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -700,7 +700,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																Description: "List of list IDs to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -710,7 +710,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Bot name lists to match with.",
 													Description: "Bot name lists to match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -726,7 +726,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																Description: "List of list IDs to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -736,7 +736,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Bot name lists to not match with.",
 													Description: "Bot name lists to not match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -746,7 +746,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match bot name.",
 										Description: "Match bot name." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_name
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -771,7 +771,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Value to match against.",
 																			Description: "Value to match against." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_matchyandex.cloud.smartwebsecurity.v1.Condition.IntEQMatcher.value
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntEQMatcher.value
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -781,7 +781,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Equal condition.",
 																Description: "Equal condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -796,7 +796,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Lower bound value (inclusive).",
 																			Description: "Lower bound value (inclusive)." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_matchyandex.cloud.smartwebsecurity.v1.Condition.IntGEMatcher.value
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntGEMatcher.value
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -806,7 +806,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Greater than or equal condition.",
 																Description: "Greater than or equal condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -821,7 +821,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Upper bound value (inclusive).",
 																			Description: "Upper bound value (inclusive)." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_matchyandex.cloud.smartwebsecurity.v1.Condition.IntLEMatcher.value
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntLEMatcher.value
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -831,7 +831,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Less than or equal condition.",
 																Description: "Less than or equal condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -846,7 +846,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Value to not match against.",
 																			Description: "Value to not match against." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_matchyandex.cloud.smartwebsecurity.v1.Condition.IntNEMatcher.value
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntNEMatcher.value
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -856,7 +856,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Not equal condition.",
 																Description: "Not equal condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -866,7 +866,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "List of integer matchers for bot score. OR semantics implied.",
 													Description: "List of integer matchers for bot score. OR semantics implied." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -876,7 +876,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match bot score.",
 										Description: "Match bot score." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_score
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -891,7 +891,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Name of the cookie parametr.",
 													Description: "Name of the cookie parametr." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.name
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.name
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Required: true,
@@ -910,7 +910,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -920,7 +920,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -930,7 +930,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -951,7 +951,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -961,7 +961,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -977,7 +977,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -987,7 +987,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1003,7 +1003,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1013,7 +1013,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1029,7 +1029,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1039,7 +1039,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1049,7 +1049,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1059,7 +1059,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1069,7 +1069,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1079,7 +1079,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1089,7 +1089,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1099,7 +1099,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Value of the cookie parametr.",
 													Description: "Value of the cookie parametr." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -1109,7 +1109,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match cookies.",
 										Description: "Match cookies." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookies
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -1129,7 +1129,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1139,7 +1139,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1149,7 +1149,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1170,7 +1170,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1180,7 +1180,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1196,7 +1196,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1206,7 +1206,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1222,7 +1222,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1232,7 +1232,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1248,7 +1248,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1258,7 +1258,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1268,7 +1268,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1278,7 +1278,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1288,7 +1288,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1298,7 +1298,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1308,7 +1308,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1318,7 +1318,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "JA3 fingerprint matcher.",
 													Description: "JA3 fingerprint matcher." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -1333,7 +1333,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1343,7 +1343,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1353,7 +1353,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1374,7 +1374,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1384,7 +1384,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1400,7 +1400,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1410,7 +1410,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1426,7 +1426,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1436,7 +1436,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1452,7 +1452,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1462,7 +1462,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1472,7 +1472,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1482,7 +1482,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1492,7 +1492,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1502,7 +1502,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1512,7 +1512,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1522,7 +1522,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "List of JA3 fingerprint matchers. OR semantics implied.",
 													Description: "List of JA3 fingerprint matchers. OR semantics implied." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -1537,7 +1537,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1547,7 +1547,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1557,7 +1557,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1578,7 +1578,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1588,7 +1588,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1604,7 +1604,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1614,7 +1614,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1630,7 +1630,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1640,7 +1640,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1656,7 +1656,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1666,7 +1666,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1676,7 +1676,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1686,7 +1686,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1696,7 +1696,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1706,7 +1706,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1716,7 +1716,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1726,7 +1726,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "JA4 fingerprint matcher.",
 													Description: "JA4 fingerprint matcher." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -1741,7 +1741,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1751,7 +1751,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1761,7 +1761,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1782,7 +1782,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1792,7 +1792,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1808,7 +1808,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1818,7 +1818,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1834,7 +1834,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1844,7 +1844,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1860,7 +1860,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1870,7 +1870,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1880,7 +1880,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1890,7 +1890,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1900,7 +1900,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1910,7 +1910,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1920,7 +1920,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1930,7 +1930,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "List of JA4 fingerprint matchers. OR semantics implied.",
 													Description: "List of JA4 fingerprint matchers. OR semantics implied." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -1940,7 +1940,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match fingerprint.",
 										Description: "Match fingerprint." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_print
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -1955,7 +1955,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Name of header (case insensitive).",
 													Description: "Name of header (case insensitive)." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.name
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.name
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Required: true,
@@ -1974,7 +1974,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1984,7 +1984,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1994,7 +1994,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2015,7 +2015,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2025,7 +2025,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2041,7 +2041,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2051,7 +2051,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2067,7 +2067,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2077,7 +2077,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2093,7 +2093,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2103,7 +2103,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2113,7 +2113,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2123,7 +2123,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2133,7 +2133,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2143,7 +2143,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2153,7 +2153,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2163,7 +2163,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Value of the header.",
 													Description: "Value of the header." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -2173,7 +2173,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match HTTP headers.",
 										Description: "Match HTTP headers." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.headers
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -2193,7 +2193,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2203,7 +2203,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2213,7 +2213,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2234,7 +2234,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2244,7 +2244,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2260,7 +2260,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2270,7 +2270,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2286,7 +2286,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2296,7 +2296,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2312,7 +2312,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2322,7 +2322,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2332,7 +2332,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2342,7 +2342,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2352,7 +2352,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2362,7 +2362,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2372,7 +2372,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2382,7 +2382,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "HTTP method matcher.",
 													Description: "HTTP method matcher." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -2397,7 +2397,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2407,7 +2407,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2417,7 +2417,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2438,7 +2438,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2448,7 +2448,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2464,7 +2464,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2474,7 +2474,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2490,7 +2490,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2500,7 +2500,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2516,7 +2516,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2526,7 +2526,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2536,7 +2536,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2546,7 +2546,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2556,7 +2556,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2566,7 +2566,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2576,7 +2576,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2586,7 +2586,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "List of HTTP methods. OR semantics implied.",
 													Description: "List of HTTP methods. OR semantics implied." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -2596,7 +2596,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match HTTP method.",
 										Description: "Match HTTP method." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_method
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -2616,7 +2616,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches if the field is defined.",
 																Description: "Matches if the field is defined." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2626,7 +2626,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2636,7 +2636,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2657,7 +2657,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2667,7 +2667,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to match with.",
 																			Description: "Regular expression lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2683,7 +2683,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2693,7 +2693,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Regular expression lists to not match with.",
 																			Description: "Regular expression lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2709,7 +2709,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2719,7 +2719,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to match with.",
 																			Description: "String lists to match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2735,7 +2735,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																						Description: "List of list IDs to match against. OR semantics implied." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2745,7 +2745,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "String lists to not match with.",
 																			Description: "String lists to not match with." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2755,7 +2755,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Matches against string and regular expression lists.",
 																Description: "Matches against string and regular expression lists." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2765,7 +2765,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2775,7 +2775,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2785,7 +2785,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2795,7 +2795,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2805,7 +2805,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3).",
 													Description: "Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -2820,7 +2820,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Key of the query parameter.",
 																Description: "Key of the query parameter." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.key
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.key
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2835,7 +2835,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2845,7 +2845,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2855,7 +2855,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2876,7 +2876,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2886,7 +2886,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2902,7 +2902,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2912,7 +2912,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2928,7 +2928,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2938,7 +2938,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2954,7 +2954,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2964,7 +2964,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2974,7 +2974,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2984,7 +2984,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2994,7 +2994,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3004,7 +3004,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3014,7 +3014,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3024,7 +3024,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Value of the query parameter.",
 																Description: "Value of the query parameter." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3034,7 +3034,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "List of query matchers. AND semantics implied.",
 													Description: "List of query matchers. AND semantics implied." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3044,7 +3044,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match Request URI.",
 										Description: "Match Request URI." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uri
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -3065,7 +3065,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																Description: "List of list IDs to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3075,7 +3075,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "ASN lists to match with.",
 													Description: "ASN lists to match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3091,7 +3091,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																Description: "List of list IDs to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3101,7 +3101,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "ASN lists to not match with.",
 													Description: "ASN lists to not match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3117,7 +3117,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of ASN values to match against. OR semantics implied.",
 																Description: "List of ASN values to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_matchyandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3127,7 +3127,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "ASN ranges to match with.",
 													Description: "ASN ranges to match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3143,7 +3143,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of ASN values to match against. OR semantics implied.",
 																Description: "List of ASN values to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_matchyandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3153,7 +3153,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "ASN ranges to not match with.",
 													Description: "ASN ranges to not match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3169,7 +3169,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "ISO 3166-1 alpha 2. OR semantics implied.",
 																Description: "ISO 3166-1 alpha 2. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_matchyandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3179,7 +3179,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Geo locations to match with.",
 													Description: "Geo locations to match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3195,7 +3195,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "ISO 3166-1 alpha 2. OR semantics implied.",
 																Description: "ISO 3166-1 alpha 2. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_matchyandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3205,7 +3205,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Geo locations to not match with.",
 													Description: "Geo locations to not match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3221,7 +3221,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																Description: "List of list IDs to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3231,7 +3231,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "IP lists to match with.",
 													Description: "IP lists to match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3247,7 +3247,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																Description: "List of list IDs to match against. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3257,7 +3257,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "IP lists to not match with.",
 													Description: "IP lists to not match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3273,7 +3273,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of IP ranges. OR semantics implied.",
 																Description: "List of IP ranges. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_matchyandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3283,7 +3283,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "IP ranges to match with.",
 													Description: "IP ranges to match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3299,7 +3299,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "List of IP ranges. OR semantics implied.",
 																Description: "List of IP ranges. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_matchyandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3309,7 +3309,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "IP ranges to not match with.",
 													Description: "IP ranges to not match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3319,7 +3319,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match IP.",
 										Description: "Match IP." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ip
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -3339,7 +3339,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Boolean value to match against.",
 																Description: "Boolean value to match against." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.verified_botyandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verifiedyandex.cloud.smartwebsecurity.v1.Condition.BoolMatcher.match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.verified_bot -> yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified -> yandex.cloud.smartwebsecurity.v1.Condition.BoolMatcher.match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3349,7 +3349,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Matches if the bot is verified or not.",
 													Description: "Matches if the bot is verified or not." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.verified_botyandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.verified_bot -> yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3359,7 +3359,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Match verified bot.",
 										Description: "Match verified bot." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.conditionyandex.cloud.smartwebsecurity.v1.Condition.verified_bot
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.verified_bot
 											"package: yandex.cloud.smartwebsecurity.v1\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 										Computed: true,
@@ -3369,7 +3369,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "The condition for matching traffic.",
 							Description: "The condition for matching traffic." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3379,7 +3379,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Optional description of the rule. 0-512 characters long.",
 							Description: "Optional description of the rule. 0-512 characters long." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.description
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.description
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3394,7 +3394,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Set this option true to exclude all rules.",
 										Description: "Set this option true to exclude all rules." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.exclude_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.ExcludeRules.exclude_all
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.exclude_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.ExcludeRules.exclude_all
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3405,7 +3405,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "List of rules to exclude.",
 										Description: "List of rules to exclude." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.exclude_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.ExcludeRules.rule_ids
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.exclude_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.ExcludeRules.rule_ids
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3415,7 +3415,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Exclude rules.",
 							Description: "Exclude rules." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.exclude_rules
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.exclude_rules
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3425,7 +3425,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Records the fact that an exception rule is triggered.",
 							Description: "Records the fact that an exception rule is triggered." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.log_excluded
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.log_excluded
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3435,7 +3435,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Name of exclusion rule.",
 							Description: "Name of exclusion rule." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.name
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.name
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Required: true,
@@ -3460,7 +3460,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_values -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
 																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 																Computed: true,
@@ -3470,7 +3470,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_valuesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_values -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 																Computed: true,
@@ -3480,7 +3480,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_values
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.body_values
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3490,7 +3490,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.is_excluded
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.BodyMatcher.is_excluded
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3500,7 +3500,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Matcher for request body exclusion flag.",
 										Description: "Matcher for request body exclusion flag." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.body_matcher
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3520,7 +3520,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_names -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
 																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 																Computed: true,
@@ -3530,7 +3530,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_names -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 																Computed: true,
@@ -3540,7 +3540,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_names
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.CookieMatcher.cookie_names
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3550,7 +3550,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Matcher for request cookies.",
 										Description: "Matcher for request cookies." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.cookie_matcher
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3570,7 +3570,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_names -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
 																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 																Computed: true,
@@ -3580,7 +3580,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_names -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 																Computed: true,
@@ -3590,7 +3590,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_names
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.HeaderMatcher.header_names
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3600,7 +3600,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Matcher for request headers.",
 										Description: "Matcher for request headers." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.header_matcher
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3620,7 +3620,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_names -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.case_sensitive
 																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 																Computed: true,
@@ -3630,7 +3630,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_namesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_names -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.StringMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 																Computed: true,
@@ -3640,7 +3640,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcheryandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_names
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcher -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.RequestParamMatcher.param_names
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3650,7 +3650,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Matcher for request query parameters.",
 										Description: "Matcher for request query parameters." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_conditionyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcher
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.RequestCondition.param_matcher
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3660,7 +3660,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Additional condition applied to specific parts of the request to refine when the exclusion is triggered.",
 							Description: "Additional condition applied to specific parts of the request to refine when the exclusion is triggered." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.request_condition
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3733,7 +3733,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Determines is it rule blocking or not.",
 							Description: "Determines is it rule blocking or not." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileRule.is_blocking
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileRule.is_blocking
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3743,7 +3743,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Determines is it rule enabled or not.",
 							Description: "Determines is it rule enabled or not." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileRule.is_enabled
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileRule.is_enabled
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3753,7 +3753,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Rule ID.",
 							Description: "Rule ID." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rulesyandex.cloud.smartwebsecurity.v1.waf.WafProfileRule.rule_id
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileRule.rule_id
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3778,7 +3778,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Action to perfome on rule set match.",
 							Description: "Action to perfome on rule set match." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.action
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.action
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3793,7 +3793,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Matcher for request headers.",
 										Description: "Matcher for request headers." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.inbound_anomaly_score
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.inbound_anomaly_score
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3803,7 +3803,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Matcher for request cookies.",
 										Description: "Matcher for request cookies." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.paranoia_level
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.paranoia_level
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3818,7 +3818,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "ID of rule set.",
 													Description: "ID of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.id
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.id
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3828,7 +3828,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Name of rule set.",
 													Description: "Name of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.name
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.name
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Required: true,
@@ -3838,7 +3838,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Type of rule set.",
 													Description: "Type of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.type
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.type
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3848,7 +3848,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Version of rule set.",
 													Description: "Version of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.version
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.version
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3858,7 +3858,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Matcher for request query parameters.",
 										Description: "Matcher for request query parameters." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_set
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileCoreRuleSet.rule_set
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3868,7 +3868,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Core rule set settings. See [Basic rule set](/docs/smartwebsecurity/concepts/waf#rules-set) for details.",
 							Description: "Core rule set settings. See [Basic rule set](/docs/smartwebsecurity/concepts/waf#rules-set) for details." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_set
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.core_rule_set
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3878,7 +3878,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Determines is it rule set enabled or not.",
 							Description: "Determines is it rule set enabled or not." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.is_enabled
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.is_enabled
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -3898,7 +3898,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "List of rules to exclude.",
 													Description: "List of rules to exclude." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groupsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.action
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groups -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.action
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3908,7 +3908,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Set this option true to exclude all rules.",
 													Description: "Set this option true to exclude all rules." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groupsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.id
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groups -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.id
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3918,7 +3918,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groupsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.inbound_anomaly_score
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groups -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.inbound_anomaly_score
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3928,7 +3928,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groupsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.is_enabled
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groups -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.is_enabled
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3938,7 +3938,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groups
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_groups
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -3953,7 +3953,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "ID of rule set.",
 													Description: "ID of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.id
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.id
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3963,7 +3963,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Name of rule set.",
 													Description: "Name of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.name
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.name
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Required: true,
@@ -3973,7 +3973,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Type of rule set.",
 													Description: "Type of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.type
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.type
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3983,7 +3983,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Version of rule set.",
 													Description: "Version of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.version
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.version
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -3993,7 +3993,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_set
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileMlRuleSet.rule_set
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -4003,7 +4003,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Yandex Machine learning rule set settings.",
 							Description: "Yandex Machine learning rule set settings." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ml_rule_set
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -4013,7 +4013,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Priority of rule set.",
 							Description: "Priority of rule set." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.priority
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.priority
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,
@@ -4033,7 +4033,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "List of rules to exclude.",
 													Description: "List of rules to exclude." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groupsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.action
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groups -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.action
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -4043,7 +4043,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Set this option true to exclude all rules.",
 													Description: "Set this option true to exclude all rules." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groupsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.id
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groups -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.id
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -4053,7 +4053,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groupsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.inbound_anomaly_score
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groups -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.inbound_anomaly_score
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -4063,7 +4063,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groupsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.is_enabled
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groups -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.RuleGroup.is_enabled
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -4073,7 +4073,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groups
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_groups
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -4088,7 +4088,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "ID of rule set.",
 													Description: "ID of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.id
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.id
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -4098,7 +4098,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Name of rule set.",
 													Description: "Name of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.name
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.name
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Required: true,
@@ -4108,7 +4108,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Type of rule set.",
 													Description: "Type of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.type
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.type
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -4118,7 +4118,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 													MarkdownDescription: "Version of rule set.",
 													Description: "Version of rule set." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_setyandex.cloud.smartwebsecurity.v1.waf.RuleSet.version
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_set -> yandex.cloud.smartwebsecurity.v1.waf.RuleSet.version
 														"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 													Computed: true,
@@ -4128,7 +4128,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_setyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_set
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.WafProfileYaRuleSet.rule_set
 											"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 										Computed: true,
@@ -4138,7 +4138,7 @@ func YandexSwsWafProfileDatasourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Yandex rule set settings.",
 							Description: "Yandex rule set settings." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_setsyandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set
+								// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.rule_sets -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.WafProfileRuleSet.ya_rule_set
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 							Computed: true,

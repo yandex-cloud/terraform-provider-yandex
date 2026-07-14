@@ -54,7 +54,7 @@ resource "yandex_cloudregistry_registry_iam_binding" "puller" {
 ~> for more information about system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
 
 
-- `registry_id` (**Required**)(String). The ID of the compute `registry` to attach the policy to.
+- `registry_id` (**Required**)(String). The ID of the `registry` to attach the policy to.
 - `role` (**Required**)(String). The role that should be assigned. Only one yandex_cloudregistry_registry_iam_binding can be used per role.
 - `sleep_after` (Number). For test purposes, to compensate IAM operations delay
 

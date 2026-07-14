@@ -1,0 +1,3 @@
+kind: FEATURES
+body: "smartwebsecurity: add MatchList into piblic terraform + update public terraform for SecurityProfile, ARL, WAF"
+time: 2026-07-13T17:18:30.293897585+03:00

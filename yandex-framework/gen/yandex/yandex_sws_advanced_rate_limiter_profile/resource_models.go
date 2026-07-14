@@ -28481,7 +28481,6 @@ func expandYandexSwsAdvancedRateLimiterProfile(ctx context.Context, yandexSwsAdv
 func expandYandexSwsAdvancedRateLimiterProfileModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileState yandexSwsAdvancedRateLimiterProfileModel, diags *diag.Diagnostics) *advanced_rate_limiter.AdvancedRateLimiterProfile {
 	value := &advanced_rate_limiter.AdvancedRateLimiterProfile{}
 	value.SetId(yandexSwsAdvancedRateLimiterProfileState.AdvancedRateLimiterProfileId.ValueString())
-	value.SetId(yandexSwsAdvancedRateLimiterProfileState.AdvancedRateLimiterProfileId.ValueString())
 	value.SetAdvancedRateLimiterRules(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRule(ctx, yandexSwsAdvancedRateLimiterProfileState.AdvancedRateLimiterRule, diags))
 	value.SetCloudId(yandexSwsAdvancedRateLimiterProfileState.CloudId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexSwsAdvancedRateLimiterProfileState.CreatedAt.ValueString(), diags))

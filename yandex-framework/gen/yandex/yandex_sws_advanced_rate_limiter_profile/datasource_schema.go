@@ -52,7 +52,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 							MarkdownDescription: "Optional description of the rule. 0-512 characters long.",
 							Description: "Optional description of the rule. 0-512 characters long." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.description
+								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.description
 								"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 							Computed: true,
@@ -62,7 +62,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 							MarkdownDescription: "This allows you to evaluate backend capabilities and find the optimum limit values.\n Requests will not be blocked in this mode.",
 							Description: "This allows you to evaluate backend capabilities and find the optimum limit values.\n Requests will not be blocked in this mode." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dry_run
+								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dry_run
 								"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 							Computed: true,
@@ -77,7 +77,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										MarkdownDescription: "Action in case of exceeding this quota.",
 										Description: "Action in case of exceeding this quota." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.action
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.action
 											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 										Computed: true,
@@ -92,7 +92,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Desired maximum number of requests per period.\n Enter an integer within the range of 1 and 9999999999999.",
 													Description: "Desired maximum number of requests per period.\n Enter an integer within the range of 1 and 9999999999999." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristicsyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.case_insensitive
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristics -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.case_insensitive
 														"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 													Computed: true,
@@ -107,7 +107,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristicsyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.key_characteristicyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.KeyCharacteristic.type
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristics -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.key_characteristic -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.KeyCharacteristic.type
 																	"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 																Computed: true,
@@ -117,7 +117,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristicsyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.key_characteristicyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.KeyCharacteristic.value
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristics -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.key_characteristic -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.KeyCharacteristic.value
 																	"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 																Computed: true,
@@ -127,7 +127,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "The condition for matching the quota.",
 													Description: "The condition for matching the quota." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristicsyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.key_characteristic
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristics -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.key_characteristic
 														"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 													Computed: true,
@@ -142,7 +142,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristicsyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.simple_characteristicyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.SimpleCharacteristic.type
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristics -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.simple_characteristic -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.SimpleCharacteristic.type
 																	"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 																Computed: true,
@@ -152,7 +152,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Action in case of exceeding this quota.",
 													Description: "Action in case of exceeding this quota." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristicsyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.simple_characteristic
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristics -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.Characteristic.simple_characteristic
 														"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 													Computed: true,
@@ -162,7 +162,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										MarkdownDescription: "List of characteristics.",
 										Description: "List of characteristics." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristics
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.characteristics
 											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 										Computed: true,
@@ -187,7 +187,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -197,7 +197,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -207,7 +207,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -228,7 +228,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -238,7 +238,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -254,7 +254,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -264,7 +264,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -280,7 +280,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -290,7 +290,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -306,7 +306,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -316,7 +316,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -326,7 +326,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -336,7 +336,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -346,7 +346,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -356,7 +356,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -366,7 +366,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -376,7 +376,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of authorities. OR semantics implied.",
 																Description: "List of authorities. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -391,7 +391,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -401,7 +401,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -411,7 +411,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -432,7 +432,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -442,7 +442,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -458,7 +458,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -468,7 +468,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -484,7 +484,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -494,7 +494,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -510,7 +510,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -520,7 +520,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -530,7 +530,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -540,7 +540,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -550,7 +550,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -560,7 +560,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -570,7 +570,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -580,7 +580,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Authority matcher.",
 																Description: "Authority matcher." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -590,7 +590,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match authority (Host header).",
 													Description: "Match authority (Host header)." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authority
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -611,7 +611,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -621,7 +621,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Bot category lists to match with.",
 																Description: "Bot category lists to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -637,7 +637,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -647,7 +647,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Bot category lists to not match with.",
 																Description: "Bot category lists to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -657,7 +657,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match bot category.",
 													Description: "Match bot category." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_category
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -678,7 +678,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -688,7 +688,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Bot name lists to match with.",
 																Description: "Bot name lists to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -704,7 +704,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -714,7 +714,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Bot name lists to not match with.",
 																Description: "Bot name lists to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -724,7 +724,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match bot name.",
 													Description: "Match bot name." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_name
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -749,7 +749,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Value to match against.",
 																						Description: "Value to match against." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_matchyandex.cloud.smartwebsecurity.v1.Condition.IntEQMatcher.value
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntEQMatcher.value
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -759,7 +759,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Equal condition.",
 																			Description: "Equal condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -774,7 +774,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Lower bound value (inclusive).",
 																						Description: "Lower bound value (inclusive)." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_matchyandex.cloud.smartwebsecurity.v1.Condition.IntGEMatcher.value
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntGEMatcher.value
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -784,7 +784,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Greater than or equal condition.",
 																			Description: "Greater than or equal condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -799,7 +799,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Upper bound value (inclusive).",
 																						Description: "Upper bound value (inclusive)." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_matchyandex.cloud.smartwebsecurity.v1.Condition.IntLEMatcher.value
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntLEMatcher.value
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -809,7 +809,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Less than or equal condition.",
 																			Description: "Less than or equal condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -824,7 +824,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Value to not match against.",
 																						Description: "Value to not match against." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_matchyandex.cloud.smartwebsecurity.v1.Condition.IntNEMatcher.value
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntNEMatcher.value
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -834,7 +834,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Not equal condition.",
 																			Description: "Not equal condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -844,7 +844,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of integer matchers for bot score. OR semantics implied.",
 																Description: "List of integer matchers for bot score. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -854,7 +854,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match bot score.",
 													Description: "Match bot score." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_score
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -869,7 +869,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Name of the cookie parametr.",
 																Description: "Name of the cookie parametr." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.name
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.name
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Required: true,
@@ -888,7 +888,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -898,7 +898,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -908,7 +908,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -929,7 +929,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -939,7 +939,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -955,7 +955,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -965,7 +965,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -981,7 +981,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -991,7 +991,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1007,7 +1007,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1017,7 +1017,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1027,7 +1027,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1037,7 +1037,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1047,7 +1047,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1057,7 +1057,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1067,7 +1067,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1077,7 +1077,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Value of the cookie parametr.",
 																Description: "Value of the cookie parametr." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1087,7 +1087,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match cookies.",
 													Description: "Match cookies." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookies
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -1107,7 +1107,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1117,7 +1117,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1127,7 +1127,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1148,7 +1148,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1158,7 +1158,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1174,7 +1174,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1184,7 +1184,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1200,7 +1200,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1210,7 +1210,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1226,7 +1226,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1236,7 +1236,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1246,7 +1246,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1256,7 +1256,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1266,7 +1266,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1276,7 +1276,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1286,7 +1286,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1296,7 +1296,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "JA3 fingerprint matcher.",
 																Description: "JA3 fingerprint matcher." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1311,7 +1311,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1321,7 +1321,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1331,7 +1331,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1352,7 +1352,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1362,7 +1362,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1378,7 +1378,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1388,7 +1388,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1404,7 +1404,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1414,7 +1414,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1430,7 +1430,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1440,7 +1440,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1450,7 +1450,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1460,7 +1460,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1470,7 +1470,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1480,7 +1480,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1490,7 +1490,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1500,7 +1500,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of JA3 fingerprint matchers. OR semantics implied.",
 																Description: "List of JA3 fingerprint matchers. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1515,7 +1515,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1525,7 +1525,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1535,7 +1535,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1556,7 +1556,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1566,7 +1566,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1582,7 +1582,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1592,7 +1592,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1608,7 +1608,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1618,7 +1618,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1634,7 +1634,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1644,7 +1644,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1654,7 +1654,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1664,7 +1664,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1674,7 +1674,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1684,7 +1684,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1694,7 +1694,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1704,7 +1704,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "JA4 fingerprint matcher.",
 																Description: "JA4 fingerprint matcher." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1719,7 +1719,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1729,7 +1729,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1739,7 +1739,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1760,7 +1760,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1770,7 +1770,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1786,7 +1786,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1796,7 +1796,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1812,7 +1812,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1822,7 +1822,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1838,7 +1838,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -1848,7 +1848,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -1858,7 +1858,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1868,7 +1868,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1878,7 +1878,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1888,7 +1888,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1898,7 +1898,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1908,7 +1908,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of JA4 fingerprint matchers. OR semantics implied.",
 																Description: "List of JA4 fingerprint matchers. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -1918,7 +1918,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match fingerprint.",
 													Description: "Match fingerprint." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_print
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -1933,7 +1933,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Name of header (case insensitive).",
 																Description: "Name of header (case insensitive)." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.name
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.name
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Required: true,
@@ -1952,7 +1952,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1962,7 +1962,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1972,7 +1972,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -1993,7 +1993,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2003,7 +2003,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2019,7 +2019,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2029,7 +2029,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2045,7 +2045,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2055,7 +2055,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2071,7 +2071,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2081,7 +2081,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2091,7 +2091,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2101,7 +2101,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2111,7 +2111,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2121,7 +2121,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2131,7 +2131,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2141,7 +2141,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Value of the header.",
 																Description: "Value of the header." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2151,7 +2151,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match HTTP headers.",
 													Description: "Match HTTP headers." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headers
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -2171,7 +2171,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2181,7 +2181,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2191,7 +2191,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2212,7 +2212,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2222,7 +2222,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2238,7 +2238,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2248,7 +2248,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2264,7 +2264,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2274,7 +2274,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2290,7 +2290,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2300,7 +2300,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2310,7 +2310,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2320,7 +2320,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2330,7 +2330,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2340,7 +2340,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2350,7 +2350,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2360,7 +2360,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "HTTP method matcher.",
 																Description: "HTTP method matcher." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2375,7 +2375,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2385,7 +2385,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2395,7 +2395,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2416,7 +2416,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2426,7 +2426,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2442,7 +2442,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2452,7 +2452,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2468,7 +2468,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2478,7 +2478,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2494,7 +2494,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2504,7 +2504,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2514,7 +2514,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2524,7 +2524,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2534,7 +2534,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2544,7 +2544,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2554,7 +2554,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2564,7 +2564,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of HTTP methods. OR semantics implied.",
 																Description: "List of HTTP methods. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2574,7 +2574,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match HTTP method.",
 													Description: "Match HTTP method." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_method
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -2594,7 +2594,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2604,7 +2604,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2614,7 +2614,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2635,7 +2635,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2645,7 +2645,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2661,7 +2661,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2671,7 +2671,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2687,7 +2687,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2697,7 +2697,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2713,7 +2713,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2723,7 +2723,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2733,7 +2733,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2743,7 +2743,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2753,7 +2753,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2763,7 +2763,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2773,7 +2773,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2783,7 +2783,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3).",
 																Description: "Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -2798,7 +2798,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Key of the query parameter.",
 																			Description: "Key of the query parameter." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.key
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.key
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -2813,7 +2813,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Matches if the field is defined.",
 																						Description: "Matches if the field is defined." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2823,7 +2823,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Exact match condition.",
 																						Description: "Exact match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2833,7 +2833,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Exact not match condition.",
 																						Description: "Exact not match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2854,7 +2854,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																												MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																												Description: "List of list IDs to match against. OR semantics implied." +
 																													// proto paths: +
-																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																													"package: yandex.cloud.smartwebsecurity.v1\n" +
 																													"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																												Computed: true,
@@ -2864,7 +2864,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "Regular expression lists to match with.",
 																									Description: "Regular expression lists to match with." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2880,7 +2880,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																												MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																												Description: "List of list IDs to match against. OR semantics implied." +
 																													// proto paths: +
-																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																													"package: yandex.cloud.smartwebsecurity.v1\n" +
 																													"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																												Computed: true,
@@ -2890,7 +2890,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "Regular expression lists to not match with.",
 																									Description: "Regular expression lists to not match with." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2906,7 +2906,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																												MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																												Description: "List of list IDs to match against. OR semantics implied." +
 																													// proto paths: +
-																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																													"package: yandex.cloud.smartwebsecurity.v1\n" +
 																													"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																												Computed: true,
@@ -2916,7 +2916,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "String lists to match with.",
 																									Description: "String lists to match with." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2932,7 +2932,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																												MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																												Description: "List of list IDs to match against. OR semantics implied." +
 																													// proto paths: +
-																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																													"package: yandex.cloud.smartwebsecurity.v1\n" +
 																													"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																												Computed: true,
@@ -2942,7 +2942,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "String lists to not match with.",
 																									Description: "String lists to not match with." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -2952,7 +2952,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Matches against string and regular expression lists.",
 																						Description: "Matches against string and regular expression lists." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2962,7 +2962,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "PIRE regex match condition.",
 																						Description: "PIRE regex match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2972,7 +2972,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "PIRE regex not match condition.",
 																						Description: "PIRE regex not match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2982,7 +2982,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Prefix match condition.",
 																						Description: "Prefix match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -2992,7 +2992,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Prefix not match condition.",
 																						Description: "Prefix not match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -3002,7 +3002,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Value of the query parameter.",
 																			Description: "Value of the query parameter." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3012,7 +3012,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of query matchers. AND semantics implied.",
 																Description: "List of query matchers. AND semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3022,7 +3022,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match Request URI.",
 													Description: "Match Request URI." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uri
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3043,7 +3043,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3053,7 +3053,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "ASN lists to match with.",
 																Description: "ASN lists to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3069,7 +3069,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3079,7 +3079,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "ASN lists to not match with.",
 																Description: "ASN lists to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3095,7 +3095,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of ASN values to match against. OR semantics implied.",
 																			Description: "List of ASN values to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_matchyandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3105,7 +3105,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "ASN ranges to match with.",
 																Description: "ASN ranges to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3121,7 +3121,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of ASN values to match against. OR semantics implied.",
 																			Description: "List of ASN values to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_matchyandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3131,7 +3131,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "ASN ranges to not match with.",
 																Description: "ASN ranges to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3147,7 +3147,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "ISO 3166-1 alpha 2. OR semantics implied.",
 																			Description: "ISO 3166-1 alpha 2. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_matchyandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3157,7 +3157,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Geo locations to match with.",
 																Description: "Geo locations to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3173,7 +3173,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "ISO 3166-1 alpha 2. OR semantics implied.",
 																			Description: "ISO 3166-1 alpha 2. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_matchyandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3183,7 +3183,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Geo locations to not match with.",
 																Description: "Geo locations to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3199,7 +3199,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3209,7 +3209,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "IP lists to match with.",
 																Description: "IP lists to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3225,7 +3225,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3235,7 +3235,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "IP lists to not match with.",
 																Description: "IP lists to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3251,7 +3251,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of IP ranges. OR semantics implied.",
 																			Description: "List of IP ranges. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_matchyandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3261,7 +3261,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "IP ranges to match with.",
 																Description: "IP ranges to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3277,7 +3277,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of IP ranges. OR semantics implied.",
 																			Description: "List of IP ranges. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_matchyandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3287,7 +3287,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "IP ranges to not match with.",
 																Description: "IP ranges to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3297,7 +3297,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match IP.",
 													Description: "Match IP." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ip
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3317,7 +3317,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Boolean value to match against.",
 																			Description: "Boolean value to match against." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.verified_botyandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verifiedyandex.cloud.smartwebsecurity.v1.Condition.BoolMatcher.match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.verified_bot -> yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified -> yandex.cloud.smartwebsecurity.v1.Condition.BoolMatcher.match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3327,7 +3327,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Matches if the bot is verified or not.",
 																Description: "Matches if the bot is verified or not." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.verified_botyandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.verified_bot -> yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3337,7 +3337,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match verified bot.",
 													Description: "Match verified bot." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.verified_bot
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.verified_bot
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3347,7 +3347,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										MarkdownDescription: "The condition for matching the quota.",
 										Description: "The condition for matching the quota." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition
 											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 										Computed: true,
@@ -3357,7 +3357,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										MarkdownDescription: "Desired maximum number of requests per period.\n Enter an integer within the range of 1 and 9999999999999.",
 										Description: "Desired maximum number of requests per period.\n Enter an integer within the range of 1 and 9999999999999." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.limit
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.limit
 											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 										Computed: true,
@@ -3367,7 +3367,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										MarkdownDescription: "Period of time in seconds.",
 										Description: "Period of time in seconds." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.period
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.period
 											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 										Computed: true,
@@ -3377,7 +3377,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 							MarkdownDescription: "Dynamic quota. Grouping requests by a certain attribute and limiting the number of groups.",
 							Description: "Dynamic quota. Grouping requests by a certain attribute and limiting the number of groups." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota
+								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota
 								"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 							Computed: true,
@@ -3387,7 +3387,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 							MarkdownDescription: "Name of the rule. The name is unique within the ARL profile. 1-50 characters long.",
 							Description: "Name of the rule. The name is unique within the ARL profile. 1-50 characters long." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.name
+								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.name
 								"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 							Required: true,
@@ -3402,7 +3402,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 							MarkdownDescription: "Determines the priority in case there are several matched rules.\n Enter an integer within the range of 1 and 999999.\n The rule priority must be unique within the entire ARL profile.\n A lower numeric value means a higher priority.",
 							Description: "Determines the priority in case there are several matched rules.\n Enter an integer within the range of 1 and 999999.\n The rule priority must be unique within the entire ARL profile.\n A lower numeric value means a higher priority." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.priority
+								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.priority
 								"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 							Computed: true,
@@ -3417,7 +3417,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										MarkdownDescription: "Action in case of exceeding this quota.",
 										Description: "Action in case of exceeding this quota." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.action
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.action
 											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 										Computed: true,
@@ -3442,7 +3442,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3452,7 +3452,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3462,7 +3462,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3483,7 +3483,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -3493,7 +3493,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -3509,7 +3509,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -3519,7 +3519,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -3535,7 +3535,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -3545,7 +3545,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -3561,7 +3561,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -3571,7 +3571,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -3581,7 +3581,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3591,7 +3591,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3601,7 +3601,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3611,7 +3611,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3621,7 +3621,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authoritiesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3631,7 +3631,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of authorities. OR semantics implied.",
 																Description: "List of authorities. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3646,7 +3646,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3656,7 +3656,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3666,7 +3666,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3687,7 +3687,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -3697,7 +3697,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -3713,7 +3713,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -3723,7 +3723,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -3739,7 +3739,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -3749,7 +3749,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -3765,7 +3765,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -3775,7 +3775,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -3785,7 +3785,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3795,7 +3795,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3805,7 +3805,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3815,7 +3815,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3825,7 +3825,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3835,7 +3835,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Authority matcher.",
 																Description: "Authority matcher." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authorityyandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority -> yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3845,7 +3845,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match authority (Host header).",
 													Description: "Match authority (Host header)." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.authority
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3866,7 +3866,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3876,7 +3876,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Bot category lists to match with.",
 																Description: "Bot category lists to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3892,7 +3892,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3902,7 +3902,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Bot category lists to not match with.",
 																Description: "Bot category lists to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_categoryyandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3912,7 +3912,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match bot category.",
 													Description: "Match bot category." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_category
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_category
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -3933,7 +3933,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3943,7 +3943,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Bot name lists to match with.",
 																Description: "Bot name lists to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3959,7 +3959,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -3969,7 +3969,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Bot name lists to not match with.",
 																Description: "Bot name lists to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_nameyandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -3979,7 +3979,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match bot name.",
 													Description: "Match bot name." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_name
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_name
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -4004,7 +4004,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Value to match against.",
 																						Description: "Value to match against." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_matchyandex.cloud.smartwebsecurity.v1.Condition.IntEQMatcher.value
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntEQMatcher.value
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4014,7 +4014,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Equal condition.",
 																			Description: "Equal condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4029,7 +4029,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Lower bound value (inclusive).",
 																						Description: "Lower bound value (inclusive)." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_matchyandex.cloud.smartwebsecurity.v1.Condition.IntGEMatcher.value
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntGEMatcher.value
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4039,7 +4039,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Greater than or equal condition.",
 																			Description: "Greater than or equal condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4054,7 +4054,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Upper bound value (inclusive).",
 																						Description: "Upper bound value (inclusive)." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_matchyandex.cloud.smartwebsecurity.v1.Condition.IntLEMatcher.value
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntLEMatcher.value
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4064,7 +4064,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Less than or equal condition.",
 																			Description: "Less than or equal condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4079,7 +4079,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Value to not match against.",
 																						Description: "Value to not match against." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_matchyandex.cloud.smartwebsecurity.v1.Condition.IntNEMatcher.value
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match -> yandex.cloud.smartwebsecurity.v1.Condition.IntNEMatcher.value
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4089,7 +4089,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Not equal condition.",
 																			Description: "Not equal condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4099,7 +4099,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of integer matchers for bot score. OR semantics implied.",
 																Description: "List of integer matchers for bot score. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_scoreyandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -4109,7 +4109,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match bot score.",
 													Description: "Match bot score." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.bot_score
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.bot_score
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -4124,7 +4124,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Name of the cookie parametr.",
 																Description: "Name of the cookie parametr." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.name
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.name
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Required: true,
@@ -4143,7 +4143,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4153,7 +4153,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4163,7 +4163,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4184,7 +4184,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4194,7 +4194,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4210,7 +4210,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4220,7 +4220,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4236,7 +4236,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4246,7 +4246,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4262,7 +4262,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4272,7 +4272,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4282,7 +4282,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4292,7 +4292,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4302,7 +4302,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4312,7 +4312,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4322,7 +4322,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4332,7 +4332,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Value of the cookie parametr.",
 																Description: "Value of the cookie parametr." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookiesyandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -4342,7 +4342,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match cookies.",
 													Description: "Match cookies." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.cookies
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.cookies
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -4362,7 +4362,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4372,7 +4372,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4382,7 +4382,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4403,7 +4403,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4413,7 +4413,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4429,7 +4429,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4439,7 +4439,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4455,7 +4455,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4465,7 +4465,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4481,7 +4481,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4491,7 +4491,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4501,7 +4501,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4511,7 +4511,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4521,7 +4521,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4531,7 +4531,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4541,7 +4541,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4551,7 +4551,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "JA3 fingerprint matcher.",
 																Description: "JA3 fingerprint matcher." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -4566,7 +4566,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4576,7 +4576,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4586,7 +4586,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4607,7 +4607,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4617,7 +4617,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4633,7 +4633,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4643,7 +4643,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4659,7 +4659,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4669,7 +4669,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4685,7 +4685,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4695,7 +4695,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4705,7 +4705,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4715,7 +4715,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4725,7 +4725,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4735,7 +4735,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4745,7 +4745,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4755,7 +4755,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of JA3 fingerprint matchers. OR semantics implied.",
 																Description: "List of JA3 fingerprint matchers. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -4770,7 +4770,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4780,7 +4780,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4790,7 +4790,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4811,7 +4811,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4821,7 +4821,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4837,7 +4837,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4847,7 +4847,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4863,7 +4863,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4873,7 +4873,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4889,7 +4889,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -4899,7 +4899,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -4909,7 +4909,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4919,7 +4919,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4929,7 +4929,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4939,7 +4939,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4949,7 +4949,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4959,7 +4959,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "JA4 fingerprint matcher.",
 																Description: "JA4 fingerprint matcher." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -4974,7 +4974,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4984,7 +4984,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -4994,7 +4994,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5015,7 +5015,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5025,7 +5025,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5041,7 +5041,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5051,7 +5051,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5067,7 +5067,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5077,7 +5077,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5093,7 +5093,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5103,7 +5103,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5113,7 +5113,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5123,7 +5123,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5133,7 +5133,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5143,7 +5143,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5153,7 +5153,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_rangesyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5163,7 +5163,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of JA4 fingerprint matchers. OR semantics implied.",
 																Description: "List of JA4 fingerprint matchers. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_printyandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -5173,7 +5173,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match fingerprint.",
 													Description: "Match fingerprint." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.finger_print
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.finger_print
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -5188,7 +5188,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Name of header (case insensitive).",
 																Description: "Name of header (case insensitive)." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.name
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.name
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Required: true,
@@ -5207,7 +5207,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5217,7 +5217,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5227,7 +5227,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5248,7 +5248,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5258,7 +5258,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5274,7 +5274,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5284,7 +5284,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5300,7 +5300,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5310,7 +5310,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5326,7 +5326,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5336,7 +5336,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5346,7 +5346,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5356,7 +5356,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5366,7 +5366,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5376,7 +5376,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5386,7 +5386,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5396,7 +5396,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Value of the header.",
 																Description: "Value of the header." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headersyandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -5406,7 +5406,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match HTTP headers.",
 													Description: "Match HTTP headers." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.headers
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.headers
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -5426,7 +5426,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5436,7 +5436,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5446,7 +5446,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5467,7 +5467,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5477,7 +5477,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5493,7 +5493,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5503,7 +5503,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5519,7 +5519,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5529,7 +5529,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5545,7 +5545,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5555,7 +5555,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5565,7 +5565,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5575,7 +5575,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5585,7 +5585,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5595,7 +5595,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5605,7 +5605,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcheryandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5615,7 +5615,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "HTTP method matcher.",
 																Description: "HTTP method matcher." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -5630,7 +5630,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5640,7 +5640,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5650,7 +5650,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5671,7 +5671,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5681,7 +5681,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5697,7 +5697,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5707,7 +5707,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5723,7 +5723,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5733,7 +5733,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5749,7 +5749,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5759,7 +5759,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5769,7 +5769,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5779,7 +5779,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5789,7 +5789,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5799,7 +5799,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5809,7 +5809,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methodsyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5819,7 +5819,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of HTTP methods. OR semantics implied.",
 																Description: "List of HTTP methods. OR semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_methodyandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method -> yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -5829,7 +5829,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match HTTP method.",
 													Description: "Match HTTP method." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.http_method
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.http_method
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -5849,7 +5849,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches if the field is defined.",
 																			Description: "Matches if the field is defined." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5859,7 +5859,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5869,7 +5869,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5890,7 +5890,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5900,7 +5900,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to match with.",
 																						Description: "Regular expression lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5916,7 +5916,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5926,7 +5926,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Regular expression lists to not match with.",
 																						Description: "Regular expression lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5942,7 +5942,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5952,7 +5952,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to match with.",
 																						Description: "String lists to match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5968,7 +5968,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																									Description: "List of list IDs to match against. OR semantics implied." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -5978,7 +5978,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "String lists to not match with.",
 																						Description: "String lists to not match with." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -5988,7 +5988,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Matches against string and regular expression lists.",
 																			Description: "Matches against string and regular expression lists." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -5998,7 +5998,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6008,7 +6008,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6018,7 +6018,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6028,7 +6028,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.pathyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6038,7 +6038,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3).",
 																Description: "Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6053,7 +6053,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Key of the query parameter.",
 																			Description: "Key of the query parameter." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.key
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.key
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6068,7 +6068,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Matches if the field is defined.",
 																						Description: "Matches if the field is defined." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -6078,7 +6078,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Exact match condition.",
 																						Description: "Exact match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -6088,7 +6088,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Exact not match condition.",
 																						Description: "Exact not match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -6109,7 +6109,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																												MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																												Description: "List of list IDs to match against. OR semantics implied." +
 																													// proto paths: +
-																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																													"package: yandex.cloud.smartwebsecurity.v1\n" +
 																													"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																												Computed: true,
@@ -6119,7 +6119,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "Regular expression lists to match with.",
 																									Description: "Regular expression lists to match with." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -6135,7 +6135,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																												MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																												Description: "List of list IDs to match against. OR semantics implied." +
 																													// proto paths: +
-																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																													"package: yandex.cloud.smartwebsecurity.v1\n" +
 																													"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																												Computed: true,
@@ -6145,7 +6145,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "Regular expression lists to not match with.",
 																									Description: "Regular expression lists to not match with." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -6161,7 +6161,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																												MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																												Description: "List of list IDs to match against. OR semantics implied." +
 																													// proto paths: +
-																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																													"package: yandex.cloud.smartwebsecurity.v1\n" +
 																													"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																												Computed: true,
@@ -6171,7 +6171,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "String lists to match with.",
 																									Description: "String lists to match with." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -6187,7 +6187,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																												MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																												Description: "List of list IDs to match against. OR semantics implied." +
 																													// proto paths: +
-																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																													// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																													"package: yandex.cloud.smartwebsecurity.v1\n" +
 																													"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																												Computed: true,
@@ -6197,7 +6197,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																									MarkdownDescription: "String lists to not match with.",
 																									Description: "String lists to not match with." +
 																										// proto paths: +
-																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchersyandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
 																										"package: yandex.cloud.smartwebsecurity.v1\n" +
 																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																									Computed: true,
@@ -6207,7 +6207,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Matches against string and regular expression lists.",
 																						Description: "Matches against string and regular expression lists." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -6217,7 +6217,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "PIRE regex match condition.",
 																						Description: "PIRE regex match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -6227,7 +6227,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "PIRE regex not match condition.",
 																						Description: "PIRE regex not match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -6237,7 +6237,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Prefix match condition.",
 																						Description: "Prefix match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -6247,7 +6247,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																						MarkdownDescription: "Prefix not match condition.",
 																						Description: "Prefix not match condition." +
 																							// proto paths: +
-																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.valueyandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
 																							"package: yandex.cloud.smartwebsecurity.v1\n" +
 																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																						Computed: true,
@@ -6257,7 +6257,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Value of the query parameter.",
 																			Description: "Value of the query parameter." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queriesyandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6267,7 +6267,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "List of query matchers. AND semantics implied.",
 																Description: "List of query matchers. AND semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uriyandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6277,7 +6277,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match Request URI.",
 													Description: "Match Request URI." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.request_uri
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.request_uri
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -6298,7 +6298,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6308,7 +6308,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "ASN lists to match with.",
 																Description: "ASN lists to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6324,7 +6324,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6334,7 +6334,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "ASN lists to not match with.",
 																Description: "ASN lists to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6350,7 +6350,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of ASN values to match against. OR semantics implied.",
 																			Description: "List of ASN values to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_matchyandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6360,7 +6360,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "ASN ranges to match with.",
 																Description: "ASN ranges to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6376,7 +6376,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of ASN values to match against. OR semantics implied.",
 																			Description: "List of ASN values to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_matchyandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher.asn_ranges
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6386,7 +6386,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "ASN ranges to not match with.",
 																Description: "ASN ranges to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6402,7 +6402,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "ISO 3166-1 alpha 2. OR semantics implied.",
 																			Description: "ISO 3166-1 alpha 2. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_matchyandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6412,7 +6412,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Geo locations to match with.",
 																Description: "Geo locations to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6428,7 +6428,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "ISO 3166-1 alpha 2. OR semantics implied.",
 																			Description: "ISO 3166-1 alpha 2. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_matchyandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher.locations
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6438,7 +6438,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Geo locations to not match with.",
 																Description: "Geo locations to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6454,7 +6454,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6464,7 +6464,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "IP lists to match with.",
 																Description: "IP lists to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6480,7 +6480,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
 																			Description: "List of list IDs to match against. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_matchyandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6490,7 +6490,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "IP lists to not match with.",
 																Description: "IP lists to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6506,7 +6506,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of IP ranges. OR semantics implied.",
 																			Description: "List of IP ranges. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_matchyandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6516,7 +6516,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "IP ranges to match with.",
 																Description: "IP ranges to match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6532,7 +6532,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "List of IP ranges. OR semantics implied.",
 																			Description: "List of IP ranges. OR semantics implied." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_matchyandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher.ip_ranges
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6542,7 +6542,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "IP ranges to not match with.",
 																Description: "IP ranges to not match with." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ipyandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6552,7 +6552,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match IP.",
 													Description: "Match IP." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.source_ip
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.source_ip
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -6572,7 +6572,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																			MarkdownDescription: "Boolean value to match against.",
 																			Description: "Boolean value to match against." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.verified_botyandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verifiedyandex.cloud.smartwebsecurity.v1.Condition.BoolMatcher.match
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.verified_bot -> yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified -> yandex.cloud.smartwebsecurity.v1.Condition.BoolMatcher.match
 																				"package: yandex.cloud.smartwebsecurity.v1\n" +
 																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																			Computed: true,
@@ -6582,7 +6582,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 																MarkdownDescription: "Matches if the bot is verified or not.",
 																Description: "Matches if the bot is verified or not." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.verified_botyandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.verified_bot -> yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified
 																	"package: yandex.cloud.smartwebsecurity.v1\n" +
 																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 																Computed: true,
@@ -6592,7 +6592,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													MarkdownDescription: "Match verified bot.",
 													Description: "Match verified bot." +
 														// proto paths: +
-														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.conditionyandex.cloud.smartwebsecurity.v1.Condition.verified_bot
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.verified_bot
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,
@@ -6602,7 +6602,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										MarkdownDescription: "The condition for matching the quota.",
 										Description: "The condition for matching the quota." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition
 											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 										Computed: true,
@@ -6612,7 +6612,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										MarkdownDescription: "Desired maximum number of requests per period.\n Enter an integer within the range of 1 and 9999999999999.",
 										Description: "Desired maximum number of requests per period.\n Enter an integer within the range of 1 and 9999999999999." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.limit
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.limit
 											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 										Computed: true,
@@ -6622,7 +6622,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										MarkdownDescription: "Period of time in seconds.",
 										Description: "Period of time in seconds." +
 											// proto paths: +
-											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quotayandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.period
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.period
 											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 										Computed: true,
@@ -6632,7 +6632,7 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 							MarkdownDescription: "Static quota. Counting each request individually.",
 							Description: "Static quota. Counting each request individually." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rulesyandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota
+								// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota
 								"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 							Computed: true,

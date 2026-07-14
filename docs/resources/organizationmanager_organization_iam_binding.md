@@ -42,7 +42,7 @@ resource "yandex_organizationmanager_organization_iam_binding" "editor" {
 ~> for more information about system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
 
 
-- `organization_id` (**Required**)(String). The ID of the compute `organization` to attach the policy to.
+- `organization_id` (**Required**)(String). The ID of the `organization` to attach the policy to.
 - `role` (**Required**)(String). The role that should be assigned. Only one yandex_organizationmanager_organization_iam_binding can be used per role.
 - `sleep_after` (Number). For test purposes, to compensate IAM operations delay
 
