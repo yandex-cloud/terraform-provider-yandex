@@ -7,6 +7,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_folder"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_lifecycle_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_reserved_instance_pool"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datacatalog_catalog"
@@ -59,6 +60,7 @@ func init() {
 		yandex_cloudregistry_folder.NewDataSource,
 		yandex_cloudregistry_lifecycle_policy.NewDataSource,
 		yandex_cloudregistry_registry.NewDataSource,
+		yandex_cloudregistry_scan_policy.NewDataSource,
 		yandex_compute_reserved_instance_pool.NewDataSource,
 		yandex_connectionmanager_connection.NewDataSource,
 		yandex_datacatalog_catalog.NewDataSource,
