@@ -273,8 +273,13 @@ func metastoreDataSourceSchema() schema.SingleNestedAttribute {
 		Attributes: map[string]schema.Attribute{
 			"uri": schema.StringAttribute{
 				Computed:            true,
-				Description:         "The resource description.",
-				MarkdownDescription: "The resource description.",
+				Description:         "URI of the Hive Metastore.",
+				MarkdownDescription: "URI of the Hive Metastore.",
+			},
+			"managed_cluster_id": schema.StringAttribute{
+				Computed:            true,
+				Description:         "ID of the Managed Hive Metastore cluster.",
+				MarkdownDescription: "ID of the Managed Hive Metastore cluster.",
 			},
 		},
 		Computed:            true,

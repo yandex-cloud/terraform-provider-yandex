@@ -314,11 +314,19 @@ func fileSystemSchema() schema.SingleNestedAttribute {
 
 func metastoreSchema() schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
+		Validators: []validator.Object{
+			onlyOneOptionValidator("Metastore", "uri", "managed_cluster_id"),
+		},
 		Attributes: map[string]schema.Attribute{
 			"uri": schema.StringAttribute{
-				Required:            true,
-				Description:         "The resource description.",
-				MarkdownDescription: "The resource description.",
+				Optional:            true,
+				Description:         "URI of the Hive Metastore.",
+				MarkdownDescription: "URI of the Hive Metastore.",
+			},
+			"managed_cluster_id": schema.StringAttribute{
+				Optional:            true,
+				Description:         "ID of the Managed Hive Metastore cluster.",
+				MarkdownDescription: "ID of the Managed Hive Metastore cluster.",
 			},
 		},
 		Required:            true,
@@ -506,12 +514,14 @@ var ConnectionManagerT = types.ObjectType{
 }
 
 type Metastore struct {
-	Uri types.String `tfsdk:"uri"`
+	Uri              types.String `tfsdk:"uri"`
+	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
 }
 
 var MetastoreT = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"uri": types.StringType,
+		"uri":                types.StringType,
+		"managed_cluster_id": types.StringType,
 	},
 }
 

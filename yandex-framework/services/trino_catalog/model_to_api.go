@@ -279,6 +279,25 @@ func greenplumConnectorToAPI(ctx context.Context, greenplumObj types.Object) (*t
 	return connector, diags
 }
 
+func metastoreToAPI(metastore Metastore) *trino.Metastore {
+	hiveMetastore := &trino.Metastore_HiveMetastore{}
+	if !metastore.ManagedClusterId.IsNull() && !metastore.ManagedClusterId.IsUnknown() {
+		hiveMetastore.Connection = &trino.Metastore_HiveMetastore_ManagedClusterId{
+			ManagedClusterId: metastore.ManagedClusterId.ValueString(),
+		}
+	} else {
+		hiveMetastore.Connection = &trino.Metastore_HiveMetastore_Uri{
+			Uri: metastore.Uri.ValueString(),
+		}
+	}
+
+	return &trino.Metastore{
+		Type: &trino.Metastore_Hive{
+			Hive: hiveMetastore,
+		},
+	}
+}
+
 func hiveConnectorToAPI(ctx context.Context, hiveObj types.Object) (*trino.HiveConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 
@@ -298,15 +317,7 @@ func hiveConnectorToAPI(ctx context.Context, hiveObj types.Object) (*trino.HiveC
 	diags.Append(hive.FileSystem.As(ctx, &fileSystem, baseOptions)...)
 
 	connector := &trino.HiveConnector{
-		Metastore: &trino.Metastore{
-			Type: &trino.Metastore_Hive{
-				Hive: &trino.Metastore_HiveMetastore{
-					Connection: &trino.Metastore_HiveMetastore_Uri{
-						Uri: metastore.Uri.ValueString(),
-					},
-				},
-			},
-		},
+		Metastore:            metastoreToAPI(metastore),
 		Filesystem:           &trino.FileSystem{},
 		AdditionalProperties: additionalProperties,
 	}
@@ -401,15 +412,7 @@ func deltaLakeConnectorToAPI(ctx context.Context, deltaLakeObj types.Object) (*t
 	diags.Append(deltaLake.FileSystem.As(ctx, &fileSystem, baseOptions)...)
 
 	connector := &trino.DeltaLakeConnector{
-		Metastore: &trino.Metastore{
-			Type: &trino.Metastore_Hive{
-				Hive: &trino.Metastore_HiveMetastore{
-					Connection: &trino.Metastore_HiveMetastore_Uri{
-						Uri: metastore.Uri.ValueString(),
-					},
-				},
-			},
-		},
+		Metastore:            metastoreToAPI(metastore),
 		Filesystem:           &trino.FileSystem{},
 		AdditionalProperties: additionalProperties,
 	}
@@ -458,15 +461,7 @@ func icebergConnectorToAPI(ctx context.Context, icebergObj types.Object) (*trino
 	diags.Append(iceberg.FileSystem.As(ctx, &fileSystem, baseOptions)...)
 
 	connector := &trino.IcebergConnector{
-		Metastore: &trino.Metastore{
-			Type: &trino.Metastore_Hive{
-				Hive: &trino.Metastore_HiveMetastore{
-					Connection: &trino.Metastore_HiveMetastore_Uri{
-						Uri: metastore.Uri.ValueString(),
-					},
-				},
-			},
-		},
+		Metastore:            metastoreToAPI(metastore),
 		Filesystem:           &trino.FileSystem{},
 		AdditionalProperties: additionalProperties,
 	}
@@ -515,15 +510,7 @@ func hudiConnectorToAPI(ctx context.Context, hudiObj types.Object) (*trino.HudiC
 	diags.Append(hudi.FileSystem.As(ctx, &fileSystem, baseOptions)...)
 
 	connector := &trino.HudiConnector{
-		Metastore: &trino.Metastore{
-			Type: &trino.Metastore_Hive{
-				Hive: &trino.Metastore_HiveMetastore{
-					Connection: &trino.Metastore_HiveMetastore_Uri{
-						Uri: metastore.Uri.ValueString(),
-					},
-				},
-			},
-		},
+		Metastore:            metastoreToAPI(metastore),
 		Filesystem:           &trino.FileSystem{},
 		AdditionalProperties: additionalProperties,
 	}

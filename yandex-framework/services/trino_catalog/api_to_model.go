@@ -159,10 +159,7 @@ func hiveToModelObject(ctx context.Context, hive *trino.HiveConnector, stateObj 
 
 	// Handle metastore
 	if hive.Metastore != nil && hive.Metastore.GetHive() != nil {
-		metastore := Metastore{
-			Uri: types.StringValue(hive.Metastore.GetHive().GetUri()),
-		}
-		metastoreObject, dd := types.ObjectValueFrom(ctx, MetastoreT.AttributeTypes(), metastore)
+		metastoreObject, dd := metastoreToModel(ctx, hive.Metastore)
 		diags.Append(dd...)
 		state.Metastore = metastoreObject
 	}
@@ -195,10 +192,7 @@ func hudiToModelObject(ctx context.Context, hudi *trino.HudiConnector, stateObj 
 
 	// Handle metastore
 	if hudi.Metastore != nil && hudi.Metastore.GetHive() != nil {
-		metastore := Metastore{
-			Uri: types.StringValue(hudi.Metastore.GetHive().GetUri()),
-		}
-		metastoreObject, dd := types.ObjectValueFrom(ctx, MetastoreT.AttributeTypes(), metastore)
+		metastoreObject, dd := metastoreToModel(ctx, hudi.Metastore)
 		diags.Append(dd...)
 		state.Metastore = metastoreObject
 	}
@@ -261,10 +255,7 @@ func deltaLakeToModelObject(ctx context.Context, deltaLake *trino.DeltaLakeConne
 
 	// Handle metastore
 	if deltaLake.Metastore != nil && deltaLake.Metastore.GetHive() != nil {
-		metastore := Metastore{
-			Uri: types.StringValue(deltaLake.Metastore.GetHive().GetUri()),
-		}
-		metastoreObject, dd := types.ObjectValueFrom(ctx, MetastoreT.AttributeTypes(), metastore)
+		metastoreObject, dd := metastoreToModel(ctx, deltaLake.Metastore)
 		diags.Append(dd...)
 		state.Metastore = metastoreObject
 	}
@@ -297,10 +288,7 @@ func icebergToModelObject(ctx context.Context, iceberg *trino.IcebergConnector, 
 
 	// Handle metastore
 	if iceberg.Metastore != nil && iceberg.Metastore.GetHive() != nil {
-		metastore := Metastore{
-			Uri: types.StringValue(iceberg.Metastore.GetHive().GetUri()),
-		}
-		metastoreObject, dd := types.ObjectValueFrom(ctx, MetastoreT.AttributeTypes(), metastore)
+		metastoreObject, dd := metastoreToModel(ctx, iceberg.Metastore)
 		diags.Append(dd...)
 		state.Metastore = metastoreObject
 	}
@@ -395,6 +383,25 @@ func tpchToModelObject(ctx context.Context, tpch *trino.TPCHConnector, stateObj 
 	state.AdditionalProperties = additionalProperties
 
 	return types.ObjectValueFrom(ctx, TpchT.AttributeTypes(), state)
+}
+
+func metastoreToModel(ctx context.Context, apiMetastore *trino.Metastore) (types.Object, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	metastore := Metastore{
+		Uri:              types.StringNull(),
+		ManagedClusterId: types.StringNull(),
+	}
+	switch conn := apiMetastore.GetHive().GetConnection().(type) {
+	case *trino.Metastore_HiveMetastore_Uri:
+		metastore.Uri = types.StringValue(conn.Uri)
+	case *trino.Metastore_HiveMetastore_ManagedClusterId:
+		metastore.ManagedClusterId = types.StringValue(conn.ManagedClusterId)
+	}
+
+	metastoreObject, dd := types.ObjectValueFrom(ctx, MetastoreT.AttributeTypes(), metastore)
+	diags.Append(dd...)
+	return metastoreObject, diags
 }
 
 func fileSystemToModel(ctx context.Context, state types.Object, apiFileSystem *trino.FileSystem) (types.Object, diag.Diagnostics) {

@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'trino: add `managed_cluster_id` option to `metastore` in `yandex_trino_catalog` resource and data source'
+time: 2026-07-14T18:00:55.000000+03:00
