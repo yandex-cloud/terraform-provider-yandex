@@ -29,6 +29,14 @@ steps:
     noOp: {}
 `
 
+const updatedWorkflowSpecYAML = `yawl: "1.0"
+start: s
+steps:
+  s:
+    noOp:
+      output: updated
+`
+
 func init() {
 	resource.AddTestSweepers("yandex_serverless_workflow", &resource.Sweeper{
 		Name: "yandex_serverless_workflow",
@@ -92,7 +100,7 @@ func TestAccServerlessWorkflow_basic(t *testing.T) {
 		CheckDestroy:             testYandexServerlessWorkflowDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexServerlessWorkflowBasic(name, desc, labelKey, labelValue),
+				Config: testYandexServerlessWorkflowBasic(name, desc, labelKey, labelValue, minimalWorkflowSpecYAML),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexServerlessWorkflowExists(serverlessWorkflowResource, &wf),
 					resource.TestCheckResourceAttr(serverlessWorkflowResource, "name", name),
@@ -110,6 +118,7 @@ func TestAccServerlessWorkflow_basic(t *testing.T) {
 
 func TestAccServerlessWorkflow_update(t *testing.T) {
 	var wf workflows.Workflow
+	var wfSpecificationUpdated workflows.Workflow
 	var wfUpdated workflows.Workflow
 	name := acctest.RandomWithPrefix("tf-wf")
 	desc := acctest.RandomWithPrefix("tf-wf-desc")
@@ -127,14 +136,30 @@ func TestAccServerlessWorkflow_update(t *testing.T) {
 		CheckDestroy:             testYandexServerlessWorkflowDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexServerlessWorkflowBasic(name, desc, labelKey, labelValue),
+				Config: testYandexServerlessWorkflowBasic(name, desc, labelKey, labelValue, minimalWorkflowSpecYAML),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexServerlessWorkflowExists(serverlessWorkflowResource, &wf),
 				),
 			},
 			serverlessWorkflowImportTestStep(),
 			{
-				Config: testYandexServerlessWorkflowBasic(nameUpdated, descUpdated, labelKeyUpdated, labelValueUpdated),
+				Config: testYandexServerlessWorkflowBasic(name, desc, labelKey, labelValue, updatedWorkflowSpecYAML),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexServerlessWorkflowExists(serverlessWorkflowResource, &wfSpecificationUpdated),
+					resource.TestCheckResourceAttrWith(serverlessWorkflowResource, "id", func(w *workflows.Workflow) resource.CheckResourceAttrWithFunc {
+						return func(id string) error {
+							if id == w.Id {
+								return nil
+							}
+							return errors.New("invalid Serverless Workflow id")
+						}
+					}(&wf)),
+					resource.TestCheckResourceAttr(serverlessWorkflowResource, "specification.spec_yaml", updatedWorkflowSpecYAML),
+					testYandexServerlessWorkflowHasSpecification(&wfSpecificationUpdated, updatedWorkflowSpecYAML),
+				),
+			},
+			{
+				Config: testYandexServerlessWorkflowBasic(nameUpdated, descUpdated, labelKeyUpdated, labelValueUpdated, updatedWorkflowSpecYAML),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexServerlessWorkflowExists(serverlessWorkflowResource, &wfUpdated),
 					resource.TestCheckResourceAttrWith(serverlessWorkflowResource, "id", func(w *workflows.Workflow) resource.CheckResourceAttrWithFunc {
@@ -148,6 +173,8 @@ func TestAccServerlessWorkflow_update(t *testing.T) {
 					resource.TestCheckResourceAttr(serverlessWorkflowResource, "name", nameUpdated),
 					resource.TestCheckResourceAttr(serverlessWorkflowResource, "description", descUpdated),
 					testYandexServerlessWorkflowContainsLabel(&wfUpdated, labelKeyUpdated, labelValueUpdated),
+					resource.TestCheckResourceAttr(serverlessWorkflowResource, "specification.spec_yaml", updatedWorkflowSpecYAML),
+					testYandexServerlessWorkflowHasSpecification(&wfUpdated, updatedWorkflowSpecYAML),
 					test.AccCheckCreatedAtAttr(serverlessWorkflowResource),
 				),
 			},
@@ -234,7 +261,16 @@ func testYandexServerlessWorkflowContainsLabel(wf *workflows.Workflow, key strin
 	}
 }
 
-func testYandexServerlessWorkflowBasic(name, desc, labelKey, labelValue string) string {
+func testYandexServerlessWorkflowHasSpecification(wf *workflows.Workflow, specYAML string) resource.TestCheckFunc {
+	return func(*terraform.State) error {
+		if actual := wf.GetSpecification().GetSpecYaml(); actual != specYAML {
+			return fmt.Errorf("incorrect workflow specification: expected %q, got %q", specYAML, actual)
+		}
+		return nil
+	}
+}
+
+func testYandexServerlessWorkflowBasic(name, desc, labelKey, labelValue, specYAML string) string {
 	tmpl := template.Must(template.New("tf").Parse(`
 resource "yandex_serverless_workflow" "test-wf" {
   name        = "{{.name}}"
@@ -256,7 +292,7 @@ EOT
 		"description": desc,
 		"label_key":   labelKey,
 		"label_value": labelValue,
-		"spec_yaml":   minimalWorkflowSpecYAML,
+		"spec_yaml":   specYAML,
 	})
 	return buf.String()
 }

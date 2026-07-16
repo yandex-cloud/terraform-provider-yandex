@@ -391,22 +391,8 @@ func (r *yandexServerlessWorkflowResource) Update(ctx context.Context, req resou
 	if !plan.ServiceAccountId.IsUnknown() && !plan.ServiceAccountId.Equal(state.ServiceAccountId) {
 		updatePaths = append(updatePaths, "service_account_id")
 	}
-
-	if (plan.Specification.IsNull() || state.Specification.IsNull()) &&
-		!(plan.Specification.IsNull() && state.Specification.IsNull()) &&
-		!plan.Specification.IsUnknown() {
+	if !plan.Specification.IsUnknown() && !plan.Specification.Equal(state.Specification) {
 		updatePaths = append(updatePaths, "specification")
-	} else if !plan.Specification.IsUnknown() {
-		var yandexServerlessWorkflowSpecificationState, yandexServerlessWorkflowSpecificationPlan yandexServerlessWorkflowSpecificationModel
-		resp.Diagnostics.Append(plan.Specification.As(ctx, &yandexServerlessWorkflowSpecificationPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-		resp.Diagnostics.Append(state.Specification.As(ctx, &yandexServerlessWorkflowSpecificationState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-
-		if !yandexServerlessWorkflowSpecificationPlan.SpecYaml.IsUnknown() && !yandexServerlessWorkflowSpecificationPlan.SpecYaml.Equal(yandexServerlessWorkflowSpecificationState.SpecYaml) {
-			updatePaths = append(updatePaths, "specification.spec_yaml")
-		}
 	}
 	if !plan.WorkflowId.IsUnknown() && !plan.WorkflowId.Equal(state.WorkflowId) {
 		updatePaths = append(updatePaths, "workflow_id")
