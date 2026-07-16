@@ -60,7 +60,7 @@ func CatalogDataSourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"additional_properties": additionalPropertiesDataSourceSchema(),
 					"file_system":           fileSystemDataSourceSchema(),
-					"metastore":             metastoreDataSourceSchema(),
+					"metastore":             metastoreIcebergDataSourceSchema(),
 				},
 				Computed:            true,
 				Description:         "Configuration for Iceberg connector.",
@@ -280,6 +280,36 @@ func metastoreDataSourceSchema() schema.SingleNestedAttribute {
 				Computed:            true,
 				Description:         "ID of the Managed Hive Metastore cluster.",
 				MarkdownDescription: "ID of the Managed Hive Metastore cluster.",
+			},
+		},
+		Computed:            true,
+		Description:         "Metastore configuration.",
+		MarkdownDescription: "Metastore configuration.",
+	}
+}
+
+func metastoreIcebergDataSourceSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		Attributes: map[string]schema.Attribute{
+			"uri": schema.StringAttribute{
+				Computed:            true,
+				Description:         "URI of the Hive Metastore.",
+				MarkdownDescription: "URI of the Hive Metastore.",
+			},
+			"managed_cluster_id": schema.StringAttribute{
+				Computed:            true,
+				Description:         "ID of the Managed Hive Metastore cluster.",
+				MarkdownDescription: "ID of the Managed Hive Metastore cluster.",
+			},
+			"protocol": schema.StringAttribute{
+				Computed:            true,
+				Description:         "Protocol for connecting to the Hive Metastore: thrift or rest (Iceberg REST).",
+				MarkdownDescription: "Protocol for connecting to the Hive Metastore: thrift or rest (Iceberg REST).",
+			},
+			"rest_uri": schema.StringAttribute{
+				Computed:            true,
+				Description:         "URI of the Iceberg REST Catalog metastore.",
+				MarkdownDescription: "URI of the Iceberg REST Catalog metastore.",
 			},
 		},
 		Computed:            true,

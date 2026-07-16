@@ -287,8 +287,8 @@ func icebergToModelObject(ctx context.Context, iceberg *trino.IcebergConnector, 
 	}
 
 	// Handle metastore
-	if iceberg.Metastore != nil && iceberg.Metastore.GetHive() != nil {
-		metastoreObject, dd := metastoreToModel(ctx, iceberg.Metastore)
+	if iceberg.Metastore != nil {
+		metastoreObject, dd := icebergMetastoreToModel(ctx, iceberg.Metastore, state.Metastore)
 		diags.Append(dd...)
 		state.Metastore = metastoreObject
 	}
@@ -404,6 +404,49 @@ func metastoreToModel(ctx context.Context, apiMetastore *trino.Metastore) (types
 	return metastoreObject, diags
 }
 
+func icebergMetastoreToModel(ctx context.Context, apiMetastore *trino.Metastore, stateMetastore types.Object) (types.Object, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	metastore := MetastoreIceberg{
+		Uri:              types.StringNull(),
+		ManagedClusterId: types.StringNull(),
+		Protocol:         types.StringNull(),
+		RestUri:          types.StringNull(),
+	}
+
+	switch {
+	case apiMetastore.GetRest() != nil:
+		metastore.RestUri = types.StringValue(apiMetastore.GetRest().GetUri())
+	case apiMetastore.GetHive() != nil:
+		hive := apiMetastore.GetHive()
+		switch conn := hive.GetConnection().(type) {
+		case *trino.Metastore_HiveMetastore_Uri:
+			metastore.Uri = types.StringValue(conn.Uri)
+		case *trino.Metastore_HiveMetastore_ManagedClusterId:
+			metastore.ManagedClusterId = types.StringValue(conn.ManagedClusterId)
+		}
+		metastore.Protocol = hiveProtocolToModel(ctx, hive.GetProtocol(), stateMetastore)
+	}
+
+	metastoreObject, dd := types.ObjectValueFrom(ctx, MetastoreIcebergT.AttributeTypes(), metastore)
+	diags.Append(dd...)
+	return metastoreObject, diags
+}
+
+func hiveProtocolToModel(ctx context.Context, protocol *trino.Metastore_HiveMetastore_Protocol, stateMetastore types.Object) types.String {
+	if _, ok := protocol.GetType().(*trino.Metastore_HiveMetastore_Protocol_Rest); ok {
+		return types.StringValue("rest")
+	}
+
+	if !stateMetastore.IsNull() && !stateMetastore.IsUnknown() {
+		var prev MetastoreIceberg
+		if !stateMetastore.As(ctx, &prev, baseOptions).HasError() && !prev.Protocol.IsNull() {
+			return prev.Protocol
+		}
+	}
+
+	return types.StringNull()
+}
 func fileSystemToModel(ctx context.Context, state types.Object, apiFileSystem *trino.FileSystem) (types.Object, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 	fileSystem := NewFileSystemNull()

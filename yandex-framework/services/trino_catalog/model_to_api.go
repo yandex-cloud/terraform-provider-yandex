@@ -442,6 +442,67 @@ func deltaLakeConnectorToAPI(ctx context.Context, deltaLakeObj types.Object) (*t
 	return connector, diags
 }
 
+func icebergMetastoreToAPI(metastore MetastoreIceberg) (*trino.Metastore, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	if !metastore.RestUri.IsNull() && !metastore.RestUri.IsUnknown() {
+		if !metastore.Protocol.IsNull() && !metastore.Protocol.IsUnknown() {
+			diags.AddError(
+				"Invalid metastore configuration",
+				`"protocol" cannot be set together with "rest_uri"`,
+			)
+			return nil, diags
+		}
+
+		return &trino.Metastore{
+			Type: &trino.Metastore_Rest{
+				Rest: &trino.Metastore_RestMetastore{
+					Uri: metastore.RestUri.ValueString(),
+					Authorization: &trino.Metastore_RestMetastore_Authorization{
+						Type: &trino.Metastore_RestMetastore_Authorization_None{
+							None: &trino.Metastore_RestMetastore_Authorization_NoneAuth{},
+						},
+					},
+				},
+			},
+		}, diags
+	}
+
+	hive := &trino.Metastore_HiveMetastore{}
+	if !metastore.ManagedClusterId.IsNull() && !metastore.ManagedClusterId.IsUnknown() {
+		hive.Connection = &trino.Metastore_HiveMetastore_ManagedClusterId{
+			ManagedClusterId: metastore.ManagedClusterId.ValueString(),
+		}
+	} else {
+		hive.Connection = &trino.Metastore_HiveMetastore_Uri{
+			Uri: metastore.Uri.ValueString(),
+		}
+	}
+	if !metastore.Protocol.IsNull() && !metastore.Protocol.IsUnknown() {
+		hive.Protocol = hiveProtocolToAPI(metastore.Protocol.ValueString())
+	}
+
+	return &trino.Metastore{
+		Type: &trino.Metastore_Hive{Hive: hive},
+	}, diags
+}
+
+func hiveProtocolToAPI(protocol string) *trino.Metastore_HiveMetastore_Protocol {
+	if protocol == "rest" {
+		return &trino.Metastore_HiveMetastore_Protocol{
+			Type: &trino.Metastore_HiveMetastore_Protocol_Rest{
+				Rest: &trino.Metastore_HiveMetastore_Protocol_IcebergRest{},
+			},
+		}
+	}
+
+	return &trino.Metastore_HiveMetastore_Protocol{
+		Type: &trino.Metastore_HiveMetastore_Protocol_Thrift_{
+			Thrift: &trino.Metastore_HiveMetastore_Protocol_Thrift{},
+		},
+	}
+}
+
 func icebergConnectorToAPI(ctx context.Context, icebergObj types.Object) (*trino.IcebergConnector, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 
@@ -454,14 +515,20 @@ func icebergConnectorToAPI(ctx context.Context, icebergObj types.Object) (*trino
 	additionalProperties := make(map[string]string, len(iceberg.AdditionalProperties.Elements()))
 	diags.Append(iceberg.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
 
-	metastore := Metastore{}
+	metastore := MetastoreIceberg{}
 	diags.Append(iceberg.Metastore.As(ctx, &metastore, baseOptions)...)
+
+	apiMetastore, dd := icebergMetastoreToAPI(metastore)
+	diags.Append(dd...)
 
 	fileSystem := FileSystem{}
 	diags.Append(iceberg.FileSystem.As(ctx, &fileSystem, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
 
 	connector := &trino.IcebergConnector{
-		Metastore:            metastoreToAPI(metastore),
+		Metastore:            apiMetastore,
 		Filesystem:           &trino.FileSystem{},
 		AdditionalProperties: additionalProperties,
 	}

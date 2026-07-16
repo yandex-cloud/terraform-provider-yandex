@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -68,7 +69,7 @@ func CatalogResourceSchema(_ context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"additional_properties": additionalPropertiesSchema(),
 					"file_system":           fileSystemSchema(),
-					"metastore":             metastoreSchema(),
+					"metastore":             metastoreIcebergSchema(),
 				},
 				Optional:            true,
 				Description:         "Configuration for Iceberg connector.",
@@ -335,6 +336,42 @@ func metastoreSchema() schema.SingleNestedAttribute {
 	}
 }
 
+func metastoreIcebergSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		Validators: []validator.Object{
+			onlyOneOptionValidator("Metastore", "uri", "managed_cluster_id", "rest_uri"),
+		},
+		Attributes: map[string]schema.Attribute{
+			"uri": schema.StringAttribute{
+				Optional:            true,
+				Description:         "URI of the Hive Metastore.",
+				MarkdownDescription: "URI of the Hive Metastore.",
+			},
+			"managed_cluster_id": schema.StringAttribute{
+				Optional:            true,
+				Description:         "ID of the Managed Hive Metastore cluster.",
+				MarkdownDescription: "ID of the Managed Hive Metastore cluster.",
+			},
+			"protocol": schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("thrift", "rest"),
+				},
+				Description:         "Protocol for connecting to the Hive Metastore: thrift or rest (Iceberg REST).",
+				MarkdownDescription: "Protocol for connecting to the Hive Metastore: thrift or rest (Iceberg REST).",
+			},
+			"rest_uri": schema.StringAttribute{
+				Optional:            true,
+				Description:         "URI of the Iceberg REST Catalog metastore.",
+				MarkdownDescription: "URI of the Iceberg REST Catalog metastore.",
+			},
+		},
+		Required:            true,
+		Description:         "Metastore configuration.",
+		MarkdownDescription: "Metastore configuration.",
+	}
+}
+
 type CatalogModel struct {
 	Id          types.String   `tfsdk:"id"`
 	Name        types.String   `tfsdk:"name"`
@@ -525,6 +562,22 @@ var MetastoreT = types.ObjectType{
 	},
 }
 
+type MetastoreIceberg struct {
+	Uri              types.String `tfsdk:"uri"`
+	ManagedClusterId types.String `tfsdk:"managed_cluster_id"`
+	Protocol         types.String `tfsdk:"protocol"`
+	RestUri          types.String `tfsdk:"rest_uri"`
+}
+
+var MetastoreIcebergT = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"uri":                types.StringType,
+		"managed_cluster_id": types.StringType,
+		"protocol":           types.StringType,
+		"rest_uri":           types.StringType,
+	},
+}
+
 type FileSystem struct {
 	ExternalS3 types.Object `tfsdk:"external_s3"`
 	S3         types.Object `tfsdk:"s3"`
@@ -664,7 +717,7 @@ var IcebergT = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"additional_properties": types.MapType{ElemType: types.StringType},
 		"file_system":           FileSystemT,
-		"metastore":             MetastoreT,
+		"metastore":             MetastoreIcebergT,
 	},
 }
 
@@ -672,7 +725,7 @@ func NewIcebergNull() Iceberg {
 	return Iceberg{
 		AdditionalProperties: types.MapNull(types.StringType),
 		FileSystem:           types.ObjectNull(FileSystemT.AttrTypes),
-		Metastore:            types.ObjectNull(MetastoreT.AttrTypes),
+		Metastore:            types.ObjectNull(MetastoreIcebergT.AttrTypes),
 	}
 }
 

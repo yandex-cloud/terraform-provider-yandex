@@ -78,6 +78,8 @@ Catalog for Managed Trino cluster.
     - `s3` [Block]. Describes YandexCloud native S3 file system.
   - `metastore` [Block]. Metastore configuration.
     - `managed_cluster_id` (String). ID of the Managed Hive Metastore cluster.
+    - `protocol` (String). Protocol for connecting to the Hive Metastore: thrift or rest (Iceberg REST).
+    - `rest_uri` (String). URI of the Iceberg REST Catalog metastore.
     - `uri` (String). URI of the Hive Metastore.
 - `id` (*Read-Only*) (String). The resource identifier.
 - `labels` (Map Of String). A set of key/value label pairs which assigned to resource.
