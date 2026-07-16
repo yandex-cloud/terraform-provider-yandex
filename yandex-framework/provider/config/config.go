@@ -213,8 +213,17 @@ func (c *Config) initYcTool(ctx context.Context, terraformVersion string, provid
 	const (
 		toolName = "yc-terraform"
 		tfUrl    = "https://www.terraform.io"
+		// initializationSilenceEnv disables the call to the YC tool initialization
+		// (version control) service. Useful in isolated environments without network
+		// access to the service. Mirrors YC_CLI_INITIALIZATION_SILENCE in the yc CLI.
+		initializationSilenceEnv = "YC_TERRAFORM_INITIALIZATION_SILENCE"
 	)
 	diags := diag.Diagnostics{}
+
+	if os.Getenv(initializationSilenceEnv) == "true" {
+		tflog.Debug(ctx, fmt.Sprintf("Skipping YC tool initialization: %s is set", initializationSilenceEnv))
+		return diags
+	}
 
 	iamToken, err := c.getIAMToken(ctx)
 	if err != nil {
