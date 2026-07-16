@@ -92,9 +92,13 @@ func validateResourcesDiskXor(ctx context.Context, resources types.Object, base 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	// Defer XOR validation until Terraform resolves unknown values.
+	if nr.DiskSize.IsUnknown() || nr.DiskSizeGb.IsUnknown() {
+		return
+	}
 
-	hasBytes := !nr.DiskSize.IsNull() && !nr.DiskSize.IsUnknown()
-	hasGb := !nr.DiskSizeGb.IsNull() && !nr.DiskSizeGb.IsUnknown()
+	hasBytes := !nr.DiskSize.IsNull()
+	hasGb := !nr.DiskSizeGb.IsNull()
 
 	switch {
 	case hasBytes && hasGb:
@@ -121,9 +125,13 @@ func validateAutoscalingDiskLimitXor(ctx context.Context, autoscaling types.Obje
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	// Defer XOR validation until Terraform resolves unknown values.
+	if a.DiskSizeLimit.IsUnknown() || a.DiskSizeGbLimit.IsUnknown() {
+		return
+	}
 
-	hasBytes := !a.DiskSizeLimit.IsNull() && !a.DiskSizeLimit.IsUnknown()
-	hasGb := !a.DiskSizeGbLimit.IsNull() && !a.DiskSizeGbLimit.IsUnknown()
+	hasBytes := !a.DiskSizeLimit.IsNull()
+	hasGb := !a.DiskSizeGbLimit.IsNull()
 
 	switch {
 	case hasBytes && hasGb:

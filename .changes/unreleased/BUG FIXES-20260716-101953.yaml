@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'opensearch: fixed xor check for `disk_size` and `disk_size_gb`'
+time: 2026-07-16T10:19:53.746468+03:00
