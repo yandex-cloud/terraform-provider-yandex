@@ -2093,6 +2093,38 @@ func testAccStorageBucketConfigWithNonCurrentVersionTransitionToIceStorage(randI
 		render()
 }
 
+func testAccStorageBucketConfigWithNewerNoncurrentVersions(randInt int) string {
+	const acl = `acl = "private"`
+	const lifecycle = `lifecycle_rule {
+	id      = "id1"
+	prefix  = "path1/"
+	enabled = true
+
+	noncurrent_version_expiration {
+		days                     = 90
+		newer_noncurrent_versions = 3
+	}
+}
+
+lifecycle_rule {
+	id      = "id2"
+	prefix  = "path2/"
+	enabled = true
+
+	noncurrent_version_transition {
+		days                      = 30
+		storage_class             = "ICE"
+		newer_noncurrent_versions = 2
+	}
+}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(acl).
+		addStatement(lifecycle).
+		asAdmin().
+		render()
+}
+
 func testAccStorageBucketConfigWithValidGrant(randInt int) string {
 	const grants = `grant {
 		id          = yandex_iam_service_account.sa.id
@@ -2532,6 +2564,54 @@ func TestAccStorageBucket_LifecycleRule_NonCurrentVersionTransitionToIceStorage(
 						resourceName,
 						"lifecycle_rule.0.noncurrent_version_transition.0.storage_class",
 						"ICE",
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucketLifecycleNewerNoncurrentVersions(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithNewerNoncurrentVersions(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.id", "id1"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.enabled", "true"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.0.noncurrent_version_expiration.0.days",
+						"90",
+					),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.0.noncurrent_version_expiration.0.newer_noncurrent_versions",
+						"3",
+					),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.id", "id2"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.enabled", "true"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.1.noncurrent_version_transition.0.days",
+						"30",
+					),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.1.noncurrent_version_transition.0.storage_class",
+						"ICE",
+					),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.1.noncurrent_version_transition.0.newer_noncurrent_versions",
+						"2",
 					),
 				),
 			},

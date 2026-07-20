@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'storage: support newer_noncurrent_versions in bucket lifecycle configuration in yandex_storage_bucket resource'
+time: 2026-07-19T09:30:00.000000+03:00
