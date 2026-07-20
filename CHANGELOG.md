@@ -2,6 +2,14 @@
 
 
 
+## 0.218.0 (July 20, 2026)
+##### FEATURES:
+* trino: add `protocol` and `rest_uri` options to `metastore` in `yandex_trino_catalog` iceberg connector for Iceberg REST Catalog support
+##### BUG FIXES:
+* serverless: fixed in-place specification updates for yandex_serverless_workflow
+* opensearch: fixed xor check for `disk_size` and `disk_size_gb`
+* fix: opensearch sweeper
+
 ## 0.217.0 (July 16, 2026)
 ##### FEATURES:
 * postgresql: add write-only `password_wo` and `password_wo_version` attributes to set password without storing it in state

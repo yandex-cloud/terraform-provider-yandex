@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'trino: add `protocol` and `rest_uri` options to `metastore` in `yandex_trino_catalog` iceberg connector for Iceberg REST Catalog support'
-time: 2026-07-14T19:57:54.000000+03:00
