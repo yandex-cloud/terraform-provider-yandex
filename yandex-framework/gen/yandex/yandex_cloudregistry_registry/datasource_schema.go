@@ -90,6 +90,41 @@ func YandexCloudregistryRegistryDatasourceSchema(ctx context.Context) schema.Sch
 				Computed: true,
 			},
 
+			"pattern_filter": schema.SingleNestedAttribute{
+
+				Attributes: map[string]schema.Attribute{
+
+					"exclude_patterns": schema.ListAttribute{
+						ElementType:         types.StringType,
+						MarkdownDescription: "List of patterns for artifacts to exclude.",
+						Description: "List of patterns for artifacts to exclude." +
+							// proto paths: +
+							// -> yandex.cloud.cloudregistry.v1.Registry.pattern_filter -> yandex.cloud.cloudregistry.v1.PatternFilter.exclude_patterns
+							"package: yandex.cloud.cloudregistry.v1\n" +
+							"filename: yandex/cloud/cloudregistry/v1/pattern_filter.proto\n",
+						Computed: true,
+					},
+
+					"include_patterns": schema.ListAttribute{
+						ElementType:         types.StringType,
+						MarkdownDescription: "List of patterns for artifacts to include.",
+						Description: "List of patterns for artifacts to include." +
+							// proto paths: +
+							// -> yandex.cloud.cloudregistry.v1.Registry.pattern_filter -> yandex.cloud.cloudregistry.v1.PatternFilter.include_patterns
+							"package: yandex.cloud.cloudregistry.v1\n" +
+							"filename: yandex/cloud/cloudregistry/v1/pattern_filter.proto\n",
+						Computed: true,
+					},
+				},
+				MarkdownDescription: "Pattern filters for artifacts in the registry.",
+				Description: "Pattern filters for artifacts in the registry." +
+					// proto paths: +
+					// -> yandex.cloud.cloudregistry.v1.Registry.pattern_filter
+					"package: yandex.cloud.cloudregistry.v1\n" +
+					"filename: yandex/cloud/cloudregistry/v1/registry.proto\n",
+				Computed: true,
+			},
+
 			"properties": schema.MapAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "Resource properties as `key:value` pairs. Maximum of 64 per resource.",
@@ -102,8 +137,8 @@ func YandexCloudregistryRegistryDatasourceSchema(ctx context.Context) schema.Sch
 			},
 
 			"registry_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request.",
-				Description: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request." +
+				MarkdownDescription: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request.",
+				Description: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.cloudregistry.v1.GetRegistryRequest.registry_id
 					// -> yandex.cloud.cloudregistry.v1.Registry.id
@@ -118,8 +153,8 @@ func YandexCloudregistryRegistryDatasourceSchema(ctx context.Context) schema.Sch
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request.",
-				Description: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request." +
+				MarkdownDescription: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request.",
+				Description: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.cloudregistry.v1.GetRegistryRequest.registry_id
 					// -> yandex.cloud.cloudregistry.v1.Registry.id

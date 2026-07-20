@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cloudregistry "github.com/yandex-cloud/go-genproto/yandex/cloud/cloudregistry/v1"
 	cloudregistryv1sdk "github.com/yandex-cloud/go-sdk/services/cloudregistry/v1"
@@ -157,6 +158,7 @@ func (r *yandexCloudregistryRegistryResource) Create(ctx context.Context, req re
 	createReq.SetType(cloudregistry.Registry_Type(cloudregistry.Registry_Type_value[plan.Type.ValueString()]))
 	createReq.SetDescription(plan.Description.ValueString())
 	createReq.SetProperties(expandYandexCloudregistryRegistryProperties(ctx, plan.Properties, &diags))
+	createReq.SetPatternFilter(expandYandexCloudregistryRegistryPatternFilter(ctx, plan.PatternFilter, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -313,7 +315,7 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -322,11 +324,43 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
+	}
+
+	if (plan.PatternFilter.IsNull() || state.PatternFilter.IsNull()) &&
+		!(plan.PatternFilter.IsNull() && state.PatternFilter.IsNull()) &&
+		!plan.PatternFilter.IsUnknown() {
+		updatePaths = append(updatePaths, "pattern_filter")
+	} else if !plan.PatternFilter.IsUnknown() {
+		var yandexCloudregistryRegistryPatternFilterState, yandexCloudregistryRegistryPatternFilterPlan yandexCloudregistryRegistryPatternFilterModel
+		resp.Diagnostics.Append(plan.PatternFilter.As(ctx, &yandexCloudregistryRegistryPatternFilterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.PatternFilter.As(ctx, &yandexCloudregistryRegistryPatternFilterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		if yandexCloudregistryRegistryPatternFilterPlan.ExcludePatterns.IsNull() {
+			yandexCloudregistryRegistryPatternFilterPlan.ExcludePatterns = types.ListNull(types.StringType)
+		}
+		if yandexCloudregistryRegistryPatternFilterState.ExcludePatterns.IsNull() {
+			yandexCloudregistryRegistryPatternFilterState.ExcludePatterns = types.ListNull(types.StringType)
+		}
+		if !yandexCloudregistryRegistryPatternFilterPlan.ExcludePatterns.IsUnknown() && !yandexCloudregistryRegistryPatternFilterPlan.ExcludePatterns.Equal(yandexCloudregistryRegistryPatternFilterState.ExcludePatterns) {
+			updatePaths = append(updatePaths, "pattern_filter.exclude_patterns")
+		}
+		if yandexCloudregistryRegistryPatternFilterPlan.IncludePatterns.IsNull() {
+			yandexCloudregistryRegistryPatternFilterPlan.IncludePatterns = types.ListNull(types.StringType)
+		}
+		if yandexCloudregistryRegistryPatternFilterState.IncludePatterns.IsNull() {
+			yandexCloudregistryRegistryPatternFilterState.IncludePatterns = types.ListNull(types.StringType)
+		}
+		if !yandexCloudregistryRegistryPatternFilterPlan.IncludePatterns.IsUnknown() && !yandexCloudregistryRegistryPatternFilterPlan.IncludePatterns.Equal(yandexCloudregistryRegistryPatternFilterState.IncludePatterns) {
+			updatePaths = append(updatePaths, "pattern_filter.include_patterns")
+		}
 	}
 	if plan.Properties.IsNull() {
 		plan.Properties = types.MapNull(types.StringType)
@@ -334,10 +368,10 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 	if state.Properties.IsNull() {
 		state.Properties = types.MapNull(types.StringType)
 	}
-	if !plan.Properties.Equal(state.Properties) {
+	if !plan.Properties.IsUnknown() && !plan.Properties.Equal(state.Properties) {
 		updatePaths = append(updatePaths, "properties")
 	}
-	if !plan.RegistryId.Equal(state.RegistryId) {
+	if !plan.RegistryId.IsUnknown() && !plan.RegistryId.Equal(state.RegistryId) {
 		updatePaths = append(updatePaths, "registry_id")
 	}
 	if len(updatePaths) != 0 {
@@ -352,6 +386,7 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 		updateReq.SetLabels(expandYandexCloudregistryRegistryLabels(ctx, plan.Labels, &diags))
 		updateReq.SetDescription(plan.Description.ValueString())
 		updateReq.SetProperties(expandYandexCloudregistryRegistryProperties(ctx, plan.Properties, &diags))
+		updateReq.SetPatternFilter(expandYandexCloudregistryRegistryPatternFilter(ctx, plan.PatternFilter, &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

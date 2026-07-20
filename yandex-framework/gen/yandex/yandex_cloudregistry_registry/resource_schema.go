@@ -7,10 +7,13 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -153,6 +156,74 @@ func YandexCloudregistryRegistryResourceSchema(ctx context.Context) schema.Schem
 				},
 			},
 
+			"pattern_filter": schema.SingleNestedAttribute{
+
+				Attributes: map[string]schema.Attribute{
+
+					"exclude_patterns": schema.ListAttribute{
+						ElementType:         types.StringType,
+						MarkdownDescription: "List of patterns for artifacts to exclude.",
+						Description: "List of patterns for artifacts to exclude." +
+							// proto paths: +
+							// -> yandex.cloud.cloudregistry.v1.CreateRegistryRequest.pattern_filter -> yandex.cloud.cloudregistry.v1.PatternFilter.exclude_patterns
+							// -> yandex.cloud.cloudregistry.v1.Registry.pattern_filter -> yandex.cloud.cloudregistry.v1.PatternFilter.exclude_patterns
+							// -> yandex.cloud.cloudregistry.v1.UpdateRegistryRequest.pattern_filter -> yandex.cloud.cloudregistry.v1.PatternFilter.exclude_patterns
+							"package: yandex.cloud.cloudregistry.v1\n" +
+							"filename: yandex/cloud/cloudregistry/v1/pattern_filter.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.List{
+							listplanmodifier.UseStateForUnknown(),
+							planmodifiers.NilRelaxedList(),
+						},
+						Validators: []validator.List{
+							listvalidator.ValueStringsAre(
+								stringvalidator.RegexMatches(regexp.MustCompile("^([A-Za-z0-9._~:@!$&+\\-?*/]+)$"), "error validating regexp"),
+							),
+						},
+					},
+
+					"include_patterns": schema.ListAttribute{
+						ElementType:         types.StringType,
+						MarkdownDescription: "List of patterns for artifacts to include.",
+						Description: "List of patterns for artifacts to include." +
+							// proto paths: +
+							// -> yandex.cloud.cloudregistry.v1.CreateRegistryRequest.pattern_filter -> yandex.cloud.cloudregistry.v1.PatternFilter.include_patterns
+							// -> yandex.cloud.cloudregistry.v1.Registry.pattern_filter -> yandex.cloud.cloudregistry.v1.PatternFilter.include_patterns
+							// -> yandex.cloud.cloudregistry.v1.UpdateRegistryRequest.pattern_filter -> yandex.cloud.cloudregistry.v1.PatternFilter.include_patterns
+							"package: yandex.cloud.cloudregistry.v1\n" +
+							"filename: yandex/cloud/cloudregistry/v1/pattern_filter.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.List{
+							listplanmodifier.UseStateForUnknown(),
+							planmodifiers.NilRelaxedList(),
+						},
+						Validators: []validator.List{
+							listvalidator.ValueStringsAre(
+								stringvalidator.RegexMatches(regexp.MustCompile("^([A-Za-z0-9._~:@!$&+\\-?*/]+)$"), "error validating regexp"),
+							),
+						},
+					},
+				},
+				MarkdownDescription: "Pattern filters for artifacts in the registry.",
+				Description: "Pattern filters for artifacts in the registry." +
+					// proto paths: +
+					// -> yandex.cloud.cloudregistry.v1.CreateRegistryRequest.pattern_filter
+					// -> yandex.cloud.cloudregistry.v1.Registry.pattern_filter
+					// -> yandex.cloud.cloudregistry.v1.UpdateRegistryRequest.pattern_filter
+					"package: yandex.cloud.cloudregistry.v1\n" +
+					"filename: yandex/cloud/cloudregistry/v1/registry.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
+				},
+			},
+
 			"properties": schema.MapAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "Resource properties as `key:value` pairs. Maximum of 64 per resource.",
@@ -177,14 +248,14 @@ func YandexCloudregistryRegistryResourceSchema(ctx context.Context) schema.Schem
 					),
 					mapvalidator.ValueStringsAre(
 						stringvalidator.RegexMatches(regexp.MustCompile("^([-_.~!*'();/?:@&=+$,%#0-9a-zA-Z]+)$"), "error validating regexp"),
-						stringvalidator.LengthBetween(0, 63),
+						stringvalidator.LengthBetween(0, 255),
 					),
 				},
 			},
 
 			"registry_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request.",
-				Description: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request." +
+				MarkdownDescription: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request.",
+				Description: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.cloudregistry.v1.DeleteRegistryRequest.registry_id
 					// -> yandex.cloud.cloudregistry.v1.GetRegistryRequest.registry_id
@@ -204,8 +275,8 @@ func YandexCloudregistryRegistryResourceSchema(ctx context.Context) schema.Schem
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request.",
-				Description: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request." +
+				MarkdownDescription: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request.",
+				Description: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.cloudregistry.v1.DeleteRegistryRequest.registry_id
 					// -> yandex.cloud.cloudregistry.v1.GetRegistryRequest.registry_id

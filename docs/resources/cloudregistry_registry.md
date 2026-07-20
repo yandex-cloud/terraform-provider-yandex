@@ -23,6 +23,16 @@ resource "yandex_cloudregistry_registry" "default" {
   type      = "LOCAL"
 
   description = "Some desctiption"
+
+  pattern_filter = {
+    include_patterns = [
+      "first-pattern/**",
+      "another/*/pattern"
+    ]
+    exclude_patterns = [
+      "exclude/**"
+    ]
+  }
 }
 ```
 

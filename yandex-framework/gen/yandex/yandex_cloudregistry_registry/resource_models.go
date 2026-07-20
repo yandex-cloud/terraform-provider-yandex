@@ -16,19 +16,20 @@ import (
 )
 
 type yandexCloudregistryRegistryModel struct {
-	CreatedAt   types.String   `tfsdk:"created_at"`
-	Description types.String   `tfsdk:"description"`
-	FolderId    types.String   `tfsdk:"folder_id"`
-	Kind        types.String   `tfsdk:"kind"`
-	Labels      types.Map      `tfsdk:"labels"`
-	ModifiedAt  types.String   `tfsdk:"modified_at"`
-	Name        types.String   `tfsdk:"name"`
-	Properties  types.Map      `tfsdk:"properties"`
-	RegistryId  types.String   `tfsdk:"registry_id"`
-	ID          types.String   `tfsdk:"id"`
-	Status      types.String   `tfsdk:"status"`
-	Type        types.String   `tfsdk:"type"`
-	Timeouts    timeouts.Value `tfsdk:"timeouts"`
+	CreatedAt     types.String   `tfsdk:"created_at"`
+	Description   types.String   `tfsdk:"description"`
+	FolderId      types.String   `tfsdk:"folder_id"`
+	Kind          types.String   `tfsdk:"kind"`
+	Labels        types.Map      `tfsdk:"labels"`
+	ModifiedAt    types.String   `tfsdk:"modified_at"`
+	Name          types.String   `tfsdk:"name"`
+	PatternFilter types.Object   `tfsdk:"pattern_filter"`
+	Properties    types.Map      `tfsdk:"properties"`
+	RegistryId    types.String   `tfsdk:"registry_id"`
+	ID            types.String   `tfsdk:"id"`
+	Status        types.String   `tfsdk:"status"`
+	Type          types.String   `tfsdk:"type"`
+	Timeouts      timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (m *yandexCloudregistryRegistryModel) GetCreatedAt() types.String {
@@ -52,6 +53,9 @@ func (m *yandexCloudregistryRegistryModel) GetModifiedAt() types.String {
 func (m *yandexCloudregistryRegistryModel) GetName() types.String {
 	return m.Name
 }
+func (m *yandexCloudregistryRegistryModel) GetPatternFilter() types.Object {
+	return m.PatternFilter
+}
 func (m *yandexCloudregistryRegistryModel) GetProperties() types.Map {
 	return m.Properties
 }
@@ -68,20 +72,61 @@ func (m *yandexCloudregistryRegistryModel) GetType() types.String {
 	return m.Type
 }
 
+func (m *yandexCloudregistryRegistryModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexCloudregistryRegistryModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexCloudregistryRegistryModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexCloudregistryRegistryModel) SetKind(target types.String) {
+	m.Kind = target
+}
+func (m *yandexCloudregistryRegistryModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexCloudregistryRegistryModel) SetModifiedAt(target types.String) {
+	m.ModifiedAt = target
+}
+func (m *yandexCloudregistryRegistryModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexCloudregistryRegistryModel) SetPatternFilter(target types.Object) {
+	m.PatternFilter = target
+}
+func (m *yandexCloudregistryRegistryModel) SetProperties(target types.Map) {
+	m.Properties = target
+}
+func (m *yandexCloudregistryRegistryModel) SetRegistryId(target types.String) {
+	m.RegistryId = target
+}
+func (m *yandexCloudregistryRegistryModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexCloudregistryRegistryModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexCloudregistryRegistryModel) SetType(target types.String) {
+	m.Type = target
+}
+
 func NewYandexCloudregistryRegistryModel() yandexCloudregistryRegistryModel {
 	return yandexCloudregistryRegistryModel{
-		CreatedAt:   types.StringNull(),
-		Description: types.StringNull(),
-		FolderId:    types.StringNull(),
-		Kind:        types.StringNull(),
-		Labels:      types.MapNull(types.StringType),
-		ModifiedAt:  types.StringNull(),
-		Name:        types.StringNull(),
-		Properties:  types.MapNull(types.StringType),
-		RegistryId:  types.StringNull(),
-		ID:          types.StringNull(),
-		Status:      types.StringNull(),
-		Type:        types.StringNull(),
+		CreatedAt:     types.StringNull(),
+		Description:   types.StringNull(),
+		FolderId:      types.StringNull(),
+		Kind:          types.StringNull(),
+		Labels:        types.MapNull(types.StringType),
+		ModifiedAt:    types.StringNull(),
+		Name:          types.StringNull(),
+		PatternFilter: types.ObjectNull(yandexCloudregistryRegistryPatternFilterModelType.AttrTypes),
+		Properties:    types.MapNull(types.StringType),
+		RegistryId:    types.StringNull(),
+		ID:            types.StringNull(),
+		Status:        types.StringNull(),
+		Type:          types.StringNull(),
 	}
 }
 
@@ -107,6 +152,9 @@ func yandexCloudregistryRegistryModelFillUnknown(target yandexCloudregistryRegis
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
 	}
+	if target.PatternFilter.IsUnknown() || target.PatternFilter.IsNull() {
+		target.PatternFilter = types.ObjectNull(yandexCloudregistryRegistryPatternFilterModelType.AttrTypes)
+	}
 	if target.Properties.IsUnknown() || target.Properties.IsNull() {
 		target.Properties = types.MapNull(types.StringType)
 	}
@@ -127,19 +175,20 @@ func yandexCloudregistryRegistryModelFillUnknown(target yandexCloudregistryRegis
 
 var yandexCloudregistryRegistryModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"created_at":  types.StringType,
-		"description": types.StringType,
-		"folder_id":   types.StringType,
-		"kind":        types.StringType,
-		"labels":      types.MapType{ElemType: types.StringType},
-		"modified_at": types.StringType,
-		"name":        types.StringType,
-		"properties":  types.MapType{ElemType: types.StringType},
-		"registry_id": types.StringType,
-		"id":          types.StringType,
-		"status":      types.StringType,
-		"type":        types.StringType,
-		"timeouts":    timeouts.AttributesAll(context.Background()).GetType(),
+		"created_at":     types.StringType,
+		"description":    types.StringType,
+		"folder_id":      types.StringType,
+		"kind":           types.StringType,
+		"labels":         types.MapType{ElemType: types.StringType},
+		"modified_at":    types.StringType,
+		"name":           types.StringType,
+		"pattern_filter": yandexCloudregistryRegistryPatternFilterModelType,
+		"properties":     types.MapType{ElemType: types.StringType},
+		"registry_id":    types.StringType,
+		"id":             types.StringType,
+		"status":         types.StringType,
+		"type":           types.StringType,
+		"timeouts":       timeouts.AttributesAll(context.Background()).GetType(),
 	},
 }
 
@@ -152,19 +201,20 @@ func flattenYandexCloudregistryRegistry(ctx context.Context,
 		return types.ObjectNull(yandexCloudregistryRegistryModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexCloudregistryRegistryModelType.AttrTypes, yandexCloudregistryRegistryModel{
-		CreatedAt:   types.StringValue(yandexCloudregistryRegistry.GetCreatedAt().AsTime().Format(time.RFC3339)),
-		Description: types.StringValue(yandexCloudregistryRegistry.GetDescription()),
-		FolderId:    types.StringValue(yandexCloudregistryRegistry.GetFolderId()),
-		Kind:        types.StringValue(yandexCloudregistryRegistry.GetKind().String()),
-		Labels:      flattenYandexCloudregistryRegistryLabels(ctx, yandexCloudregistryRegistry.GetLabels(), state.Labels, diags),
-		ModifiedAt:  types.StringValue(yandexCloudregistryRegistry.GetModifiedAt().AsTime().Format(time.RFC3339)),
-		Name:        types.StringValue(yandexCloudregistryRegistry.GetName()),
-		Properties:  flattenYandexCloudregistryRegistryProperties(ctx, yandexCloudregistryRegistry.GetProperties(), state.Properties, diags),
-		RegistryId:  types.StringValue(yandexCloudregistryRegistry.GetId()),
-		ID:          types.StringValue(yandexCloudregistryRegistry.GetId()),
-		Status:      types.StringValue(yandexCloudregistryRegistry.GetStatus().String()),
-		Type:        types.StringValue(yandexCloudregistryRegistry.GetType().String()),
-		Timeouts:    to,
+		CreatedAt:     types.StringValue(yandexCloudregistryRegistry.GetCreatedAt().AsTime().Format(time.RFC3339)),
+		Description:   types.StringValue(yandexCloudregistryRegistry.GetDescription()),
+		FolderId:      types.StringValue(yandexCloudregistryRegistry.GetFolderId()),
+		Kind:          types.StringValue(yandexCloudregistryRegistry.GetKind().String()),
+		Labels:        flattenYandexCloudregistryRegistryLabels(ctx, yandexCloudregistryRegistry.GetLabels(), state.Labels, diags),
+		ModifiedAt:    types.StringValue(yandexCloudregistryRegistry.GetModifiedAt().AsTime().Format(time.RFC3339)),
+		Name:          types.StringValue(yandexCloudregistryRegistry.GetName()),
+		PatternFilter: flattenYandexCloudregistryRegistryPatternFilter(ctx, yandexCloudregistryRegistry.GetPatternFilter(), converter.ExpandObject(ctx, state.PatternFilter, yandexCloudregistryRegistryPatternFilterModel{}, diags).(yandexCloudregistryRegistryPatternFilterModel), diags),
+		Properties:    flattenYandexCloudregistryRegistryProperties(ctx, yandexCloudregistryRegistry.GetProperties(), state.Properties, diags),
+		RegistryId:    types.StringValue(yandexCloudregistryRegistry.GetId()),
+		ID:            types.StringValue(yandexCloudregistryRegistry.GetId()),
+		Status:        types.StringValue(yandexCloudregistryRegistry.GetStatus().String()),
+		Type:          types.StringValue(yandexCloudregistryRegistry.GetType().String()),
+		Timeouts:      to,
 	})
 	diags.Append(diag...)
 	return value
@@ -191,8 +241,8 @@ func expandYandexCloudregistryRegistryModel(ctx context.Context, yandexCloudregi
 	value.SetLabels(expandYandexCloudregistryRegistryLabels(ctx, yandexCloudregistryRegistryState.Labels, diags))
 	value.SetModifiedAt(converter.ParseTimestamp(yandexCloudregistryRegistryState.ModifiedAt.ValueString(), diags))
 	value.SetName(yandexCloudregistryRegistryState.Name.ValueString())
+	value.SetPatternFilter(expandYandexCloudregistryRegistryPatternFilter(ctx, yandexCloudregistryRegistryState.PatternFilter, diags))
 	value.SetProperties(expandYandexCloudregistryRegistryProperties(ctx, yandexCloudregistryRegistryState.Properties, diags))
-	value.SetId(yandexCloudregistryRegistryState.RegistryId.ValueString())
 	value.SetId(yandexCloudregistryRegistryState.RegistryId.ValueString())
 	value.SetStatus(cloudregistry.Registry_Status(cloudregistry.Registry_Status_value[yandexCloudregistryRegistryState.Status.ValueString()]))
 	value.SetType(cloudregistry.Registry_Type(cloudregistry.Registry_Type_value[yandexCloudregistryRegistryState.Type.ValueString()]))
@@ -237,6 +287,160 @@ func expandYandexCloudregistryRegistryLabels(ctx context.Context, yandexCloudreg
 		yandexCloudregistryRegistryLabelsRes[k] = elem.ValueString()
 	}
 	return yandexCloudregistryRegistryLabelsRes
+}
+
+type yandexCloudregistryRegistryPatternFilterModel struct {
+	ExcludePatterns types.List `tfsdk:"exclude_patterns"`
+	IncludePatterns types.List `tfsdk:"include_patterns"`
+}
+
+func (m *yandexCloudregistryRegistryPatternFilterModel) GetExcludePatterns() types.List {
+	return m.ExcludePatterns
+}
+func (m *yandexCloudregistryRegistryPatternFilterModel) GetIncludePatterns() types.List {
+	return m.IncludePatterns
+}
+
+func (m *yandexCloudregistryRegistryPatternFilterModel) SetExcludePatterns(target types.List) {
+	m.ExcludePatterns = target
+}
+func (m *yandexCloudregistryRegistryPatternFilterModel) SetIncludePatterns(target types.List) {
+	m.IncludePatterns = target
+}
+
+func NewYandexCloudregistryRegistryPatternFilterModel() yandexCloudregistryRegistryPatternFilterModel {
+	return yandexCloudregistryRegistryPatternFilterModel{
+		ExcludePatterns: types.ListNull(types.StringType),
+		IncludePatterns: types.ListNull(types.StringType),
+	}
+}
+
+func yandexCloudregistryRegistryPatternFilterModelFillUnknown(target yandexCloudregistryRegistryPatternFilterModel) yandexCloudregistryRegistryPatternFilterModel {
+	if target.ExcludePatterns.IsUnknown() || target.ExcludePatterns.IsNull() {
+		target.ExcludePatterns = types.ListNull(types.StringType)
+	}
+	if target.IncludePatterns.IsUnknown() || target.IncludePatterns.IsNull() {
+		target.IncludePatterns = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexCloudregistryRegistryPatternFilterModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"exclude_patterns": types.ListType{ElemType: types.StringType},
+		"include_patterns": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexCloudregistryRegistryPatternFilter(ctx context.Context,
+	yandexCloudregistryRegistryPatternFilter *cloudregistry.PatternFilter,
+	state yandexCloudregistryRegistryPatternFilterModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexCloudregistryRegistryPatternFilter == nil {
+		return types.ObjectNull(yandexCloudregistryRegistryPatternFilterModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexCloudregistryRegistryPatternFilterModelType.AttrTypes, yandexCloudregistryRegistryPatternFilterModel{
+		ExcludePatterns: flattenYandexCloudregistryRegistryPatternFilterExcludePatterns(ctx, yandexCloudregistryRegistryPatternFilter.GetExcludePatterns(), state.ExcludePatterns, diags),
+		IncludePatterns: flattenYandexCloudregistryRegistryPatternFilterIncludePatterns(ctx, yandexCloudregistryRegistryPatternFilter.GetIncludePatterns(), state.IncludePatterns, diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexCloudregistryRegistryPatternFilter(ctx context.Context, yandexCloudregistryRegistryPatternFilterState types.Object, diags *diag.Diagnostics) *cloudregistry.PatternFilter {
+	if yandexCloudregistryRegistryPatternFilterState.IsNull() || yandexCloudregistryRegistryPatternFilterState.IsUnknown() {
+		return nil
+	}
+	var yandexCloudregistryRegistryPatternFilter yandexCloudregistryRegistryPatternFilterModel
+	diags.Append(yandexCloudregistryRegistryPatternFilterState.As(ctx, &yandexCloudregistryRegistryPatternFilter, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexCloudregistryRegistryPatternFilterModel(ctx, yandexCloudregistryRegistryPatternFilter, diags)
+}
+
+func expandYandexCloudregistryRegistryPatternFilterModel(ctx context.Context, yandexCloudregistryRegistryPatternFilterState yandexCloudregistryRegistryPatternFilterModel, diags *diag.Diagnostics) *cloudregistry.PatternFilter {
+	value := &cloudregistry.PatternFilter{}
+	value.SetExcludePatterns(expandYandexCloudregistryRegistryPatternFilterExcludePatterns(ctx, yandexCloudregistryRegistryPatternFilterState.ExcludePatterns, diags))
+	value.SetIncludePatterns(expandYandexCloudregistryRegistryPatternFilterIncludePatterns(ctx, yandexCloudregistryRegistryPatternFilterState.IncludePatterns, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexCloudregistryRegistryPatternFilterExcludePatterns(ctx context.Context, yandexCloudregistryRegistryPatternFilterExcludePatterns []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexCloudregistryRegistryPatternFilterExcludePatterns == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexCloudregistryRegistryPatternFilterExcludePatternsValues []attr.Value
+	for _, elem := range yandexCloudregistryRegistryPatternFilterExcludePatterns {
+		val := types.StringValue(elem)
+		yandexCloudregistryRegistryPatternFilterExcludePatternsValues = append(yandexCloudregistryRegistryPatternFilterExcludePatternsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexCloudregistryRegistryPatternFilterExcludePatternsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexCloudregistryRegistryPatternFilterExcludePatterns(ctx context.Context, yandexCloudregistryRegistryPatternFilterExcludePatternsState types.List, diags *diag.Diagnostics) []string {
+	if yandexCloudregistryRegistryPatternFilterExcludePatternsState.IsNull() || yandexCloudregistryRegistryPatternFilterExcludePatternsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexCloudregistryRegistryPatternFilterExcludePatternsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexCloudregistryRegistryPatternFilterExcludePatternsRes := make([]string, 0, len(yandexCloudregistryRegistryPatternFilterExcludePatternsState.Elements()))
+	yandexCloudregistryRegistryPatternFilterExcludePatternsType := make([]types.String, 0, len(yandexCloudregistryRegistryPatternFilterExcludePatternsState.Elements()))
+	diags.Append(yandexCloudregistryRegistryPatternFilterExcludePatternsState.ElementsAs(ctx, &yandexCloudregistryRegistryPatternFilterExcludePatternsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexCloudregistryRegistryPatternFilterExcludePatternsType {
+		yandexCloudregistryRegistryPatternFilterExcludePatternsRes = append(yandexCloudregistryRegistryPatternFilterExcludePatternsRes, elem.ValueString())
+	}
+	return yandexCloudregistryRegistryPatternFilterExcludePatternsRes
+}
+
+func flattenYandexCloudregistryRegistryPatternFilterIncludePatterns(ctx context.Context, yandexCloudregistryRegistryPatternFilterIncludePatterns []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexCloudregistryRegistryPatternFilterIncludePatterns == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexCloudregistryRegistryPatternFilterIncludePatternsValues []attr.Value
+	for _, elem := range yandexCloudregistryRegistryPatternFilterIncludePatterns {
+		val := types.StringValue(elem)
+		yandexCloudregistryRegistryPatternFilterIncludePatternsValues = append(yandexCloudregistryRegistryPatternFilterIncludePatternsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexCloudregistryRegistryPatternFilterIncludePatternsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexCloudregistryRegistryPatternFilterIncludePatterns(ctx context.Context, yandexCloudregistryRegistryPatternFilterIncludePatternsState types.List, diags *diag.Diagnostics) []string {
+	if yandexCloudregistryRegistryPatternFilterIncludePatternsState.IsNull() || yandexCloudregistryRegistryPatternFilterIncludePatternsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexCloudregistryRegistryPatternFilterIncludePatternsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexCloudregistryRegistryPatternFilterIncludePatternsRes := make([]string, 0, len(yandexCloudregistryRegistryPatternFilterIncludePatternsState.Elements()))
+	yandexCloudregistryRegistryPatternFilterIncludePatternsType := make([]types.String, 0, len(yandexCloudregistryRegistryPatternFilterIncludePatternsState.Elements()))
+	diags.Append(yandexCloudregistryRegistryPatternFilterIncludePatternsState.ElementsAs(ctx, &yandexCloudregistryRegistryPatternFilterIncludePatternsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexCloudregistryRegistryPatternFilterIncludePatternsType {
+		yandexCloudregistryRegistryPatternFilterIncludePatternsRes = append(yandexCloudregistryRegistryPatternFilterIncludePatternsRes, elem.ValueString())
+	}
+	return yandexCloudregistryRegistryPatternFilterIncludePatternsRes
 }
 
 func flattenYandexCloudregistryRegistryProperties(ctx context.Context, yandexCloudregistryRegistryProperties map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
