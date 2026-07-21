@@ -39,7 +39,7 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
-	github.com/yandex-cloud/go-genproto v0.95.0
+	github.com/yandex-cloud/go-genproto v0.97.0
 	github.com/yandex-cloud/go-sdk v0.32.0
 	github.com/yandex-cloud/go-sdk/services/airflow v0.0.26
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.10

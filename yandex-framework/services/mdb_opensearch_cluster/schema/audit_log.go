@@ -57,5 +57,20 @@ func AuditLogAttributes() map[string]schema.Attribute {
 			Optional:            true,
 			Computed:            true,
 		},
+		"log_authenticated_requests": schema.BoolAttribute{
+			MarkdownDescription: "Enables logging of successfully authenticated REST requests.\nFor details, see None.",
+			Optional:            true,
+			Computed:            true,
+		},
+		"log_index_events": schema.BoolAttribute{
+			MarkdownDescription: "Enables logging of index-level events, such as creating or deleting an index.\nFor details, see None.",
+			Optional:            true,
+			Computed:            true,
+		},
+		"log_bad_headers": schema.BoolAttribute{
+			MarkdownDescription: "Enables logging of REST requests containing bad or spoofed security headers.\nFor details, see None.",
+			Optional:            true,
+			Computed:            true,
+		},
 	}
 }

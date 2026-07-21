@@ -205,9 +205,15 @@ resource "yandex_vpc_subnet" "es-subnet-d" {
   - `audit_log` [Block]. OpenSearch audit logs settings.
     - `compliance_enabled` (Bool). Enables audit logging on changes to a security index, such as changes to roles mappings and role creation or deletion.
 For details, see [OpenSearch documentation](https://docs.opensearch.org/latest/security/audit-logs/index/#audit-user-account-manipulation).
+    - `log_authenticated_requests` (Bool). Enables logging of successfully authenticated REST requests.
+For details, see None.
     - `log_backup_operations` (Bool). Enables snapshots and repositories requests logging.
 For details, see None.
+    - `log_bad_headers` (Bool). Enables logging of REST requests containing bad or spoofed security headers.
+For details, see None.
     - `log_data_modifications` (Bool). Enables indices data write request logging.
+For details, see None.
+    - `log_index_events` (Bool). Enables logging of index-level events, such as creating or deleting an index.
 For details, see None.
     - `log_index_maintenance` (Bool). Enables indices maintenance requests logging, such as indices refreshes, flushes and merges.
 For details, see None.

@@ -13,25 +13,31 @@ import (
 )
 
 type AuditLog struct {
-	ComplianceEnabled      types.Bool `tfsdk:"compliance_enabled"`
-	LogRequestBody         types.Bool `tfsdk:"log_request_body"`
-	LogSearchQueries       types.Bool `tfsdk:"log_search_queries"`
-	LogDataModifications   types.Bool `tfsdk:"log_data_modifications"`
-	LogIndexMetadataAccess types.Bool `tfsdk:"log_index_metadata_access"`
-	LogMonitoringChecks    types.Bool `tfsdk:"log_monitoring_checks"`
-	LogIndexMaintenance    types.Bool `tfsdk:"log_index_maintenance"`
-	LogBackupOperations    types.Bool `tfsdk:"log_backup_operations"`
+	ComplianceEnabled        types.Bool `tfsdk:"compliance_enabled"`
+	LogRequestBody           types.Bool `tfsdk:"log_request_body"`
+	LogSearchQueries         types.Bool `tfsdk:"log_search_queries"`
+	LogDataModifications     types.Bool `tfsdk:"log_data_modifications"`
+	LogIndexMetadataAccess   types.Bool `tfsdk:"log_index_metadata_access"`
+	LogMonitoringChecks      types.Bool `tfsdk:"log_monitoring_checks"`
+	LogIndexMaintenance      types.Bool `tfsdk:"log_index_maintenance"`
+	LogBackupOperations      types.Bool `tfsdk:"log_backup_operations"`
+	LogAuthenticatedRequests types.Bool `tfsdk:"log_authenticated_requests"`
+	LogIndexEvents           types.Bool `tfsdk:"log_index_events"`
+	LogBadHeaders            types.Bool `tfsdk:"log_bad_headers"`
 }
 
 var AuditLogTypes = map[string]attr.Type{
-	"compliance_enabled":        types.BoolType,
-	"log_request_body":          types.BoolType,
-	"log_search_queries":        types.BoolType,
-	"log_data_modifications":    types.BoolType,
-	"log_index_metadata_access": types.BoolType,
-	"log_monitoring_checks":     types.BoolType,
-	"log_index_maintenance":     types.BoolType,
-	"log_backup_operations":     types.BoolType,
+	"compliance_enabled":         types.BoolType,
+	"log_request_body":           types.BoolType,
+	"log_search_queries":         types.BoolType,
+	"log_data_modifications":     types.BoolType,
+	"log_index_metadata_access":  types.BoolType,
+	"log_monitoring_checks":      types.BoolType,
+	"log_index_maintenance":      types.BoolType,
+	"log_backup_operations":      types.BoolType,
+	"log_authenticated_requests": types.BoolType,
+	"log_index_events":           types.BoolType,
+	"log_bad_headers":            types.BoolType,
 }
 
 func auditLogToObject(ctx context.Context, cfg *api.AuditLog) (types.Object, diag.Diagnostics) {
@@ -40,14 +46,17 @@ func auditLogToObject(ctx context.Context, cfg *api.AuditLog) (types.Object, dia
 	}
 
 	return types.ObjectValueFrom(ctx, AuditLogTypes, AuditLog{
-		ComplianceEnabled:      types.BoolValue(cfg.GetComplianceEnabled().GetValue()),
-		LogRequestBody:         types.BoolValue(cfg.GetLogRequestBody().GetValue()),
-		LogSearchQueries:       types.BoolValue(cfg.GetLogSearchQueries().GetValue()),
-		LogDataModifications:   types.BoolValue(cfg.GetLogDataModifications().GetValue()),
-		LogIndexMetadataAccess: types.BoolValue(cfg.GetLogIndexMetadataAccess().GetValue()),
-		LogMonitoringChecks:    types.BoolValue(cfg.GetLogMonitoringChecks().GetValue()),
-		LogIndexMaintenance:    types.BoolValue(cfg.GetLogIndexMaintenance().GetValue()),
-		LogBackupOperations:    types.BoolValue(cfg.GetLogBackupOperations().GetValue()),
+		ComplianceEnabled:        types.BoolValue(cfg.GetComplianceEnabled().GetValue()),
+		LogRequestBody:           types.BoolValue(cfg.GetLogRequestBody().GetValue()),
+		LogSearchQueries:         types.BoolValue(cfg.GetLogSearchQueries().GetValue()),
+		LogDataModifications:     types.BoolValue(cfg.GetLogDataModifications().GetValue()),
+		LogIndexMetadataAccess:   types.BoolValue(cfg.GetLogIndexMetadataAccess().GetValue()),
+		LogMonitoringChecks:      types.BoolValue(cfg.GetLogMonitoringChecks().GetValue()),
+		LogIndexMaintenance:      types.BoolValue(cfg.GetLogIndexMaintenance().GetValue()),
+		LogBackupOperations:      types.BoolValue(cfg.GetLogBackupOperations().GetValue()),
+		LogAuthenticatedRequests: types.BoolValue(cfg.GetLogAuthenticatedRequests().GetValue()),
+		LogIndexEvents:           types.BoolValue(cfg.GetLogIndexEvents().GetValue()),
+		LogBadHeaders:            types.BoolValue(cfg.GetLogBadHeaders().GetValue()),
 	})
 }
 
@@ -90,6 +99,18 @@ func PrepareCreateAuditLog(ctx context.Context, planObject types.Object) (*api.A
 
 	if !(plan.LogBackupOperations.IsUnknown() || plan.LogBackupOperations.IsNull()) {
 		res.LogBackupOperations = &wrapperspb.BoolValue{Value: plan.LogBackupOperations.ValueBool()}
+	}
+
+	if !(plan.LogAuthenticatedRequests.IsUnknown() || plan.LogAuthenticatedRequests.IsNull()) {
+		res.LogAuthenticatedRequests = &wrapperspb.BoolValue{Value: plan.LogAuthenticatedRequests.ValueBool()}
+	}
+
+	if !(plan.LogIndexEvents.IsUnknown() || plan.LogIndexEvents.IsNull()) {
+		res.LogIndexEvents = &wrapperspb.BoolValue{Value: plan.LogIndexEvents.ValueBool()}
+	}
+
+	if !(plan.LogBadHeaders.IsUnknown() || plan.LogBadHeaders.IsNull()) {
+		res.LogBadHeaders = &wrapperspb.BoolValue{Value: plan.LogBadHeaders.ValueBool()}
 	}
 
 	return res, diag.Diagnostics{}
@@ -148,6 +169,21 @@ func PrepareUpdateAuditLog(ctx context.Context, planObject, stateObject types.Ob
 	if !plan.LogBackupOperations.IsUnknown() && !plan.LogBackupOperations.Equal(state.LogBackupOperations) {
 		res.LogBackupOperations = &wrapperspb.BoolValue{Value: plan.LogBackupOperations.ValueBool()}
 		updateMask = append(updateMask, "log_backup_operations")
+	}
+
+	if !plan.LogAuthenticatedRequests.IsUnknown() && !plan.LogAuthenticatedRequests.Equal(state.LogAuthenticatedRequests) {
+		res.LogAuthenticatedRequests = &wrapperspb.BoolValue{Value: plan.LogAuthenticatedRequests.ValueBool()}
+		updateMask = append(updateMask, "log_authenticated_requests")
+	}
+
+	if !plan.LogIndexEvents.IsUnknown() && !plan.LogIndexEvents.Equal(state.LogIndexEvents) {
+		res.LogIndexEvents = &wrapperspb.BoolValue{Value: plan.LogIndexEvents.ValueBool()}
+		updateMask = append(updateMask, "log_index_events")
+	}
+
+	if !plan.LogBadHeaders.IsUnknown() && !plan.LogBadHeaders.Equal(state.LogBadHeaders) {
+		res.LogBadHeaders = &wrapperspb.BoolValue{Value: plan.LogBadHeaders.ValueBool()}
+		updateMask = append(updateMask, "log_bad_headers")
 	}
 
 	return res, updateMask, diag.Diagnostics{}
