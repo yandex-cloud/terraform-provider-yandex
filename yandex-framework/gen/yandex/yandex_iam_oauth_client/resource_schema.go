@@ -7,9 +7,12 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -24,6 +27,30 @@ func YandexIamOauthClientResourceSchema(ctx context.Context) schema.Schema {
 		MarkdownDescription: "An OauthClient resource.",
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
+
+			"authentication_methods": schema.ListAttribute{
+				ElementType:         types.StringType,
+				MarkdownDescription: "List of authentication methods allowed for the oauth client.",
+				Description: "List of authentication methods allowed for the oauth client." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.CreateOAuthClientRequest.authentication_methods
+					// -> yandex.cloud.iam.v1.OAuthClient.authentication_methods
+					// -> yandex.cloud.iam.v1.UpdateOAuthClientRequest.authentication_methods
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/oauth_client.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedList(),
+				},
+				Validators: []validator.List{
+					listvalidator.ValueStringsAre(
+						stringvalidator.LengthBetween(0, 255),
+					),
+				},
+			},
 
 			"folder_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the folder oauth client belongs to.",
@@ -105,6 +132,42 @@ func YandexIamOauthClientResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 
+			"pkce_required": schema.BoolAttribute{
+				MarkdownDescription: "Whether PKCE (Proof Key for Code Exchange) is required for the oauth client during the authorization code flow.",
+				Description: "Whether PKCE (Proof Key for Code Exchange) is required for the oauth client during the authorization code flow." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.CreateOAuthClientRequest.pkce_required
+					// -> yandex.cloud.iam.v1.OAuthClient.pkce_required
+					// -> yandex.cloud.iam.v1.UpdateOAuthClientRequest.pkce_required
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/oauth_client.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+
+			"profile_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the profile that defines the set of allowed settings for the oauth client.",
+				Description: "ID of the profile that defines the set of allowed settings for the oauth client." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.CreateOAuthClientRequest.profile_id
+					// -> yandex.cloud.iam.v1.OAuthClient.profile_id
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/oauth_client.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(0, 32),
+				},
+			},
+
 			"redirect_uris": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of redirect uries allowed for the oauth client.",
@@ -148,6 +211,7 @@ func YandexIamOauthClientResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(
+						stringvalidator.RegexMatches(regexp.MustCompile("^([!#-\\[\\]-~]+)$"), "error validating regexp"),
 						stringvalidator.LengthBetween(0, 255),
 					),
 				},

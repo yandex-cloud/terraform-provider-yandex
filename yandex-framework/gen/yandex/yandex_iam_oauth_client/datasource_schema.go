@@ -18,6 +18,17 @@ func YandexIamOauthClientDatasourceSchema(ctx context.Context) schema.Schema {
 		MarkdownDescription: "An OauthClient resource.",
 		Attributes: map[string]schema.Attribute{
 
+			"authentication_methods": schema.ListAttribute{
+				ElementType:         types.StringType,
+				MarkdownDescription: "List of authentication methods allowed for the oauth client.",
+				Description: "List of authentication methods allowed for the oauth client." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.OAuthClient.authentication_methods
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/oauth_client.proto\n",
+				Computed: true,
+			},
+
 			"folder_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the folder oauth client belongs to.",
 				Description: "ID of the folder oauth client belongs to." +
@@ -69,6 +80,26 @@ func YandexIamOauthClientDatasourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(0, 50),
 				},
+			},
+
+			"pkce_required": schema.BoolAttribute{
+				MarkdownDescription: "Whether PKCE (Proof Key for Code Exchange) is required for the oauth client during the authorization code flow.",
+				Description: "Whether PKCE (Proof Key for Code Exchange) is required for the oauth client during the authorization code flow." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.OAuthClient.pkce_required
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/oauth_client.proto\n",
+				Computed: true,
+			},
+
+			"profile_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the profile that defines the set of allowed settings for the oauth client.",
+				Description: "ID of the profile that defines the set of allowed settings for the oauth client." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.OAuthClient.profile_id
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/oauth_client.proto\n",
+				Computed: true,
 			},
 
 			"redirect_uris": schema.SetAttribute{

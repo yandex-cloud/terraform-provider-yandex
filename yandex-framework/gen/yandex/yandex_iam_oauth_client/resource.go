@@ -150,6 +150,9 @@ func (r *yandexIamOauthClientResource) Create(ctx context.Context, req resource.
 	createReq.SetRedirectUris(expandYandexIamOauthClientRedirectUris(ctx, plan.RedirectUris, &diags))
 	createReq.SetScopes(expandYandexIamOauthClientScopes(ctx, plan.Scopes, &diags))
 	createReq.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), r.providerConfig, &diags))
+	createReq.SetAuthenticationMethods(expandYandexIamOauthClientAuthenticationMethods(ctx, plan.AuthenticationMethods, &diags))
+	createReq.SetProfileId(plan.ProfileId.ValueString())
+	createReq.SetPkceRequired(plan.PkceRequired.ValueBool())
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -302,11 +305,23 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Name.Equal(state.Name) {
+	if plan.AuthenticationMethods.IsNull() {
+		plan.AuthenticationMethods = types.ListNull(types.StringType)
+	}
+	if state.AuthenticationMethods.IsNull() {
+		state.AuthenticationMethods = types.ListNull(types.StringType)
+	}
+	if !plan.AuthenticationMethods.IsUnknown() && !plan.AuthenticationMethods.Equal(state.AuthenticationMethods) {
+		updatePaths = append(updatePaths, "authentication_methods")
+	}
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.OauthClientId.Equal(state.OauthClientId) {
+	if !plan.OauthClientId.IsUnknown() && !plan.OauthClientId.Equal(state.OauthClientId) {
 		updatePaths = append(updatePaths, "oauth_client_id")
+	}
+	if !plan.PkceRequired.IsUnknown() && !plan.PkceRequired.Equal(state.PkceRequired) {
+		updatePaths = append(updatePaths, "pkce_required")
 	}
 	if plan.RedirectUris.IsNull() {
 		plan.RedirectUris = types.SetNull(types.StringType)
@@ -314,7 +329,7 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 	if state.RedirectUris.IsNull() {
 		state.RedirectUris = types.SetNull(types.StringType)
 	}
-	if !plan.RedirectUris.Equal(state.RedirectUris) {
+	if !plan.RedirectUris.IsUnknown() && !plan.RedirectUris.Equal(state.RedirectUris) {
 		updatePaths = append(updatePaths, "redirect_uris")
 	}
 	if plan.Scopes.IsNull() {
@@ -323,7 +338,7 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 	if state.Scopes.IsNull() {
 		state.Scopes = types.SetNull(types.StringType)
 	}
-	if !plan.Scopes.Equal(state.Scopes) {
+	if !plan.Scopes.IsUnknown() && !plan.Scopes.Equal(state.Scopes) {
 		updatePaths = append(updatePaths, "scopes")
 	}
 	if len(updatePaths) != 0 {
@@ -333,6 +348,8 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 		updateReq.SetName(plan.Name.ValueString())
 		updateReq.SetRedirectUris(expandYandexIamOauthClientRedirectUris(ctx, plan.RedirectUris, &diags))
 		updateReq.SetScopes(expandYandexIamOauthClientScopes(ctx, plan.Scopes, &diags))
+		updateReq.SetAuthenticationMethods(expandYandexIamOauthClientAuthenticationMethods(ctx, plan.AuthenticationMethods, &diags))
+		updateReq.SetPkceRequired(plan.PkceRequired.ValueBool())
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

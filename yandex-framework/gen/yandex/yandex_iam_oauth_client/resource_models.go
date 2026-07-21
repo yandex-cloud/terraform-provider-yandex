@@ -14,16 +14,22 @@ import (
 )
 
 type yandexIamOauthClientModel struct {
-	FolderId      types.String   `tfsdk:"folder_id"`
-	Name          types.String   `tfsdk:"name"`
-	OauthClientId types.String   `tfsdk:"oauth_client_id"`
-	ID            types.String   `tfsdk:"id"`
-	RedirectUris  types.Set      `tfsdk:"redirect_uris"`
-	Scopes        types.Set      `tfsdk:"scopes"`
-	Status        types.String   `tfsdk:"status"`
-	Timeouts      timeouts.Value `tfsdk:"timeouts"`
+	AuthenticationMethods types.List     `tfsdk:"authentication_methods"`
+	FolderId              types.String   `tfsdk:"folder_id"`
+	Name                  types.String   `tfsdk:"name"`
+	OauthClientId         types.String   `tfsdk:"oauth_client_id"`
+	ID                    types.String   `tfsdk:"id"`
+	PkceRequired          types.Bool     `tfsdk:"pkce_required"`
+	ProfileId             types.String   `tfsdk:"profile_id"`
+	RedirectUris          types.Set      `tfsdk:"redirect_uris"`
+	Scopes                types.Set      `tfsdk:"scopes"`
+	Status                types.String   `tfsdk:"status"`
+	Timeouts              timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexIamOauthClientModel) GetAuthenticationMethods() types.List {
+	return m.AuthenticationMethods
+}
 func (m *yandexIamOauthClientModel) GetFolderId() types.String {
 	return m.FolderId
 }
@@ -36,6 +42,12 @@ func (m *yandexIamOauthClientModel) GetOauthClientId() types.String {
 func (m *yandexIamOauthClientModel) GetID() types.String {
 	return m.ID
 }
+func (m *yandexIamOauthClientModel) GetPkceRequired() types.Bool {
+	return m.PkceRequired
+}
+func (m *yandexIamOauthClientModel) GetProfileId() types.String {
+	return m.ProfileId
+}
 func (m *yandexIamOauthClientModel) GetRedirectUris() types.Set {
 	return m.RedirectUris
 }
@@ -46,19 +58,56 @@ func (m *yandexIamOauthClientModel) GetStatus() types.String {
 	return m.Status
 }
 
+func (m *yandexIamOauthClientModel) SetAuthenticationMethods(target types.List) {
+	m.AuthenticationMethods = target
+}
+func (m *yandexIamOauthClientModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexIamOauthClientModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexIamOauthClientModel) SetOauthClientId(target types.String) {
+	m.OauthClientId = target
+}
+func (m *yandexIamOauthClientModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexIamOauthClientModel) SetPkceRequired(target types.Bool) {
+	m.PkceRequired = target
+}
+func (m *yandexIamOauthClientModel) SetProfileId(target types.String) {
+	m.ProfileId = target
+}
+func (m *yandexIamOauthClientModel) SetRedirectUris(target types.Set) {
+	m.RedirectUris = target
+}
+func (m *yandexIamOauthClientModel) SetScopes(target types.Set) {
+	m.Scopes = target
+}
+func (m *yandexIamOauthClientModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexIamOauthClientModel() yandexIamOauthClientModel {
 	return yandexIamOauthClientModel{
-		FolderId:      types.StringNull(),
-		Name:          types.StringNull(),
-		OauthClientId: types.StringNull(),
-		ID:            types.StringNull(),
-		RedirectUris:  types.SetNull(types.StringType),
-		Scopes:        types.SetNull(types.StringType),
-		Status:        types.StringNull(),
+		AuthenticationMethods: types.ListNull(types.StringType),
+		FolderId:              types.StringNull(),
+		Name:                  types.StringNull(),
+		OauthClientId:         types.StringNull(),
+		ID:                    types.StringNull(),
+		PkceRequired:          types.BoolNull(),
+		ProfileId:             types.StringNull(),
+		RedirectUris:          types.SetNull(types.StringType),
+		Scopes:                types.SetNull(types.StringType),
+		Status:                types.StringNull(),
 	}
 }
 
 func yandexIamOauthClientModelFillUnknown(target yandexIamOauthClientModel) yandexIamOauthClientModel {
+	if target.AuthenticationMethods.IsUnknown() || target.AuthenticationMethods.IsNull() {
+		target.AuthenticationMethods = types.ListNull(types.StringType)
+	}
 	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
 		target.FolderId = types.StringNull()
 	}
@@ -70,6 +119,12 @@ func yandexIamOauthClientModelFillUnknown(target yandexIamOauthClientModel) yand
 	}
 	if target.ID.IsUnknown() || target.ID.IsNull() {
 		target.ID = types.StringNull()
+	}
+	if target.PkceRequired.IsUnknown() || target.PkceRequired.IsNull() {
+		target.PkceRequired = types.BoolNull()
+	}
+	if target.ProfileId.IsUnknown() || target.ProfileId.IsNull() {
+		target.ProfileId = types.StringNull()
 	}
 	if target.RedirectUris.IsUnknown() || target.RedirectUris.IsNull() {
 		target.RedirectUris = types.SetNull(types.StringType)
@@ -85,14 +140,17 @@ func yandexIamOauthClientModelFillUnknown(target yandexIamOauthClientModel) yand
 
 var yandexIamOauthClientModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"folder_id":       types.StringType,
-		"name":            types.StringType,
-		"oauth_client_id": types.StringType,
-		"id":              types.StringType,
-		"redirect_uris":   types.SetType{ElemType: types.StringType},
-		"scopes":          types.SetType{ElemType: types.StringType},
-		"status":          types.StringType,
-		"timeouts":        timeouts.AttributesAll(context.Background()).GetType(),
+		"authentication_methods": types.ListType{ElemType: types.StringType},
+		"folder_id":              types.StringType,
+		"name":                   types.StringType,
+		"oauth_client_id":        types.StringType,
+		"id":                     types.StringType,
+		"pkce_required":          types.BoolType,
+		"profile_id":             types.StringType,
+		"redirect_uris":          types.SetType{ElemType: types.StringType},
+		"scopes":                 types.SetType{ElemType: types.StringType},
+		"status":                 types.StringType,
+		"timeouts":               timeouts.AttributesAll(context.Background()).GetType(),
 	},
 }
 
@@ -105,14 +163,17 @@ func flattenYandexIamOauthClient(ctx context.Context,
 		return types.ObjectNull(yandexIamOauthClientModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexIamOauthClientModelType.AttrTypes, yandexIamOauthClientModel{
-		FolderId:      types.StringValue(yandexIamOauthClient.GetFolderId()),
-		Name:          types.StringValue(yandexIamOauthClient.GetName()),
-		OauthClientId: types.StringValue(yandexIamOauthClient.GetId()),
-		ID:            types.StringValue(yandexIamOauthClient.GetId()),
-		RedirectUris:  flattenYandexIamOauthClientRedirectUris(ctx, yandexIamOauthClient.GetRedirectUris(), state.RedirectUris, diags),
-		Scopes:        flattenYandexIamOauthClientScopes(ctx, yandexIamOauthClient.GetScopes(), state.Scopes, diags),
-		Status:        types.StringValue(yandexIamOauthClient.GetStatus().String()),
-		Timeouts:      to,
+		AuthenticationMethods: flattenYandexIamOauthClientAuthenticationMethods(ctx, yandexIamOauthClient.GetAuthenticationMethods(), state.AuthenticationMethods, diags),
+		FolderId:              types.StringValue(yandexIamOauthClient.GetFolderId()),
+		Name:                  types.StringValue(yandexIamOauthClient.GetName()),
+		OauthClientId:         types.StringValue(yandexIamOauthClient.GetId()),
+		ID:                    types.StringValue(yandexIamOauthClient.GetId()),
+		PkceRequired:          types.BoolValue(yandexIamOauthClient.GetPkceRequired()),
+		ProfileId:             types.StringValue(yandexIamOauthClient.GetProfileId()),
+		RedirectUris:          flattenYandexIamOauthClientRedirectUris(ctx, yandexIamOauthClient.GetRedirectUris(), state.RedirectUris, diags),
+		Scopes:                flattenYandexIamOauthClientScopes(ctx, yandexIamOauthClient.GetScopes(), state.Scopes, diags),
+		Status:                types.StringValue(yandexIamOauthClient.GetStatus().String()),
+		Timeouts:              to,
 	})
 	diags.Append(diag...)
 	return value
@@ -132,10 +193,12 @@ func expandYandexIamOauthClient(ctx context.Context, yandexIamOauthClientState t
 
 func expandYandexIamOauthClientModel(ctx context.Context, yandexIamOauthClientState yandexIamOauthClientModel, diags *diag.Diagnostics) *iam.OAuthClient {
 	value := &iam.OAuthClient{}
+	value.SetAuthenticationMethods(expandYandexIamOauthClientAuthenticationMethods(ctx, yandexIamOauthClientState.AuthenticationMethods, diags))
 	value.SetFolderId(yandexIamOauthClientState.FolderId.ValueString())
 	value.SetName(yandexIamOauthClientState.Name.ValueString())
 	value.SetId(yandexIamOauthClientState.OauthClientId.ValueString())
-	value.SetId(yandexIamOauthClientState.OauthClientId.ValueString())
+	value.SetPkceRequired(yandexIamOauthClientState.PkceRequired.ValueBool())
+	value.SetProfileId(yandexIamOauthClientState.ProfileId.ValueString())
 	value.SetRedirectUris(expandYandexIamOauthClientRedirectUris(ctx, yandexIamOauthClientState.RedirectUris, diags))
 	value.SetScopes(expandYandexIamOauthClientScopes(ctx, yandexIamOauthClientState.Scopes, diags))
 	value.SetStatus(iam.OAuthClient_Status(iam.OAuthClient_Status_value[yandexIamOauthClientState.Status.ValueString()]))
@@ -143,6 +206,43 @@ func expandYandexIamOauthClientModel(ctx context.Context, yandexIamOauthClientSt
 		return nil
 	}
 	return value
+}
+
+func flattenYandexIamOauthClientAuthenticationMethods(ctx context.Context, yandexIamOauthClientAuthenticationMethods []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexIamOauthClientAuthenticationMethods == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexIamOauthClientAuthenticationMethodsValues []attr.Value
+	for _, elem := range yandexIamOauthClientAuthenticationMethods {
+		val := types.StringValue(elem)
+		yandexIamOauthClientAuthenticationMethodsValues = append(yandexIamOauthClientAuthenticationMethodsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexIamOauthClientAuthenticationMethodsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexIamOauthClientAuthenticationMethods(ctx context.Context, yandexIamOauthClientAuthenticationMethodsState types.List, diags *diag.Diagnostics) []string {
+	if yandexIamOauthClientAuthenticationMethodsState.IsNull() || yandexIamOauthClientAuthenticationMethodsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexIamOauthClientAuthenticationMethodsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexIamOauthClientAuthenticationMethodsRes := make([]string, 0, len(yandexIamOauthClientAuthenticationMethodsState.Elements()))
+	yandexIamOauthClientAuthenticationMethodsType := make([]types.String, 0, len(yandexIamOauthClientAuthenticationMethodsState.Elements()))
+	diags.Append(yandexIamOauthClientAuthenticationMethodsState.ElementsAs(ctx, &yandexIamOauthClientAuthenticationMethodsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexIamOauthClientAuthenticationMethodsType {
+		yandexIamOauthClientAuthenticationMethodsRes = append(yandexIamOauthClientAuthenticationMethodsRes, elem.ValueString())
+	}
+	return yandexIamOauthClientAuthenticationMethodsRes
 }
 
 func flattenYandexIamOauthClientRedirectUris(ctx context.Context, yandexIamOauthClientRedirectUris []string, listState types.Set, diags *diag.Diagnostics) types.Set {
