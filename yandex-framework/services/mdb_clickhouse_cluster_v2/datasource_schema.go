@@ -116,6 +116,30 @@ func DataSourceClusterSchema(ctx context.Context) schema.Schema {
 			"shards":                  DataSourceShardsSchema(),
 			"performance_diagnostics": DataSourcePerformanceDiagnosticsSchema(),
 			"external_dictionary":     DataSourceExternalDictionarySchema(),
+			"full_version": schema.StringAttribute{
+				MarkdownDescription: "Full version of the ClickHouse server software.",
+				Computed:            true,
+			},
+			"monitoring": schema.ListNestedAttribute{
+				MarkdownDescription: "Description of monitoring systems relevant to the ClickHouse cluster.",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							MarkdownDescription: "Name of the monitoring system.",
+							Computed:            true,
+						},
+						"description": schema.StringAttribute{
+							MarkdownDescription: "Description of the monitoring system.",
+							Computed:            true,
+						},
+						"link": schema.StringAttribute{
+							MarkdownDescription: "Link to the monitoring system charts for the ClickHouse cluster.",
+							Computed:            true,
+						},
+					},
+				},
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"shard_group":        DataSourceShardGroupSchema(),
@@ -563,6 +587,37 @@ func DataSourceClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"graphite_rollup":     DataSourceGraphiteRollupSchema(),
 			"query_masking_rules": DataSourceQueryMaskingRulesSchema(),
 			"custom_macros":       DataSourceCustomMacrosSchema(),
+			"mark_cache_size": schema.Int64Attribute{
+				MarkdownDescription: "Size of the cache for marks (index blocks).",
+				Computed:            true,
+			},
+			"vector_similarity_index_cache_size": schema.Int64Attribute{
+				MarkdownDescription: "Maximum size of the cache for vector similarity index.",
+				Computed:            true,
+			},
+			"vector_similarity_index_cache_max_entries": schema.Int64Attribute{
+				MarkdownDescription: "Maximum number of entries in the vector similarity index cache.",
+				Computed:            true,
+			},
+			"max_build_vector_similarity_index_thread_pool_size": schema.Int64Attribute{
+				MarkdownDescription: "Maximum number of threads for building vector similarity indexes.",
+				Computed:            true,
+			},
+			"tls": DataSourceTlsSchema(),
+		},
+	}
+}
+
+func DataSourceTlsSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "TLS configuration for outgoing connections from ClickHouse.",
+		Computed:            true,
+		Attributes: map[string]schema.Attribute{
+			"trusted_certificates": schema.ListAttribute{
+				MarkdownDescription: "CA certificates in PEM format.",
+				Computed:            true,
+				ElementType:         types.StringType,
+			},
 		},
 	}
 }

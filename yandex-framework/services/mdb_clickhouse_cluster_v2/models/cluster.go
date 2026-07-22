@@ -47,6 +47,8 @@ type ClusterResource struct {
 	AllowHostRecreation    types.Bool     `tfsdk:"allow_host_recreation"`
 	Restore                types.Object   `tfsdk:"restore"`
 	PerformanceDiagnostics types.Object   `tfsdk:"performance_diagnostics"`
+	Monitoring             types.List     `tfsdk:"monitoring"`
+	FullVersion            types.String   `tfsdk:"full_version"`
 }
 
 var ClusterResourceAttrTypes = map[string]attr.Type{
@@ -89,6 +91,8 @@ var ClusterResourceAttrTypes = map[string]attr.Type{
 	"allow_host_recreation":    types.BoolType,
 	"restore":                  types.ObjectType{AttrTypes: RestoreAttrTypes},
 	"performance_diagnostics":  types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
+	"monitoring":               types.ListType{ElemType: types.ObjectType{AttrTypes: MonitoringAttrTypes}},
+	"full_version":             types.StringType,
 }
 
 type ClusterDataSource struct {
@@ -131,6 +135,8 @@ type ClusterDataSource struct {
 	Timeouts             timeouts.Value `tfsdk:"timeouts"`
 	CopySchemaOnNewHosts types.Bool     `tfsdk:"copy_schema_on_new_hosts"`
 	AllowHostRecreation  types.Bool     `tfsdk:"allow_host_recreation"`
+	Monitoring           types.List     `tfsdk:"monitoring"`
+	FullVersion          types.String   `tfsdk:"full_version"`
 }
 
 var ClusterDataSourceTypes = map[string]attr.Type{
@@ -172,4 +178,6 @@ var ClusterDataSourceTypes = map[string]attr.Type{
 	"timeouts":                 timeouts.Type{},
 	"copy_schema_on_new_hosts": types.BoolType,
 	"allow_host_recreation":    types.BoolType,
+	"monitoring":               types.ListType{ElemType: types.ObjectType{AttrTypes: MonitoringAttrTypes}},
+	"full_version":             types.StringType,
 }

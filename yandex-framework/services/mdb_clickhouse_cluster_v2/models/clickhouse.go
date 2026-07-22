@@ -28,9 +28,14 @@ func FlattenClickHouse(ctx context.Context, prevClickHouse types.Object, clickho
 		return types.ObjectNull(ClickhouseAttrTypes)
 	}
 
+	effectiveCfg := clickhouse.Config.EffectiveConfig
+	if effectiveCfg == nil {
+		return types.ObjectNull(ClickhouseAttrTypes)
+	}
+
 	obj, d := types.ObjectValueFrom(
 		ctx, ClickhouseAttrTypes, Clickhouse{
-			Config:              FlattenClickHouseConfig(ctx, prevClickHouse, clickhouse.Config.EffectiveConfig, diags),
+			Config:              FlattenClickHouseConfig(ctx, prevClickHouse, effectiveCfg, effectiveCfg.GetTls(), diags),
 			Resources:           mdbcommon.FlattenResources(ctx, clickhouse.Resources, diags),
 			DiskSizeAutoscaling: FlattenDiskSizeAutoscaling(ctx, clickhouse.DiskSizeAutoscaling, diags),
 		},

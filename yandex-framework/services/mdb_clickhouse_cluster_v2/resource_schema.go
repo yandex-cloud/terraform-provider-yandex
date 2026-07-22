@@ -160,6 +160,36 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			"restore":                 RestoreSchema(),
 			"performance_diagnostics": PerformanceDiagnosticsSchema(),
 			"external_dictionary":     ExternalDictionarySchema(),
+			"full_version": schema.StringAttribute{
+				Description: "Full version of the ClickHouse server software.",
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					customplanmodifiers.FullVersionPlanModifier(),
+				},
+			},
+			"monitoring": schema.ListNestedAttribute{
+				Description: "Description of monitoring systems relevant to the ClickHouse cluster.",
+				Computed:    true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							Description: "Name of the monitoring system.",
+							Computed:    true,
+						},
+						"description": schema.StringAttribute{
+							Description: "Description of the monitoring system.",
+							Computed:    true,
+						},
+						"link": schema.StringAttribute{
+							Description: "Link to the monitoring system charts for the ClickHouse cluster.",
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"shard_group":        ShardGroupSchema(),
@@ -969,6 +999,40 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"graphite_rollup":     GraphiteRollupSchema(),
 			"query_masking_rules": QueryMaskingRulesSchema(),
 			"custom_macros":       CustomMacrosSchema(),
+			"mark_cache_size": schema.Int64Attribute{
+				Description: "Size of the cache for marks (index blocks). For details, see [ClickHouse documentation](https://clickhouse.com/docs/operations/server-configuration-parameters/settings#mark_cache_size).",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+					customplanmodifiers.MarkCacheSizePlanModifier(),
+				},
+			},
+			"vector_similarity_index_cache_size": schema.Int64Attribute{
+				Description: "Maximum size of the cache for vector similarity index. For details, see [ClickHouse documentation](https://clickhouse.com/docs/operations/server-configuration-parameters/settings#vector_similarity_index_cache_size).",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"vector_similarity_index_cache_max_entries": schema.Int64Attribute{
+				Description: "Maximum number of entries in the vector similarity index cache. For details, see [ClickHouse documentation](https://clickhouse.com/docs/operations/server-configuration-parameters/settings#vector_similarity_index_cache_max_entries).",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"max_build_vector_similarity_index_thread_pool_size": schema.Int64Attribute{
+				Description: "Maximum number of threads for building vector similarity indexes. For details, see [ClickHouse documentation](https://clickhouse.com/docs/operations/server-configuration-parameters/settings#max_build_vector_similarity_index_thread_pool_size).",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"tls": TlsSchema(),
 		},
 	}
 }
@@ -2505,6 +2569,20 @@ func RestoreSchema() schema.SingleNestedAttribute {
 				PlanModifiers: []planmodifier.List{
 					listplanmodifier.RequiresReplace(),
 				},
+			},
+		},
+	}
+}
+
+func TlsSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		Description: "TLS configuration for outgoing connections from ClickHouse (e.g. remote tables, dictionaries). Change of the settings is applied with restart.",
+		Optional:    true,
+		Attributes: map[string]schema.Attribute{
+			"trusted_certificates": schema.ListAttribute{
+				Description: "CA certificates in PEM format. Each element must contain a single self-signed CA certificate or a certificate chain ordered as leaf -> intermediates -> self-signed root. Change of the setting is applied with restart.",
+				Optional:    true,
+				ElementType: types.StringType,
 			},
 		},
 	}

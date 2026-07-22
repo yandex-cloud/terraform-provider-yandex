@@ -321,10 +321,28 @@ func getClickHouseConfigUpdatePaths(ctx context.Context, planClickHouse, stateCl
 					models.JdbcBridgeAttrTypes,
 					"config_spec.clickhouse.config.jdbc_bridge.",
 				)
+			case "tls":
+				planTls := planClickHouseConfig.Tls
+				stateTls := stateClickHouseConfig.Tls
+				switch {
+				case planTls.IsNull() && stateTls.IsNull():
+				case planTls.IsNull() || stateTls.IsNull():
+					for field := range models.ClickhouseTlsAttrTypes {
+						updateMaskPaths = append(updateMaskPaths, "config_spec.clickhouse.config.tls."+field)
+					}
+				default:
+					updateMaskPaths = appendNestedConfigUpdatePaths(
+						updateMaskPaths,
+						planTls.Attributes(),
+						stateTls.Attributes(),
+						models.ClickhouseTlsAttrTypes,
+						"config_spec.clickhouse.config.tls.",
+					)
+				}
 			default:
 				planVal := planClickHouse.Config.Attributes()[setting]
 				stateVal := stateClickHouse.Config.Attributes()[setting]
-				if !planVal.Equal(stateVal) {
+				if planVal != nil && !planVal.IsUnknown() && !planVal.Equal(stateVal) {
 					updateMaskPaths = append(
 						updateMaskPaths,
 						"config_spec.clickhouse.config."+setting,
