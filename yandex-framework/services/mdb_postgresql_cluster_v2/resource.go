@@ -420,7 +420,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 						},
 						Attributes: map[string]schema.Attribute{
 							"disk_size_limit": schema.Int64Attribute{
-								Description: "The overall maximum for disk size that limit all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.",
+								Description: "The overall maximum for disk size (GB) that limits all autoscaling iterations. See the [documentation](https://yandex.cloud/en/docs/managed-postgresql/concepts/storage#auto-rescale) for details.",
 								Required:    true,
 								Validators: []validator.Int64{
 									mdbcommon.Int64GreaterValidator(path.MatchRoot("config").AtName("resources").AtName("disk_size")),

@@ -236,7 +236,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				},
 				Attributes: map[string]schema.Attribute{
 					"disk_size_limit": schema.Int64Attribute{
-						Description: "Limit of disk size after autoscaling (GiB).",
+						Description: "The overall maximum for disk size (GB) that limits all autoscaling iterations.",
 						Required:    true,
 						Validators: []validator.Int64{
 							mdbcommon.Int64GreaterValidator(path.MatchRoot("resources").AtName("disk_size")),

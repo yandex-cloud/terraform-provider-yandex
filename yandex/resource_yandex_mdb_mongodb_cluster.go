@@ -371,7 +371,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
 							Type:        schema.TypeInt,
-							Description: "Limit of disk size after autoscaling (GiB).",
+							Description: "The overall maximum for disk size (GB) that limits all autoscaling iterations.",
 							Required:    true,
 						},
 						"planned_usage_threshold": {
@@ -397,7 +397,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
 							Type:        schema.TypeInt,
-							Description: "Limit of disk size after autoscaling (GiB).",
+							Description: "The overall maximum for disk size (GB) that limits all autoscaling iterations.",
 							Required:    true,
 						},
 						"planned_usage_threshold": {
@@ -423,7 +423,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
 							Type:        schema.TypeInt,
-							Description: "Limit of disk size after autoscaling (GiB).",
+							Description: "The overall maximum for disk size (GB) that limits all autoscaling iterations.",
 							Required:    true,
 						},
 						"planned_usage_threshold": {
@@ -449,7 +449,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
 							Type:        schema.TypeInt,
-							Description: "Limit of disk size after autoscaling (GiB).",
+							Description: "The overall maximum for disk size (GB) that limits all autoscaling iterations.",
 							Required:    true,
 						},
 						"planned_usage_threshold": {

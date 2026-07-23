@@ -147,19 +147,19 @@ output "network_id" {
 - `database` [Block]. A database of the MongoDB cluster.
   - `name` (**Required**)(String). The name of the database.
 - `disk_size_autoscaling_mongocfg` [Block]. Disk size autoscaling settings for mongocfg.
-  - `disk_size_limit` (**Required**)(Number). Limit of disk size after autoscaling (GiB).
+  - `disk_size_limit` (**Required**)(Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
   - `emergency_usage_threshold` (Number). Immediate autoscaling disk usage (percent).
   - `planned_usage_threshold` (Number). Maintenance window autoscaling disk usage (percent).
 - `disk_size_autoscaling_mongod` [Block]. Disk size autoscaling settings for mongod.
-  - `disk_size_limit` (**Required**)(Number). Limit of disk size after autoscaling (GiB).
+  - `disk_size_limit` (**Required**)(Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
   - `emergency_usage_threshold` (Number). Immediate autoscaling disk usage (percent).
   - `planned_usage_threshold` (Number). Maintenance window autoscaling disk usage (percent).
 - `disk_size_autoscaling_mongoinfra` [Block]. Disk size autoscaling settings for mongoinfra.
-  - `disk_size_limit` (**Required**)(Number). Limit of disk size after autoscaling (GiB).
+  - `disk_size_limit` (**Required**)(Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
   - `emergency_usage_threshold` (Number). Immediate autoscaling disk usage (percent).
   - `planned_usage_threshold` (Number). Maintenance window autoscaling disk usage (percent).
 - `disk_size_autoscaling_mongos` [Block]. Disk size autoscaling settings for mongos.
-  - `disk_size_limit` (**Required**)(Number). Limit of disk size after autoscaling (GiB).
+  - `disk_size_limit` (**Required**)(Number). The overall maximum for disk size (GB) that limits all autoscaling iterations.
   - `emergency_usage_threshold` (Number). Immediate autoscaling disk usage (percent).
   - `planned_usage_threshold` (Number). Maintenance window autoscaling disk usage (percent).
 - `host` [Block]. A host of the MongoDB cluster.

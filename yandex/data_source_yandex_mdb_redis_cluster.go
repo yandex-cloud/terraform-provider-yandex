@@ -216,7 +216,7 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 						"disk_size_limit": {
 							Type:        schema.TypeInt,
 							Computed:    true,
-							Description: "Limit of disk size after autoscaling (GiB).",
+							Description: "The overall maximum for disk size (GB) that limits all autoscaling iterations.",
 						},
 						"planned_usage_threshold": {
 							Type:        schema.TypeInt,

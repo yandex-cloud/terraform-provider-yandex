@@ -416,7 +416,7 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 				Attributes: map[string]schema.Attribute{
 					"disk_size_limit": schema.Int64Attribute{
 						Required:            true,
-						MarkdownDescription: "Limit of disk size after autoscaling (GiB).",
+						MarkdownDescription: "The overall maximum for disk size (GB) that limits all autoscaling iterations.",
 					},
 					"planned_usage_threshold": schema.Int64Attribute{
 						Optional: true,
