@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1"
 )
 
@@ -64,6 +66,7 @@ func TestAccSmartwebsecuritySecurityProfile_UpgradeFromSDKv2(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "name", name),
 					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "default_action", "ALLOW"),
+					testAccCheckSmartwebsecuritySecurityProfileASNMatchers,
 				),
 			},
 			{
@@ -77,6 +80,50 @@ func TestAccSmartwebsecuritySecurityProfile_UpgradeFromSDKv2(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckSmartwebsecuritySecurityProfileASNMatchers(s *terraform.State) error {
+	const resourceName = "yandex_sws_security_profile.this"
+
+	rs, ok := s.RootModule().Resources[resourceName]
+	if !ok {
+		return fmt.Errorf("resource %q not found in state", resourceName)
+	}
+
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("failed to create SWS client: %w", err)
+	}
+
+	profile, err := conf.sdk.SmartWebSecurity().SecurityProfile().Get(
+		conf.Context(),
+		&smartwebsecurity.GetSecurityProfileRequest{SecurityProfileId: rs.Primary.ID},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to get SWS security profile %q: %w", rs.Primary.ID, err)
+	}
+
+	for _, rule := range profile.SecurityRules {
+		if rule.Name != "rule-condition-3" {
+			continue
+		}
+
+		sourceIP := rule.GetRuleCondition().GetCondition().GetSourceIp()
+		if sourceIP == nil {
+			return fmt.Errorf("source_ip is missing in rule %q", rule.Name)
+		}
+
+		if got, want := sourceIP.GetAsnRangesMatch().GetAsnRanges(), []int64{64496, 4294967295}; !reflect.DeepEqual(got, want) {
+			return fmt.Errorf("unexpected ASN ranges to match: got %v, want %v", got, want)
+		}
+		if got, want := sourceIP.GetAsnRangesNotMatch().GetAsnRanges(), []int64{0}; !reflect.DeepEqual(got, want) {
+			return fmt.Errorf("unexpected ASN ranges to not match: got %v, want %v", got, want)
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf("rule %q not found in SWS security profile", "rule-condition-3")
 }
 
 func testAccSmartwebsecuritySecurityProfileBasicMigration(targetName string) string {
@@ -180,6 +227,12 @@ resource "yandex_sws_security_profile" "this" {
           }
           geo_ip_not_match {
             locations = ["us", "fm", "gb"]
+          }
+          asn_ranges_match {
+            asn_ranges = [64496, 4294967295]
+          }
+          asn_ranges_not_match {
+            asn_ranges = [0]
           }
         }
       }
