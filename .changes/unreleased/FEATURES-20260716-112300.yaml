@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'opensearch: add server flags log_authenticated_requests,log_index_events,log_bad_headers'
-time: 2026-07-16T11:23:00.992874743+03:00
