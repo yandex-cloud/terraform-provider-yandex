@@ -28,14 +28,21 @@ current_time = $(shell date +"%Y-%m-%dT%H-%M-%SZ")
 LDFLAGS = -ldflags "-s -w -X github.com/yandex-cloud/terraform-provider-yandex/version.ProviderVersion=${version_tag}-${current_time}+dev.${commit_hash}"
 
 
-TFGEN_MK := ./tools/tfgen/gen.mk
--include $(TFGEN_MK)
+LOCAL_TFGEN_MK := ./tools/tfgen/gen.mk
+-include $(LOCAL_TFGEN_MK)
 
-# Define fallback targets if the file doesn't exist
-ifeq ($(wildcard $(TFGEN_MK)),)
-    # Define dummy targets or alternative behavior
+# Define fallback targets if tools/tfgen is not copied to a standalone checkout.
+ifeq ($(wildcard $(LOCAL_TFGEN_MK)),)
+    .PHONY: generate-public-api-desc generate-public release-generate
+    generate-public-api-desc:
+	    @echo "$(LOCAL_TFGEN_MK) not found, skipping public API descriptor generation"
+
     generate-public:
-	    @echo "tfgen.mk not found, skipping tfgen operations"
+	    @echo "$(LOCAL_TFGEN_MK) not found, using committed generated Terraform provider"
+
+    release-generate:
+	    @echo "$(LOCAL_TFGEN_MK) not found; release generation requires the tfgen integration" >&2
+	    @exit 1
 endif
 
 TFDOCGEN_MK := ./tools/tfdocgen/tfdocgen.mk
@@ -43,7 +50,8 @@ TFDOCGEN_MK := ./tools/tfdocgen/tfdocgen.mk
 
 ifeq ($(wildcard $(TFDOCGEN_MK)),)
     generate-docs:
-	    @echo "tfdocgen.mk not found, skipping tfdocgen operations"
+	    @echo "$(TFDOCGEN_MK) not found; documentation generation is unavailable" >&2
+	    @exit 1
 endif
 
 default: build
@@ -110,18 +118,19 @@ install-yfm:
 affected-lint-provider-docs:
 	@sh -c "'$(CURDIR)//scripts/affectedocs.sh'"
 
-build-website: generate-docs
+build-website:
 	go run tools/cmd/generate-toc/generate_toc.go ./docs && \
  	yfm -i ./docs -o ./output-folder -c .yfm -v '{"version": "$(SEMVER)"}'
 
 # to run this command please set YFM_STORAGE_SECRET_KEY and YFM_STORAGE_KEY_ID of the bucket
-publish-website: generate-docs
+publish-website:
 	go run tools/cmd/generate-toc/generate_toc.go ./docs && \
 	yfm -i ./docs -o ./output-folder -c .yfm -v '{"version": "$(SEMVER)"}' --publish
 
 validate-docs:
 	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs validate -provider-name ${PKG_NAME}
 
-generate: generate-public-api-desc generate-public generate-docs
+generate:
+	@echo "Public Terraform generation is release-only; use release-generate and generate-docs in release pipeline"
 
-.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs install-yfm affected-lint-provider-docs generate
+.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint build-website publish-website generate-docs install-yfm affected-lint-provider-docs generate release-generate
