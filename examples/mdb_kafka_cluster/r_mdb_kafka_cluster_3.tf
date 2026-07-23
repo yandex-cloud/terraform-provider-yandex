@@ -44,6 +44,7 @@ resource "yandex_mdb_kafka_cluster" "kraft-split" {
         offsets_retention_minutes       = 10080
         sasl_enabled_mechanisms         = ["SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"]
         transactional_id_expiration_ms  = 604800000
+        log_message_timestamp_type      = "MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME"
       }
     }
     kraft {

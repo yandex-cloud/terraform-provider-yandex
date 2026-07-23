@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_kafka_cluster: add log_message_timestamp_type cluster setting'
+time: 2026-07-20T12:13:42.026995+03:00

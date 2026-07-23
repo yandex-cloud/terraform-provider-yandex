@@ -137,6 +137,15 @@ func parseKafkaTopicMessageTimestampType(e string) (TopicMessageTimestampType, e
 	return TopicMessageTimestampType(v), nil
 }
 
+func parseKafkaMessageTimestampType(e string) (kafka.MessageTimestampType, error) {
+	v, ok := kafka.MessageTimestampType_value[e]
+	if !ok || e == kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED.String() {
+		return 0, fmt.Errorf("value for 'log_message_timestamp_type' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeysExt(kafka.MessageTimestampType_value, true)), e)
+	}
+	return kafka.MessageTimestampType(v), nil
+}
+
 func parseIntKafkaConfigParam(d *schema.ResourceData, paramName string, retErr *error) *wrappers.Int64Value {
 	v, ok := d.GetOk(kafkaConfigPath + "." + paramName)
 	if !ok {
@@ -195,6 +204,7 @@ type KafkaConfig struct {
 	OffsetsRetentionMinutes     *wrappers.Int64Value
 	SaslEnabledMechanisms       []kafka.SaslMechanism
 	TransactionalIdExpirationMs *wrappers.Int64Value
+	LogMessageTimestampType     kafka.MessageTimestampType
 }
 
 func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
@@ -241,6 +251,13 @@ func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
 		}
 		res.SaslEnabledMechanisms = mechanisms
 	}
+	if v, ok := d.GetOk(kafkaConfigPath + ".log_message_timestamp_type"); ok {
+		timestampType, err := parseKafkaMessageTimestampType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		res.LogMessageTimestampType = timestampType
+	}
 
 	if retErr != nil {
 		return nil, retErr
@@ -275,6 +292,7 @@ func expandKafkaConfig2_8(d *schema.ResourceData) (*kafka.KafkaConfig2_8, error)
 		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
 		SaslEnabledMechanisms:       kafkaConfig.SaslEnabledMechanisms,
 		TransactionalIdExpirationMs: kafkaConfig.TransactionalIdExpirationMs,
+		LogMessageTimestampType:     kafkaConfig.LogMessageTimestampType,
 	}, nil
 }
 
@@ -304,6 +322,7 @@ func expandKafkaConfig3x(d *schema.ResourceData) (*kafka.KafkaConfig3, error) {
 		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
 		SaslEnabledMechanisms:       kafkaConfig.SaslEnabledMechanisms,
 		TransactionalIdExpirationMs: kafkaConfig.TransactionalIdExpirationMs,
+		LogMessageTimestampType:     kafkaConfig.LogMessageTimestampType,
 	}, nil
 }
 
@@ -333,6 +352,7 @@ func expandKafkaConfig4x(d *schema.ResourceData) (*kafka.KafkaConfig4, error) {
 		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
 		SaslEnabledMechanisms:       kafkaConfig.SaslEnabledMechanisms,
 		TransactionalIdExpirationMs: kafkaConfig.TransactionalIdExpirationMs,
+		LogMessageTimestampType:     kafkaConfig.LogMessageTimestampType,
 	}, nil
 }
 
@@ -778,6 +798,7 @@ type KafkaConfigSettings interface {
 	GetOffsetsRetentionMinutes() *wrappers.Int64Value
 	GetSaslEnabledMechanisms() []kafka.SaslMechanism
 	GetTransactionalIdExpirationMs() *wrappers.Int64Value
+	GetLogMessageTimestampType() kafka.MessageTimestampType
 }
 
 func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]interface{}, error) {
@@ -842,6 +863,9 @@ func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]int
 	}
 	if kafkaConfig.GetTransactionalIdExpirationMs() != nil {
 		res["transactional_id_expiration_ms"] = strconv.FormatInt(kafkaConfig.GetTransactionalIdExpirationMs().GetValue(), 10)
+	}
+	if kafkaConfig.GetLogMessageTimestampType() != kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED {
+		res["log_message_timestamp_type"] = kafkaConfig.GetLogMessageTimestampType().String()
 	}
 	return res, nil
 }

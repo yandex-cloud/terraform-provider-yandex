@@ -61,6 +61,137 @@ resource "yandex_kms_symmetric_key" "disk_encrypt" {}
 
 var Versions3x = []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.9"}
 
+func TestKafkaLogMessageTimestampTypeExpansionAndUpdateMask(t *testing.T) {
+	tests := []struct {
+		name      string
+		version   string
+		value     string
+		enumValue kafka.MessageTimestampType
+		maskPath  string
+	}{
+		{
+			name:      "kafka_2_8",
+			version:   "2.8",
+			value:     "MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME",
+			enumValue: kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME,
+			maskPath:  "config_spec.kafka.kafka_config_2_8.log_message_timestamp_type",
+		},
+		{
+			name:      "kafka_3",
+			version:   "3.9",
+			value:     "MESSAGE_TIMESTAMP_TYPE_CREATE_TIME",
+			enumValue: kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_CREATE_TIME,
+			maskPath:  "config_spec.kafka.kafka_config_3.log_message_timestamp_type",
+		},
+		{
+			name:      "kafka_4",
+			version:   "4.0",
+			value:     "MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME",
+			enumValue: kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME,
+			maskPath:  "config_spec.kafka.kafka_config_4.log_message_timestamp_type",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			raw := map[string]interface{}{
+				"config": []interface{}{
+					map[string]interface{}{
+						"version": test.version,
+						"kafka": []interface{}{
+							map[string]interface{}{
+								"kafka_config": []interface{}{
+									map[string]interface{}{
+										"log_message_timestamp_type": test.value,
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+			resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
+
+			spec, err := expandKafkaConfigSpec(resourceData)
+			require.NoError(t, err)
+
+			var settings KafkaConfigSettings
+			switch test.name {
+			case "kafka_2_8":
+				settings = spec.Kafka.GetKafkaConfig_2_8()
+			case "kafka_3":
+				settings = spec.Kafka.GetKafkaConfig_3()
+			case "kafka_4":
+				settings = spec.Kafka.GetKafkaConfig_4()
+			}
+			require.NotNil(t, settings)
+			assert.Equal(t, test.enumValue, settings.GetLogMessageTimestampType())
+
+			req, err := kafkaClusterUpdateRequestWithMask(resourceData, &Config{})
+			require.NoError(t, err)
+			require.NotNil(t, req)
+			assert.Contains(t, req.UpdateMask.Paths, test.maskPath)
+		})
+	}
+}
+
+func TestKafkaLogMessageTimestampTypeResetRequest(t *testing.T) {
+	config := func(timestampType string) map[string]interface{} {
+		kafkaConfig := map[string]interface{}{}
+		if timestampType != "" {
+			kafkaConfig["log_message_timestamp_type"] = timestampType
+		}
+		return map[string]interface{}{
+			"config": []interface{}{
+				map[string]interface{}{
+					"version": "3.9",
+					"kafka": []interface{}{
+						map[string]interface{}{
+							"kafka_config": []interface{}{kafkaConfig},
+						},
+					},
+				},
+			},
+		}
+	}
+
+	resourceUnderTest := resourceYandexMDBKafkaCluster()
+	oldData := schema.TestResourceDataRaw(
+		t,
+		resourceUnderTest.Schema,
+		config("MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME"),
+	)
+	oldData.SetId("cluster-id")
+
+	diff, err := resourceUnderTest.Diff(
+		context.Background(),
+		oldData.State(),
+		terraform2.NewResourceConfigRaw(config("")),
+		nil,
+	)
+	require.NoError(t, err)
+
+	var request *kafka.UpdateClusterRequest
+	resourceUnderTest.Update = func(d *schema.ResourceData, meta interface{}) error {
+		request, err = kafkaClusterUpdateRequestWithMask(d, &Config{})
+		return err
+	}
+
+	_, diagnostics := resourceUnderTest.Apply(context.Background(), oldData.State(), diff, nil)
+	require.False(t, diagnostics.HasError(), diagnostics)
+	require.NotNil(t, request)
+	assert.Equal(
+		t,
+		kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED,
+		request.ConfigSpec.Kafka.GetKafkaConfig_3().GetLogMessageTimestampType(),
+	)
+	assert.Contains(
+		t,
+		request.UpdateMask.Paths,
+		"config_spec.kafka.kafka_config_3.log_message_timestamp_type",
+	)
+}
+
 func init() {
 	resource.AddTestSweepers(kfResourceType, &resource.Sweeper{
 		Name: kfResourceType,
@@ -1320,6 +1451,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.access.0.data_transfer", "true"),
 					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.rest_api.0.enabled", "false"),
 					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka_ui.0.enabled", "false"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka.0.kafka_config.0.log_message_timestamp_type", "MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 16*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResourceFoo, []string{"raw_events", "final"}),
@@ -1327,6 +1459,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
 					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, []kafka.SaslMechanism{kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256}),
+					testAccCheckMDBKafkaClusterLogMessageTimestampType(&r, kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME),
 					testAccCheckMDBKafkaTopicMaxMessageBytes(kfResourceFoo, "raw_events", 777216),
 					testAccCheckMDBKafkaTopicConfig(kfResourceFoo, "raw_events", &kafka.TopicConfig3{
 						CleanupPolicy:   kafka.TopicConfig3_CLEANUP_POLICY_COMPACT_AND_DELETE,
@@ -1340,7 +1473,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 			mdbKafkaClusterImportStep(kfResourceFoo),
 			// Change some options
 			{
-				Config: testAccMDBKafkaClusterConfigUpdated(kfName, kfDescUpdated),
+				Config: testAccMDBKafkaClusterConfigUpdated(kfName, kfDescUpdated, "MESSAGE_TIMESTAMP_TYPE_CREATE_TIME"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBKafkaClusterExists(kfResourceFoo, &r, 1),
 					resource.TestCheckResourceAttr(kfResourceFoo, "name", kfName),
@@ -1350,6 +1483,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.rest_api.0.enabled", "true"),
 					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka_ui.0.enabled", "true"),
 					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.schema_registry", "true"),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka.0.kafka_config.0.log_message_timestamp_type", "MESSAGE_TIMESTAMP_TYPE_CREATE_TIME"),
 					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.version", currentDefaultKafkaVersion),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaClusterHasTopics(kfResourceFoo, []string{"raw_events", "new_topic"}),
@@ -1358,6 +1492,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
 					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, []kafka.SaslMechanism{kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256, kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_512}),
+					testAccCheckMDBKafkaClusterLogMessageTimestampType(&r, kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_CREATE_TIME),
 					testAccCheckMDBKafkaTopicConfig(kfResourceFoo, "raw_events", &kafka.TopicConfig3{
 						CleanupPolicy:   kafka.TopicConfig3_CLEANUP_POLICY_DELETE,
 						MaxMessageBytes: &wrappers.Int64Value{Value: 554432},
@@ -1365,6 +1500,15 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 						FlushMs:         &wrappers.Int64Value{Value: 9223372036854775807},
 					}),
 					testAccCheckCreatedAtAttr(kfResourceFoo),
+				),
+			},
+			// Reset log.message.timestamp.type to the service default.
+			{
+				Config: testAccMDBKafkaClusterConfigUpdated(kfName, kfDescUpdated, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBKafkaClusterExists(kfResourceFoo, &r, 1),
+					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka.0.kafka_config.0.log_message_timestamp_type", ""),
+					testAccCheckMDBKafkaClusterLogMessageTimestampType(&r, kafka.MessageTimestampType_MESSAGE_TIMESTAMP_TYPE_UNSPECIFIED),
 				),
 			},
 		},
@@ -1527,6 +1671,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 1073741824
 		  sasl_enabled_mechanisms    = ["SASL_MECHANISM_SCRAM_SHA_256"]
+		  log_message_timestamp_type = "MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME"
 		}
 	  }
 	}
@@ -1578,7 +1723,15 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 `, name, desc, environment, currentDefaultKafkaVersion)
 }
 
-func testAccMDBKafkaClusterConfigUpdated(name, desc string) string {
+func testAccMDBKafkaClusterConfigUpdated(name, desc, logMessageTimestampType string) string {
+	logMessageTimestampTypeConfig := ""
+	if logMessageTimestampType != "" {
+		logMessageTimestampTypeConfig = fmt.Sprintf(
+			"                log_message_timestamp_type = %q\n",
+			logMessageTimestampType,
+		)
+	}
+
 	return fmt.Sprintf(kfVPCDependencies+`
 resource "yandex_mdb_kafka_cluster" "foo" {
 	name        = "%s"
@@ -1617,6 +1770,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 				log_retention_bytes 	   = 2147483648
 				log_segment_bytes   	   = 268435456
            		sasl_enabled_mechanisms    = ["SASL_MECHANISM_SCRAM_SHA_512","SASL_MECHANISM_SCRAM_SHA_256"]
+%s
 			}
 		}
 	}
@@ -1666,7 +1820,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		}
 	}
 }
-`, name, desc, currentDefaultKafkaVersion)
+`, name, desc, currentDefaultKafkaVersion, logMessageTimestampTypeConfig)
 }
 
 func testAccCheckMDBKafkaClusterContainsLabel(r *kafka.Cluster, key string, value string) resource.TestCheckFunc {
@@ -1717,6 +1871,16 @@ func testAccCheckMDBKafkaClusterSaslEnabledMechanisms(r *kafka.Cluster, value []
 		v := r.Config.Kafka.GetKafkaConfig_3().SaslEnabledMechanisms
 		if !reflect.DeepEqual(v, value) {
 			return fmt.Errorf("incorrect saslEnabledMechanisms value: expected '%v' but found '%v'", value, v)
+		}
+		return nil
+	}
+}
+
+func testAccCheckMDBKafkaClusterLogMessageTimestampType(r *kafka.Cluster, value kafka.MessageTimestampType) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		actual := r.Config.Kafka.GetKafkaConfig_3().LogMessageTimestampType
+		if actual != value {
+			return fmt.Errorf("expected Kafka log message timestamp type %q, got %q", value.String(), actual.String())
 		}
 		return nil
 	}

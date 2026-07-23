@@ -650,6 +650,12 @@ func resourceYandexMDBKafkaClusterKafkaSettings() *schema.Resource {
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
+			"log_message_timestamp_type": {
+				Type:         schema.TypeString,
+				Description:  "Defines whether the timestamp in a message is the message creation time or the log append time. Possible values are `MESSAGE_TIMESTAMP_TYPE_CREATE_TIME` and `MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME`.",
+				Optional:     true,
+				ValidateFunc: validateParsableValue(parseKafkaMessageTimestampType),
+			},
 		},
 	}
 }
@@ -731,7 +737,7 @@ func resourceYandexMDBKafkaClusterTopicConfig() *schema.Resource {
 			},
 			"message_timestamp_type": {
 				Type:         schema.TypeString,
-				Description:  "Define whether the timestamp in the message is message create time or log append time. Possible values: LOG_APPEND_TIME or CREATE_TIME.",
+				Description:  "Defines whether the timestamp in a message is the message creation time or the log append time. Possible values are `MESSAGE_TIMESTAMP_TYPE_CREATE_TIME` and `MESSAGE_TIMESTAMP_TYPE_LOG_APPEND_TIME`.",
 				Optional:     true,
 				ValidateFunc: validateParsableValue(parseKafkaTopicMessageTimestampType),
 			},
@@ -1213,6 +1219,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kafka.0.kafka_config.0.offsets_retention_minutes":       "config_spec.kafka.kafka_config_{version}.offsets_retention_minutes",
 	"config.0.kafka.0.kafka_config.0.sasl_enabled_mechanisms":         "config_spec.kafka.kafka_config_{version}.sasl_enabled_mechanisms",
 	"config.0.kafka.0.kafka_config.0.transactional_id_expiration_ms":  "config_spec.kafka.kafka_config_{version}.transactional_id_expiration_ms",
+	"config.0.kafka.0.kafka_config.0.log_message_timestamp_type":      "config_spec.kafka.kafka_config_{version}.log_message_timestamp_type",
 	"config.0.zookeeper.0.resources.0.resource_preset_id":             "config_spec.zookeeper.resources.resource_preset_id",
 	"config.0.zookeeper.0.resources.0.disk_type_id":                   "config_spec.zookeeper.resources.disk_type_id",
 	"config.0.zookeeper.0.resources.0.disk_size":                      "config_spec.zookeeper.resources.disk_size",
