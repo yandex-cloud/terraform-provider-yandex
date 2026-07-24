@@ -207,6 +207,13 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Type:        schema.TypeFloat,
 										Description: "A floating point number that indicates the relative likelihood of a replica set member to become the primary. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.priority).",
 										Optional:    true,
+										Default:     1.0,
+									},
+									"votes": {
+										Type:        schema.TypeInt,
+										Description: "The number of votes the replica set member has in an election. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.votes).",
+										Optional:    true,
+										Default:     1,
 									},
 									"secondary_delay_secs": {
 										Type:        schema.TypeInt,
@@ -1789,6 +1796,7 @@ func matchHostParameters(hostSpec *mongodb.HostSpec, host *mongodb.Host) bool {
 			Hidden:             false,
 			SecondaryDelaySecs: 0,
 			Priority:           1.0,
+			Votes:              1,
 		}
 	}
 
@@ -1801,6 +1809,10 @@ func matchHostParameters(hostSpec *mongodb.HostSpec, host *mongodb.Host) bool {
 	}
 
 	if hostParameters.Priority != getOrDefault(hostSpec.Priority, 1.0) {
+		return false
+	}
+
+	if hostParameters.Votes != getOrDefault(hostSpec.Votes, int64(1)) {
 		return false
 	}
 
@@ -2537,6 +2549,11 @@ func getHostUpdateSpec(hostSpec *mongodb.HostSpec, host *mongodb.Host) *mongodb.
 	if (host.HostParameters == nil && getOrDefault(hostSpec.Priority, 1.0) != 1.0) || host.HostParameters.Priority != getOrDefault(hostSpec.Priority, 1.0) {
 		updatePaths = append(updatePaths, "priority")
 		result.Priority = &wrapperspb.DoubleValue{Value: getOrDefault(hostSpec.Priority, 1.0)}
+	}
+
+	if (host.HostParameters == nil && getOrDefault(hostSpec.Votes, int64(1)) != 1) || host.HostParameters.Votes != getOrDefault(hostSpec.Votes, int64(1)) {
+		updatePaths = append(updatePaths, "votes")
+		result.Votes = &wrapperspb.Int64Value{Value: getOrDefault(hostSpec.Votes, int64(1))}
 	}
 
 	if (host.HostParameters == nil && getOrDefault(hostSpec.SecondaryDelaySecs, int64(0)) != 0) || host.HostParameters.SecondaryDelaySecs != getOrDefault(hostSpec.SecondaryDelaySecs, int64(0)) {

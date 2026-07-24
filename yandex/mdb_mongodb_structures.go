@@ -1198,6 +1198,7 @@ func flattenMongoDBHostParameters(hp *mongodb.Host_HostParameters) []map[string]
 			"hidden":               hp.Hidden,
 			"priority":             hp.Priority,
 			"secondary_delay_secs": hp.SecondaryDelaySecs,
+			"votes":                hp.Votes,
 			"tags":                 flattenTags,
 		},
 	}
@@ -1252,6 +1253,10 @@ func expandMongoDBHost(config map[string]interface{}) *mongodb.HostSpec {
 
 			if val, found := hpConf["secondary_delay_secs"]; found {
 				host.SetSecondaryDelaySecs(&wrappers.Int64Value{Value: int64(val.(int))})
+			}
+
+			if val, found := hpConf["votes"]; found {
+				host.SetVotes(&wrappers.Int64Value{Value: int64(val.(int))})
 			}
 
 			if val, found := hpConf["tags"]; found {

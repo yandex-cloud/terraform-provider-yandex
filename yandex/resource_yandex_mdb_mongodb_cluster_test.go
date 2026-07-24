@@ -454,13 +454,16 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 {{end}}
 {{if $r.HostParameters}}
 	host_parameters {
-{{if $r.HostParameters.Hidden}}
+{{if hasKey $r.HostParameters "Hidden"}}
 		hidden = "{{$r.HostParameters.Hidden}}"
 {{end}}
-{{if $r.HostParameters.Priority}}
+{{if hasKey $r.HostParameters "Priority"}}
 		priority = "{{$r.HostParameters.Priority}}"
 {{end}}
-{{if $r.HostParameters.SecondaryDelaySecs}}
+{{if hasKey $r.HostParameters "Votes"}}
+		votes = "{{$r.HostParameters.Votes}}"
+{{end}}
+{{if hasKey $r.HostParameters "SecondaryDelaySecs"}}
 		secondary_delay_secs = "{{$r.HostParameters.SecondaryDelaySecs}}"
 {{end}}
 {{if $r.HostParameters.Tags}}
@@ -509,6 +512,10 @@ func makeConfigFromTemplateText(t *testing.T, templateText string, data *map[str
 				return v[0 : len(v)-len(suffix)]
 			}
 			return v
+		},
+		"hasKey": func(m map[string]interface{}, key string) bool {
+			_, ok := m[key]
+			return ok
 		},
 	}).Parse(templateText)
 	if err != nil {
@@ -932,7 +939,7 @@ func TestAccMDBMongoDBCluster_8_0(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResourceFoo, "host.1.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo, "host.0.host_parameters.#", "1"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo, "host.1.host_parameters.#", "1"),
-					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.0, "secondary_delay_secs": int64(0)}, 2),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.0, "votes": int64(1), "secondary_delay_secs": int64(0)}, 2),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -1069,7 +1076,8 @@ func TestAccMDBMongoDBCluster_8_0(t *testing.T) {
 							"ZoneId":   "ru-central1-b",
 							"SubnetId": "${yandex_vpc_subnet.bar.id}",
 							"HostParameters": map[string]interface{}{
-								"Priority": 0.0,
+								"Priority": 0,
+								"Votes":    0,
 								"Hidden":   true,
 								"Tags": map[string]interface{}{
 									"abc": "def",
@@ -1101,10 +1109,10 @@ func TestAccMDBMongoDBCluster_8_0(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResourceFoo, "maintenance_window.0.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo, "maintenance_window.0.day", "FRI"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo, "maintenance_window.0.hour", "20"),
-					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.05, "secondary_delay_secs": int64(0)}, 1),
-					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.15, "secondary_delay_secs": int64(0)}, 1),
-					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.0, "secondary_delay_secs": int64(0)}, 1),
-					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{"abc": "def"}, "priority": 0.0, "hidden": true, "secondary_delay_secs": int64(0)}, 1),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.05, "votes": 1, "secondary_delay_secs": int64(0)}, 1),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.15, "votes": 1, "secondary_delay_secs": int64(0)}, 1),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.0, "votes": 1, "secondary_delay_secs": int64(0)}, 1),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResourceFoo, map[string]interface{}{"tags": map[string]string{"abc": "def"}, "priority": 0.0, "votes": 0, "hidden": true, "secondary_delay_secs": int64(0)}, 1),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -2081,8 +2089,7 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 			mdbMongoDBClusterImportStep(),
 			{ // Update mongod, mongos, mongocfg configs
 				Config: makeConfig(t, &configData, &map[string]interface{}{
-					"Mongod": map[string]interface {
-					}{
+					"Mongod": map[string]interface{}{
 						"Net":                nil,
 						"OperationProfiling": nil,
 						"Storage":            nil,
@@ -2683,6 +2690,20 @@ func supportTestDiskSizeAutoscaling(actual *mongodb.DiskSizeAutoscaling, expecte
 	return nil
 }
 
+// toInt64 normalizes integer values coming from Terraform state or test
+// literals, which may be either int or int64, into int64 so they can be
+// safely compared against the protobuf int64 fields.
+func toInt64(v interface{}) int64 {
+	switch val := v.(type) {
+	case int64:
+		return val
+	case int:
+		return int64(val)
+	default:
+		panic(fmt.Sprintf("unexpected type %T for int64 value", v))
+	}
+}
+
 func testAccCheckMDBMongoDBClusterHasHostParameters(n string, expected map[string]interface{}, count int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -2721,7 +2742,10 @@ func testAccCheckMDBMongoDBClusterHasHostParameters(n string, expected map[strin
 			if host.HostParameters.Priority != expected["priority"].(float64) {
 				continue
 			}
-			if host.HostParameters.SecondaryDelaySecs != expected["secondary_delay_secs"].(int64) {
+			if host.HostParameters.Votes != toInt64(expected["votes"]) {
+				continue
+			}
+			if host.HostParameters.SecondaryDelaySecs != toInt64(expected["secondary_delay_secs"]) {
 				continue
 			}
 			if maps.Equal(host.HostParameters.Tags, expected["tags"].(map[string]string)) {
