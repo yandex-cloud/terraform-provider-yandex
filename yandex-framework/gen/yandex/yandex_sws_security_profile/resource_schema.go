@@ -90,6 +90,10 @@ func YandexSwsSecurityProfileResourceSchema(ctx context.Context) schema.Schema {
 					"package: yandex.cloud.smartwebsecurity.v1\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 
 			"custom_page_id": schema.StringAttribute{
