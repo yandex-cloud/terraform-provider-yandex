@@ -175,9 +175,10 @@ func YandexSwsMatchListDatasourceSchema(ctx context.Context) schema.Schema {
 					"filename: yandex/cloud/smartwebsecurity/v1/match_list/match_list.proto\n",
 				Computed: true,
 			},
-			"timeouts": timeouts.AttributesAll(ctx),
 		},
 
-		Blocks: map[string]schema.Block{},
+		Blocks: map[string]schema.Block{
+			"timeouts": timeouts.BlockAll(ctx),
+		},
 	}
 }

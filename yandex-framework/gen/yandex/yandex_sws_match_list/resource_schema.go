@@ -90,68 +90,6 @@ func YandexSwsMatchListResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 
-			"item": schema.ListNestedAttribute{
-				NestedObject: schema.NestedAttributeObject{
-
-					Attributes: map[string]schema.Attribute{
-
-						"description": schema.StringAttribute{
-							MarkdownDescription: "Description of the item.",
-							Description: "Description of the item." +
-								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.match_list.CreateMatchListRequest.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.description
-								// -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.description
-								// -> yandex.cloud.smartwebsecurity.v1.match_list.UpdateMatchListRequest.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.description
-								"package: yandex.cloud.smartwebsecurity.v1.match_list\n" +
-								"filename: yandex/cloud/smartwebsecurity/v1/match_list/match_list.proto\n",
-							Optional: true,
-							Computed: true,
-
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
-							Validators: []validator.String{
-								stringvalidator.LengthBetween(0, 128),
-							},
-						},
-
-						"value": schema.StringAttribute{
-							MarkdownDescription: "Value of the item.",
-							Description: "Value of the item." +
-								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.match_list.CreateMatchListRequest.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.value
-								// -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.value
-								// -> yandex.cloud.smartwebsecurity.v1.match_list.UpdateMatchListRequest.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.value
-								"package: yandex.cloud.smartwebsecurity.v1.match_list\n" +
-								"filename: yandex/cloud/smartwebsecurity/v1/match_list/match_list.proto\n",
-							Required: true,
-
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
-							Validators: []validator.String{
-								stringvalidator.LengthBetween(0, 256),
-							},
-						},
-					},
-				},
-				MarkdownDescription: "Match list items.",
-				Description: "Match list items." +
-					// proto paths: +
-					// -> yandex.cloud.smartwebsecurity.v1.match_list.CreateMatchListRequest.items
-					// -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.items
-					// -> yandex.cloud.smartwebsecurity.v1.match_list.UpdateMatchListRequest.items
-					"package: yandex.cloud.smartwebsecurity.v1.match_list\n" +
-					"filename: yandex/cloud/smartwebsecurity/v1/match_list/match_list.proto\n",
-				Optional: true,
-				Computed: true,
-
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
-				},
-			},
-
 			"item_type": schema.StringAttribute{
 				MarkdownDescription: "Match list item type.",
 				Description: "Match list item type." +
@@ -284,9 +222,70 @@ func YandexSwsMatchListResourceSchema(ctx context.Context) schema.Schema {
 					"filename: yandex/cloud/smartwebsecurity/v1/match_list/match_list.proto\n",
 				Computed: true,
 			},
-			"timeouts": timeouts.AttributesAll(ctx),
 		},
 
-		Blocks: map[string]schema.Block{},
+		Blocks: map[string]schema.Block{
+
+			"item": schema.ListNestedBlock{
+				NestedObject: schema.NestedBlockObject{
+
+					Attributes: map[string]schema.Attribute{
+
+						"description": schema.StringAttribute{
+							MarkdownDescription: "Description of the item.",
+							Description: "Description of the item." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.match_list.CreateMatchListRequest.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.description
+								// -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.description
+								// -> yandex.cloud.smartwebsecurity.v1.match_list.UpdateMatchListRequest.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.description
+								"package: yandex.cloud.smartwebsecurity.v1.match_list\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/match_list/match_list.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.String{
+								stringvalidator.LengthBetween(0, 128),
+							},
+						},
+
+						"value": schema.StringAttribute{
+							MarkdownDescription: "Value of the item.",
+							Description: "Value of the item." +
+								// proto paths: +
+								// -> yandex.cloud.smartwebsecurity.v1.match_list.CreateMatchListRequest.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.value
+								// -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.value
+								// -> yandex.cloud.smartwebsecurity.v1.match_list.UpdateMatchListRequest.items -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.Item.value
+								"package: yandex.cloud.smartwebsecurity.v1.match_list\n" +
+								"filename: yandex/cloud/smartwebsecurity/v1/match_list/match_list.proto\n",
+							Required: true,
+
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.String{
+								stringvalidator.LengthBetween(0, 256),
+							},
+						},
+					},
+				},
+				MarkdownDescription: "Match list items.",
+				Description: "Match list items." +
+					// proto paths: +
+					// -> yandex.cloud.smartwebsecurity.v1.match_list.CreateMatchListRequest.items
+					// -> yandex.cloud.smartwebsecurity.v1.match_list.MatchList.items
+					// -> yandex.cloud.smartwebsecurity.v1.match_list.UpdateMatchListRequest.items
+					"package: yandex.cloud.smartwebsecurity.v1.match_list\n" +
+					"filename: yandex/cloud/smartwebsecurity/v1/match_list/match_list.proto\n",
+
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedList(),
+				},
+			},
+			"timeouts": timeouts.BlockAll(ctx),
+		},
 	}
 }

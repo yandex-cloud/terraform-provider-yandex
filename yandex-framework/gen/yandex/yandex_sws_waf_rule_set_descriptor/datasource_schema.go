@@ -56,7 +56,7 @@ func YandexSwsWafRuleSetDescriptorDatasourceSchema(ctx context.Context) schema.S
 							MarkdownDescription: "Numeric anomaly value, i.e., a potential attack indicator.\n The higher this value, the more likely it is that the request that satisfies the rule is an attack.\n See [documentation](/docs/smartwebsecurity/concepts/waf#anomaly).",
 							Description: "Numeric anomaly value, i.e., a potential attack indicator.\n The higher this value, the more likely it is that the request that satisfies the rule is an attack.\n See [documentation](/docs/smartwebsecurity/concepts/waf#anomaly)." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.rulesyandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.RuleDescription.anomaly_score
+								// -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.rules -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.RuleDescription.anomaly_score
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/rule_set_descriptor.proto\n",
 							Computed: true,
@@ -66,7 +66,7 @@ func YandexSwsWafRuleSetDescriptorDatasourceSchema(ctx context.Context) schema.S
 							MarkdownDescription: "Paranoia level classifies rules according to their aggression.\n The higher the paranoia level, the better your protection, but also the higher the probability of WAF false positives.\n See [documentation](/docs/smartwebsecurity/concepts/waf#paranoia).",
 							Description: "Paranoia level classifies rules according to their aggression.\n The higher the paranoia level, the better your protection, but also the higher the probability of WAF false positives.\n See [documentation](/docs/smartwebsecurity/concepts/waf#paranoia)." +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.rulesyandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.RuleDescription.paranoia_level
+								// -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.rules -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.RuleDescription.paranoia_level
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/rule_set_descriptor.proto\n",
 							Computed: true,
@@ -76,7 +76,7 @@ func YandexSwsWafRuleSetDescriptorDatasourceSchema(ctx context.Context) schema.S
 							MarkdownDescription: "ID of the rule",
 							Description: "ID of the rule" +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.rulesyandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.RuleDescription.id
+								// -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.rules -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.RuleDescription.id
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/rule_set_descriptor.proto\n",
 							Computed: true,
@@ -86,7 +86,7 @@ func YandexSwsWafRuleSetDescriptorDatasourceSchema(ctx context.Context) schema.S
 							MarkdownDescription: "ID of the rule",
 							Description: "ID of the rule" +
 								// proto paths: +
-								// -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.rulesyandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.RuleDescription.id
+								// -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.rules -> yandex.cloud.smartwebsecurity.v1.waf.RuleSetDescriptor.RuleDescription.id
 								"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 								"filename: yandex/cloud/smartwebsecurity/v1/waf/rule_set_descriptor.proto\n",
 							Optional: true,

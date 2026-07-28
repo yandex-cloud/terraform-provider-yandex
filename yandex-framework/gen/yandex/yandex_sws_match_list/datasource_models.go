@@ -174,7 +174,7 @@ var yandexSwsMatchListDatasourceModelType = types.ObjectType{
 		"id":            types.StringType,
 		"name":          types.StringType,
 		"updated_at":    types.StringType,
-		"timeouts":      timeouts.AttributesAll(context.Background()).GetType(),
+		"timeouts":      timeouts.BlockAll(context.Background()).Type(),
 	},
 }
 

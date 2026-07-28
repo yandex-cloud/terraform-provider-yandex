@@ -113,7 +113,6 @@ func expandYandexSwsWafRuleSetDescriptorRuleDescriptionStructModel(ctx context.C
 	value.SetAnomalyScore((yandexSwsWafRuleSetDescriptorRuleDescriptionStructState.AnomalyScore.ValueInt64()))
 	value.SetParanoiaLevel((yandexSwsWafRuleSetDescriptorRuleDescriptionStructState.ParanoiaLevel.ValueInt64()))
 	value.SetId(yandexSwsWafRuleSetDescriptorRuleDescriptionStructState.RuleSetDescriptorId.ValueString())
-	value.SetId(yandexSwsWafRuleSetDescriptorRuleDescriptionStructState.RuleSetDescriptorId.ValueString())
 	if diags.HasError() {
 		return nil
 	}
@@ -236,7 +235,6 @@ func expandYandexSwsWafRuleSetDescriptorDatasource(ctx context.Context, yandexSw
 func expandYandexSwsWafRuleSetDescriptorDatasourceModel(ctx context.Context, yandexSwsWafRuleSetDescriptorDatasourceState yandexSwsWafRuleSetDescriptorDatasourceModel, diags *diag.Diagnostics) *waf.RuleSetDescriptor {
 	value := &waf.RuleSetDescriptor{}
 	value.SetName(yandexSwsWafRuleSetDescriptorDatasourceState.Name.ValueString())
-	value.SetId(yandexSwsWafRuleSetDescriptorDatasourceState.RuleSetDescriptorId.ValueString())
 	value.SetId(yandexSwsWafRuleSetDescriptorDatasourceState.RuleSetDescriptorId.ValueString())
 	value.SetRules(expandYandexSwsWafRuleSetDescriptorRules(ctx, yandexSwsWafRuleSetDescriptorDatasourceState.Rules, diags))
 	value.SetVersion(yandexSwsWafRuleSetDescriptorDatasourceState.Version.ValueString())
