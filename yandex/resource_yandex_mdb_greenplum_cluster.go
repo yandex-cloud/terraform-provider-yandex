@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 const (
@@ -118,6 +120,42 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
+			},
+			"restore": {
+				Type:        schema.TypeList,
+				Description: "The cluster will be created from the specified backup.",
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup_id": {
+							Type:        schema.TypeString,
+							Description: "Backup ID. The cluster will be created from the specified backup.",
+							Required:    true,
+							ForceNew:    true,
+						},
+						"time": {
+							Type:         schema.TypeString,
+							Description:  "Timestamp of the moment to which the Greenplum cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.",
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: stringToTimeValidateFunc,
+						},
+						"restore_pxf": {
+							Type:        schema.TypeBool,
+							Description: "Restore PXF settings from the original cluster.",
+							Optional:    true,
+							ForceNew:    true,
+						},
+						"restore_hba": {
+							Type:        schema.TypeBool,
+							Description: "Restore HBA settings from the original cluster.",
+							Optional:    true,
+							ForceNew:    true,
+						},
+					},
+				},
 			},
 			"master_subcluster": {
 				Type:        schema.TypeList,
@@ -661,6 +699,10 @@ func resourceYandexMDBGreenplumClusterCreate(d *schema.ResourceData, meta interf
 		return err
 	}
 
+	if backupID, ok := d.GetOk("restore.0.backup_id"); ok && backupID != "" {
+		return resourceYandexMDBGreenplumClusterRestore(d, meta, req, backupID.(string))
+	}
+
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Create(ctx, req))
@@ -683,6 +725,75 @@ func resourceYandexMDBGreenplumClusterCreate(d *schema.ResourceData, meta interf
 	}
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("failed to create Greenplum Cluster: %s", err)
+	}
+	return resourceYandexMDBGreenplumClusterRead(d, meta)
+}
+
+func resourceYandexMDBGreenplumClusterRestore(d *schema.ResourceData, meta interface{}, createReq *greenplum.CreateClusterRequest, backupID string) error {
+	config := meta.(*Config)
+
+	var timeBackup *timestamppb.Timestamp
+	if backupTime, ok := d.GetOk("restore.0.time"); ok {
+		t, err := mdbcommon.ParseStringToTime(backupTime.(string))
+		if err != nil {
+			return fmt.Errorf("error while parsing restore.0.time to create Greenplum Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
+		}
+		timeBackup = &timestamppb.Timestamp{Seconds: t.Unix()}
+	}
+
+	req := &greenplum.RestoreClusterRequest{
+		BackupId:            backupID,
+		Time:                timeBackup,
+		FolderId:            createReq.FolderId,
+		Name:                createReq.Name,
+		Description:         createReq.Description,
+		Labels:              createReq.Labels,
+		Environment:         createReq.Environment,
+		NetworkId:           createReq.NetworkId,
+		SecurityGroupIds:    createReq.SecurityGroupIds,
+		DeletionProtection:  createReq.DeletionProtection,
+		MaintenanceWindow:   createReq.MaintenanceWindow,
+		ServiceAccountId:    createReq.ServiceAccountId,
+		SegmentHostCount:    createReq.SegmentHostCount,
+		SegmentInHost:       createReq.SegmentInHost,
+		MasterHostGroupIds:  createReq.MasterHostGroupIds,
+		SegmentHostGroupIds: createReq.SegmentHostGroupIds,
+		MasterResources:     createReq.GetMasterConfig().GetResources(),
+		SegmentResources:    createReq.GetSegmentConfig().GetResources(),
+		Config: &greenplum.GreenplumRestoreConfig{
+			BackupWindowStart: createReq.GetConfig().GetBackupWindowStart(),
+			Access:            createReq.GetConfig().GetAccess(),
+			ZoneId:            createReq.GetConfig().GetZoneId(),
+			SubnetId:          createReq.GetConfig().GetSubnetId(),
+			AssignPublicIp:    createReq.GetConfig().GetAssignPublicIp(),
+		},
+		RestorePxf: d.Get("restore.0.restore_pxf").(bool),
+		RestoreHba: d.Get("restore.0.restore_hba").(bool),
+	}
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Restore(ctx, req))
+	if err != nil {
+		return fmt.Errorf("error while requesting API to create Greenplum Cluster from backup %v: %s", backupID, err)
+	}
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("error while get Greenplum create from backup %v operation metadata: %s", backupID, err)
+	}
+	md, ok := protoMetadata.(*greenplum.RestoreClusterMetadata)
+	if !ok {
+		return fmt.Errorf("could not get Greenplum Cluster ID from create from backup %v operation metadata", backupID)
+	}
+	d.SetId(md.ClusterId)
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while waiting for operation to create Greenplum Cluster from backup %v: %s", backupID, err)
+	}
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("failed to create Greenplum Cluster from backup %v: %s", backupID, err)
 	}
 	return resourceYandexMDBGreenplumClusterRead(d, meta)
 }

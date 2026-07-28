@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'greenplum: add `restore` entity in `yandex_mdb_greenplum_cluster` resource (restore cluster from backup) with restore_pxf and restore_hba options'
+time: 2026-07-27T11:33:37.082937+03:00
