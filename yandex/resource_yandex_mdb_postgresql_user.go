@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
@@ -24,6 +25,7 @@ const (
 	yandexMDBPostgreSQLUserReadTimeout   = 1 * time.Minute
 	yandexMDBPostgreSQLUserUpdateTimeout = 10 * time.Minute
 	yandexMDBPostgreSQLUserDeleteTimeout = 10 * time.Minute
+	redactedPgUserPassword               = "[REDACTED]"
 )
 
 func resourceYandexMDBPostgreSQLUser() *schema.Resource {
@@ -38,10 +40,8 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
-			_, hasPassword := mdbcommon.LookupRawConfigPath(d, "password")
-			_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
-			if hasPassword && hasPasswordWo {
-				return fmt.Errorf("only one of `password` or `password_wo` can be specified")
+			if err := validatePgUserPasswordConflict(d); err != nil {
+				return err
 			}
 			return mdbcommon.CustomizeDiffUserConnectionManager(ctx, d, "user_connection_manager")
 		},
@@ -74,16 +74,18 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 				Sensitive:   true,
 			},
 			"password_wo": {
-				Type:        schema.TypeString,
-				Description: "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher",
-				Optional:    true,
-				WriteOnly:   true,
-				Sensitive:   true,
+				Type:         schema.TypeString,
+				Description:  "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher",
+				Optional:     true,
+				WriteOnly:    true,
+				Sensitive:    true,
+				RequiredWith: []string{"password_wo_version"},
 			},
 			"password_wo_version": {
-				Type:        schema.TypeInt,
-				Description: "A version number for the write-only password. Increment this to trigger a password update.",
-				Optional:    true,
+				Type:         schema.TypeInt,
+				Description:  "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:     true,
+				RequiredWith: []string{"password_wo"},
 			},
 			"login": {
 				Type:        schema.TypeBool,
@@ -181,11 +183,36 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 	}
 }
 
+func validatePgUserPasswordConflict(d mdbcommon.RawConfigProvider) error {
+	_, hasPassword := mdbcommon.LookupRawConfigPath(d, "password")
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
+	if hasPassword && hasPasswordWo {
+		return fmt.Errorf("only one of `password` or `password_wo` can be specified")
+	}
+	return nil
+}
+
+func validatePgUserPasswordPair(d mdbcommon.RawConfigProvider) error {
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
+	_, hasPasswordWoVersion := mdbcommon.LookupRawConfigPath(d, "password_wo_version")
+	if hasPasswordWo != hasPasswordWoVersion {
+		return fmt.Errorf("`password_wo` and `password_wo_version` must be specified together")
+	}
+	return nil
+}
+
 func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta any) error {
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
+
+	if err := validatePgUserPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validatePgUserPasswordPair(d); err != nil {
+		return err
+	}
 
 	clusterID := d.Get("cluster_id").(string)
 	userSpec, err := expandPgUserSpec(d)
@@ -208,7 +235,7 @@ func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta any) err
 		UserSpec:  userSpec,
 	}
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
-		log.Printf("[DEBUG] Sending PostgreSQL user create request: %+v", request)
+		log.Printf("[DEBUG] Sending PostgreSQL user create request: %+v", redactPgUserCreateRequest(request))
 		return config.sdk.MDB().PostgreSQL().User().Create(ctx, request)
 	})
 
@@ -240,8 +267,8 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 		user.Password = v.(string)
 	}
 
-	if pwWo, ok := mdbcommon.LookupRawConfigPath(d, "password_wo"); ok {
-		user.Password = pwWo.AsString()
+	if passwordWo, ok := mdbcommon.LookupRawConfigPath(d, "password_wo"); ok {
+		user.Password = passwordWo.AsString()
 	}
 
 	if v, ok := d.GetOkExists("login"); ok {
@@ -384,6 +411,13 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta any) err
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
+	if err := validatePgUserPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validatePgUserPasswordPair(d); err != nil {
+		return err
+	}
+
 	user, err := expandPgUserSpec(d)
 	if err != nil {
 		return err
@@ -461,7 +495,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta any) err
 	}
 
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
-		log.Printf("[DEBUG] Sending PostgreSQL user update request: %+v", request)
+		log.Printf("[DEBUG] Sending PostgreSQL user update request: %+v", redactPgUserUpdateRequest(request))
 		return config.sdk.MDB().PostgreSQL().User().Update(ctx, request)
 	})
 
@@ -477,6 +511,22 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta any) err
 		return fmt.Errorf("updating user for PostgreSQL Cluster %q failed: %s", clusterID, err)
 	}
 	return resourceYandexMDBPostgreSQLUserRead(d, meta)
+}
+
+func redactPgUserCreateRequest(request *postgresql.CreateUserRequest) *postgresql.CreateUserRequest {
+	redactedRequest := proto.Clone(request).(*postgresql.CreateUserRequest)
+	if redactedRequest.UserSpec != nil && redactedRequest.UserSpec.Password != "" {
+		redactedRequest.UserSpec.Password = redactedPgUserPassword
+	}
+	return redactedRequest
+}
+
+func redactPgUserUpdateRequest(request *postgresql.UpdateUserRequest) *postgresql.UpdateUserRequest {
+	redactedRequest := proto.Clone(request).(*postgresql.UpdateUserRequest)
+	if redactedRequest.Password != "" {
+		redactedRequest.Password = redactedPgUserPassword
+	}
+	return redactedRequest
 }
 
 func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta any) error {

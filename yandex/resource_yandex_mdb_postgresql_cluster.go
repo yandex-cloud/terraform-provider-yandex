@@ -1567,7 +1567,7 @@ func updatePGUser(
 		UpdateMask:  &field_mask.FieldMask{Paths: updatePath},
 	}
 
-	log.Printf("[DEBUG] Sending PostgreSQL user update request: %+v", request)
+	log.Printf("[DEBUG] Sending PostgreSQL user update request: %+v", redactPgUserUpdateRequest(request))
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().PostgreSQL().User().Update(ctx, request),
 	)

@@ -1851,7 +1851,8 @@ func validateUserPasswordEncryptionForUpdate(d *schema.ResourceData, user *postg
 		)
 	}
 
-	if isUserPasswordEncryptionHasChanges && !d.HasChange("password") {
+	isPasswordChanged := d.HasChange("password") || d.HasChange("password_wo_version")
+	if isUserPasswordEncryptionHasChanges && !isPasswordChanged {
 		return fmt.Errorf("user_password_encryption can not be changed without password change")
 	}
 
