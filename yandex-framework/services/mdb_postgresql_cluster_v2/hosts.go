@@ -44,7 +44,7 @@ func (r PostgresqlHostService) GetChanges(plan Host, state Host) (*postgresql.Up
 	if !plan.ReplicationSource.IsUnknown() && !plan.ReplicationSource.Equal(state.ReplicationSource) {
 		paths = append(paths, "replication_source")
 	}
-	if !plan.Priority.Equal(state.Priority) {
+	if !plan.Priority.IsUnknown() && !plan.Priority.Equal(state.Priority) {
 		paths = append(paths, "priority")
 	}
 	if len(paths) == 0 {

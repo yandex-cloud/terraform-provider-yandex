@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: fix priority update when plan value is Unknown'
+time: 2026-07-13T16:45:57.973891097+03:00
