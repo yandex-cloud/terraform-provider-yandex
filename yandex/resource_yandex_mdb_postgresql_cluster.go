@@ -387,6 +387,23 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 				},
 			},
 			"connection_manager": mdbcommon.ClusterConnectionManagerSchema(),
+			"managed_repack": {
+				Type:        schema.TypeList,
+				Description: "Managed pg_repack settings.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Description: "Enable managed pg_repack for the cluster.",
+							Optional:    true,
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

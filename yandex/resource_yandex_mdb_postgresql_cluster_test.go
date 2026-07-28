@@ -228,7 +228,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 10. Change some options
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, pgDesc2, version, 18, true),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, pgDesc2, version, 18, true, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -258,6 +258,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.day", "WED"),
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.hour", "22"),
 					resource.TestCheckResourceAttr(clusterResource, "config.0.backup_retain_period_days", "12"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.managed_repack.0.enabled", "true"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -285,7 +286,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 16. Check if description can be set to null
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 18, true),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 18, true, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "description", ""),
@@ -294,18 +295,19 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 18. Decrease disk size (nothing changes)
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16, true),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16, true, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
-			// 20. Disable performanse diagnostic
+			// 20. Disable performanse diagnostic and managed repack
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16, false),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16, false, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckClusterSettingsPerformanceDiagnostics(clusterResource, false),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.managed_repack.0.enabled", "false"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -1423,7 +1425,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 `, name, desc, environment, version, diskSize)
 }
 
-func testAccMDBPGClusterConfigUpdated(name, desc, version string, diskSize int32, isPerfdiagEnable bool) string {
+func testAccMDBPGClusterConfigUpdated(name, desc, version string, diskSize int32, isPerfdiagEnable, isManagedRepackEnable bool) string {
 
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
@@ -1468,7 +1470,11 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       planned_usage_threshold   = 70
       emergency_usage_threshold = 90
     }
-    
+
+    managed_repack {
+      enabled = %t
+    }
+
     backup_retain_period_days = 12
     
     pooler_config {
@@ -1548,7 +1554,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
 }
-`, name, desc, version, diskSize, isPerfdiagEnable)
+`, name, desc, version, diskSize, isPerfdiagEnable, isManagedRepackEnable)
 }
 
 func testAccMDBPGClusterConfigUpdated_removePoolerConfig(name, desc, version string, diskSize int32) string {

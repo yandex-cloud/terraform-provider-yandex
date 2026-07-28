@@ -40,6 +40,22 @@ func expandPerformanceDiagnostics(ctx context.Context, pd types.Object, diags *d
 	}
 }
 
+func expandManagedRepack(ctx context.Context, mr types.Object, diags *diag.Diagnostics) *postgresql.ManagedRepack {
+	if mr.IsNull() || mr.IsUnknown() {
+		return nil
+	}
+	var mrConf ManagedRepack
+
+	diags.Append(mr.As(ctx, &mrConf, datasize.DefaultOpts)...)
+	if diags.HasError() {
+		return nil
+	}
+
+	return &postgresql.ManagedRepack{
+		Enabled: expandBoolWrapper(ctx, mrConf.Enabled, diags),
+	}
+}
+
 func expandBackupRetainPeriodDays(ctx context.Context, cfgBws types.Int64, diags *diag.Diagnostics) *wrapperspb.Int64Value {
 	var pgBws *wrapperspb.Int64Value
 	if !cfgBws.IsNull() && !cfgBws.IsUnknown() {
@@ -161,6 +177,7 @@ func expandConfig(ctx context.Context, c types.Object, diags *diag.Diagnostics) 
 		PoolerConfig:           expandPoolerConfig(ctx, configSpec.PoolerConfig, diags),
 		DiskSizeAutoscaling:    expandDiskSizeAutoscaling(ctx, configSpec.DiskSizeAutoscaling, diags),
 		ConnectionManager:      mdbcommon.ExpandClusterConnectionManagerFramework(ctx, configSpec.ConnectionManager, diags),
+		ManagedRepack:          expandManagedRepack(ctx, configSpec.ManagedRepack, diags),
 	}
 }
 

@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'postgresql: add `managed_repack` config block to `yandex_mdb_postgresql_cluster` and `yandex_mdb_postgresql_cluster_v2` resources'
+time: 2026-07-20T02:32:08.000000+03:00

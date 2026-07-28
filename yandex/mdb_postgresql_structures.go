@@ -48,6 +48,7 @@ func flattenPGClusterConfig(d *schema.ResourceData, c *postgresql.ClusterConfig)
 	out["access"] = flattenPGAccess(c.Access)
 	out["postgresql_config"] = settings
 	out["connection_manager"] = mdbcommon.FlattenClusterConnectionManager(c.ConnectionManager)
+	out["managed_repack"] = flattenPGManagedRepack(c.ManagedRepack)
 
 	return []interface{}{out}, nil
 }
@@ -89,6 +90,18 @@ func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) []int
 	out["enabled"] = p.Enabled
 	out["sessions_sampling_interval"] = int(p.SessionsSamplingInterval)
 	out["statements_sampling_interval"] = int(p.StatementsSamplingInterval)
+
+	return []interface{}{out}
+}
+
+func flattenPGManagedRepack(p *postgresql.ManagedRepack) []interface{} {
+	if p == nil {
+		return nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["enabled"] = p.GetEnabled().GetValue()
 
 	return []interface{}{out}
 }
@@ -1021,6 +1034,7 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 		"config.0.disk_size_autoscaling.0.emergency_usage_threshold":      "config_spec.disk_size_autoscaling.emergency_usage_threshold",
 		"config.0.disk_size_autoscaling.0.planned_usage_threshold":        "config_spec.disk_size_autoscaling.planned_usage_threshold",
 		"config.0.disk_size_autoscaling.0.disk_size_limit":                "config_spec.disk_size_autoscaling.disk_size_limit",
+		"config.0.managed_repack.0.enabled":                               "config_spec.managed_repack.enabled",
 		"config.0.backup_window_start":                                    "config_spec.backup_window_start",
 		"config.0.resources":                                              "config_spec.resources",
 		"config.0.backup_retain_period_days":                              "config_spec.backup_retain_period_days",
@@ -1095,6 +1109,7 @@ func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, []strin
 		PerformanceDiagnostics: expandPGPerformanceDiagnostics(d),
 		DiskSizeAutoscaling:    expandPGDiskSizeAutoscaling(d),
 		ConnectionManager:      mdbcommon.ExpandClusterConnectionManager(d, "config.0.connection_manager"),
+		ManagedRepack:          expandPGManagedRepack(d),
 	}
 
 	settingNames, err := expandPGConfigSpecSettings(d, cs)
@@ -1435,6 +1450,21 @@ func expandPGPerformanceDiagnostics(d *schema.ResourceData) *postgresql.Performa
 
 	if v, ok := d.GetOk("config.0.performance_diagnostics.0.statements_sampling_interval"); ok {
 		out.StatementsSamplingInterval = int64(v.(int))
+	}
+
+	return out
+}
+
+func expandPGManagedRepack(d *schema.ResourceData) *postgresql.ManagedRepack {
+
+	if _, ok := d.GetOkExists("config.0.managed_repack"); !ok {
+		return nil
+	}
+
+	out := &postgresql.ManagedRepack{}
+
+	if v, ok := d.GetOkExists("config.0.managed_repack.0.enabled"); ok {
+		out.Enabled = &wrappers.BoolValue{Value: v.(bool)}
 	}
 
 	return out

@@ -644,6 +644,9 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"planned_usage_threshold":   types.Int64Value(30),
 					}),
 					"connection_manager": types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
+					"managed_repack": types.ObjectValueMust(ManagedRepackAttrTypes, map[string]attr.Value{
+						"enabled": types.BoolValue(false),
+					}),
 				},
 			),
 		},
@@ -681,6 +684,9 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 						"emergency_usage_threshold": types.Int64Value(0),
 					}),
 					"connection_manager": types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
+					"managed_repack": types.ObjectValueMust(ManagedRepackAttrTypes, map[string]attr.Value{
+						"enabled": types.BoolValue(false),
+					}),
 				},
 			),
 		},

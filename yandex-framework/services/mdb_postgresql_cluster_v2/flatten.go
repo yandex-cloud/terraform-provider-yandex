@@ -31,6 +31,21 @@ func flattenPerformanceDiagnostics(ctx context.Context, pd *postgresql.Performan
 	return obj
 }
 
+// flattenManagedRepack never returns a null object: the API omits ManagedRepack
+// for clusters where the feature was never enabled, and a null value in the
+// state would leave the computed attribute permanently "(known after apply)"
+// in plans (UseStateForUnknown does not copy null state).
+func flattenManagedRepack(ctx context.Context, mr *postgresql.ManagedRepack, diags *diag.Diagnostics) types.Object {
+	obj, d := types.ObjectValueFrom(
+		ctx, ManagedRepackAttrTypes, ManagedRepack{
+			Enabled: types.BoolValue(mr.GetEnabled().GetValue()),
+		},
+	)
+	diags.Append(d...)
+
+	return obj
+}
+
 func flattenBackupRetainPeriodDays(ctx context.Context, pgBrpd *wrapperspb.Int64Value, diags *diag.Diagnostics) types.Int64 {
 	if pgBrpd == nil {
 		return types.Int64Null()
@@ -100,6 +115,7 @@ func flattenConfig(ctx context.Context, statePGCfg mdbcommon.SettingsMapValue, c
 		DiskSizeAutoscaling:    flattenDiskSizeAutoscaling(ctx, c.GetDiskSizeAutoscaling(), diags),
 		PostgtgreSQLConfig:     statePGCfg,
 		ConnectionManager:      mdbcommon.FlattenClusterConnectionManagerFramework(ctx, c.GetConnectionManager(), diags),
+		ManagedRepack:          flattenManagedRepack(ctx, c.GetManagedRepack(), diags),
 	})
 	diags.Append(d...)
 	return obj

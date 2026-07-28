@@ -242,6 +242,7 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 	diskSizeAutoscalingElem := (resourceYandexMDBPostgreSQLClusterConfig().Schema["disk_size_autoscaling"].Elem).(*schema.Resource)
 	poolerConfigElem := (resourceYandexMDBPostgreSQLClusterConfig().Schema["pooler_config"].Elem).(*schema.Resource)
 	resourcesElem := (resourceYandexMDBPostgreSQLClusterConfig().Schema["resources"].Elem).(*schema.Resource)
+	managedRepackElem := (resourceYandexMDBPostgreSQLClusterConfig().Schema["managed_repack"].Elem).(*schema.Resource)
 
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -412,6 +413,20 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"connection_manager": mdbcommon.ClusterConnectionManagerDataSourceSchema(),
+			"managed_repack": {
+				Type:        schema.TypeList,
+				Description: resourceYandexMDBPostgreSQLClusterConfig().Schema["managed_repack"].Description,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Description: managedRepackElem.Schema["enabled"].Description,
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

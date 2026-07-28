@@ -196,6 +196,11 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 		updateMaskPaths = append(updateMaskPaths, cmPaths...)
 	}
 
+	if !plan.ManagedRepack.Equal(state.ManagedRepack) {
+		config.SetManagedRepack(expandManagedRepack(ctx, plan.ManagedRepack, &diags))
+		updateMaskPaths = append(updateMaskPaths, "config_spec.managed_repack.enabled")
+	}
+
 	if !plan.PostgtgreSQLConfig.Equal(state.PostgtgreSQLConfig) {
 		config.SetPostgresqlConfig(expandPostgresqlConfig(ctx, plan.Version.ValueString(), plan.PostgtgreSQLConfig, &diags))
 

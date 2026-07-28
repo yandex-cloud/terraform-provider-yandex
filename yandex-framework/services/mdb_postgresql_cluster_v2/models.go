@@ -58,6 +58,7 @@ type Config struct {
 	PoolerConfig           types.Object               `tfsdk:"pooler_config"`
 	DiskSizeAutoscaling    types.Object               `tfsdk:"disk_size_autoscaling"`
 	ConnectionManager      types.Object               `tfsdk:"connection_manager"`
+	ManagedRepack          types.Object               `tfsdk:"managed_repack"`
 }
 
 type PoolerConfig struct {
@@ -81,6 +82,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"pooler_config":             types.ObjectType{AttrTypes: PoolerConfigAttrTypes},
 	"disk_size_autoscaling":     types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
 	"connection_manager":        types.ObjectType{AttrTypes: mdbcommon.ClusterConnectionManagerAttrTypes},
+	"managed_repack":            types.ObjectType{AttrTypes: ManagedRepackAttrTypes},
 }
 
 var accessAttrTypes = mdbcommon.AccessAttrTypes(true, true, true, true, true)
@@ -95,6 +97,14 @@ var PerformanceDiagnosticsAttrTypes = map[string]attr.Type{
 	"enabled":                      types.BoolType,
 	"sessions_sampling_interval":   types.Int64Type,
 	"statements_sampling_interval": types.Int64Type,
+}
+
+type ManagedRepack struct {
+	Enabled types.Bool `tfsdk:"enabled"`
+}
+
+var ManagedRepackAttrTypes = map[string]attr.Type{
+	"enabled": types.BoolType,
 }
 
 type Resources struct {

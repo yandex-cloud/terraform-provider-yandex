@@ -539,6 +539,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 					"pooler_config":             types.ObjectNull(expectedPCAttrTypes),
 					"disk_size_autoscaling":     types.ObjectNull(expectedDiskSizeAutoscalingAttrs),
 					"connection_manager":        types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
+					"managed_repack":            types.ObjectNull(ManagedRepackAttrTypes),
 				},
 			),
 			expectedVal: &postgresql.ConfigSpec{
@@ -613,6 +614,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 						"planned_usage_threshold":   types.Int64Value(30),
 					}),
 					"connection_manager": types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
+					"managed_repack":     types.ObjectNull(ManagedRepackAttrTypes),
 				},
 			),
 			expectedVal: &postgresql.ConfigSpec{

@@ -340,6 +340,22 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 							},
 						},
 					},
+					"managed_repack": schema.SingleNestedAttribute{
+						Description: "Managed pg_repack settings.",
+						Optional:    true,
+						Computed:    true,
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								Description: "Enable managed pg_repack for the cluster",
+								Optional:    true,
+								Computed:    true,
+								Default:     booldefault.StaticBool(false),
+							},
+						},
+					},
 					"backup_retain_period_days": schema.Int64Attribute{
 						Description: "The period in days during which backups are stored.",
 						Optional:    true,

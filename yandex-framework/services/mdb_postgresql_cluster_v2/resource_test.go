@@ -433,6 +433,14 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		secrets_folder_id     = "%s"
 	`, folderID, folderID)
 
+	managedRepackEnabled := `
+		enabled = true
+	`
+
+	managedRepackDisabled := `
+		enabled = false
+	`
+
 	dsa := `
 		disk_size_limit = 15
 		emergency_usage_threshold = 20
@@ -472,6 +480,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					postgresqlConfig,
 					maintenanceWindow,
 					connectionManagerEnabled,
+					managedRepackEnabled,
 					backupRetainPeriodDays, true,
 					[]string{
 						"yandex_vpc_security_group.sgroup1.id",
@@ -516,6 +525,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						"enabled":               knownvalue.Bool(true),
 						"connections_folder_id": knownvalue.Null(),
 						"secrets_folder_id":     knownvalue.Null(),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("managed_repack"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled": knownvalue.Bool(true),
 					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"disk_size_limit":           knownvalue.Int64Exact(15),
@@ -568,6 +580,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							StatementsSamplingInterval: 600,
 						},
 					),
+					testAccCheckClusterManagedRepackExact(&cluster, &postgresql.ManagedRepack{
+						Enabled: wrapperspb.Bool(true),
+					}),
 					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
 					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 						Hours:   5,
@@ -624,6 +639,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					postgresqlConfigUpdated,
 					maintenanceWindowUpdated,
 					connectionManagerWithFolderIDs,
+					managedRepackDisabled,
 					backupRetainPeriodDaysUpdated, false,
 					[]string{
 						"yandex_vpc_security_group.sgroup2.id",
@@ -668,6 +684,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						"enabled":               knownvalue.Bool(true),
 						"connections_folder_id": knownvalue.StringExact(folderID),
 						"secrets_folder_id":     knownvalue.StringExact(folderID),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("managed_repack"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled": knownvalue.Bool(false),
 					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"disk_size_limit":           knownvalue.Int64Exact(20),
@@ -718,6 +737,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 							StatementsSamplingInterval: 1000,
 						},
 					),
+					testAccCheckClusterManagedRepackExact(&cluster, &postgresql.ManagedRepack{
+						Enabled: wrapperspb.Bool(false),
+					}),
 					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(14)),
 					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig15_1C{
 						MaxConnections:              wrapperspb.Int64(200),
@@ -777,6 +799,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					postgresqlConfigUpdated,
 					maintenanceWindowUpdated,
 					connectionManagerDisabled,
+					managedRepackDisabled,
 					backupRetainPeriodDaysUpdated, false,
 					[]string{
 						"yandex_vpc_security_group.sgroup2.id",
@@ -796,6 +819,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					postgresqlConfigUpdated,
 					maintenanceWindowUpdated,
 					connectionManagerWithFolderIDs,
+					managedRepackDisabled,
 					backupRetainPeriodDaysUpdated, false,
 					[]string{
 						"yandex_vpc_security_group.sgroup2.id",
@@ -997,6 +1021,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				postgresqlConfig,
 				maintenanceWindow,
 				connectionManagerEnabled,
+				`enabled = false`,
 				backupRetainPeriodDays,
 				false, []string{},
 			),
@@ -1561,6 +1586,15 @@ func testAccCheckClusterPerformanceDiagnosticsExact(r *postgresql.Cluster, expec
 	}
 }
 
+func testAccCheckClusterManagedRepackExact(r *postgresql.Cluster, expected *postgresql.ManagedRepack) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetManagedRepack(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config managed_repack.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetManagedRepack(), expected)
+	}
+}
+
 func testAccCheckClusterBackupRetainPeriodDaysExact(r *postgresql.Cluster, expected *wrapperspb.Int64Value) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if reflect.DeepEqual(r.GetConfig().GetBackupRetainPeriodDays(), expected) {
@@ -1840,7 +1874,7 @@ func testAccMDBPGClusterFull(
 	poolerConfig,
 	dsa,
 	pgConfig,
-	maintenanceWindow, connectionManager string, backupRetainPeriodDays int, deletionProtection bool, confSecurityGroupIds []string,
+	maintenanceWindow, connectionManager, managedRepack string, backupRetainPeriodDays int, deletionProtection bool, confSecurityGroupIds []string,
 ) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster_v2" "%s" {
@@ -1891,8 +1925,11 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
     connection_manager = {
 		%s
 	}
+	managed_repack = {
+		%s
+	}
   }
-  
+
   maintenance_window = {
 	%s
   }
@@ -1903,7 +1940,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
 }
 `, resourceId, clusterName, description, environment,
 		labels, version, resources, access,
-		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, poolerConfig, dsa, pgConfig, connectionManager,
+		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, poolerConfig, dsa, pgConfig, connectionManager, managedRepack,
 		maintenanceWindow, deletionProtection, testAccMDBPostgreSQLSecurityGroupIds(confSecurityGroupIds),
 	)
 }
