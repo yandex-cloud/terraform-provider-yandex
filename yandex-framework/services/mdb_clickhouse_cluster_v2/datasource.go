@@ -186,7 +186,7 @@ func refreshDataSourceState(ctx context.Context, prevState, state *models.Cluste
 	state.Shards = models.FlattenListShard(ctx, currentShards, diags)
 
 	currentShardGroups := clickhouseApi.ListShardGroups(ctx, sdk, diags, cid)
-	state.ShardGroup = models.FlattenListShardGroup(ctx, currentShardGroups, diags)
+	state.ShardGroup = models.FlattenListShardGroup(ctx, currentShardGroups, types.ListNull(types.ObjectType{AttrTypes: models.ShardGroupAttrTypes}), diags)
 
 	currentExtensions := clickhouseApi.ListExtensions(ctx, sdk, diags, cid)
 	state.Extension = models.FlattenListExtensions(ctx, currentExtensions, diags)

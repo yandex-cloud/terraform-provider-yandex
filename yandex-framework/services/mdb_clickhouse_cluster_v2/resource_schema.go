@@ -1169,9 +1169,80 @@ func ShardGroupSchema() schema.ListNestedBlock {
 					},
 				},
 				"shard_names": schema.ListAttribute{
-					Description: "List of shards names that belong to the shard group.",
-					Required:    true,
+					Description: "List of shards names that belong to the shard group. At least one of shard_names or external_shard must be specified.",
+					Optional:    true,
+					Computed:    true,
 					ElementType: types.StringType,
+					PlanModifiers: []planmodifier.List{
+						listplanmodifier.UseStateForUnknown(),
+					},
+				},
+			},
+			Blocks: map[string]schema.Block{
+				"external_shard": schema.ListNestedBlock{
+					Description: "List of external shards in the shard group. At least one of shard_names or external_shard must be specified.",
+					NestedObject: schema.NestedBlockObject{
+						Attributes: map[string]schema.Attribute{
+							"name": schema.StringAttribute{
+								Description: "Name of the external shard.",
+								Required:    true,
+							},
+							"weight": schema.Int64Attribute{
+								Description: "Relative weight of the external shard considered when writing data.",
+								Optional:    true,
+								Computed:    true,
+								PlanModifiers: []planmodifier.Int64{
+									int64planmodifier.UseStateForUnknown(),
+								},
+							},
+						},
+						Blocks: map[string]schema.Block{
+							"replica": schema.ListNestedBlock{
+								Description: "List of replicas in the external shard.",
+								NestedObject: schema.NestedBlockObject{
+									Attributes: map[string]schema.Attribute{
+										"host": schema.StringAttribute{
+											Description: "Name (FQDN) or IP address of the external replica host.",
+											Required:    true,
+										},
+										"port": schema.Int64Attribute{
+											Description: "Port to connect to the external replica. Defaults to the ClickHouse native port (9000).",
+											Optional:    true,
+											Computed:    true,
+											PlanModifiers: []planmodifier.Int64{
+												int64planmodifier.UseStateForUnknown(),
+											},
+										},
+										"secure": schema.BoolAttribute{
+											Description: "Whether to use a secure (SSL/TLS) connection.",
+											Optional:    true,
+											Computed:    true,
+											PlanModifiers: []planmodifier.Bool{
+												boolplanmodifier.UseStateForUnknown(),
+											},
+										},
+										"user": schema.StringAttribute{
+											Description: "Name of the user to authenticate with on the external replica.",
+											Optional:    true,
+										},
+										"password": schema.StringAttribute{
+											Description: "Password of the user to authenticate with on the external replica.",
+											Optional:    true,
+											Sensitive:   true,
+										},
+										"priority": schema.Int64Attribute{
+											Description: "Priority of the external replica for load balancing. Lower value is preferred.",
+											Optional:    true,
+											Computed:    true,
+											PlanModifiers: []planmodifier.Int64{
+												int64planmodifier.UseStateForUnknown(),
+											},
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},

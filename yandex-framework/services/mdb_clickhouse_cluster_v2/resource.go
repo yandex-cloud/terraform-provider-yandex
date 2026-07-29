@@ -340,7 +340,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !state.ShardGroup.Equal(plan.ShardGroup) {
 		// Update shard groups
 		tflog.Debug(ctx, "Updating Clickhouse shard groups")
-		updateShardGroups(ctx, plan, r.providerConfig.SDK, &resp.Diagnostics)
+		updateShardGroups(ctx, state, plan, r.providerConfig.SDK, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -593,7 +593,7 @@ func refreshState(ctx context.Context, prevState, state *models.ClusterResource,
 	state.Shards = models.FlattenListShard(ctx, currentShards, diags)
 
 	currentShardGroups := clickhouseApi.ListShardGroups(ctx, sdk, diags, cid)
-	state.ShardGroup = models.FlattenListShardGroup(ctx, currentShardGroups, diags)
+	state.ShardGroup = models.FlattenListShardGroup(ctx, currentShardGroups, prevState.ShardGroup, diags)
 
 	currentExtensions := clickhouseApi.ListExtensions(ctx, sdk, diags, cid)
 	state.Extension = models.FlattenListExtensions(ctx, currentExtensions, diags)

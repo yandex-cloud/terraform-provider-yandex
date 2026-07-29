@@ -691,13 +691,64 @@ func DataSourceShardGroupSchema() schema.ListNestedBlock {
 					Computed:            true,
 				},
 				"description": schema.StringAttribute{
-					MarkdownDescription: "MarkdownDescription of the shard group.",
+					MarkdownDescription: "Description of the shard group.",
 					Computed:            true,
 				},
 				"shard_names": schema.ListAttribute{
 					MarkdownDescription: "List of shards names that belong to the shard group.",
 					ElementType:         types.StringType,
 					Computed:            true,
+				},
+			},
+			Blocks: map[string]schema.Block{
+				"external_shard": schema.ListNestedBlock{
+					MarkdownDescription: "List of external shards in the shard group.",
+					NestedObject: schema.NestedBlockObject{
+						Attributes: map[string]schema.Attribute{
+							"name": schema.StringAttribute{
+								MarkdownDescription: "Name of the external shard.",
+								Computed:            true,
+							},
+							"weight": schema.Int64Attribute{
+								MarkdownDescription: "Relative weight of the external shard.",
+								Computed:            true,
+							},
+						},
+						Blocks: map[string]schema.Block{
+							"replica": schema.ListNestedBlock{
+								MarkdownDescription: "List of replicas in the external shard.",
+								NestedObject: schema.NestedBlockObject{
+									Attributes: map[string]schema.Attribute{
+										"host": schema.StringAttribute{
+											MarkdownDescription: "Name (FQDN) or IP address of the external replica host.",
+											Computed:            true,
+										},
+										"port": schema.Int64Attribute{
+											MarkdownDescription: "Port to connect to the external replica.",
+											Computed:            true,
+										},
+										"secure": schema.BoolAttribute{
+											MarkdownDescription: "Whether to use a secure (SSL/TLS) connection.",
+											Computed:            true,
+										},
+										"user": schema.StringAttribute{
+											MarkdownDescription: "Name of the user to authenticate with.",
+											Computed:            true,
+										},
+										"password": schema.StringAttribute{
+											MarkdownDescription: "Password of the user (not returned by API).",
+											Computed:            true,
+											Sensitive:           true,
+										},
+										"priority": schema.Int64Attribute{
+											MarkdownDescription: "Priority of the external replica for load balancing.",
+											Computed:            true,
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},

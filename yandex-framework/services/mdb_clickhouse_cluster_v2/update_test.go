@@ -183,7 +183,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareUpdateRequests(t *testing.T) 
 				)
 			}
 
-			sgDelete, gsUpdate, sgCreate := prepareShardGroupUpdateRequests(ctx, stateShardGroups, plan, &diags)
+			sgDelete, gsUpdate, sgCreate := prepareShardGroupUpdateRequests(ctx, stateShardGroups, stateShardGroups, plan, &diags)
 			if diags.HasError() {
 				t.Fatalf(
 					"Unexpected diagnostics in prepareShardGroupUpdateRequests() for %s: %v",

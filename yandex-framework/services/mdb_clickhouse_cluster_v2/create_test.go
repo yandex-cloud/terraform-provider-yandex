@@ -563,6 +563,10 @@ var (
 									types.StringValue("shard2"),
 								},
 							),
+							"external_shard": types.ListValueMust(
+								types.ObjectType{AttrTypes: models.ExternalShardAttrTypes},
+								[]attr.Value{},
+							),
 						},
 					),
 					types.ObjectValueMust(
@@ -575,6 +579,10 @@ var (
 								[]attr.Value{
 									types.StringValue("shard3"),
 								},
+							),
+							"external_shard": types.ListValueMust(
+								types.ObjectType{AttrTypes: models.ExternalShardAttrTypes},
+								[]attr.Value{},
 							),
 						},
 					),

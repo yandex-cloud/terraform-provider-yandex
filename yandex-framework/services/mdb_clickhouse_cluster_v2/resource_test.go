@@ -34,11 +34,12 @@ const (
 	chVersion        = "25.8"
 	chUpdatedVersion = "26.3"
 
-	chResourceKeeper       = "yandex_mdb_clickhouse_cluster_v2.keeper"
-	chResourceCloudStorage = "yandex_mdb_clickhouse_cluster_v2.cloud"
-	chResourceSharded      = "yandex_mdb_clickhouse_cluster_v2.bar"
-	chResource             = "yandex_mdb_clickhouse_cluster_v2.foo"
-	chResourceRestore      = "yandex_mdb_clickhouse_cluster_v2.restore_test"
+	chResourceKeeper        = "yandex_mdb_clickhouse_cluster_v2.keeper"
+	chResourceCloudStorage  = "yandex_mdb_clickhouse_cluster_v2.cloud"
+	chResourceSharded       = "yandex_mdb_clickhouse_cluster_v2.bar"
+	chResource              = "yandex_mdb_clickhouse_cluster_v2.foo"
+	chResourceRestore       = "yandex_mdb_clickhouse_cluster_v2.restore_test"
+	chResourceRemoteServers = "yandex_mdb_clickhouse_cluster_v2.remote_servers"
 
 	chRestoreBackupWithExtensionId = "c9qqv135s8oadbbjcq7m:c9qmqctragekko24qtt3"
 
@@ -1488,6 +1489,105 @@ shard_group {
 	})
 }
 
+// Test that a ClickHouse cluster supports remote_servers (external shards) in a shard group, using a second cluster as the external shard target
+func TestAccMDBClickHouseCluster_remoteServers(t *testing.T) {
+	t.Parallel()
+
+	var cluster clickhouse.Cluster
+	chName := acctest.RandomWithPrefix("tf-clickhouse-remote-servers")
+	chTargetName := acctest.RandomWithPrefix("tf-clickhouse-remote-target")
+	folderID := test.GetExampleFolderID()
+
+	externalShardFirstStep := `
+	external_shard {
+		name   = "ext_shard1"
+		weight = 100
+		replica {
+			host     = yandex_mdb_clickhouse_cluster_v2.remote_servers_target.hosts["eh1"].fqdn
+			port     = 9440
+			secure   = true
+			user     = "admin"
+			password = "strong_external_password"
+			priority = 0
+		}
+	}
+`
+
+	externalShardSecondStep := `
+	external_shard {
+		name   = "ext_shard1"
+		weight = 200
+		replica {
+			host     = yandex_mdb_clickhouse_cluster_v2.remote_servers_target.hosts["eh1"].fqdn
+			port     = 9440
+			secure   = true
+			user     = "admin"
+			password = "strong_external_password"
+			priority = 0
+		}
+	}
+	external_shard {
+		name   = "ext_shard2"
+		weight = 50
+		replica {
+			host     = yandex_mdb_clickhouse_cluster_v2.remote_servers_target.hosts["eh1"].fqdn
+			port     = 9440
+			secure   = true
+			user     = "admin"
+			password = "strong_external_password"
+			priority = 0
+		}
+	}
+`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBClickHouseCluster_remoteServers(chName, chTargetName, externalShardFirstStep),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceRemoteServers, &cluster, 1),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "name", chName),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "folder_id", folderID),
+
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.name", "remote_group"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.0.name", "ext_shard1"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.0.weight", "100"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.0.replica.0.port", "9440"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.0.replica.0.secure", "true"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.0.replica.0.user", "admin"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.0.replica.0.priority", "0"),
+					resource.TestCheckResourceAttrSet(chResourceRemoteServers, "shard_group.0.external_shard.0.replica.0.host"),
+
+					testAccCheckMDBClickHouseClusterHasExternalShards(&cluster, map[string]map[string]int{
+						"remote_group": {"ext_shard1": 1},
+					}),
+					testAccCheckCreatedAtAttr(chResourceRemoteServers),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResourceRemoteServers),
+			{
+				Config: testAccMDBClickHouseCluster_remoteServers(chName, chTargetName, externalShardSecondStep),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceRemoteServers, &cluster, 1),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.0.name", "ext_shard1"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.0.weight", "200"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.1.name", "ext_shard2"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.1.weight", "50"),
+
+					testAccCheckMDBClickHouseClusterHasExternalShards(&cluster, map[string]map[string]int{
+						"remote_group": {"ext_shard1": 1, "ext_shard2": 1},
+					}),
+					testAccCheckCreatedAtAttr(chResourceRemoteServers),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResourceRemoteServers),
+		},
+	})
+}
+
 // Test that a Keeper-based ClickHouse Cluster can be created and destroyed
 func TestAccMDBClickHouseCluster_keeper(t *testing.T) {
 	t.Parallel()
@@ -1881,6 +1981,72 @@ resource "yandex_mdb_clickhouse_cluster_v2" "bar" {
 	)
 }
 
+func testAccMDBClickHouseCluster_remoteServers(name, targetName, externalShard string) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+resource "yandex_mdb_clickhouse_cluster_v2" "remote_servers_target" {
+  name           = "%s"
+  description    = "ClickHouse target cluster used as an external shard"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_external_password"
+
+  hosts = {
+    "eh1" = {
+	  type       = "CLICKHOUSE"
+	  zone       = "ru-central1-a"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  shard_name = "shard1"
+    }
+  }
+
+  shards = {
+	shard1 = {}
+  }
+
+  # maintenance_window
+  %s
+}
+
+resource "yandex_mdb_clickhouse_cluster_v2" "remote_servers" {
+  name           = "%s"
+  description    = "ClickHouse Cluster with remote_servers Terraform Test"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+
+  hosts = {
+    "h1" = {
+	  type       = "CLICKHOUSE"
+	  zone       = "ru-central1-a"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  shard_name = "shard1"
+    }
+  }
+
+  shards = {
+	shard1 = {}
+  }
+
+  shard_group {
+	name        = "remote_group"
+	description = "shard group with external shards"
+	shard_names = [
+		"shard1",
+	]
+	%s
+  }
+
+  # maintenance_window
+  %s
+}
+`,
+		targetName,
+		maintenanceWindowWeekly,
+		name,
+		externalShard,
+		maintenanceWindowWeekly,
+	)
+}
+
 func testAccMDBClickHouseCluster_keeper(name, desc string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "keeper" {
@@ -2208,6 +2374,51 @@ func testAccCheckMDBClickHouseClusterHasShardGroups(r *clickhouse.Cluster, shard
 	}
 }
 
+func testAccCheckMDBClickHouseClusterHasExternalShards(r *clickhouse.Cluster, groups map[string]map[string]int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := test.AccProvider.(*provider.Provider).GetConfig()
+
+		resp, err := config.SDK.MDB().Clickhouse().Cluster().ListShardGroups(context.Background(), &clickhouse.ListClusterShardGroupsRequest{
+			ClusterId: r.Id,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		for groupName, expectedShards := range groups {
+			var group *clickhouse.ShardGroup
+			for _, g := range resp.ShardGroups {
+				if g.Name == groupName {
+					group = g
+					break
+				}
+			}
+			if group == nil {
+				return fmt.Errorf("shard group %q not found", groupName)
+			}
+			if len(group.ExternalShards) != len(expectedShards) {
+				return fmt.Errorf("group %q: expected %d external shards, got %d", groupName, len(expectedShards), len(group.ExternalShards))
+			}
+			for _, es := range group.ExternalShards {
+				wantReplicas, ok := expectedShards[es.Name]
+				if !ok {
+					return fmt.Errorf("group %q: unexpected external shard %q", groupName, es.Name)
+				}
+				if len(es.Replicas) != wantReplicas {
+					return fmt.Errorf("group %q external shard %q: expected %d replicas, got %d", groupName, es.Name, wantReplicas, len(es.Replicas))
+				}
+				for _, rep := range es.Replicas {
+					if rep.Host == "" {
+						return fmt.Errorf("group %q external shard %q: replica has empty host", groupName, es.Name)
+					}
+				}
+			}
+		}
+		return nil
+	}
+}
+
 func testAccCheckCreatedAtAttr(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		const createdAtAttrName = "created_at"
@@ -2406,6 +2617,8 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"clickhouse.config.rabbitmq", // passwords are not returned
 			"external_dictionary.mysql_dict.source.mysql_source.replicas.0.password", // passwords are not returned
 			"external_dictionary.mysql_dict.source.mysql_source.replicas.1.password", // passwords are not returned
+			"shard_group.0.external_shard.0.replica.0.password",                      // passwords are not returned
+			"shard_group.0.external_shard.1.replica.0.password",                      // passwords are not returned
 		},
 	}
 }

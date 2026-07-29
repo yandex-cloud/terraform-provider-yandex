@@ -238,6 +238,7 @@ func prepareShardGroupsCreateRequests(ctx context.Context, plan *models.ClusterR
 			ShardGroupName: shardGroup.Name,
 			Description:    shardGroup.Description,
 			ShardNames:     shardGroup.ShardNames,
+			ExternalShards: shardGroup.ExternalShards,
 		})
 	}
 

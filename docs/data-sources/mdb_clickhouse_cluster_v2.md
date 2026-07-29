@@ -394,6 +394,16 @@ output "network_id" {
 - `shard_group` [Block]. A group of clickhouse shards.
   - `description` (String). Description of the shard group.
   - `name` (**Required**)(String). The name of the shard group, used as cluster name in Distributed tables.
-  - `shard_names` (**Required**)(List Of String). List of shards names that belong to the shard group.
+  - `shard_names` (List Of String). List of shards names that belong to the shard group. At least one of shard_names or external_shard must be specified.
+  - `external_shard` [Block]. List of external shards in the shard group. At least one of shard_names or external_shard must be specified.
+    - `name` (**Required**)(String). Name of the external shard.
+    - `weight` (Number). Relative weight of the external shard considered when writing data.
+    - `replica` [Block]. List of replicas in the external shard.
+      - `host` (**Required**)(String). Name (FQDN) or IP address of the external replica host.
+      - `password` (String). Password of the user to authenticate with on the external replica.
+      - `port` (Number). Port to connect to the external replica. Defaults to the ClickHouse native port (9000).
+      - `priority` (Number). Priority of the external replica for load balancing. Lower value is preferred.
+      - `secure` (Bool). Whether to use a secure (SSL/TLS) connection.
+      - `user` (String). Name of the user to authenticate with on the external replica.
 
 
