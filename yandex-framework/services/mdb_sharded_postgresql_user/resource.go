@@ -3,7 +3,6 @@ package mdb_sharded_postgresql_user
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -109,9 +108,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 
 	cid := plan.ClusterID.ValueString()
 	userName := plan.Name.ValueString()
-	log.Printf("[DEBUG] User state: %v\n", plan)
 	userSpec, diags := userFromState(ctx, &plan)
-	log.Printf("[DEBUG] User spec from state: %v\n", userSpec)
 
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -134,7 +131,6 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 }
 
 func getUpdatePaths(plan, state *User) []string {
-	log.Printf("[DEBUG] Calculate update paths plan: %v state: %v\n", plan, state)
 	var updatePaths []string
 	if state.Password != plan.Password {
 		updatePaths = append(updatePaths, "password")
@@ -182,7 +178,6 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	userName := plan.Name.ValueString()
-	log.Printf("[DEBUG] Updating user %v with update_mask %v", userName, updatePaths)
 
 	shardedPostgreSQLAPI.UpdateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userPlan, updatePaths)
 	if resp.Diagnostics.HasError() {

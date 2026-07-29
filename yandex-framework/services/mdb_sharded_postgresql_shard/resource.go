@@ -3,7 +3,6 @@ package mdb_sharded_postgresql_shard
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -124,7 +123,6 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 }
 
 func getUpdatePaths(plan, state *Shard) []string {
-	log.Printf("[DEBUG] Calculate update paths plan: %v state: %v\n", plan, state)
 	var updatePaths []string
 	return updatePaths
 }
@@ -155,7 +153,6 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	shardName := plan.Name.ValueString()
-	log.Printf("[DEBUG] Updating shard %v with update_mask %v", shardName, updatePaths)
 
 	shardedPostgreSQLAPI.UpdateShard(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, shardPlan, updatePaths)
 	if resp.Diagnostics.HasError() {

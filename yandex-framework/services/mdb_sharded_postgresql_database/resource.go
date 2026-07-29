@@ -3,7 +3,6 @@ package mdb_sharded_postgresql_database
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -108,9 +107,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 
 	cid := plan.ClusterID.ValueString()
 	dbname := plan.Name.ValueString()
-	log.Printf("[DEBUG] Database state: %v\n", plan)
 	dbspec, diags := dbFromState(&plan)
-	log.Printf("[DEBUG] Database spec from state: %v\n", dbspec)
 
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -133,7 +130,6 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 }
 
 func getUpdatePaths(plan, state *Database) []string {
-	log.Printf("[DEBUG] Calculate update paths plan: %v state: %v\n", plan, state)
 	var updatePaths []string
 	return updatePaths
 }
@@ -169,7 +165,6 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	dbname := plan.Name.ValueString()
-	log.Printf("[DEBUG] Updating database %v with update_mask %v", dbname, updatePaths)
 
 	shardedPostgreSQLAPI.UpdateDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbPlan, updatePaths)
 	if resp.Diagnostics.HasError() {

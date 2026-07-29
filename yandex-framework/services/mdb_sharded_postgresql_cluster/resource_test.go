@@ -3,7 +3,6 @@ package mdb_sharded_postgresql_cluster_test
 import (
 	"context"
 	"fmt"
-	"log"
 	"reflect"
 	"regexp"
 	"testing"
@@ -183,7 +182,6 @@ func TestAccMDBShardedPostgreSQLCluster_basic(t *testing.T) {
 func TestAccMDBShardedPostgreSQLCluster_full(t *testing.T) {
 	t.Parallel()
 
-	log.Printf("TestAccMDBShardedPostgreSQLCluster_full")
 	var cluster spqr.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-sharded-postgresql-cluster-full")
 
@@ -435,7 +433,6 @@ func TestAccMDBShardedPostgreSQLCluster_full(t *testing.T) {
 func TestAccMDBShardedPostgreSQLCluster_HostTests(t *testing.T) {
 	t.Parallel()
 
-	log.Printf("TestAccMDBShardedPostgreSQLCluster_HostTests")
 	var cluster spqr.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-sharded_postgresql-cluster-hosts-test")
 	clusterResource := "yandex_mdb_sharded_postgresql_cluster.cluster_host_tests"
