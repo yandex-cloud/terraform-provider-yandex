@@ -201,7 +201,9 @@ resource "yandex_vpc_subnet" "es-subnet-d" {
 - `service_account_id` (String). ID of the service account authorized for this cluster.
 - `status` (*Read-Only*) (String).  Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/).
 - `config` [Block]. Configuration of the OpenSearch cluster.
-  - `admin_password` (**Required**)(String). Password for admin user of OpenSearch.
+  - `admin_password` (String). Password for admin user of OpenSearch.
+  - `admin_password_wo` (String). Password for the OpenSearch admin user. This attribute is write-only and is not stored in state. Requires `admin_password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.
+  - `admin_password_wo_version` (Number). Version number for the write-only administrator password. Increment this value to update the password.
   - `audit_log` [Block]. OpenSearch audit logs settings.
     - `compliance_enabled` (Bool). Enables audit logging on changes to a security index, such as changes to roles mappings and role creation or deletion.
 For details, see [OpenSearch documentation](https://docs.opensearch.org/latest/security/audit-logs/index/#audit-user-account-manipulation).

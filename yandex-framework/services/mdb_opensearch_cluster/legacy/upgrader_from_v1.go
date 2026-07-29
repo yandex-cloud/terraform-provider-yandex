@@ -19,6 +19,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	clusterlog "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/log"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/model"
 	common_schema "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/schema"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/validate"
@@ -52,6 +54,29 @@ type hostWithoutNodeGroup struct {
 	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
 	Zone           types.String `tfsdk:"zone"`
 	SubnetID       types.String `tfsdk:"subnet_id"`
+}
+
+type configV1 struct {
+	Version       types.String `tfsdk:"version"`
+	AdminPassword types.String `tfsdk:"admin_password"`
+	OpenSearch    types.Object `tfsdk:"opensearch"`
+	Dashboards    types.Object `tfsdk:"dashboards"`
+	Access        types.Object `tfsdk:"access"`
+}
+
+type openSearchSubConfigV1 struct {
+	NodeGroups types.List `tfsdk:"node_groups"`
+	Plugins    types.Set  `tfsdk:"plugins"`
+}
+
+type openSearchNodeV1 struct {
+	Name           types.String `tfsdk:"name"`
+	Resources      types.Object `tfsdk:"resources"`
+	HostsCount     types.Int64  `tfsdk:"hosts_count"`
+	ZoneIDs        types.Set    `tfsdk:"zone_ids"`
+	SubnetIDs      types.List   `tfsdk:"subnet_ids"`
+	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
+	Roles          types.Set    `tfsdk:"roles"`
 }
 
 func hostsWithoutNodeGroup() schema.SetNestedAttribute {
@@ -95,6 +120,73 @@ func transformHosts(ctx context.Context, hostsAttr basetypes.SetValue) (basetype
 	}
 
 	return types.ListValueFrom(ctx, model.HostType, target)
+}
+
+func transformConfigV1(ctx context.Context, configValue types.Object) (types.Object, diag.Diagnostics) {
+	var oldConfig configV1
+	diags := configValue.As(ctx, &oldConfig, datasize.DefaultOpts)
+	if diags.HasError() {
+		return types.ObjectUnknown(model.ConfigAttrTypes), diags
+	}
+
+	var oldOpenSearch openSearchSubConfigV1
+	diags.Append(oldConfig.OpenSearch.As(ctx, &oldOpenSearch, datasize.DefaultOpts)...)
+	if diags.HasError() {
+		return types.ObjectUnknown(model.ConfigAttrTypes), diags
+	}
+
+	var oldNodeGroups []openSearchNodeV1
+	diags.Append(oldOpenSearch.NodeGroups.ElementsAs(ctx, &oldNodeGroups, false)...)
+	if diags.HasError() {
+		return types.ObjectUnknown(model.ConfigAttrTypes), diags
+	}
+
+	nodeGroups := make([]model.OpenSearchNode, 0, len(oldNodeGroups))
+	for _, oldNodeGroup := range oldNodeGroups {
+		nodeGroups = append(nodeGroups, model.OpenSearchNode{
+			Name:                oldNodeGroup.Name,
+			Resources:           oldNodeGroup.Resources,
+			HostsCount:          oldNodeGroup.HostsCount,
+			ZoneIDs:             oldNodeGroup.ZoneIDs,
+			SubnetIDs:           oldNodeGroup.SubnetIDs,
+			AssignPublicIP:      oldNodeGroup.AssignPublicIP,
+			Roles:               oldNodeGroup.Roles,
+			DiskSizeAutoscaling: types.ObjectNull(model.DiskSizeAutoscalingAttrTypes),
+		})
+	}
+
+	newNodeGroups, d := types.ListValueFrom(ctx, model.OpenSearchNodeType, nodeGroups)
+	diags.Append(d...)
+	if diags.HasError() {
+		return types.ObjectUnknown(model.ConfigAttrTypes), diags
+	}
+
+	newOpenSearch, d := types.ObjectValueFrom(ctx, model.OpenSearchSubConfigAttrTypes, model.OpenSearchSubConfig{
+		NodeGroups: newNodeGroups,
+		Plugins:    oldOpenSearch.Plugins,
+		Config:     types.ObjectNull(model.OpenSearchConfig2Types),
+	})
+	diags.Append(d...)
+	if diags.HasError() {
+		return types.ObjectUnknown(model.ConfigAttrTypes), diags
+	}
+
+	newConfig, d := types.ObjectValueFrom(ctx, model.ConfigAttrTypes, model.Config{
+		Version:                oldConfig.Version,
+		AdminPassword:          oldConfig.AdminPassword,
+		AdminPasswordWo:        types.StringNull(),
+		AdminPasswordWoVersion: types.Int64Null(),
+		OpenSearch:             newOpenSearch,
+		Dashboards:             oldConfig.Dashboards,
+		Access:                 oldConfig.Access,
+		AuditLog:               types.ObjectNull(model.AuditLogTypes),
+	})
+	diags.Append(d...)
+	if diags.HasError() {
+		return types.ObjectUnknown(model.ConfigAttrTypes), diags
+	}
+
+	return newConfig, diags
 }
 
 // return StateUpgrader implementation from 1 (prior state version) to 2 (Schema.Version)
@@ -309,9 +401,17 @@ func NewUpgraderFromV1(ctx context.Context) resource.StateUpgrader {
 				return
 			}
 
-			tflog.Debug(ctx, fmt.Sprintf("UpgraderFromV1.OldModel: %+v\n", oldModel))
+			redactedOldModel := oldModel
+			redactedOldModel.Config = clusterlog.RedactAdminPassword(ctx, oldModel.Config)
+			tflog.Debug(ctx, fmt.Sprintf("UpgraderFromV1.OldModel: %+v\n", redactedOldModel))
 
 			newHosts, diags := transformHosts(ctx, oldModel.Hosts)
+			resp.Diagnostics.Append(diags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			newConfig, diags := transformConfigV1(ctx, oldModel.Config)
 			resp.Diagnostics.Append(diags...)
 			if resp.Diagnostics.HasError() {
 				return
@@ -325,9 +425,10 @@ func NewUpgraderFromV1(ctx context.Context) resource.StateUpgrader {
 				FolderID:           oldModel.FolderID,
 				CreatedAt:          oldModel.CreatedAt,
 				Name:               oldModel.Name,
+				Description:        oldModel.Description,
 				Labels:             oldModel.Labels,
 				Environment:        oldModel.Environment,
-				Config:             oldModel.Config,
+				Config:             newConfig,
 				Hosts:              newHosts,
 				NetworkID:          oldModel.NetworkID,
 				Health:             oldModel.Health,

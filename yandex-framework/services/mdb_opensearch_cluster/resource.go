@@ -146,7 +146,7 @@ func (o *openSearchClusterResource) ModifyPlan(ctx context.Context, req resource
 		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("ModifyPlan plan after NodeGroups update: %+v", plan))
+	tflog.Debug(ctx, fmt.Sprintf("ModifyPlan plan after NodeGroups update: %+v", log.RedactModel(ctx, &plan)))
 
 	if !isOpenSearchHostsChanged && !isDashboardsChanged {
 		tflog.Debug(ctx, "Use state hosts, because config.opensearch.node_groups and config.dashboards.node_groups not changed")
@@ -159,8 +159,10 @@ func (o *openSearchClusterResource) ModifyPlan(ctx context.Context, req resource
 // Create implements resource.Resource.
 func (o *openSearchClusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan model.OpenSearch
+	var adminPasswordWo types.String
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("config").AtName("admin_password_wo"), &adminPasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -175,13 +177,13 @@ func (o *openSearchClusterResource) Create(ctx context.Context, req resource.Cre
 	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
-	clusterCreateRequest, diags := cluster.PrepareCreateRequest(ctx, &plan, &o.providerConfig.ProviderState)
+	clusterCreateRequest, diags := cluster.PrepareCreateRequest(ctx, &plan, adminPasswordWo, &o.providerConfig.ProviderState)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("Creating OpenSearch Cluster request: %+v", clusterCreateRequest))
+	tflog.Debug(ctx, fmt.Sprintf("Creating OpenSearch Cluster request: %+v", log.RedactCreateClusterRequest(clusterCreateRequest)))
 
 	clusterID := request.CreateCluster(ctx, o.providerConfig.SDK, &resp.Diagnostics, clusterCreateRequest)
 	if resp.Diagnostics.HasError() {
@@ -269,8 +271,10 @@ func (o *openSearchClusterResource) Read(ctx context.Context, req resource.ReadR
 func (o *openSearchClusterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan model.OpenSearch
 	var state model.OpenSearch
+	var adminPasswordWo types.String
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("config").AtName("admin_password_wo"), &adminPasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -285,16 +289,16 @@ func (o *openSearchClusterResource) Update(ctx context.Context, req resource.Upd
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 
-	tflog.Debug(ctx, fmt.Sprintf("UpdateOpenSearch Cluster state: %+v", state))
-	tflog.Debug(ctx, fmt.Sprintf("UpdateOpenSearch Cluster plan: %+v", plan))
+	tflog.Debug(ctx, fmt.Sprintf("UpdateOpenSearch Cluster state: %+v", log.RedactModel(ctx, &state)))
+	tflog.Debug(ctx, fmt.Sprintf("UpdateOpenSearch Cluster plan: %+v", log.RedactModel(ctx, &plan)))
 
-	updateReq, d := cluster.PrepareUpdateParamsRequest(ctx, &state, &plan)
+	updateReq, d := cluster.PrepareUpdateParamsRequest(ctx, &state, &plan, adminPasswordWo)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("UpdateOpenSearch Cluster request: %+v", updateReq))
+	tflog.Debug(ctx, fmt.Sprintf("UpdateOpenSearch Cluster request: %+v", log.RedactUpdateClusterRequest(updateReq)))
 	request.UpdateClusterSpec(ctx, o.providerConfig.SDK, &resp.Diagnostics, updateReq)
 	if resp.Diagnostics.HasError() {
 		return
@@ -489,6 +493,9 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 			}),
 			"config": schema.SingleNestedBlock{
 				MarkdownDescription: descriptions.Config,
+				Validators: []validator.Object{
+					objectvalidator.IsRequired(),
+				},
 				Attributes: map[string]schema.Attribute{
 					"version": schema.StringAttribute{
 						MarkdownDescription: descriptions.Version,
@@ -497,10 +504,35 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 					},
 					"admin_password": schema.StringAttribute{
 						MarkdownDescription: descriptions.AdminPassword,
-						Required:            true,
+						Optional:            true,
 						Sensitive:           true,
+						Validators: []validator.String{
+							stringvalidator.ExactlyOneOf(
+								path.MatchRelative().AtParent().AtName("admin_password_wo"),
+							),
+						},
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.UseStateForUnknown(),
+						},
+					},
+					"admin_password_wo": schema.StringAttribute{
+						MarkdownDescription: descriptions.AdminPasswordWo,
+						Optional:            true,
+						Sensitive:           true,
+						WriteOnly:           true,
+						Validators: []validator.String{
+							stringvalidator.AlsoRequires(
+								path.MatchRelative().AtParent().AtName("admin_password_wo_version"),
+							),
+						},
+					},
+					"admin_password_wo_version": schema.Int64Attribute{
+						MarkdownDescription: descriptions.AdminPasswordWoVersion,
+						Optional:            true,
+						Validators: []validator.Int64{
+							int64validator.AlsoRequires(
+								path.MatchRelative().AtParent().AtName("admin_password_wo"),
+							),
 						},
 					},
 					"audit_log": common_schema.AuditLog(),
@@ -852,7 +884,7 @@ func updateState(ctx context.Context, sdk *ycsdk.SDK, state *model.OpenSearch, d
 
 	state.ClusterID = state.ID
 
-	tflog.Debug(ctx, fmt.Sprintf("updateState: OpenSearch Cluster state: %+v", state))
+	tflog.Debug(ctx, fmt.Sprintf("updateState: OpenSearch Cluster state: %+v", log.RedactModel(ctx, state)))
 	tflog.Debug(ctx, fmt.Sprintf("updateState: Received OpenSearch Cluster data: %+v", cluster))
 
 	diags := model.ClusterToState(ctx, cluster, state)
@@ -883,5 +915,5 @@ func updateState(ctx context.Context, sdk *ycsdk.SDK, state *model.OpenSearch, d
 		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("updatedState: OpenSearch Cluster state: %+v", state))
+	tflog.Debug(ctx, fmt.Sprintf("updatedState: OpenSearch Cluster state: %+v", log.RedactModel(ctx, state)))
 }

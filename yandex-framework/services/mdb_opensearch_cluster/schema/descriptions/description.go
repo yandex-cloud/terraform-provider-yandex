@@ -11,9 +11,11 @@ const (
 	Dashboards = "Configuration for Dashboards node groups."
 
 	// Configuration attributes
-	Version       = "Version of OpenSearch."
-	AdminPassword = "Password for admin user of OpenSearch."
-	Plugins       = "A set of requested OpenSearch plugins."
+	Version                = "Version of OpenSearch."
+	AdminPassword          = "Password for admin user of OpenSearch."
+	AdminPasswordWo        = "Password for the OpenSearch admin user. This attribute is write-only and is not stored in state. Requires `admin_password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later."
+	AdminPasswordWoVersion = "Version number for the write-only administrator password. Increment this value to update the password."
+	Plugins                = "A set of requested OpenSearch plugins."
 
 	// Node group attributes
 	NodeGroups          = "A set of named OpenSearch node group configurations."

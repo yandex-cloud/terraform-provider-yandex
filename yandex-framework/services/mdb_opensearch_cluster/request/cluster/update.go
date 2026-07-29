@@ -5,13 +5,14 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/model"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
-func PrepareUpdateParamsRequest(ctx context.Context, state, plan *model.OpenSearch) (*opensearch.UpdateClusterRequest, diag.Diagnostics) {
+func PrepareUpdateParamsRequest(ctx context.Context, state, plan *model.OpenSearch, adminPasswordWo types.String) (*opensearch.UpdateClusterRequest, diag.Diagnostics) {
 	clusterID := state.ID.ValueString()
 
 	req := &opensearch.UpdateClusterRequest{
@@ -46,7 +47,7 @@ func PrepareUpdateParamsRequest(ctx context.Context, state, plan *model.OpenSear
 			return nil, diags
 		}
 
-		config, updateMaskPaths, diags := prepareConfigChange(ctx, planConfig, stateConfig)
+		config, updateMaskPaths, diags := prepareConfigChange(ctx, planConfig, stateConfig, adminPasswordWo)
 		if diags.HasError() {
 			return nil, diags
 		}
@@ -93,7 +94,7 @@ func PrepareUpdateParamsRequest(ctx context.Context, state, plan *model.OpenSear
 	return req, diag.Diagnostics{}
 }
 
-func prepareConfigChange(ctx context.Context, plan, state *model.Config) (*opensearch.ConfigUpdateSpec, []string, diag.Diagnostics) {
+func prepareConfigChange(ctx context.Context, plan, state *model.Config, adminPasswordWo types.String) (*opensearch.ConfigUpdateSpec, []string, diag.Diagnostics) {
 	var updateMaskPaths []string
 	config := &opensearch.ConfigUpdateSpec{}
 	diags := diag.Diagnostics{}
@@ -103,9 +104,22 @@ func prepareConfigChange(ctx context.Context, plan, state *model.Config) (*opens
 		updateMaskPaths = append(updateMaskPaths, "config_spec.version")
 	}
 
-	//do not check !AdminPassword.IsUnknown() because of planModifier useStateForUnknown
-	if !plan.AdminPassword.Equal(state.AdminPassword) {
+	// do not check !AdminPassword.IsUnknown() because of planModifier useStateForUnknown
+	if !plan.AdminPassword.IsNull() && !plan.AdminPassword.Equal(state.AdminPassword) {
 		config.AdminPassword = plan.AdminPassword.ValueString()
+		updateMaskPaths = append(updateMaskPaths, "config_spec.admin_password")
+	}
+
+	if !plan.AdminPasswordWoVersion.IsNull() && !plan.AdminPasswordWoVersion.Equal(state.AdminPasswordWoVersion) {
+		if adminPasswordWo.IsNull() || adminPasswordWo.IsUnknown() {
+			diags.AddError(
+				"Missing OpenSearch admin password",
+				"config.admin_password_wo must be configured when config.admin_password_wo_version changes",
+			)
+			return nil, nil, diags
+		}
+
+		config.AdminPassword = adminPasswordWo.ValueString()
 		updateMaskPaths = append(updateMaskPaths, "config_spec.admin_password")
 	}
 

@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	clusterlog "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/log"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/model"
 	common_schema "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/schema"
 )
@@ -294,17 +295,21 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 				return
 			}
 
-			tflog.Debug(ctx, fmt.Sprintf("UpgraderFromV0.OldModel: %+v\n", oldModel))
+			redactedOldModel := oldModel
+			redactedOldModel.Config = clusterlog.RedactAdminPasswordList(ctx, oldModel.Config)
+			tflog.Debug(ctx, fmt.Sprintf("UpgraderFromV0.OldModel: %+v\n", redactedOldModel))
 
 			oldConfigs := make([]config, 0, 1)
 			resp.Diagnostics.Append(oldModel.Config.ElementsAs(ctx, &oldConfigs, false)...)
 			oldConfig := oldConfigs[0]
 
 			newConfig := model.Config{
-				Version:       oldConfig.Version,
-				AdminPassword: oldConfig.AdminPassword,
-				Access:        oldConfig.Access,
-				AuditLog:      oldConfig.AuditLog,
+				Version:                oldConfig.Version,
+				AdminPassword:          oldConfig.AdminPassword,
+				AdminPasswordWo:        types.StringNull(),
+				AdminPasswordWoVersion: types.Int64Null(),
+				Access:                 oldConfig.Access,
+				AuditLog:               oldConfig.AuditLog,
 			}
 
 			openSearchSubConfigs := make([]openSearchSubConfig, 0, 1)

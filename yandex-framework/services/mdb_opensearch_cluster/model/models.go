@@ -37,6 +37,28 @@ type OpenSearch struct {
 }
 
 type Config struct {
+	Version                types.String `tfsdk:"version"`
+	AdminPassword          types.String `tfsdk:"admin_password"`
+	AdminPasswordWo        types.String `tfsdk:"admin_password_wo"`
+	AdminPasswordWoVersion types.Int64  `tfsdk:"admin_password_wo_version"`
+	OpenSearch             types.Object `tfsdk:"opensearch"`
+	Dashboards             types.Object `tfsdk:"dashboards"`
+	Access                 types.Object `tfsdk:"access"`
+	AuditLog               types.Object `tfsdk:"audit_log"`
+}
+
+var ConfigAttrTypes = map[string]attr.Type{
+	"version":                   types.StringType,
+	"admin_password":            types.StringType,
+	"admin_password_wo":         types.StringType,
+	"admin_password_wo_version": types.Int64Type,
+	"opensearch":                types.ObjectType{AttrTypes: OpenSearchSubConfigAttrTypes},
+	"dashboards":                types.ObjectType{AttrTypes: DashboardsSubConfigAttrTypes},
+	"access":                    types.ObjectType{AttrTypes: accessAttrTypes},
+	"audit_log":                 types.ObjectType{AttrTypes: AuditLogTypes},
+}
+
+type dataSourceConfig struct {
 	Version       types.String `tfsdk:"version"`
 	AdminPassword types.String `tfsdk:"admin_password"`
 	OpenSearch    types.Object `tfsdk:"opensearch"`
@@ -45,7 +67,7 @@ type Config struct {
 	AuditLog      types.Object `tfsdk:"audit_log"`
 }
 
-var ConfigAttrTypes = map[string]attr.Type{
+var dataSourceConfigAttrTypes = map[string]attr.Type{
 	"version":        types.StringType,
 	"admin_password": types.StringType,
 	"opensearch":     types.ObjectType{AttrTypes: OpenSearchSubConfigAttrTypes},
@@ -109,12 +131,16 @@ func configToState(ctx context.Context, cfg *opensearch.ClusterConfig, state *Op
 		return types.ObjectUnknown(ConfigAttrTypes), diags
 	}
 
-	adminPassword := types.StringValue("")
+	adminPassword := types.StringNull()
+	adminPasswordWoVersion := types.Int64Null()
 	if !(stateCfg == nil || stateCfg.AdminPassword.IsNull() || stateCfg.AdminPassword.IsUnknown()) {
 		adminPassword, diags = stateCfg.AdminPassword.ToStringValue(ctx)
 		if diags.HasError() {
 			return types.ObjectUnknown(ConfigAttrTypes), diags
 		}
+	}
+	if !(stateCfg == nil || stateCfg.AdminPasswordWoVersion.IsNull() || stateCfg.AdminPasswordWoVersion.IsUnknown()) {
+		adminPasswordWoVersion = stateCfg.AdminPasswordWoVersion
 	}
 
 	//It is required to have a config.opensearch block, so we can skip checking it
@@ -148,7 +174,20 @@ func configToState(ctx context.Context, cfg *opensearch.ClusterConfig, state *Op
 		return types.ObjectUnknown(AuditLogTypes), diags
 	}
 
-	return types.ObjectValueFrom(ctx, ConfigAttrTypes, Config{
+	if _, isResourceConfig := state.Config.AttributeTypes(ctx)["admin_password_wo"]; isResourceConfig {
+		return types.ObjectValueFrom(ctx, ConfigAttrTypes, Config{
+			Version:                types.StringValue(cfg.GetVersion()),
+			AdminPassword:          adminPassword,
+			AdminPasswordWo:        types.StringNull(),
+			AdminPasswordWoVersion: adminPasswordWoVersion,
+			OpenSearch:             opensearchSubConfig,
+			Dashboards:             dashboardSubConfig,
+			Access:                 access,
+			AuditLog:               auditLog,
+		})
+	}
+
+	return types.ObjectValueFrom(ctx, dataSourceConfigAttrTypes, dataSourceConfig{
 		Version:       types.StringValue(cfg.GetVersion()),
 		AdminPassword: adminPassword,
 		OpenSearch:    opensearchSubConfig,
@@ -239,6 +278,38 @@ func stringsAreEqual(str1, str2 types.String) bool {
 }
 
 func ParseConfig(ctx context.Context, state *OpenSearch) (*Config, diag.Diagnostics) {
+	if state.Config.IsNull() || state.Config.IsUnknown() {
+		return &Config{
+			Version:                types.StringNull(),
+			AdminPassword:          types.StringNull(),
+			AdminPasswordWo:        types.StringNull(),
+			AdminPasswordWoVersion: types.Int64Null(),
+			OpenSearch:             types.ObjectNull(OpenSearchSubConfigAttrTypes),
+			Dashboards:             types.ObjectNull(DashboardsSubConfigAttrTypes),
+			Access:                 types.ObjectNull(accessAttrTypes),
+			AuditLog:               types.ObjectNull(AuditLogTypes),
+		}, diag.Diagnostics{}
+	}
+
+	if _, isResourceConfig := state.Config.AttributeTypes(ctx)["admin_password_wo"]; !isResourceConfig {
+		dataSourceCfg := &dataSourceConfig{}
+		diags := state.Config.As(ctx, dataSourceCfg, datasize.DefaultOpts)
+		if diags.HasError() {
+			return nil, diags
+		}
+
+		return &Config{
+			Version:                dataSourceCfg.Version,
+			AdminPassword:          dataSourceCfg.AdminPassword,
+			AdminPasswordWo:        types.StringNull(),
+			AdminPasswordWoVersion: types.Int64Null(),
+			OpenSearch:             dataSourceCfg.OpenSearch,
+			Dashboards:             dataSourceCfg.Dashboards,
+			Access:                 dataSourceCfg.Access,
+			AuditLog:               dataSourceCfg.AuditLog,
+		}, diag.Diagnostics{}
+	}
+
 	planConfig := &Config{}
 	diags := state.Config.As(ctx, &planConfig, datasize.DefaultOpts)
 	if diags.HasError() {

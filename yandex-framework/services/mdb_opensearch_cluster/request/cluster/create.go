@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	osconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
@@ -13,7 +14,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/request/nodegroups"
 )
 
-func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, providerConfig *config.State) (*opensearch.CreateClusterRequest, diag.Diagnostics) {
+func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, adminPasswordWo types.String, providerConfig *config.State) (*opensearch.CreateClusterRequest, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 
 	// o.providerConfig.ProviderState.FolderID -- as default FolderID if not specified
@@ -36,7 +37,7 @@ func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, providerC
 		return nil, diags
 	}
 
-	config, diags := prepareConfigCreateSpec(ctx, plan)
+	config, diags := prepareConfigCreateSpec(ctx, plan, adminPasswordWo)
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -81,10 +82,14 @@ func PrepareCreateRequest(ctx context.Context, plan *model.OpenSearch, providerC
 	return req, diag.Diagnostics{}
 }
 
-func prepareConfigCreateSpec(ctx context.Context, c *model.OpenSearch) (*opensearch.ConfigCreateSpec, diag.Diagnostics) {
-	config, diags := model.ParseConfig(ctx, c)
+func prepareConfigCreateSpec(ctx context.Context, plan *model.OpenSearch, adminPasswordWo types.String) (*opensearch.ConfigCreateSpec, diag.Diagnostics) {
+	config, diags := model.ParseConfig(ctx, plan)
 	if diags.HasError() {
 		return nil, diags
+	}
+	adminPassword := config.AdminPassword.ValueString()
+	if !adminPasswordWo.IsNull() && !adminPasswordWo.IsUnknown() {
+		adminPassword = adminPasswordWo.ValueString()
 	}
 
 	access, diags := tryToAccess(ctx, config)
@@ -142,7 +147,7 @@ func prepareConfigCreateSpec(ctx context.Context, c *model.OpenSearch) (*opensea
 	if config.Dashboards.IsNull() || config.Dashboards.IsUnknown() {
 		return &opensearch.ConfigCreateSpec{
 			Access:         access,
-			AdminPassword:  config.AdminPassword.ValueString(),
+			AdminPassword:  adminPassword,
 			Version:        config.Version.ValueString(),
 			OpensearchSpec: opensearchSpec,
 			AuditLog:       auditLog,
@@ -165,7 +170,7 @@ func prepareConfigCreateSpec(ctx context.Context, c *model.OpenSearch) (*opensea
 
 	return &opensearch.ConfigCreateSpec{
 		Access:         access,
-		AdminPassword:  config.AdminPassword.ValueString(),
+		AdminPassword:  adminPassword,
 		Version:        config.Version.ValueString(),
 		OpensearchSpec: opensearchSpec,
 		DashboardsSpec: dashboardsSpec,

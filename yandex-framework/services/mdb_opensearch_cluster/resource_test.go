@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	frameworkresource "github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
@@ -21,6 +23,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
+	opensearchcluster "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster"
 	pc "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/plancheck"
 )
 
@@ -35,14 +38,64 @@ func TestMain(m *testing.M) {
 	resource.TestMain(m)
 }
 
+func TestAdminPasswordWoSchema(t *testing.T) {
+	var resp frameworkresource.SchemaResponse
+	opensearchcluster.NewResource().Schema(context.Background(), frameworkresource.SchemaRequest{}, &resp)
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("schema diagnostics: %#v", resp.Diagnostics)
+	}
+
+	configBlock, ok := resp.Schema.Blocks["config"].(schema.SingleNestedBlock)
+	if !ok {
+		t.Fatalf("config block type = %T, want schema.SingleNestedBlock", resp.Schema.Blocks["config"])
+	}
+	if len(configBlock.Validators) != 1 {
+		t.Fatalf("config block validators = %d, want required block validator", len(configBlock.Validators))
+	}
+
+	legacyPassword, ok := configBlock.Attributes["admin_password"].(schema.StringAttribute)
+	if !ok {
+		t.Fatalf("config.admin_password type = %T, want schema.StringAttribute", configBlock.Attributes["admin_password"])
+	}
+	if !legacyPassword.IsOptional() || legacyPassword.IsRequired() {
+		t.Fatal("config.admin_password must remain optional for backwards compatibility")
+	}
+	if len(legacyPassword.Validators) != 1 {
+		t.Fatalf("config.admin_password validators = %d, want exactly-one-of validator", len(legacyPassword.Validators))
+	}
+
+	writeOnlyPassword, ok := configBlock.Attributes["admin_password_wo"].(schema.StringAttribute)
+	if !ok {
+		t.Fatalf("config.admin_password_wo type = %T, want schema.StringAttribute", configBlock.Attributes["admin_password_wo"])
+	}
+	if !writeOnlyPassword.IsOptional() || !writeOnlyPassword.IsWriteOnly() || !writeOnlyPassword.IsSensitive() {
+		t.Fatal("config.admin_password_wo must be optional, write-only, and sensitive")
+	}
+	if len(writeOnlyPassword.Validators) != 1 {
+		t.Fatalf("config.admin_password_wo validators = %d, want also-requires validator", len(writeOnlyPassword.Validators))
+	}
+
+	version, ok := configBlock.Attributes["admin_password_wo_version"].(schema.Int64Attribute)
+	if !ok {
+		t.Fatalf("config.admin_password_wo_version type = %T, want schema.Int64Attribute", configBlock.Attributes["admin_password_wo_version"])
+	}
+	if !version.IsOptional() || version.IsWriteOnly() {
+		t.Fatal("config.admin_password_wo_version must be an optional state attribute")
+	}
+	if len(version.Validators) != 1 {
+		t.Fatalf("config.admin_password_wo_version validators = %d, want also-requires validator", len(version.Validators))
+	}
+}
+
 func mdbOpenSearchClusterImportStep(name string) resource.TestStep {
 	return resource.TestStep{
 		ResourceName:      name,
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"health",                // volatile value
-			"config.admin_password", // not importable
+			"health",                           // volatile value
+			"config.admin_password",            // not importable
+			"config.admin_password_wo_version", // not importable
 		},
 	}
 

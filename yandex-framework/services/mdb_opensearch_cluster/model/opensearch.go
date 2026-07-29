@@ -257,7 +257,7 @@ func sameRoles(ctx context.Context, state types.Set, res []opensearch.OpenSearch
 
 func ParseOpenSearchSubConfig(ctx context.Context, state *Config) (OpenSearchSubConfig, diag.Diagnostics) {
 	var res OpenSearchSubConfig
-	if state == nil {
+	if state == nil || state.OpenSearch.IsNull() || state.OpenSearch.IsUnknown() {
 		return res, diag.Diagnostics{}
 	}
 
