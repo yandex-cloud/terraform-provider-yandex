@@ -151,9 +151,9 @@ func (r *yandexResourcemanagerCloudResource) Create(ctx context.Context, req res
 	defer cancel()
 
 	createReq := &resourcemanager.CreateCloudRequest{}
-	createReq.SetOrganizationId(converter.GetOrganizationID(plan.OrganizationId.ValueString(), r.providerConfig, &diags))
 	createReq.SetName(plan.Name.ValueString())
 	createReq.SetDescription(plan.Description.ValueString())
+	createReq.SetOrganizationId(converter.GetOrganizationID(plan.OrganizationId.ValueString(), r.providerConfig, &diags))
 	createReq.SetLabels(expandYandexResourcemanagerCloudLabels(ctx, plan.Labels, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -312,10 +312,10 @@ func (r *yandexResourcemanagerCloudResource) Update(ctx context.Context, req res
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.CloudId.Equal(state.CloudId) {
+	if !plan.CloudId.IsUnknown() && !plan.CloudId.Equal(state.CloudId) {
 		updatePaths = append(updatePaths, "cloud_id")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -324,10 +324,10 @@ func (r *yandexResourcemanagerCloudResource) Update(ctx context.Context, req res
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if len(updatePaths) != 0 {

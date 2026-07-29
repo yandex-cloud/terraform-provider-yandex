@@ -64,6 +64,40 @@ func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) GetUpdate
 	return m.UpdatedAt
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetApplicationId(target types.String) {
+	m.ApplicationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetClientGrant(target types.Object) {
+	m.ClientGrant = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetGroupClaimsSettings(target types.Object) {
+	m.GroupClaimsSettings = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+
 func NewYandexOrganizationmanagerIdpApplicationOauthApplicationModel() yandexOrganizationmanagerIdpApplicationOauthApplicationModel {
 	return yandexOrganizationmanagerIdpApplicationOauthApplicationModel{
 		ApplicationId:       types.StringNull(),
@@ -175,7 +209,6 @@ func expandYandexOrganizationmanagerIdpApplicationOauthApplication(ctx context.C
 func expandYandexOrganizationmanagerIdpApplicationOauthApplicationModel(ctx context.Context, yandexOrganizationmanagerIdpApplicationOauthApplicationState yandexOrganizationmanagerIdpApplicationOauthApplicationModel, diags *diag.Diagnostics) *oauth.Application {
 	value := &oauth.Application{}
 	value.SetId(yandexOrganizationmanagerIdpApplicationOauthApplicationState.ApplicationId.ValueString())
-	value.SetId(yandexOrganizationmanagerIdpApplicationOauthApplicationState.ApplicationId.ValueString())
 	value.SetClientGrant(expandYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrant(ctx, yandexOrganizationmanagerIdpApplicationOauthApplicationState.ClientGrant, diags))
 	value.SetCreatedAt(converter.ParseTimestamp(yandexOrganizationmanagerIdpApplicationOauthApplicationState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexOrganizationmanagerIdpApplicationOauthApplicationState.Description.ValueString())
@@ -201,6 +234,13 @@ func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel
 }
 func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel) GetClientId() types.String {
 	return m.ClientId
+}
+
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel) SetAuthorizedScopes(target types.Set) {
+	m.AuthorizedScopes = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel) SetClientId(target types.String) {
+	m.ClientId = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel() yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel {
@@ -307,6 +347,10 @@ type yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsM
 
 func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel) GetGroupDistributionType() types.String {
 	return m.GroupDistributionType
+}
+
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel) SetGroupDistributionType(target types.String) {
+	m.GroupDistributionType = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel() yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel {

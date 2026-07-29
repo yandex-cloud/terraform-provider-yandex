@@ -320,19 +320,19 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Update(ctx context.Con
 	if state.Audiences.IsNull() {
 		state.Audiences = types.SetNull(types.StringType)
 	}
-	if !plan.Audiences.Equal(state.Audiences) {
+	if !plan.Audiences.IsUnknown() && !plan.Audiences.Equal(state.Audiences) {
 		updatePaths = append(updatePaths, "audiences")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.Disabled.Equal(state.Disabled) {
+	if !plan.Disabled.IsUnknown() && !plan.Disabled.Equal(state.Disabled) {
 		updatePaths = append(updatePaths, "disabled")
 	}
-	if !plan.FederationId.Equal(state.FederationId) {
+	if !plan.FederationId.IsUnknown() && !plan.FederationId.Equal(state.FederationId) {
 		updatePaths = append(updatePaths, "federation_id")
 	}
-	if !plan.JwksUrl.Equal(state.JwksUrl) {
+	if !plan.JwksUrl.IsUnknown() && !plan.JwksUrl.Equal(state.JwksUrl) {
 		updatePaths = append(updatePaths, "jwks_url")
 	}
 	if plan.Labels.IsNull() {
@@ -341,10 +341,10 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Update(ctx context.Con
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if len(updatePaths) != 0 {

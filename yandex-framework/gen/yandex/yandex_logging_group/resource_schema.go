@@ -141,8 +141,8 @@ func YandexLoggingGroupResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"log_group_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the log group to return.\n\n To get a log group ID make a [LogGroupService.List] request.",
-				Description: "ID of the log group to return.\n\n To get a log group ID make a [LogGroupService.List] request." +
+				MarkdownDescription: "ID of the log group to return.\n To get a log group ID make a [LogGroupService.List] request.",
+				Description: "ID of the log group to return.\n To get a log group ID make a [LogGroupService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.logging.v1.DeleteLogGroupRequest.log_group_id
 					// -> yandex.cloud.logging.v1.GetLogGroupRequest.log_group_id
@@ -162,8 +162,8 @@ func YandexLoggingGroupResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the log group to return.\n\n To get a log group ID make a [LogGroupService.List] request.",
-				Description: "ID of the log group to return.\n\n To get a log group ID make a [LogGroupService.List] request." +
+				MarkdownDescription: "ID of the log group to return.\n To get a log group ID make a [LogGroupService.List] request.",
+				Description: "ID of the log group to return.\n To get a log group ID make a [LogGroupService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.logging.v1.DeleteLogGroupRequest.log_group_id
 					// -> yandex.cloud.logging.v1.GetLogGroupRequest.log_group_id
@@ -203,8 +203,8 @@ func YandexLoggingGroupResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"retention_period": schema.StringAttribute{
-				MarkdownDescription: "Log group entry retention period.\n\n Entries will be present in group during this period.",
-				Description: "Log group entry retention period.\n\n Entries will be present in group during this period." +
+				MarkdownDescription: "Log group entry retention period.\n Entries will be present in group during this period.",
+				Description: "Log group entry retention period.\n Entries will be present in group during this period." +
 					// proto paths: +
 					// -> yandex.cloud.logging.v1.CreateLogGroupRequest.retention_period
 					// -> yandex.cloud.logging.v1.LogGroup.retention_period

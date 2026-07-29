@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	saml "github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/idp/application/saml"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModel struct {
@@ -26,6 +25,13 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingA
 }
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModel) GetValue() types.String {
 	return m.Value
+}
+
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModel) SetValue(target types.String) {
+	m.Value = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModel() yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingAttributeStructModel {
@@ -100,6 +106,13 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAs
 	return m.Url
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModel) SetIndex(target types.Int64) {
+	m.Index = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModel) SetUrl(target types.String) {
+	m.Url = target
+}
+
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModel() yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModel {
 	return yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModel{
 		Index: types.Int64Null(),
@@ -152,7 +165,7 @@ func expandYandexOrganizationmanagerIdpApplicationSamlApplicationServiceProvider
 
 func expandYandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModel(ctx context.Context, yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructState yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructModel, diags *diag.Diagnostics) *saml.AssertionConsumerServiceURL {
 	value := &saml.AssertionConsumerServiceURL{}
-	value.SetIndex(wrapperspb.Int64((yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructState.Index.ValueInt64())))
+	value.SetIndex(converter.WrappedInt64(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructState.Index))
 	value.SetUrl(yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderAssertionConsumerServiceURLStructState.Url.ValueString())
 	if diags.HasError() {
 		return nil
@@ -174,6 +187,16 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSi
 }
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModel) GetUrl() types.String {
 	return m.Url
+}
+
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModel) SetProtocolBinding(target types.String) {
+	m.ProtocolBinding = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModel) SetResponseUrl(target types.String) {
+	m.ResponseUrl = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModel) SetUrl(target types.String) {
+	m.Url = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModel() yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderSingleLogoutServiceURLStructModel {
@@ -302,6 +325,49 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) GetStatus(
 }
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) GetUpdatedAt() types.String {
 	return m.UpdatedAt
+}
+
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetApplicationId(target types.String) {
+	m.ApplicationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetAttributeMapping(target types.Object) {
+	m.AttributeMapping = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetGroupClaimsSettings(target types.Object) {
+	m.GroupClaimsSettings = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetIdentityProviderMetadata(target types.Object) {
+	m.IdentityProviderMetadata = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetSecuritySettings(target types.Object) {
+	m.SecuritySettings = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetServiceProvider(target types.Object) {
+	m.ServiceProvider = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationModel() yandexOrganizationmanagerIdpApplicationSamlApplicationModel {
@@ -433,7 +499,6 @@ func expandYandexOrganizationmanagerIdpApplicationSamlApplication(ctx context.Co
 func expandYandexOrganizationmanagerIdpApplicationSamlApplicationModel(ctx context.Context, yandexOrganizationmanagerIdpApplicationSamlApplicationState yandexOrganizationmanagerIdpApplicationSamlApplicationModel, diags *diag.Diagnostics) *saml.Application {
 	value := &saml.Application{}
 	value.SetId(yandexOrganizationmanagerIdpApplicationSamlApplicationState.ApplicationId.ValueString())
-	value.SetId(yandexOrganizationmanagerIdpApplicationSamlApplicationState.ApplicationId.ValueString())
 	value.SetAttributeMapping(expandYandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMapping(ctx, yandexOrganizationmanagerIdpApplicationSamlApplicationState.AttributeMapping, diags))
 	value.SetCreatedAt(converter.ParseTimestamp(yandexOrganizationmanagerIdpApplicationSamlApplicationState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexOrganizationmanagerIdpApplicationSamlApplicationState.Description.ValueString())
@@ -462,6 +527,13 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingM
 }
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingModel) GetNameId() types.Object {
 	return m.NameId
+}
+
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingModel) SetAttributes(target types.List) {
+	m.Attributes = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingModel) SetNameId(target types.Object) {
+	m.NameId = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingModel() yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingModel {
@@ -614,6 +686,13 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingN
 	return m.Value
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel) SetFormat(target types.String) {
+	m.Format = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel) SetValue(target types.String) {
+	m.Value = target
+}
+
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel() yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel {
 	return yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel{
 		Format: types.StringNull(),
@@ -698,6 +777,7 @@ func expandYandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappin
 func expandYandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel_create(ctx context.Context, yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel, diags *diag.Diagnostics) *saml.NameIdSpec {
 	value := &saml.NameIdSpec{}
 	value.SetFormat(saml.NameId_Format(saml.NameId_Format_value[yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState.Format.ValueString()]))
+	value.SetValue(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState.Value.ValueString())
 	if diags.HasError() {
 		return nil
 	}
@@ -706,6 +786,7 @@ func expandYandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappin
 func expandYandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel_update(ctx context.Context, yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdModel, diags *diag.Diagnostics) *saml.NameIdSpec {
 	value := &saml.NameIdSpec{}
 	value.SetFormat(saml.NameId_Format(saml.NameId_Format_value[yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState.Format.ValueString()]))
+	value.SetValue(yandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappingNameIdState.Value.ValueString())
 	if diags.HasError() {
 		return nil
 	}
@@ -722,6 +803,13 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettin
 }
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) GetGroupDistributionType() types.String {
 	return m.GroupDistributionType
+}
+
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) SetGroupAttributeName(target types.String) {
+	m.GroupAttributeName = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) SetGroupDistributionType(target types.String) {
+	m.GroupDistributionType = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel() yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel {
@@ -802,6 +890,19 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationIdentityProviderM
 }
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationIdentityProviderMetadataModel) GetSsoUrl() types.String {
 	return m.SsoUrl
+}
+
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationIdentityProviderMetadataModel) SetIssuer(target types.String) {
+	m.Issuer = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationIdentityProviderMetadataModel) SetMetadataUrl(target types.String) {
+	m.MetadataUrl = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationIdentityProviderMetadataModel) SetSloUrl(target types.String) {
+	m.SloUrl = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationIdentityProviderMetadataModel) SetSsoUrl(target types.String) {
+	m.SsoUrl = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationIdentityProviderMetadataModel() yandexOrganizationmanagerIdpApplicationSamlApplicationIdentityProviderMetadataModel {
@@ -927,6 +1028,13 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsM
 	return m.SignatureMode
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsModel) SetSignatureCertificateId(target types.String) {
+	m.SignatureCertificateId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsModel) SetSignatureMode(target types.String) {
+	m.SignatureMode = target
+}
+
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsModel() yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsModel {
 	return yandexOrganizationmanagerIdpApplicationSamlApplicationSecuritySettingsModel{
 		SignatureCertificateId: types.StringNull(),
@@ -1020,6 +1128,16 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderMo
 }
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderModel) GetSloUrls() types.List {
 	return m.SloUrls
+}
+
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderModel) SetAcsUrls(target types.List) {
+	m.AcsUrls = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderModel) SetEntityId(target types.String) {
+	m.EntityId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderModel) SetSloUrls(target types.List) {
+	m.SloUrls = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderModel() yandexOrganizationmanagerIdpApplicationSamlApplicationServiceProviderModel {

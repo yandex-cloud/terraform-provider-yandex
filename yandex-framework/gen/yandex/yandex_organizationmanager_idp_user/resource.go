@@ -12,13 +12,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	idp "github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/idp"
 	idpsdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/idp"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var _ resource.ResourceWithConfigure = (*yandexOrganizationmanagerIdpUserResource)(nil)
@@ -163,8 +163,13 @@ func (r *yandexOrganizationmanagerIdpUserResource) Create(ctx context.Context, r
 	if !(plan.PasswordHash.IsNull() || plan.PasswordHash.IsUnknown() || plan.PasswordHash.Equal(types.Object{})) {
 		createReq.SetPasswordHash(expandYandexOrganizationmanagerIdpUserPasswordHash(ctx, plan.PasswordHash, &diags))
 	}
-	createReq.SetIsActive(wrapperspb.Bool(plan.IsActive.ValueBool()))
+	createReq.SetIsActive(converter.WrappedBool(plan.IsActive))
 	createReq.SetExternalId(plan.ExternalId.ValueString())
+	createReq.SetCompanyName(plan.CompanyName.ValueString())
+	createReq.SetDepartment(plan.Department.ValueString())
+	createReq.SetJobTitle(plan.JobTitle.ValueString())
+	createReq.SetEmployeeId(plan.EmployeeId.ValueString())
+	createReq.SetExpiresAt(converter.ParseTimestamp(plan.ExpiresAt.ValueString(), &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -321,25 +326,40 @@ func (r *yandexOrganizationmanagerIdpUserResource) Update(ctx context.Context, r
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Email.Equal(state.Email) {
+	if !plan.CompanyName.IsUnknown() && !plan.CompanyName.Equal(state.CompanyName) {
+		updatePaths = append(updatePaths, "company_name")
+	}
+	if !plan.Department.IsUnknown() && !plan.Department.Equal(state.Department) {
+		updatePaths = append(updatePaths, "department")
+	}
+	if !plan.Email.IsUnknown() && !plan.Email.Equal(state.Email) {
 		updatePaths = append(updatePaths, "email")
 	}
-	if !plan.FamilyName.Equal(state.FamilyName) {
+	if !plan.EmployeeId.IsUnknown() && !plan.EmployeeId.Equal(state.EmployeeId) {
+		updatePaths = append(updatePaths, "employee_id")
+	}
+	if !plan.ExpiresAt.IsUnknown() && !plan.ExpiresAt.Equal(state.ExpiresAt) {
+		updatePaths = append(updatePaths, "expires_at")
+	}
+	if !plan.FamilyName.IsUnknown() && !plan.FamilyName.Equal(state.FamilyName) {
 		updatePaths = append(updatePaths, "family_name")
 	}
-	if !plan.FullName.Equal(state.FullName) {
+	if !plan.FullName.IsUnknown() && !plan.FullName.Equal(state.FullName) {
 		updatePaths = append(updatePaths, "full_name")
 	}
-	if !plan.GivenName.Equal(state.GivenName) {
+	if !plan.GivenName.IsUnknown() && !plan.GivenName.Equal(state.GivenName) {
 		updatePaths = append(updatePaths, "given_name")
 	}
-	if !plan.PhoneNumber.Equal(state.PhoneNumber) {
+	if !plan.JobTitle.IsUnknown() && !plan.JobTitle.Equal(state.JobTitle) {
+		updatePaths = append(updatePaths, "job_title")
+	}
+	if !plan.PhoneNumber.IsUnknown() && !plan.PhoneNumber.Equal(state.PhoneNumber) {
 		updatePaths = append(updatePaths, "phone_number")
 	}
-	if !plan.UserId.Equal(state.UserId) {
+	if !plan.UserId.IsUnknown() && !plan.UserId.Equal(state.UserId) {
 		updatePaths = append(updatePaths, "user_id")
 	}
-	if !plan.Username.Equal(state.Username) {
+	if !plan.Username.IsUnknown() && !plan.Username.Equal(state.Username) {
 		updatePaths = append(updatePaths, "username")
 	}
 	if len(updatePaths) != 0 {
@@ -356,6 +376,11 @@ func (r *yandexOrganizationmanagerIdpUserResource) Update(ctx context.Context, r
 		updateReq.SetFamilyName(plan.FamilyName.ValueString())
 		updateReq.SetEmail(plan.Email.ValueString())
 		updateReq.SetPhoneNumber(plan.PhoneNumber.ValueString())
+		updateReq.SetCompanyName(plan.CompanyName.ValueString())
+		updateReq.SetDepartment(plan.Department.ValueString())
+		updateReq.SetJobTitle(plan.JobTitle.ValueString())
+		updateReq.SetEmployeeId(plan.EmployeeId.ValueString())
+		updateReq.SetExpiresAt(converter.ParseTimestamp(plan.ExpiresAt.ValueString(), &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

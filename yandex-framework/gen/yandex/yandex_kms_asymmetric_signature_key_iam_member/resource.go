@@ -71,7 +71,7 @@ func (u *IAMMemberUpdater) Schema(_ context.Context, _ resource.SchemaRequest, r
 				},
 			},
 			"asymmetric_signature_key_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the compute `asymmetric_signature_key` to attach the policy to.",
+				MarkdownDescription: "The ID of the `asymmetric_signature_key` to attach the policy to.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),

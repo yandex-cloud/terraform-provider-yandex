@@ -312,13 +312,13 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Update(ctx context.Context, re
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.AsymmetricSignatureKeyId.Equal(state.AsymmetricSignatureKeyId) {
+	if !plan.AsymmetricSignatureKeyId.IsUnknown() && !plan.AsymmetricSignatureKeyId.Equal(state.AsymmetricSignatureKeyId) {
 		updatePaths = append(updatePaths, "key_id")
 	}
-	if !plan.DeletionProtection.Equal(state.DeletionProtection) {
+	if !plan.DeletionProtection.IsUnknown() && !plan.DeletionProtection.Equal(state.DeletionProtection) {
 		updatePaths = append(updatePaths, "deletion_protection")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -327,13 +327,13 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Update(ctx context.Context, re
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.Status.Equal(state.Status) {
+	if !plan.Status.IsUnknown() && !plan.Status.Equal(state.Status) {
 		updatePaths = append(updatePaths, "status")
 	}
 	if len(updatePaths) != 0 {

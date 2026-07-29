@@ -317,25 +317,25 @@ func (r *yandexOrganizationmanagerMfaEnforcementResource) Update(ctx context.Con
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.AcrId.Equal(state.AcrId) {
+	if !plan.AcrId.IsUnknown() && !plan.AcrId.Equal(state.AcrId) {
 		updatePaths = append(updatePaths, "acr_id")
 	}
-	if !plan.ApplyAt.Equal(state.ApplyAt) {
+	if !plan.ApplyAt.IsUnknown() && !plan.ApplyAt.Equal(state.ApplyAt) {
 		updatePaths = append(updatePaths, "apply_at")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.EnrollWindow.Equal(state.EnrollWindow) {
+	if !plan.EnrollWindow.IsUnknown() && !plan.EnrollWindow.Equal(state.EnrollWindow) {
 		updatePaths = append(updatePaths, "enroll_window")
 	}
-	if !plan.MfaEnforcementId.Equal(state.MfaEnforcementId) {
+	if !plan.MfaEnforcementId.IsUnknown() && !plan.MfaEnforcementId.Equal(state.MfaEnforcementId) {
 		updatePaths = append(updatePaths, "mfa_enforcement_id")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.Ttl.Equal(state.Ttl) {
+	if !plan.Ttl.IsUnknown() && !plan.Ttl.Equal(state.Ttl) {
 		updatePaths = append(updatePaths, "ttl")
 	}
 

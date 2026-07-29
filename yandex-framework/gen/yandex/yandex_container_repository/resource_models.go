@@ -30,6 +30,16 @@ func (m *yandexContainerRepositoryModel) GetID() types.String {
 	return m.ID
 }
 
+func (m *yandexContainerRepositoryModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexContainerRepositoryModel) SetRepositoryId(target types.String) {
+	m.RepositoryId = target
+}
+func (m *yandexContainerRepositoryModel) SetID(target types.String) {
+	m.ID = target
+}
+
 func NewYandexContainerRepositoryModel() yandexContainerRepositoryModel {
 	return yandexContainerRepositoryModel{
 		Name:         types.StringNull(),
@@ -93,7 +103,6 @@ func expandYandexContainerRepository(ctx context.Context, yandexContainerReposit
 func expandYandexContainerRepositoryModel(ctx context.Context, yandexContainerRepositoryState yandexContainerRepositoryModel, diags *diag.Diagnostics) *containerregistry.Repository {
 	value := &containerregistry.Repository{}
 	value.SetName(yandexContainerRepositoryState.Name.ValueString())
-	value.SetId(yandexContainerRepositoryState.RepositoryId.ValueString())
 	value.SetId(yandexContainerRepositoryState.RepositoryId.ValueString())
 	if diags.HasError() {
 		return nil

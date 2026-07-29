@@ -75,6 +75,49 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) 
 	return m.UpdatedAt
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetApplicationId(target types.String) {
+	m.ApplicationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetAttributeMapping(target types.Object) {
+	m.AttributeMapping = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetGroupClaimsSettings(target types.Object) {
+	m.GroupClaimsSettings = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetIdentityProviderMetadata(target types.Object) {
+	m.IdentityProviderMetadata = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetSecuritySettings(target types.Object) {
+	m.SecuritySettings = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetServiceProvider(target types.Object) {
+	m.ServiceProvider = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel() yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel {
 	return yandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceModel{
 		ApplicationId:            types.StringNull(),

@@ -96,7 +96,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Name of the ClickHouse cluster. For Managed ClickHouse that is name of\n ShardGroup or managed cluster ID by default",
 										Description: "Name of the ClickHouse cluster. For Managed ClickHouse that is name of\n ShardGroup or managed cluster ID by default" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.clickhouse_cluster_name
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.clickhouse_cluster_name
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -121,7 +121,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "ID of connection in Connection Manager with installation params and credetials",
 																			Description: "ID of connection in Connection Manager with installation params and credetials" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -131,7 +131,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																			Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -141,7 +141,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Get ClickHouse installation params and credentials from Connection Manager",
 																Description: "Get ClickHouse installation params and credentials from Connection Manager" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connection
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connection
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -151,7 +151,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Database name",
 																Description: "Database name" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.database
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.database
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -161,7 +161,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Managed ClickHouse cluster",
 																Description: "Identifier of the Managed ClickHouse cluster" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.mdb_cluster_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.mdb_cluster_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -176,7 +176,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.http_port
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.http_port
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -186,7 +186,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.native_port
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.native_port
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -202,7 +202,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "",
 																						Description: "" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shardsyandex.cloud.datatransfer.v1.endpoint.ClickhouseShard.hosts
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shards -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseShard.hosts
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																						Computed: true,
@@ -212,7 +212,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "",
 																						Description: "" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shardsyandex.cloud.datatransfer.v1.endpoint.ClickhouseShard.name
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shards -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseShard.name
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																						Computed: true,
@@ -222,7 +222,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shards
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shards
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -238,7 +238,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																						Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -253,7 +253,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -263,7 +263,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "TLS is used for the server connection",
 																						Description: "TLS is used for the server connection" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -273,7 +273,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS settings for server connection. Disabled by default",
 																			Description: "TLS settings for server connection. Disabled by default" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -283,7 +283,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Connection settings of the on-premise ClickHouse server",
 																Description: "Connection settings of the on-premise ClickHouse server" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -298,7 +298,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Raw secret value",
 																			Description: "Raw secret value" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed:  true,
@@ -309,7 +309,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Password for the database access",
 																Description: "Password for the database access" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.password
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.password
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -319,7 +319,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "User for database access. Required unless connection_manager_connection is used",
 																Description: "User for database access. Required unless connection_manager_connection is used" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.user
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.user
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -329,7 +329,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 													Computed: true,
@@ -339,7 +339,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Connection settings",
 										Description: "Connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -350,7 +350,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Exclude list of tables for replication. If none or empty list is presented -\n will replicate all tables. Can contain * patterns.",
 										Description: "Exclude list of tables for replication. If none or empty list is presented -\n will replicate all tables. Can contain * patterns." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.exclude_tables
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.exclude_tables
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -361,7 +361,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "White list of tables for replication. If none or empty list is presented - will\n replicate all tables. Can contain * patterns.",
 										Description: "White list of tables for replication. If none or empty list is presented - will\n replicate all tables. Can contain * patterns." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.include_tables
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.include_tables
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -372,7 +372,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -382,7 +382,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_sourceyandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.subnet_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSource.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -392,7 +392,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_source
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -412,7 +412,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Source table name",
 													Description: "Source table name" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.alt_namesyandex.cloud.datatransfer.v1.endpoint.AltName.from_name
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.alt_names -> yandex.cloud.datatransfer.v1.endpoint.AltName.from_name
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed: true,
@@ -422,7 +422,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Target table name",
 													Description: "Target table name" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.alt_namesyandex.cloud.datatransfer.v1.endpoint.AltName.to_name
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.alt_names -> yandex.cloud.datatransfer.v1.endpoint.AltName.to_name
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed: true,
@@ -432,7 +432,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Table renaming rules in target",
 										Description: "Table renaming rules in target" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.alt_names
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.alt_names
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -442,7 +442,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "How to clean collections when activating the transfer. One of\n `CLICKHOUSE_CLEANUP_POLICY_DISABLED` or `CLICKHOUSE_CLEANUP_POLICY_DROP`",
 										Description: "How to clean collections when activating the transfer. One of\n `CLICKHOUSE_CLEANUP_POLICY_DISABLED` or `CLICKHOUSE_CLEANUP_POLICY_DROP`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.cleanup_policy
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.cleanup_policy
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -452,7 +452,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Name of the ClickHouse cluster. For Managed ClickHouse that is name of\n ShardGroup or managed cluster ID by default.",
 										Description: "Name of the ClickHouse cluster. For Managed ClickHouse that is name of\n ShardGroup or managed cluster ID by default." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.clickhouse_cluster_name
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.clickhouse_cluster_name
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -477,7 +477,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "ID of connection in Connection Manager with installation params and credetials",
 																			Description: "ID of connection in Connection Manager with installation params and credetials" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -487,7 +487,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																			Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -497,7 +497,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Get ClickHouse installation params and credentials from Connection Manager",
 																Description: "Get ClickHouse installation params and credentials from Connection Manager" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connection
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.connection_manager_connection
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -507,7 +507,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Database name",
 																Description: "Database name" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.database
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.database
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -517,7 +517,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Managed ClickHouse cluster",
 																Description: "Identifier of the Managed ClickHouse cluster" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.mdb_cluster_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.mdb_cluster_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -532,7 +532,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.http_port
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.http_port
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -542,7 +542,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.native_port
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.native_port
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -558,7 +558,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "",
 																						Description: "" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shardsyandex.cloud.datatransfer.v1.endpoint.ClickhouseShard.hosts
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shards -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseShard.hosts
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																						Computed: true,
@@ -568,7 +568,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "",
 																						Description: "" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shardsyandex.cloud.datatransfer.v1.endpoint.ClickhouseShard.name
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shards -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseShard.name
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																						Computed: true,
@@ -578,7 +578,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shards
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.shards
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -594,7 +594,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																						Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -609,7 +609,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -619,7 +619,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "TLS is used for the server connection",
 																						Description: "TLS is used for the server connection" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -629,7 +629,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS settings for server connection. Disabled by default",
 																			Description: "TLS settings for server connection. Disabled by default" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseClickhouse.tls_mode
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -639,7 +639,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Connection settings of the on-premise ClickHouse server",
 																Description: "Connection settings of the on-premise ClickHouse server" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.on_premise
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -654,7 +654,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Raw secret value",
 																			Description: "Raw secret value" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed:  true,
@@ -665,7 +665,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Password for the database access",
 																Description: "Password for the database access" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.password
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.password
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -675,7 +675,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "User for database access. Required unless connection_manager_connection is used",
 																Description: "User for database access. Required unless connection_manager_connection is used" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.user
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnectionOptions.user
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -685,7 +685,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connectionyandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseConnection.connection_options
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 													Computed: true,
@@ -695,7 +695,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Connection settings",
 										Description: "Connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -705,7 +705,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Whether can change table schema if schema changed on source",
 										Description: "Whether can change table schema if schema changed on source" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.is_schema_migration_disabled
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.is_schema_migration_disabled
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -716,7 +716,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -736,7 +736,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "The name of the column to calculate hash from",
 																Description: "The name of the column to calculate hash from" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.column_value_hashyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueHash.column_name
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.column_value_hash -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueHash.column_name
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -746,7 +746,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Shard data by the hash value of the specified column",
 													Description: "Shard data by the hash value of the specified column" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.column_value_hash
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.column_value_hash
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 													Computed: true,
@@ -761,7 +761,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "The name of the column to inspect when deciding the shard to chose for an\n incoming row",
 																Description: "The name of the column to inspect when deciding the shard to chose for an\n incoming row" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mappingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.column_name
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mapping -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.column_name
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -781,7 +781,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "",
 																						Description: "" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mappingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.mappingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.ValueToShard.column_valueyandex.cloud.datatransfer.v1.endpoint.ColumnValue.string_value
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mapping -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.mapping -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.ValueToShard.column_value -> yandex.cloud.datatransfer.v1.endpoint.ColumnValue.string_value
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -791,7 +791,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mappingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.mappingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.ValueToShard.column_value
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mapping -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.mapping -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.ValueToShard.column_value
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -801,7 +801,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mappingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.mappingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.ValueToShard.shard_name
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mapping -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.mapping -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.ValueToShard.shard_name
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																			Computed: true,
@@ -811,7 +811,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "The mapping of the specified column values to the shard names",
 																Description: "The mapping of the specified column values to the shard names" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mappingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.mapping
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mapping -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.ColumnValueMapping.mapping
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 																Computed: true,
@@ -821,7 +821,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "A custom shard mapping by the value of the specified column",
 													Description: "A custom shard mapping by the value of the specified column" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mapping
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.custom_mapping
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 													Computed: true,
@@ -832,7 +832,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Distribute incoming rows between ClickHouse shards in a round-robin manner.\n Specify as an empty block to enable",
 													Description: "Distribute incoming rows between ClickHouse shards in a round-robin manner.\n Specify as an empty block to enable" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.round_robin
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.round_robin
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 													Computed: true,
@@ -843,7 +843,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Shard data by ID of the transfer",
 													Description: "Shard data by ID of the transfer" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.shardingyandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.transfer_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseSharding.transfer_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 													Computed: true,
@@ -853,7 +853,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Shard selection rules for the data being transferred",
 										Description: "Shard selection rules for the data being transferred" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.sharding
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -863,7 +863,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_targetyandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.subnet_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target -> yandex.cloud.datatransfer.v1.endpoint.ClickhouseTarget.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/clickhouse.proto\n",
 										Computed: true,
@@ -873,7 +873,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.clickhouse_target
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -894,7 +894,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "No authentication",
 													Description: "No authentication" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.no_auth
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.no_auth
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -909,7 +909,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "SASL mechanism for authentication, use one of: KAFKA_MECHANISM_SHA256,\n KAFKA_MECHANISM_SHA512",
 																Description: "SASL mechanism for authentication, use one of: KAFKA_MECHANISM_SHA256,\n KAFKA_MECHANISM_SHA512" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.saslyandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.mechanism
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl -> yandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.mechanism
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -924,7 +924,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Raw secret value",
 																			Description: "Raw secret value" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.saslyandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl -> yandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed:  true,
@@ -935,7 +935,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Password for user",
 																Description: "Password for user" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.saslyandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.password
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl -> yandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.password
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -945,7 +945,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "User name",
 																Description: "User name" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.saslyandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.user
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl -> yandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.user
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -955,7 +955,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Authentication with SASL",
 													Description: "Authentication with SASL" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -965,7 +965,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Authentication settings",
 										Description: "Authentication settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.auth
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.auth
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -980,7 +980,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Managed Service for Kafka cluster ID.\n Set only one of: cluster_id/on_premise/connection_manager_connection",
 													Description: "Managed Service for Kafka cluster ID.\n Set only one of: cluster_id/on_premise/connection_manager_connection" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.cluster_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.cluster_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -995,7 +995,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "ID of connection in Connection Manager with installation params and credetials",
 																Description: "ID of connection in Connection Manager with installation params and credetials" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -1005,7 +1005,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -1015,7 +1015,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Get Kafka installation params and credentials from Connection Manager\n Set only one of: cluster_id/on_premise/connection_manager_connection",
 													Description: "Get Kafka installation params and credentials from Connection Manager\n Set only one of: cluster_id/on_premise/connection_manager_connection" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connection
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connection
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -1031,7 +1031,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Kafka broker URLs",
 																Description: "Kafka broker URLs" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.broker_urls
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.broker_urls
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1041,7 +1041,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1057,7 +1057,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -1072,7 +1072,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -1082,7 +1082,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS is used for the server connection",
 																			Description: "TLS is used for the server connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -1092,7 +1092,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "TLS settings for broker connection. Disabled by default.",
 																Description: "TLS settings for broker connection. Disabled by default." +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1102,7 +1102,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Connection options for on-premise Kafka\n Set only one of: cluster_id/on_premise/connection_manager_connection",
 													Description: "Connection options for on-premise Kafka\n Set only one of: cluster_id/on_premise/connection_manager_connection" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -1112,7 +1112,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Connection settings",
 										Description: "Connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1128,7 +1128,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Parse Audit Trails data. Empty struct",
 													Description: "Parse Audit Trails data. Empty struct" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.audit_trails_v1_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.audit_trails_v1_parser
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 													Computed: true,
@@ -1139,7 +1139,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Parse Cloud Logging data. Empty struct",
 													Description: "Parse Cloud Logging data. Empty struct" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.cloud_logging_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.cloud_logging_parser
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 													Computed: true,
@@ -1154,7 +1154,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Will add _rest column for all unknown fields",
 																Description: "Will add _rest column for all unknown fields" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.add_rest_column
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.add_rest_column
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -1179,7 +1179,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Mark field as Primary Key",
 																									Description: "Mark field as Primary Key" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.key
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.key
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1189,7 +1189,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Field name",
 																									Description: "Field name" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.name
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.name
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1199,7 +1199,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Path to the field",
 																									Description: "Path to the field" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.path
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.path
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1209,7 +1209,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Mark field as required",
 																									Description: "Mark field as required" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.required
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.required
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1219,7 +1219,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`,\n `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`.",
 																									Description: "Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`,\n `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`." +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.type
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.type
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1229,7 +1229,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "Description of the column schema in the array of `fields` structure",
 																						Description: "Description of the column schema in the array of `fields` structure" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fields
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -1239,7 +1239,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Description of the data schema in the array of `fields` structure",
 																			Description: "Description of the data schema in the array of `fields` structure" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fields
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -1250,7 +1250,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Description of the data schema as JSON specification\n Deprecated: please use fields instead",
 																			Description: "Description of the data schema as JSON specification\n Deprecated: please use fields instead" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -1260,7 +1260,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Data parsing scheme",
 																Description: "Data parsing scheme" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -1270,7 +1270,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Allow null keys, if no - null keys will be putted to unparsed data",
 																Description: "Allow null keys, if no - null keys will be putted to unparsed data" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.null_keys_allowed
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.null_keys_allowed
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -1280,7 +1280,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Unescape string values",
 																Description: "Unescape string values" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.unescape_string_values
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.unescape_string_values
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -1290,7 +1290,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Parse data in json format",
 													Description: "Parse data in json format" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 													Computed: true,
@@ -1305,7 +1305,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Will add _rest column for all unknown fields",
 																Description: "Will add _rest column for all unknown fields" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.add_rest_column
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.add_rest_column
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -1330,7 +1330,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Mark field as Primary Key",
 																									Description: "Mark field as Primary Key" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.key
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.key
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1340,7 +1340,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Field name",
 																									Description: "Field name" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.name
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.name
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1350,7 +1350,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Path to the field",
 																									Description: "Path to the field" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.path
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.path
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1360,7 +1360,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Mark field as required",
 																									Description: "Mark field as required" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.required
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.required
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1370,7 +1370,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`,\n `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`.",
 																									Description: "Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`,\n `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`." +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.type
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.type
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -1380,7 +1380,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "Description of the column schema in the array of `fields` structure",
 																						Description: "Description of the column schema in the array of `fields` structure" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fields
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -1390,7 +1390,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Description of the data schema in the array of `fields` structure",
 																			Description: "Description of the data schema in the array of `fields` structure" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fields
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -1401,7 +1401,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Description of the data schema as JSON specification\n Deprecated: please use fields instead",
 																			Description: "Description of the data schema as JSON specification\n Deprecated: please use fields instead" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -1411,7 +1411,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Data parsing scheme",
 																Description: "Data parsing scheme" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -1421,7 +1421,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Allow null keys, if no - null keys will be putted to unparsed data",
 																Description: "Allow null keys, if no - null keys will be putted to unparsed data" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.null_keys_allowed
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.null_keys_allowed
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -1431,7 +1431,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Unescape string values",
 																Description: "Unescape string values" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.unescape_string_values
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.unescape_string_values
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -1441,7 +1441,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Parse data in tskv format",
 													Description: "Parse data in tskv format" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 													Computed: true,
@@ -1451,7 +1451,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Data parsing parameters. If not set, the source messages are read in raw",
 										Description: "Data parsing parameters. If not set, the source messages are read in raw" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1462,7 +1462,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1473,7 +1473,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "**Deprecated**. Please use `topic_names` instead\n Full source topic name",
 										Description: "**Deprecated**. Please use `topic_names` instead\n Full source topic name" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.topic_name
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.topic_name
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1484,7 +1484,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of full source topic names to read",
 										Description: "List of full source topic names to read" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.topic_names
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.topic_names
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1499,7 +1499,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Flush interval",
 													Description: "Flush interval" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformeryandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.buffer_flush_interval
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformer -> yandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.buffer_flush_interval
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed: true,
@@ -1509,7 +1509,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Buffer size for function. Maximum 4 GB.  Use value with units, i.e. 10 B, 20 kB,\n 2.0 MB, 30 MB, 1.0 GB",
 													Description: "Buffer size for function. Maximum 4 GB.  Use value with units, i.e. 10 B, 20 kB,\n 2.0 MB, 30 MB, 1.0 GB" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformeryandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.buffer_size
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformer -> yandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.buffer_size
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed: true,
@@ -1519,7 +1519,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Cloud function",
 													Description: "Cloud function" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformeryandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.cloud_function
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformer -> yandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.cloud_function
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed: true,
@@ -1529,7 +1529,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Invocation timeout",
 													Description: "Invocation timeout" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformeryandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.invocation_timeout
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformer -> yandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.invocation_timeout
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed: true,
@@ -1539,7 +1539,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Number of retries",
 													Description: "Number of retries" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformeryandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.number_of_retries
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformer -> yandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.number_of_retries
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed: true,
@@ -1549,7 +1549,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Service account",
 													Description: "Service account" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformeryandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.service_account_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformer -> yandex.cloud.datatransfer.v1.endpoint.DataTransformationOptions.service_account_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Optional: true,
@@ -1560,7 +1560,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Transform data with a custom Cloud Function",
 										Description: "Transform data with a custom Cloud Function" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_sourceyandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformer
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.transformer
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1570,7 +1570,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_source
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -1591,7 +1591,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "No authentication",
 													Description: "No authentication" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.no_auth
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.no_auth
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -1606,7 +1606,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "SASL mechanism for authentication, use one of: KAFKA_MECHANISM_SHA256,\n KAFKA_MECHANISM_SHA512",
 																Description: "SASL mechanism for authentication, use one of: KAFKA_MECHANISM_SHA256,\n KAFKA_MECHANISM_SHA512" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.saslyandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.mechanism
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl -> yandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.mechanism
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1621,7 +1621,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Raw secret value",
 																			Description: "Raw secret value" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.saslyandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl -> yandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed:  true,
@@ -1632,7 +1632,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Password for user",
 																Description: "Password for user" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.saslyandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.password
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl -> yandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.password
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1642,7 +1642,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "User name",
 																Description: "User name" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.saslyandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.user
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl -> yandex.cloud.datatransfer.v1.endpoint.KafkaSaslSecurity.user
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1652,7 +1652,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Authentication with SASL",
 													Description: "Authentication with SASL" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.authyandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.auth -> yandex.cloud.datatransfer.v1.endpoint.KafkaAuth.sasl
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -1662,7 +1662,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Authentication settings",
 										Description: "Authentication settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.auth
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.auth
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1677,7 +1677,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Managed Service for Kafka cluster ID.\n Set only one of: cluster_id/on_premise/connection_manager_connection",
 													Description: "Managed Service for Kafka cluster ID.\n Set only one of: cluster_id/on_premise/connection_manager_connection" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.cluster_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.cluster_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -1692,7 +1692,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "ID of connection in Connection Manager with installation params and credetials",
 																Description: "ID of connection in Connection Manager with installation params and credetials" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -1702,7 +1702,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -1712,7 +1712,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Get Kafka installation params and credentials from Connection Manager\n Set only one of: cluster_id/on_premise/connection_manager_connection",
 													Description: "Get Kafka installation params and credentials from Connection Manager\n Set only one of: cluster_id/on_premise/connection_manager_connection" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connection
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.connection_manager_connection
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -1728,7 +1728,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Kafka broker URLs",
 																Description: "Kafka broker URLs" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.broker_urls
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.broker_urls
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1738,7 +1738,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1754,7 +1754,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -1769,7 +1769,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -1779,7 +1779,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS is used for the server connection",
 																			Description: "TLS is used for the server connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -1789,7 +1789,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "TLS settings for broker connection. Disabled by default.",
 																Description: "TLS settings for broker connection. Disabled by default." +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseKafka.tls_mode
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1799,7 +1799,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Connection options for on-premise Kafka\n Set only one of: cluster_id/on_premise/connection_manager_connection",
 													Description: "Connection options for on-premise Kafka\n Set only one of: cluster_id/on_premise/connection_manager_connection" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connectionyandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.KafkaConnectionOptions.on_premise
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -1809,7 +1809,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Connection settings",
 										Description: "Connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1820,7 +1820,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1836,7 +1836,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Empty block. Select the serialization format automatically",
 													Description: "Empty block. Select the serialization format automatically" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_auto
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_auto
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 													Computed: true,
@@ -1856,7 +1856,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Name of the serializer parameter",
 																			Description: "Name of the serializer parameter" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debeziumyandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parametersyandex.cloud.datatransfer.v1.endpoint.DebeziumSerializerParameter.key
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium -> yandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parameters -> yandex.cloud.datatransfer.v1.endpoint.DebeziumSerializerParameter.key
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 																			Computed: true,
@@ -1866,7 +1866,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Value of the serializer parameter",
 																			Description: "Value of the serializer parameter" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debeziumyandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parametersyandex.cloud.datatransfer.v1.endpoint.DebeziumSerializerParameter.value
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium -> yandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parameters -> yandex.cloud.datatransfer.v1.endpoint.DebeziumSerializerParameter.value
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 																			Computed: true,
@@ -1876,7 +1876,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "A list of Debezium parameters set by the structure of the `key` and `value`\n string fields",
 																Description: "A list of Debezium parameters set by the structure of the `key` and `value`\n string fields" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debeziumyandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parameters
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium -> yandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parameters
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 																Computed: true,
@@ -1886,7 +1886,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Serialize data in debezium json format",
 													Description: "Serialize data in debezium json format" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 													Computed: true,
@@ -1897,7 +1897,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Empty block. Serialize data in json format",
 													Description: "Empty block. Serialize data in json format" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_json
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_json
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 													Computed: true,
@@ -1907,7 +1907,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Data serialization format settings",
 										Description: "Data serialization format settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializer
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.serializer
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1927,7 +1927,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Save transactions order\n Not to split events queue into separate per-table queues.",
 																Description: "Save transactions order\n Not to split events queue into separate per-table queues." +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settingsyandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopicSettings.topicyandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopic.save_tx_order
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settings -> yandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopicSettings.topic -> yandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopic.save_tx_order
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1937,7 +1937,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Full topic name",
 																Description: "Full topic name" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settingsyandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopicSettings.topicyandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopic.topic_name
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settings -> yandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopicSettings.topic -> yandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopic.topic_name
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 																Computed: true,
@@ -1947,7 +1947,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "All messages will be sent to one topic",
 													Description: "All messages will be sent to one topic" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settingsyandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopicSettings.topic
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settings -> yandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopicSettings.topic
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -1957,7 +1957,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Topic prefix\n Messages will be sent to topic with name <topic_prefix>.<schema>.<table_name>.\n Analogue of the Debezium setting database.server.name.",
 													Description: "Topic prefix\n Messages will be sent to topic with name <topic_prefix>.<schema>.<table_name>.\n Analogue of the Debezium setting database.server.name." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settingsyandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopicSettings.topic_prefix
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settings -> yandex.cloud.datatransfer.v1.endpoint.KafkaTargetTopicSettings.topic_prefix
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 													Computed: true,
@@ -1967,7 +1967,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Target topic settings",
 										Description: "Target topic settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_targetyandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settings
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target -> yandex.cloud.datatransfer.v1.endpoint.KafkaTarget.topic_settings
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/kafka.proto\n",
 										Computed: true,
@@ -1977,7 +1977,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.kafka_target
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_target
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -1993,7 +1993,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Counter IDs",
 										Description: "Counter IDs" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.metrika_sourceyandex.cloud.datatransfer.v1.endpoint.MetrikaSource.counter_ids
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.metrika_source -> yandex.cloud.datatransfer.v1.endpoint.MetrikaSource.counter_ids
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/metrika.proto\n",
 										Computed: true,
@@ -2009,7 +2009,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Column names",
 													Description: "Column names" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.metrika_sourceyandex.cloud.datatransfer.v1.endpoint.MetrikaSource.streamsyandex.cloud.datatransfer.v1.endpoint.MetrikaStream.columns
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.metrika_source -> yandex.cloud.datatransfer.v1.endpoint.MetrikaSource.streams -> yandex.cloud.datatransfer.v1.endpoint.MetrikaStream.columns
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/metrika.proto\n",
 													Computed: true,
@@ -2019,7 +2019,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Stream type, one of: METRIKA_STREAM_TYPE_HITS, METRIKA_STREAM_TYPE_VISITS,\n METRIKA_STREAM_TYPE_HITS_V2",
 													Description: "Stream type, one of: METRIKA_STREAM_TYPE_HITS, METRIKA_STREAM_TYPE_VISITS,\n METRIKA_STREAM_TYPE_HITS_V2" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.metrika_sourceyandex.cloud.datatransfer.v1.endpoint.MetrikaSource.streamsyandex.cloud.datatransfer.v1.endpoint.MetrikaStream.type
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.metrika_source -> yandex.cloud.datatransfer.v1.endpoint.MetrikaSource.streams -> yandex.cloud.datatransfer.v1.endpoint.MetrikaStream.type
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/metrika.proto\n",
 													Computed: true,
@@ -2029,7 +2029,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Streams",
 										Description: "Streams" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.metrika_sourceyandex.cloud.datatransfer.v1.endpoint.MetrikaSource.streams
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.metrika_source -> yandex.cloud.datatransfer.v1.endpoint.MetrikaSource.streams
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/metrika.proto\n",
 										Computed: true,
@@ -2044,7 +2044,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Raw secret value",
 													Description: "Raw secret value" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.metrika_sourceyandex.cloud.datatransfer.v1.endpoint.MetrikaSource.tokenyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.metrika_source -> yandex.cloud.datatransfer.v1.endpoint.MetrikaSource.token -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed:  true,
@@ -2055,7 +2055,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Authentication token",
 										Description: "Authentication token" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.metrika_sourceyandex.cloud.datatransfer.v1.endpoint.MetrikaSource.token
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.metrika_source -> yandex.cloud.datatransfer.v1.endpoint.MetrikaSource.token
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/metrika.proto\n",
 										Computed: true,
@@ -2065,7 +2065,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.metrika_source
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.metrika_source
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -2085,7 +2085,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.collectionsyandex.cloud.datatransfer.v1.endpoint.MongoCollection.collection_name
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.collections -> yandex.cloud.datatransfer.v1.endpoint.MongoCollection.collection_name
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 													Computed: true,
@@ -2095,7 +2095,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.collectionsyandex.cloud.datatransfer.v1.endpoint.MongoCollection.database_name
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.collections -> yandex.cloud.datatransfer.v1.endpoint.MongoCollection.database_name
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 													Computed: true,
@@ -2105,7 +2105,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of collections for replication. Empty list implies replication of all\n tables on the deployment. Allowed to use * as collection name.",
 										Description: "List of collections for replication. Empty list implies replication of all\n tables on the deployment. Allowed to use * as collection name." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.collections
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.collections
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2125,7 +2125,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Database name associated with the credentials",
 																Description: "Database name associated with the credentials" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.auth_source
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.auth_source
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2140,7 +2140,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "ID of connectionmanager connection with mongodb/Yandex Storedoc installation\n parameters and credentials",
 																			Description: "ID of connectionmanager connection with mongodb/Yandex Storedoc installation\n parameters and credentials" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnectionManagerConnection.connection_id
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionManagerConnection.connection_id
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2150,7 +2150,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Replica set name, used only for on-premise mongodb installations",
 																			Description: "Replica set name, used only for on-premise mongodb installations" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnectionManagerConnection.replica_set
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionManagerConnection.replica_set
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2160,7 +2160,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Get StoreDoc/MongoDB installation params and credentials from Connection Manager\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection",
 																Description: "Get StoreDoc/MongoDB installation params and credentials from Connection Manager\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connection
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connection
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2170,7 +2170,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex StoreDoc cluster\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection",
 																Description: "Identifier of the Yandex StoreDoc cluster\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.mdb_cluster_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.mdb_cluster_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2186,7 +2186,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Host names of the replica set",
 																			Description: "Host names of the replica set" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.hosts
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.hosts
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2196,7 +2196,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TCP Port number",
 																			Description: "TCP Port number" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.port
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.port
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2206,7 +2206,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Replica set name",
 																			Description: "Replica set name" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.replica_set
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.replica_set
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2222,7 +2222,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																						Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -2237,7 +2237,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -2247,7 +2247,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "TLS is used for the server connection",
 																						Description: "TLS is used for the server connection" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -2257,7 +2257,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS settings for the server connection. Empty implies plaintext connection",
 																			Description: "TLS settings for the server connection. Empty implies plaintext connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2267,7 +2267,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Connection settings of the on-premise MongoDB server\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection",
 																Description: "Connection settings of the on-premise MongoDB server\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2282,7 +2282,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Raw secret value",
 																			Description: "Raw secret value" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed:  true,
@@ -2293,7 +2293,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Password for user",
 																Description: "Password for user" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.password
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.password
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2303,7 +2303,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "User name, required unless connection_manager_connection is used",
 																Description: "User name, required unless connection_manager_connection is used" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.user
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.user
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2313,7 +2313,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 													Computed: true,
@@ -2323,7 +2323,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Connection settings",
 										Description: "Connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2338,7 +2338,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.excluded_collectionsyandex.cloud.datatransfer.v1.endpoint.MongoCollection.collection_name
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.excluded_collections -> yandex.cloud.datatransfer.v1.endpoint.MongoCollection.collection_name
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 													Computed: true,
@@ -2348,7 +2348,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.excluded_collectionsyandex.cloud.datatransfer.v1.endpoint.MongoCollection.database_name
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.excluded_collections -> yandex.cloud.datatransfer.v1.endpoint.MongoCollection.database_name
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 													Computed: true,
@@ -2358,7 +2358,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of forbidden collections for replication. Allowed to use * as collection\n name for forbid all collections of concrete schema.",
 										Description: "List of forbidden collections for replication. Allowed to use * as collection\n name for forbid all collections of concrete schema." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.excluded_collections
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.excluded_collections
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2368,7 +2368,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Read mode for mongo client: whether the secondary server should be preferred to\n the primary when copying data",
 										Description: "Read mode for mongo client: whether the secondary server should be preferred to\n the primary when copying data" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.secondary_preferred_mode
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.secondary_preferred_mode
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2379,7 +2379,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2389,7 +2389,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_sourceyandex.cloud.datatransfer.v1.endpoint.MongoSource.subnet_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source -> yandex.cloud.datatransfer.v1.endpoint.MongoSource.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2399,7 +2399,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_source
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_source
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -2414,7 +2414,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "How to clean collections when activating the transfer. One of `DISABLED`, `DROP`\n or `TRUNCATE`",
 										Description: "How to clean collections when activating the transfer. One of `DISABLED`, `DROP`\n or `TRUNCATE`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.cleanup_policy
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.cleanup_policy
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2434,7 +2434,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Database name associated with the credentials",
 																Description: "Database name associated with the credentials" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.auth_source
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.auth_source
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2449,7 +2449,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "ID of connectionmanager connection with mongodb/Yandex Storedoc installation\n parameters and credentials",
 																			Description: "ID of connectionmanager connection with mongodb/Yandex Storedoc installation\n parameters and credentials" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnectionManagerConnection.connection_id
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionManagerConnection.connection_id
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2459,7 +2459,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Replica set name, used only for on-premise mongodb installations",
 																			Description: "Replica set name, used only for on-premise mongodb installations" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnectionManagerConnection.replica_set
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionManagerConnection.replica_set
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2469,7 +2469,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Get StoreDoc/MongoDB installation params and credentials from Connection Manager\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection",
 																Description: "Get StoreDoc/MongoDB installation params and credentials from Connection Manager\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connection
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.connection_manager_connection
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2479,7 +2479,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex StoreDoc cluster\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection",
 																Description: "Identifier of the Yandex StoreDoc cluster\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.mdb_cluster_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.mdb_cluster_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2495,7 +2495,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Host names of the replica set",
 																			Description: "Host names of the replica set" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.hosts
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.hosts
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2505,7 +2505,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TCP Port number",
 																			Description: "TCP Port number" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.port
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.port
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2515,7 +2515,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Replica set name",
 																			Description: "Replica set name" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.replica_set
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.replica_set
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2531,7 +2531,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																						Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -2546,7 +2546,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -2556,7 +2556,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "TLS is used for the server connection",
 																						Description: "TLS is used for the server connection" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -2566,7 +2566,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS settings for the server connection. Empty implies plaintext connection",
 																			Description: "TLS settings for the server connection. Empty implies plaintext connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMongo.tls_mode
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																			Computed: true,
@@ -2576,7 +2576,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Connection settings of the on-premise MongoDB server\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection",
 																Description: "Connection settings of the on-premise MongoDB server\n Use one of:  mdb_cluster_id/on_premise/connection_manager_connection" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.on_premise
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2591,7 +2591,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Raw secret value",
 																			Description: "Raw secret value" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed:  true,
@@ -2602,7 +2602,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Password for user",
 																Description: "Password for user" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.password
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.password
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2612,7 +2612,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "User name, required unless connection_manager_connection is used",
 																Description: "User name, required unless connection_manager_connection is used" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_optionsyandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.user
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options -> yandex.cloud.datatransfer.v1.endpoint.MongoConnectionOptions.user
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 																Computed: true,
@@ -2622,7 +2622,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MongoConnection.connection_options
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 													Computed: true,
@@ -2632,7 +2632,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Connection settings",
 										Description: "Connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2642,7 +2642,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database name. If not empty, then all the data will be written to the database\n with the specified name; otherwise the database name is the same as in the\n source endpoint",
 										Description: "Database name. If not empty, then all the data will be written to the database\n with the specified name; otherwise the database name is the same as in the\n source endpoint" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2653,7 +2653,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2663,7 +2663,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_targetyandex.cloud.datatransfer.v1.endpoint.MongoTarget.subnet_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target -> yandex.cloud.datatransfer.v1.endpoint.MongoTarget.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mongo.proto\n",
 										Computed: true,
@@ -2673,7 +2673,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mongo_target
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mongo_target
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -2698,7 +2698,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "ID of connection in Connection Manager with installation params and credetials",
 																Description: "ID of connection in Connection Manager with installation params and credetials" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -2708,7 +2708,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -2718,7 +2718,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Get Mysql installation params and credentials from Connection Manager",
 													Description: "Get Mysql installation params and credentials from Connection Manager" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connection
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connection
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -2728,7 +2728,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Managed Service for MySQL cluster ID",
 													Description: "Managed Service for MySQL cluster ID" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.mdb_cluster_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.mdb_cluster_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -2744,7 +2744,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of host names of the MySQL server. Exactly one host is expected",
 																Description: "List of host names of the MySQL server. Exactly one host is expected" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.hosts
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.hosts
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 																Computed: true,
@@ -2754,7 +2754,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Port for the database connection",
 																Description: "Port for the database connection" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.port
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.port
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 																Computed: true,
@@ -2764,7 +2764,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 																Computed: true,
@@ -2780,7 +2780,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -2795,7 +2795,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -2805,7 +2805,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS is used for the server connection",
 																			Description: "TLS is used for the server connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -2815,7 +2815,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
 																Description: "TLS settings for server connection. Disabled by default." +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 																Computed: true,
@@ -2825,7 +2825,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Connection options for on-premise MySQL",
 													Description: "Connection options for on-premise MySQL" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -2835,7 +2835,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database connection settings",
 										Description: "Database connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2845,7 +2845,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Name of the database to transfer\n\n You can leave it empty, then it will be possible to transfer tables from several\n databases at the same time from this source.",
 										Description: "Name of the database to transfer\n\n You can leave it empty, then it will be possible to transfer tables from several\n databases at the same time from this source." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2856,7 +2856,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Opposite of `include_table_regex`. The tables matching the specified regular\n expressions will not be transferred",
 										Description: "Opposite of `include_table_regex`. The tables matching the specified regular\n expressions will not be transferred" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.exclude_tables_regex
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.exclude_tables_regex
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2867,7 +2867,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of regular expressions of table names which should be transferred. A table\n name is formatted as schemaname.tablename. For example, a single regular\n expression may look like `^mydb.employees$`",
 										Description: "List of regular expressions of table names which should be transferred. A table\n name is formatted as schemaname.tablename. For example, a single regular\n expression may look like `^mydb.employees$`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.include_tables_regex
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.include_tables_regex
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2882,7 +2882,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Routines\n\n CREATE PROCEDURE ... ; CREATE FUNCTION ... ;",
 													Description: "Routines\n\n CREATE PROCEDURE ... ; CREATE FUNCTION ... ;" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.routine
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.routine
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -2892,7 +2892,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.tables
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.tables
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -2902,7 +2902,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Triggers\n\n CREATE TRIGGER ...",
 													Description: "Triggers\n\n CREATE TRIGGER ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.trigger
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.trigger
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -2912,7 +2912,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Views\n\n CREATE VIEW ...",
 													Description: "Views\n\n CREATE VIEW ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.view
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.MysqlObjectTransferSettings.view
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -2922,7 +2922,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Schema migration\n Defines which database schema objects should be transferred, e.g. views,\n routines, etc.\n All of the attrubutes in the block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`.\"",
 										Description: "Schema migration\n Defines which database schema objects should be transferred, e.g. views,\n routines, etc.\n All of the attrubutes in the block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`.\"" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settings
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.object_transfer_settings
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2937,7 +2937,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Raw secret value",
 													Description: "Raw secret value" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed:  true,
@@ -2948,7 +2948,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Password for database access.",
 										Description: "Password for database access." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.password
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.password
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2959,7 +2959,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2969,7 +2969,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database for service tables\n Default: data source database. Here created technical tables (__tm_keeper,\n __tm_gtid_keeper).",
 										Description: "Database for service tables\n Default: data source database. Here created technical tables (__tm_keeper,\n __tm_gtid_keeper)." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.service_database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.service_database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2979,7 +2979,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database timezone\n\n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone.",
 										Description: "Database timezone\n\n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.timezone
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.timezone
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2989,7 +2989,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "User for database access. Required unless connection manager connection is used",
 										Description: "User for database access. Required unless connection manager connection is used" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_sourceyandex.cloud.datatransfer.v1.endpoint.MysqlSource.user
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source -> yandex.cloud.datatransfer.v1.endpoint.MysqlSource.user
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -2999,7 +2999,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_source
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_source
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -3014,7 +3014,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Cleanup policy for activate, reactivate and reupload processes.\n One of `DISABLED`, `DROP` or `TRUNCATE` Default is `DISABLED`.",
 										Description: "Cleanup policy for activate, reactivate and reupload processes.\n One of `DISABLED`, `DROP` or `TRUNCATE` Default is `DISABLED`." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.cleanup_policy
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.cleanup_policy
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3034,7 +3034,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "ID of connection in Connection Manager with installation params and credetials",
 																Description: "ID of connection in Connection Manager with installation params and credetials" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -3044,7 +3044,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -3054,7 +3054,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Get Mysql installation params and credentials from Connection Manager",
 													Description: "Get Mysql installation params and credentials from Connection Manager" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connection
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.connection_manager_connection
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -3064,7 +3064,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Managed Service for MySQL cluster ID",
 													Description: "Managed Service for MySQL cluster ID" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.mdb_cluster_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.mdb_cluster_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -3080,7 +3080,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of host names of the MySQL server. Exactly one host is expected",
 																Description: "List of host names of the MySQL server. Exactly one host is expected" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.hosts
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.hosts
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 																Computed: true,
@@ -3090,7 +3090,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Port for the database connection",
 																Description: "Port for the database connection" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.port
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.port
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 																Computed: true,
@@ -3100,7 +3100,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 																Computed: true,
@@ -3116,7 +3116,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -3131,7 +3131,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -3141,7 +3141,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS is used for the server connection",
 																			Description: "TLS is used for the server connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -3151,7 +3151,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
 																Description: "TLS settings for server connection. Disabled by default." +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseMysql.tls_mode
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 																Computed: true,
@@ -3161,7 +3161,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Connection options for on-premise MySQL",
 													Description: "Connection options for on-premise MySQL" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connectionyandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.MysqlConnection.on_premise
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 													Computed: true,
@@ -3171,7 +3171,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database connection settings",
 										Description: "Database connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3181,7 +3181,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database name\n\n Allowed to leave it empty, then the tables will be created in databases with the\n same names as on the source. If this field is empty, then you must fill below db\n schema for service table.",
 										Description: "Database name\n\n Allowed to leave it empty, then the tables will be created in databases with the\n same names as on the source. If this field is empty, then you must fill below db\n schema for service table." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3191,7 +3191,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Whether can change table schema if schema changed on source",
 										Description: "Whether can change table schema if schema changed on source" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.is_schema_migration_disabled
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.is_schema_migration_disabled
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3206,7 +3206,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Raw secret value",
 													Description: "Raw secret value" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed:  true,
@@ -3217,7 +3217,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Password for database access.",
 										Description: "Password for database access." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.password
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.password
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3228,7 +3228,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3238,7 +3238,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database schema for service table\n Default: db name. Here created technical tables (__tm_keeper, __tm_gtid_keeper).",
 										Description: "Database schema for service table\n Default: db name. Here created technical tables (__tm_keeper, __tm_gtid_keeper)." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.service_database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.service_database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3248,7 +3248,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Disable constraints checks\n When `true`, disables foreign key checks and unique checks. `False` by default.\n See\n [foreign_key_checks](https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_foreign_key_checks).\n Recommend to disable for increase replication speed unless schema contains\n cascading operations",
 										Description: "Disable constraints checks\n When `true`, disables foreign key checks and unique checks. `False` by default.\n See\n [foreign_key_checks](https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_foreign_key_checks).\n Recommend to disable for increase replication speed unless schema contains\n cascading operations" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.skip_constraint_checks
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.skip_constraint_checks
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3258,7 +3258,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "[sql_mode](https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html) to use when\n interacting with the server.\n Defaults to `NO_AUTO_VALUE_ON_ZERO,NO_DIR_IN_CREATE,NO_ENGINE_SUBSTITUTION`",
 										Description: "[sql_mode](https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html) to use when\n interacting with the server.\n Defaults to `NO_AUTO_VALUE_ON_ZERO,NO_DIR_IN_CREATE,NO_ENGINE_SUBSTITUTION`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.sql_mode
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.sql_mode
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3268,7 +3268,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database timezone\n\n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone.",
 										Description: "Database timezone\n\n Is used for parsing timestamps for saving source timezones. Accepts values from\n IANA timezone database. Default: local timezone." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.timezone
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.timezone
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3278,7 +3278,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "User for database access. Required unless connection manager connection is used",
 										Description: "User for database access. Required unless connection manager connection is used" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_targetyandex.cloud.datatransfer.v1.endpoint.MysqlTarget.user
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target -> yandex.cloud.datatransfer.v1.endpoint.MysqlTarget.user
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/mysql.proto\n",
 										Computed: true,
@@ -3288,7 +3288,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.mysql_target
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.mysql_target
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -3303,7 +3303,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Will collapse pg_inherit table into one big table in replication process",
 										Description: "Will collapse pg_inherit table into one big table in replication process" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.collapse_inherit_table
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.collapse_inherit_table
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3323,7 +3323,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "ID of connection in Connection Manager with installation params and credetials",
 																Description: "ID of connection in Connection Manager with installation params and credetials" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -3333,7 +3333,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -3343,7 +3343,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Get Postgres installation params and credentials from Connection Manager",
 													Description: "Get Postgres installation params and credentials from Connection Manager" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connection
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connection
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3353,7 +3353,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Managed Service for PostgreSQL cluster ID",
 													Description: "Managed Service for PostgreSQL cluster ID" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.mdb_cluster_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.mdb_cluster_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3369,7 +3369,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "PG installation hosts",
 																Description: "PG installation hosts" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.hosts
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.hosts
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 																Computed: true,
@@ -3379,7 +3379,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "PG port. Will be used if the cluster ID is not specified.",
 																Description: "PG port. Will be used if the cluster ID is not specified." +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.port
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.port
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 																Computed: true,
@@ -3389,7 +3389,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 																Computed: true,
@@ -3405,7 +3405,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -3420,7 +3420,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -3430,7 +3430,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS is used for the server connection",
 																			Description: "TLS is used for the server connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -3440,7 +3440,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
 																Description: "TLS settings for server connection. Disabled by default." +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 																Computed: true,
@@ -3450,7 +3450,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Connection options for on-premise PostgreSQL",
 													Description: "Connection options for on-premise PostgreSQL" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3460,7 +3460,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database connection settings",
 										Description: "Database connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3470,7 +3470,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Name of the database to transfer",
 										Description: "Name of the database to transfer" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3481,7 +3481,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of tables which will not be transfered, formatted as `schemaname.tablename`\n If omitted or empty list is specified, all tables are replicated.\n Can contain schema_name.* patterns.",
 										Description: "List of tables which will not be transfered, formatted as `schemaname.tablename`\n If omitted or empty list is specified, all tables are replicated.\n Can contain schema_name.* patterns." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.exclude_tables
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.exclude_tables
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3492,7 +3492,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of tables to transfer, formatted as `schemaname.tablename`.\n If omitted or an empty list is specified, all tables will be transferred.\n Can contain schema_name.* patterns.",
 										Description: "List of tables to transfer, formatted as `schemaname.tablename`.\n If omitted or an empty list is specified, all tables will be transferred.\n Can contain schema_name.* patterns." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.include_tables
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.include_tables
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3507,7 +3507,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Casts\n\n CREATE CAST ...",
 													Description: "Casts\n\n CREATE CAST ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.cast
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.cast
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3517,7 +3517,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Collations\n\n CREATE COLLATION ...",
 													Description: "Collations\n\n CREATE COLLATION ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.collation
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.collation
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3527,7 +3527,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Constraints\n\n ALTER TABLE ... ADD CONSTRAINT ...",
 													Description: "Constraints\n\n ALTER TABLE ... ADD CONSTRAINT ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.constraint
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.constraint
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3537,7 +3537,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Default values\n\n ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ...",
 													Description: "Default values\n\n ALTER TABLE ... ALTER COLUMN ... SET DEFAULT ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.default_values
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.default_values
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3547,7 +3547,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Foreign keys\n\n ALTER TABLE ... ADD FOREIGN KEY ...",
 													Description: "Foreign keys\n\n ALTER TABLE ... ADD FOREIGN KEY ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.fk_constraint
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.fk_constraint
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3557,7 +3557,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Functions\n\n CREATE FUNCTION ...",
 													Description: "Functions\n\n CREATE FUNCTION ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.function
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.function
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3567,7 +3567,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Indexes\n\n CREATE INDEX ...",
 													Description: "Indexes\n\n CREATE INDEX ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.index
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.index
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3577,7 +3577,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Materialized views\n\n CREATE MATERIALIZED VIEW ...",
 													Description: "Materialized views\n\n CREATE MATERIALIZED VIEW ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.materialized_view
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.materialized_view
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3587,7 +3587,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Policies\n\n CREATE POLICY ...",
 													Description: "Policies\n\n CREATE POLICY ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.policy
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.policy
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3597,7 +3597,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Primary keys\n\n ALTER TABLE ... ADD PRIMARY KEY ...",
 													Description: "Primary keys\n\n ALTER TABLE ... ADD PRIMARY KEY ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.primary_key
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.primary_key
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3607,7 +3607,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Rules\n\n CREATE RULE ...",
 													Description: "Rules\n\n CREATE RULE ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.rule
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.rule
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3617,7 +3617,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Sequences\n\n CREATE SEQUENCE ...",
 													Description: "Sequences\n\n CREATE SEQUENCE ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.sequence
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.sequence
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3627,7 +3627,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Owned sequences\n\n CREATE SEQUENCE ... OWNED BY ...",
 													Description: "Owned sequences\n\n CREATE SEQUENCE ... OWNED BY ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.sequence_owned_by
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.sequence_owned_by
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3637,7 +3637,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.sequence_set
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.sequence_set
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3647,7 +3647,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Tables\n\n CREATE TABLE ...",
 													Description: "Tables\n\n CREATE TABLE ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.table
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.table
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3657,7 +3657,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Triggers\n\n CREATE TRIGGER ...",
 													Description: "Triggers\n\n CREATE TRIGGER ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.trigger
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.trigger
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3667,7 +3667,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Types\n\n CREATE TYPE ...",
 													Description: "Types\n\n CREATE TYPE ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.type
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.type
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3677,7 +3677,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Views\n\n CREATE VIEW ...",
 													Description: "Views\n\n CREATE VIEW ..." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settingsyandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.view
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings -> yandex.cloud.datatransfer.v1.endpoint.PostgresObjectTransferSettings.view
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3687,7 +3687,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Defines which database schema objects should be transferred, e.g. views,\n functions, etc.\n All of the attributes in this block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`",
 										Description: "Defines which database schema objects should be transferred, e.g. views,\n functions, etc.\n All of the attributes in this block are optional and should be either\n `BEFORE_DATA`, `AFTER_DATA` or `NEVER`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.object_transfer_settings
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3702,7 +3702,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Raw secret value",
 													Description: "Raw secret value" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed:  true,
@@ -3713,7 +3713,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Password for database access.",
 										Description: "Password for database access." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.password
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.password
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3724,7 +3724,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3734,7 +3734,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Name of the database schema in which auxiliary tables needed for the transfer\n will be created (__consumer_keeper, __data_transfer_mole_finder).\n Empty `service_schema` implies schema `public`",
 										Description: "Name of the database schema in which auxiliary tables needed for the transfer\n will be created (__consumer_keeper, __data_transfer_mole_finder).\n Empty `service_schema` implies schema `public`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.service_schema
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.service_schema
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3744,7 +3744,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Maximum WAL size held by the replication slot (API - in bytes, terraform - in\n gigabytes);\n Exceeding this limit will result in a replication failure and deletion of the\n replication slot.\n Default is 50 gigabytes",
 										Description: "Maximum WAL size held by the replication slot (API - in bytes, terraform - in\n gigabytes);\n Exceeding this limit will result in a replication failure and deletion of the\n replication slot.\n Default is 50 gigabytes" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.slot_byte_lag_limit
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.slot_byte_lag_limit
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3754,7 +3754,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "User for database access. Required unless Connection Manager connection is used.",
 										Description: "User for database access. Required unless Connection Manager connection is used." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_sourceyandex.cloud.datatransfer.v1.endpoint.PostgresSource.user
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source -> yandex.cloud.datatransfer.v1.endpoint.PostgresSource.user
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3764,7 +3764,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_source
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_source
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -3779,7 +3779,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Cleanup policy for activate, reactivate and reupload processes.\n One of: DISABLED, DROP, TRUNCATE. Default is TRUNCATE",
 										Description: "Cleanup policy for activate, reactivate and reupload processes.\n One of: DISABLED, DROP, TRUNCATE. Default is TRUNCATE" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.cleanup_policy
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.cleanup_policy
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3799,7 +3799,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "ID of connection in Connection Manager with installation params and credetials",
 																Description: "ID of connection in Connection Manager with installation params and credetials" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.connection_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -3809,7 +3809,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connectionyandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connection -> yandex.cloud.datatransfer.v1.endpoint.ConnectionManagerConnection.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																Computed: true,
@@ -3819,7 +3819,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Get Postgres installation params and credentials from Connection Manager",
 													Description: "Get Postgres installation params and credentials from Connection Manager" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connection
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.connection_manager_connection
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3829,7 +3829,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Managed Service for PostgreSQL cluster ID",
 													Description: "Managed Service for PostgreSQL cluster ID" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.mdb_cluster_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.mdb_cluster_id
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3845,7 +3845,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "PG installation hosts",
 																Description: "PG installation hosts" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.hosts
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.hosts
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 																Computed: true,
@@ -3855,7 +3855,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "PG port. Will be used if the cluster ID is not specified.",
 																Description: "PG port. Will be used if the cluster ID is not specified." +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.port
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.port
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 																Computed: true,
@@ -3865,7 +3865,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.subnet_id
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 																Computed: true,
@@ -3881,7 +3881,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
 																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -3896,7 +3896,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
 																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabledyandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -3906,7 +3906,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "TLS is used for the server connection",
 																			Description: "TLS is used for the server connection" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_modeyandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -3916,7 +3916,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
 																Description: "TLS settings for server connection. Disabled by default." +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premiseyandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremisePostgres.tls_mode
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 																Computed: true,
@@ -3926,7 +3926,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Connection options for on-premise PostgreSQL",
 													Description: "Connection options for on-premise PostgreSQL" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connectionyandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection -> yandex.cloud.datatransfer.v1.endpoint.PostgresConnection.on_premise
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 													Computed: true,
@@ -3936,7 +3936,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database connection settings",
 										Description: "Database connection settings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3946,7 +3946,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Target database name",
 										Description: "Target database name" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3956,7 +3956,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Whether can change table schema if schema changed on source",
 										Description: "Whether can change table schema if schema changed on source" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.is_schema_migration_disabled
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.is_schema_migration_disabled
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3971,7 +3971,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Raw secret value",
 													Description: "Raw secret value" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.passwordyandex.cloud.datatransfer.v1.endpoint.Secret.raw
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 													Computed:  true,
@@ -3982,7 +3982,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Password for database access.",
 										Description: "Password for database access." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.password
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.password
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -3993,7 +3993,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -4003,7 +4003,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "User for database access. Required unless Connection Manager connection is used",
 										Description: "User for database access. Required unless Connection Manager connection is used" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_targetyandex.cloud.datatransfer.v1.endpoint.PostgresTarget.user
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target -> yandex.cloud.datatransfer.v1.endpoint.PostgresTarget.user
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/postgres.proto\n",
 										Computed: true,
@@ -4013,7 +4013,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.postgres_target
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.postgres_target
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -4028,7 +4028,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Consumer for pre-created change feed if any",
 										Description: "Consumer for pre-created change feed if any" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.changefeed_custom_consumer_name
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.changefeed_custom_consumer_name
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4038,7 +4038,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Pre-created change feed if any",
 										Description: "Pre-created change feed if any" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.changefeed_custom_name
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.changefeed_custom_name
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4048,7 +4048,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer-yt`",
 										Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer-yt`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4058,7 +4058,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.\n If not specified, will be determined by database",
 										Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.\n If not specified, will be determined by database" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.instance
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.instance
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4069,7 +4069,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "A list of paths which should be uploaded. When not specified, all available\n tables are uploaded",
 										Description: "A list of paths which should be uploaded. When not specified, all available\n tables are uploaded" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.paths
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.paths
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4079,7 +4079,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Authorization Key",
 										Description: "Authorization Key" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.sa_key_content
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.sa_key_content
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed:  true,
@@ -4091,7 +4091,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4101,7 +4101,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Service account ID for interaction with database",
 										Description: "Service account ID for interaction with database" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.service_account_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.service_account_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Optional: true,
@@ -4112,7 +4112,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. If omitted, the server has to be accessible via Internet",
 										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_sourceyandex.cloud.datatransfer.v1.endpoint.YdbSource.subnet_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4122,7 +4122,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_source
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -4137,7 +4137,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Cleanup policy determine how to clean collections when activating the transfer.\n One of `YDB_CLEANUP_POLICY_DISABLED` or `YDB_CLEANUP_POLICY_DROP`",
 										Description: "Cleanup policy determine how to clean collections when activating the transfer.\n One of `YDB_CLEANUP_POLICY_DISABLED` or `YDB_CLEANUP_POLICY_DROP`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.cleanup_policy
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.cleanup_policy
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4147,7 +4147,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
 										Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4157,7 +4157,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Compression that will be used for default columns family on YDB table creation.\n One of `YDB_DEFAULT_COMPRESSION_UNSPECIFIED`,\n `YDB_DEFAULT_COMPRESSION_DISABLED`, `YDB_DEFAULT_COMPRESSION_LZ4`",
 										Description: "Compression that will be used for default columns family on YDB table creation.\n One of `YDB_DEFAULT_COMPRESSION_UNSPECIFIED`,\n `YDB_DEFAULT_COMPRESSION_DISABLED`, `YDB_DEFAULT_COMPRESSION_LZ4`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.default_compression
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.default_compression
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4167,7 +4167,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.\n If not specified, will be determined by database",
 										Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.\n If not specified, will be determined by database" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.instance
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.instance
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4177,7 +4177,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Whether can change table schema if schema changed on source",
 										Description: "Whether can change table schema if schema changed on source" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.is_schema_migration_disabled
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.is_schema_migration_disabled
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4187,7 +4187,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Whether a column-oriented (i.e. OLAP) tables should be created.\n Default is `false` (create row-oriented OLTP tables)",
 										Description: "Whether a column-oriented (i.e. OLAP) tables should be created.\n Default is `false` (create row-oriented OLTP tables)" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.is_table_column_oriented
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.is_table_column_oriented
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4197,7 +4197,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Path extension for database, each table will be layouted into this path",
 										Description: "Path extension for database, each table will be layouted into this path" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.path
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.path
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4207,7 +4207,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Authentication key",
 										Description: "Authentication key" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.sa_key_content
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.sa_key_content
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed:  true,
@@ -4219,7 +4219,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4229,7 +4229,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Service account ID for interaction with database",
 										Description: "Service account ID for interaction with database" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.service_account_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.service_account_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Optional: true,
@@ -4240,7 +4240,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet",
 										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database.\n If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_targetyandex.cloud.datatransfer.v1.endpoint.YdbTarget.subnet_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
@@ -4250,7 +4250,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.ydb_target
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -4265,7 +4265,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Should continue working, if consumer read lag exceed TTL of topic\n False: stop the transfer in error state, if detected lost data. True: continue\n working with losing part of data",
 										Description: "Should continue working, if consumer read lag exceed TTL of topic\n False: stop the transfer in error state, if detected lost data. True: continue\n working with losing part of data" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.allow_ttl_rewind
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.allow_ttl_rewind
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4275,7 +4275,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Custom consumer - for important streams",
 										Description: "Custom consumer - for important streams" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.consumer
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.consumer
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4285,7 +4285,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database path in YDB for streams\n Example: `/ru/transfer_manager/prod/data-transfer`",
 										Description: "Database path in YDB for streams\n Example: `/ru/transfer_manager/prod/data-transfer`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4295,7 +4295,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "YDS Endpoint for dedicated db",
 										Description: "YDS Endpoint for dedicated db" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.endpoint
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.endpoint
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4311,7 +4311,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Parse Audit Trails data. Empty struct",
 													Description: "Parse Audit Trails data. Empty struct" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.audit_trails_v1_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.audit_trails_v1_parser
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 													Computed: true,
@@ -4322,7 +4322,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Parse Cloud Logging data. Empty struct",
 													Description: "Parse Cloud Logging data. Empty struct" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.cloud_logging_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.cloud_logging_parser
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 													Computed: true,
@@ -4337,7 +4337,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Will add _rest column for all unknown fields",
 																Description: "Will add _rest column for all unknown fields" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.add_rest_column
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.add_rest_column
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -4362,7 +4362,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Mark field as Primary Key",
 																									Description: "Mark field as Primary Key" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.key
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.key
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4372,7 +4372,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Field name",
 																									Description: "Field name" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.name
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.name
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4382,7 +4382,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Path to the field",
 																									Description: "Path to the field" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.path
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.path
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4392,7 +4392,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Mark field as required",
 																									Description: "Mark field as required" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.required
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.required
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4402,7 +4402,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`,\n `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`.",
 																									Description: "Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`,\n `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`." +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.type
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.type
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4412,7 +4412,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "Description of the column schema in the array of `fields` structure",
 																						Description: "Description of the column schema in the array of `fields` structure" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fields
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -4422,7 +4422,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Description of the data schema in the array of `fields` structure",
 																			Description: "Description of the data schema in the array of `fields` structure" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fields
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -4433,7 +4433,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Description of the data schema as JSON specification\n Deprecated: please use fields instead",
 																			Description: "Description of the data schema as JSON specification\n Deprecated: please use fields instead" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -4443,7 +4443,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Data parsing scheme",
 																Description: "Data parsing scheme" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -4453,7 +4453,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Allow null keys, if no - null keys will be putted to unparsed data",
 																Description: "Allow null keys, if no - null keys will be putted to unparsed data" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.null_keys_allowed
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.null_keys_allowed
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -4463,7 +4463,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Unescape string values",
 																Description: "Unescape string values" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.unescape_string_values
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.unescape_string_values
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -4473,7 +4473,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Parse data in json format",
 													Description: "Parse data in json format" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.json_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 													Computed: true,
@@ -4488,7 +4488,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Will add _rest column for all unknown fields",
 																Description: "Will add _rest column for all unknown fields" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.add_rest_column
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.add_rest_column
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -4513,7 +4513,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Mark field as Primary Key",
 																									Description: "Mark field as Primary Key" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.key
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.key
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4523,7 +4523,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Field name",
 																									Description: "Field name" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.name
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.name
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4533,7 +4533,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Path to the field",
 																									Description: "Path to the field" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.path
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.path
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4543,7 +4543,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Mark field as required",
 																									Description: "Mark field as required" +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.required
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.required
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4553,7 +4553,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																									MarkdownDescription: "Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`,\n `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`.",
 																									Description: "Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`,\n `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`." +
 																										// proto paths: +
-																										// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fieldsyandex.cloud.datatransfer.v1.endpoint.ColSchema.type
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields -> yandex.cloud.datatransfer.v1.endpoint.ColSchema.type
 																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																									Computed: true,
@@ -4563,7 +4563,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																						MarkdownDescription: "Description of the column schema in the array of `fields` structure",
 																						Description: "Description of the column schema in the array of `fields` structure" +
 																							// proto paths: +
-																							// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fieldsyandex.cloud.datatransfer.v1.endpoint.FieldList.fields
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields -> yandex.cloud.datatransfer.v1.endpoint.FieldList.fields
 																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																						Computed: true,
@@ -4573,7 +4573,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Description of the data schema in the array of `fields` structure",
 																			Description: "Description of the data schema in the array of `fields` structure" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.fields
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -4584,7 +4584,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Description of the data schema as JSON specification\n Deprecated: please use fields instead",
 																			Description: "Description of the data schema as JSON specification\n Deprecated: please use fields instead" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schemayandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema -> yandex.cloud.datatransfer.v1.endpoint.DataSchema.json_fields
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
 																			Computed: true,
@@ -4594,7 +4594,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Data parsing scheme",
 																Description: "Data parsing scheme" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -4604,7 +4604,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Allow null keys, if no - null keys will be putted to unparsed data",
 																Description: "Allow null keys, if no - null keys will be putted to unparsed data" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.null_keys_allowed
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.null_keys_allowed
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -4614,7 +4614,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Unescape string values",
 																Description: "Unescape string values" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parseryandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.unescape_string_values
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.unescape_string_values
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 																Computed: true,
@@ -4624,7 +4624,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Parse data in tskv format",
 													Description: "Parse data in tskv format" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parseryandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
 													Computed: true,
@@ -4634,7 +4634,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Data parsing rules",
 										Description: "Data parsing rules" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.parser
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4645,7 +4645,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4655,7 +4655,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Service account ID which has read access to the stream.",
 										Description: "Service account ID which has read access to the stream." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.service_account_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.service_account_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Optional: true,
@@ -4666,7 +4666,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Stream to read",
 										Description: "Stream to read" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.stream
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.stream
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4676,7 +4676,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. If omitted, the server has to be accessible via Internet",
 										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.subnet_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4687,7 +4687,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of supported compression codecs\n Options: YDS_COMPRESSION_CODEC_RAW, YDS_COMPRESSION_CODEC_ZSTD,\n YDS_COMPRESSION_CODEC_GZIP",
 										Description: "List of supported compression codecs\n Options: YDS_COMPRESSION_CODEC_RAW, YDS_COMPRESSION_CODEC_ZSTD,\n YDS_COMPRESSION_CODEC_GZIP" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_sourceyandex.cloud.datatransfer.v1.endpoint.YDSSource.supported_codecs
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.supported_codecs
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4697,7 +4697,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_source
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,
@@ -4712,7 +4712,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Codec to use for output data compression. If not specified, no compression will\n be done\n Options: YDS_COMPRESSION_CODEC_RAW, YDS_COMPRESSION_CODEC_ZSTD,\n YDS_COMPRESSION_CODEC_GZIP",
 										Description: "Codec to use for output data compression. If not specified, no compression will\n be done\n Options: YDS_COMPRESSION_CODEC_RAW, YDS_COMPRESSION_CODEC_ZSTD,\n YDS_COMPRESSION_CODEC_GZIP" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.compression_codec
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.compression_codec
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4722,7 +4722,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Database path in YDB for streams\n Example: `/ru/transfer_manager/prod/data-transfer`",
 										Description: "Database path in YDB for streams\n Example: `/ru/transfer_manager/prod/data-transfer`" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.database
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.database
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4732,7 +4732,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "YDS Endpoint for dedicated db",
 										Description: "YDS Endpoint for dedicated db" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.endpoint
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.endpoint
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4742,7 +4742,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Save transaction order\n Not to split events queue into separate per-table queues.\n Incompatible with setting Topic prefix, only with Topic full name.",
 										Description: "Save transaction order\n Not to split events queue into separate per-table queues.\n Incompatible with setting Topic prefix, only with Topic full name." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.save_tx_order
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.save_tx_order
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4753,7 +4753,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "List of security groups that the transfer associated with this endpoint should\n use",
 										Description: "List of security groups that the transfer associated with this endpoint should\n use" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.security_groups
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.security_groups
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4769,7 +4769,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Empty block. Select the serialization format automatically",
 													Description: "Empty block. Select the serialization format automatically" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_auto
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_auto
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 													Computed: true,
@@ -4789,7 +4789,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Name of the serializer parameter",
 																			Description: "Name of the serializer parameter" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debeziumyandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parametersyandex.cloud.datatransfer.v1.endpoint.DebeziumSerializerParameter.key
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium -> yandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parameters -> yandex.cloud.datatransfer.v1.endpoint.DebeziumSerializerParameter.key
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 																			Computed: true,
@@ -4799,7 +4799,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "Value of the serializer parameter",
 																			Description: "Value of the serializer parameter" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debeziumyandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parametersyandex.cloud.datatransfer.v1.endpoint.DebeziumSerializerParameter.value
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium -> yandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parameters -> yandex.cloud.datatransfer.v1.endpoint.DebeziumSerializerParameter.value
 																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																				"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 																			Computed: true,
@@ -4809,7 +4809,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "A list of Debezium parameters set by the structure of the `key` and `value`\n string fields",
 																Description: "A list of Debezium parameters set by the structure of the `key` and `value`\n string fields" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debeziumyandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parameters
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium -> yandex.cloud.datatransfer.v1.endpoint.SerializerDebezium.serializer_parameters
 																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 																	"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 																Computed: true,
@@ -4819,7 +4819,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Serialize data in debezium json format",
 													Description: "Serialize data in debezium json format" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_debezium
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 													Computed: true,
@@ -4830,7 +4830,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Empty block. Serialize data in json format",
 													Description: "Empty block. Serialize data in json format" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializeryandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_json
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer -> yandex.cloud.datatransfer.v1.endpoint.Serializer.serializer_json
 														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 														"filename: yandex/cloud/datatransfer/v1/endpoint/serializers.proto\n",
 													Computed: true,
@@ -4840,7 +4840,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Data serialization format",
 										Description: "Data serialization format" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4850,7 +4850,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Service account ID which has read access to the stream",
 										Description: "Service account ID which has read access to the stream" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.service_account_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.service_account_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Optional: true,
@@ -4861,7 +4861,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Stream to write to",
 										Description: "Stream to write to" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.stream
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.stream
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4871,7 +4871,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. If omitted, the server has to be accessible via Internet",
 										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_targetyandex.cloud.datatransfer.v1.endpoint.YDSTarget.subnet_id
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.subnet_id
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4881,7 +4881,7 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Endpoint.settingsyandex.cloud.datatransfer.v1.EndpointSettings.yds_target
+								// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/endpoint.proto\n",
 							Computed: true,

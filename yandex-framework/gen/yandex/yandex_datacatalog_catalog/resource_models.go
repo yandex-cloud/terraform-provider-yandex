@@ -211,7 +211,6 @@ func expandYandexDatacatalogCatalogModel(ctx context.Context, yandexDatacatalogC
 	value.SetAiMarkupRules(expandYandexDatacatalogCatalogAiMarkupRules(ctx, yandexDatacatalogCatalogState.AiMarkupRules, diags))
 	value.SetAutoIngestionParams(expandYandexDatacatalogCatalogAutoIngestionParams(ctx, yandexDatacatalogCatalogState.AutoIngestionParams, diags))
 	value.SetId(yandexDatacatalogCatalogState.CatalogId.ValueString())
-	value.SetId(yandexDatacatalogCatalogState.CatalogId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexDatacatalogCatalogState.CreatedAt.ValueString(), diags))
 	value.SetCreatedBy(yandexDatacatalogCatalogState.CreatedBy.ValueString())
 	value.SetDescription(yandexDatacatalogCatalogState.Description.ValueString())

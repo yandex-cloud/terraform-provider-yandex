@@ -162,7 +162,7 @@ func YandexResourcemanagerFolderResourceSchema(ctx context.Context) schema.Schem
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.RegexMatches(regexp.MustCompile("^(|[a-z][-a-z0-9]{1,61}[a-z0-9])$"), "error validating regexp"),
+					stringvalidator.RegexMatches(regexp.MustCompile("^(|[a-z]([-a-z0-9]{0,61}[a-z0-9])?)$"), "error validating regexp"),
 				},
 			},
 

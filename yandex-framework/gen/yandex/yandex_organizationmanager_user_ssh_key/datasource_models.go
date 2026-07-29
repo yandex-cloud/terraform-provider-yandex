@@ -54,6 +54,34 @@ func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) GetID() types.Strin
 	return m.ID
 }
 
+func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) SetData(target types.String) {
+	m.Data = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) SetExpiresAt(target types.String) {
+	m.ExpiresAt = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) SetFingerprint(target types.String) {
+	m.Fingerprint = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) SetSubjectId(target types.String) {
+	m.SubjectId = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) SetUserSshKeyId(target types.String) {
+	m.UserSshKeyId = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+
 func NewYandexOrganizationmanagerUserSshKeyDatasourceModel() yandexOrganizationmanagerUserSshKeyDatasourceModel {
 	return yandexOrganizationmanagerUserSshKeyDatasourceModel{
 		CreatedAt:      types.StringNull(),

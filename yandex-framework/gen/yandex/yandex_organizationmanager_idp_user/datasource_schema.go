@@ -13,9 +13,19 @@ import (
 
 func YandexOrganizationmanagerIdpUserDatasourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Description:         "A user in the Identity Provider system.\n\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
-		MarkdownDescription: "A user in the Identity Provider system.\n\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
+		Description:         "A user in the Identity Provider system.\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
+		MarkdownDescription: "A user in the Identity Provider system.\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
 		Attributes: map[string]schema.Attribute{
+
+			"company_name": schema.StringAttribute{
+				MarkdownDescription: "User's company name.",
+				Description: "User's company name." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.User.company_name
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Computed: true,
+			},
 
 			"created_at": schema.StringAttribute{
 				MarkdownDescription: "Timestamp when the user was created.",
@@ -27,11 +37,41 @@ func YandexOrganizationmanagerIdpUserDatasourceSchema(ctx context.Context) schem
 				Computed: true,
 			},
 
+			"department": schema.StringAttribute{
+				MarkdownDescription: "User's department.",
+				Description: "User's department." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.User.department
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Computed: true,
+			},
+
 			"email": schema.StringAttribute{
 				MarkdownDescription: "User's email address.",
 				Description: "User's email address." +
 					// proto paths: +
 					// -> yandex.cloud.organizationmanager.v1.idp.User.email
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Computed: true,
+			},
+
+			"employee_id": schema.StringAttribute{
+				MarkdownDescription: "User's employee ID",
+				Description: "User's employee ID" +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.User.employee_id
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Computed: true,
+			},
+
+			"expires_at": schema.StringAttribute{
+				MarkdownDescription: "Timestamp when the user account expires.",
+				Description: "Timestamp when the user account expires." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.User.expires_at
 					"package: yandex.cloud.organizationmanager.v1.idp\n" +
 					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
 				Computed: true,
@@ -72,6 +112,16 @@ func YandexOrganizationmanagerIdpUserDatasourceSchema(ctx context.Context) schem
 				Description: "User's first name.\n Part of the user's profile information." +
 					// proto paths: +
 					// -> yandex.cloud.organizationmanager.v1.idp.User.given_name
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Computed: true,
+			},
+
+			"job_title": schema.StringAttribute{
+				MarkdownDescription: "User's job title.",
+				Description: "User's job title." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.User.job_title
 					"package: yandex.cloud.organizationmanager.v1.idp\n" +
 					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
 				Computed: true,

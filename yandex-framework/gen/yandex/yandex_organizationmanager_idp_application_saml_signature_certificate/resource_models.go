@@ -64,6 +64,40 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) G
 	return m.Status
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetApplicationId(target types.String) {
+	m.ApplicationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetData(target types.String) {
+	m.Data = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetFingerprint(target types.String) {
+	m.Fingerprint = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetNotAfter(target types.String) {
+	m.NotAfter = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetNotBefore(target types.String) {
+	m.NotBefore = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetSignatureCertificateId(target types.String) {
+	m.SignatureCertificateId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel() yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel {
 	return yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel{
 		ApplicationId:          types.StringNull(),
@@ -182,7 +216,6 @@ func expandYandexOrganizationmanagerIdpApplicationSamlSignatureCertificateModel(
 	value.SetName(yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateState.Name.ValueString())
 	value.SetNotAfter(converter.ParseTimestamp(yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateState.NotAfter.ValueString(), diags))
 	value.SetNotBefore(converter.ParseTimestamp(yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateState.NotBefore.ValueString(), diags))
-	value.SetId(yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateState.SignatureCertificateId.ValueString())
 	value.SetId(yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateState.SignatureCertificateId.ValueString())
 	value.SetStatus(saml.SignatureCertificate_Status(saml.SignatureCertificate_Status_value[yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateState.Status.ValueString()]))
 	if diags.HasError() {

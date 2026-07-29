@@ -46,6 +46,9 @@ func YandexOrganizationmanagerIdpUserpoolDomainResourceSchema(ctx context.Contex
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(1, 253),
+				},
 			},
 
 			"userpool_id": schema.StringAttribute{

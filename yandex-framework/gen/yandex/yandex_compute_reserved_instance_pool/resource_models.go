@@ -339,7 +339,6 @@ func expandYandexComputeReservedInstancePoolModel(ctx context.Context, yandexCom
 	value.SetPlatformId(yandexComputeReservedInstancePoolState.PlatformId.ValueString())
 	value.SetProductIds(expandYandexComputeReservedInstancePoolProductIds(ctx, yandexComputeReservedInstancePoolState.ProductIds, diags))
 	value.SetId(yandexComputeReservedInstancePoolState.ReservedInstancePoolId.ValueString())
-	value.SetId(yandexComputeReservedInstancePoolState.ReservedInstancePoolId.ValueString())
 	value.SetResourcesSpec(expandYandexComputeReservedInstancePoolResourcesSpec(ctx, yandexComputeReservedInstancePoolState.ResourcesSpec, diags))
 	value.SetSize((yandexComputeReservedInstancePoolState.Size.ValueInt64()))
 	value.SetSlotStats(expandYandexComputeReservedInstancePoolSlotStats(ctx, yandexComputeReservedInstancePoolState.SlotStats, diags))

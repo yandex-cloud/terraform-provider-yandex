@@ -42,7 +42,7 @@ resource "yandex_lockbox_secret_iam_member" "viewer" {
 
 
 - `role` (**Required**)(String). The role that should be assigned. Only one yandex_lockbox_secret_iam_member can be used per role.
-- `secret_id` (**Required**)(String). The ID of the compute `secret` to attach the policy to.
+- `secret_id` (**Required**)(String). The ID of the `secret` to attach the policy to.
 - `sleep_after` (Number). For test purposes, to compensate IAM operations delay
 
 ## Import

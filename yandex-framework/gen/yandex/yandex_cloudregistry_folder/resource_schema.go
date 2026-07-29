@@ -83,7 +83,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 												MarkdownDescription: "Digest of the content.",
 												Description: "Digest of the content." +
 													// proto paths: +
-													// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.image_manifestyandex.cloud.cloudregistry.v1.ImageManifest.configyandex.cloud.cloudregistry.v1.Descriptor.digest
+													// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.image_manifest -> yandex.cloud.cloudregistry.v1.ImageManifest.config -> yandex.cloud.cloudregistry.v1.Descriptor.digest
 													"package: yandex.cloud.cloudregistry.v1\n" +
 													"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 												Computed: true,
@@ -93,7 +93,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 												MarkdownDescription: "Size of the content in bytes.",
 												Description: "Size of the content in bytes." +
 													// proto paths: +
-													// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.image_manifestyandex.cloud.cloudregistry.v1.ImageManifest.configyandex.cloud.cloudregistry.v1.Descriptor.size
+													// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.image_manifest -> yandex.cloud.cloudregistry.v1.ImageManifest.config -> yandex.cloud.cloudregistry.v1.Descriptor.size
 													"package: yandex.cloud.cloudregistry.v1\n" +
 													"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 												Computed: true,
@@ -102,7 +102,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 										MarkdownDescription: "Descriptor of the image configuration.",
 										Description: "Descriptor of the image configuration." +
 											// proto paths: +
-											// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.image_manifestyandex.cloud.cloudregistry.v1.ImageManifest.config
+											// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.image_manifest -> yandex.cloud.cloudregistry.v1.ImageManifest.config
 											"package: yandex.cloud.cloudregistry.v1\n" +
 											"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 										Computed: true,
@@ -117,7 +117,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 													MarkdownDescription: "Digest of the content.",
 													Description: "Digest of the content." +
 														// proto paths: +
-														// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.image_manifestyandex.cloud.cloudregistry.v1.ImageManifest.layersyandex.cloud.cloudregistry.v1.Descriptor.digest
+														// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.image_manifest -> yandex.cloud.cloudregistry.v1.ImageManifest.layers -> yandex.cloud.cloudregistry.v1.Descriptor.digest
 														"package: yandex.cloud.cloudregistry.v1\n" +
 														"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 													Computed: true,
@@ -127,7 +127,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 													MarkdownDescription: "Size of the content in bytes.",
 													Description: "Size of the content in bytes." +
 														// proto paths: +
-														// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.image_manifestyandex.cloud.cloudregistry.v1.ImageManifest.layersyandex.cloud.cloudregistry.v1.Descriptor.size
+														// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.image_manifest -> yandex.cloud.cloudregistry.v1.ImageManifest.layers -> yandex.cloud.cloudregistry.v1.Descriptor.size
 														"package: yandex.cloud.cloudregistry.v1\n" +
 														"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 													Computed: true,
@@ -137,7 +137,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 										MarkdownDescription: "Descriptors of the image layers.",
 										Description: "Descriptors of the image layers." +
 											// proto paths: +
-											// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.image_manifestyandex.cloud.cloudregistry.v1.ImageManifest.layers
+											// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.image_manifest -> yandex.cloud.cloudregistry.v1.ImageManifest.layers
 											"package: yandex.cloud.cloudregistry.v1\n" +
 											"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 										Computed: true,
@@ -146,7 +146,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 								MarkdownDescription: "Single-platform image manifest.",
 								Description: "Single-platform image manifest." +
 									// proto paths: +
-									// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.image_manifest
+									// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.image_manifest
 									"package: yandex.cloud.cloudregistry.v1\n" +
 									"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 								Computed: true,
@@ -156,7 +156,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 								MarkdownDescription: "Digest of the manifest.",
 								Description: "Digest of the manifest." +
 									// proto paths: +
-									// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_digest
+									// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_digest
 									"package: yandex.cloud.cloudregistry.v1\n" +
 									"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 								Computed: true,
@@ -179,7 +179,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 															MarkdownDescription: "Digest of the content.",
 															Description: "Digest of the content." +
 																// proto paths: +
-																// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_listyandex.cloud.cloudregistry.v1.ManifestList.manifestsyandex.cloud.cloudregistry.v1.PlatformManifest.manifest_descriptoryandex.cloud.cloudregistry.v1.Descriptor.digest
+																// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list -> yandex.cloud.cloudregistry.v1.ManifestList.manifests -> yandex.cloud.cloudregistry.v1.PlatformManifest.manifest_descriptor -> yandex.cloud.cloudregistry.v1.Descriptor.digest
 																"package: yandex.cloud.cloudregistry.v1\n" +
 																"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 															Computed: true,
@@ -189,7 +189,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 															MarkdownDescription: "Size of the content in bytes.",
 															Description: "Size of the content in bytes." +
 																// proto paths: +
-																// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_listyandex.cloud.cloudregistry.v1.ManifestList.manifestsyandex.cloud.cloudregistry.v1.PlatformManifest.manifest_descriptoryandex.cloud.cloudregistry.v1.Descriptor.size
+																// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list -> yandex.cloud.cloudregistry.v1.ManifestList.manifests -> yandex.cloud.cloudregistry.v1.PlatformManifest.manifest_descriptor -> yandex.cloud.cloudregistry.v1.Descriptor.size
 																"package: yandex.cloud.cloudregistry.v1\n" +
 																"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 															Computed: true,
@@ -198,7 +198,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 													MarkdownDescription: "Descriptor of the platform-specific manifest.",
 													Description: "Descriptor of the platform-specific manifest." +
 														// proto paths: +
-														// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_listyandex.cloud.cloudregistry.v1.ManifestList.manifestsyandex.cloud.cloudregistry.v1.PlatformManifest.manifest_descriptor
+														// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list -> yandex.cloud.cloudregistry.v1.ManifestList.manifests -> yandex.cloud.cloudregistry.v1.PlatformManifest.manifest_descriptor
 														"package: yandex.cloud.cloudregistry.v1\n" +
 														"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 													Computed: true,
@@ -212,7 +212,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 															MarkdownDescription: "CPU architecture.",
 															Description: "CPU architecture." +
 																// proto paths: +
-																// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_listyandex.cloud.cloudregistry.v1.ManifestList.manifestsyandex.cloud.cloudregistry.v1.PlatformManifest.platformyandex.cloud.cloudregistry.v1.Platform.architecture
+																// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list -> yandex.cloud.cloudregistry.v1.ManifestList.manifests -> yandex.cloud.cloudregistry.v1.PlatformManifest.platform -> yandex.cloud.cloudregistry.v1.Platform.architecture
 																"package: yandex.cloud.cloudregistry.v1\n" +
 																"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 															Computed: true,
@@ -222,7 +222,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 															MarkdownDescription: "Operating system.",
 															Description: "Operating system." +
 																// proto paths: +
-																// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_listyandex.cloud.cloudregistry.v1.ManifestList.manifestsyandex.cloud.cloudregistry.v1.PlatformManifest.platformyandex.cloud.cloudregistry.v1.Platform.os
+																// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list -> yandex.cloud.cloudregistry.v1.ManifestList.manifests -> yandex.cloud.cloudregistry.v1.PlatformManifest.platform -> yandex.cloud.cloudregistry.v1.Platform.os
 																"package: yandex.cloud.cloudregistry.v1\n" +
 																"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 															Computed: true,
@@ -232,7 +232,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 															MarkdownDescription: "OS version.",
 															Description: "OS version." +
 																// proto paths: +
-																// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_listyandex.cloud.cloudregistry.v1.ManifestList.manifestsyandex.cloud.cloudregistry.v1.PlatformManifest.platformyandex.cloud.cloudregistry.v1.Platform.os_version
+																// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list -> yandex.cloud.cloudregistry.v1.ManifestList.manifests -> yandex.cloud.cloudregistry.v1.PlatformManifest.platform -> yandex.cloud.cloudregistry.v1.Platform.os_version
 																"package: yandex.cloud.cloudregistry.v1\n" +
 																"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 															Computed: true,
@@ -242,7 +242,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 															MarkdownDescription: "CPU variant.",
 															Description: "CPU variant." +
 																// proto paths: +
-																// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_listyandex.cloud.cloudregistry.v1.ManifestList.manifestsyandex.cloud.cloudregistry.v1.PlatformManifest.platformyandex.cloud.cloudregistry.v1.Platform.variant
+																// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list -> yandex.cloud.cloudregistry.v1.ManifestList.manifests -> yandex.cloud.cloudregistry.v1.PlatformManifest.platform -> yandex.cloud.cloudregistry.v1.Platform.variant
 																"package: yandex.cloud.cloudregistry.v1\n" +
 																"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 															Computed: true,
@@ -251,7 +251,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 													MarkdownDescription: "Platform this manifest targets.",
 													Description: "Platform this manifest targets." +
 														// proto paths: +
-														// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_listyandex.cloud.cloudregistry.v1.ManifestList.manifestsyandex.cloud.cloudregistry.v1.PlatformManifest.platform
+														// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list -> yandex.cloud.cloudregistry.v1.ManifestList.manifests -> yandex.cloud.cloudregistry.v1.PlatformManifest.platform
 														"package: yandex.cloud.cloudregistry.v1\n" +
 														"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 													Computed: true,
@@ -261,7 +261,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 										MarkdownDescription: "List of platform-specific manifests.",
 										Description: "List of platform-specific manifests." +
 											// proto paths: +
-											// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_listyandex.cloud.cloudregistry.v1.ManifestList.manifests
+											// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list -> yandex.cloud.cloudregistry.v1.ManifestList.manifests
 											"package: yandex.cloud.cloudregistry.v1\n" +
 											"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 										Computed: true,
@@ -270,7 +270,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 								MarkdownDescription: "Multi-platform manifest list.",
 								Description: "Multi-platform manifest list." +
 									// proto paths: +
-									// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.dockeryandex.cloud.cloudregistry.v1.DockerContent.manifest_list
+									// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker -> yandex.cloud.cloudregistry.v1.DockerContent.manifest_list
 									"package: yandex.cloud.cloudregistry.v1\n" +
 									"filename: yandex/cloud/cloudregistry/v1/docker_content.proto\n",
 								Computed: true,
@@ -279,7 +279,7 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 						MarkdownDescription: "Docker-specific content.",
 						Description: "Docker-specific content." +
 							// proto paths: +
-							// -> yandex.cloud.cloudregistry.v1.Artifact.contentyandex.cloud.cloudregistry.v1.Content.docker
+							// -> yandex.cloud.cloudregistry.v1.Artifact.content -> yandex.cloud.cloudregistry.v1.Content.docker
 							"package: yandex.cloud.cloudregistry.v1\n" +
 							"filename: yandex/cloud/cloudregistry/v1/artifact.proto\n",
 						Computed: true,
@@ -382,18 +382,18 @@ func YandexCloudregistryFolderResourceSchema(ctx context.Context) schema.Schema 
 			},
 
 			"registry_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the registry to upsert a folder in.",
-				Description: "ID of the registry to upsert a folder in." +
+				MarkdownDescription: "Output only. ID of the registry that contains this artifact.",
+				Description: "Output only. ID of the registry that contains this artifact." +
 					// proto paths: +
+					// -> yandex.cloud.cloudregistry.v1.Artifact.registry_id
 					// -> yandex.cloud.cloudregistry.v1.UpsertFolderRequest.registry_id
 					"package: yandex.cloud.cloudregistry.v1\n" +
-					"filename: yandex/cloud/cloudregistry/v1/artifact_service.proto\n",
+					"filename: yandex/cloud/cloudregistry/v1/artifact.proto\n",
 				Required: true,
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.NullWriteOnlyString(),
 				},
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(0, 50),

@@ -103,8 +103,8 @@ func YandexDnsFirewallResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"dns_firewall_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the DNS firewall to return.\n\n To get a DNS firewall ID, make a [DnsFirewallService.List] request.",
-				Description: "ID of the DNS firewall to return.\n\n To get a DNS firewall ID, make a [DnsFirewallService.List] request." +
+				MarkdownDescription: "ID of the DNS firewall to return.\n To get a DNS firewall ID, make a [DnsFirewallService.List] request.",
+				Description: "ID of the DNS firewall to return.\n To get a DNS firewall ID, make a [DnsFirewallService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.dns.v1.DeleteDnsFirewallRequest.dns_firewall_id
 					// -> yandex.cloud.dns.v1.DnsFirewall.id
@@ -118,11 +118,14 @@ func YandexDnsFirewallResourceSchema(ctx context.Context) schema.Schema {
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(0, 255),
+				},
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the DNS firewall to return.\n\n To get a DNS firewall ID, make a [DnsFirewallService.List] request.",
-				Description: "ID of the DNS firewall to return.\n\n To get a DNS firewall ID, make a [DnsFirewallService.List] request." +
+				MarkdownDescription: "ID of the DNS firewall to return.\n To get a DNS firewall ID, make a [DnsFirewallService.List] request.",
+				Description: "ID of the DNS firewall to return.\n To get a DNS firewall ID, make a [DnsFirewallService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.dns.v1.DeleteDnsFirewallRequest.dns_firewall_id
 					// -> yandex.cloud.dns.v1.DnsFirewall.id
@@ -135,6 +138,9 @@ func YandexDnsFirewallResourceSchema(ctx context.Context) schema.Schema {
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(0, 255),
 				},
 			},
 
@@ -231,9 +237,9 @@ func YandexDnsFirewallResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Whether the locking policy is enabled.",
 						Description: "Whether the locking policy is enabled." +
 							// proto paths: +
-							// -> yandex.cloud.dns.v1.CreateDnsFirewallRequest.resource_configyandex.cloud.dns.v1.DnsFirewall.ResourceConfig.locking_policy_enabled
-							// -> yandex.cloud.dns.v1.DnsFirewall.resource_configyandex.cloud.dns.v1.DnsFirewall.ResourceConfig.locking_policy_enabled
-							// -> yandex.cloud.dns.v1.UpdateDnsFirewallRequest.resource_configyandex.cloud.dns.v1.DnsFirewall.ResourceConfig.locking_policy_enabled
+							// -> yandex.cloud.dns.v1.CreateDnsFirewallRequest.resource_config -> yandex.cloud.dns.v1.DnsFirewall.ResourceConfig.locking_policy_enabled
+							// -> yandex.cloud.dns.v1.DnsFirewall.resource_config -> yandex.cloud.dns.v1.DnsFirewall.ResourceConfig.locking_policy_enabled
+							// -> yandex.cloud.dns.v1.UpdateDnsFirewallRequest.resource_config -> yandex.cloud.dns.v1.DnsFirewall.ResourceConfig.locking_policy_enabled
 							"package: yandex.cloud.dns.v1\n" +
 							"filename: yandex/cloud/dns/v1/dns_firewall.proto\n",
 						Optional: true,
@@ -249,9 +255,9 @@ func YandexDnsFirewallResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Resource ids.",
 						Description: "Resource ids." +
 							// proto paths: +
-							// -> yandex.cloud.dns.v1.CreateDnsFirewallRequest.resource_configyandex.cloud.dns.v1.DnsFirewall.ResourceConfig.resource_ids
-							// -> yandex.cloud.dns.v1.DnsFirewall.resource_configyandex.cloud.dns.v1.DnsFirewall.ResourceConfig.resource_ids
-							// -> yandex.cloud.dns.v1.UpdateDnsFirewallRequest.resource_configyandex.cloud.dns.v1.DnsFirewall.ResourceConfig.resource_ids
+							// -> yandex.cloud.dns.v1.CreateDnsFirewallRequest.resource_config -> yandex.cloud.dns.v1.DnsFirewall.ResourceConfig.resource_ids
+							// -> yandex.cloud.dns.v1.DnsFirewall.resource_config -> yandex.cloud.dns.v1.DnsFirewall.ResourceConfig.resource_ids
+							// -> yandex.cloud.dns.v1.UpdateDnsFirewallRequest.resource_config -> yandex.cloud.dns.v1.DnsFirewall.ResourceConfig.resource_ids
 							"package: yandex.cloud.dns.v1\n" +
 							"filename: yandex/cloud/dns/v1/dns_firewall.proto\n",
 						Optional: true,
@@ -272,9 +278,9 @@ func YandexDnsFirewallResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Type of the resource.",
 						Description: "Type of the resource." +
 							// proto paths: +
-							// -> yandex.cloud.dns.v1.CreateDnsFirewallRequest.resource_configyandex.cloud.dns.v1.DnsFirewall.ResourceConfig.type
-							// -> yandex.cloud.dns.v1.DnsFirewall.resource_configyandex.cloud.dns.v1.DnsFirewall.ResourceConfig.type
-							// -> yandex.cloud.dns.v1.UpdateDnsFirewallRequest.resource_configyandex.cloud.dns.v1.DnsFirewall.ResourceConfig.type
+							// -> yandex.cloud.dns.v1.CreateDnsFirewallRequest.resource_config -> yandex.cloud.dns.v1.DnsFirewall.ResourceConfig.type
+							// -> yandex.cloud.dns.v1.DnsFirewall.resource_config -> yandex.cloud.dns.v1.DnsFirewall.ResourceConfig.type
+							// -> yandex.cloud.dns.v1.UpdateDnsFirewallRequest.resource_config -> yandex.cloud.dns.v1.DnsFirewall.ResourceConfig.type
 							"package: yandex.cloud.dns.v1\n" +
 							"filename: yandex/cloud/dns/v1/dns_firewall.proto\n",
 						Optional: true,

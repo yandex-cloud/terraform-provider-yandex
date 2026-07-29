@@ -64,6 +64,40 @@ func (m *yandexLoggingGroupModel) GetStatus() types.String {
 	return m.Status
 }
 
+func (m *yandexLoggingGroupModel) SetCloudId(target types.String) {
+	m.CloudId = target
+}
+func (m *yandexLoggingGroupModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexLoggingGroupModel) SetDataStream(target types.String) {
+	m.DataStream = target
+}
+func (m *yandexLoggingGroupModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexLoggingGroupModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexLoggingGroupModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexLoggingGroupModel) SetLogGroupId(target types.String) {
+	m.LogGroupId = target
+}
+func (m *yandexLoggingGroupModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexLoggingGroupModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexLoggingGroupModel) SetRetentionPeriod(target types.String) {
+	m.RetentionPeriod = target
+}
+func (m *yandexLoggingGroupModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexLoggingGroupModel() yandexLoggingGroupModel {
 	return yandexLoggingGroupModel{
 		CloudId:         types.StringNull(),
@@ -180,7 +214,6 @@ func expandYandexLoggingGroupModel(ctx context.Context, yandexLoggingGroupState 
 	value.SetDescription(yandexLoggingGroupState.Description.ValueString())
 	value.SetFolderId(yandexLoggingGroupState.FolderId.ValueString())
 	value.SetLabels(expandYandexLoggingGroupLabels(ctx, yandexLoggingGroupState.Labels, diags))
-	value.SetId(yandexLoggingGroupState.LogGroupId.ValueString())
 	value.SetId(yandexLoggingGroupState.LogGroupId.ValueString())
 	value.SetName(yandexLoggingGroupState.Name.ValueString())
 	value.SetRetentionPeriod(converter.ParseDuration(yandexLoggingGroupState.RetentionPeriod.ValueString(), diags))

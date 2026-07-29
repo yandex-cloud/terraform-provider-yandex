@@ -27,6 +27,13 @@ func (m *yandexLbTargetGroupTargetStructModel) GetSubnetId() types.String {
 	return m.SubnetId
 }
 
+func (m *yandexLbTargetGroupTargetStructModel) SetAddress(target types.String) {
+	m.Address = target
+}
+func (m *yandexLbTargetGroupTargetStructModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+
 func NewYandexLbTargetGroupTargetStructModel() yandexLbTargetGroupTargetStructModel {
 	return yandexLbTargetGroupTargetStructModel{
 		Address:  types.StringNull(),
@@ -126,6 +133,34 @@ func (m *yandexLbTargetGroupModel) GetTargetGroupId() types.String {
 }
 func (m *yandexLbTargetGroupModel) GetID() types.String {
 	return m.ID
+}
+
+func (m *yandexLbTargetGroupModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexLbTargetGroupModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexLbTargetGroupModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexLbTargetGroupModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexLbTargetGroupModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexLbTargetGroupModel) SetRegionId(target types.String) {
+	m.RegionId = target
+}
+func (m *yandexLbTargetGroupModel) SetTarget(target types.Set) {
+	m.Target = target
+}
+func (m *yandexLbTargetGroupModel) SetTargetGroupId(target types.String) {
+	m.TargetGroupId = target
+}
+func (m *yandexLbTargetGroupModel) SetID(target types.String) {
+	m.ID = target
 }
 
 func NewYandexLbTargetGroupModel() yandexLbTargetGroupModel {
@@ -233,7 +268,6 @@ func expandYandexLbTargetGroupModel(ctx context.Context, yandexLbTargetGroupStat
 	value.SetName(yandexLbTargetGroupState.Name.ValueString())
 	value.SetRegionId(yandexLbTargetGroupState.RegionId.ValueString())
 	value.SetTargets(expandYandexLbTargetGroupTarget(ctx, yandexLbTargetGroupState.Target, diags))
-	value.SetId(yandexLbTargetGroupState.TargetGroupId.ValueString())
 	value.SetId(yandexLbTargetGroupState.TargetGroupId.ValueString())
 	if diags.HasError() {
 		return nil

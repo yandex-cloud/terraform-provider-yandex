@@ -312,10 +312,10 @@ func (r *yandexResourcemanagerFolderResource) Update(ctx context.Context, req re
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.FolderId.Equal(state.FolderId) {
+	if !plan.FolderId.IsUnknown() && !plan.FolderId.Equal(state.FolderId) {
 		updatePaths = append(updatePaths, "folder_id")
 	}
 	if plan.Labels.IsNull() {
@@ -324,10 +324,10 @@ func (r *yandexResourcemanagerFolderResource) Update(ctx context.Context, req re
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if len(updatePaths) != 0 {

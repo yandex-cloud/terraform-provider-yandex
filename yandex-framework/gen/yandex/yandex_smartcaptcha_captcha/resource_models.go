@@ -2686,7 +2686,6 @@ func expandYandexSmartcaptchaCaptchaModel(ctx context.Context, yandexSmartcaptch
 	value := &smartcaptcha.Captcha{}
 	value.SetAllowedSites(expandYandexSmartcaptchaCaptchaAllowedSites(ctx, yandexSmartcaptchaCaptchaState.AllowedSites, diags))
 	value.SetId(yandexSmartcaptchaCaptchaState.CaptchaId.ValueString())
-	value.SetId(yandexSmartcaptchaCaptchaState.CaptchaId.ValueString())
 	value.SetChallengeType(smartcaptcha.CaptchaChallengeType(smartcaptcha.CaptchaChallengeType_value[yandexSmartcaptchaCaptchaState.ChallengeType.ValueString()]))
 	value.SetClientKey(yandexSmartcaptchaCaptchaState.ClientKey.ValueString())
 	value.SetCloudId(yandexSmartcaptchaCaptchaState.CloudId.ValueString())

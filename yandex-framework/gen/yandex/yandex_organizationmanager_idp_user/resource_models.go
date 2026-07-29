@@ -16,13 +16,18 @@ import (
 )
 
 type yandexOrganizationmanagerIdpUserModel struct {
+	CompanyName  types.String   `tfsdk:"company_name"`
 	CreatedAt    types.String   `tfsdk:"created_at"`
+	Department   types.String   `tfsdk:"department"`
 	Email        types.String   `tfsdk:"email"`
+	EmployeeId   types.String   `tfsdk:"employee_id"`
+	ExpiresAt    types.String   `tfsdk:"expires_at"`
 	ExternalId   types.String   `tfsdk:"external_id"`
 	FamilyName   types.String   `tfsdk:"family_name"`
 	FullName     types.String   `tfsdk:"full_name"`
 	GivenName    types.String   `tfsdk:"given_name"`
 	IsActive     types.Bool     `tfsdk:"is_active"`
+	JobTitle     types.String   `tfsdk:"job_title"`
 	PasswordHash types.Object   `tfsdk:"password_hash"`
 	PasswordSpec types.Object   `tfsdk:"password_spec"`
 	PhoneNumber  types.String   `tfsdk:"phone_number"`
@@ -35,11 +40,23 @@ type yandexOrganizationmanagerIdpUserModel struct {
 	Timeouts     timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserModel) GetCompanyName() types.String {
+	return m.CompanyName
+}
 func (m *yandexOrganizationmanagerIdpUserModel) GetCreatedAt() types.String {
 	return m.CreatedAt
 }
+func (m *yandexOrganizationmanagerIdpUserModel) GetDepartment() types.String {
+	return m.Department
+}
 func (m *yandexOrganizationmanagerIdpUserModel) GetEmail() types.String {
 	return m.Email
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetEmployeeId() types.String {
+	return m.EmployeeId
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetExpiresAt() types.String {
+	return m.ExpiresAt
 }
 func (m *yandexOrganizationmanagerIdpUserModel) GetExternalId() types.String {
 	return m.ExternalId
@@ -55,6 +72,9 @@ func (m *yandexOrganizationmanagerIdpUserModel) GetGivenName() types.String {
 }
 func (m *yandexOrganizationmanagerIdpUserModel) GetIsActive() types.Bool {
 	return m.IsActive
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetJobTitle() types.String {
+	return m.JobTitle
 }
 func (m *yandexOrganizationmanagerIdpUserModel) GetPasswordHash() types.Object {
 	return m.PasswordHash
@@ -84,15 +104,84 @@ func (m *yandexOrganizationmanagerIdpUserModel) GetUserpoolId() types.String {
 	return m.UserpoolId
 }
 
+func (m *yandexOrganizationmanagerIdpUserModel) SetCompanyName(target types.String) {
+	m.CompanyName = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetDepartment(target types.String) {
+	m.Department = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetEmail(target types.String) {
+	m.Email = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetEmployeeId(target types.String) {
+	m.EmployeeId = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetExpiresAt(target types.String) {
+	m.ExpiresAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetExternalId(target types.String) {
+	m.ExternalId = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetFamilyName(target types.String) {
+	m.FamilyName = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetFullName(target types.String) {
+	m.FullName = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetGivenName(target types.String) {
+	m.GivenName = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetIsActive(target types.Bool) {
+	m.IsActive = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetJobTitle(target types.String) {
+	m.JobTitle = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetPasswordHash(target types.Object) {
+	m.PasswordHash = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetPasswordSpec(target types.Object) {
+	m.PasswordSpec = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetPhoneNumber(target types.String) {
+	m.PhoneNumber = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetUserId(target types.String) {
+	m.UserId = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetUsername(target types.String) {
+	m.Username = target
+}
+func (m *yandexOrganizationmanagerIdpUserModel) SetUserpoolId(target types.String) {
+	m.UserpoolId = target
+}
+
 func NewYandexOrganizationmanagerIdpUserModel() yandexOrganizationmanagerIdpUserModel {
 	return yandexOrganizationmanagerIdpUserModel{
+		CompanyName:  types.StringNull(),
 		CreatedAt:    types.StringNull(),
+		Department:   types.StringNull(),
 		Email:        types.StringNull(),
+		EmployeeId:   types.StringNull(),
+		ExpiresAt:    types.StringNull(),
 		ExternalId:   types.StringNull(),
 		FamilyName:   types.StringNull(),
 		FullName:     types.StringNull(),
 		GivenName:    types.StringNull(),
 		IsActive:     types.BoolNull(),
+		JobTitle:     types.StringNull(),
 		PasswordHash: types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordHashModelType.AttrTypes),
 		PasswordSpec: types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordSpecModelType.AttrTypes),
 		PhoneNumber:  types.StringNull(),
@@ -106,11 +195,23 @@ func NewYandexOrganizationmanagerIdpUserModel() yandexOrganizationmanagerIdpUser
 }
 
 func yandexOrganizationmanagerIdpUserModelFillUnknown(target yandexOrganizationmanagerIdpUserModel) yandexOrganizationmanagerIdpUserModel {
+	if target.CompanyName.IsUnknown() || target.CompanyName.IsNull() {
+		target.CompanyName = types.StringNull()
+	}
 	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
 		target.CreatedAt = types.StringNull()
 	}
+	if target.Department.IsUnknown() || target.Department.IsNull() {
+		target.Department = types.StringNull()
+	}
 	if target.Email.IsUnknown() || target.Email.IsNull() {
 		target.Email = types.StringNull()
+	}
+	if target.EmployeeId.IsUnknown() || target.EmployeeId.IsNull() {
+		target.EmployeeId = types.StringNull()
+	}
+	if target.ExpiresAt.IsUnknown() || target.ExpiresAt.IsNull() {
+		target.ExpiresAt = types.StringNull()
 	}
 	if target.ExternalId.IsUnknown() || target.ExternalId.IsNull() {
 		target.ExternalId = types.StringNull()
@@ -126,6 +227,9 @@ func yandexOrganizationmanagerIdpUserModelFillUnknown(target yandexOrganizationm
 	}
 	if target.IsActive.IsUnknown() || target.IsActive.IsNull() {
 		target.IsActive = types.BoolNull()
+	}
+	if target.JobTitle.IsUnknown() || target.JobTitle.IsNull() {
+		target.JobTitle = types.StringNull()
 	}
 	if target.PasswordHash.IsUnknown() || target.PasswordHash.IsNull() {
 		target.PasswordHash = types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordHashModelType.AttrTypes)
@@ -159,13 +263,18 @@ func yandexOrganizationmanagerIdpUserModelFillUnknown(target yandexOrganizationm
 
 var yandexOrganizationmanagerIdpUserModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"company_name":  types.StringType,
 		"created_at":    types.StringType,
+		"department":    types.StringType,
 		"email":         types.StringType,
+		"employee_id":   types.StringType,
+		"expires_at":    types.StringType,
 		"external_id":   types.StringType,
 		"family_name":   types.StringType,
 		"full_name":     types.StringType,
 		"given_name":    types.StringType,
 		"is_active":     types.BoolType,
+		"job_title":     types.StringType,
 		"password_hash": yandexOrganizationmanagerIdpUserPasswordHashModelType,
 		"password_spec": yandexOrganizationmanagerIdpUserPasswordSpecModelType,
 		"phone_number":  types.StringType,
@@ -188,13 +297,18 @@ func flattenYandexOrganizationmanagerIdpUser(ctx context.Context,
 		return types.ObjectNull(yandexOrganizationmanagerIdpUserModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserModelType.AttrTypes, yandexOrganizationmanagerIdpUserModel{
+		CompanyName:  types.StringValue(yandexOrganizationmanagerIdpUser.GetCompanyName()),
 		CreatedAt:    types.StringValue(yandexOrganizationmanagerIdpUser.GetCreatedAt().AsTime().Format(time.RFC3339)),
+		Department:   types.StringValue(yandexOrganizationmanagerIdpUser.GetDepartment()),
 		Email:        types.StringValue(yandexOrganizationmanagerIdpUser.GetEmail()),
+		EmployeeId:   types.StringValue(yandexOrganizationmanagerIdpUser.GetEmployeeId()),
+		ExpiresAt:    types.StringValue(yandexOrganizationmanagerIdpUser.GetExpiresAt().AsTime().Format(time.RFC3339)),
 		ExternalId:   types.StringValue(yandexOrganizationmanagerIdpUser.GetExternalId()),
 		FamilyName:   types.StringValue(yandexOrganizationmanagerIdpUser.GetFamilyName()),
 		FullName:     types.StringValue(yandexOrganizationmanagerIdpUser.GetFullName()),
 		GivenName:    types.StringValue(yandexOrganizationmanagerIdpUser.GetGivenName()),
 		IsActive:     state.IsActive,
+		JobTitle:     types.StringValue(yandexOrganizationmanagerIdpUser.GetJobTitle()),
 		PasswordHash: state.PasswordHash,
 		PasswordSpec: state.PasswordSpec,
 		PhoneNumber:  types.StringValue(yandexOrganizationmanagerIdpUser.GetPhoneNumber()),
@@ -224,16 +338,20 @@ func expandYandexOrganizationmanagerIdpUser(ctx context.Context, yandexOrganizat
 
 func expandYandexOrganizationmanagerIdpUserModel(ctx context.Context, yandexOrganizationmanagerIdpUserState yandexOrganizationmanagerIdpUserModel, diags *diag.Diagnostics) *idp.User {
 	value := &idp.User{}
+	value.SetCompanyName(yandexOrganizationmanagerIdpUserState.CompanyName.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexOrganizationmanagerIdpUserState.CreatedAt.ValueString(), diags))
+	value.SetDepartment(yandexOrganizationmanagerIdpUserState.Department.ValueString())
 	value.SetEmail(yandexOrganizationmanagerIdpUserState.Email.ValueString())
+	value.SetEmployeeId(yandexOrganizationmanagerIdpUserState.EmployeeId.ValueString())
+	value.SetExpiresAt(converter.ParseTimestamp(yandexOrganizationmanagerIdpUserState.ExpiresAt.ValueString(), diags))
 	value.SetExternalId(yandexOrganizationmanagerIdpUserState.ExternalId.ValueString())
 	value.SetFamilyName(yandexOrganizationmanagerIdpUserState.FamilyName.ValueString())
 	value.SetFullName(yandexOrganizationmanagerIdpUserState.FullName.ValueString())
 	value.SetGivenName(yandexOrganizationmanagerIdpUserState.GivenName.ValueString())
+	value.SetJobTitle(yandexOrganizationmanagerIdpUserState.JobTitle.ValueString())
 	value.SetPhoneNumber(yandexOrganizationmanagerIdpUserState.PhoneNumber.ValueString())
 	value.SetStatus(idp.User_Status(idp.User_Status_value[yandexOrganizationmanagerIdpUserState.Status.ValueString()]))
 	value.SetUpdatedAt(converter.ParseTimestamp(yandexOrganizationmanagerIdpUserState.UpdatedAt.ValueString(), diags))
-	value.SetId(yandexOrganizationmanagerIdpUserState.UserId.ValueString())
 	value.SetId(yandexOrganizationmanagerIdpUserState.UserId.ValueString())
 	value.SetUsername(yandexOrganizationmanagerIdpUserState.Username.ValueString())
 	value.SetUserpoolId(yandexOrganizationmanagerIdpUserState.UserpoolId.ValueString())
@@ -253,6 +371,13 @@ func (m *yandexOrganizationmanagerIdpUserPasswordHashModel) GetPasswordHash() ty
 }
 func (m *yandexOrganizationmanagerIdpUserPasswordHashModel) GetPasswordHashType() types.String {
 	return m.PasswordHashType
+}
+
+func (m *yandexOrganizationmanagerIdpUserPasswordHashModel) SetPasswordHash(target types.String) {
+	m.PasswordHash = target
+}
+func (m *yandexOrganizationmanagerIdpUserPasswordHashModel) SetPasswordHashType(target types.String) {
+	m.PasswordHashType = target
 }
 
 func NewYandexOrganizationmanagerIdpUserPasswordHashModel() yandexOrganizationmanagerIdpUserPasswordHashModel {
@@ -287,7 +412,7 @@ func flattenYandexOrganizationmanagerIdpUserPasswordHash(ctx context.Context,
 		return types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordHashModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserPasswordHashModelType.AttrTypes, yandexOrganizationmanagerIdpUserPasswordHashModel{
-		PasswordHash:     converter.SetUnknownStringValue(state.PasswordHash),
+		PasswordHash:     state.PasswordHash,
 		PasswordHashType: state.PasswordHashType,
 	})
 	diags.Append(diag...)
@@ -328,6 +453,13 @@ func (m *yandexOrganizationmanagerIdpUserPasswordSpecModel) GetPassword() types.
 	return m.Password
 }
 
+func (m *yandexOrganizationmanagerIdpUserPasswordSpecModel) SetGenerationProof(target types.String) {
+	m.GenerationProof = target
+}
+func (m *yandexOrganizationmanagerIdpUserPasswordSpecModel) SetPassword(target types.String) {
+	m.Password = target
+}
+
 func NewYandexOrganizationmanagerIdpUserPasswordSpecModel() yandexOrganizationmanagerIdpUserPasswordSpecModel {
 	return yandexOrganizationmanagerIdpUserPasswordSpecModel{
 		GenerationProof: types.StringNull(),
@@ -360,8 +492,8 @@ func flattenYandexOrganizationmanagerIdpUserPasswordSpec(ctx context.Context,
 		return types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordSpecModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserPasswordSpecModelType.AttrTypes, yandexOrganizationmanagerIdpUserPasswordSpecModel{
-		GenerationProof: converter.SetUnknownStringValue(state.GenerationProof),
-		Password:        converter.SetUnknownStringValue(state.Password),
+		GenerationProof: state.GenerationProof,
+		Password:        state.Password,
 	})
 	diags.Append(diag...)
 	return value

@@ -16,11 +16,15 @@ import (
 )
 
 type yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel struct {
-	Locations types.List   `tfsdk:"locations"`
-	SizeGb    types.Int64  `tfsdk:"size_gb"`
-	Type      types.String `tfsdk:"type"`
+	LocationQuotasGb types.List   `tfsdk:"location_quotas_gb"`
+	Locations        types.List   `tfsdk:"locations"`
+	SizeGb           types.Int64  `tfsdk:"size_gb"`
+	Type             types.String `tfsdk:"type"`
 }
 
+func (m *yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) GetLocationQuotasGb() types.List {
+	return m.LocationQuotasGb
+}
 func (m *yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) GetLocations() types.List {
 	return m.Locations
 }
@@ -31,6 +35,9 @@ func (m *yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) GetType(
 	return m.Type
 }
 
+func (m *yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) SetLocationQuotasGb(target types.List) {
+	m.LocationQuotasGb = target
+}
 func (m *yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) SetLocations(target types.List) {
 	m.Locations = target
 }
@@ -43,13 +50,17 @@ func (m *yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) SetType(
 
 func NewYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel() yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel {
 	return yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel{
-		Locations: types.ListNull(types.StringType),
-		SizeGb:    types.Int64Null(),
-		Type:      types.StringNull(),
+		LocationQuotasGb: types.ListNull(types.Int64Type),
+		Locations:        types.ListNull(types.StringType),
+		SizeGb:           types.Int64Null(),
+		Type:             types.StringNull(),
 	}
 }
 
 func yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelFillUnknown(target yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel) yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel {
+	if target.LocationQuotasGb.IsUnknown() || target.LocationQuotasGb.IsNull() {
+		target.LocationQuotasGb = types.ListNull(types.Int64Type)
+	}
 	if target.Locations.IsUnknown() || target.Locations.IsNull() {
 		target.Locations = types.ListNull(types.StringType)
 	}
@@ -64,9 +75,10 @@ func yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelFillUnknown(ta
 
 var yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"locations": types.ListType{ElemType: types.StringType},
-		"size_gb":   types.Int64Type,
-		"type":      types.StringType,
+		"location_quotas_gb": types.ListType{ElemType: types.Int64Type},
+		"locations":          types.ListType{ElemType: types.StringType},
+		"size_gb":            types.Int64Type,
+		"type":               types.StringType,
 	},
 }
 
@@ -78,9 +90,10 @@ func flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct(ctx context
 		return types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModelType.AttrTypes, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel{
-		Locations: flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations(ctx, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetLocations(), state.Locations, diags),
-		SizeGb:    types.Int64Value(int64(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetSizeGb())),
-		Type:      types.StringValue(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetType()),
+		LocationQuotasGb: flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGb(ctx, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetLocationQuotasGb(), state.LocationQuotasGb, diags),
+		Locations:        flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations(ctx, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetLocations(), state.Locations, diags),
+		SizeGb:           types.Int64Value(int64(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetSizeGb())),
+		Type:             types.StringValue(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct.GetType()),
 	})
 	diags.Append(diag...)
 	return value
@@ -100,6 +113,7 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStruct(ctx context.
 
 func expandYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructState yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel, diags *diag.Diagnostics) *ytsaurus.ComputeSpec_DiskSpec {
 	value := &ytsaurus.ComputeSpec_DiskSpec{}
+	value.SetLocationQuotasGb(expandYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGb(ctx, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructState.LocationQuotasGb, diags))
 	value.SetLocations(expandYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations(ctx, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructState.Locations, diags))
 	value.SetSizeGb((yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructState.SizeGb.ValueInt64()))
 	value.SetType(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructState.Type.ValueString())
@@ -107,6 +121,43 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructModel(ctx con
 		return nil
 	}
 	return value
+}
+
+func flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGb(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGb []int64, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGb == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.Int64Type)
+	}
+	var yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbValues []attr.Value
+	for _, elem := range yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGb {
+		val := types.Int64Value(int64(elem))
+		yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbValues = append(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbValues, val)
+	}
+
+	value, diag := types.ListValue(types.Int64Type, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGb(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbState types.List, diags *diag.Diagnostics) []int64 {
+	if yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbState.IsNull() || yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbState.IsUnknown() {
+		return nil
+	}
+	if len(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbState.Elements()) == 0 {
+		return []int64{}
+	}
+	yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbRes := make([]int64, 0, len(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbState.Elements()))
+	yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbType := make([]types.Int64, 0, len(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbState.Elements()))
+	diags.Append(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbState.ElementsAs(ctx, &yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbType {
+		yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbRes = append(yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbRes, int64(elem.ValueInt64()))
+	}
+	return yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocationQuotasGbRes
 }
 
 func flattenYandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructDiskSpecStructLocations []string, listState types.List, diags *diag.Diagnostics) types.List {
@@ -224,7 +275,7 @@ func flattenYandexYtsaurusClusterSpecComputeSpecStruct(ctx context.Context,
 		Disks:       flattenYandexYtsaurusClusterSpecComputeSpecStructDisks(ctx, yandexYtsaurusClusterSpecComputeSpecStruct.GetDisks(), state.Disks, diags),
 		Name:        types.StringValue(yandexYtsaurusClusterSpecComputeSpecStruct.GetName()),
 		Preset:      types.StringValue(yandexYtsaurusClusterSpecComputeSpecStruct.GetPreset()),
-		ScalePolicy: flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicy(ctx, yandexYtsaurusClusterSpecComputeSpecStruct.GetScalePolicy(), diags),
+		ScalePolicy: flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicy(ctx, yandexYtsaurusClusterSpecComputeSpecStruct.GetScalePolicy(), converter.ExpandObject(ctx, state.ScalePolicy, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel{}, diags).(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel), diags),
 	})
 	diags.Append(diag...)
 	return value
@@ -345,12 +396,13 @@ var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelType = types.Objec
 
 func flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicy(ctx context.Context,
 	yandexYtsaurusClusterSpecComputeSpecStructScalePolicy *ytsaurus.ComputeSpec_ScalePolicy,
+	state yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel,
 	diags *diag.Diagnostics) types.Object {
 	if yandexYtsaurusClusterSpecComputeSpecStructScalePolicy == nil {
 		return types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModelType.AttrTypes, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel{
-		Auto:  flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto(ctx, yandexYtsaurusClusterSpecComputeSpecStructScalePolicy.GetAuto(), diags),
+		Auto:  flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto(ctx, yandexYtsaurusClusterSpecComputeSpecStructScalePolicy.GetAuto(), converter.ExpandObject(ctx, state.Auto, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel{}, diags).(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel), diags),
 		Fixed: flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicyFixed(ctx, yandexYtsaurusClusterSpecComputeSpecStructScalePolicy.GetFixed(), diags),
 	})
 	diags.Append(diag...)
@@ -384,10 +436,18 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicyModel(ctx contex
 }
 
 type yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel struct {
-	MaxSize types.Int64 `tfsdk:"max_size"`
-	MinSize types.Int64 `tfsdk:"min_size"`
+	InitialSize types.Int64  `tfsdk:"initial_size"`
+	Linear      types.Object `tfsdk:"linear"`
+	MaxSize     types.Int64  `tfsdk:"max_size"`
+	MinSize     types.Int64  `tfsdk:"min_size"`
 }
 
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) GetInitialSize() types.Int64 {
+	return m.InitialSize
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) GetLinear() types.Object {
+	return m.Linear
+}
 func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) GetMaxSize() types.Int64 {
 	return m.MaxSize
 }
@@ -395,6 +455,12 @@ func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) GetMinS
 	return m.MinSize
 }
 
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) SetInitialSize(target types.Int64) {
+	m.InitialSize = target
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) SetLinear(target types.Object) {
+	m.Linear = target
+}
 func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) SetMaxSize(target types.Int64) {
 	m.MaxSize = target
 }
@@ -404,12 +470,20 @@ func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) SetMinS
 
 func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel() yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel {
 	return yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel{
-		MaxSize: types.Int64Null(),
-		MinSize: types.Int64Null(),
+		InitialSize: types.Int64Null(),
+		Linear:      types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModelType.AttrTypes),
+		MaxSize:     types.Int64Null(),
+		MinSize:     types.Int64Null(),
 	}
 }
 
 func yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelFillUnknown(target yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel) yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel {
+	if target.InitialSize.IsUnknown() || target.InitialSize.IsNull() {
+		target.InitialSize = types.Int64Null()
+	}
+	if target.Linear.IsUnknown() || target.Linear.IsNull() {
+		target.Linear = types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModelType.AttrTypes)
+	}
 	if target.MaxSize.IsUnknown() || target.MaxSize.IsNull() {
 		target.MaxSize = types.Int64Null()
 	}
@@ -421,20 +495,25 @@ func yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelFillUnknown(t
 
 var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"max_size": types.Int64Type,
-		"min_size": types.Int64Type,
+		"initial_size": types.Int64Type,
+		"linear":       yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModelType,
+		"max_size":     types.Int64Type,
+		"min_size":     types.Int64Type,
 	},
 }
 
 func flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto(ctx context.Context,
 	yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto *ytsaurus.ComputeSpec_ScalePolicy_AutoScale,
+	state yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel,
 	diags *diag.Diagnostics) types.Object {
 	if yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto == nil {
 		return types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModelType.AttrTypes, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel{
-		MaxSize: types.Int64Value(int64(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto.GetMaxSize())),
-		MinSize: types.Int64Value(int64(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto.GetMinSize())),
+		InitialSize: types.Int64Value(int64(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto.GetInitialSize())),
+		Linear:      flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear(ctx, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto.GetLinear(), converter.ExpandObject(ctx, state.Linear, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel{}, diags).(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel), diags),
+		MaxSize:     types.Int64Value(int64(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto.GetMaxSize())),
+		MinSize:     types.Int64Value(int64(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto.GetMinSize())),
 	})
 	diags.Append(diag...)
 	return value
@@ -454,8 +533,120 @@ func expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAuto(ctx context
 
 func expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoState yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoModel, diags *diag.Diagnostics) *ytsaurus.ComputeSpec_ScalePolicy_AutoScale {
 	value := &ytsaurus.ComputeSpec_ScalePolicy_AutoScale{}
+	value.SetInitialSize((yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoState.InitialSize.ValueInt64()))
+	if !(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoState.Linear.IsNull() || yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoState.Linear.IsUnknown() || yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoState.Linear.Equal(types.Object{})) {
+		value.SetLinear(expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear(ctx, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoState.Linear, diags))
+	}
 	value.SetMaxSize((yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoState.MaxSize.ValueInt64()))
 	value.SetMinSize((yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoState.MinSize.ValueInt64()))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel struct {
+	CooldownInterval     types.String  `tfsdk:"cooldown_interval"`
+	OverloadCoefficient  types.Float64 `tfsdk:"overload_coefficient"`
+	StatisticsInterval   types.String  `tfsdk:"statistics_interval"`
+	UnderloadCoefficient types.Float64 `tfsdk:"underload_coefficient"`
+}
+
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel) GetCooldownInterval() types.String {
+	return m.CooldownInterval
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel) GetOverloadCoefficient() types.Float64 {
+	return m.OverloadCoefficient
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel) GetStatisticsInterval() types.String {
+	return m.StatisticsInterval
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel) GetUnderloadCoefficient() types.Float64 {
+	return m.UnderloadCoefficient
+}
+
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel) SetCooldownInterval(target types.String) {
+	m.CooldownInterval = target
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel) SetOverloadCoefficient(target types.Float64) {
+	m.OverloadCoefficient = target
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel) SetStatisticsInterval(target types.String) {
+	m.StatisticsInterval = target
+}
+func (m *yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel) SetUnderloadCoefficient(target types.Float64) {
+	m.UnderloadCoefficient = target
+}
+
+func NewYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel() yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel {
+	return yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel{
+		CooldownInterval:     types.StringNull(),
+		OverloadCoefficient:  types.Float64Null(),
+		StatisticsInterval:   types.StringNull(),
+		UnderloadCoefficient: types.Float64Null(),
+	}
+}
+
+func yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModelFillUnknown(target yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel) yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel {
+	if target.CooldownInterval.IsUnknown() || target.CooldownInterval.IsNull() {
+		target.CooldownInterval = types.StringNull()
+	}
+	if target.OverloadCoefficient.IsUnknown() || target.OverloadCoefficient.IsNull() {
+		target.OverloadCoefficient = types.Float64Null()
+	}
+	if target.StatisticsInterval.IsUnknown() || target.StatisticsInterval.IsNull() {
+		target.StatisticsInterval = types.StringNull()
+	}
+	if target.UnderloadCoefficient.IsUnknown() || target.UnderloadCoefficient.IsNull() {
+		target.UnderloadCoefficient = types.Float64Null()
+	}
+	return target
+}
+
+var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"cooldown_interval":     types.StringType,
+		"overload_coefficient":  types.Float64Type,
+		"statistics_interval":   types.StringType,
+		"underload_coefficient": types.Float64Type,
+	},
+}
+
+func flattenYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear(ctx context.Context,
+	yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear *ytsaurus.LinearScalingStrategy,
+	state yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear == nil {
+		return types.ObjectNull(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModelType.AttrTypes, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel{
+		CooldownInterval:     types.StringValue(converter.GetDuration(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear.GetCooldownInterval(), state.CooldownInterval.ValueString(), diags)),
+		OverloadCoefficient:  types.Float64Value(float64(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear.GetOverloadCoefficient())),
+		StatisticsInterval:   types.StringValue(converter.GetDuration(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear.GetStatisticsInterval(), state.StatisticsInterval.ValueString(), diags)),
+		UnderloadCoefficient: types.Float64Value(float64(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear.GetUnderloadCoefficient())),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearState types.Object, diags *diag.Diagnostics) *ytsaurus.LinearScalingStrategy {
+	if yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearState.IsNull() || yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel
+	diags.Append(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearState.As(ctx, &yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel(ctx, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinear, diags)
+}
+
+func expandYandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel(ctx context.Context, yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearState yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearModel, diags *diag.Diagnostics) *ytsaurus.LinearScalingStrategy {
+	value := &ytsaurus.LinearScalingStrategy{}
+	value.SetCooldownInterval(converter.ParseDuration(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearState.CooldownInterval.ValueString(), diags))
+	value.SetOverloadCoefficient((yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearState.OverloadCoefficient.ValueFloat64()))
+	value.SetStatisticsInterval(converter.ParseDuration(yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearState.StatisticsInterval.ValueString(), diags))
+	value.SetUnderloadCoefficient((yandexYtsaurusClusterSpecComputeSpecStructScalePolicyAutoLinearState.UnderloadCoefficient.ValueFloat64()))
 	if diags.HasError() {
 		return nil
 	}
@@ -538,6 +729,7 @@ type yandexYtsaurusClusterModel struct {
 	FolderId            types.String   `tfsdk:"folder_id"`
 	Health              types.String   `tfsdk:"health"`
 	Labels              types.Map      `tfsdk:"labels"`
+	MaintenanceWindow   types.Object   `tfsdk:"maintenance_window"`
 	Name                types.String   `tfsdk:"name"`
 	SecurityGroupIds    types.List     `tfsdk:"security_group_ids"`
 	Spec                types.Object   `tfsdk:"spec"`
@@ -578,6 +770,9 @@ func (m *yandexYtsaurusClusterModel) GetHealth() types.String {
 }
 func (m *yandexYtsaurusClusterModel) GetLabels() types.Map {
 	return m.Labels
+}
+func (m *yandexYtsaurusClusterModel) GetMaintenanceWindow() types.Object {
+	return m.MaintenanceWindow
 }
 func (m *yandexYtsaurusClusterModel) GetName() types.String {
 	return m.Name
@@ -634,6 +829,9 @@ func (m *yandexYtsaurusClusterModel) SetHealth(target types.String) {
 func (m *yandexYtsaurusClusterModel) SetLabels(target types.Map) {
 	m.Labels = target
 }
+func (m *yandexYtsaurusClusterModel) SetMaintenanceWindow(target types.Object) {
+	m.MaintenanceWindow = target
+}
 func (m *yandexYtsaurusClusterModel) SetName(target types.String) {
 	m.Name = target
 }
@@ -671,6 +869,7 @@ func NewYandexYtsaurusClusterModel() yandexYtsaurusClusterModel {
 		FolderId:            types.StringNull(),
 		Health:              types.StringNull(),
 		Labels:              types.MapNull(types.StringType),
+		MaintenanceWindow:   types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowModelType.AttrTypes),
 		Name:                types.StringNull(),
 		SecurityGroupIds:    types.ListNull(types.StringType),
 		Spec:                types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes),
@@ -713,6 +912,9 @@ func yandexYtsaurusClusterModelFillUnknown(target yandexYtsaurusClusterModel) ya
 	if target.Labels.IsUnknown() || target.Labels.IsNull() {
 		target.Labels = types.MapNull(types.StringType)
 	}
+	if target.MaintenanceWindow.IsUnknown() || target.MaintenanceWindow.IsNull() {
+		target.MaintenanceWindow = types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowModelType.AttrTypes)
+	}
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
 	}
@@ -752,6 +954,7 @@ var yandexYtsaurusClusterModelType = types.ObjectType{
 		"folder_id":             types.StringType,
 		"health":                types.StringType,
 		"labels":                types.MapType{ElemType: types.StringType},
+		"maintenance_window":    yandexYtsaurusClusterMaintenanceWindowModelType,
 		"name":                  types.StringType,
 		"security_group_ids":    types.ListType{ElemType: types.StringType},
 		"spec":                  yandexYtsaurusClusterSpecModelType,
@@ -783,6 +986,7 @@ func flattenYandexYtsaurusCluster(ctx context.Context,
 		FolderId:            types.StringValue(yandexYtsaurusCluster.GetFolderId()),
 		Health:              types.StringValue(yandexYtsaurusCluster.GetHealth().String()),
 		Labels:              flattenYandexYtsaurusClusterLabels(ctx, yandexYtsaurusCluster.GetLabels(), state.Labels, diags),
+		MaintenanceWindow:   flattenYandexYtsaurusClusterMaintenanceWindow(ctx, yandexYtsaurusCluster.GetMaintenanceWindow(), diags),
 		Name:                types.StringValue(yandexYtsaurusCluster.GetName()),
 		SecurityGroupIds:    flattenYandexYtsaurusClusterSecurityGroupIds(ctx, yandexYtsaurusCluster.GetSecurityGroupIds(), state.SecurityGroupIds, diags),
 		Spec:                flattenYandexYtsaurusClusterSpec(ctx, yandexYtsaurusCluster.GetSpec(), converter.ExpandObject(ctx, state.Spec, yandexYtsaurusClusterSpecModel{}, diags).(yandexYtsaurusClusterSpecModel), diags),
@@ -813,7 +1017,6 @@ func expandYandexYtsaurusClusterModel(ctx context.Context, yandexYtsaurusCluster
 	value := &ytsaurus.Cluster{}
 	value.SetCidrBlocksWhitelist(expandYandexYtsaurusClusterCidrBlocksWhitelist(ctx, yandexYtsaurusClusterState.CidrBlocksWhitelist, diags))
 	value.SetId(yandexYtsaurusClusterState.ClusterId.ValueString())
-	value.SetId(yandexYtsaurusClusterState.ClusterId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexYtsaurusClusterState.CreatedAt.ValueString(), diags))
 	value.SetCreatedBy(yandexYtsaurusClusterState.CreatedBy.ValueString())
 	value.SetDescription(yandexYtsaurusClusterState.Description.ValueString())
@@ -821,6 +1024,7 @@ func expandYandexYtsaurusClusterModel(ctx context.Context, yandexYtsaurusCluster
 	value.SetFolderId(yandexYtsaurusClusterState.FolderId.ValueString())
 	value.SetHealth(ytsaurus.Cluster_Health(ytsaurus.Cluster_Health_value[yandexYtsaurusClusterState.Health.ValueString()]))
 	value.SetLabels(expandYandexYtsaurusClusterLabels(ctx, yandexYtsaurusClusterState.Labels, diags))
+	value.SetMaintenanceWindow(expandYandexYtsaurusClusterMaintenanceWindow(ctx, yandexYtsaurusClusterState.MaintenanceWindow, diags))
 	value.SetName(yandexYtsaurusClusterState.Name.ValueString())
 	value.SetSecurityGroupIds(expandYandexYtsaurusClusterSecurityGroupIds(ctx, yandexYtsaurusClusterState.SecurityGroupIds, diags))
 	value.SetSpec(expandYandexYtsaurusClusterSpec(ctx, yandexYtsaurusClusterState.Spec, diags))
@@ -1080,6 +1284,214 @@ func expandYandexYtsaurusClusterLabels(ctx context.Context, yandexYtsaurusCluste
 		yandexYtsaurusClusterLabelsRes[k] = elem.ValueString()
 	}
 	return yandexYtsaurusClusterLabelsRes
+}
+
+type yandexYtsaurusClusterMaintenanceWindowModel struct {
+	Anytime                 types.Object `tfsdk:"anytime"`
+	WeeklyMaintenanceWindow types.Object `tfsdk:"weekly_maintenance_window"`
+}
+
+func (m *yandexYtsaurusClusterMaintenanceWindowModel) GetAnytime() types.Object {
+	return m.Anytime
+}
+func (m *yandexYtsaurusClusterMaintenanceWindowModel) GetWeeklyMaintenanceWindow() types.Object {
+	return m.WeeklyMaintenanceWindow
+}
+
+func (m *yandexYtsaurusClusterMaintenanceWindowModel) SetAnytime(target types.Object) {
+	m.Anytime = target
+}
+func (m *yandexYtsaurusClusterMaintenanceWindowModel) SetWeeklyMaintenanceWindow(target types.Object) {
+	m.WeeklyMaintenanceWindow = target
+}
+
+func NewYandexYtsaurusClusterMaintenanceWindowModel() yandexYtsaurusClusterMaintenanceWindowModel {
+	return yandexYtsaurusClusterMaintenanceWindowModel{
+		Anytime:                 types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowAnytimeModelType.AttrTypes),
+		WeeklyMaintenanceWindow: types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModelType.AttrTypes),
+	}
+}
+
+func yandexYtsaurusClusterMaintenanceWindowModelFillUnknown(target yandexYtsaurusClusterMaintenanceWindowModel) yandexYtsaurusClusterMaintenanceWindowModel {
+	if target.Anytime.IsUnknown() || target.Anytime.IsNull() {
+		target.Anytime = types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowAnytimeModelType.AttrTypes)
+	}
+	if target.WeeklyMaintenanceWindow.IsUnknown() || target.WeeklyMaintenanceWindow.IsNull() {
+		target.WeeklyMaintenanceWindow = types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModelType.AttrTypes)
+	}
+	return target
+}
+
+var yandexYtsaurusClusterMaintenanceWindowModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"anytime":                   yandexYtsaurusClusterMaintenanceWindowAnytimeModelType,
+		"weekly_maintenance_window": yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModelType,
+	},
+}
+
+func flattenYandexYtsaurusClusterMaintenanceWindow(ctx context.Context,
+	yandexYtsaurusClusterMaintenanceWindow *ytsaurus.MaintenanceWindow,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterMaintenanceWindow == nil {
+		return types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterMaintenanceWindowModelType.AttrTypes, yandexYtsaurusClusterMaintenanceWindowModel{
+		Anytime:                 flattenYandexYtsaurusClusterMaintenanceWindowAnytime(ctx, yandexYtsaurusClusterMaintenanceWindow.GetAnytime(), diags),
+		WeeklyMaintenanceWindow: flattenYandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow(ctx, yandexYtsaurusClusterMaintenanceWindow.GetWeeklyMaintenanceWindow(), diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterMaintenanceWindow(ctx context.Context, yandexYtsaurusClusterMaintenanceWindowState types.Object, diags *diag.Diagnostics) *ytsaurus.MaintenanceWindow {
+	if yandexYtsaurusClusterMaintenanceWindowState.IsNull() || yandexYtsaurusClusterMaintenanceWindowState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterMaintenanceWindow yandexYtsaurusClusterMaintenanceWindowModel
+	diags.Append(yandexYtsaurusClusterMaintenanceWindowState.As(ctx, &yandexYtsaurusClusterMaintenanceWindow, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterMaintenanceWindowModel(ctx, yandexYtsaurusClusterMaintenanceWindow, diags)
+}
+
+func expandYandexYtsaurusClusterMaintenanceWindowModel(ctx context.Context, yandexYtsaurusClusterMaintenanceWindowState yandexYtsaurusClusterMaintenanceWindowModel, diags *diag.Diagnostics) *ytsaurus.MaintenanceWindow {
+	value := &ytsaurus.MaintenanceWindow{}
+	if !(yandexYtsaurusClusterMaintenanceWindowState.Anytime.IsNull() || yandexYtsaurusClusterMaintenanceWindowState.Anytime.IsUnknown() || yandexYtsaurusClusterMaintenanceWindowState.Anytime.Equal(types.Object{})) {
+		value.SetAnytime(expandYandexYtsaurusClusterMaintenanceWindowAnytime(ctx, yandexYtsaurusClusterMaintenanceWindowState.Anytime, diags))
+	}
+	if !(yandexYtsaurusClusterMaintenanceWindowState.WeeklyMaintenanceWindow.IsNull() || yandexYtsaurusClusterMaintenanceWindowState.WeeklyMaintenanceWindow.IsUnknown() || yandexYtsaurusClusterMaintenanceWindowState.WeeklyMaintenanceWindow.Equal(types.Object{})) {
+		value.SetWeeklyMaintenanceWindow(expandYandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow(ctx, yandexYtsaurusClusterMaintenanceWindowState.WeeklyMaintenanceWindow, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexYtsaurusClusterMaintenanceWindowAnytimeModel struct {
+}
+
+func NewYandexYtsaurusClusterMaintenanceWindowAnytimeModel() yandexYtsaurusClusterMaintenanceWindowAnytimeModel {
+	return yandexYtsaurusClusterMaintenanceWindowAnytimeModel{}
+}
+
+func yandexYtsaurusClusterMaintenanceWindowAnytimeModelFillUnknown(target yandexYtsaurusClusterMaintenanceWindowAnytimeModel) yandexYtsaurusClusterMaintenanceWindowAnytimeModel {
+	return target
+}
+
+var yandexYtsaurusClusterMaintenanceWindowAnytimeModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexYtsaurusClusterMaintenanceWindowAnytime(ctx context.Context,
+	yandexYtsaurusClusterMaintenanceWindowAnytime *ytsaurus.AnytimeMaintenanceWindow,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterMaintenanceWindowAnytime == nil {
+		return types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowAnytimeModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterMaintenanceWindowAnytimeModelType.AttrTypes, yandexYtsaurusClusterMaintenanceWindowAnytimeModel{})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterMaintenanceWindowAnytime(ctx context.Context, yandexYtsaurusClusterMaintenanceWindowAnytimeState types.Object, diags *diag.Diagnostics) *ytsaurus.AnytimeMaintenanceWindow {
+	if yandexYtsaurusClusterMaintenanceWindowAnytimeState.IsNull() || yandexYtsaurusClusterMaintenanceWindowAnytimeState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterMaintenanceWindowAnytime yandexYtsaurusClusterMaintenanceWindowAnytimeModel
+	diags.Append(yandexYtsaurusClusterMaintenanceWindowAnytimeState.As(ctx, &yandexYtsaurusClusterMaintenanceWindowAnytime, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterMaintenanceWindowAnytimeModel(ctx, yandexYtsaurusClusterMaintenanceWindowAnytime, diags)
+}
+
+func expandYandexYtsaurusClusterMaintenanceWindowAnytimeModel(ctx context.Context, yandexYtsaurusClusterMaintenanceWindowAnytimeState yandexYtsaurusClusterMaintenanceWindowAnytimeModel, diags *diag.Diagnostics) *ytsaurus.AnytimeMaintenanceWindow {
+	value := &ytsaurus.AnytimeMaintenanceWindow{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel struct {
+	Day  types.String `tfsdk:"day"`
+	Hour types.Int64  `tfsdk:"hour"`
+}
+
+func (m *yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel) GetDay() types.String {
+	return m.Day
+}
+func (m *yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel) GetHour() types.Int64 {
+	return m.Hour
+}
+
+func (m *yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel) SetDay(target types.String) {
+	m.Day = target
+}
+func (m *yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel) SetHour(target types.Int64) {
+	m.Hour = target
+}
+
+func NewYandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel() yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel {
+	return yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel{
+		Day:  types.StringNull(),
+		Hour: types.Int64Null(),
+	}
+}
+
+func yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModelFillUnknown(target yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel) yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel {
+	if target.Day.IsUnknown() || target.Day.IsNull() {
+		target.Day = types.StringNull()
+	}
+	if target.Hour.IsUnknown() || target.Hour.IsNull() {
+		target.Hour = types.Int64Null()
+	}
+	return target
+}
+
+var yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"day":  types.StringType,
+		"hour": types.Int64Type,
+	},
+}
+
+func flattenYandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow(ctx context.Context,
+	yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow *ytsaurus.WeeklyMaintenanceWindow,
+	diags *diag.Diagnostics) types.Object {
+	if yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow == nil {
+		return types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModelType.AttrTypes, yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel{
+		Day:  types.StringValue(yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow.GetDay().String()),
+		Hour: types.Int64Value(int64(yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow.GetHour())),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow(ctx context.Context, yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState types.Object, diags *diag.Diagnostics) *ytsaurus.WeeklyMaintenanceWindow {
+	if yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState.IsNull() || yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState.IsUnknown() {
+		return nil
+	}
+	var yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel
+	diags.Append(yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState.As(ctx, &yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel(ctx, yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindow, diags)
+}
+
+func expandYandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel(ctx context.Context, yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel, diags *diag.Diagnostics) *ytsaurus.WeeklyMaintenanceWindow {
+	value := &ytsaurus.WeeklyMaintenanceWindow{}
+	value.SetDay(ytsaurus.WeeklyMaintenanceWindow_WeekDay(ytsaurus.WeeklyMaintenanceWindow_WeekDay_value[yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState.Day.ValueString()]))
+	value.SetHour((yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState.Hour.ValueInt64()))
+	if diags.HasError() {
+		return nil
+	}
+	return value
 }
 
 func flattenYandexYtsaurusClusterSecurityGroupIds(ctx context.Context, yandexYtsaurusClusterSecurityGroupIds []string, listState types.List, diags *diag.Diagnostics) types.List {

@@ -319,19 +319,19 @@ func (r *yandexDatacatalogCatalogResource) Update(ctx context.Context, req resou
 			return
 		}
 
-		if !yandexDatacatalogCatalogAiMarkupRulesPlan.AiEnabled.Equal(yandexDatacatalogCatalogAiMarkupRulesState.AiEnabled) {
+		if !yandexDatacatalogCatalogAiMarkupRulesPlan.AiEnabled.IsUnknown() && !yandexDatacatalogCatalogAiMarkupRulesPlan.AiEnabled.Equal(yandexDatacatalogCatalogAiMarkupRulesState.AiEnabled) {
 			updatePaths = append(updatePaths, "ai_markup_rules.ai_enabled")
 		}
-		if !yandexDatacatalogCatalogAiMarkupRulesPlan.DocumentationRules.Equal(yandexDatacatalogCatalogAiMarkupRulesState.DocumentationRules) {
+		if !yandexDatacatalogCatalogAiMarkupRulesPlan.DocumentationRules.IsUnknown() && !yandexDatacatalogCatalogAiMarkupRulesPlan.DocumentationRules.Equal(yandexDatacatalogCatalogAiMarkupRulesState.DocumentationRules) {
 			updatePaths = append(updatePaths, "ai_markup_rules.documentation_rules")
 		}
-		if !yandexDatacatalogCatalogAiMarkupRulesPlan.DomainRules.Equal(yandexDatacatalogCatalogAiMarkupRulesState.DomainRules) {
+		if !yandexDatacatalogCatalogAiMarkupRulesPlan.DomainRules.IsUnknown() && !yandexDatacatalogCatalogAiMarkupRulesPlan.DomainRules.Equal(yandexDatacatalogCatalogAiMarkupRulesState.DomainRules) {
 			updatePaths = append(updatePaths, "ai_markup_rules.domain_rules")
 		}
-		if !yandexDatacatalogCatalogAiMarkupRulesPlan.TagsRules.Equal(yandexDatacatalogCatalogAiMarkupRulesState.TagsRules) {
+		if !yandexDatacatalogCatalogAiMarkupRulesPlan.TagsRules.IsUnknown() && !yandexDatacatalogCatalogAiMarkupRulesPlan.TagsRules.Equal(yandexDatacatalogCatalogAiMarkupRulesState.TagsRules) {
 			updatePaths = append(updatePaths, "ai_markup_rules.tags_rules")
 		}
-		if !yandexDatacatalogCatalogAiMarkupRulesPlan.TermsRules.Equal(yandexDatacatalogCatalogAiMarkupRulesState.TermsRules) {
+		if !yandexDatacatalogCatalogAiMarkupRulesPlan.TermsRules.IsUnknown() && !yandexDatacatalogCatalogAiMarkupRulesPlan.TermsRules.Equal(yandexDatacatalogCatalogAiMarkupRulesState.TermsRules) {
 			updatePaths = append(updatePaths, "ai_markup_rules.terms_rules")
 		}
 	}
@@ -348,17 +348,17 @@ func (r *yandexDatacatalogCatalogResource) Update(ctx context.Context, req resou
 			return
 		}
 
-		if !yandexDatacatalogCatalogAutoIngestionParamsPlan.ServiceAccountId.Equal(yandexDatacatalogCatalogAutoIngestionParamsState.ServiceAccountId) {
+		if !yandexDatacatalogCatalogAutoIngestionParamsPlan.ServiceAccountId.IsUnknown() && !yandexDatacatalogCatalogAutoIngestionParamsPlan.ServiceAccountId.Equal(yandexDatacatalogCatalogAutoIngestionParamsState.ServiceAccountId) {
 			updatePaths = append(updatePaths, "auto_ingestion_params.service_account_id")
 		}
 	}
-	if !plan.CatalogId.Equal(state.CatalogId) {
+	if !plan.CatalogId.IsUnknown() && !plan.CatalogId.Equal(state.CatalogId) {
 		updatePaths = append(updatePaths, "id")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.FolderId.Equal(state.FolderId) {
+	if !plan.FolderId.IsUnknown() && !plan.FolderId.Equal(state.FolderId) {
 		updatePaths = append(updatePaths, "folder_id")
 	}
 	if plan.Labels.IsNull() {
@@ -367,10 +367,10 @@ func (r *yandexDatacatalogCatalogResource) Update(ctx context.Context, req resou
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if len(updatePaths) != 0 {

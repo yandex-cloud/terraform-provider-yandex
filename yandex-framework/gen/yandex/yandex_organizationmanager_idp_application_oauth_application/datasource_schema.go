@@ -59,7 +59,7 @@ func YandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceSchema(ctx
 						MarkdownDescription: "List of authorized client scopes by the application",
 						Description: "List of authorized client scopes by the application" +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.oauth.Application.client_grantyandex.cloud.organizationmanager.v1.idp.application.oauth.ClientGrant.authorized_scopes
+							// -> yandex.cloud.organizationmanager.v1.idp.application.oauth.Application.client_grant -> yandex.cloud.organizationmanager.v1.idp.application.oauth.ClientGrant.authorized_scopes
 							"package: yandex.cloud.organizationmanager.v1.idp.application.oauth\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/oauth/application.proto\n",
 						Computed: true,
@@ -69,7 +69,7 @@ func YandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceSchema(ctx
 						MarkdownDescription: "OAuth client id",
 						Description: "OAuth client id" +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.oauth.Application.client_grantyandex.cloud.organizationmanager.v1.idp.application.oauth.ClientGrant.client_id
+							// -> yandex.cloud.organizationmanager.v1.idp.application.oauth.Application.client_grant -> yandex.cloud.organizationmanager.v1.idp.application.oauth.ClientGrant.client_id
 							"package: yandex.cloud.organizationmanager.v1.idp.application.oauth\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/oauth/application.proto\n",
 						Computed: true,
@@ -112,7 +112,7 @@ func YandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceSchema(ctx
 						MarkdownDescription: "Represents current distribution type of the groups. I.e. which groups are visible for the application users.",
 						Description: "Represents current distribution type of the groups. I.e. which groups are visible for the application users." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.oauth.Application.group_claims_settingsyandex.cloud.organizationmanager.v1.idp.application.oauth.GroupClaimsSettings.group_distribution_type
+							// -> yandex.cloud.organizationmanager.v1.idp.application.oauth.Application.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.oauth.GroupClaimsSettings.group_distribution_type
 							"package: yandex.cloud.organizationmanager.v1.idp.application.oauth\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/oauth/application.proto\n",
 						Computed: true,

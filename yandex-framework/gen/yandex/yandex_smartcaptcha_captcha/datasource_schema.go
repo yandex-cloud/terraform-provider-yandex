@@ -185,7 +185,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "Additional task type of the captcha.",
 							Description: "Additional task type of the captcha." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variantsyandex.cloud.smartcaptcha.v1.OverrideVariant.challenge_type
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variants -> yandex.cloud.smartcaptcha.v1.OverrideVariant.challenge_type
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Computed: true,
@@ -195,7 +195,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "Complexity of the captcha.",
 							Description: "Complexity of the captcha." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variantsyandex.cloud.smartcaptcha.v1.OverrideVariant.complexity
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variants -> yandex.cloud.smartcaptcha.v1.OverrideVariant.complexity
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Computed: true,
@@ -205,7 +205,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "Optional description of the rule. 0-512 characters long.",
 							Description: "Optional description of the rule. 0-512 characters long." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variantsyandex.cloud.smartcaptcha.v1.OverrideVariant.description
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variants -> yandex.cloud.smartcaptcha.v1.OverrideVariant.description
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Computed: true,
@@ -215,7 +215,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "Basic check type of the captcha.",
 							Description: "Basic check type of the captcha." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variantsyandex.cloud.smartcaptcha.v1.OverrideVariant.pre_check_type
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variants -> yandex.cloud.smartcaptcha.v1.OverrideVariant.pre_check_type
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Computed: true,
@@ -225,7 +225,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "Unique identifier of the variant.",
 							Description: "Unique identifier of the variant." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variantsyandex.cloud.smartcaptcha.v1.OverrideVariant.uuid
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.override_variants -> yandex.cloud.smartcaptcha.v1.OverrideVariant.uuid
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Computed: true,
@@ -270,7 +270,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "Name of header (case insensitive).",
 													Description: "Name of header (case insensitive)." +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.name
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.headers -> yandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.name
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Required: true,
@@ -289,7 +289,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.headers -> yandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -299,7 +299,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.headers -> yandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -309,7 +309,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.headers -> yandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -319,7 +319,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.headers -> yandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -329,7 +329,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.headers -> yandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -339,7 +339,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.headers -> yandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -349,7 +349,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "Value of the header.",
 													Description: "Value of the header." +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headersyandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.value
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.headers -> yandex.cloud.smartcaptcha.v1.Condition.HeaderMatcher.value
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Computed: true,
@@ -359,7 +359,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 										MarkdownDescription: "Captcha request headers.",
 										Description: "Captcha request headers." +
 											// proto paths: +
-											// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.headers
+											// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.headers
 											"package: yandex.cloud.smartcaptcha.v1\n" +
 											"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 										Computed: true,
@@ -379,7 +379,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -389,7 +389,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -399,7 +399,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -409,7 +409,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -419,7 +419,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -429,7 +429,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcheryandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -439,7 +439,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "Host matcher.",
 													Description: "Host matcher." +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.host_matcher
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Computed: true,
@@ -454,7 +454,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hosts -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -464,7 +464,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hosts -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -474,7 +474,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hosts -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -484,7 +484,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hosts -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -494,7 +494,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hosts -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -504,7 +504,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hostsyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hosts -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -514,7 +514,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "List of hosts. OR semantics implied.",
 													Description: "List of hosts. OR semantics implied." +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.hostyandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hosts
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host -> yandex.cloud.smartcaptcha.v1.Condition.HostMatcher.hosts
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Computed: true,
@@ -524,7 +524,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 										MarkdownDescription: "*AND* semantics implied.",
 										Description: "*AND* semantics implied." +
 											// proto paths: +
-											// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.host
+											// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.host
 											"package: yandex.cloud.smartcaptcha.v1\n" +
 											"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 										Computed: true,
@@ -545,7 +545,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "*OR semantics implied. ISO 3166-1 alpha 2",
 																Description: "*OR semantics implied. ISO 3166-1 alpha 2" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_matchyandex.cloud.smartcaptcha.v1.Condition.GeoIpMatcher.locations
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.source_ip -> yandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_match -> yandex.cloud.smartcaptcha.v1.Condition.GeoIpMatcher.locations
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -555,7 +555,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "Geo locations to match with.",
 													Description: "Geo locations to match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_match
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.source_ip -> yandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_match
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Computed: true,
@@ -571,7 +571,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "*OR semantics implied. ISO 3166-1 alpha 2",
 																Description: "*OR semantics implied. ISO 3166-1 alpha 2" +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_not_matchyandex.cloud.smartcaptcha.v1.Condition.GeoIpMatcher.locations
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.source_ip -> yandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_not_match -> yandex.cloud.smartcaptcha.v1.Condition.GeoIpMatcher.locations
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -581,7 +581,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "Geo locations to not match with.",
 													Description: "Geo locations to not match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_not_match
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.source_ip -> yandex.cloud.smartcaptcha.v1.Condition.IpMatcher.geo_ip_not_match
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Computed: true,
@@ -597,7 +597,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "*OR* semantics implied.",
 																Description: "*OR* semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_matchyandex.cloud.smartcaptcha.v1.Condition.IpRangesMatcher.ip_ranges
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.source_ip -> yandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_match -> yandex.cloud.smartcaptcha.v1.Condition.IpRangesMatcher.ip_ranges
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -607,7 +607,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "IP ranges to match with.",
 													Description: "IP ranges to match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_match
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.source_ip -> yandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_match
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Computed: true,
@@ -623,7 +623,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "*OR* semantics implied.",
 																Description: "*OR* semantics implied." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_not_matchyandex.cloud.smartcaptcha.v1.Condition.IpRangesMatcher.ip_ranges
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.source_ip -> yandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_not_match -> yandex.cloud.smartcaptcha.v1.Condition.IpRangesMatcher.ip_ranges
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -633,7 +633,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "IP ranges to not match with.",
 													Description: "IP ranges to not match with." +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ipyandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_not_match
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.source_ip -> yandex.cloud.smartcaptcha.v1.Condition.IpMatcher.ip_ranges_not_match
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Computed: true,
@@ -643,7 +643,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 										MarkdownDescription: "The IP address of the requester.",
 										Description: "The IP address of the requester." +
 											// proto paths: +
-											// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.source_ip
+											// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.source_ip
 											"package: yandex.cloud.smartcaptcha.v1\n" +
 											"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 										Computed: true,
@@ -663,7 +663,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Exact match condition.",
 																Description: "Exact match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.path -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -673,7 +673,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Exact not match condition.",
 																Description: "Exact not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.path -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -683,7 +683,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "PIRE regex match condition.",
 																Description: "PIRE regex match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.path -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -693,7 +693,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "PIRE regex not match condition.",
 																Description: "PIRE regex not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.path -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -703,7 +703,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Prefix match condition.",
 																Description: "Prefix match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.path -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -713,7 +713,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Prefix not match condition.",
 																Description: "Prefix not match condition." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.pathyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.path -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -723,7 +723,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3).",
 													Description: "Path of the URI [RFC3986](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)." +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.path
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.path
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Computed: true,
@@ -738,7 +738,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Key of the query parameter.",
 																Description: "Key of the query parameter." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.key
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries -> yandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.key
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -753,7 +753,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																			MarkdownDescription: "Exact match condition.",
 																			Description: "Exact match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
+																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries -> yandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_match
 																				"package: yandex.cloud.smartcaptcha.v1\n" +
 																				"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																			Computed: true,
@@ -763,7 +763,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																			MarkdownDescription: "Exact not match condition.",
 																			Description: "Exact not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
+																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries -> yandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.exact_not_match
 																				"package: yandex.cloud.smartcaptcha.v1\n" +
 																				"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																			Computed: true,
@@ -773,7 +773,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																			MarkdownDescription: "PIRE regex match condition.",
 																			Description: "PIRE regex match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
+																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries -> yandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_match
 																				"package: yandex.cloud.smartcaptcha.v1\n" +
 																				"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																			Computed: true,
@@ -783,7 +783,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																			MarkdownDescription: "PIRE regex not match condition.",
 																			Description: "PIRE regex not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
+																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries -> yandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.pire_regex_not_match
 																				"package: yandex.cloud.smartcaptcha.v1\n" +
 																				"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																			Computed: true,
@@ -793,7 +793,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																			MarkdownDescription: "Prefix match condition.",
 																			Description: "Prefix match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
+																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries -> yandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_match
 																				"package: yandex.cloud.smartcaptcha.v1\n" +
 																				"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																			Computed: true,
@@ -803,7 +803,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																			MarkdownDescription: "Prefix not match condition.",
 																			Description: "Prefix not match condition." +
 																				// proto paths: +
-																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.valueyandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
+																				// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries -> yandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.value -> yandex.cloud.smartcaptcha.v1.Condition.StringMatcher.prefix_not_match
 																				"package: yandex.cloud.smartcaptcha.v1\n" +
 																				"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																			Computed: true,
@@ -813,7 +813,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 																MarkdownDescription: "Value of the query parameter.",
 																Description: "Value of the query parameter." +
 																	// proto paths: +
-																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queriesyandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.value
+																	// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries -> yandex.cloud.smartcaptcha.v1.Condition.QueryMatcher.value
 																	"package: yandex.cloud.smartcaptcha.v1\n" +
 																	"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 																Computed: true,
@@ -823,7 +823,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 													MarkdownDescription: "*AND* semantics implied",
 													Description: "*AND* semantics implied" +
 														// proto paths: +
-														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uriyandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries
+														// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri -> yandex.cloud.smartcaptcha.v1.Condition.UriMatcher.queries
 														"package: yandex.cloud.smartcaptcha.v1\n" +
 														"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 													Computed: true,
@@ -833,7 +833,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 										MarkdownDescription: "URI where captcha placed.",
 										Description: "URI where captcha placed." +
 											// proto paths: +
-											// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.conditionyandex.cloud.smartcaptcha.v1.Condition.uri
+											// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition -> yandex.cloud.smartcaptcha.v1.Condition.uri
 											"package: yandex.cloud.smartcaptcha.v1\n" +
 											"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 										Computed: true,
@@ -843,7 +843,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "The condition for matching the rule.",
 							Description: "The condition for matching the rule." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.condition
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.condition
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Computed: true,
@@ -853,7 +853,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "Optional description of the rule. 0-512 characters long.",
 							Description: "Optional description of the rule. 0-512 characters long." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.description
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.description
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Computed: true,
@@ -863,7 +863,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "Name of the rule. The name is unique within the captcha. 1-50 characters long.",
 							Description: "Name of the rule. The name is unique within the captcha. 1-50 characters long." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.name
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.name
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Required: true,
@@ -878,7 +878,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "Variant UUID to show in case of match the rule. Keep empty to use defaults.",
 							Description: "Variant UUID to show in case of match the rule. Keep empty to use defaults." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.override_variant_uuid
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.override_variant_uuid
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Computed: true,
@@ -888,7 +888,7 @@ func YandexSmartcaptchaCaptchaDatasourceSchema(ctx context.Context) schema.Schem
 							MarkdownDescription: "Priority of the rule. Lower value means higher priority.",
 							Description: "Priority of the rule. Lower value means higher priority." +
 								// proto paths: +
-								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rulesyandex.cloud.smartcaptcha.v1.SecurityRule.priority
+								// -> yandex.cloud.smartcaptcha.v1.Captcha.security_rules -> yandex.cloud.smartcaptcha.v1.SecurityRule.priority
 								"package: yandex.cloud.smartcaptcha.v1\n" +
 								"filename: yandex/cloud/smartcaptcha/v1/captcha.proto\n",
 							Computed: true,

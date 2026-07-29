@@ -315,13 +315,13 @@ func (r *yandexContainerRegistryResource) Update(ctx context.Context, req resour
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.RegistryId.Equal(state.RegistryId) {
+	if !plan.RegistryId.IsUnknown() && !plan.RegistryId.Equal(state.RegistryId) {
 		updatePaths = append(updatePaths, "registry_id")
 	}
 	if len(updatePaths) != 0 {

@@ -312,10 +312,10 @@ func (r *yandexLoggingGroupResource) Update(ctx context.Context, req resource.Up
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.DataStream.Equal(state.DataStream) {
+	if !plan.DataStream.IsUnknown() && !plan.DataStream.Equal(state.DataStream) {
 		updatePaths = append(updatePaths, "data_stream")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -324,16 +324,16 @@ func (r *yandexLoggingGroupResource) Update(ctx context.Context, req resource.Up
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.LogGroupId.Equal(state.LogGroupId) {
+	if !plan.LogGroupId.IsUnknown() && !plan.LogGroupId.Equal(state.LogGroupId) {
 		updatePaths = append(updatePaths, "log_group_id")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.RetentionPeriod.Equal(state.RetentionPeriod) {
+	if !plan.RetentionPeriod.IsUnknown() && !plan.RetentionPeriod.Equal(state.RetentionPeriod) {
 		updatePaths = append(updatePaths, "retention_period")
 	}
 	if len(updatePaths) != 0 {

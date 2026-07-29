@@ -85,9 +85,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 									MarkdownDescription: "Name of the SAML attribute.",
 									Description: "Name of the SAML attribute." +
 										// proto paths: +
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.attributesyandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.name
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributesyandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.name
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributesyandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.name
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.attributes -> yandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.name
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributes -> yandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.name
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributes -> yandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.name
 										"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 										"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 									Required: true,
@@ -104,9 +104,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 									MarkdownDescription: "Value of the SAML attribute.",
 									Description: "Value of the SAML attribute." +
 										// proto paths: +
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.attributesyandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.value
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributesyandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.value
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributesyandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.value
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.attributes -> yandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.value
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributes -> yandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.value
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributes -> yandex.cloud.organizationmanager.v1.idp.application.saml.Attribute.value
 										"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 										"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 									Required: true,
@@ -123,9 +123,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "List of attribute mappings.",
 						Description: "List of attribute mappings." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.attributes
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributes
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributes
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.attributes
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributes
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.attributes
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Optional: true,
@@ -145,9 +145,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 								MarkdownDescription: "Format of the NameID.",
 								Description: "Format of the NameID." +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.name_idyandex.cloud.organizationmanager.v1.idp.application.saml.NameId.format
-									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_idyandex.cloud.organizationmanager.v1.idp.application.saml.NameIdSpec.format
-									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_idyandex.cloud.organizationmanager.v1.idp.application.saml.NameIdSpec.format
+									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.name_id -> yandex.cloud.organizationmanager.v1.idp.application.saml.NameId.format
+									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_id -> yandex.cloud.organizationmanager.v1.idp.application.saml.NameIdSpec.format
+									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_id -> yandex.cloud.organizationmanager.v1.idp.application.saml.NameIdSpec.format
 									"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 								Required: true,
@@ -164,18 +164,28 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 								MarkdownDescription: "Value of the NameID.",
 								Description: "Value of the NameID." +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.name_idyandex.cloud.organizationmanager.v1.idp.application.saml.NameId.value
+									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.name_id -> yandex.cloud.organizationmanager.v1.idp.application.saml.NameId.value
+									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_id -> yandex.cloud.organizationmanager.v1.idp.application.saml.NameIdSpec.value
+									// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_id -> yandex.cloud.organizationmanager.v1.idp.application.saml.NameIdSpec.value
 									"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
+								Optional: true,
 								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+								Validators: []validator.String{
+									stringvalidator.LengthBetween(0, 50),
+								},
 							},
 						},
 						MarkdownDescription: "NameID configuration for the SAML application.",
 						Description: "NameID configuration for the SAML application." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.name_id
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_id
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mappingyandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_id
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMapping.name_id
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_id
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.attribute_mapping -> yandex.cloud.organizationmanager.v1.idp.application.saml.AttributeMappingSpec.name_id
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Required: true,
@@ -239,9 +249,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Name of the SAML attribute that contains group information.",
 						Description: "Name of the SAML attribute that contains group information." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.group_claims_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_name
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.group_claims_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_name
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.group_claims_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_name
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_name
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_name
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_name
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Optional: true,
@@ -259,9 +269,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Distribution type for group claims.",
 						Description: "Distribution type for group claims." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.group_claims_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_distribution_type
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.group_claims_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_distribution_type
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.group_claims_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_distribution_type
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_distribution_type
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_distribution_type
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_distribution_type
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Optional: true,
@@ -299,7 +309,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Identity provider issuer identifier.",
 						Description: "Identity provider issuer identifier." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.identity_provider_metadatayandex.cloud.organizationmanager.v1.idp.application.saml.IdentityProviderMetadata.issuer
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.identity_provider_metadata -> yandex.cloud.organizationmanager.v1.idp.application.saml.IdentityProviderMetadata.issuer
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Computed: true,
@@ -309,7 +319,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Identity provider metadata URL.",
 						Description: "Identity provider metadata URL." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.identity_provider_metadatayandex.cloud.organizationmanager.v1.idp.application.saml.IdentityProviderMetadata.metadata_url
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.identity_provider_metadata -> yandex.cloud.organizationmanager.v1.idp.application.saml.IdentityProviderMetadata.metadata_url
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Computed: true,
@@ -319,7 +329,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Identity provider Single Logout URL.",
 						Description: "Identity provider Single Logout URL." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.identity_provider_metadatayandex.cloud.organizationmanager.v1.idp.application.saml.IdentityProviderMetadata.slo_url
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.identity_provider_metadata -> yandex.cloud.organizationmanager.v1.idp.application.saml.IdentityProviderMetadata.slo_url
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Computed: true,
@@ -329,7 +339,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Identity provider Single Sign-On URL.",
 						Description: "Identity provider Single Sign-On URL." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.identity_provider_metadatayandex.cloud.organizationmanager.v1.idp.application.saml.IdentityProviderMetadata.sso_url
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.identity_provider_metadata -> yandex.cloud.organizationmanager.v1.idp.application.saml.IdentityProviderMetadata.sso_url
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Computed: true,
@@ -419,8 +429,8 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "ID of the signature certificate to use.",
 						Description: "ID of the signature certificate to use." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.security_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettings.signature_certificate_id
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.security_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettings.signature_certificate_id
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.security_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettings.signature_certificate_id
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.security_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettings.signature_certificate_id
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Optional: true,
@@ -435,9 +445,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Signature mode for SAML messages.",
 						Description: "Signature mode for SAML messages." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.security_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettings.signature_mode
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.security_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettingsSpec.signature_mode
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.security_settingsyandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettings.signature_mode
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.security_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettings.signature_mode
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.security_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettingsSpec.signature_mode
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.security_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.SecuritySettings.signature_mode
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Optional: true,
@@ -480,9 +490,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 									MarkdownDescription: "Optional index for the assertion consumer service.",
 									Description: "Optional index for the assertion consumer service." +
 										// proto paths: +
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.index
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.index
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.index
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.index
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.index
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.index
 										"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 										"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 									Optional: true,
@@ -497,9 +507,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 									MarkdownDescription: "The URL where SAML responses are sent.",
 									Description: "The URL where SAML responses are sent." +
 										// proto paths: +
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.url
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.url
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.url
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.url
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.url
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.AssertionConsumerServiceURL.url
 										"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 										"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 									Required: true,
@@ -516,9 +526,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Assertion Consumer Service URLs.",
 						Description: "Assertion Consumer Service URLs." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.acs_urls
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Optional: true,
@@ -534,9 +544,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Service provider entity ID.",
 						Description: "Service provider entity ID." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.entity_id
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.entity_id
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.entity_id
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.entity_id
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.entity_id
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.entity_id
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Required: true,
@@ -558,9 +568,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 									MarkdownDescription: "Protocol binding supported by the logout endpoint.",
 									Description: "Protocol binding supported by the logout endpoint." +
 										// proto paths: +
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.protocol_binding
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.protocol_binding
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.protocol_binding
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.protocol_binding
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.protocol_binding
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.protocol_binding
 										"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 										"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 									Required: true,
@@ -577,9 +587,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 									MarkdownDescription: "Optional separate URL for logout responses.",
 									Description: "Optional separate URL for logout responses." +
 										// proto paths: +
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.response_url
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.response_url
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.response_url
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.response_url
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.response_url
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.response_url
 										"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 										"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 									Optional: true,
@@ -597,9 +607,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 									MarkdownDescription: "The URL where logout requests are sent.",
 									Description: "The URL where logout requests are sent." +
 										// proto paths: +
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.url
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.url
-										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urlsyandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.url
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.url
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.url
+										// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls -> yandex.cloud.organizationmanager.v1.idp.application.saml.SingleLogoutServiceURL.url
 										"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 										"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 									Required: true,
@@ -616,9 +626,9 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						MarkdownDescription: "Single Logout Service URLs.",
 						Description: "Single Logout Service URLs." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls
-							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provideryandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.service_provider -> yandex.cloud.organizationmanager.v1.idp.application.saml.ServiceProvider.slo_urls
 							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
 						Optional: true,

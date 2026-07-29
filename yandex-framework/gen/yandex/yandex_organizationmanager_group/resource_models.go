@@ -159,7 +159,6 @@ func expandYandexOrganizationmanagerGroupModel(ctx context.Context, yandexOrgani
 	value.SetCreatedAt(converter.ParseTimestamp(yandexOrganizationmanagerGroupState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexOrganizationmanagerGroupState.Description.ValueString())
 	value.SetId(yandexOrganizationmanagerGroupState.GroupId.ValueString())
-	value.SetId(yandexOrganizationmanagerGroupState.GroupId.ValueString())
 	value.SetLabels(expandYandexOrganizationmanagerGroupLabels(ctx, yandexOrganizationmanagerGroupState.Labels, diags))
 	value.SetName(yandexOrganizationmanagerGroupState.Name.ValueString())
 	value.SetOrganizationId(yandexOrganizationmanagerGroupState.OrganizationId.ValueString())

@@ -227,7 +227,6 @@ func expandYandexDnsInboundEndpointModel(ctx context.Context, yandexDnsInboundEn
 	value.SetDeletionProtection(yandexDnsInboundEndpointState.DeletionProtection.ValueBool())
 	value.SetDescription(yandexDnsInboundEndpointState.Description.ValueString())
 	value.SetId(yandexDnsInboundEndpointState.DnsInboundEndpointId.ValueString())
-	value.SetId(yandexDnsInboundEndpointState.DnsInboundEndpointId.ValueString())
 	value.SetFolderId(yandexDnsInboundEndpointState.FolderId.ValueString())
 	value.SetLabels(expandYandexDnsInboundEndpointLabels(ctx, yandexDnsInboundEndpointState.Labels, diags))
 	value.SetName(yandexDnsInboundEndpointState.Name.ValueString())

@@ -313,13 +313,13 @@ func (r *yandexKMSSymmetricKeyResource) Update(ctx context.Context, req resource
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.DefaultAlgorithm.Equal(state.DefaultAlgorithm) {
+	if !plan.DefaultAlgorithm.IsUnknown() && !plan.DefaultAlgorithm.Equal(state.DefaultAlgorithm) {
 		updatePaths = append(updatePaths, "default_algorithm")
 	}
-	if !plan.DeletionProtection.Equal(state.DeletionProtection) {
+	if !plan.DeletionProtection.IsUnknown() && !plan.DeletionProtection.Equal(state.DeletionProtection) {
 		updatePaths = append(updatePaths, "deletion_protection")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -328,19 +328,19 @@ func (r *yandexKMSSymmetricKeyResource) Update(ctx context.Context, req resource
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.RotationPeriod.Equal(state.RotationPeriod) {
+	if !plan.RotationPeriod.IsUnknown() && !plan.RotationPeriod.Equal(state.RotationPeriod) {
 		updatePaths = append(updatePaths, "rotation_period")
 	}
-	if !plan.Status.Equal(state.Status) {
+	if !plan.Status.IsUnknown() && !plan.Status.Equal(state.Status) {
 		updatePaths = append(updatePaths, "status")
 	}
-	if !plan.SymmetricKeyId.Equal(state.SymmetricKeyId) {
+	if !plan.SymmetricKeyId.IsUnknown() && !plan.SymmetricKeyId.Equal(state.SymmetricKeyId) {
 		updatePaths = append(updatePaths, "key_id")
 	}
 	if len(updatePaths) != 0 {

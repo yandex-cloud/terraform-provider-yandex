@@ -313,14 +313,15 @@ func (r *yandexOrganizationmanagerIdpApplicationOauthApplicationResource) Update
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.ApplicationId.Equal(state.ApplicationId) {
+	if !plan.ApplicationId.IsUnknown() && !plan.ApplicationId.Equal(state.ApplicationId) {
 		updatePaths = append(updatePaths, "application_id")
 	}
 
 	if (plan.ClientGrant.IsNull() || state.ClientGrant.IsNull()) &&
-		!(plan.ClientGrant.IsNull() && state.ClientGrant.IsNull()) {
+		!(plan.ClientGrant.IsNull() && state.ClientGrant.IsNull()) &&
+		!plan.ClientGrant.IsUnknown() {
 		updatePaths = append(updatePaths, "client_grant")
-	} else {
+	} else if !plan.ClientGrant.IsUnknown() {
 		var yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState, yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantModel
 		resp.Diagnostics.Append(plan.ClientGrant.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 		resp.Diagnostics.Append(state.ClientGrant.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -334,21 +335,22 @@ func (r *yandexOrganizationmanagerIdpApplicationOauthApplicationResource) Update
 		if yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes.IsNull() {
 			yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes = types.SetNull(types.StringType)
 		}
-		if !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.AuthorizedScopes.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes) {
+		if !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.AuthorizedScopes.IsUnknown() && !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.AuthorizedScopes.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.AuthorizedScopes) {
 			updatePaths = append(updatePaths, "client_grant.authorized_scopes")
 		}
-		if !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.ClientId.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.ClientId) {
+		if !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.ClientId.IsUnknown() && !yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantPlan.ClientId.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantState.ClientId) {
 			updatePaths = append(updatePaths, "client_grant.client_id")
 		}
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 
 	if (plan.GroupClaimsSettings.IsNull() || state.GroupClaimsSettings.IsNull()) &&
-		!(plan.GroupClaimsSettings.IsNull() && state.GroupClaimsSettings.IsNull()) {
+		!(plan.GroupClaimsSettings.IsNull() && state.GroupClaimsSettings.IsNull()) &&
+		!plan.GroupClaimsSettings.IsUnknown() {
 		updatePaths = append(updatePaths, "group_claims_settings")
-	} else {
+	} else if !plan.GroupClaimsSettings.IsUnknown() {
 		var yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState, yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel
 		resp.Diagnostics.Append(plan.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 		resp.Diagnostics.Append(state.GroupClaimsSettings.As(ctx, &yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -356,7 +358,7 @@ func (r *yandexOrganizationmanagerIdpApplicationOauthApplicationResource) Update
 			return
 		}
 
-		if !yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan.GroupDistributionType.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState.GroupDistributionType) {
+		if !yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan.GroupDistributionType.IsUnknown() && !yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan.GroupDistributionType.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState.GroupDistributionType) {
 			updatePaths = append(updatePaths, "group_claims_settings.group_distribution_type")
 		}
 	}
@@ -366,10 +368,10 @@ func (r *yandexOrganizationmanagerIdpApplicationOauthApplicationResource) Update
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if len(updatePaths) != 0 {

@@ -32,6 +32,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_user_ssh_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_workflow"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha_keys"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_advanced_rate_limiter_profile"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_match_list"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_security_profile"
@@ -70,6 +71,7 @@ func init() {
 		yandex_dns_inbound_endpoint.NewDataSource,
 		yandex_serverless_workflow.NewDataSource,
 		yandex_smartcaptcha_captcha.NewDataSource,
+		yandex_smartcaptcha_captcha_keys.NewDataSource,
 		yandex_sws_advanced_rate_limiter_profile.NewDataSource,
 		yandex_sws_match_list.NewDataSource,
 		yandex_sws_waf_rule_set_descriptor.NewDataSource,

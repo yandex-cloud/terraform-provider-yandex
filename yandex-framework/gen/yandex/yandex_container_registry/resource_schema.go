@@ -106,8 +106,8 @@ func YandexContainerRegistryResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"registry_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request.",
-				Description: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request." +
+				MarkdownDescription: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request.",
+				Description: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.containerregistry.v1.DeleteRegistryRequest.registry_id
 					// -> yandex.cloud.containerregistry.v1.GetRegistryRequest.registry_id
@@ -127,8 +127,8 @@ func YandexContainerRegistryResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request.",
-				Description: "ID of the Registry resource to return.\n\n To get the registry ID use a [RegistryService.List] request." +
+				MarkdownDescription: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request.",
+				Description: "ID of the Registry resource to return.\n To get the registry ID use a [RegistryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.containerregistry.v1.DeleteRegistryRequest.registry_id
 					// -> yandex.cloud.containerregistry.v1.GetRegistryRequest.registry_id

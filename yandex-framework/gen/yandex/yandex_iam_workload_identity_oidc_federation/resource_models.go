@@ -68,6 +68,43 @@ func (m *yandexIamWorkloadIdentityOidcFederationModel) GetName() types.String {
 	return m.Name
 }
 
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetAudiences(target types.Set) {
+	m.Audiences = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetDisabled(target types.Bool) {
+	m.Disabled = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetEnabled(target types.Bool) {
+	m.Enabled = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetFederationId(target types.String) {
+	m.FederationId = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetIssuer(target types.String) {
+	m.Issuer = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetJwksUrl(target types.String) {
+	m.JwksUrl = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexIamWorkloadIdentityOidcFederationModel) SetName(target types.String) {
+	m.Name = target
+}
+
 func NewYandexIamWorkloadIdentityOidcFederationModel() yandexIamWorkloadIdentityOidcFederationModel {
 	return yandexIamWorkloadIdentityOidcFederationModel{
 		Audiences:    types.SetNull(types.StringType),
@@ -188,7 +225,6 @@ func expandYandexIamWorkloadIdentityOidcFederationModel(ctx context.Context, yan
 	value.SetCreatedAt(converter.ParseTimestamp(yandexIamWorkloadIdentityOidcFederationState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexIamWorkloadIdentityOidcFederationState.Description.ValueString())
 	value.SetEnabled(yandexIamWorkloadIdentityOidcFederationState.Enabled.ValueBool())
-	value.SetId(yandexIamWorkloadIdentityOidcFederationState.FederationId.ValueString())
 	value.SetId(yandexIamWorkloadIdentityOidcFederationState.FederationId.ValueString())
 	value.SetFolderId(yandexIamWorkloadIdentityOidcFederationState.FolderId.ValueString())
 	value.SetIssuer(yandexIamWorkloadIdentityOidcFederationState.Issuer.ValueString())

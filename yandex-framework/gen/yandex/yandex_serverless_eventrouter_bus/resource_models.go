@@ -60,6 +60,37 @@ func (m *yandexServerlessEventrouterBusModel) GetStatus() types.String {
 	return m.Status
 }
 
+func (m *yandexServerlessEventrouterBusModel) SetBusId(target types.String) {
+	m.BusId = target
+}
+func (m *yandexServerlessEventrouterBusModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexServerlessEventrouterBusModel) SetCloudId(target types.String) {
+	m.CloudId = target
+}
+func (m *yandexServerlessEventrouterBusModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexServerlessEventrouterBusModel) SetDeletionProtection(target types.Bool) {
+	m.DeletionProtection = target
+}
+func (m *yandexServerlessEventrouterBusModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexServerlessEventrouterBusModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexServerlessEventrouterBusModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexServerlessEventrouterBusModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexServerlessEventrouterBusModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexServerlessEventrouterBusModel() yandexServerlessEventrouterBusModel {
 	return yandexServerlessEventrouterBusModel{
 		BusId:              types.StringNull(),
@@ -164,7 +195,6 @@ func expandYandexServerlessEventrouterBus(ctx context.Context, yandexServerlessE
 
 func expandYandexServerlessEventrouterBusModel(ctx context.Context, yandexServerlessEventrouterBusState yandexServerlessEventrouterBusModel, diags *diag.Diagnostics) *eventrouter.Bus {
 	value := &eventrouter.Bus{}
-	value.SetId(yandexServerlessEventrouterBusState.BusId.ValueString())
 	value.SetId(yandexServerlessEventrouterBusState.BusId.ValueString())
 	value.SetCloudId(yandexServerlessEventrouterBusState.CloudId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexServerlessEventrouterBusState.CreatedAt.ValueString(), diags))

@@ -62,6 +62,40 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasour
 	return m.Status
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetApplicationId(target types.String) {
+	m.ApplicationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetData(target types.String) {
+	m.Data = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetFingerprint(target types.String) {
+	m.Fingerprint = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetNotAfter(target types.String) {
+	m.NotAfter = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetNotBefore(target types.String) {
+	m.NotBefore = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetSignatureCertificateId(target types.String) {
+	m.SignatureCertificateId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel() yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel {
 	return yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDatasourceModel{
 		ApplicationId:          types.StringNull(),

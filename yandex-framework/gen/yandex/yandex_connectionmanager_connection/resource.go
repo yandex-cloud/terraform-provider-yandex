@@ -151,14 +151,14 @@ func (r *yandexConnectionmanagerConnectionResource) Create(ctx context.Context, 
 	defer cancel()
 
 	createReq := &connectionmanager.CreateConnectionRequest{}
+	if !(plan.LockboxSecretSpec.IsNull() || plan.LockboxSecretSpec.IsUnknown() || plan.LockboxSecretSpec.Equal(types.Object{})) {
+		createReq.SetLockboxSecretSpec(expandYandexConnectionmanagerConnectionLockboxSecretSpec(ctx, plan.LockboxSecretSpec, &diags))
+	}
 	createReq.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), r.providerConfig, &diags))
 	createReq.SetName(plan.Name.ValueString())
 	createReq.SetDescription(plan.Description.ValueString())
 	createReq.SetLabels(expandYandexConnectionmanagerConnectionLabels(ctx, plan.Labels, &diags))
 	createReq.SetParams(expandYandexConnectionmanagerConnectionParams(ctx, plan.Params, &diags))
-	if !(plan.LockboxSecretSpec.IsNull() || plan.LockboxSecretSpec.IsUnknown() || plan.LockboxSecretSpec.Equal(types.Object{})) {
-		createReq.SetLockboxSecretSpec(expandYandexConnectionmanagerConnectionLockboxSecretSpec(ctx, plan.LockboxSecretSpec, &diags))
-	}
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -315,10 +315,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.ConnectionId.Equal(state.ConnectionId) {
+	if !plan.ConnectionId.IsUnknown() && !plan.ConnectionId.Equal(state.ConnectionId) {
 		updatePaths = append(updatePaths, "connection_id")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -327,17 +327,18 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 
 	if (plan.Params.IsNull() || state.Params.IsNull()) &&
-		!(plan.Params.IsNull() && state.Params.IsNull()) {
+		!(plan.Params.IsNull() && state.Params.IsNull()) &&
+		!plan.Params.IsUnknown() {
 		updatePaths = append(updatePaths, "params")
-	} else {
+	} else if !plan.Params.IsUnknown() {
 		var yandexConnectionmanagerConnectionParamsState, yandexConnectionmanagerConnectionParamsPlan yandexConnectionmanagerConnectionParamsModel
 		resp.Diagnostics.Append(plan.Params.As(ctx, &yandexConnectionmanagerConnectionParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 		resp.Diagnostics.Append(state.Params.As(ctx, &yandexConnectionmanagerConnectionParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -346,9 +347,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Clickhouse.IsNull() || yandexConnectionmanagerConnectionParamsState.Clickhouse.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Clickhouse.IsNull() && yandexConnectionmanagerConnectionParamsState.Clickhouse.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Clickhouse.IsNull() && yandexConnectionmanagerConnectionParamsState.Clickhouse.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Clickhouse.IsUnknown() {
 			updatePaths = append(updatePaths, "params.clickhouse")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Clickhouse.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsClickhouseState, yandexConnectionmanagerConnectionParamsClickhousePlan yandexConnectionmanagerConnectionParamsClickhouseModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Clickhouse.As(ctx, &yandexConnectionmanagerConnectionParamsClickhousePlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Clickhouse.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -357,9 +359,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsClickhousePlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsClickhouseState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsClickhousePlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsClickhousePlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsClickhousePlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.clickhouse.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsClickhousePlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsClickhouseAuthState, yandexConnectionmanagerConnectionParamsClickhouseAuthPlan yandexConnectionmanagerConnectionParamsClickhouseAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhousePlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -368,9 +371,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsClickhouseAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsClickhouseAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsClickhouseAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsClickhouseAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsClickhouseAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.clickhouse.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsClickhouseAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordState, yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -379,9 +383,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -389,14 +394,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -404,14 +410,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -419,43 +426,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.clickhouse.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsClickhousePlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsClickhouseState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsClickhousePlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsClickhousePlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsClickhousePlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.clickhouse.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsClickhousePlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsClickhouseClusterState, yandexConnectionmanagerConnectionParamsClickhouseClusterPlan yandexConnectionmanagerConnectionParamsClickhouseClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhousePlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -469,7 +477,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsClickhouseClusterState.Hosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsClickhouseClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsClickhouseClusterState.Hosts) {
+				if !yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.Hosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsClickhouseClusterState.Hosts) {
 					updatePaths = append(updatePaths, "params.clickhouse.cluster.hosts")
 				}
 				if yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.ShardGroups.IsNull() {
@@ -478,14 +486,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsClickhouseClusterState.ShardGroups.IsNull() {
 					yandexConnectionmanagerConnectionParamsClickhouseClusterState.ShardGroups = types.ListNull(yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.ShardGroups.Equal(yandexConnectionmanagerConnectionParamsClickhouseClusterState.ShardGroups) {
+				if !yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.ShardGroups.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.ShardGroups.Equal(yandexConnectionmanagerConnectionParamsClickhouseClusterState.ShardGroups) {
 					updatePaths = append(updatePaths, "params.clickhouse.cluster.shard_groups")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsClickhouseClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.clickhouse.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsState, yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -494,9 +503,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.clickhouse.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -504,7 +514,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.clickhouse.cluster.tls_params.tls.ca_certificate")
 						}
 					}
@@ -516,18 +526,19 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			if yandexConnectionmanagerConnectionParamsClickhouseState.Databases.IsNull() {
 				yandexConnectionmanagerConnectionParamsClickhouseState.Databases = types.ListNull(types.StringType)
 			}
-			if !yandexConnectionmanagerConnectionParamsClickhousePlan.Databases.Equal(yandexConnectionmanagerConnectionParamsClickhouseState.Databases) {
+			if !yandexConnectionmanagerConnectionParamsClickhousePlan.Databases.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhousePlan.Databases.Equal(yandexConnectionmanagerConnectionParamsClickhouseState.Databases) {
 				updatePaths = append(updatePaths, "params.clickhouse.databases")
 			}
-			if !yandexConnectionmanagerConnectionParamsClickhousePlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsClickhouseState.ManagedClusterId) {
+			if !yandexConnectionmanagerConnectionParamsClickhousePlan.ManagedClusterId.IsUnknown() && !yandexConnectionmanagerConnectionParamsClickhousePlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsClickhouseState.ManagedClusterId) {
 				updatePaths = append(updatePaths, "params.clickhouse.managed_cluster_id")
 			}
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Greenplum.IsNull() || yandexConnectionmanagerConnectionParamsState.Greenplum.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Greenplum.IsNull() && yandexConnectionmanagerConnectionParamsState.Greenplum.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Greenplum.IsNull() && yandexConnectionmanagerConnectionParamsState.Greenplum.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Greenplum.IsUnknown() {
 			updatePaths = append(updatePaths, "params.greenplum")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Greenplum.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsGreenplumState, yandexConnectionmanagerConnectionParamsGreenplumPlan yandexConnectionmanagerConnectionParamsGreenplumModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Greenplum.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Greenplum.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -536,9 +547,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsGreenplumPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsGreenplumState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsGreenplumPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsGreenplumPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsGreenplumPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.greenplum.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsGreenplumPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsGreenplumAuthState, yandexConnectionmanagerConnectionParamsGreenplumAuthPlan yandexConnectionmanagerConnectionParamsGreenplumAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -547,9 +559,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsGreenplumAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsGreenplumAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsGreenplumAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsGreenplumAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsGreenplumAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.greenplum.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsGreenplumAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordState, yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -558,9 +571,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -568,14 +582,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -583,14 +598,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -598,43 +614,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.greenplum.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.greenplum.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsGreenplumPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsGreenplumState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsGreenplumPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsGreenplumPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsGreenplumPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.greenplum.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsGreenplumPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsGreenplumClusterState, yandexConnectionmanagerConnectionParamsGreenplumClusterPlan yandexConnectionmanagerConnectionParamsGreenplumClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -648,14 +665,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsGreenplumClusterState.CoordinatorHosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsGreenplumClusterState.CoordinatorHosts = types.ListNull(yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsGreenplumClusterPlan.CoordinatorHosts.Equal(yandexConnectionmanagerConnectionParamsGreenplumClusterState.CoordinatorHosts) {
+				if !yandexConnectionmanagerConnectionParamsGreenplumClusterPlan.CoordinatorHosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumClusterPlan.CoordinatorHosts.Equal(yandexConnectionmanagerConnectionParamsGreenplumClusterState.CoordinatorHosts) {
 					updatePaths = append(updatePaths, "params.greenplum.cluster.coordinator_hosts")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsGreenplumClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsGreenplumClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsGreenplumClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsGreenplumClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsGreenplumClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.greenplum.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsGreenplumClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsState, yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -664,9 +682,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.greenplum.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -674,7 +693,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.greenplum.cluster.tls_params.tls.ca_certificate")
 						}
 					}
@@ -686,18 +705,19 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			if yandexConnectionmanagerConnectionParamsGreenplumState.Databases.IsNull() {
 				yandexConnectionmanagerConnectionParamsGreenplumState.Databases = types.ListNull(types.StringType)
 			}
-			if !yandexConnectionmanagerConnectionParamsGreenplumPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsGreenplumState.Databases) {
+			if !yandexConnectionmanagerConnectionParamsGreenplumPlan.Databases.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsGreenplumState.Databases) {
 				updatePaths = append(updatePaths, "params.greenplum.databases")
 			}
-			if !yandexConnectionmanagerConnectionParamsGreenplumPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsGreenplumState.ManagedClusterId) {
+			if !yandexConnectionmanagerConnectionParamsGreenplumPlan.ManagedClusterId.IsUnknown() && !yandexConnectionmanagerConnectionParamsGreenplumPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsGreenplumState.ManagedClusterId) {
 				updatePaths = append(updatePaths, "params.greenplum.managed_cluster_id")
 			}
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Kafka.IsNull() || yandexConnectionmanagerConnectionParamsState.Kafka.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Kafka.IsNull() && yandexConnectionmanagerConnectionParamsState.Kafka.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Kafka.IsNull() && yandexConnectionmanagerConnectionParamsState.Kafka.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Kafka.IsUnknown() {
 			updatePaths = append(updatePaths, "params.kafka")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Kafka.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsKafkaState, yandexConnectionmanagerConnectionParamsKafkaPlan yandexConnectionmanagerConnectionParamsKafkaModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Kafka.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Kafka.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -706,9 +726,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsKafkaPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsKafkaState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsKafkaPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsKafkaState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsKafkaPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsKafkaState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsKafkaPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.kafka.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsKafkaPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsKafkaAuthState, yandexConnectionmanagerConnectionParamsKafkaAuthPlan yandexConnectionmanagerConnectionParamsKafkaAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -717,9 +738,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsKafkaAuthPlan.Sasl.IsNull() || yandexConnectionmanagerConnectionParamsKafkaAuthState.Sasl.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsKafkaAuthPlan.Sasl.IsNull() && yandexConnectionmanagerConnectionParamsKafkaAuthState.Sasl.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsKafkaAuthPlan.Sasl.IsNull() && yandexConnectionmanagerConnectionParamsKafkaAuthState.Sasl.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsKafkaAuthPlan.Sasl.IsUnknown() {
 					updatePaths = append(updatePaths, "params.kafka.auth.sasl")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsKafkaAuthPlan.Sasl.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsKafkaAuthSaslState, yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaAuthPlan.Sasl.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaAuthState.Sasl.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthSaslState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -728,9 +750,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.kafka.auth.sasl.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState, yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -738,14 +761,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -753,14 +777,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -768,30 +793,30 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.kafka.auth.sasl.password.raw")
 						}
 					}
@@ -801,19 +826,20 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					if yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.SupportedMechanisms.IsNull() {
 						yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.SupportedMechanisms = types.ListNull(types.StringType)
 					}
-					if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.SupportedMechanisms.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.SupportedMechanisms) {
+					if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.SupportedMechanisms.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.SupportedMechanisms.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.SupportedMechanisms) {
 						updatePaths = append(updatePaths, "params.kafka.auth.sasl.supported_mechanisms")
 					}
-					if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.User.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.User) {
+					if !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaAuthSaslPlan.User.Equal(yandexConnectionmanagerConnectionParamsKafkaAuthSaslState.User) {
 						updatePaths = append(updatePaths, "params.kafka.auth.sasl.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsKafkaPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsKafkaState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsKafkaPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsKafkaState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsKafkaPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsKafkaState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsKafkaPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.kafka.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsKafkaPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsKafkaClusterState, yandexConnectionmanagerConnectionParamsKafkaClusterPlan yandexConnectionmanagerConnectionParamsKafkaClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -827,14 +853,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsKafkaClusterState.Hosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsKafkaClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsKafkaClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsKafkaClusterState.Hosts) {
+				if !yandexConnectionmanagerConnectionParamsKafkaClusterPlan.Hosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsKafkaClusterState.Hosts) {
 					updatePaths = append(updatePaths, "params.kafka.cluster.hosts")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsKafkaClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsKafkaClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsKafkaClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsKafkaClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsKafkaClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsKafkaClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsKafkaClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.kafka.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsKafkaClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsState, yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -843,9 +870,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.kafka.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -853,21 +881,22 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.kafka.cluster.tls_params.tls.ca_certificate")
 						}
 					}
 				}
 			}
-			if !yandexConnectionmanagerConnectionParamsKafkaPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsKafkaState.ManagedClusterId) {
+			if !yandexConnectionmanagerConnectionParamsKafkaPlan.ManagedClusterId.IsUnknown() && !yandexConnectionmanagerConnectionParamsKafkaPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsKafkaState.ManagedClusterId) {
 				updatePaths = append(updatePaths, "params.kafka.managed_cluster_id")
 			}
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Mongodb.IsNull() || yandexConnectionmanagerConnectionParamsState.Mongodb.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Mongodb.IsNull() && yandexConnectionmanagerConnectionParamsState.Mongodb.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Mongodb.IsNull() && yandexConnectionmanagerConnectionParamsState.Mongodb.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Mongodb.IsUnknown() {
 			updatePaths = append(updatePaths, "params.mongodb")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Mongodb.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsMongodbState, yandexConnectionmanagerConnectionParamsMongodbPlan yandexConnectionmanagerConnectionParamsMongodbModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Mongodb.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Mongodb.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -876,9 +905,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsMongodbPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsMongodbState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsMongodbPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsMongodbState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsMongodbPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsMongodbState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsMongodbPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.mongodb.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsMongodbPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsMongodbAuthState, yandexConnectionmanagerConnectionParamsMongodbAuthPlan yandexConnectionmanagerConnectionParamsMongodbAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -886,14 +916,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					return
 				}
 
-				if !yandexConnectionmanagerConnectionParamsMongodbAuthPlan.AuthSource.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthState.AuthSource) {
+				if !yandexConnectionmanagerConnectionParamsMongodbAuthPlan.AuthSource.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthPlan.AuthSource.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthState.AuthSource) {
 					updatePaths = append(updatePaths, "params.mongodb.auth.auth_source")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsMongodbAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsMongodbAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsMongodbAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsMongodbAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsMongodbAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsMongodbAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsMongodbAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.mongodb.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsMongodbAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordState, yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -902,9 +933,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -912,14 +944,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -927,14 +960,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -942,43 +976,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.mongodb.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.mongodb.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsMongodbPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsMongodbState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsMongodbPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsMongodbState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsMongodbPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsMongodbState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsMongodbPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.mongodb.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsMongodbPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsMongodbClusterState, yandexConnectionmanagerConnectionParamsMongodbClusterPlan yandexConnectionmanagerConnectionParamsMongodbClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -992,14 +1027,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsMongodbClusterState.Hosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsMongodbClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsMongodbClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsMongodbClusterState.Hosts) {
+				if !yandexConnectionmanagerConnectionParamsMongodbClusterPlan.Hosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsMongodbClusterState.Hosts) {
 					updatePaths = append(updatePaths, "params.mongodb.cluster.hosts")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsMongodbClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsMongodbClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsMongodbClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsMongodbClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsMongodbClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsMongodbClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsMongodbClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.mongodb.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsMongodbClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsState, yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1008,9 +1044,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.mongodb.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1018,7 +1055,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.mongodb.cluster.tls_params.tls.ca_certificate")
 						}
 					}
@@ -1030,18 +1067,19 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			if yandexConnectionmanagerConnectionParamsMongodbState.Databases.IsNull() {
 				yandexConnectionmanagerConnectionParamsMongodbState.Databases = types.ListNull(types.StringType)
 			}
-			if !yandexConnectionmanagerConnectionParamsMongodbPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsMongodbState.Databases) {
+			if !yandexConnectionmanagerConnectionParamsMongodbPlan.Databases.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsMongodbState.Databases) {
 				updatePaths = append(updatePaths, "params.mongodb.databases")
 			}
-			if !yandexConnectionmanagerConnectionParamsMongodbPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsMongodbState.ManagedClusterId) {
+			if !yandexConnectionmanagerConnectionParamsMongodbPlan.ManagedClusterId.IsUnknown() && !yandexConnectionmanagerConnectionParamsMongodbPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsMongodbState.ManagedClusterId) {
 				updatePaths = append(updatePaths, "params.mongodb.managed_cluster_id")
 			}
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Mysql.IsNull() || yandexConnectionmanagerConnectionParamsState.Mysql.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Mysql.IsNull() && yandexConnectionmanagerConnectionParamsState.Mysql.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Mysql.IsNull() && yandexConnectionmanagerConnectionParamsState.Mysql.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Mysql.IsUnknown() {
 			updatePaths = append(updatePaths, "params.mysql")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Mysql.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsMysqlState, yandexConnectionmanagerConnectionParamsMysqlPlan yandexConnectionmanagerConnectionParamsMysqlModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Mysql.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Mysql.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1050,9 +1088,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsMysqlPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsMysqlState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsMysqlPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsMysqlState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsMysqlPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsMysqlState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsMysqlPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.mysql.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsMysqlPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsMysqlAuthState, yandexConnectionmanagerConnectionParamsMysqlAuthPlan yandexConnectionmanagerConnectionParamsMysqlAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1061,9 +1100,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsMysqlAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsMysqlAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsMysqlAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsMysqlAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsMysqlAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsMysqlAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsMysqlAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.mysql.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsMysqlAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordState, yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1072,9 +1112,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.mysql.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1082,14 +1123,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1097,14 +1139,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1112,43 +1155,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.mysql.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.mysql.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsMysqlPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsMysqlState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsMysqlPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsMysqlState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsMysqlPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsMysqlState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsMysqlPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.mysql.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsMysqlPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsMysqlClusterState, yandexConnectionmanagerConnectionParamsMysqlClusterPlan yandexConnectionmanagerConnectionParamsMysqlClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1162,14 +1206,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsMysqlClusterState.Hosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsMysqlClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsMysqlClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsMysqlClusterState.Hosts) {
+				if !yandexConnectionmanagerConnectionParamsMysqlClusterPlan.Hosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsMysqlClusterState.Hosts) {
 					updatePaths = append(updatePaths, "params.mysql.cluster.hosts")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsMysqlClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsMysqlClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsMysqlClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsMysqlClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsMysqlClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsMysqlClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsMysqlClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.mysql.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsMysqlClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsState, yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1178,9 +1223,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.mysql.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1188,7 +1234,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.mysql.cluster.tls_params.tls.ca_certificate")
 						}
 					}
@@ -1200,18 +1246,19 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			if yandexConnectionmanagerConnectionParamsMysqlState.Databases.IsNull() {
 				yandexConnectionmanagerConnectionParamsMysqlState.Databases = types.ListNull(types.StringType)
 			}
-			if !yandexConnectionmanagerConnectionParamsMysqlPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsMysqlState.Databases) {
+			if !yandexConnectionmanagerConnectionParamsMysqlPlan.Databases.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsMysqlState.Databases) {
 				updatePaths = append(updatePaths, "params.mysql.databases")
 			}
-			if !yandexConnectionmanagerConnectionParamsMysqlPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsMysqlState.ManagedClusterId) {
+			if !yandexConnectionmanagerConnectionParamsMysqlPlan.ManagedClusterId.IsUnknown() && !yandexConnectionmanagerConnectionParamsMysqlPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsMysqlState.ManagedClusterId) {
 				updatePaths = append(updatePaths, "params.mysql.managed_cluster_id")
 			}
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Opensearch.IsNull() || yandexConnectionmanagerConnectionParamsState.Opensearch.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Opensearch.IsNull() && yandexConnectionmanagerConnectionParamsState.Opensearch.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Opensearch.IsNull() && yandexConnectionmanagerConnectionParamsState.Opensearch.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Opensearch.IsUnknown() {
 			updatePaths = append(updatePaths, "params.opensearch")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Opensearch.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsOpensearchState, yandexConnectionmanagerConnectionParamsOpensearchPlan yandexConnectionmanagerConnectionParamsOpensearchModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Opensearch.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Opensearch.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1220,9 +1267,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsOpensearchPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsOpensearchState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsOpensearchPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsOpensearchPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsOpensearchPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.opensearch.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsOpensearchPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsOpensearchAuthState, yandexConnectionmanagerConnectionParamsOpensearchAuthPlan yandexConnectionmanagerConnectionParamsOpensearchAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1231,9 +1279,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsOpensearchAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsOpensearchAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsOpensearchAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsOpensearchAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsOpensearchAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.opensearch.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsOpensearchAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordState, yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1242,9 +1291,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1252,14 +1302,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1267,14 +1318,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1282,43 +1334,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.opensearch.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.opensearch.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsOpensearchPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsOpensearchState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsOpensearchPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsOpensearchPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsOpensearchPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.opensearch.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsOpensearchPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsOpensearchClusterState, yandexConnectionmanagerConnectionParamsOpensearchClusterPlan yandexConnectionmanagerConnectionParamsOpensearchClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1332,14 +1385,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsOpensearchClusterState.Hosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsOpensearchClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsOpensearchClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsOpensearchClusterState.Hosts) {
+				if !yandexConnectionmanagerConnectionParamsOpensearchClusterPlan.Hosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsOpensearchClusterState.Hosts) {
 					updatePaths = append(updatePaths, "params.opensearch.cluster.hosts")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsOpensearchClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsOpensearchClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsOpensearchClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsOpensearchClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsOpensearchClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.opensearch.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsOpensearchClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsState, yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1348,9 +1402,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.opensearch.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1358,21 +1413,22 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.opensearch.cluster.tls_params.tls.ca_certificate")
 						}
 					}
 				}
 			}
-			if !yandexConnectionmanagerConnectionParamsOpensearchPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsOpensearchState.ManagedClusterId) {
+			if !yandexConnectionmanagerConnectionParamsOpensearchPlan.ManagedClusterId.IsUnknown() && !yandexConnectionmanagerConnectionParamsOpensearchPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsOpensearchState.ManagedClusterId) {
 				updatePaths = append(updatePaths, "params.opensearch.managed_cluster_id")
 			}
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Postgresql.IsNull() || yandexConnectionmanagerConnectionParamsState.Postgresql.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Postgresql.IsNull() && yandexConnectionmanagerConnectionParamsState.Postgresql.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Postgresql.IsNull() && yandexConnectionmanagerConnectionParamsState.Postgresql.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Postgresql.IsUnknown() {
 			updatePaths = append(updatePaths, "params.postgresql")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Postgresql.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsPostgresqlState, yandexConnectionmanagerConnectionParamsPostgresqlPlan yandexConnectionmanagerConnectionParamsPostgresqlModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Postgresql.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Postgresql.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1381,9 +1437,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsPostgresqlPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsPostgresqlState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsPostgresqlPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsPostgresqlPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsPostgresqlPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.postgresql.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsPostgresqlPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsPostgresqlAuthState, yandexConnectionmanagerConnectionParamsPostgresqlAuthPlan yandexConnectionmanagerConnectionParamsPostgresqlAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1392,9 +1449,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsPostgresqlAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsPostgresqlAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsPostgresqlAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsPostgresqlAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsPostgresqlAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.postgresql.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsPostgresqlAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordState, yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1403,9 +1461,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1413,14 +1472,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1428,14 +1488,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1443,43 +1504,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.postgresql.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.postgresql.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsPostgresqlPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsPostgresqlState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsPostgresqlPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsPostgresqlPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsPostgresqlPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.postgresql.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsPostgresqlPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsPostgresqlClusterState, yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan yandexConnectionmanagerConnectionParamsPostgresqlClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1493,14 +1555,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsPostgresqlClusterState.Hosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsPostgresqlClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsPostgresqlClusterState.Hosts) {
+				if !yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan.Hosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsPostgresqlClusterState.Hosts) {
 					updatePaths = append(updatePaths, "params.postgresql.cluster.hosts")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsPostgresqlClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.postgresql.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsState, yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1509,9 +1572,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.postgresql.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1519,7 +1583,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.postgresql.cluster.tls_params.tls.ca_certificate")
 						}
 					}
@@ -1531,18 +1595,19 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			if yandexConnectionmanagerConnectionParamsPostgresqlState.Databases.IsNull() {
 				yandexConnectionmanagerConnectionParamsPostgresqlState.Databases = types.ListNull(types.StringType)
 			}
-			if !yandexConnectionmanagerConnectionParamsPostgresqlPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsPostgresqlState.Databases) {
+			if !yandexConnectionmanagerConnectionParamsPostgresqlPlan.Databases.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsPostgresqlState.Databases) {
 				updatePaths = append(updatePaths, "params.postgresql.databases")
 			}
-			if !yandexConnectionmanagerConnectionParamsPostgresqlPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsPostgresqlState.ManagedClusterId) {
+			if !yandexConnectionmanagerConnectionParamsPostgresqlPlan.ManagedClusterId.IsUnknown() && !yandexConnectionmanagerConnectionParamsPostgresqlPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsPostgresqlState.ManagedClusterId) {
 				updatePaths = append(updatePaths, "params.postgresql.managed_cluster_id")
 			}
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Redis.IsNull() || yandexConnectionmanagerConnectionParamsState.Redis.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Redis.IsNull() && yandexConnectionmanagerConnectionParamsState.Redis.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Redis.IsNull() && yandexConnectionmanagerConnectionParamsState.Redis.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Redis.IsUnknown() {
 			updatePaths = append(updatePaths, "params.redis")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Redis.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsRedisState, yandexConnectionmanagerConnectionParamsRedisPlan yandexConnectionmanagerConnectionParamsRedisModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Redis.As(ctx, &yandexConnectionmanagerConnectionParamsRedisPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Redis.As(ctx, &yandexConnectionmanagerConnectionParamsRedisState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1551,9 +1616,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsRedisPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsRedisState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsRedisPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsRedisState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsRedisPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsRedisState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsRedisPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.redis.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsRedisPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsRedisAuthState, yandexConnectionmanagerConnectionParamsRedisAuthPlan yandexConnectionmanagerConnectionParamsRedisAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1562,9 +1628,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsRedisAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsRedisAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsRedisAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsRedisAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsRedisAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsRedisAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsRedisAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.redis.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsRedisAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordState, yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1573,9 +1640,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.redis.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1583,14 +1651,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.redis.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1598,14 +1667,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1613,43 +1683,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.redis.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.redis.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.redis.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsRedisPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsRedisState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsRedisPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsRedisState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsRedisPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsRedisState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsRedisPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.redis.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsRedisPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsRedisClusterState, yandexConnectionmanagerConnectionParamsRedisClusterPlan yandexConnectionmanagerConnectionParamsRedisClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsRedisClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsRedisClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1663,17 +1734,18 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsRedisClusterState.Hosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsRedisClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsRedisClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsRedisClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsRedisClusterState.Hosts) {
+				if !yandexConnectionmanagerConnectionParamsRedisClusterPlan.Hosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsRedisClusterState.Hosts) {
 					updatePaths = append(updatePaths, "params.redis.cluster.hosts")
 				}
-				if !yandexConnectionmanagerConnectionParamsRedisClusterPlan.SentinelPort.Equal(yandexConnectionmanagerConnectionParamsRedisClusterState.SentinelPort) {
+				if !yandexConnectionmanagerConnectionParamsRedisClusterPlan.SentinelPort.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisClusterPlan.SentinelPort.Equal(yandexConnectionmanagerConnectionParamsRedisClusterState.SentinelPort) {
 					updatePaths = append(updatePaths, "params.redis.cluster.sentinel_port")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsRedisClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsRedisClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsRedisClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsRedisClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsRedisClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsRedisClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsRedisClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.redis.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsRedisClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsState, yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1682,9 +1754,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.redis.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1692,7 +1765,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.redis.cluster.tls_params.tls.ca_certificate")
 						}
 					}
@@ -1704,15 +1777,16 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			if yandexConnectionmanagerConnectionParamsRedisState.Databases.IsNull() {
 				yandexConnectionmanagerConnectionParamsRedisState.Databases = types.ListNull(types.Int64Type)
 			}
-			if !yandexConnectionmanagerConnectionParamsRedisPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsRedisState.Databases) {
+			if !yandexConnectionmanagerConnectionParamsRedisPlan.Databases.IsUnknown() && !yandexConnectionmanagerConnectionParamsRedisPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsRedisState.Databases) {
 				updatePaths = append(updatePaths, "params.redis.databases")
 			}
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Storedoc.IsNull() || yandexConnectionmanagerConnectionParamsState.Storedoc.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Storedoc.IsNull() && yandexConnectionmanagerConnectionParamsState.Storedoc.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Storedoc.IsNull() && yandexConnectionmanagerConnectionParamsState.Storedoc.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Storedoc.IsUnknown() {
 			updatePaths = append(updatePaths, "params.storedoc")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Storedoc.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsStoredocState, yandexConnectionmanagerConnectionParamsStoredocPlan yandexConnectionmanagerConnectionParamsStoredocModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Storedoc.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Storedoc.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1721,9 +1795,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsStoredocPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsStoredocState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsStoredocPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsStoredocState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsStoredocPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsStoredocState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsStoredocPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.storedoc.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsStoredocPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsStoredocAuthState, yandexConnectionmanagerConnectionParamsStoredocAuthPlan yandexConnectionmanagerConnectionParamsStoredocAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1731,14 +1806,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					return
 				}
 
-				if !yandexConnectionmanagerConnectionParamsStoredocAuthPlan.AuthSource.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthState.AuthSource) {
+				if !yandexConnectionmanagerConnectionParamsStoredocAuthPlan.AuthSource.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthPlan.AuthSource.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthState.AuthSource) {
 					updatePaths = append(updatePaths, "params.storedoc.auth.auth_source")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsStoredocAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsStoredocAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsStoredocAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsStoredocAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsStoredocAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsStoredocAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.storedoc.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsStoredocAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1747,9 +1823,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1757,14 +1834,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1772,14 +1850,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1787,43 +1866,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.storedoc.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.storedoc.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsStoredocPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsStoredocState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsStoredocPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsStoredocState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsStoredocPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsStoredocState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsStoredocPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.storedoc.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsStoredocPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsStoredocClusterState, yandexConnectionmanagerConnectionParamsStoredocClusterPlan yandexConnectionmanagerConnectionParamsStoredocClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1837,14 +1917,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsStoredocClusterState.Hosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsStoredocClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsStoredocClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsStoredocClusterState.Hosts) {
+				if !yandexConnectionmanagerConnectionParamsStoredocClusterPlan.Hosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsStoredocClusterState.Hosts) {
 					updatePaths = append(updatePaths, "params.storedoc.cluster.hosts")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsStoredocClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsStoredocClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsStoredocClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsStoredocClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsStoredocClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsStoredocClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.storedoc.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsStoredocClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1853,9 +1934,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.storedoc.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1863,7 +1945,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.storedoc.cluster.tls_params.tls.ca_certificate")
 						}
 					}
@@ -1875,18 +1957,19 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			if yandexConnectionmanagerConnectionParamsStoredocState.Databases.IsNull() {
 				yandexConnectionmanagerConnectionParamsStoredocState.Databases = types.ListNull(types.StringType)
 			}
-			if !yandexConnectionmanagerConnectionParamsStoredocPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsStoredocState.Databases) {
+			if !yandexConnectionmanagerConnectionParamsStoredocPlan.Databases.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsStoredocState.Databases) {
 				updatePaths = append(updatePaths, "params.storedoc.databases")
 			}
-			if !yandexConnectionmanagerConnectionParamsStoredocPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsStoredocState.ManagedClusterId) {
+			if !yandexConnectionmanagerConnectionParamsStoredocPlan.ManagedClusterId.IsUnknown() && !yandexConnectionmanagerConnectionParamsStoredocPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsStoredocState.ManagedClusterId) {
 				updatePaths = append(updatePaths, "params.storedoc.managed_cluster_id")
 			}
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Trino.IsNull() || yandexConnectionmanagerConnectionParamsState.Trino.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Trino.IsNull() && yandexConnectionmanagerConnectionParamsState.Trino.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Trino.IsNull() && yandexConnectionmanagerConnectionParamsState.Trino.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Trino.IsUnknown() {
 			updatePaths = append(updatePaths, "params.trino")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Trino.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsTrinoState, yandexConnectionmanagerConnectionParamsTrinoPlan yandexConnectionmanagerConnectionParamsTrinoModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Trino.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Trino.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1895,9 +1978,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsTrinoPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsTrinoState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsTrinoPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsTrinoState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsTrinoPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsTrinoState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsTrinoPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.trino.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsTrinoPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsTrinoAuthState, yandexConnectionmanagerConnectionParamsTrinoAuthPlan yandexConnectionmanagerConnectionParamsTrinoAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1906,9 +1990,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsTrinoAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsTrinoAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsTrinoAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsTrinoAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsTrinoAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsTrinoAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsTrinoAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.trino.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsTrinoAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordState, yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1917,9 +2002,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.trino.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1927,14 +2013,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.trino.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1942,14 +2029,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -1957,43 +2045,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.trino.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.trino.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.trino.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsTrinoPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsTrinoState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsTrinoPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsTrinoState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsTrinoPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsTrinoState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsTrinoPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.trino.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsTrinoPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsTrinoClusterState, yandexConnectionmanagerConnectionParamsTrinoClusterPlan yandexConnectionmanagerConnectionParamsTrinoClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2002,9 +2091,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsTrinoClusterPlan.Coordinator.IsNull() || yandexConnectionmanagerConnectionParamsTrinoClusterState.Coordinator.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsTrinoClusterPlan.Coordinator.IsNull() && yandexConnectionmanagerConnectionParamsTrinoClusterState.Coordinator.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsTrinoClusterPlan.Coordinator.IsNull() && yandexConnectionmanagerConnectionParamsTrinoClusterState.Coordinator.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsTrinoClusterPlan.Coordinator.IsUnknown() {
 					updatePaths = append(updatePaths, "params.trino.cluster.coordinator")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsTrinoClusterPlan.Coordinator.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorState, yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorPlan yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoClusterPlan.Coordinator.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoClusterState.Coordinator.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2012,18 +2102,19 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 						return
 					}
 
-					if !yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorPlan.Host.Equal(yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorState.Host) {
+					if !yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorPlan.Host.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorPlan.Host.Equal(yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorState.Host) {
 						updatePaths = append(updatePaths, "params.trino.cluster.coordinator.host")
 					}
-					if !yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorPlan.Port.Equal(yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorState.Port) {
+					if !yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorPlan.Port.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorPlan.Port.Equal(yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorState.Port) {
 						updatePaths = append(updatePaths, "params.trino.cluster.coordinator.port")
 					}
 				}
 
 				if (yandexConnectionmanagerConnectionParamsTrinoClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsTrinoClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsTrinoClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsTrinoClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsTrinoClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsTrinoClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsTrinoClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.trino.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsTrinoClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsState, yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2032,9 +2123,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.trino.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2042,7 +2134,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.trino.cluster.tls_params.tls.ca_certificate")
 						}
 					}
@@ -2051,9 +2143,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 		}
 
 		if (yandexConnectionmanagerConnectionParamsPlan.Valkey.IsNull() || yandexConnectionmanagerConnectionParamsState.Valkey.IsNull()) &&
-			!(yandexConnectionmanagerConnectionParamsPlan.Valkey.IsNull() && yandexConnectionmanagerConnectionParamsState.Valkey.IsNull()) {
+			!(yandexConnectionmanagerConnectionParamsPlan.Valkey.IsNull() && yandexConnectionmanagerConnectionParamsState.Valkey.IsNull()) &&
+			!yandexConnectionmanagerConnectionParamsPlan.Valkey.IsUnknown() {
 			updatePaths = append(updatePaths, "params.valkey")
-		} else {
+		} else if !yandexConnectionmanagerConnectionParamsPlan.Valkey.IsUnknown() {
 			var yandexConnectionmanagerConnectionParamsValkeyState, yandexConnectionmanagerConnectionParamsValkeyPlan yandexConnectionmanagerConnectionParamsValkeyModel
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsPlan.Valkey.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 			resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsState.Valkey.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2062,9 +2155,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			}
 
 			if (yandexConnectionmanagerConnectionParamsValkeyPlan.Auth.IsNull() || yandexConnectionmanagerConnectionParamsValkeyState.Auth.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsValkeyPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsValkeyState.Auth.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsValkeyPlan.Auth.IsNull() && yandexConnectionmanagerConnectionParamsValkeyState.Auth.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsValkeyPlan.Auth.IsUnknown() {
 				updatePaths = append(updatePaths, "params.valkey.auth")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsValkeyPlan.Auth.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsValkeyAuthState, yandexConnectionmanagerConnectionParamsValkeyAuthPlan yandexConnectionmanagerConnectionParamsValkeyAuthModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyPlan.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyState.Auth.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2073,9 +2167,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				}
 
 				if (yandexConnectionmanagerConnectionParamsValkeyAuthPlan.UserPassword.IsNull() || yandexConnectionmanagerConnectionParamsValkeyAuthState.UserPassword.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsValkeyAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsValkeyAuthState.UserPassword.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsValkeyAuthPlan.UserPassword.IsNull() && yandexConnectionmanagerConnectionParamsValkeyAuthState.UserPassword.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsValkeyAuthPlan.UserPassword.IsUnknown() {
 					updatePaths = append(updatePaths, "params.valkey.auth.user_password")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsValkeyAuthPlan.UserPassword.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordState, yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyAuthPlan.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyAuthState.UserPassword.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2084,9 +2179,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan.Password.IsNull() || yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordState.Password.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordState.Password.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan.Password.IsNull() && yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordState.Password.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan.Password.IsUnknown() {
 						updatePaths = append(updatePaths, "params.valkey.auth.user_password.password")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan.Password.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState, yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan.Password.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordState.Password.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2094,14 +2190,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState.LockboxSecretKey) {
+						if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.LockboxSecretKey.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.LockboxSecretKey.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState.LockboxSecretKey) {
 							updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.lockbox_secret_key")
 						}
 
 						if (yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
-							!(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) {
+							!(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState.PasswordGenerationOptions.IsNull()) &&
+							!yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options")
-						} else {
+						} else if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.PasswordGenerationOptions.IsUnknown() {
 							var yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 							resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState.PasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2109,14 +2206,15 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 								return
 							}
 
-							if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
+							if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan.Cookie.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsState.Cookie) {
 								updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options.cookie")
 							}
 
 							if (yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() || yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
-								!(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) {
+								!(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsNull() && yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.IsNull()) &&
+								!yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options.lockbox_password_generation_options")
-							} else {
+							} else if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.IsUnknown() {
 								var yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsPlan.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 								resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsState.LockboxPasswordGenerationOptions.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2124,43 +2222,44 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 									return
 								}
 
-								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.ExcludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation) {
 									updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options.lockbox_password_generation_options.excluded_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
+								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeDigits.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits) {
 									updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_digits")
 								}
-								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
+								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeLowercase.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase) {
 									updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_lowercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
+								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludePunctuation.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation) {
 									updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
+								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludeUppercase.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase) {
 									updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options.lockbox_password_generation_options.include_uppercase")
 								}
-								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
+								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.IncludedPunctuation.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation) {
 									updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options.lockbox_password_generation_options.included_punctuation")
 								}
-								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
+								if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsPlan.Length.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length) {
 									updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.password_generation_options.lockbox_password_generation_options.length")
 								}
 							}
 						}
-						if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState.Raw) {
+						if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.Raw.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPlan.Raw.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordState.Raw) {
 							updatePaths = append(updatePaths, "params.valkey.auth.user_password.password.raw")
 						}
 					}
-					if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordState.User) {
+					if !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan.User.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPlan.User.Equal(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordState.User) {
 						updatePaths = append(updatePaths, "params.valkey.auth.user_password.user")
 					}
 				}
 			}
 
 			if (yandexConnectionmanagerConnectionParamsValkeyPlan.Cluster.IsNull() || yandexConnectionmanagerConnectionParamsValkeyState.Cluster.IsNull()) &&
-				!(yandexConnectionmanagerConnectionParamsValkeyPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsValkeyState.Cluster.IsNull()) {
+				!(yandexConnectionmanagerConnectionParamsValkeyPlan.Cluster.IsNull() && yandexConnectionmanagerConnectionParamsValkeyState.Cluster.IsNull()) &&
+				!yandexConnectionmanagerConnectionParamsValkeyPlan.Cluster.IsUnknown() {
 				updatePaths = append(updatePaths, "params.valkey.cluster")
-			} else {
+			} else if !yandexConnectionmanagerConnectionParamsValkeyPlan.Cluster.IsUnknown() {
 				var yandexConnectionmanagerConnectionParamsValkeyClusterState, yandexConnectionmanagerConnectionParamsValkeyClusterPlan yandexConnectionmanagerConnectionParamsValkeyClusterModel
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyPlan.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyClusterPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 				resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyState.Cluster.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyClusterState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2174,17 +2273,18 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 				if yandexConnectionmanagerConnectionParamsValkeyClusterState.Hosts.IsNull() {
 					yandexConnectionmanagerConnectionParamsValkeyClusterState.Hosts = types.ListNull(yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModelType)
 				}
-				if !yandexConnectionmanagerConnectionParamsValkeyClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsValkeyClusterState.Hosts) {
+				if !yandexConnectionmanagerConnectionParamsValkeyClusterPlan.Hosts.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyClusterPlan.Hosts.Equal(yandexConnectionmanagerConnectionParamsValkeyClusterState.Hosts) {
 					updatePaths = append(updatePaths, "params.valkey.cluster.hosts")
 				}
-				if !yandexConnectionmanagerConnectionParamsValkeyClusterPlan.SentinelPort.Equal(yandexConnectionmanagerConnectionParamsValkeyClusterState.SentinelPort) {
+				if !yandexConnectionmanagerConnectionParamsValkeyClusterPlan.SentinelPort.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyClusterPlan.SentinelPort.Equal(yandexConnectionmanagerConnectionParamsValkeyClusterState.SentinelPort) {
 					updatePaths = append(updatePaths, "params.valkey.cluster.sentinel_port")
 				}
 
 				if (yandexConnectionmanagerConnectionParamsValkeyClusterPlan.TlsParams.IsNull() || yandexConnectionmanagerConnectionParamsValkeyClusterState.TlsParams.IsNull()) &&
-					!(yandexConnectionmanagerConnectionParamsValkeyClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsValkeyClusterState.TlsParams.IsNull()) {
+					!(yandexConnectionmanagerConnectionParamsValkeyClusterPlan.TlsParams.IsNull() && yandexConnectionmanagerConnectionParamsValkeyClusterState.TlsParams.IsNull()) &&
+					!yandexConnectionmanagerConnectionParamsValkeyClusterPlan.TlsParams.IsUnknown() {
 					updatePaths = append(updatePaths, "params.valkey.cluster.tls_params")
-				} else {
+				} else if !yandexConnectionmanagerConnectionParamsValkeyClusterPlan.TlsParams.IsUnknown() {
 					var yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsState, yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsPlan yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyClusterPlan.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 					resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyClusterState.TlsParams.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2193,9 +2293,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 					}
 
 					if (yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsPlan.Tls.IsNull() || yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsState.Tls.IsNull()) &&
-						!(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsState.Tls.IsNull()) {
+						!(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsPlan.Tls.IsNull() && yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsState.Tls.IsNull()) &&
+						!yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsPlan.Tls.IsUnknown() {
 						updatePaths = append(updatePaths, "params.valkey.cluster.tls_params.tls")
-					} else {
+					} else if !yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsPlan.Tls.IsUnknown() {
 						var yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsState, yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsPlan yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsPlan.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 						resp.Diagnostics.Append(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsState.Tls.As(ctx, &yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
@@ -2203,7 +2304,7 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 							return
 						}
 
-						if !yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsState.CaCertificate) {
+						if !yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsPlan.CaCertificate.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsPlan.CaCertificate.Equal(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsState.CaCertificate) {
 							updatePaths = append(updatePaths, "params.valkey.cluster.tls_params.tls.ca_certificate")
 						}
 					}
@@ -2215,10 +2316,10 @@ func (r *yandexConnectionmanagerConnectionResource) Update(ctx context.Context, 
 			if yandexConnectionmanagerConnectionParamsValkeyState.Databases.IsNull() {
 				yandexConnectionmanagerConnectionParamsValkeyState.Databases = types.ListNull(types.Int64Type)
 			}
-			if !yandexConnectionmanagerConnectionParamsValkeyPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsValkeyState.Databases) {
+			if !yandexConnectionmanagerConnectionParamsValkeyPlan.Databases.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyPlan.Databases.Equal(yandexConnectionmanagerConnectionParamsValkeyState.Databases) {
 				updatePaths = append(updatePaths, "params.valkey.databases")
 			}
-			if !yandexConnectionmanagerConnectionParamsValkeyPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsValkeyState.ManagedClusterId) {
+			if !yandexConnectionmanagerConnectionParamsValkeyPlan.ManagedClusterId.IsUnknown() && !yandexConnectionmanagerConnectionParamsValkeyPlan.ManagedClusterId.Equal(yandexConnectionmanagerConnectionParamsValkeyState.ManagedClusterId) {
 				updatePaths = append(updatePaths, "params.valkey.managed_cluster_id")
 			}
 		}

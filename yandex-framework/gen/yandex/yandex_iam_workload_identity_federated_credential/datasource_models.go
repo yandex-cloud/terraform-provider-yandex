@@ -42,6 +42,25 @@ func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) GetService
 	return m.ServiceAccountId
 }
 
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) SetExternalSubjectId(target types.String) {
+	m.ExternalSubjectId = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) SetFederatedCredentialId(target types.String) {
+	m.FederatedCredentialId = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) SetFederationId(target types.String) {
+	m.FederationId = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialDatasourceModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+
 func NewYandexIamWorkloadIdentityFederatedCredentialDatasourceModel() yandexIamWorkloadIdentityFederatedCredentialDatasourceModel {
 	return yandexIamWorkloadIdentityFederatedCredentialDatasourceModel{
 		CreatedAt:             types.StringNull(),

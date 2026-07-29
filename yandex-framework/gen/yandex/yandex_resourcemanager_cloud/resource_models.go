@@ -48,6 +48,28 @@ func (m *yandexResourcemanagerCloudModel) GetOrganizationId() types.String {
 	return m.OrganizationId
 }
 
+func (m *yandexResourcemanagerCloudModel) SetCloudId(target types.String) {
+	m.CloudId = target
+}
+func (m *yandexResourcemanagerCloudModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexResourcemanagerCloudModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexResourcemanagerCloudModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexResourcemanagerCloudModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexResourcemanagerCloudModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexResourcemanagerCloudModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+
 func NewYandexResourcemanagerCloudModel() yandexResourcemanagerCloudModel {
 	return yandexResourcemanagerCloudModel{
 		CloudId:        types.StringNull(),
@@ -134,7 +156,6 @@ func expandYandexResourcemanagerCloud(ctx context.Context, yandexResourcemanager
 
 func expandYandexResourcemanagerCloudModel(ctx context.Context, yandexResourcemanagerCloudState yandexResourcemanagerCloudModel, diags *diag.Diagnostics) *resourcemanager.Cloud {
 	value := &resourcemanager.Cloud{}
-	value.SetId(yandexResourcemanagerCloudState.CloudId.ValueString())
 	value.SetId(yandexResourcemanagerCloudState.CloudId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexResourcemanagerCloudState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexResourcemanagerCloudState.Description.ValueString())

@@ -34,7 +34,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Creation timestamp for the Workflow.",
 				Description: "Creation timestamp for the Workflow." +
 					// proto paths: +
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.created_at
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.created_at
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.created_at
 					"package: yandex.cloud.serverless.workflows.v1\n" +
 					"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
@@ -46,7 +46,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Description of the Workflow." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.description
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.description
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.description
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.description
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.description
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -66,7 +66,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Execution URL of the Workflow.",
 				Description: "Execution URL of the Workflow." +
 					// proto paths: +
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.execution_url
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.execution_url
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.execution_url
 					"package: yandex.cloud.serverless.workflows.v1\n" +
 					"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
@@ -78,7 +78,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Express execution mode." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.express
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.express
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.express
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.express
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.express
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -96,7 +96,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "ID of the folder that the Workflow belongs to." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.folder_id
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.folder_id
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.folder_id
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.folder_id
 					"package: yandex.cloud.serverless.workflows.v1\n" +
 					"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
@@ -114,7 +114,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Ability of the Workflow to be executed without authentication." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.is_public
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.is_public
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.is_public
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.is_public
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.is_public
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -133,7 +133,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Workflow labels as `key:value` pairs." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.labels
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.labels
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.labels
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.labels
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.labels
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -165,10 +165,10 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Is logging from Workflow disabled.",
 						Description: "Is logging from Workflow disabled." +
 							// proto paths: +
-							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.disabled
-							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.disabled
-							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.disabled
-							// -> yandex.cloud.serverless.workflows.v1.Workflow.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.disabled
+							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.disabled
+							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.disabled
+							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.disabled
+							// -> yandex.cloud.serverless.workflows.v1.Workflow.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.disabled
 							"package: yandex.cloud.serverless.workflows.v1\n" +
 							"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
 						Optional: true,
@@ -183,10 +183,10 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "ID of the folder which default logging group should be used for Workflows.",
 						Description: "ID of the folder which default logging group should be used for Workflows." +
 							// proto paths: +
-							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.folder_id
-							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.folder_id
-							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.folder_id
-							// -> yandex.cloud.serverless.workflows.v1.Workflow.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.folder_id
+							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.folder_id
+							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.folder_id
+							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.folder_id
+							// -> yandex.cloud.serverless.workflows.v1.Workflow.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.folder_id
 							"package: yandex.cloud.serverless.workflows.v1\n" +
 							"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
 						Optional: true,
@@ -206,10 +206,10 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "ID of the logging group which should be used for Workflows logs.",
 						Description: "ID of the logging group which should be used for Workflows logs." +
 							// proto paths: +
-							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.log_group_id
-							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.log_group_id
-							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.log_group_id
-							// -> yandex.cloud.serverless.workflows.v1.Workflow.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.log_group_id
+							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.log_group_id
+							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.log_group_id
+							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.log_group_id
+							// -> yandex.cloud.serverless.workflows.v1.Workflow.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.log_group_id
 							"package: yandex.cloud.serverless.workflows.v1\n" +
 							"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
 						Optional: true,
@@ -229,10 +229,10 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Minimum logs level.\n See [LogLevel.Level] for details.",
 						Description: "Minimum logs level.\n See [LogLevel.Level] for details." +
 							// proto paths: +
-							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.min_level
-							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.min_level
-							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.min_level
-							// -> yandex.cloud.serverless.workflows.v1.Workflow.log_optionsyandex.cloud.serverless.workflows.v1.LogOptions.min_level
+							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.min_level
+							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.min_level
+							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.min_level
+							// -> yandex.cloud.serverless.workflows.v1.Workflow.log_options -> yandex.cloud.serverless.workflows.v1.LogOptions.min_level
 							"package: yandex.cloud.serverless.workflows.v1\n" +
 							"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
 						Optional: true,
@@ -250,7 +250,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Options for logging from the Workflow." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.log_options
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.log_options
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.log_options
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.log_options
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.log_options
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -268,7 +268,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Name of the Workflow. The name is unique within the folder." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.name
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.name
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.name
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.name
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.name
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -288,7 +288,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "ID of the VPC network Workflow will be executed in, in order to access private resources." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.network_id
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.network_id
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.network_id
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.network_id
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.network_id
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -309,10 +309,10 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Cron expression for the Workflow schedule.",
 						Description: "Cron expression for the Workflow schedule." +
 							// proto paths: +
-							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.scheduleyandex.cloud.serverless.workflows.v1.WorkflowSchedule.cron_expression
-							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.scheduleyandex.cloud.serverless.workflows.v1.WorkflowSchedule.cron_expression
-							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.scheduleyandex.cloud.serverless.workflows.v1.WorkflowSchedule.cron_expression
-							// -> yandex.cloud.serverless.workflows.v1.Workflow.scheduleyandex.cloud.serverless.workflows.v1.WorkflowSchedule.cron_expression
+							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.schedule -> yandex.cloud.serverless.workflows.v1.WorkflowSchedule.cron_expression
+							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.schedule -> yandex.cloud.serverless.workflows.v1.WorkflowSchedule.cron_expression
+							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.schedule -> yandex.cloud.serverless.workflows.v1.WorkflowSchedule.cron_expression
+							// -> yandex.cloud.serverless.workflows.v1.Workflow.schedule -> yandex.cloud.serverless.workflows.v1.WorkflowSchedule.cron_expression
 							"package: yandex.cloud.serverless.workflows.v1\n" +
 							"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
 						Required: true,
@@ -329,10 +329,10 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Timezone for the Workflow schedule.",
 						Description: "Timezone for the Workflow schedule." +
 							// proto paths: +
-							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.scheduleyandex.cloud.serverless.workflows.v1.WorkflowSchedule.timezone
-							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.scheduleyandex.cloud.serverless.workflows.v1.WorkflowSchedule.timezone
-							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.scheduleyandex.cloud.serverless.workflows.v1.WorkflowSchedule.timezone
-							// -> yandex.cloud.serverless.workflows.v1.Workflow.scheduleyandex.cloud.serverless.workflows.v1.WorkflowSchedule.timezone
+							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.schedule -> yandex.cloud.serverless.workflows.v1.WorkflowSchedule.timezone
+							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.schedule -> yandex.cloud.serverless.workflows.v1.WorkflowSchedule.timezone
+							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.schedule -> yandex.cloud.serverless.workflows.v1.WorkflowSchedule.timezone
+							// -> yandex.cloud.serverless.workflows.v1.Workflow.schedule -> yandex.cloud.serverless.workflows.v1.WorkflowSchedule.timezone
 							"package: yandex.cloud.serverless.workflows.v1\n" +
 							"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
 						Required: true,
@@ -346,7 +346,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Workflow schedule settings." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.schedule
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.schedule
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.schedule
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.schedule
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.schedule
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -364,7 +364,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "ID of the Service Account which will be used for resource access in Workflow execution." +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.service_account_id
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.service_account_id
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.service_account_id
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.service_account_id
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.service_account_id
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -385,10 +385,10 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Workflow specification in YAML format.",
 						Description: "Workflow specification in YAML format." +
 							// proto paths: +
-							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.specificationyandex.cloud.serverless.workflows.v1.WorkflowSpecification.spec_yaml
-							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.specificationyandex.cloud.serverless.workflows.v1.WorkflowSpecification.spec_yaml
-							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.specificationyandex.cloud.serverless.workflows.v1.WorkflowSpecification.spec_yaml
-							// -> yandex.cloud.serverless.workflows.v1.Workflow.specificationyandex.cloud.serverless.workflows.v1.WorkflowSpecification.spec_yaml
+							// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.specification -> yandex.cloud.serverless.workflows.v1.WorkflowSpecification.spec_yaml
+							// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.specification -> yandex.cloud.serverless.workflows.v1.WorkflowSpecification.spec_yaml
+							// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.specification -> yandex.cloud.serverless.workflows.v1.WorkflowSpecification.spec_yaml
+							// -> yandex.cloud.serverless.workflows.v1.Workflow.specification -> yandex.cloud.serverless.workflows.v1.WorkflowSpecification.spec_yaml
 							"package: yandex.cloud.serverless.workflows.v1\n" +
 							"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
 						Optional: true,
@@ -403,7 +403,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Specification of the Workflow" +
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.CreateWorkflowRequest.specification
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.specification
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.specification
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.specification
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.specification
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -419,7 +419,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Status of the Workflow.",
 				Description: "Status of the Workflow." +
 					// proto paths: +
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.status
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.status
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.status
 					"package: yandex.cloud.serverless.workflows.v1\n" +
 					"filename: yandex/cloud/serverless/workflows/v1/workflow.proto\n",
@@ -432,7 +432,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.DeleteWorkflowRequest.workflow_id
 					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowRequest.workflow_id
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.id
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.id
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.workflow_id
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.id
 					"package: yandex.cloud.serverless.workflows.v1\n" +
@@ -451,7 +451,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 					// proto paths: +
 					// -> yandex.cloud.serverless.workflows.v1.DeleteWorkflowRequest.workflow_id
 					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowRequest.workflow_id
-					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflowyandex.cloud.serverless.workflows.v1.Workflow.id
+					// -> yandex.cloud.serverless.workflows.v1.GetWorkflowResponse.workflow -> yandex.cloud.serverless.workflows.v1.Workflow.id
 					// -> yandex.cloud.serverless.workflows.v1.UpdateWorkflowRequest.workflow_id
 					// -> yandex.cloud.serverless.workflows.v1.Workflow.id
 					"package: yandex.cloud.serverless.workflows.v1\n" +

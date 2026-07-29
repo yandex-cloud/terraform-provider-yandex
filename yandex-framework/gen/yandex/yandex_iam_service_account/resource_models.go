@@ -18,11 +18,13 @@ import (
 type yandexIAMServiceAccountModel struct {
 	CreatedAt        types.String   `tfsdk:"created_at"`
 	Description      types.String   `tfsdk:"description"`
+	ExpiresAt        types.String   `tfsdk:"expires_at"`
 	FolderId         types.String   `tfsdk:"folder_id"`
 	Labels           types.Map      `tfsdk:"labels"`
 	Name             types.String   `tfsdk:"name"`
 	ServiceAccountId types.String   `tfsdk:"service_account_id"`
 	ID               types.String   `tfsdk:"id"`
+	Status           types.String   `tfsdk:"status"`
 	Timeouts         timeouts.Value `tfsdk:"timeouts"`
 }
 
@@ -31,6 +33,9 @@ func (m *yandexIAMServiceAccountModel) GetCreatedAt() types.String {
 }
 func (m *yandexIAMServiceAccountModel) GetDescription() types.String {
 	return m.Description
+}
+func (m *yandexIAMServiceAccountModel) GetExpiresAt() types.String {
+	return m.ExpiresAt
 }
 func (m *yandexIAMServiceAccountModel) GetFolderId() types.String {
 	return m.FolderId
@@ -47,16 +52,49 @@ func (m *yandexIAMServiceAccountModel) GetServiceAccountId() types.String {
 func (m *yandexIAMServiceAccountModel) GetID() types.String {
 	return m.ID
 }
+func (m *yandexIAMServiceAccountModel) GetStatus() types.String {
+	return m.Status
+}
+
+func (m *yandexIAMServiceAccountModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexIAMServiceAccountModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexIAMServiceAccountModel) SetExpiresAt(target types.String) {
+	m.ExpiresAt = target
+}
+func (m *yandexIAMServiceAccountModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexIAMServiceAccountModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexIAMServiceAccountModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexIAMServiceAccountModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+func (m *yandexIAMServiceAccountModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexIAMServiceAccountModel) SetStatus(target types.String) {
+	m.Status = target
+}
 
 func NewYandexIAMServiceAccountModel() yandexIAMServiceAccountModel {
 	return yandexIAMServiceAccountModel{
 		CreatedAt:        types.StringNull(),
 		Description:      types.StringNull(),
+		ExpiresAt:        types.StringNull(),
 		FolderId:         types.StringNull(),
 		Labels:           types.MapNull(types.StringType),
 		Name:             types.StringNull(),
 		ServiceAccountId: types.StringNull(),
 		ID:               types.StringNull(),
+		Status:           types.StringNull(),
 	}
 }
 
@@ -66,6 +104,9 @@ func yandexIAMServiceAccountModelFillUnknown(target yandexIAMServiceAccountModel
 	}
 	if target.Description.IsUnknown() || target.Description.IsNull() {
 		target.Description = types.StringNull()
+	}
+	if target.ExpiresAt.IsUnknown() || target.ExpiresAt.IsNull() {
+		target.ExpiresAt = types.StringNull()
 	}
 	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
 		target.FolderId = types.StringNull()
@@ -82,6 +123,9 @@ func yandexIAMServiceAccountModelFillUnknown(target yandexIAMServiceAccountModel
 	if target.ID.IsUnknown() || target.ID.IsNull() {
 		target.ID = types.StringNull()
 	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
 	return target
 }
 
@@ -89,11 +133,13 @@ var yandexIAMServiceAccountModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"created_at":         types.StringType,
 		"description":        types.StringType,
+		"expires_at":         types.StringType,
 		"folder_id":          types.StringType,
 		"labels":             types.MapType{ElemType: types.StringType},
 		"name":               types.StringType,
 		"service_account_id": types.StringType,
 		"id":                 types.StringType,
+		"status":             types.StringType,
 		"timeouts":           timeouts.BlockAll(context.Background()).Type(),
 	},
 }
@@ -109,11 +155,13 @@ func flattenYandexIAMServiceAccount(ctx context.Context,
 	value, diag := types.ObjectValueFrom(ctx, yandexIAMServiceAccountModelType.AttrTypes, yandexIAMServiceAccountModel{
 		CreatedAt:        types.StringValue(yandexIAMServiceAccount.GetCreatedAt().AsTime().Format(time.RFC3339)),
 		Description:      types.StringValue(yandexIAMServiceAccount.GetDescription()),
+		ExpiresAt:        types.StringValue(yandexIAMServiceAccount.GetExpiresAt().AsTime().Format(time.RFC3339)),
 		FolderId:         types.StringValue(yandexIAMServiceAccount.GetFolderId()),
 		Labels:           flattenYandexIAMServiceAccountLabels(ctx, yandexIAMServiceAccount.GetLabels(), state.Labels, diags),
 		Name:             types.StringValue(yandexIAMServiceAccount.GetName()),
 		ServiceAccountId: types.StringValue(yandexIAMServiceAccount.GetId()),
 		ID:               types.StringValue(yandexIAMServiceAccount.GetId()),
+		Status:           types.StringValue(yandexIAMServiceAccount.GetStatus().String()),
 		Timeouts:         to,
 	})
 	diags.Append(diag...)
@@ -136,11 +184,12 @@ func expandYandexIAMServiceAccountModel(ctx context.Context, yandexIAMServiceAcc
 	value := &iam.ServiceAccount{}
 	value.SetCreatedAt(converter.ParseTimestamp(yandexIAMServiceAccountState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexIAMServiceAccountState.Description.ValueString())
+	value.SetExpiresAt(converter.ParseTimestamp(yandexIAMServiceAccountState.ExpiresAt.ValueString(), diags))
 	value.SetFolderId(yandexIAMServiceAccountState.FolderId.ValueString())
 	value.SetLabels(expandYandexIAMServiceAccountLabels(ctx, yandexIAMServiceAccountState.Labels, diags))
 	value.SetName(yandexIAMServiceAccountState.Name.ValueString())
 	value.SetId(yandexIAMServiceAccountState.ServiceAccountId.ValueString())
-	value.SetId(yandexIAMServiceAccountState.ServiceAccountId.ValueString())
+	value.SetStatus(iam.ServiceAccount_Status(iam.ServiceAccount_Status_value[yandexIAMServiceAccountState.Status.ValueString()]))
 	if diags.HasError() {
 		return nil
 	}

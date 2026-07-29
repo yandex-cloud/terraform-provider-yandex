@@ -47,7 +47,7 @@ func YandexIamWorkloadIdentityOidcFederationResourceSchema(ctx context.Context) 
 				},
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(
-						stringvalidator.LengthBetween(0, 255),
+						stringvalidator.LengthBetween(1, 255),
 					),
 				},
 			},

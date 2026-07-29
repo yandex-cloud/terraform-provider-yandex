@@ -4,11 +4,9 @@ package yandex_compute_disk_placement_group
 
 import (
 	"context"
-	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
@@ -52,14 +50,11 @@ func YandexComputeDiskPlacementGroupResourceSchema(ctx context.Context) schema.S
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 256),
-				},
 			},
 
 			"disk_placement_group_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the placement group to return.\n To get the placement group ID, use [DiskPlacementGroupService.List] request.",
-				Description: "ID of the placement group to return.\n To get the placement group ID, use [DiskPlacementGroupService.List] request." +
+				MarkdownDescription: "ID of the placement group to return.\n To get the placement group ID, use [DiskPlacementGroupService.List] request.\n The length must be less than or equal to 50.\n This field is required.",
+				Description: "ID of the placement group to return.\n To get the placement group ID, use [DiskPlacementGroupService.List] request.\n The length must be less than or equal to 50.\n This field is required." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.DeleteDiskPlacementGroupRequest.disk_placement_group_id
 					// -> yandex.cloud.compute.v1.DiskPlacementGroup.id
@@ -72,15 +67,12 @@ func YandexComputeDiskPlacementGroupResourceSchema(ctx context.Context) schema.S
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the placement group to return.\n To get the placement group ID, use [DiskPlacementGroupService.List] request.",
-				Description: "ID of the placement group to return.\n To get the placement group ID, use [DiskPlacementGroupService.List] request." +
+				MarkdownDescription: "ID of the placement group to return.\n To get the placement group ID, use [DiskPlacementGroupService.List] request.\n The length must be less than or equal to 50.\n This field is required.",
+				Description: "ID of the placement group to return.\n To get the placement group ID, use [DiskPlacementGroupService.List] request.\n The length must be less than or equal to 50.\n This field is required." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.DeleteDiskPlacementGroupRequest.disk_placement_group_id
 					// -> yandex.cloud.compute.v1.DiskPlacementGroup.id
@@ -93,9 +85,6 @@ func YandexComputeDiskPlacementGroupResourceSchema(ctx context.Context) schema.S
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 
@@ -113,9 +102,6 @@ func YandexComputeDiskPlacementGroupResourceSchema(ctx context.Context) schema.S
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 
@@ -137,14 +123,7 @@ func YandexComputeDiskPlacementGroupResourceSchema(ctx context.Context) schema.S
 					planmodifiers.NilRelaxedMap(),
 				},
 				Validators: []validator.Map{
-					mapvalidator.KeysAre(
-						stringvalidator.RegexMatches(regexp.MustCompile("^([a-z][-_./\\@0-9a-z]*)$"), "error validating regexp"),
-						stringvalidator.LengthBetween(1, 63),
-					),
-					mapvalidator.ValueStringsAre(
-						stringvalidator.RegexMatches(regexp.MustCompile("^([-_./\\@0-9a-z]*)$"), "error validating regexp"),
-						stringvalidator.LengthBetween(0, 63),
-					),
+					mapvalidator.ValueStringsAre(),
 				},
 			},
 
@@ -162,9 +141,6 @@ func YandexComputeDiskPlacementGroupResourceSchema(ctx context.Context) schema.S
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.RegexMatches(regexp.MustCompile("^(|[a-z]([-_a-z0-9]{0,61}[a-z0-9])?)$"), "error validating regexp"),
 				},
 			},
 
@@ -192,9 +168,6 @@ func YandexComputeDiskPlacementGroupResourceSchema(ctx context.Context) schema.S
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 		},

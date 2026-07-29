@@ -56,6 +56,34 @@ func (m *yandexComputeDiskPlacementGroupModel) GetZone() types.String {
 	return m.Zone
 }
 
+func (m *yandexComputeDiskPlacementGroupModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexComputeDiskPlacementGroupModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexComputeDiskPlacementGroupModel) SetDiskPlacementGroupId(target types.String) {
+	m.DiskPlacementGroupId = target
+}
+func (m *yandexComputeDiskPlacementGroupModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexComputeDiskPlacementGroupModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexComputeDiskPlacementGroupModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexComputeDiskPlacementGroupModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexComputeDiskPlacementGroupModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexComputeDiskPlacementGroupModel) SetZone(target types.String) {
+	m.Zone = target
+}
+
 func NewYandexComputeDiskPlacementGroupModel() yandexComputeDiskPlacementGroupModel {
 	return yandexComputeDiskPlacementGroupModel{
 		CreatedAt:            types.StringNull(),
@@ -156,7 +184,6 @@ func expandYandexComputeDiskPlacementGroupModel(ctx context.Context, yandexCompu
 	value := &compute.DiskPlacementGroup{}
 	value.SetCreatedAt(converter.ParseTimestamp(yandexComputeDiskPlacementGroupState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexComputeDiskPlacementGroupState.Description.ValueString())
-	value.SetId(yandexComputeDiskPlacementGroupState.DiskPlacementGroupId.ValueString())
 	value.SetId(yandexComputeDiskPlacementGroupState.DiskPlacementGroupId.ValueString())
 	value.SetFolderId(yandexComputeDiskPlacementGroupState.FolderId.ValueString())
 	value.SetLabels(expandYandexComputeDiskPlacementGroupLabels(ctx, yandexComputeDiskPlacementGroupState.Labels, diags))

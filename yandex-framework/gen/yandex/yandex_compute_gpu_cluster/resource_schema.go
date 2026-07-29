@@ -73,8 +73,8 @@ func YandexComputeGpuClusterResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"gpu_cluster_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the GPU cluster to return.\n\n To get a GPU cluster ID, make a [GpuClusterService.List] request.",
-				Description: "ID of the GPU cluster to return.\n\n To get a GPU cluster ID, make a [GpuClusterService.List] request." +
+				MarkdownDescription: "ID of the GPU cluster to return.\n To get a GPU cluster ID, make a [GpuClusterService.List] request.",
+				Description: "ID of the GPU cluster to return.\n To get a GPU cluster ID, make a [GpuClusterService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.DeleteGpuClusterRequest.gpu_cluster_id
 					// -> yandex.cloud.compute.v1.GetGpuClusterRequest.gpu_cluster_id
@@ -91,8 +91,8 @@ func YandexComputeGpuClusterResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the GPU cluster to return.\n\n To get a GPU cluster ID, make a [GpuClusterService.List] request.",
-				Description: "ID of the GPU cluster to return.\n\n To get a GPU cluster ID, make a [GpuClusterService.List] request." +
+				MarkdownDescription: "ID of the GPU cluster to return.\n To get a GPU cluster ID, make a [GpuClusterService.List] request.",
+				Description: "ID of the GPU cluster to return.\n To get a GPU cluster ID, make a [GpuClusterService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.DeleteGpuClusterRequest.gpu_cluster_id
 					// -> yandex.cloud.compute.v1.GetGpuClusterRequest.gpu_cluster_id
@@ -152,8 +152,8 @@ func YandexComputeGpuClusterResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the GPU cluster.\n\n The name is unique within the folder.",
-				Description: "Name of the GPU cluster.\n\n The name is unique within the folder." +
+				MarkdownDescription: "Name of the GPU cluster.\n The name is unique within the folder.",
+				Description: "Name of the GPU cluster.\n The name is unique within the folder." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.CreateGpuClusterRequest.name
 					// -> yandex.cloud.compute.v1.GpuCluster.name
@@ -173,6 +173,16 @@ func YandexComputeGpuClusterResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Status of the GPU cluster." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.GpuCluster.status
+					"package: yandex.cloud.compute.v1\n" +
+					"filename: yandex/cloud/compute/v1/gpu_cluster.proto\n",
+				Computed: true,
+			},
+
+			"subnets": schema.Int64Attribute{
+				MarkdownDescription: "Number of subnets in the GPU cluster.",
+				Description: "Number of subnets in the GPU cluster." +
+					// proto paths: +
+					// -> yandex.cloud.compute.v1.GpuCluster.subnets
 					"package: yandex.cloud.compute.v1\n" +
 					"filename: yandex/cloud/compute/v1/gpu_cluster.proto\n",
 				Computed: true,

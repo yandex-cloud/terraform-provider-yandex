@@ -24,7 +24,7 @@ func YandexDatacatalogCatalogDatasourceSchema(ctx context.Context) schema.Schema
 						MarkdownDescription: "If set to true, AI marking up of catalog entities will be enabled",
 						Description: "If set to true, AI marking up of catalog entities will be enabled" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.ai_enabled
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.ai_enabled
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Computed: true,
@@ -34,7 +34,7 @@ func YandexDatacatalogCatalogDatasourceSchema(ctx context.Context) schema.Schema
 						MarkdownDescription: "Rules for the AI agent, that will be used for assets mark up",
 						Description: "Rules for the AI agent, that will be used for assets mark up" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.documentation_rules
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.documentation_rules
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Computed: true,
@@ -44,7 +44,7 @@ func YandexDatacatalogCatalogDatasourceSchema(ctx context.Context) schema.Schema
 						MarkdownDescription: "Rules for the AI agent, that will be used for domains mark up",
 						Description: "Rules for the AI agent, that will be used for domains mark up" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.domain_rules
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.domain_rules
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Computed: true,
@@ -54,7 +54,7 @@ func YandexDatacatalogCatalogDatasourceSchema(ctx context.Context) schema.Schema
 						MarkdownDescription: "Rules for the AI agent, that will be used for tags mark up",
 						Description: "Rules for the AI agent, that will be used for tags mark up" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.tags_rules
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.tags_rules
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Computed: true,
@@ -64,7 +64,7 @@ func YandexDatacatalogCatalogDatasourceSchema(ctx context.Context) schema.Schema
 						MarkdownDescription: "Rules for the AI agent, that will be used for terms mark up",
 						Description: "Rules for the AI agent, that will be used for terms mark up" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.terms_rules
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.terms_rules
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Computed: true,
@@ -87,7 +87,7 @@ func YandexDatacatalogCatalogDatasourceSchema(ctx context.Context) schema.Schema
 						MarkdownDescription: "ID of service account, which will be used for auto ingestion feature",
 						Description: "ID of service account, which will be used for auto ingestion feature" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.auto_ingestion_paramsyandex.cloud.datacatalog.v1.CatalogAutoIngestionConfig.service_account_id
+							// -> yandex.cloud.datacatalog.v1.Catalog.auto_ingestion_params -> yandex.cloud.datacatalog.v1.CatalogAutoIngestionConfig.service_account_id
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Optional: true,

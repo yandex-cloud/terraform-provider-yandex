@@ -60,6 +60,37 @@ func (m *yandexKmsAsymmetricSignatureKeyModel) GetStatus() types.String {
 	return m.Status
 }
 
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetAsymmetricSignatureKeyId(target types.String) {
+	m.AsymmetricSignatureKeyId = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetDeletionProtection(target types.Bool) {
+	m.DeletionProtection = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetSignatureAlgorithm(target types.String) {
+	m.SignatureAlgorithm = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexKmsAsymmetricSignatureKeyModel() yandexKmsAsymmetricSignatureKeyModel {
 	return yandexKmsAsymmetricSignatureKeyModel{
 		AsymmetricSignatureKeyId: types.StringNull(),
@@ -164,7 +195,6 @@ func expandYandexKmsAsymmetricSignatureKey(ctx context.Context, yandexKmsAsymmet
 
 func expandYandexKmsAsymmetricSignatureKeyModel(ctx context.Context, yandexKmsAsymmetricSignatureKeyState yandexKmsAsymmetricSignatureKeyModel, diags *diag.Diagnostics) *asymmetricsignature.AsymmetricSignatureKey {
 	value := &asymmetricsignature.AsymmetricSignatureKey{}
-	value.SetId(yandexKmsAsymmetricSignatureKeyState.AsymmetricSignatureKeyId.ValueString())
 	value.SetId(yandexKmsAsymmetricSignatureKeyState.AsymmetricSignatureKeyId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexKmsAsymmetricSignatureKeyState.CreatedAt.ValueString(), diags))
 	value.SetDeletionProtection(yandexKmsAsymmetricSignatureKeyState.DeletionProtection.ValueBool())

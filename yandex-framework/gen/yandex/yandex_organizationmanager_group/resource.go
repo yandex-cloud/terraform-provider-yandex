@@ -310,10 +310,10 @@ func (r *yandexOrganizationmanagerGroupResource) Update(ctx context.Context, req
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.GroupId.Equal(state.GroupId) {
+	if !plan.GroupId.IsUnknown() && !plan.GroupId.Equal(state.GroupId) {
 		updatePaths = append(updatePaths, "group_id")
 	}
 	if plan.Labels.IsNull() {
@@ -322,10 +322,10 @@ func (r *yandexOrganizationmanagerGroupResource) Update(ctx context.Context, req
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if len(updatePaths) != 0 {

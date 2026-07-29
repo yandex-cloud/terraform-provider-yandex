@@ -31,14 +31,15 @@ func YandexIamWorkloadIdentityFederatedCredentialResourceSchema(ctx context.Cont
 			},
 
 			"external_subject_id": schema.StringAttribute{
-				MarkdownDescription: "Id of the external subject.",
-				Description: "Id of the external subject." +
+				MarkdownDescription: "Id of the external subject (exact match).",
+				Description: "Id of the external subject (exact match)." +
 					// proto paths: +
 					// -> yandex.cloud.iam.v1.workload.CreateFederatedCredentialRequest.external_subject_id
 					// -> yandex.cloud.iam.v1.workload.FederatedCredential.external_subject_id
 					"package: yandex.cloud.iam.v1.workload\n" +
 					"filename: yandex/cloud/iam/v1/workload/federated_credential.proto\n",
-				Required: true,
+				Optional: true,
+				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplaceIfConfigured(),

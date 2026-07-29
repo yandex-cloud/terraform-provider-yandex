@@ -311,13 +311,13 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Update(ctx context.Context
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.ExpiresAt.Equal(state.ExpiresAt) {
+	if !plan.ExpiresAt.IsUnknown() && !plan.ExpiresAt.Equal(state.ExpiresAt) {
 		updatePaths = append(updatePaths, "expires_at")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.UserSshKeyId.Equal(state.UserSshKeyId) {
+	if !plan.UserSshKeyId.IsUnknown() && !plan.UserSshKeyId.Equal(state.UserSshKeyId) {
 		updatePaths = append(updatePaths, "user_ssh_key_id")
 	}
 	if len(updatePaths) != 0 {

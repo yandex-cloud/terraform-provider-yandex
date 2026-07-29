@@ -71,7 +71,7 @@ func (u *IAMMemberUpdater) Schema(_ context.Context, _ resource.SchemaRequest, r
 				},
 			},
 			"certificate_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the compute `certificate` to attach the policy to.",
+				MarkdownDescription: "The ID of the `certificate` to attach the policy to.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),

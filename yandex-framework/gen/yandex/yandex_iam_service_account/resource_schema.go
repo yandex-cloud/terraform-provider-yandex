@@ -56,6 +56,23 @@ func YandexIAMServiceAccountResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 
+			"expires_at": schema.StringAttribute{
+				MarkdownDescription: "Timestamp when the service account expires.",
+				Description: "Timestamp when the service account expires." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.CreateServiceAccountRequest.expires_at
+					// -> yandex.cloud.iam.v1.ServiceAccount.expires_at
+					// -> yandex.cloud.iam.v1.UpdateServiceAccountRequest.expires_at
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/service_account.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+
 			"folder_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the folder that the service account belongs to.",
 				Description: "ID of the folder that the service account belongs to." +
@@ -120,7 +137,7 @@ func YandexIAMServiceAccountResourceSchema(ctx context.Context) schema.Schema {
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.RegexMatches(regexp.MustCompile("^(|[a-z][-a-z0-9]{1,61}[a-z0-9])$"), "error validating regexp"),
+					stringvalidator.RegexMatches(regexp.MustCompile("^([a-z]([-a-z0-9]{0,61}[a-z0-9])?)$"), "error validating regexp"),
 				},
 			},
 
@@ -164,6 +181,16 @@ func YandexIAMServiceAccountResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(0, 50),
 				},
+			},
+
+			"status": schema.StringAttribute{
+				MarkdownDescription: "Current status of the service account.\n Determines whether the service account can authenticate and access the system.",
+				Description: "Current status of the service account.\n Determines whether the service account can authenticate and access the system." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.ServiceAccount.status
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/service_account.proto\n",
+				Computed: true,
 			},
 		},
 

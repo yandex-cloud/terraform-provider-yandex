@@ -56,6 +56,34 @@ func (m *yandexOrganizationmanagerUserSshKeyModel) GetID() types.String {
 	return m.ID
 }
 
+func (m *yandexOrganizationmanagerUserSshKeyModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) SetData(target types.String) {
+	m.Data = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) SetExpiresAt(target types.String) {
+	m.ExpiresAt = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) SetFingerprint(target types.String) {
+	m.Fingerprint = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) SetSubjectId(target types.String) {
+	m.SubjectId = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) SetUserSshKeyId(target types.String) {
+	m.UserSshKeyId = target
+}
+func (m *yandexOrganizationmanagerUserSshKeyModel) SetID(target types.String) {
+	m.ID = target
+}
+
 func NewYandexOrganizationmanagerUserSshKeyModel() yandexOrganizationmanagerUserSshKeyModel {
 	return yandexOrganizationmanagerUserSshKeyModel{
 		CreatedAt:      types.StringNull(),
@@ -161,7 +189,6 @@ func expandYandexOrganizationmanagerUserSshKeyModel(ctx context.Context, yandexO
 	value.SetName(yandexOrganizationmanagerUserSshKeyState.Name.ValueString())
 	value.SetOrganizationId(yandexOrganizationmanagerUserSshKeyState.OrganizationId.ValueString())
 	value.SetSubjectId(yandexOrganizationmanagerUserSshKeyState.SubjectId.ValueString())
-	value.SetId(yandexOrganizationmanagerUserSshKeyState.UserSshKeyId.ValueString())
 	value.SetId(yandexOrganizationmanagerUserSshKeyState.UserSshKeyId.ValueString())
 	if diags.HasError() {
 		return nil

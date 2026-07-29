@@ -322,19 +322,19 @@ func (r *yandexDnsFirewallResource) Update(ctx context.Context, req resource.Upd
 	if state.BlacklistFqdns.IsNull() {
 		state.BlacklistFqdns = types.SetNull(types.StringType)
 	}
-	if !plan.BlacklistFqdns.Equal(state.BlacklistFqdns) {
+	if !plan.BlacklistFqdns.IsUnknown() && !plan.BlacklistFqdns.Equal(state.BlacklistFqdns) {
 		updatePaths = append(updatePaths, "blacklist_fqdns")
 	}
-	if !plan.DeletionProtection.Equal(state.DeletionProtection) {
+	if !plan.DeletionProtection.IsUnknown() && !plan.DeletionProtection.Equal(state.DeletionProtection) {
 		updatePaths = append(updatePaths, "deletion_protection")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.DnsFirewallId.Equal(state.DnsFirewallId) {
+	if !plan.DnsFirewallId.IsUnknown() && !plan.DnsFirewallId.Equal(state.DnsFirewallId) {
 		updatePaths = append(updatePaths, "dns_firewall_id")
 	}
-	if !plan.Enabled.Equal(state.Enabled) {
+	if !plan.Enabled.IsUnknown() && !plan.Enabled.Equal(state.Enabled) {
 		updatePaths = append(updatePaths, "enabled")
 	}
 	if plan.Labels.IsNull() {
@@ -343,10 +343,10 @@ func (r *yandexDnsFirewallResource) Update(ctx context.Context, req resource.Upd
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 
@@ -362,7 +362,7 @@ func (r *yandexDnsFirewallResource) Update(ctx context.Context, req resource.Upd
 			return
 		}
 
-		if !yandexDnsFirewallResourceConfigPlan.LockResources.Equal(yandexDnsFirewallResourceConfigState.LockResources) {
+		if !yandexDnsFirewallResourceConfigPlan.LockResources.IsUnknown() && !yandexDnsFirewallResourceConfigPlan.LockResources.Equal(yandexDnsFirewallResourceConfigState.LockResources) {
 			updatePaths = append(updatePaths, "resource_config.locking_policy_enabled")
 		}
 		if yandexDnsFirewallResourceConfigPlan.ResourceIds.IsNull() {
@@ -371,10 +371,10 @@ func (r *yandexDnsFirewallResource) Update(ctx context.Context, req resource.Upd
 		if yandexDnsFirewallResourceConfigState.ResourceIds.IsNull() {
 			yandexDnsFirewallResourceConfigState.ResourceIds = types.SetNull(types.StringType)
 		}
-		if !yandexDnsFirewallResourceConfigPlan.ResourceIds.Equal(yandexDnsFirewallResourceConfigState.ResourceIds) {
+		if !yandexDnsFirewallResourceConfigPlan.ResourceIds.IsUnknown() && !yandexDnsFirewallResourceConfigPlan.ResourceIds.Equal(yandexDnsFirewallResourceConfigState.ResourceIds) {
 			updatePaths = append(updatePaths, "resource_config.resource_ids")
 		}
-		if !yandexDnsFirewallResourceConfigPlan.Type.Equal(yandexDnsFirewallResourceConfigState.Type) {
+		if !yandexDnsFirewallResourceConfigPlan.Type.IsUnknown() && !yandexDnsFirewallResourceConfigPlan.Type.Equal(yandexDnsFirewallResourceConfigState.Type) {
 			updatePaths = append(updatePaths, "resource_config.type")
 		}
 	}
@@ -384,7 +384,7 @@ func (r *yandexDnsFirewallResource) Update(ctx context.Context, req resource.Upd
 	if state.WhitelistFqdns.IsNull() {
 		state.WhitelistFqdns = types.SetNull(types.StringType)
 	}
-	if !plan.WhitelistFqdns.Equal(state.WhitelistFqdns) {
+	if !plan.WhitelistFqdns.IsUnknown() && !plan.WhitelistFqdns.Equal(state.WhitelistFqdns) {
 		updatePaths = append(updatePaths, "whitelist_fqdns")
 	}
 

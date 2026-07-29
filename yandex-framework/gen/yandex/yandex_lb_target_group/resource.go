@@ -312,7 +312,7 @@ func (r *yandexLbTargetGroupResource) Update(ctx context.Context, req resource.U
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -321,10 +321,10 @@ func (r *yandexLbTargetGroupResource) Update(ctx context.Context, req resource.U
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if plan.Target.IsNull() {
@@ -333,10 +333,10 @@ func (r *yandexLbTargetGroupResource) Update(ctx context.Context, req resource.U
 	if state.Target.IsNull() {
 		state.Target = types.SetNull(yandexLbTargetGroupTargetStructModelType)
 	}
-	if !plan.Target.Equal(state.Target) {
+	if !plan.Target.IsUnknown() && !plan.Target.Equal(state.Target) {
 		updatePaths = append(updatePaths, "targets")
 	}
-	if !plan.TargetGroupId.Equal(state.TargetGroupId) {
+	if !plan.TargetGroupId.IsUnknown() && !plan.TargetGroupId.Equal(state.TargetGroupId) {
 		updatePaths = append(updatePaths, "target_group_id")
 	}
 	if len(updatePaths) != 0 {

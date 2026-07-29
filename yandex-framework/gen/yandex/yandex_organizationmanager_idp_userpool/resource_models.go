@@ -287,7 +287,6 @@ func expandYandexOrganizationmanagerIdpUserpoolModel(ctx context.Context, yandex
 	value.SetUpdatedAt(converter.ParseTimestamp(yandexOrganizationmanagerIdpUserpoolState.UpdatedAt.ValueString(), diags))
 	value.SetUserSettings(expandYandexOrganizationmanagerIdpUserpoolUserSettings(ctx, yandexOrganizationmanagerIdpUserpoolState.UserSettings, diags))
 	value.SetId(yandexOrganizationmanagerIdpUserpoolState.UserpoolId.ValueString())
-	value.SetId(yandexOrganizationmanagerIdpUserpoolState.UserpoolId.ValueString())
 	if diags.HasError() {
 		return nil
 	}

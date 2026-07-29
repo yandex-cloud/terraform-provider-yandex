@@ -347,7 +347,6 @@ func expandYandexCloudregistryScanPolicyModel(ctx context.Context, yandexCloudre
 	value.SetRegistryId(yandexCloudregistryScanPolicyState.RegistryId.ValueString())
 	value.SetRules(expandYandexCloudregistryScanPolicyRules(ctx, yandexCloudregistryScanPolicyState.Rules, diags))
 	value.SetId(yandexCloudregistryScanPolicyState.ScanPolicyId.ValueString())
-	value.SetId(yandexCloudregistryScanPolicyState.ScanPolicyId.ValueString())
 	value.SetScanPolicyOptions(expandYandexCloudregistryScanPolicyScanPolicyOptions(ctx, yandexCloudregistryScanPolicyState.ScanPolicyOptions, diags))
 	if diags.HasError() {
 		return nil

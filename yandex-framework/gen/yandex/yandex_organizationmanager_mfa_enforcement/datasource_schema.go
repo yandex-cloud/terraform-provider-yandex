@@ -60,8 +60,8 @@ func YandexOrganizationmanagerMfaEnforcementDatasourceSchema(ctx context.Context
 			},
 
 			"enroll_window": schema.StringAttribute{
-				MarkdownDescription: "the time window during which the user is allowed to create an MFA profile. \n this window is measured relative to the MFA enforcement application start time\n and the user's most recent successful authentication that falls under the rule \n (or the user's creation time, if there has been no authentication).",
-				Description: "the time window during which the user is allowed to create an MFA profile. \n this window is measured relative to the MFA enforcement application start time\n and the user's most recent successful authentication that falls under the rule \n (or the user's creation time, if there has been no authentication)." +
+				MarkdownDescription: "the time window during which the user is allowed to create an MFA profile.\n this window is measured relative to the MFA enforcement application start time\n and the user's most recent successful authentication that falls under the rule\n (or the user's creation time, if there has been no authentication).",
+				Description: "the time window during which the user is allowed to create an MFA profile.\n this window is measured relative to the MFA enforcement application start time\n and the user's most recent successful authentication that falls under the rule\n (or the user's creation time, if there has been no authentication)." +
 					// proto paths: +
 					// -> yandex.cloud.organizationmanager.v1.MfaEnforcement.enroll_window
 					"package: yandex.cloud.organizationmanager.v1\n" +
@@ -137,8 +137,8 @@ func YandexOrganizationmanagerMfaEnforcementDatasourceSchema(ctx context.Context
 			},
 
 			"ttl": schema.StringAttribute{
-				MarkdownDescription: "the period during which the entered MFA factor is considered valid and the \n corresponding acr is regarded as satisfied",
-				Description: "the period during which the entered MFA factor is considered valid and the \n corresponding acr is regarded as satisfied" +
+				MarkdownDescription: "the period during which the entered MFA factor is considered valid and the\n corresponding acr is regarded as satisfied",
+				Description: "the period during which the entered MFA factor is considered valid and the\n corresponding acr is regarded as satisfied" +
 					// proto paths: +
 					// -> yandex.cloud.organizationmanager.v1.MfaEnforcement.ttl
 					"package: yandex.cloud.organizationmanager.v1\n" +

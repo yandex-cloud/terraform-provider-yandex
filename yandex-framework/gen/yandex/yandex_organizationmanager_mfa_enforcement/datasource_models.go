@@ -63,6 +63,40 @@ func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) GetTtl() types.
 	return m.Ttl
 }
 
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetAcrId(target types.String) {
+	m.AcrId = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetApplyAt(target types.String) {
+	m.ApplyAt = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetEnrollWindow(target types.String) {
+	m.EnrollWindow = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetMfaEnforcementId(target types.String) {
+	m.MfaEnforcementId = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetTtl(target types.String) {
+	m.Ttl = target
+}
+
 func NewYandexOrganizationmanagerMfaEnforcementDatasourceModel() yandexOrganizationmanagerMfaEnforcementDatasourceModel {
 	return yandexOrganizationmanagerMfaEnforcementDatasourceModel{
 		AcrId:            types.StringNull(),

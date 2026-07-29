@@ -154,6 +154,7 @@ func (r *yandexIAMServiceAccountResource) Create(ctx context.Context, req resour
 	createReq.SetName(plan.Name.ValueString())
 	createReq.SetDescription(plan.Description.ValueString())
 	createReq.SetLabels(expandYandexIAMServiceAccountLabels(ctx, plan.Labels, &diags))
+	createReq.SetExpiresAt(converter.ParseTimestamp(plan.ExpiresAt.ValueString(), &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -310,8 +311,11 @@ func (r *yandexIAMServiceAccountResource) Update(ctx context.Context, req resour
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
+	}
+	if !plan.ExpiresAt.IsUnknown() && !plan.ExpiresAt.Equal(state.ExpiresAt) {
+		updatePaths = append(updatePaths, "expires_at")
 	}
 	if plan.Labels.IsNull() {
 		plan.Labels = types.MapNull(types.StringType)
@@ -319,13 +323,13 @@ func (r *yandexIAMServiceAccountResource) Update(ctx context.Context, req resour
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.ServiceAccountId.Equal(state.ServiceAccountId) {
+	if !plan.ServiceAccountId.IsUnknown() && !plan.ServiceAccountId.Equal(state.ServiceAccountId) {
 		updatePaths = append(updatePaths, "service_account_id")
 	}
 	if len(updatePaths) != 0 {
@@ -339,6 +343,7 @@ func (r *yandexIAMServiceAccountResource) Update(ctx context.Context, req resour
 		updateReq.SetName(plan.Name.ValueString())
 		updateReq.SetDescription(plan.Description.ValueString())
 		updateReq.SetLabels(expandYandexIAMServiceAccountLabels(ctx, plan.Labels, &diags))
+		updateReq.SetExpiresAt(converter.ParseTimestamp(plan.ExpiresAt.ValueString(), &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 		resp.Diagnostics.Append(diags...)

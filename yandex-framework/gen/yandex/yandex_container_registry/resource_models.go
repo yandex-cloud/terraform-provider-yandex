@@ -48,6 +48,28 @@ func (m *yandexContainerRegistryModel) GetStatus() types.String {
 	return m.Status
 }
 
+func (m *yandexContainerRegistryModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexContainerRegistryModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexContainerRegistryModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexContainerRegistryModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexContainerRegistryModel) SetRegistryId(target types.String) {
+	m.RegistryId = target
+}
+func (m *yandexContainerRegistryModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexContainerRegistryModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexContainerRegistryModel() yandexContainerRegistryModel {
 	return yandexContainerRegistryModel{
 		CreatedAt:  types.StringNull(),
@@ -138,7 +160,6 @@ func expandYandexContainerRegistryModel(ctx context.Context, yandexContainerRegi
 	value.SetFolderId(yandexContainerRegistryState.FolderId.ValueString())
 	value.SetLabels(expandYandexContainerRegistryLabels(ctx, yandexContainerRegistryState.Labels, diags))
 	value.SetName(yandexContainerRegistryState.Name.ValueString())
-	value.SetId(yandexContainerRegistryState.RegistryId.ValueString())
 	value.SetId(yandexContainerRegistryState.RegistryId.ValueString())
 	value.SetStatus(containerregistry.Registry_Status(containerregistry.Registry_Status_value[yandexContainerRegistryState.Status.ValueString()]))
 	if diags.HasError() {

@@ -4044,7 +4044,6 @@ func expandYandexDatatransferTransferModel(ctx context.Context, yandexDatatransf
 	value.SetReplicationRuntime(expandYandexDatatransferTransferReplicationRuntime(ctx, yandexDatatransferTransferState.ReplicationRuntime, diags))
 	value.SetRuntime(expandYandexDatatransferTransferRuntime(ctx, yandexDatatransferTransferState.Runtime, diags))
 	value.SetId(yandexDatatransferTransferState.TransferId.ValueString())
-	value.SetId(yandexDatatransferTransferState.TransferId.ValueString())
 	value.SetTransformation(expandYandexDatatransferTransferTransformation(ctx, yandexDatatransferTransferState.Transformation, diags))
 	value.SetType(datatransfer.TransferType(datatransfer.TransferType_value[yandexDatatransferTransferState.Type.ValueString()]))
 	value.SetWarning(yandexDatatransferTransferState.Warning.ValueString())

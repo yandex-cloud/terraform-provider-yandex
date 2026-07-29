@@ -68,6 +68,43 @@ func (m *yandexComputeFilesystemModel) GetZone() types.String {
 	return m.Zone
 }
 
+func (m *yandexComputeFilesystemModel) SetBlockSize(target types.Int64) {
+	m.BlockSize = target
+}
+func (m *yandexComputeFilesystemModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexComputeFilesystemModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexComputeFilesystemModel) SetFilesystemId(target types.String) {
+	m.FilesystemId = target
+}
+func (m *yandexComputeFilesystemModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexComputeFilesystemModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexComputeFilesystemModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexComputeFilesystemModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexComputeFilesystemModel) SetSize(target types.Float64) {
+	m.Size = target
+}
+func (m *yandexComputeFilesystemModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexComputeFilesystemModel) SetType(target types.String) {
+	m.Type = target
+}
+func (m *yandexComputeFilesystemModel) SetZone(target types.String) {
+	m.Zone = target
+}
+
 func NewYandexComputeFilesystemModel() yandexComputeFilesystemModel {
 	return yandexComputeFilesystemModel{
 		BlockSize:    types.Int64Null(),
@@ -187,7 +224,6 @@ func expandYandexComputeFilesystemModel(ctx context.Context, yandexComputeFilesy
 	value.SetBlockSize((yandexComputeFilesystemState.BlockSize.ValueInt64()))
 	value.SetCreatedAt(converter.ParseTimestamp(yandexComputeFilesystemState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexComputeFilesystemState.Description.ValueString())
-	value.SetId(yandexComputeFilesystemState.FilesystemId.ValueString())
 	value.SetId(yandexComputeFilesystemState.FilesystemId.ValueString())
 	value.SetFolderId(yandexComputeFilesystemState.FolderId.ValueString())
 	value.SetLabels(expandYandexComputeFilesystemLabels(ctx, yandexComputeFilesystemState.Labels, diags))

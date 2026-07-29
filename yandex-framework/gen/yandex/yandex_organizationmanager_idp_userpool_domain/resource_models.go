@@ -36,6 +36,19 @@ func (m *yandexOrganizationmanagerIdpUserpoolDomainModel) GetId() types.String {
 	return m.Id
 }
 
+func (m *yandexOrganizationmanagerIdpUserpoolDomainModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDomainModel) SetDomain(target types.String) {
+	m.Domain = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDomainModel) SetUserpoolId(target types.String) {
+	m.UserpoolId = target
+}
+func (m *yandexOrganizationmanagerIdpUserpoolDomainModel) SetId(target types.String) {
+	m.Id = target
+}
+
 func NewYandexOrganizationmanagerIdpUserpoolDomainModel() yandexOrganizationmanagerIdpUserpoolDomainModel {
 	return yandexOrganizationmanagerIdpUserpoolDomainModel{
 		CreatedAt:  types.StringNull(),

@@ -33,9 +33,9 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "If set to true, AI marking up of catalog entities will be enabled",
 						Description: "If set to true, AI marking up of catalog entities will be enabled" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.ai_enabled
-							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.ai_enabled
-							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.ai_enabled
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.ai_enabled
+							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.ai_enabled
+							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.ai_enabled
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Optional: true,
@@ -50,9 +50,9 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Rules for the AI agent, that will be used for assets mark up",
 						Description: "Rules for the AI agent, that will be used for assets mark up" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.documentation_rules
-							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.documentation_rules
-							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.documentation_rules
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.documentation_rules
+							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.documentation_rules
+							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.documentation_rules
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Optional: true,
@@ -67,9 +67,9 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Rules for the AI agent, that will be used for domains mark up",
 						Description: "Rules for the AI agent, that will be used for domains mark up" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.domain_rules
-							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.domain_rules
-							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.domain_rules
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.domain_rules
+							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.domain_rules
+							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.domain_rules
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Optional: true,
@@ -84,9 +84,9 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Rules for the AI agent, that will be used for tags mark up",
 						Description: "Rules for the AI agent, that will be used for tags mark up" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.tags_rules
-							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.tags_rules
-							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.tags_rules
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.tags_rules
+							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.tags_rules
+							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.tags_rules
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Optional: true,
@@ -101,9 +101,9 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Rules for the AI agent, that will be used for terms mark up",
 						Description: "Rules for the AI agent, that will be used for terms mark up" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.terms_rules
-							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.terms_rules
-							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rulesyandex.cloud.datacatalog.v1.CatalogAIMarkupRules.terms_rules
+							// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.terms_rules
+							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.terms_rules
+							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules -> yandex.cloud.datacatalog.v1.CatalogAIMarkupRules.terms_rules
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Optional: true,
@@ -118,8 +118,8 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "AI markup enabled flag" +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rules
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.ai_markup_rules
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.ai_markup_rules
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 				Optional: true,
@@ -138,9 +138,9 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "ID of service account, which will be used for auto ingestion feature",
 						Description: "ID of service account, which will be used for auto ingestion feature" +
 							// proto paths: +
-							// -> yandex.cloud.datacatalog.v1.Catalog.auto_ingestion_paramsyandex.cloud.datacatalog.v1.CatalogAutoIngestionConfig.service_account_id
-							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.auto_ingestion_paramsyandex.cloud.datacatalog.v1.CatalogAutoIngestionConfig.service_account_id
-							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.auto_ingestion_paramsyandex.cloud.datacatalog.v1.CatalogAutoIngestionConfig.service_account_id
+							// -> yandex.cloud.datacatalog.v1.Catalog.auto_ingestion_params -> yandex.cloud.datacatalog.v1.CatalogAutoIngestionConfig.service_account_id
+							// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.auto_ingestion_params -> yandex.cloud.datacatalog.v1.CatalogAutoIngestionConfig.service_account_id
+							// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.auto_ingestion_params -> yandex.cloud.datacatalog.v1.CatalogAutoIngestionConfig.service_account_id
 							"package: yandex.cloud.datacatalog.v1\n" +
 							"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 						Optional: true,
@@ -155,8 +155,8 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Configuration for auto ingestion feature" +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.auto_ingestion_params
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.auto_ingestion_params
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.auto_ingestion_params
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.auto_ingestion_params
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.auto_ingestion_params
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 				Optional: true,
@@ -172,10 +172,10 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "ID of the catalog to return." +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.id
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.id
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.id
 					// -> yandex.cloud.datacatalog.v1.DeleteCatalogRequest.catalog_id
 					// -> yandex.cloud.datacatalog.v1.GetCatalogRequest.catalog_id
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.id
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.id
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog_service.proto\n",
 				Optional: true,
@@ -191,10 +191,10 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "ID of the catalog to return." +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.id
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.id
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.id
 					// -> yandex.cloud.datacatalog.v1.DeleteCatalogRequest.catalog_id
 					// -> yandex.cloud.datacatalog.v1.GetCatalogRequest.catalog_id
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.id
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.id
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog_service.proto\n",
 				Optional: true,
@@ -210,8 +210,8 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Date of catalog creation" +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.created_at
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.created_at
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.created_at
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.created_at
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.created_at
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 				Computed: true,
@@ -222,8 +222,8 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Id of subject who created the catalog" +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.created_by
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.created_by
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.created_by
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.created_by
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.created_by
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 				Computed: true,
@@ -234,8 +234,8 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Catalog description" +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.description
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.description
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.description
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.description
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.description
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 				Optional: true,
@@ -251,8 +251,8 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Folder identifier" +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.folder_id
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.folder_id
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.folder_id
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.folder_id
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.folder_id
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 				Optional: true,
@@ -269,8 +269,8 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Catalog labels" +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.labels
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.labels
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.labels
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.labels
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.labels
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 				Optional: true,
@@ -290,8 +290,8 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Catalog name" +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.name
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.name
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.name
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.name
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.name
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 				Required: true,
@@ -306,8 +306,8 @@ func YandexDatacatalogCatalogResourceSchema(ctx context.Context) schema.Schema {
 				Description: "Date of catalog last update" +
 					// proto paths: +
 					// -> yandex.cloud.datacatalog.v1.Catalog.updated_at
-					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.updated_at
-					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalogyandex.cloud.datacatalog.v1.Catalog.updated_at
+					// -> yandex.cloud.datacatalog.v1.CreateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.updated_at
+					// -> yandex.cloud.datacatalog.v1.UpdateCatalogRequest.catalog -> yandex.cloud.datacatalog.v1.Catalog.updated_at
 					"package: yandex.cloud.datacatalog.v1\n" +
 					"filename: yandex/cloud/datacatalog/v1/catalog.proto\n",
 				Computed: true,

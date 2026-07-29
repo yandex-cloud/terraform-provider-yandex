@@ -75,6 +75,49 @@ func (m *yandexConnectionmanagerConnectionDatasourceModel) GetUpdatedAt() types.
 	return m.UpdatedAt
 }
 
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetCanUse(target types.Bool) {
+	m.CanUse = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetCreatedBy(target types.String) {
+	m.CreatedBy = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetIsManaged(target types.Bool) {
+	m.IsManaged = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetLockboxSecret(target types.Object) {
+	m.LockboxSecret = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetLockboxSecretSpec(target types.Object) {
+	m.LockboxSecretSpec = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetParams(target types.Object) {
+	m.Params = target
+}
+func (m *yandexConnectionmanagerConnectionDatasourceModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+
 func NewYandexConnectionmanagerConnectionDatasourceModel() yandexConnectionmanagerConnectionDatasourceModel {
 	return yandexConnectionmanagerConnectionDatasourceModel{
 		CanUse:            types.BoolNull(),

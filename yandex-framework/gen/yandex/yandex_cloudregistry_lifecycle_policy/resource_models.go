@@ -17,6 +17,7 @@ import (
 
 type yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel struct {
 	Delete        types.Object `tfsdk:"delete"`
+	Description   types.String `tfsdk:"description"`
 	DockerFilters types.Object `tfsdk:"docker_filters"`
 	KeepByAge     types.Object `tfsdk:"keep_by_age"`
 	KeepByVersion types.Object `tfsdk:"keep_by_version"`
@@ -27,6 +28,9 @@ type yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel struct {
 
 func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) GetDelete() types.Object {
 	return m.Delete
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) GetDescription() types.String {
+	return m.Description
 }
 func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) GetDockerFilters() types.Object {
 	return m.DockerFilters
@@ -47,9 +51,35 @@ func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) GetVersionR
 	return m.VersionRegexp
 }
 
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) SetDelete(target types.Object) {
+	m.Delete = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) SetDockerFilters(target types.Object) {
+	m.DockerFilters = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) SetKeepByAge(target types.Object) {
+	m.KeepByAge = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) SetKeepByVersion(target types.Object) {
+	m.KeepByVersion = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) SetMavenFilters(target types.Object) {
+	m.MavenFilters = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) SetPathPrefix(target types.String) {
+	m.PathPrefix = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) SetVersionRegexp(target types.String) {
+	m.VersionRegexp = target
+}
+
 func NewYandexCloudregistryLifecyclePolicyLifecycleRuleStructModel() yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel {
 	return yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel{
 		Delete:        types.ObjectNull(yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModelType.AttrTypes),
+		Description:   types.StringNull(),
 		DockerFilters: types.ObjectNull(yandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFiltersModelType.AttrTypes),
 		KeepByAge:     types.ObjectNull(yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByAgeModelType.AttrTypes),
 		KeepByVersion: types.ObjectNull(yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByVersionModelType.AttrTypes),
@@ -62,6 +92,9 @@ func NewYandexCloudregistryLifecyclePolicyLifecycleRuleStructModel() yandexCloud
 func yandexCloudregistryLifecyclePolicyLifecycleRuleStructModelFillUnknown(target yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel) yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel {
 	if target.Delete.IsUnknown() || target.Delete.IsNull() {
 		target.Delete = types.ObjectNull(yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModelType.AttrTypes)
+	}
+	if target.Description.IsUnknown() || target.Description.IsNull() {
+		target.Description = types.StringNull()
 	}
 	if target.DockerFilters.IsUnknown() || target.DockerFilters.IsNull() {
 		target.DockerFilters = types.ObjectNull(yandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFiltersModelType.AttrTypes)
@@ -87,6 +120,7 @@ func yandexCloudregistryLifecyclePolicyLifecycleRuleStructModelFillUnknown(targe
 var yandexCloudregistryLifecyclePolicyLifecycleRuleStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"delete":          yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModelType,
+		"description":     types.StringType,
 		"docker_filters":  yandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFiltersModelType,
 		"keep_by_age":     yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByAgeModelType,
 		"keep_by_version": yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByVersionModelType,
@@ -104,6 +138,7 @@ func flattenYandexCloudregistryLifecyclePolicyLifecycleRuleStruct(ctx context.Co
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexCloudregistryLifecyclePolicyLifecycleRuleStructModelType.AttrTypes, yandexCloudregistryLifecyclePolicyLifecycleRuleStructModel{
 		Delete:        flattenYandexCloudregistryLifecyclePolicyLifecycleRuleStructDelete(ctx, yandexCloudregistryLifecyclePolicyLifecycleRuleStruct.GetDelete(), diags),
+		Description:   types.StringValue(yandexCloudregistryLifecyclePolicyLifecycleRuleStruct.GetDescription()),
 		DockerFilters: flattenYandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFilters(ctx, yandexCloudregistryLifecyclePolicyLifecycleRuleStruct.GetDockerFilters(), diags),
 		KeepByAge:     flattenYandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByAge(ctx, yandexCloudregistryLifecyclePolicyLifecycleRuleStruct.GetKeepByAge(), diags),
 		KeepByVersion: flattenYandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByVersion(ctx, yandexCloudregistryLifecyclePolicyLifecycleRuleStruct.GetKeepByVersion(), diags),
@@ -132,6 +167,7 @@ func expandYandexCloudregistryLifecyclePolicyLifecycleRuleStructModel(ctx contex
 	if !(yandexCloudregistryLifecyclePolicyLifecycleRuleStructState.Delete.IsNull() || yandexCloudregistryLifecyclePolicyLifecycleRuleStructState.Delete.IsUnknown() || yandexCloudregistryLifecyclePolicyLifecycleRuleStructState.Delete.Equal(types.Object{})) {
 		value.SetDelete(expandYandexCloudregistryLifecyclePolicyLifecycleRuleStructDelete(ctx, yandexCloudregistryLifecyclePolicyLifecycleRuleStructState.Delete, diags))
 	}
+	value.SetDescription(yandexCloudregistryLifecyclePolicyLifecycleRuleStructState.Description.ValueString())
 	if !(yandexCloudregistryLifecyclePolicyLifecycleRuleStructState.DockerFilters.IsNull() || yandexCloudregistryLifecyclePolicyLifecycleRuleStructState.DockerFilters.IsUnknown() || yandexCloudregistryLifecyclePolicyLifecycleRuleStructState.DockerFilters.Equal(types.Object{})) {
 		value.SetDockerFilters(expandYandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFilters(ctx, yandexCloudregistryLifecyclePolicyLifecycleRuleStructState.DockerFilters, diags))
 	}
@@ -174,6 +210,22 @@ func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModel) GetTy
 }
 func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModel) GetVersionCondition() types.Object {
 	return m.VersionCondition
+}
+
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModel) SetAlways(target types.Bool) {
+	m.Always = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModel) SetCooldownPeriodDays(target types.Int64) {
+	m.CooldownPeriodDays = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModel) SetOlderThanDays(target types.Int64) {
+	m.OlderThanDays = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModel) SetType(target types.String) {
+	m.Type = target
+}
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModel) SetVersionCondition(target types.Object) {
+	m.VersionCondition = target
 }
 
 func NewYandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModel() yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteModel {
@@ -271,6 +323,10 @@ func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteVersionCondi
 	return m.VersionsCountGreaterThan
 }
 
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteVersionConditionModel) SetVersionsCountGreaterThan(target types.Int64) {
+	m.VersionsCountGreaterThan = target
+}
+
 func NewYandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteVersionConditionModel() yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteVersionConditionModel {
 	return yandexCloudregistryLifecyclePolicyLifecycleRuleStructDeleteVersionConditionModel{
 		VersionsCountGreaterThan: types.Int64Null(),
@@ -330,6 +386,10 @@ type yandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFiltersModel str
 
 func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFiltersModel) GetTagStatus() types.String {
 	return m.TagStatus
+}
+
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFiltersModel) SetTagStatus(target types.String) {
+	m.TagStatus = target
 }
 
 func NewYandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFiltersModel() yandexCloudregistryLifecyclePolicyLifecycleRuleStructDockerFiltersModel {
@@ -393,6 +453,10 @@ func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByAgeModel) Ge
 	return m.YoungerThanDays
 }
 
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByAgeModel) SetYoungerThanDays(target types.Int64) {
+	m.YoungerThanDays = target
+}
+
 func NewYandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByAgeModel() yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByAgeModel {
 	return yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByAgeModel{
 		YoungerThanDays: types.Int64Null(),
@@ -454,6 +518,10 @@ func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByVersionModel
 	return m.KeepVersionsCount
 }
 
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByVersionModel) SetKeepVersionsCount(target types.Int64) {
+	m.KeepVersionsCount = target
+}
+
 func NewYandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByVersionModel() yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByVersionModel {
 	return yandexCloudregistryLifecyclePolicyLifecycleRuleStructKeepByVersionModel{
 		KeepVersionsCount: types.Int64Null(),
@@ -513,6 +581,10 @@ type yandexCloudregistryLifecyclePolicyLifecycleRuleStructMavenFiltersModel stru
 
 func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructMavenFiltersModel) GetVersionType() types.String {
 	return m.VersionType
+}
+
+func (m *yandexCloudregistryLifecyclePolicyLifecycleRuleStructMavenFiltersModel) SetVersionType(target types.String) {
+	m.VersionType = target
 }
 
 func NewYandexCloudregistryLifecyclePolicyLifecycleRuleStructMavenFiltersModel() yandexCloudregistryLifecyclePolicyLifecycleRuleStructMavenFiltersModel {
@@ -615,6 +687,40 @@ func (m *yandexCloudregistryLifecyclePolicyModel) GetRules() types.List {
 }
 func (m *yandexCloudregistryLifecyclePolicyModel) GetState() types.String {
 	return m.State
+}
+
+func (m *yandexCloudregistryLifecyclePolicyModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetCreatedBy(target types.String) {
+	m.CreatedBy = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetModifiedAt(target types.String) {
+	m.ModifiedAt = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetModifiedBy(target types.String) {
+	m.ModifiedBy = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetPolicyId(target types.String) {
+	m.PolicyId = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetRegistryId(target types.String) {
+	m.RegistryId = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetRules(target types.List) {
+	m.Rules = target
+}
+func (m *yandexCloudregistryLifecyclePolicyModel) SetState(target types.String) {
+	m.State = target
 }
 
 func NewYandexCloudregistryLifecyclePolicyModel() yandexCloudregistryLifecyclePolicyModel {
@@ -733,7 +839,6 @@ func expandYandexCloudregistryLifecyclePolicyModel(ctx context.Context, yandexCl
 	value.SetModifiedAt(converter.ParseTimestamp(yandexCloudregistryLifecyclePolicyState.ModifiedAt.ValueString(), diags))
 	value.SetModifiedBy(yandexCloudregistryLifecyclePolicyState.ModifiedBy.ValueString())
 	value.SetName(yandexCloudregistryLifecyclePolicyState.Name.ValueString())
-	value.SetId(yandexCloudregistryLifecyclePolicyState.PolicyId.ValueString())
 	value.SetId(yandexCloudregistryLifecyclePolicyState.PolicyId.ValueString())
 	value.SetRegistryId(yandexCloudregistryLifecyclePolicyState.RegistryId.ValueString())
 	value.SetRules(expandYandexCloudregistryLifecyclePolicyRules(ctx, yandexCloudregistryLifecyclePolicyState.Rules, diags))

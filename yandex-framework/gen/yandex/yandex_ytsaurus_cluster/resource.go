@@ -160,6 +160,7 @@ func (r *yandexYtsaurusClusterResource) Create(ctx context.Context, req resource
 	createReq.SetSubnetId(plan.SubnetId.ValueString())
 	createReq.SetSecurityGroupIds(expandYandexYtsaurusClusterSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
 	createReq.SetSpec(expandYandexYtsaurusClusterSpec(ctx, plan.Spec, &diags))
+	createReq.SetMaintenanceWindow(expandYandexYtsaurusClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags))
 	createReq.SetCidrBlocksWhitelist(expandYandexYtsaurusClusterCidrBlocksWhitelist(ctx, plan.CidrBlocksWhitelist, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -335,14 +336,14 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		if yandexYtsaurusClusterCidrBlocksWhitelistState.V4CidrBlocks.IsNull() {
 			yandexYtsaurusClusterCidrBlocksWhitelistState.V4CidrBlocks = types.ListNull(types.StringType)
 		}
-		if !yandexYtsaurusClusterCidrBlocksWhitelistPlan.V4CidrBlocks.Equal(yandexYtsaurusClusterCidrBlocksWhitelistState.V4CidrBlocks) {
+		if !yandexYtsaurusClusterCidrBlocksWhitelistPlan.V4CidrBlocks.IsUnknown() && !yandexYtsaurusClusterCidrBlocksWhitelistPlan.V4CidrBlocks.Equal(yandexYtsaurusClusterCidrBlocksWhitelistState.V4CidrBlocks) {
 			updatePaths = append(updatePaths, "cidr_blocks_whitelist.v4_cidr_blocks")
 		}
 	}
-	if !plan.ClusterId.Equal(state.ClusterId) {
+	if !plan.ClusterId.IsUnknown() && !plan.ClusterId.Equal(state.ClusterId) {
 		updatePaths = append(updatePaths, "cluster_id")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -351,10 +352,43 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+
+	if (plan.MaintenanceWindow.IsNull() || state.MaintenanceWindow.IsNull()) &&
+		!(plan.MaintenanceWindow.IsNull() && state.MaintenanceWindow.IsNull()) &&
+		!plan.MaintenanceWindow.IsUnknown() {
+		updatePaths = append(updatePaths, "maintenance_window")
+	} else if !plan.MaintenanceWindow.IsUnknown() {
+		var yandexYtsaurusClusterMaintenanceWindowState, yandexYtsaurusClusterMaintenanceWindowPlan yandexYtsaurusClusterMaintenanceWindowModel
+		resp.Diagnostics.Append(plan.MaintenanceWindow.As(ctx, &yandexYtsaurusClusterMaintenanceWindowPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		resp.Diagnostics.Append(state.MaintenanceWindow.As(ctx, &yandexYtsaurusClusterMaintenanceWindowState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		if (yandexYtsaurusClusterMaintenanceWindowPlan.WeeklyMaintenanceWindow.IsNull() || yandexYtsaurusClusterMaintenanceWindowState.WeeklyMaintenanceWindow.IsNull()) &&
+			!(yandexYtsaurusClusterMaintenanceWindowPlan.WeeklyMaintenanceWindow.IsNull() && yandexYtsaurusClusterMaintenanceWindowState.WeeklyMaintenanceWindow.IsNull()) &&
+			!yandexYtsaurusClusterMaintenanceWindowPlan.WeeklyMaintenanceWindow.IsUnknown() {
+			updatePaths = append(updatePaths, "maintenance_window.weekly_maintenance_window")
+		} else if !yandexYtsaurusClusterMaintenanceWindowPlan.WeeklyMaintenanceWindow.IsUnknown() {
+			var yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState, yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowPlan yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowModel
+			resp.Diagnostics.Append(yandexYtsaurusClusterMaintenanceWindowPlan.WeeklyMaintenanceWindow.As(ctx, &yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			resp.Diagnostics.Append(yandexYtsaurusClusterMaintenanceWindowState.WeeklyMaintenanceWindow.As(ctx, &yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			if !yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowPlan.Day.IsUnknown() && !yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowPlan.Day.Equal(yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState.Day) {
+				updatePaths = append(updatePaths, "maintenance_window.weekly_maintenance_window.day")
+			}
+			if !yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowPlan.Hour.IsUnknown() && !yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowPlan.Hour.Equal(yandexYtsaurusClusterMaintenanceWindowWeeklyMaintenanceWindowState.Hour) {
+				updatePaths = append(updatePaths, "maintenance_window.weekly_maintenance_window.hour")
+			}
+		}
+	}
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if plan.SecurityGroupIds.IsNull() {
@@ -363,7 +397,7 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 	if state.SecurityGroupIds.IsNull() {
 		state.SecurityGroupIds = types.ListNull(types.StringType)
 	}
-	if !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
+	if !plan.SecurityGroupIds.IsUnknown() && !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
 		updatePaths = append(updatePaths, "security_group_ids")
 	}
 
@@ -391,16 +425,16 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 				return
 			}
 
-			if !yandexYtsaurusClusterSpecClientLoggingPlan.AuditLogsEnabled.Equal(yandexYtsaurusClusterSpecClientLoggingState.AuditLogsEnabled) {
+			if !yandexYtsaurusClusterSpecClientLoggingPlan.AuditLogsEnabled.IsUnknown() && !yandexYtsaurusClusterSpecClientLoggingPlan.AuditLogsEnabled.Equal(yandexYtsaurusClusterSpecClientLoggingState.AuditLogsEnabled) {
 				updatePaths = append(updatePaths, "spec.client_logging.audit_logs_enabled")
 			}
-			if !yandexYtsaurusClusterSpecClientLoggingPlan.FolderId.Equal(yandexYtsaurusClusterSpecClientLoggingState.FolderId) {
+			if !yandexYtsaurusClusterSpecClientLoggingPlan.FolderId.IsUnknown() && !yandexYtsaurusClusterSpecClientLoggingPlan.FolderId.Equal(yandexYtsaurusClusterSpecClientLoggingState.FolderId) {
 				updatePaths = append(updatePaths, "spec.client_logging.folder_id")
 			}
-			if !yandexYtsaurusClusterSpecClientLoggingPlan.LogGroupId.Equal(yandexYtsaurusClusterSpecClientLoggingState.LogGroupId) {
+			if !yandexYtsaurusClusterSpecClientLoggingPlan.LogGroupId.IsUnknown() && !yandexYtsaurusClusterSpecClientLoggingPlan.LogGroupId.Equal(yandexYtsaurusClusterSpecClientLoggingState.LogGroupId) {
 				updatePaths = append(updatePaths, "spec.client_logging.log_group_id")
 			}
-			if !yandexYtsaurusClusterSpecClientLoggingPlan.ServiceAccountId.Equal(yandexYtsaurusClusterSpecClientLoggingState.ServiceAccountId) {
+			if !yandexYtsaurusClusterSpecClientLoggingPlan.ServiceAccountId.IsUnknown() && !yandexYtsaurusClusterSpecClientLoggingPlan.ServiceAccountId.Equal(yandexYtsaurusClusterSpecClientLoggingState.ServiceAccountId) {
 				updatePaths = append(updatePaths, "spec.client_logging.service_account_id")
 			}
 		}
@@ -410,7 +444,7 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		if yandexYtsaurusClusterSpecState.Compute.IsNull() {
 			yandexYtsaurusClusterSpecState.Compute = types.ListNull(yandexYtsaurusClusterSpecComputeSpecStructModelType)
 		}
-		if !yandexYtsaurusClusterSpecPlan.Compute.Equal(yandexYtsaurusClusterSpecState.Compute) {
+		if !yandexYtsaurusClusterSpecPlan.Compute.IsUnknown() && !yandexYtsaurusClusterSpecPlan.Compute.Equal(yandexYtsaurusClusterSpecState.Compute) {
 			updatePaths = append(updatePaths, "spec.compute")
 		}
 
@@ -438,16 +472,16 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 					return
 				}
 
-				if !yandexYtsaurusClusterSpecCronClearTmpPlan.AccountUsageRatioSavePerOwner.Equal(yandexYtsaurusClusterSpecCronClearTmpState.AccountUsageRatioSavePerOwner) {
+				if !yandexYtsaurusClusterSpecCronClearTmpPlan.AccountUsageRatioSavePerOwner.IsUnknown() && !yandexYtsaurusClusterSpecCronClearTmpPlan.AccountUsageRatioSavePerOwner.Equal(yandexYtsaurusClusterSpecCronClearTmpState.AccountUsageRatioSavePerOwner) {
 					updatePaths = append(updatePaths, "spec.cron.clear_tmp.account_usage_ratio_save_per_owner")
 				}
-				if !yandexYtsaurusClusterSpecCronClearTmpPlan.AccountUsageRatioSaveTotal.Equal(yandexYtsaurusClusterSpecCronClearTmpState.AccountUsageRatioSaveTotal) {
+				if !yandexYtsaurusClusterSpecCronClearTmpPlan.AccountUsageRatioSaveTotal.IsUnknown() && !yandexYtsaurusClusterSpecCronClearTmpPlan.AccountUsageRatioSaveTotal.Equal(yandexYtsaurusClusterSpecCronClearTmpState.AccountUsageRatioSaveTotal) {
 					updatePaths = append(updatePaths, "spec.cron.clear_tmp.account_usage_ratio_save_total")
 				}
-				if !yandexYtsaurusClusterSpecCronClearTmpPlan.Interval.Equal(yandexYtsaurusClusterSpecCronClearTmpState.Interval) {
+				if !yandexYtsaurusClusterSpecCronClearTmpPlan.Interval.IsUnknown() && !yandexYtsaurusClusterSpecCronClearTmpPlan.Interval.Equal(yandexYtsaurusClusterSpecCronClearTmpState.Interval) {
 					updatePaths = append(updatePaths, "spec.cron.clear_tmp.interval")
 				}
-				if !yandexYtsaurusClusterSpecCronClearTmpPlan.MaxDirNodeCount.Equal(yandexYtsaurusClusterSpecCronClearTmpState.MaxDirNodeCount) {
+				if !yandexYtsaurusClusterSpecCronClearTmpPlan.MaxDirNodeCount.IsUnknown() && !yandexYtsaurusClusterSpecCronClearTmpPlan.MaxDirNodeCount.Equal(yandexYtsaurusClusterSpecCronClearTmpState.MaxDirNodeCount) {
 					updatePaths = append(updatePaths, "spec.cron.clear_tmp.max_dir_node_count")
 				}
 			}
@@ -465,11 +499,11 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 				return
 			}
 
-			if !yandexYtsaurusClusterSpecExcelPlan.Enabled.Equal(yandexYtsaurusClusterSpecExcelState.Enabled) {
+			if !yandexYtsaurusClusterSpecExcelPlan.Enabled.IsUnknown() && !yandexYtsaurusClusterSpecExcelPlan.Enabled.Equal(yandexYtsaurusClusterSpecExcelState.Enabled) {
 				updatePaths = append(updatePaths, "spec.excel.enabled")
 			}
 		}
-		if !yandexYtsaurusClusterSpecPlan.Flavor.Equal(yandexYtsaurusClusterSpecState.Flavor) {
+		if !yandexYtsaurusClusterSpecPlan.Flavor.IsUnknown() && !yandexYtsaurusClusterSpecPlan.Flavor.Equal(yandexYtsaurusClusterSpecState.Flavor) {
 			updatePaths = append(updatePaths, "spec.flavor")
 		}
 
@@ -485,7 +519,7 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 				return
 			}
 
-			if !yandexYtsaurusClusterSpecOdinPlan.ChecksTtl.Equal(yandexYtsaurusClusterSpecOdinState.ChecksTtl) {
+			if !yandexYtsaurusClusterSpecOdinPlan.ChecksTtl.IsUnknown() && !yandexYtsaurusClusterSpecOdinPlan.ChecksTtl.Equal(yandexYtsaurusClusterSpecOdinState.ChecksTtl) {
 				updatePaths = append(updatePaths, "spec.odin.checks_ttl")
 			}
 		}
@@ -514,7 +548,7 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 					return
 				}
 
-				if !yandexYtsaurusClusterSpecProxyHttpPlan.Count.Equal(yandexYtsaurusClusterSpecProxyHttpState.Count) {
+				if !yandexYtsaurusClusterSpecProxyHttpPlan.Count.IsUnknown() && !yandexYtsaurusClusterSpecProxyHttpPlan.Count.Equal(yandexYtsaurusClusterSpecProxyHttpState.Count) {
 					updatePaths = append(updatePaths, "spec.proxy.http.count")
 				}
 			}
@@ -531,7 +565,7 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 					return
 				}
 
-				if !yandexYtsaurusClusterSpecProxyRpcPlan.Count.Equal(yandexYtsaurusClusterSpecProxyRpcState.Count) {
+				if !yandexYtsaurusClusterSpecProxyRpcPlan.Count.IsUnknown() && !yandexYtsaurusClusterSpecProxyRpcPlan.Count.Equal(yandexYtsaurusClusterSpecProxyRpcState.Count) {
 					updatePaths = append(updatePaths, "spec.proxy.rpc.count")
 				}
 			}
@@ -548,7 +582,7 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 					return
 				}
 
-				if !yandexYtsaurusClusterSpecProxyTaskPlan.Count.Equal(yandexYtsaurusClusterSpecProxyTaskState.Count) {
+				if !yandexYtsaurusClusterSpecProxyTaskPlan.Count.IsUnknown() && !yandexYtsaurusClusterSpecProxyTaskPlan.Count.Equal(yandexYtsaurusClusterSpecProxyTaskState.Count) {
 					updatePaths = append(updatePaths, "spec.proxy.task.count")
 				}
 			}
@@ -578,10 +612,10 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 					return
 				}
 
-				if !yandexYtsaurusClusterSpecStorageHddPlan.Count.Equal(yandexYtsaurusClusterSpecStorageHddState.Count) {
+				if !yandexYtsaurusClusterSpecStorageHddPlan.Count.IsUnknown() && !yandexYtsaurusClusterSpecStorageHddPlan.Count.Equal(yandexYtsaurusClusterSpecStorageHddState.Count) {
 					updatePaths = append(updatePaths, "spec.storage.hdd.count")
 				}
-				if !yandexYtsaurusClusterSpecStorageHddPlan.SizeGb.Equal(yandexYtsaurusClusterSpecStorageHddState.SizeGb) {
+				if !yandexYtsaurusClusterSpecStorageHddPlan.SizeGb.IsUnknown() && !yandexYtsaurusClusterSpecStorageHddPlan.SizeGb.Equal(yandexYtsaurusClusterSpecStorageHddState.SizeGb) {
 					updatePaths = append(updatePaths, "spec.storage.hdd.size_gb")
 				}
 			}
@@ -610,17 +644,17 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 						return
 					}
 
-					if !yandexYtsaurusClusterSpecStorageSsdChangelogsPlan.SizeGb.Equal(yandexYtsaurusClusterSpecStorageSsdChangelogsState.SizeGb) {
+					if !yandexYtsaurusClusterSpecStorageSsdChangelogsPlan.SizeGb.IsUnknown() && !yandexYtsaurusClusterSpecStorageSsdChangelogsPlan.SizeGb.Equal(yandexYtsaurusClusterSpecStorageSsdChangelogsState.SizeGb) {
 						updatePaths = append(updatePaths, "spec.storage.ssd.changelogs.size_gb")
 					}
 				}
-				if !yandexYtsaurusClusterSpecStorageSsdPlan.Count.Equal(yandexYtsaurusClusterSpecStorageSsdState.Count) {
+				if !yandexYtsaurusClusterSpecStorageSsdPlan.Count.IsUnknown() && !yandexYtsaurusClusterSpecStorageSsdPlan.Count.Equal(yandexYtsaurusClusterSpecStorageSsdState.Count) {
 					updatePaths = append(updatePaths, "spec.storage.ssd.count")
 				}
-				if !yandexYtsaurusClusterSpecStorageSsdPlan.SizeGb.Equal(yandexYtsaurusClusterSpecStorageSsdState.SizeGb) {
+				if !yandexYtsaurusClusterSpecStorageSsdPlan.SizeGb.IsUnknown() && !yandexYtsaurusClusterSpecStorageSsdPlan.SizeGb.Equal(yandexYtsaurusClusterSpecStorageSsdState.SizeGb) {
 					updatePaths = append(updatePaths, "spec.storage.ssd.size_gb")
 				}
-				if !yandexYtsaurusClusterSpecStorageSsdPlan.Type.Equal(yandexYtsaurusClusterSpecStorageSsdState.Type) {
+				if !yandexYtsaurusClusterSpecStorageSsdPlan.Type.IsUnknown() && !yandexYtsaurusClusterSpecStorageSsdPlan.Type.Equal(yandexYtsaurusClusterSpecStorageSsdState.Type) {
 					updatePaths = append(updatePaths, "spec.storage.ssd.type")
 				}
 			}
@@ -638,15 +672,15 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 				return
 			}
 
-			if !yandexYtsaurusClusterSpecTabletPlan.Count.Equal(yandexYtsaurusClusterSpecTabletState.Count) {
+			if !yandexYtsaurusClusterSpecTabletPlan.Count.IsUnknown() && !yandexYtsaurusClusterSpecTabletPlan.Count.Equal(yandexYtsaurusClusterSpecTabletState.Count) {
 				updatePaths = append(updatePaths, "spec.tablet.count")
 			}
-			if !yandexYtsaurusClusterSpecTabletPlan.Preset.Equal(yandexYtsaurusClusterSpecTabletState.Preset) {
+			if !yandexYtsaurusClusterSpecTabletPlan.Preset.IsUnknown() && !yandexYtsaurusClusterSpecTabletPlan.Preset.Equal(yandexYtsaurusClusterSpecTabletState.Preset) {
 				updatePaths = append(updatePaths, "spec.tablet.preset")
 			}
 		}
 	}
-	if !plan.SubnetId.Equal(state.SubnetId) {
+	if !plan.SubnetId.IsUnknown() && !plan.SubnetId.Equal(state.SubnetId) {
 		updatePaths = append(updatePaths, "subnet_id")
 	}
 	if len(updatePaths) != 0 {
@@ -663,6 +697,7 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		updateReq.SetSubnetId(plan.SubnetId.ValueString())
 		updateReq.SetSecurityGroupIds(expandYandexYtsaurusClusterSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
 		updateReq.SetSpec(expandYandexYtsaurusClusterSpec(ctx, plan.Spec, &diags))
+		updateReq.SetMaintenanceWindow(expandYandexYtsaurusClusterMaintenanceWindow(ctx, plan.MaintenanceWindow, &diags))
 		updateReq.SetCidrBlocksWhitelist(expandYandexYtsaurusClusterCidrBlocksWhitelist(ctx, plan.CidrBlocksWhitelist, &diags))
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 

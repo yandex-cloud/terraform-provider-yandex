@@ -310,13 +310,13 @@ func (r *yandexCloudregistryLifecyclePolicyResource) Update(ctx context.Context,
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.PolicyId.Equal(state.PolicyId) {
+	if !plan.PolicyId.IsUnknown() && !plan.PolicyId.Equal(state.PolicyId) {
 		updatePaths = append(updatePaths, "policy_id")
 	}
 	if plan.Rules.IsNull() {
@@ -325,10 +325,10 @@ func (r *yandexCloudregistryLifecyclePolicyResource) Update(ctx context.Context,
 	if state.Rules.IsNull() {
 		state.Rules = types.ListNull(yandexCloudregistryLifecyclePolicyLifecycleRuleStructModelType)
 	}
-	if !plan.Rules.Equal(state.Rules) {
+	if !plan.Rules.IsUnknown() && !plan.Rules.Equal(state.Rules) {
 		updatePaths = append(updatePaths, "rules")
 	}
-	if !plan.State.Equal(state.State) {
+	if !plan.State.IsUnknown() && !plan.State.Equal(state.State) {
 		updatePaths = append(updatePaths, "state")
 	}
 	if len(updatePaths) != 0 {

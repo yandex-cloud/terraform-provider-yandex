@@ -25,6 +25,7 @@ type yandexCloudregistryFolderDatasourceModel struct {
 	ModifiedBy types.String   `tfsdk:"modified_by"`
 	Name       types.String   `tfsdk:"name"`
 	Properties types.Map      `tfsdk:"properties"`
+	RegistryId types.String   `tfsdk:"registry_id"`
 	Status     types.String   `tfsdk:"status"`
 	Timeouts   timeouts.Value `tfsdk:"timeouts"`
 }
@@ -58,6 +59,9 @@ func (m *yandexCloudregistryFolderDatasourceModel) GetName() types.String {
 }
 func (m *yandexCloudregistryFolderDatasourceModel) GetProperties() types.Map {
 	return m.Properties
+}
+func (m *yandexCloudregistryFolderDatasourceModel) GetRegistryId() types.String {
+	return m.RegistryId
 }
 func (m *yandexCloudregistryFolderDatasourceModel) GetStatus() types.String {
 	return m.Status
@@ -93,6 +97,9 @@ func (m *yandexCloudregistryFolderDatasourceModel) SetName(target types.String) 
 func (m *yandexCloudregistryFolderDatasourceModel) SetProperties(target types.Map) {
 	m.Properties = target
 }
+func (m *yandexCloudregistryFolderDatasourceModel) SetRegistryId(target types.String) {
+	m.RegistryId = target
+}
 func (m *yandexCloudregistryFolderDatasourceModel) SetStatus(target types.String) {
 	m.Status = target
 }
@@ -109,6 +116,7 @@ func NewYandexCloudregistryFolderDatasourceModel() yandexCloudregistryFolderData
 		ModifiedBy: types.StringNull(),
 		Name:       types.StringNull(),
 		Properties: types.MapNull(types.StringType),
+		RegistryId: types.StringNull(),
 		Status:     types.StringNull(),
 	}
 }
@@ -144,6 +152,9 @@ func yandexCloudregistryFolderDatasourceModelFillUnknown(target yandexCloudregis
 	if target.Properties.IsUnknown() || target.Properties.IsNull() {
 		target.Properties = types.MapNull(types.StringType)
 	}
+	if target.RegistryId.IsUnknown() || target.RegistryId.IsNull() {
+		target.RegistryId = types.StringNull()
+	}
 	if target.Status.IsUnknown() || target.Status.IsNull() {
 		target.Status = types.StringNull()
 	}
@@ -162,6 +173,7 @@ var yandexCloudregistryFolderDatasourceModelType = types.ObjectType{
 		"modified_by": types.StringType,
 		"name":        types.StringType,
 		"properties":  types.MapType{ElemType: types.StringType},
+		"registry_id": types.StringType,
 		"status":      types.StringType,
 		"timeouts":    timeouts.AttributesAll(context.Background()).GetType(),
 	},
@@ -186,6 +198,7 @@ func flattenYandexCloudregistryFolderDatasource(ctx context.Context,
 		ModifiedBy: types.StringValue(yandexCloudregistryFolderDatasource.GetModifiedBy()),
 		Name:       types.StringValue(yandexCloudregistryFolderDatasource.GetName()),
 		Properties: flattenYandexCloudregistryFolderProperties(ctx, yandexCloudregistryFolderDatasource.GetProperties(), state.Properties, diags),
+		RegistryId: types.StringValue(yandexCloudregistryFolderDatasource.GetRegistryId()),
 		Status:     types.StringValue(yandexCloudregistryFolderDatasource.GetStatus().String()),
 		Timeouts:   to,
 	})

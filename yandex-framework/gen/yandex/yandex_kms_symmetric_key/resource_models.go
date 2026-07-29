@@ -68,6 +68,43 @@ func (m *yandexKMSSymmetricKeyModel) GetID() types.String {
 	return m.ID
 }
 
+func (m *yandexKMSSymmetricKeyModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetDefaultAlgorithm(target types.String) {
+	m.DefaultAlgorithm = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetDeletionProtection(target types.Bool) {
+	m.DeletionProtection = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetRotatedAt(target types.String) {
+	m.RotatedAt = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetRotationPeriod(target types.String) {
+	m.RotationPeriod = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetSymmetricKeyId(target types.String) {
+	m.SymmetricKeyId = target
+}
+func (m *yandexKMSSymmetricKeyModel) SetID(target types.String) {
+	m.ID = target
+}
+
 func NewYandexKMSSymmetricKeyModel() yandexKMSSymmetricKeyModel {
 	return yandexKMSSymmetricKeyModel{
 		CreatedAt:          types.StringNull(),
@@ -194,7 +231,6 @@ func expandYandexKMSSymmetricKeyModel(ctx context.Context, yandexKMSSymmetricKey
 	value.SetRotatedAt(converter.ParseTimestamp(yandexKMSSymmetricKeyState.RotatedAt.ValueString(), diags))
 	value.SetRotationPeriod(converter.ParseDuration(yandexKMSSymmetricKeyState.RotationPeriod.ValueString(), diags))
 	value.SetStatus(kms.SymmetricKey_Status(kms.SymmetricKey_Status_value[yandexKMSSymmetricKeyState.Status.ValueString()]))
-	value.SetId(yandexKMSSymmetricKeyState.SymmetricKeyId.ValueString())
 	value.SetId(yandexKMSSymmetricKeyState.SymmetricKeyId.ValueString())
 	if diags.HasError() {
 		return nil

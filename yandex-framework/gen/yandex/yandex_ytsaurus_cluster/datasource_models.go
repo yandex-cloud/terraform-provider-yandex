@@ -25,6 +25,7 @@ type yandexYtsaurusClusterDatasourceModel struct {
 	FolderId            types.String   `tfsdk:"folder_id"`
 	Health              types.String   `tfsdk:"health"`
 	Labels              types.Map      `tfsdk:"labels"`
+	MaintenanceWindow   types.Object   `tfsdk:"maintenance_window"`
 	Name                types.String   `tfsdk:"name"`
 	SecurityGroupIds    types.List     `tfsdk:"security_group_ids"`
 	Spec                types.Object   `tfsdk:"spec"`
@@ -65,6 +66,9 @@ func (m *yandexYtsaurusClusterDatasourceModel) GetHealth() types.String {
 }
 func (m *yandexYtsaurusClusterDatasourceModel) GetLabels() types.Map {
 	return m.Labels
+}
+func (m *yandexYtsaurusClusterDatasourceModel) GetMaintenanceWindow() types.Object {
+	return m.MaintenanceWindow
 }
 func (m *yandexYtsaurusClusterDatasourceModel) GetName() types.String {
 	return m.Name
@@ -121,6 +125,9 @@ func (m *yandexYtsaurusClusterDatasourceModel) SetHealth(target types.String) {
 func (m *yandexYtsaurusClusterDatasourceModel) SetLabels(target types.Map) {
 	m.Labels = target
 }
+func (m *yandexYtsaurusClusterDatasourceModel) SetMaintenanceWindow(target types.Object) {
+	m.MaintenanceWindow = target
+}
 func (m *yandexYtsaurusClusterDatasourceModel) SetName(target types.String) {
 	m.Name = target
 }
@@ -158,6 +165,7 @@ func NewYandexYtsaurusClusterDatasourceModel() yandexYtsaurusClusterDatasourceMo
 		FolderId:            types.StringNull(),
 		Health:              types.StringNull(),
 		Labels:              types.MapNull(types.StringType),
+		MaintenanceWindow:   types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowModelType.AttrTypes),
 		Name:                types.StringNull(),
 		SecurityGroupIds:    types.ListNull(types.StringType),
 		Spec:                types.ObjectNull(yandexYtsaurusClusterSpecModelType.AttrTypes),
@@ -200,6 +208,9 @@ func yandexYtsaurusClusterDatasourceModelFillUnknown(target yandexYtsaurusCluste
 	if target.Labels.IsUnknown() || target.Labels.IsNull() {
 		target.Labels = types.MapNull(types.StringType)
 	}
+	if target.MaintenanceWindow.IsUnknown() || target.MaintenanceWindow.IsNull() {
+		target.MaintenanceWindow = types.ObjectNull(yandexYtsaurusClusterMaintenanceWindowModelType.AttrTypes)
+	}
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
 	}
@@ -239,6 +250,7 @@ var yandexYtsaurusClusterDatasourceModelType = types.ObjectType{
 		"folder_id":             types.StringType,
 		"health":                types.StringType,
 		"labels":                types.MapType{ElemType: types.StringType},
+		"maintenance_window":    yandexYtsaurusClusterMaintenanceWindowModelType,
 		"name":                  types.StringType,
 		"security_group_ids":    types.ListType{ElemType: types.StringType},
 		"spec":                  yandexYtsaurusClusterSpecModelType,
@@ -270,6 +282,7 @@ func flattenYandexYtsaurusClusterDatasource(ctx context.Context,
 		FolderId:            types.StringValue(yandexYtsaurusClusterDatasource.GetFolderId()),
 		Health:              types.StringValue(yandexYtsaurusClusterDatasource.GetHealth().String()),
 		Labels:              flattenYandexYtsaurusClusterLabels(ctx, yandexYtsaurusClusterDatasource.GetLabels(), state.Labels, diags),
+		MaintenanceWindow:   flattenYandexYtsaurusClusterMaintenanceWindow(ctx, yandexYtsaurusClusterDatasource.GetMaintenanceWindow(), diags),
 		Name:                types.StringValue(yandexYtsaurusClusterDatasource.GetName()),
 		SecurityGroupIds:    flattenYandexYtsaurusClusterSecurityGroupIds(ctx, yandexYtsaurusClusterDatasource.GetSecurityGroupIds(), state.SecurityGroupIds, diags),
 		Spec:                flattenYandexYtsaurusClusterSpec(ctx, yandexYtsaurusClusterDatasource.GetSpec(), converter.ExpandObject(ctx, state.Spec, yandexYtsaurusClusterSpecModel{}, diags).(yandexYtsaurusClusterSpecModel), diags),

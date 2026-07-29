@@ -71,7 +71,7 @@ func (u *IAMMemberUpdater) Schema(_ context.Context, _ resource.SchemaRequest, r
 				},
 			},
 			"group_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the compute `group` to attach the policy to.",
+				MarkdownDescription: "The ID of the `group` to attach the policy to.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),

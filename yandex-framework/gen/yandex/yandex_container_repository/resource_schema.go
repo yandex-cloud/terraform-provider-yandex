@@ -42,8 +42,8 @@ func YandexContainerRepositoryResourceSchema(ctx context.Context) schema.Schema 
 			},
 
 			"repository_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the Repository resource to return.\n\n To get the repository ID use a [RepositoryService.List] request.",
-				Description: "ID of the Repository resource to return.\n\n To get the repository ID use a [RepositoryService.List] request." +
+				MarkdownDescription: "ID of the Repository resource to return.\n To get the repository ID use a [RepositoryService.List] request.",
+				Description: "ID of the Repository resource to return.\n To get the repository ID use a [RepositoryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.containerregistry.v1.DeleteRepositoryRequest.repository_id
 					// -> yandex.cloud.containerregistry.v1.GetRepositoryRequest.repository_id
@@ -63,8 +63,8 @@ func YandexContainerRepositoryResourceSchema(ctx context.Context) schema.Schema 
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the Repository resource to return.\n\n To get the repository ID use a [RepositoryService.List] request.",
-				Description: "ID of the Repository resource to return.\n\n To get the repository ID use a [RepositoryService.List] request." +
+				MarkdownDescription: "ID of the Repository resource to return.\n To get the repository ID use a [RepositoryService.List] request.",
+				Description: "ID of the Repository resource to return.\n To get the repository ID use a [RepositoryService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.containerregistry.v1.DeleteRepositoryRequest.repository_id
 					// -> yandex.cloud.containerregistry.v1.GetRepositoryRequest.repository_id

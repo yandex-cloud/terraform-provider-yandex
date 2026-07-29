@@ -58,7 +58,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Disk ID.",
 						Description: "Disk ID." +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_specyandex.cloud.compute.v1.BootDiskSpec.disk_id
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_spec -> yandex.cloud.compute.v1.BootDiskSpec.disk_id
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Optional: true,
@@ -82,7 +82,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Image ID.",
 						Description: "Image ID." +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_specyandex.cloud.compute.v1.BootDiskSpec.image_id
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_spec -> yandex.cloud.compute.v1.BootDiskSpec.image_id
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Optional: true,
@@ -111,7 +111,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 								MarkdownDescription: "License IDs that indicate which licenses are attached to resource.\n License IDs are used to calculate additional charges for the use of the virtual machine.",
 								Description: "License IDs that indicate which licenses are attached to resource.\n License IDs are used to calculate additional charges for the use of the virtual machine." +
 									// proto paths: +
-									// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_specyandex.cloud.compute.v1.BootDiskSpec.product_idsyandex.cloud.compute.v1.ProductIDs.product_ids
+									// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_spec -> yandex.cloud.compute.v1.BootDiskSpec.product_ids -> yandex.cloud.compute.v1.ProductIDs.product_ids
 									"package: yandex.cloud.compute.v1\n" +
 									"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 								Optional: true,
@@ -130,7 +130,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Product IDs.",
 						Description: "Product IDs." +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_specyandex.cloud.compute.v1.BootDiskSpec.product_ids
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_spec -> yandex.cloud.compute.v1.BootDiskSpec.product_ids
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Optional: true,
@@ -154,7 +154,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Snapshot ID.",
 						Description: "Snapshot ID." +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_specyandex.cloud.compute.v1.BootDiskSpec.snapshot_id
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_spec -> yandex.cloud.compute.v1.BootDiskSpec.snapshot_id
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Optional: true,
@@ -267,8 +267,8 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Attach instance to specified GPU cluster.",
 						Description: "Attach instance to specified GPU cluster." +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.gpu_settingsyandex.cloud.compute.v1.GpuSettings.gpu_cluster_id
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.gpu_settingsyandex.cloud.compute.v1.GpuSettings.gpu_cluster_id
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.gpu_settings -> yandex.cloud.compute.v1.GpuSettings.gpu_cluster_id
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.gpu_settings -> yandex.cloud.compute.v1.GpuSettings.gpu_cluster_id
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/instance.proto\n",
 						Optional: true,
@@ -304,7 +304,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Total number of instances linked to the pool",
 						Description: "Total number of instances linked to the pool" +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.instance_statsyandex.cloud.compute.v1.ReservedInstancePool.InstanceStats.total
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.instance_stats -> yandex.cloud.compute.v1.ReservedInstancePool.InstanceStats.total
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Computed: true,
@@ -366,8 +366,8 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Network Type",
 						Description: "Network Type" +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.network_settingsyandex.cloud.compute.v1.NetworkSettings.type
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.network_settingsyandex.cloud.compute.v1.NetworkSettings.type
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.network_settings -> yandex.cloud.compute.v1.NetworkSettings.type
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.network_settings -> yandex.cloud.compute.v1.NetworkSettings.type
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/instance.proto\n",
 						Optional: true,
@@ -468,8 +468,8 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Baseline level of CPU performance with the ability to burst performance above that baseline level.\n This field sets baseline performance for each core.\n For example, if you need only 5% of the CPU performance, you can set core_fraction=5.\n For more information, see [Levels of core performance](/docs/compute/concepts/performance-levels).\n The value must satisfy: 0,5,20,50,100.",
 						Description: "Baseline level of CPU performance with the ability to burst performance above that baseline level.\n This field sets baseline performance for each core.\n For example, if you need only 5% of the CPU performance, you can set core_fraction=5.\n For more information, see [Levels of core performance](/docs/compute/concepts/performance-levels).\n The value must satisfy: 0,5,20,50,100." +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.resources_specyandex.cloud.compute.v1.ResourcesSpec.core_fraction
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.resources_specyandex.cloud.compute.v1.ResourcesSpec.core_fraction
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.resources_spec -> yandex.cloud.compute.v1.ResourcesSpec.core_fraction
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.resources_spec -> yandex.cloud.compute.v1.ResourcesSpec.core_fraction
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/instance_service.proto\n",
 						Optional: true,
@@ -485,8 +485,8 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "The number of cores available to the instance.\n The value must satisfy: 2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,40,44,48,52,56,60,64,68,72,76,80.\n This field is required.",
 						Description: "The number of cores available to the instance.\n The value must satisfy: 2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,40,44,48,52,56,60,64,68,72,76,80.\n This field is required." +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.resources_specyandex.cloud.compute.v1.ResourcesSpec.cores
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.resources_specyandex.cloud.compute.v1.ResourcesSpec.cores
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.resources_spec -> yandex.cloud.compute.v1.ResourcesSpec.cores
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.resources_spec -> yandex.cloud.compute.v1.ResourcesSpec.cores
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/instance_service.proto\n",
 						Optional: true,
@@ -502,8 +502,8 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "The number of GPUs available to the instance.\n The value must satisfy: 0,1,2,4.",
 						Description: "The number of GPUs available to the instance.\n The value must satisfy: 0,1,2,4." +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.resources_specyandex.cloud.compute.v1.ResourcesSpec.gpus
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.resources_specyandex.cloud.compute.v1.ResourcesSpec.gpus
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.resources_spec -> yandex.cloud.compute.v1.ResourcesSpec.gpus
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.resources_spec -> yandex.cloud.compute.v1.ResourcesSpec.gpus
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/instance_service.proto\n",
 						Optional: true,
@@ -519,8 +519,8 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "The amount of memory available to the instance, specified in bytes.\n The value must be less than or equal to 274877906944.\n This field is required.",
 						Description: "The amount of memory available to the instance, specified in bytes.\n The value must be less than or equal to 274877906944.\n This field is required." +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.resources_specyandex.cloud.compute.v1.ResourcesSpec.memory
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.resources_specyandex.cloud.compute.v1.ResourcesSpec.memory
+							// -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.resources_spec -> yandex.cloud.compute.v1.ResourcesSpec.memory
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.resources_spec -> yandex.cloud.compute.v1.ResourcesSpec.memory
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/instance_service.proto\n",
 						Optional: true,
@@ -573,7 +573,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Number of slots available for instances (but not currently used)",
 						Description: "Number of slots available for instances (but not currently used)" +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_statsyandex.cloud.compute.v1.ReservedInstancePool.SlotStats.available
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_stats -> yandex.cloud.compute.v1.ReservedInstancePool.SlotStats.available
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Computed: true,
@@ -583,7 +583,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Number of slots requested for async update, but still waiting for resources and not yet available for usage",
 						Description: "Number of slots requested for async update, but still waiting for resources and not yet available for usage" +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_statsyandex.cloud.compute.v1.ReservedInstancePool.SlotStats.pending
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_stats -> yandex.cloud.compute.v1.ReservedInstancePool.SlotStats.pending
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Computed: true,
@@ -593,7 +593,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Equals to pool size (and equals to the sum of the following fields)",
 						Description: "Equals to pool size (and equals to the sum of the following fields)" +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_statsyandex.cloud.compute.v1.ReservedInstancePool.SlotStats.total
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_stats -> yandex.cloud.compute.v1.ReservedInstancePool.SlotStats.total
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Computed: true,
@@ -603,7 +603,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Number of slots unavailable for some reason (for example because of underlying host failure)",
 						Description: "Number of slots unavailable for some reason (for example because of underlying host failure)" +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_statsyandex.cloud.compute.v1.ReservedInstancePool.SlotStats.unavailable
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_stats -> yandex.cloud.compute.v1.ReservedInstancePool.SlotStats.unavailable
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Computed: true,
@@ -613,7 +613,7 @@ func YandexComputeReservedInstancePoolResourceSchema(ctx context.Context) schema
 						MarkdownDescription: "Number of slots used by running instances",
 						Description: "Number of slots used by running instances" +
 							// proto paths: +
-							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_statsyandex.cloud.compute.v1.ReservedInstancePool.SlotStats.used
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.slot_stats -> yandex.cloud.compute.v1.ReservedInstancePool.SlotStats.used
 							"package: yandex.cloud.compute.v1\n" +
 							"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
 						Computed: true,

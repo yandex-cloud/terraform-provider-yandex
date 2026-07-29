@@ -4,11 +4,9 @@ package yandex_compute_filesystem
 
 import (
 	"context"
-	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64default"
@@ -74,14 +72,11 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 256),
-				},
 			},
 
 			"filesystem_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the filesystem to return.\n\n To get the filesystem ID, make a [FilesystemService.List] request.",
-				Description: "ID of the filesystem to return.\n\n To get the filesystem ID, make a [FilesystemService.List] request." +
+				MarkdownDescription: "ID of the filesystem to return.\n To get the filesystem ID, make a [FilesystemService.List] request.\n The length must be less than or equal to 50.\n This field is required.",
+				Description: "ID of the filesystem to return.\n To get the filesystem ID, make a [FilesystemService.List] request.\n The length must be less than or equal to 50.\n This field is required." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.DeleteFilesystemRequest.filesystem_id
 					// -> yandex.cloud.compute.v1.Filesystem.id
@@ -94,15 +89,12 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 
 			"id": schema.StringAttribute{
-				MarkdownDescription: "ID of the filesystem to return.\n\n To get the filesystem ID, make a [FilesystemService.List] request.",
-				Description: "ID of the filesystem to return.\n\n To get the filesystem ID, make a [FilesystemService.List] request." +
+				MarkdownDescription: "ID of the filesystem to return.\n To get the filesystem ID, make a [FilesystemService.List] request.\n The length must be less than or equal to 50.\n This field is required.",
+				Description: "ID of the filesystem to return.\n To get the filesystem ID, make a [FilesystemService.List] request.\n The length must be less than or equal to 50.\n This field is required." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.DeleteFilesystemRequest.filesystem_id
 					// -> yandex.cloud.compute.v1.Filesystem.id
@@ -115,9 +107,6 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 
@@ -135,9 +124,6 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 
@@ -159,14 +145,7 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 					planmodifiers.NilRelaxedMap(),
 				},
 				Validators: []validator.Map{
-					mapvalidator.KeysAre(
-						stringvalidator.RegexMatches(regexp.MustCompile("^([a-z][-_./\\@0-9a-z]*)$"), "error validating regexp"),
-						stringvalidator.LengthBetween(1, 63),
-					),
-					mapvalidator.ValueStringsAre(
-						stringvalidator.RegexMatches(regexp.MustCompile("^([-_./\\@0-9a-z]*)$"), "error validating regexp"),
-						stringvalidator.LengthBetween(0, 63),
-					),
+					mapvalidator.ValueStringsAre(),
 				},
 			},
 
@@ -184,9 +163,6 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.RegexMatches(regexp.MustCompile("^(|[a-z]([-_a-z0-9]{0,61}[a-z0-9])?)$"), "error validating regexp"),
 				},
 			},
 
@@ -220,8 +196,8 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 			},
 
 			"type": schema.StringAttribute{
-				MarkdownDescription: "ID of the filesystem type.\n\n To get a list of available filesystem types, make a [yandex.cloud.compute.v1.DiskTypeService.List] request.",
-				Description: "ID of the filesystem type.\n\n To get a list of available filesystem types, make a [yandex.cloud.compute.v1.DiskTypeService.List] request." +
+				MarkdownDescription: "ID of the filesystem type.\n To get a list of available filesystem types, make a [yandex.cloud.compute.v1.DiskTypeService.List] request.",
+				Description: "ID of the filesystem type.\n To get a list of available filesystem types, make a [yandex.cloud.compute.v1.DiskTypeService.List] request." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.CreateFilesystemRequest.type_id
 					// -> yandex.cloud.compute.v1.Filesystem.type_id
@@ -235,14 +211,11 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
-				},
 			},
 
 			"zone": schema.StringAttribute{
-				MarkdownDescription: "ID of the availability zone where the filesystem resides.\n\n A filesystem can be attached only to instances residing in the same availability zone.",
-				Description: "ID of the availability zone where the filesystem resides.\n\n A filesystem can be attached only to instances residing in the same availability zone." +
+				MarkdownDescription: "ID of the availability zone where the filesystem resides.\n A filesystem can be attached only to instances residing in the same availability zone.",
+				Description: "ID of the availability zone where the filesystem resides.\n A filesystem can be attached only to instances residing in the same availability zone." +
 					// proto paths: +
 					// -> yandex.cloud.compute.v1.CreateFilesystemRequest.zone_id
 					// -> yandex.cloud.compute.v1.Filesystem.zone_id
@@ -254,9 +227,6 @@ func YandexComputeFilesystemResourceSchema(ctx context.Context) schema.Schema {
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplaceIfConfigured(),
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 		},

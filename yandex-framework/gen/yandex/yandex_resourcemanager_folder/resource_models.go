@@ -52,6 +52,31 @@ func (m *yandexResourcemanagerFolderModel) GetStatus() types.String {
 	return m.Status
 }
 
+func (m *yandexResourcemanagerFolderModel) SetCloudId(target types.String) {
+	m.CloudId = target
+}
+func (m *yandexResourcemanagerFolderModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexResourcemanagerFolderModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexResourcemanagerFolderModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexResourcemanagerFolderModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexResourcemanagerFolderModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexResourcemanagerFolderModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexResourcemanagerFolderModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexResourcemanagerFolderModel() yandexResourcemanagerFolderModel {
 	return yandexResourcemanagerFolderModel{
 		CloudId:     types.StringNull(),
@@ -147,7 +172,6 @@ func expandYandexResourcemanagerFolderModel(ctx context.Context, yandexResourcem
 	value.SetCloudId(yandexResourcemanagerFolderState.CloudId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexResourcemanagerFolderState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexResourcemanagerFolderState.Description.ValueString())
-	value.SetId(yandexResourcemanagerFolderState.FolderId.ValueString())
 	value.SetId(yandexResourcemanagerFolderState.FolderId.ValueString())
 	value.SetLabels(expandYandexResourcemanagerFolderLabels(ctx, yandexResourcemanagerFolderState.Labels, diags))
 	value.SetName(yandexResourcemanagerFolderState.Name.ValueString())

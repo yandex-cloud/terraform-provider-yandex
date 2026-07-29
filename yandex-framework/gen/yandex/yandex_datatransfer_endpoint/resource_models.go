@@ -1477,7 +1477,6 @@ func expandYandexDatatransferEndpointModel(ctx context.Context, yandexDatatransf
 	value := &datatransfer.Endpoint{}
 	value.SetDescription(yandexDatatransferEndpointState.Description.ValueString())
 	value.SetId(yandexDatatransferEndpointState.EndpointId.ValueString())
-	value.SetId(yandexDatatransferEndpointState.EndpointId.ValueString())
 	value.SetFolderId(yandexDatatransferEndpointState.FolderId.ValueString())
 	value.SetLabels(expandYandexDatatransferEndpointLabels(ctx, yandexDatatransferEndpointState.Labels, diags))
 	value.SetName(yandexDatatransferEndpointState.Name.ValueString())

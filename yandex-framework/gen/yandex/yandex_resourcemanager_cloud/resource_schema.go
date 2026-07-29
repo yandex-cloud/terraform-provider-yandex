@@ -142,7 +142,7 @@ func YandexResourcemanagerCloudResourceSchema(ctx context.Context) schema.Schema
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.RegexMatches(regexp.MustCompile("^([a-z]([-a-z0-9]{0,61}[a-z0-9])?)$"), "error validating regexp"),
+					stringvalidator.RegexMatches(regexp.MustCompile("^(|[a-z]([-a-z0-9]{0,61}[a-z0-9])?)$"), "error validating regexp"),
 				},
 			},
 

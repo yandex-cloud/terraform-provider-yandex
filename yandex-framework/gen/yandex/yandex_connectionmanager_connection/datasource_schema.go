@@ -120,7 +120,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "ID of the Lockbox secret.",
 						Description: "ID of the Lockbox secret." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secretyandex.cloud.connectionmanager.v1.LockboxSecret.id
+							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secret -> yandex.cloud.connectionmanager.v1.LockboxSecret.id
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -130,7 +130,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "ID of the Lockbox secret.",
 						Description: "ID of the Lockbox secret." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secretyandex.cloud.connectionmanager.v1.LockboxSecret.id
+							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secret -> yandex.cloud.connectionmanager.v1.LockboxSecret.id
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Optional: true,
@@ -141,7 +141,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "The newest available version of the Lockbox secret.",
 						Description: "The newest available version of the Lockbox secret." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secretyandex.cloud.connectionmanager.v1.LockboxSecret.newest_version
+							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secret -> yandex.cloud.connectionmanager.v1.LockboxSecret.newest_version
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -151,7 +151,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "Lockbox secret version.",
 						Description: "Lockbox secret version." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secretyandex.cloud.connectionmanager.v1.LockboxSecret.version
+							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secret -> yandex.cloud.connectionmanager.v1.LockboxSecret.version
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -174,7 +174,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "ID of the folder where the Lockbox secret will be created. If omitted, the secret will be created in the connection's folder.",
 						Description: "ID of the folder where the Lockbox secret will be created. If omitted, the secret will be created in the connection's folder." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secret_specyandex.cloud.connectionmanager.v1.LockboxSecretSpec.folder_id
+							// -> yandex.cloud.connectionmanager.v1.Connection.lockbox_secret_spec -> yandex.cloud.connectionmanager.v1.LockboxSecretSpec.folder_id
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Optional: true,
@@ -224,7 +224,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -238,7 +238,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -252,7 +252,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -262,7 +262,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -272,7 +272,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -282,7 +282,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -292,7 +292,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -302,7 +302,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -312,7 +312,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -321,7 +321,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -330,7 +330,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -340,7 +340,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -350,7 +350,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -360,7 +360,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -369,7 +369,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.authyandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth -> yandex.cloud.connectionmanager.v1.ClickHouseAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 										Computed: true,
@@ -378,7 +378,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 								Computed: true,
@@ -397,7 +397,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.hostsyandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.hosts -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 													Computed: true,
@@ -407,7 +407,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.hostsyandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.hosts -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 													Computed: true,
@@ -417,7 +417,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "depends on tls params may vary as http or https",
 													Description: "depends on tls params may vary as http or https" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.hostsyandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.http_port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.hosts -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.http_port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 													Computed: true,
@@ -427,7 +427,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.hostsyandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.shard_name
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.hosts -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.shard_name
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 													Computed: true,
@@ -437,7 +437,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.hostsyandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.tcp_port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.hosts -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.Host.tcp_port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 													Computed: true,
@@ -447,7 +447,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 										Computed: true,
@@ -462,7 +462,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.shard_groupsyandex.cloud.connectionmanager.v1.ClickHouseCluster.ShardGroup.name
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.shard_groups -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.ShardGroup.name
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 													Computed: true,
@@ -473,7 +473,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.shard_groupsyandex.cloud.connectionmanager.v1.ClickHouseCluster.ShardGroup.shard_names
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.shard_groups -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.ShardGroup.shard_names
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 													Computed: true,
@@ -483,7 +483,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.shard_groups
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.shard_groups
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 										Computed: true,
@@ -498,7 +498,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -512,7 +512,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -521,7 +521,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -530,7 +530,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.clusteryandex.cloud.connectionmanager.v1.ClickHouseCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster -> yandex.cloud.connectionmanager.v1.ClickHouseCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 										Computed: true,
@@ -539,7 +539,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
 								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 								Computed: true,
@@ -550,7 +550,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.databases
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 								Computed: true,
@@ -560,7 +560,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\".",
 								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouseyandex.cloud.connectionmanager.v1.ClickHouseConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse -> yandex.cloud.connectionmanager.v1.ClickHouseConnection.managed_cluster_id
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/clickhouse.proto\n",
 								Computed: true,
@@ -569,7 +569,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "ClickHouse database connection parameters.",
 						Description: "ClickHouse database connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.clickhouse
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -595,7 +595,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -609,7 +609,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -623,7 +623,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -633,7 +633,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -643,7 +643,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -653,7 +653,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -663,7 +663,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -673,7 +673,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -683,7 +683,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -692,7 +692,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -701,7 +701,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -711,7 +711,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -721,7 +721,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -731,7 +731,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -740,7 +740,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.authyandex.cloud.connectionmanager.v1.GreenplumAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth -> yandex.cloud.connectionmanager.v1.GreenplumAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 										Computed: true,
@@ -749,7 +749,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 								Computed: true,
@@ -768,7 +768,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.clusteryandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hostsyandex.cloud.connectionmanager.v1.GreenplumCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster -> yandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hosts -> yandex.cloud.connectionmanager.v1.GreenplumCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 													Computed: true,
@@ -778,7 +778,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.clusteryandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hostsyandex.cloud.connectionmanager.v1.GreenplumCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster -> yandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hosts -> yandex.cloud.connectionmanager.v1.GreenplumCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 													Computed: true,
@@ -788,7 +788,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.clusteryandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hostsyandex.cloud.connectionmanager.v1.GreenplumCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster -> yandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hosts -> yandex.cloud.connectionmanager.v1.GreenplumCluster.Host.port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 													Computed: true,
@@ -798,7 +798,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.clusteryandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hostsyandex.cloud.connectionmanager.v1.GreenplumCluster.Host.role
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster -> yandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hosts -> yandex.cloud.connectionmanager.v1.GreenplumCluster.Host.role
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 													Computed: true,
@@ -808,7 +808,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.clusteryandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster -> yandex.cloud.connectionmanager.v1.GreenplumCluster.coordinator_hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 										Computed: true,
@@ -823,7 +823,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.clusteryandex.cloud.connectionmanager.v1.GreenplumCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster -> yandex.cloud.connectionmanager.v1.GreenplumCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -837,7 +837,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.clusteryandex.cloud.connectionmanager.v1.GreenplumCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster -> yandex.cloud.connectionmanager.v1.GreenplumCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -846,7 +846,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.clusteryandex.cloud.connectionmanager.v1.GreenplumCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster -> yandex.cloud.connectionmanager.v1.GreenplumCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -855,7 +855,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.clusteryandex.cloud.connectionmanager.v1.GreenplumCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster -> yandex.cloud.connectionmanager.v1.GreenplumCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 										Computed: true,
@@ -864,7 +864,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
 								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 								Computed: true,
@@ -875,7 +875,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.databases
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 								Computed: true,
@@ -885,7 +885,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\".",
 								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplumyandex.cloud.connectionmanager.v1.GreenplumConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum -> yandex.cloud.connectionmanager.v1.GreenplumConnection.managed_cluster_id
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/greenplum.proto\n",
 								Computed: true,
@@ -894,7 +894,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "Greenplum data warehouse connection parameters.",
 						Description: "Greenplum data warehouse connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.greenplum
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.greenplum
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -913,7 +913,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.disabled
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.disabled
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 										Computed: true,
@@ -931,7 +931,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -945,7 +945,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -959,7 +959,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -969,7 +969,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -979,7 +979,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -989,7 +989,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -999,7 +999,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1009,7 +1009,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1019,7 +1019,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1028,7 +1028,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -1037,7 +1037,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -1047,7 +1047,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -1057,7 +1057,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 												Computed: true,
@@ -1068,7 +1068,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.supported_mechanisms
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.supported_mechanisms
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 												Computed: true,
@@ -1078,7 +1078,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.saslyandex.cloud.connectionmanager.v1.KafkaSaslSecurity.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl -> yandex.cloud.connectionmanager.v1.KafkaSaslSecurity.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 												Computed: true,
@@ -1087,7 +1087,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.authyandex.cloud.connectionmanager.v1.KafkaAuth.sasl
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth -> yandex.cloud.connectionmanager.v1.KafkaAuth.sasl
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 										Computed: true,
@@ -1096,7 +1096,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 								Computed: true,
@@ -1115,7 +1115,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.clusteryandex.cloud.connectionmanager.v1.KafkaCluster.hostsyandex.cloud.connectionmanager.v1.KafkaCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.cluster -> yandex.cloud.connectionmanager.v1.KafkaCluster.hosts -> yandex.cloud.connectionmanager.v1.KafkaCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 													Computed: true,
@@ -1125,7 +1125,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.clusteryandex.cloud.connectionmanager.v1.KafkaCluster.hostsyandex.cloud.connectionmanager.v1.KafkaCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.cluster -> yandex.cloud.connectionmanager.v1.KafkaCluster.hosts -> yandex.cloud.connectionmanager.v1.KafkaCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 													Computed: true,
@@ -1135,7 +1135,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.clusteryandex.cloud.connectionmanager.v1.KafkaCluster.hostsyandex.cloud.connectionmanager.v1.KafkaCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.cluster -> yandex.cloud.connectionmanager.v1.KafkaCluster.hosts -> yandex.cloud.connectionmanager.v1.KafkaCluster.Host.port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 													Computed: true,
@@ -1145,7 +1145,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.clusteryandex.cloud.connectionmanager.v1.KafkaCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.cluster -> yandex.cloud.connectionmanager.v1.KafkaCluster.hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 										Computed: true,
@@ -1160,7 +1160,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.clusteryandex.cloud.connectionmanager.v1.KafkaCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.cluster -> yandex.cloud.connectionmanager.v1.KafkaCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1174,7 +1174,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.clusteryandex.cloud.connectionmanager.v1.KafkaCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.cluster -> yandex.cloud.connectionmanager.v1.KafkaCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -1183,7 +1183,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.clusteryandex.cloud.connectionmanager.v1.KafkaCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.cluster -> yandex.cloud.connectionmanager.v1.KafkaCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1192,7 +1192,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.clusteryandex.cloud.connectionmanager.v1.KafkaCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.cluster -> yandex.cloud.connectionmanager.v1.KafkaCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 										Computed: true,
@@ -1201,7 +1201,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
 								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 								Computed: true,
@@ -1211,7 +1211,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\".",
 								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafkayandex.cloud.connectionmanager.v1.KafkaConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka -> yandex.cloud.connectionmanager.v1.KafkaConnection.managed_cluster_id
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/kafka.proto\n",
 								Computed: true,
@@ -1220,7 +1220,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "Apache Kafka message broker connection parameters.",
 						Description: "Apache Kafka message broker connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.kafka
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.kafka
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -1238,7 +1238,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.auth_source
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.auth_source
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 										Computed: true,
@@ -1256,7 +1256,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -1270,7 +1270,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -1284,7 +1284,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1294,7 +1294,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1304,7 +1304,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1314,7 +1314,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1324,7 +1324,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1334,7 +1334,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1344,7 +1344,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1353,7 +1353,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -1362,7 +1362,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -1372,7 +1372,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -1382,7 +1382,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1392,7 +1392,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1401,7 +1401,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.authyandex.cloud.connectionmanager.v1.MongoDBAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth -> yandex.cloud.connectionmanager.v1.MongoDBAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 										Computed: true,
@@ -1410,7 +1410,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 								Computed: true,
@@ -1429,7 +1429,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.hostsyandex.cloud.connectionmanager.v1.MongoDBCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.hosts -> yandex.cloud.connectionmanager.v1.MongoDBCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 													Computed: true,
@@ -1439,7 +1439,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.hostsyandex.cloud.connectionmanager.v1.MongoDBCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.hosts -> yandex.cloud.connectionmanager.v1.MongoDBCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 													Computed: true,
@@ -1449,7 +1449,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.hostsyandex.cloud.connectionmanager.v1.MongoDBCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.hosts -> yandex.cloud.connectionmanager.v1.MongoDBCluster.Host.port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 													Computed: true,
@@ -1459,7 +1459,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.hostsyandex.cloud.connectionmanager.v1.MongoDBCluster.Host.role
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.hosts -> yandex.cloud.connectionmanager.v1.MongoDBCluster.Host.role
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 													Computed: true,
@@ -1469,7 +1469,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.hostsyandex.cloud.connectionmanager.v1.MongoDBCluster.Host.type
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.hosts -> yandex.cloud.connectionmanager.v1.MongoDBCluster.Host.type
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 													Computed: true,
@@ -1479,7 +1479,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 										Computed: true,
@@ -1494,7 +1494,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1508,7 +1508,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -1517,7 +1517,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1526,7 +1526,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.clusteryandex.cloud.connectionmanager.v1.MongoDBCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster -> yandex.cloud.connectionmanager.v1.MongoDBCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 										Computed: true,
@@ -1535,7 +1535,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
 								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 								Computed: true,
@@ -1546,7 +1546,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.databases
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 								Computed: true,
@@ -1556,7 +1556,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\".",
 								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodbyandex.cloud.connectionmanager.v1.MongoDBConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb -> yandex.cloud.connectionmanager.v1.MongoDBConnection.managed_cluster_id
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/mongodb.proto\n",
 								Computed: true,
@@ -1565,7 +1565,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "MongoDB database connection parameters.",
 						Description: "MongoDB database connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mongodb
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mongodb
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -1591,7 +1591,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -1605,7 +1605,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -1619,7 +1619,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1629,7 +1629,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1639,7 +1639,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1649,7 +1649,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1659,7 +1659,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1669,7 +1669,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1679,7 +1679,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1688,7 +1688,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -1697,7 +1697,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -1707,7 +1707,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -1717,7 +1717,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1727,7 +1727,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1736,7 +1736,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.authyandex.cloud.connectionmanager.v1.MySQLAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth -> yandex.cloud.connectionmanager.v1.MySQLAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 										Computed: true,
@@ -1745,7 +1745,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 								Computed: true,
@@ -1764,7 +1764,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.clusteryandex.cloud.connectionmanager.v1.MySQLCluster.hostsyandex.cloud.connectionmanager.v1.MySQLCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster -> yandex.cloud.connectionmanager.v1.MySQLCluster.hosts -> yandex.cloud.connectionmanager.v1.MySQLCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 													Computed: true,
@@ -1774,7 +1774,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.clusteryandex.cloud.connectionmanager.v1.MySQLCluster.hostsyandex.cloud.connectionmanager.v1.MySQLCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster -> yandex.cloud.connectionmanager.v1.MySQLCluster.hosts -> yandex.cloud.connectionmanager.v1.MySQLCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 													Computed: true,
@@ -1784,7 +1784,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.clusteryandex.cloud.connectionmanager.v1.MySQLCluster.hostsyandex.cloud.connectionmanager.v1.MySQLCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster -> yandex.cloud.connectionmanager.v1.MySQLCluster.hosts -> yandex.cloud.connectionmanager.v1.MySQLCluster.Host.port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 													Computed: true,
@@ -1794,7 +1794,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.clusteryandex.cloud.connectionmanager.v1.MySQLCluster.hostsyandex.cloud.connectionmanager.v1.MySQLCluster.Host.role
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster -> yandex.cloud.connectionmanager.v1.MySQLCluster.hosts -> yandex.cloud.connectionmanager.v1.MySQLCluster.Host.role
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 													Computed: true,
@@ -1804,7 +1804,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.clusteryandex.cloud.connectionmanager.v1.MySQLCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster -> yandex.cloud.connectionmanager.v1.MySQLCluster.hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 										Computed: true,
@@ -1819,7 +1819,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.clusteryandex.cloud.connectionmanager.v1.MySQLCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster -> yandex.cloud.connectionmanager.v1.MySQLCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1833,7 +1833,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.clusteryandex.cloud.connectionmanager.v1.MySQLCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster -> yandex.cloud.connectionmanager.v1.MySQLCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -1842,7 +1842,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.clusteryandex.cloud.connectionmanager.v1.MySQLCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster -> yandex.cloud.connectionmanager.v1.MySQLCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -1851,7 +1851,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.clusteryandex.cloud.connectionmanager.v1.MySQLCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster -> yandex.cloud.connectionmanager.v1.MySQLCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 										Computed: true,
@@ -1860,7 +1860,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
 								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 								Computed: true,
@@ -1871,7 +1871,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.databases
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 								Computed: true,
@@ -1881,7 +1881,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\".",
 								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysqlyandex.cloud.connectionmanager.v1.MySQLConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql -> yandex.cloud.connectionmanager.v1.MySQLConnection.managed_cluster_id
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/mysql.proto\n",
 								Computed: true,
@@ -1890,7 +1890,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "MySQL database connection parameters.",
 						Description: "MySQL database connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.mysql
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.mysql
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -1916,7 +1916,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -1930,7 +1930,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -1944,7 +1944,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1954,7 +1954,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1964,7 +1964,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1974,7 +1974,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1984,7 +1984,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -1994,7 +1994,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2004,7 +2004,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2013,7 +2013,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -2022,7 +2022,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -2032,7 +2032,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -2042,7 +2042,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2052,7 +2052,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2061,7 +2061,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.authyandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth -> yandex.cloud.connectionmanager.v1.OpenSearchAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 										Computed: true,
@@ -2070,7 +2070,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 								Computed: true,
@@ -2089,7 +2089,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.clusteryandex.cloud.connectionmanager.v1.OpenSearchCluster.hostsyandex.cloud.connectionmanager.v1.OpenSearchCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.hosts -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 													Computed: true,
@@ -2099,7 +2099,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.clusteryandex.cloud.connectionmanager.v1.OpenSearchCluster.hostsyandex.cloud.connectionmanager.v1.OpenSearchCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.hosts -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 													Computed: true,
@@ -2109,7 +2109,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.clusteryandex.cloud.connectionmanager.v1.OpenSearchCluster.hostsyandex.cloud.connectionmanager.v1.OpenSearchCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.hosts -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.Host.port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 													Computed: true,
@@ -2120,7 +2120,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.clusteryandex.cloud.connectionmanager.v1.OpenSearchCluster.hostsyandex.cloud.connectionmanager.v1.OpenSearchCluster.Host.roles
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.hosts -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.Host.roles
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 													Computed: true,
@@ -2130,7 +2130,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.clusteryandex.cloud.connectionmanager.v1.OpenSearchCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 										Computed: true,
@@ -2145,7 +2145,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.clusteryandex.cloud.connectionmanager.v1.OpenSearchCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2159,7 +2159,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.clusteryandex.cloud.connectionmanager.v1.OpenSearchCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -2168,7 +2168,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.clusteryandex.cloud.connectionmanager.v1.OpenSearchCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2177,7 +2177,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.clusteryandex.cloud.connectionmanager.v1.OpenSearchCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster -> yandex.cloud.connectionmanager.v1.OpenSearchCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 										Computed: true,
@@ -2186,7 +2186,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
 								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 								Computed: true,
@@ -2196,7 +2196,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\".",
 								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearchyandex.cloud.connectionmanager.v1.OpenSearchConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch -> yandex.cloud.connectionmanager.v1.OpenSearchConnection.managed_cluster_id
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/opensearch.proto\n",
 								Computed: true,
@@ -2205,7 +2205,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "OpenSearch search engine connection parameters.",
 						Description: "OpenSearch search engine connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.opensearch
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.opensearch
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -2231,7 +2231,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -2245,7 +2245,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -2259,7 +2259,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2269,7 +2269,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2279,7 +2279,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2289,7 +2289,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2299,7 +2299,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2309,7 +2309,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2319,7 +2319,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2328,7 +2328,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -2337,7 +2337,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -2347,7 +2347,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -2357,7 +2357,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2367,7 +2367,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2376,7 +2376,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.authyandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth -> yandex.cloud.connectionmanager.v1.PostgreSQLAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 										Computed: true,
@@ -2385,7 +2385,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 								Computed: true,
@@ -2404,7 +2404,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.hostsyandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.hosts -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 													Computed: true,
@@ -2414,7 +2414,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.hostsyandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.hosts -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 													Computed: true,
@@ -2424,7 +2424,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.hostsyandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.hosts -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 													Computed: true,
@@ -2434,7 +2434,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.hostsyandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.replica_type
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.hosts -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.replica_type
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 													Computed: true,
@@ -2444,7 +2444,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.hostsyandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.role
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.hosts -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.Host.role
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 													Computed: true,
@@ -2454,7 +2454,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 										Computed: true,
@@ -2469,7 +2469,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2483,7 +2483,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -2492,7 +2492,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2501,7 +2501,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.clusteryandex.cloud.connectionmanager.v1.PostgreSQLCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster -> yandex.cloud.connectionmanager.v1.PostgreSQLCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 										Computed: true,
@@ -2510,7 +2510,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
 								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 								Computed: true,
@@ -2521,7 +2521,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.databases
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 								Computed: true,
@@ -2531,7 +2531,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\".",
 								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresqlyandex.cloud.connectionmanager.v1.PostgreSQLConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql -> yandex.cloud.connectionmanager.v1.PostgreSQLConnection.managed_cluster_id
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/postgresql.proto\n",
 								Computed: true,
@@ -2540,7 +2540,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "PostgreSQL database connection parameters.",
 						Description: "PostgreSQL database connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.postgresql
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.postgresql
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -2566,7 +2566,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -2580,7 +2580,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -2594,7 +2594,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2604,7 +2604,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2614,7 +2614,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2624,7 +2624,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2634,7 +2634,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2644,7 +2644,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2654,7 +2654,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2663,7 +2663,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -2672,7 +2672,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -2682,7 +2682,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -2692,7 +2692,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 												Computed: true,
@@ -2702,7 +2702,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_passwordyandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password -> yandex.cloud.connectionmanager.v1.RedisAuth.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 												Computed: true,
@@ -2711,7 +2711,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.authyandex.cloud.connectionmanager.v1.RedisAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth -> yandex.cloud.connectionmanager.v1.RedisAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 										Computed: true,
@@ -2720,7 +2720,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 								Computed: true,
@@ -2739,7 +2739,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.hostsyandex.cloud.connectionmanager.v1.RedisCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.hosts -> yandex.cloud.connectionmanager.v1.RedisCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 													Computed: true,
@@ -2749,7 +2749,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.hostsyandex.cloud.connectionmanager.v1.RedisCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.hosts -> yandex.cloud.connectionmanager.v1.RedisCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 													Computed: true,
@@ -2759,7 +2759,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.hostsyandex.cloud.connectionmanager.v1.RedisCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.hosts -> yandex.cloud.connectionmanager.v1.RedisCluster.Host.port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 													Computed: true,
@@ -2769,7 +2769,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.hostsyandex.cloud.connectionmanager.v1.RedisCluster.Host.role
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.hosts -> yandex.cloud.connectionmanager.v1.RedisCluster.Host.role
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 													Computed: true,
@@ -2779,7 +2779,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.hostsyandex.cloud.connectionmanager.v1.RedisCluster.Host.shard_name
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.hosts -> yandex.cloud.connectionmanager.v1.RedisCluster.Host.shard_name
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 													Computed: true,
@@ -2789,7 +2789,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 										Computed: true,
@@ -2799,7 +2799,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.sentinel_port
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.sentinel_port
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 										Computed: true,
@@ -2814,7 +2814,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2828,7 +2828,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -2837,7 +2837,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -2846,7 +2846,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.clusteryandex.cloud.connectionmanager.v1.RedisCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster -> yandex.cloud.connectionmanager.v1.RedisCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 										Computed: true,
@@ -2855,7 +2855,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 								Computed: true,
@@ -2866,7 +2866,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redisyandex.cloud.connectionmanager.v1.RedisConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis -> yandex.cloud.connectionmanager.v1.RedisConnection.databases
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/redis.proto\n",
 								Computed: true,
@@ -2875,7 +2875,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "Redis in-memory data store connection parameters.",
 						Description: "Redis in-memory data store connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.redis
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.redis
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -2893,7 +2893,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.auth_source
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.auth_source
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 										Computed: true,
@@ -2911,7 +2911,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -2925,7 +2925,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -2939,7 +2939,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2949,7 +2949,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2959,7 +2959,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2969,7 +2969,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2979,7 +2979,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2989,7 +2989,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -2999,7 +2999,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3008,7 +3008,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -3017,7 +3017,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -3027,7 +3027,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -3037,7 +3037,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3047,7 +3047,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3056,7 +3056,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.authyandex.cloud.connectionmanager.v1.StoreDocAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth -> yandex.cloud.connectionmanager.v1.StoreDocAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 										Computed: true,
@@ -3065,7 +3065,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 								Computed: true,
@@ -3084,7 +3084,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.hosts -> yandex.cloud.connectionmanager.v1.StoreDocCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 													Computed: true,
@@ -3094,7 +3094,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.hosts -> yandex.cloud.connectionmanager.v1.StoreDocCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 													Computed: true,
@@ -3104,7 +3104,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.hosts -> yandex.cloud.connectionmanager.v1.StoreDocCluster.Host.port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 													Computed: true,
@@ -3114,7 +3114,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.role
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.hosts -> yandex.cloud.connectionmanager.v1.StoreDocCluster.Host.role
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 													Computed: true,
@@ -3124,7 +3124,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hostsyandex.cloud.connectionmanager.v1.StoreDocCluster.Host.type
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.hosts -> yandex.cloud.connectionmanager.v1.StoreDocCluster.Host.type
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 													Computed: true,
@@ -3134,7 +3134,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 										Computed: true,
@@ -3149,7 +3149,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3163,7 +3163,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -3172,7 +3172,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3181,7 +3181,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.clusteryandex.cloud.connectionmanager.v1.StoreDocCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster -> yandex.cloud.connectionmanager.v1.StoreDocCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 										Computed: true,
@@ -3190,7 +3190,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
 								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 								Computed: true,
@@ -3201,7 +3201,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.databases
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 								Computed: true,
@@ -3211,7 +3211,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is mutually\n exclusive with \"cluster\".",
 								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is mutually\n exclusive with \"cluster\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedocyandex.cloud.connectionmanager.v1.StoreDocConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc -> yandex.cloud.connectionmanager.v1.StoreDocConnection.managed_cluster_id
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/storedoc.proto\n",
 								Computed: true,
@@ -3220,7 +3220,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "StoreDoc document store connection parameters.",
 						Description: "StoreDoc document store connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.storedoc
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.storedoc
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -3246,7 +3246,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -3260,7 +3260,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -3274,7 +3274,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3284,7 +3284,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3294,7 +3294,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3304,7 +3304,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3314,7 +3314,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3324,7 +3324,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3334,7 +3334,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3343,7 +3343,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -3352,7 +3352,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -3362,7 +3362,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -3372,7 +3372,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3382,7 +3382,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_passwordyandex.cloud.connectionmanager.v1.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password -> yandex.cloud.connectionmanager.v1.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3391,7 +3391,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.authyandex.cloud.connectionmanager.v1.TrinoAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth -> yandex.cloud.connectionmanager.v1.TrinoAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/trino.proto\n",
 										Computed: true,
@@ -3400,7 +3400,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/trino.proto\n",
 								Computed: true,
@@ -3418,7 +3418,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.clusteryandex.cloud.connectionmanager.v1.TrinoCluster.coordinatoryandex.cloud.connectionmanager.v1.TrinoCluster.Coordinator.host
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.cluster -> yandex.cloud.connectionmanager.v1.TrinoCluster.coordinator -> yandex.cloud.connectionmanager.v1.TrinoCluster.Coordinator.host
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/trino.proto\n",
 												Computed: true,
@@ -3428,7 +3428,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.clusteryandex.cloud.connectionmanager.v1.TrinoCluster.coordinatoryandex.cloud.connectionmanager.v1.TrinoCluster.Coordinator.port
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.cluster -> yandex.cloud.connectionmanager.v1.TrinoCluster.coordinator -> yandex.cloud.connectionmanager.v1.TrinoCluster.Coordinator.port
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/trino.proto\n",
 												Computed: true,
@@ -3437,7 +3437,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.clusteryandex.cloud.connectionmanager.v1.TrinoCluster.coordinator
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.cluster -> yandex.cloud.connectionmanager.v1.TrinoCluster.coordinator
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/trino.proto\n",
 										Computed: true,
@@ -3452,7 +3452,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.clusteryandex.cloud.connectionmanager.v1.TrinoCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.cluster -> yandex.cloud.connectionmanager.v1.TrinoCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3466,7 +3466,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.clusteryandex.cloud.connectionmanager.v1.TrinoCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.cluster -> yandex.cloud.connectionmanager.v1.TrinoCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -3475,7 +3475,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.clusteryandex.cloud.connectionmanager.v1.TrinoCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.cluster -> yandex.cloud.connectionmanager.v1.TrinoCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3484,7 +3484,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.clusteryandex.cloud.connectionmanager.v1.TrinoCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.cluster -> yandex.cloud.connectionmanager.v1.TrinoCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/trino.proto\n",
 										Computed: true,
@@ -3493,7 +3493,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trinoyandex.cloud.connectionmanager.v1.TrinoConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino -> yandex.cloud.connectionmanager.v1.TrinoConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/trino.proto\n",
 								Computed: true,
@@ -3502,7 +3502,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "Trino distributed SQL query engine connection parameters.",
 						Description: "Trino distributed SQL query engine connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.trino
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.trino
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,
@@ -3528,7 +3528,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "Read-only. Do not fill this field in create/update requests.",
 														Description: "Read-only. Do not fill this field in create/update requests." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.lockbox_secret_key
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -3542,7 +3542,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change.",
 																Description: "Cookie is an arbitrary non-sensitive string that is saved with the\n password. When updating PasswordGenerationOptions, if the cookie passed\n in the update request differs from the cookie in the current\n PasswordGenerationOptions, the password will be re-generated. If the\n same cookie is passed, the password will not change." +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.cookie
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -3556,7 +3556,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "a string of punctuation characters to exclude from the default",
 																		Description: "a string of punctuation characters to exclude from the default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.excluded_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3566,7 +3566,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one 0..9 character is included in the password, true by default",
 																		Description: "whether at least one 0..9 character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_digits
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3576,7 +3576,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one a..z character is included in the password, true by default",
 																		Description: "whether at least one a..z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_lowercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3586,7 +3586,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below",
 																		Description: "whether at least one punctuation character is included in the password, true by default\n punctuation characters by default: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n to customize the punctuation characters, see included_punctuation and excluded_punctuation below" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3596,7 +3596,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "whether at least one A..Z character is included in the password, true by default",
 																		Description: "whether at least one A..Z character is included in the password, true by default" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.include_uppercase
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3606,7 +3606,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use",
 																		Description: "If include_punctuation is true, one of these two fields (not both) may be used optionally to customize the punctuation:\n a string of specific punctuation characters to use" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.included_punctuation
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3616,7 +3616,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																		MarkdownDescription: "password length; by default, a reasonable length will be decided",
 																		Description: "password length; by default, a reasonable length will be decided" +
 																			// proto paths: +
-																			// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_optionsyandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
+																			// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options -> yandex.cloud.connectionmanager.v1.LockboxPasswordGenerationOptions.length
 																			"package: yandex.cloud.connectionmanager.v1\n" +
 																			"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																		Computed: true,
@@ -3625,7 +3625,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 																MarkdownDescription: "",
 																Description: "" +
 																	// proto paths: +
-																	// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_optionsyandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
+																	// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options -> yandex.cloud.connectionmanager.v1.PasswordGenerationOptions.lockbox_password_generation_options
 																	"package: yandex.cloud.connectionmanager.v1\n" +
 																	"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 																Computed: true,
@@ -3634,7 +3634,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field.",
 														Description: "When creating/updating Password, the field \"password_generation_options\"\n is mutually exclusive with \"raw\". In order to switch to the\n \"password_generation_options\" you have to explicitly clear the \"raw\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.password_generation_options
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.password_generation_options
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -3644,7 +3644,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field.",
 														Description: "When creating/updating Password, the field \"raw\" is mutually exclusive\n with \"password_generation_options\". In order to switch to the \"raw\"\n password you have to explicitly clear the \"password_generation_options\"\n field." +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.passwordyandex.cloud.connectionmanager.v1.Password.raw
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password -> yandex.cloud.connectionmanager.v1.Password.raw
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed:  true,
@@ -3654,7 +3654,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.password
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 												Computed: true,
@@ -3664,7 +3664,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_passwordyandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.user
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password -> yandex.cloud.connectionmanager.v1.ValkeyAuth.UserPasswordAuth.user
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 												Computed: true,
@@ -3673,7 +3673,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.authyandex.cloud.connectionmanager.v1.ValkeyAuth.user_password
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth -> yandex.cloud.connectionmanager.v1.ValkeyAuth.user_password
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 										Computed: true,
@@ -3682,7 +3682,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.auth
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.auth
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 								Computed: true,
@@ -3701,7 +3701,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.hostsyandex.cloud.connectionmanager.v1.ValkeyCluster.Host.health
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.hosts -> yandex.cloud.connectionmanager.v1.ValkeyCluster.Host.health
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 													Computed: true,
@@ -3711,7 +3711,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.hostsyandex.cloud.connectionmanager.v1.ValkeyCluster.Host.host
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.hosts -> yandex.cloud.connectionmanager.v1.ValkeyCluster.Host.host
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 													Computed: true,
@@ -3721,7 +3721,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.hostsyandex.cloud.connectionmanager.v1.ValkeyCluster.Host.port
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.hosts -> yandex.cloud.connectionmanager.v1.ValkeyCluster.Host.port
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 													Computed: true,
@@ -3731,7 +3731,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.hostsyandex.cloud.connectionmanager.v1.ValkeyCluster.Host.role
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.hosts -> yandex.cloud.connectionmanager.v1.ValkeyCluster.Host.role
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 													Computed: true,
@@ -3741,7 +3741,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.hostsyandex.cloud.connectionmanager.v1.ValkeyCluster.Host.shard_name
+														// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.hosts -> yandex.cloud.connectionmanager.v1.ValkeyCluster.Host.shard_name
 														"package: yandex.cloud.connectionmanager.v1\n" +
 														"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 													Computed: true,
@@ -3751,7 +3751,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.hosts
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.hosts
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 										Computed: true,
@@ -3761,7 +3761,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.sentinel_port
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.sentinel_port
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 										Computed: true,
@@ -3776,7 +3776,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.disabled
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.disabled
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3790,7 +3790,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 														MarkdownDescription: "",
 														Description: "" +
 															// proto paths: +
-															// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tlsyandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
+															// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls -> yandex.cloud.connectionmanager.v1.TLSConfig.ca_certificate
 															"package: yandex.cloud.connectionmanager.v1\n" +
 															"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 														Computed: true,
@@ -3799,7 +3799,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 												MarkdownDescription: "",
 												Description: "" +
 													// proto paths: +
-													// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.tls_paramsyandex.cloud.connectionmanager.v1.TLSParams.tls
+													// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.tls_params -> yandex.cloud.connectionmanager.v1.TLSParams.tls
 													"package: yandex.cloud.connectionmanager.v1\n" +
 													"filename: yandex/cloud/connectionmanager/v1/common.proto\n",
 												Computed: true,
@@ -3808,7 +3808,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.clusteryandex.cloud.connectionmanager.v1.ValkeyCluster.tls_params
+											// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster -> yandex.cloud.connectionmanager.v1.ValkeyCluster.tls_params
 											"package: yandex.cloud.connectionmanager.v1\n" +
 											"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 										Computed: true,
@@ -3817,7 +3817,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\".",
 								Description: "When creating/updating Connection, the field \"cluster\" is mutually\n exclusive with \"managed_cluster_id\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.cluster
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.cluster
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 								Computed: true,
@@ -3828,7 +3828,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "",
 								Description: "" +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.databases
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.databases
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 								Computed: true,
@@ -3838,7 +3838,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 								MarkdownDescription: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\".",
 								Description: "When creating/updating Connection, the field \"managed_cluster_id\" is\n mutually exclusive with \"cluster\"." +
 									// proto paths: +
-									// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkeyyandex.cloud.connectionmanager.v1.ValkeyConnection.managed_cluster_id
+									// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey -> yandex.cloud.connectionmanager.v1.ValkeyConnection.managed_cluster_id
 									"package: yandex.cloud.connectionmanager.v1\n" +
 									"filename: yandex/cloud/connectionmanager/v1/valkey.proto\n",
 								Computed: true,
@@ -3847,7 +3847,7 @@ func YandexConnectionmanagerConnectionDatasourceSchema(ctx context.Context) sche
 						MarkdownDescription: "Valkey in-memory data store connection parameters.",
 						Description: "Valkey in-memory data store connection parameters." +
 							// proto paths: +
-							// -> yandex.cloud.connectionmanager.v1.Connection.paramsyandex.cloud.connectionmanager.v1.ConnectionParams.valkey
+							// -> yandex.cloud.connectionmanager.v1.Connection.params -> yandex.cloud.connectionmanager.v1.ConnectionParams.valkey
 							"package: yandex.cloud.connectionmanager.v1\n" +
 							"filename: yandex/cloud/connectionmanager/v1/connection.proto\n",
 						Computed: true,

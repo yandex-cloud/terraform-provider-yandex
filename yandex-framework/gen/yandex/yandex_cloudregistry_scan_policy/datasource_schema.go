@@ -80,7 +80,7 @@ func YandexCloudregistryScanPolicyDatasourceSchema(ctx context.Context) schema.S
 								MarkdownDescription: "Turns off scan rule.",
 								Description: "Turns off scan rule." +
 									// proto paths: +
-									// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rulesyandex.cloud.cloudregistry.v1.ScanRules.push_ruleyandex.cloud.cloudregistry.v1.PushRule.disabled
+									// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rules -> yandex.cloud.cloudregistry.v1.ScanRules.push_rule -> yandex.cloud.cloudregistry.v1.PushRule.disabled
 									"package: yandex.cloud.cloudregistry.v1\n" +
 									"filename: yandex/cloud/cloudregistry/v1/scan_policy.proto\n",
 								Computed: true,
@@ -91,7 +91,7 @@ func YandexCloudregistryScanPolicyDatasourceSchema(ctx context.Context) schema.S
 								MarkdownDescription: "List of paths that are scanned with rule. Child paths are included into parent node. \"*\" - means all artifacts in registry",
 								Description: "List of paths that are scanned with rule. Child paths are included into parent node. \"*\" - means all artifacts in registry" +
 									// proto paths: +
-									// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rulesyandex.cloud.cloudregistry.v1.ScanRules.push_ruleyandex.cloud.cloudregistry.v1.PushRule.paths
+									// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rules -> yandex.cloud.cloudregistry.v1.ScanRules.push_rule -> yandex.cloud.cloudregistry.v1.PushRule.paths
 									"package: yandex.cloud.cloudregistry.v1\n" +
 									"filename: yandex/cloud/cloudregistry/v1/scan_policy.proto\n",
 								Computed: true,
@@ -100,7 +100,7 @@ func YandexCloudregistryScanPolicyDatasourceSchema(ctx context.Context) schema.S
 						MarkdownDescription: "Description of on-push scan rule.",
 						Description: "Description of on-push scan rule." +
 							// proto paths: +
-							// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rulesyandex.cloud.cloudregistry.v1.ScanRules.push_rule
+							// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rules -> yandex.cloud.cloudregistry.v1.ScanRules.push_rule
 							"package: yandex.cloud.cloudregistry.v1\n" +
 							"filename: yandex/cloud/cloudregistry/v1/scan_policy.proto\n",
 						Computed: true,
@@ -115,7 +115,7 @@ func YandexCloudregistryScanPolicyDatasourceSchema(ctx context.Context) schema.S
 									MarkdownDescription: "Amount of time units for the scan interval.",
 									Description: "Amount of time units for the scan interval." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rulesyandex.cloud.cloudregistry.v1.ScanRules.schedule_rulesyandex.cloud.cloudregistry.v1.ScheduledRule.amount
+										// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rules -> yandex.cloud.cloudregistry.v1.ScanRules.schedule_rules -> yandex.cloud.cloudregistry.v1.ScheduledRule.amount
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/scan_policy.proto\n",
 									Computed: true,
@@ -125,7 +125,7 @@ func YandexCloudregistryScanPolicyDatasourceSchema(ctx context.Context) schema.S
 									MarkdownDescription: "Turns off scan rule.",
 									Description: "Turns off scan rule." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rulesyandex.cloud.cloudregistry.v1.ScanRules.schedule_rulesyandex.cloud.cloudregistry.v1.ScheduledRule.disabled
+										// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rules -> yandex.cloud.cloudregistry.v1.ScanRules.schedule_rules -> yandex.cloud.cloudregistry.v1.ScheduledRule.disabled
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/scan_policy.proto\n",
 									Computed: true,
@@ -135,7 +135,7 @@ func YandexCloudregistryScanPolicyDatasourceSchema(ctx context.Context) schema.S
 									MarkdownDescription: "Unit for the scan interval.",
 									Description: "Unit for the scan interval." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rulesyandex.cloud.cloudregistry.v1.ScanRules.schedule_rulesyandex.cloud.cloudregistry.v1.ScheduledRule.interval_unit
+										// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rules -> yandex.cloud.cloudregistry.v1.ScanRules.schedule_rules -> yandex.cloud.cloudregistry.v1.ScheduledRule.interval_unit
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/scan_policy.proto\n",
 									Computed: true,
@@ -146,7 +146,7 @@ func YandexCloudregistryScanPolicyDatasourceSchema(ctx context.Context) schema.S
 									MarkdownDescription: "List of paths that are scanned with rule. Child paths are included into parent node. \"*\" - means all artifacts in registry",
 									Description: "List of paths that are scanned with rule. Child paths are included into parent node. \"*\" - means all artifacts in registry" +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rulesyandex.cloud.cloudregistry.v1.ScanRules.schedule_rulesyandex.cloud.cloudregistry.v1.ScheduledRule.paths
+										// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rules -> yandex.cloud.cloudregistry.v1.ScanRules.schedule_rules -> yandex.cloud.cloudregistry.v1.ScheduledRule.paths
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/scan_policy.proto\n",
 									Computed: true,
@@ -156,7 +156,7 @@ func YandexCloudregistryScanPolicyDatasourceSchema(ctx context.Context) schema.S
 						MarkdownDescription: "Description of time based rescan rule.",
 						Description: "Description of time based rescan rule." +
 							// proto paths: +
-							// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rulesyandex.cloud.cloudregistry.v1.ScanRules.schedule_rules
+							// -> yandex.cloud.cloudregistry.v1.ScanPolicy.rules -> yandex.cloud.cloudregistry.v1.ScanRules.schedule_rules
 							"package: yandex.cloud.cloudregistry.v1\n" +
 							"filename: yandex/cloud/cloudregistry/v1/scan_policy.proto\n",
 						Computed: true,
@@ -211,7 +211,7 @@ func YandexCloudregistryScanPolicyDatasourceSchema(ctx context.Context) schema.S
 						MarkdownDescription: "Flag indicating whether language packages should be scanned.",
 						Description: "Flag indicating whether language packages should be scanned." +
 							// proto paths: +
-							// -> yandex.cloud.cloudregistry.v1.ScanPolicy.scan_policy_optionsyandex.cloud.cloudregistry.v1.ScanPolicyOptions.scan_lang_packages
+							// -> yandex.cloud.cloudregistry.v1.ScanPolicy.scan_policy_options -> yandex.cloud.cloudregistry.v1.ScanPolicyOptions.scan_lang_packages
 							"package: yandex.cloud.cloudregistry.v1\n" +
 							"filename: yandex/cloud/cloudregistry/v1/scan_policy.proto\n",
 						Computed: true,

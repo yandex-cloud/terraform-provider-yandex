@@ -14,7 +14,6 @@ import (
 	connectionmanager "github.com/yandex-cloud/go-genproto/yandex/cloud/connectionmanager/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel struct {
@@ -39,6 +38,22 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel
 }
 func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) GetTcpPort() types.Int64 {
 	return m.TcpPort
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) SetHttpPort(target types.Int64) {
+	m.HttpPort = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) SetShardName(target types.String) {
+	m.ShardName = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel) SetTcpPort(target types.Int64) {
+	m.TcpPort = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel() yandexConnectionmanagerConnectionParamsClickhouseClusterHostStructModel {
@@ -132,6 +147,13 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStruc
 }
 func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel) GetShardNames() types.List {
 	return m.ShardNames
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel) SetShardNames(target types.List) {
+	m.ShardNames = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel() yandexConnectionmanagerConnectionParamsClickhouseClusterShardGroupStructModel {
@@ -252,6 +274,19 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel)
 	return m.Role
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel) SetRole(target types.String) {
+	m.Role = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel() yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumClusterHostStructModel{
 		Health: types.StringNull(),
@@ -340,6 +375,16 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel) Get
 }
 func (m *yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel) GetPort() types.Int64 {
 	return m.Port
+}
+
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel) SetPort(target types.Int64) {
+	m.Port = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel() yandexConnectionmanagerConnectionParamsKafkaClusterHostStructModel {
@@ -431,6 +476,22 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) G
 }
 func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) GetType() types.String {
 	return m.Type
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) SetRole(target types.String) {
+	m.Role = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel) SetType(target types.String) {
+	m.Type = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel() yandexConnectionmanagerConnectionParamsMongodbClusterHostStructModel {
@@ -534,6 +595,19 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) Get
 	return m.Role
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel) SetRole(target types.String) {
+	m.Role = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel() yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsMysqlClusterHostStructModel{
 		Health: types.StringNull(),
@@ -626,6 +700,19 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel
 }
 func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) GetRoles() types.List {
 	return m.Roles
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel) SetRoles(target types.List) {
+	m.Roles = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel() yandexConnectionmanagerConnectionParamsOpensearchClusterHostStructModel {
@@ -764,6 +851,22 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel
 	return m.Role
 }
 
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) SetReplicaType(target types.String) {
+	m.ReplicaType = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel) SetRole(target types.String) {
+	m.Role = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel() yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsPostgresqlClusterHostStructModel{
 		Health:      types.StringNull(),
@@ -867,6 +970,22 @@ func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) Get
 }
 func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) GetShardName() types.String {
 	return m.ShardName
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) SetRole(target types.String) {
+	m.Role = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel) SetShardName(target types.String) {
+	m.ShardName = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisClusterHostStructModel() yandexConnectionmanagerConnectionParamsRedisClusterHostStructModel {
@@ -974,6 +1093,22 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) 
 	return m.Type
 }
 
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) SetRole(target types.String) {
+	m.Role = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel) SetType(target types.String) {
+	m.Type = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel() yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel {
 	return yandexConnectionmanagerConnectionParamsStoredocClusterHostStructModel{
 		Health: types.StringNull(),
@@ -1077,6 +1212,22 @@ func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) Ge
 }
 func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) GetShardName() types.String {
 	return m.ShardName
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) SetHealth(target types.String) {
+	m.Health = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) SetRole(target types.String) {
+	m.Role = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel) SetShardName(target types.String) {
+	m.ShardName = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel() yandexConnectionmanagerConnectionParamsValkeyClusterHostStructModel {
@@ -1221,6 +1372,49 @@ func (m *yandexConnectionmanagerConnectionModel) GetUpdatedAt() types.String {
 	return m.UpdatedAt
 }
 
+func (m *yandexConnectionmanagerConnectionModel) SetCanUse(target types.Bool) {
+	m.CanUse = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetCreatedBy(target types.String) {
+	m.CreatedBy = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetIsManaged(target types.Bool) {
+	m.IsManaged = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetLockboxSecret(target types.Object) {
+	m.LockboxSecret = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetLockboxSecretSpec(target types.Object) {
+	m.LockboxSecretSpec = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetParams(target types.Object) {
+	m.Params = target
+}
+func (m *yandexConnectionmanagerConnectionModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+
 func NewYandexConnectionmanagerConnectionModel() yandexConnectionmanagerConnectionModel {
 	return yandexConnectionmanagerConnectionModel{
 		CanUse:            types.BoolNull(),
@@ -1349,8 +1543,7 @@ func expandYandexConnectionmanagerConnection(ctx context.Context, yandexConnecti
 
 func expandYandexConnectionmanagerConnectionModel(ctx context.Context, yandexConnectionmanagerConnectionState yandexConnectionmanagerConnectionModel, diags *diag.Diagnostics) *connectionmanager.Connection {
 	value := &connectionmanager.Connection{}
-	value.SetCanUse(wrapperspb.Bool(yandexConnectionmanagerConnectionState.CanUse.ValueBool()))
-	value.SetId(yandexConnectionmanagerConnectionState.ConnectionId.ValueString())
+	value.SetCanUse(converter.WrappedBool(yandexConnectionmanagerConnectionState.CanUse))
 	value.SetId(yandexConnectionmanagerConnectionState.ConnectionId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexConnectionmanagerConnectionState.CreatedAt.ValueString(), diags))
 	value.SetCreatedBy(yandexConnectionmanagerConnectionState.CreatedBy.ValueString())
@@ -1430,6 +1623,19 @@ func (m *yandexConnectionmanagerConnectionLockboxSecretModel) GetVersion() types
 	return m.Version
 }
 
+func (m *yandexConnectionmanagerConnectionLockboxSecretModel) SetConnectionId(target types.String) {
+	m.ConnectionId = target
+}
+func (m *yandexConnectionmanagerConnectionLockboxSecretModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexConnectionmanagerConnectionLockboxSecretModel) SetNewestVersion(target types.String) {
+	m.NewestVersion = target
+}
+func (m *yandexConnectionmanagerConnectionLockboxSecretModel) SetVersion(target types.String) {
+	m.Version = target
+}
+
 func NewYandexConnectionmanagerConnectionLockboxSecretModel() yandexConnectionmanagerConnectionLockboxSecretModel {
 	return yandexConnectionmanagerConnectionLockboxSecretModel{
 		ConnectionId:  types.StringNull(),
@@ -1495,7 +1701,6 @@ func expandYandexConnectionmanagerConnectionLockboxSecret(ctx context.Context, y
 func expandYandexConnectionmanagerConnectionLockboxSecretModel(ctx context.Context, yandexConnectionmanagerConnectionLockboxSecretState yandexConnectionmanagerConnectionLockboxSecretModel, diags *diag.Diagnostics) *connectionmanager.LockboxSecret {
 	value := &connectionmanager.LockboxSecret{}
 	value.SetId(yandexConnectionmanagerConnectionLockboxSecretState.ConnectionId.ValueString())
-	value.SetId(yandexConnectionmanagerConnectionLockboxSecretState.ConnectionId.ValueString())
 	value.SetNewestVersion(yandexConnectionmanagerConnectionLockboxSecretState.NewestVersion.ValueString())
 	value.SetVersion(yandexConnectionmanagerConnectionLockboxSecretState.Version.ValueString())
 	if diags.HasError() {
@@ -1510,6 +1715,10 @@ type yandexConnectionmanagerConnectionLockboxSecretSpecModel struct {
 
 func (m *yandexConnectionmanagerConnectionLockboxSecretSpecModel) GetFolderId() types.String {
 	return m.FolderId
+}
+
+func (m *yandexConnectionmanagerConnectionLockboxSecretSpecModel) SetFolderId(target types.String) {
+	m.FolderId = target
 }
 
 func NewYandexConnectionmanagerConnectionLockboxSecretSpecModel() yandexConnectionmanagerConnectionLockboxSecretSpecModel {
@@ -1611,6 +1820,40 @@ func (m *yandexConnectionmanagerConnectionParamsModel) GetTrino() types.Object {
 }
 func (m *yandexConnectionmanagerConnectionParamsModel) GetValkey() types.Object {
 	return m.Valkey
+}
+
+func (m *yandexConnectionmanagerConnectionParamsModel) SetClickhouse(target types.Object) {
+	m.Clickhouse = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetGreenplum(target types.Object) {
+	m.Greenplum = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetKafka(target types.Object) {
+	m.Kafka = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetMongodb(target types.Object) {
+	m.Mongodb = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetMysql(target types.Object) {
+	m.Mysql = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetOpensearch(target types.Object) {
+	m.Opensearch = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetPostgresql(target types.Object) {
+	m.Postgresql = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetRedis(target types.Object) {
+	m.Redis = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetStoredoc(target types.Object) {
+	m.Storedoc = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetTrino(target types.Object) {
+	m.Trino = target
+}
+func (m *yandexConnectionmanagerConnectionParamsModel) SetValkey(target types.Object) {
+	m.Valkey = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsModel() yandexConnectionmanagerConnectionParamsModel {
@@ -1779,6 +2022,19 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseModel) GetManagedClust
 	return m.ManagedClusterId
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseModel) SetDatabases(target types.List) {
+	m.Databases = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseModel) SetManagedClusterId(target types.String) {
+	m.ManagedClusterId = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseModel() yandexConnectionmanagerConnectionParamsClickhouseModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthModelType.AttrTypes),
@@ -1862,6 +2118,10 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthModel) GetUserPass
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthModel() yandexConnectionmanagerConnectionParamsClickhouseAuthModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModelType.AttrTypes),
@@ -1928,6 +2188,13 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel)
 }
 func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordModel {
@@ -2005,6 +2272,16 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswo
 }
 func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordModel {
@@ -2087,6 +2364,13 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswo
 }
 func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -2183,6 +2467,28 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswo
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -2266,10 +2572,10 @@ func expandYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPass
 func expandYandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsClickhouseAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -2292,6 +2598,16 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterModel) GetShard
 }
 func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterModel) SetShardGroups(target types.List) {
+	m.ShardGroups = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterModel() yandexConnectionmanagerConnectionParamsClickhouseClusterModel {
@@ -2457,6 +2773,13 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel)
 	return m.Tls
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsModel{
 		Disabled: types.ObjectNull(yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsDisabledModelType.AttrTypes),
@@ -2575,6 +2898,10 @@ func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsMod
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsClickhouseClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -2685,6 +3012,19 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumModel) GetManagedCluste
 	return m.ManagedClusterId
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumModel) SetDatabases(target types.List) {
+	m.Databases = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumModel) SetManagedClusterId(target types.String) {
+	m.ManagedClusterId = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumModel() yandexConnectionmanagerConnectionParamsGreenplumModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthModelType.AttrTypes),
@@ -2768,6 +3108,10 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthModel) GetUserPassw
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthModel() yandexConnectionmanagerConnectionParamsGreenplumAuthModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModelType.AttrTypes),
@@ -2834,6 +3178,13 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel) 
 }
 func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordModel {
@@ -2911,6 +3262,16 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswor
 }
 func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordModel {
@@ -2993,6 +3354,13 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswor
 }
 func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -3089,6 +3457,28 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswor
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -3172,10 +3562,10 @@ func expandYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPassw
 func expandYandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsGreenplumAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -3194,6 +3584,13 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterModel) GetCoordi
 }
 func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterModel) SetCoordinatorHosts(target types.List) {
+	m.CoordinatorHosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumClusterModel() yandexConnectionmanagerConnectionParamsGreenplumClusterModel {
@@ -3304,6 +3701,13 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel) 
 }
 func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel) GetTls() types.Object {
 	return m.Tls
+}
+
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsModel {
@@ -3424,6 +3828,10 @@ func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsMode
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsGreenplumClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -3530,6 +3938,16 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaModel) GetManagedClusterId(
 	return m.ManagedClusterId
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaModel) SetManagedClusterId(target types.String) {
+	m.ManagedClusterId = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaModel() yandexConnectionmanagerConnectionParamsKafkaModel {
 	return yandexConnectionmanagerConnectionParamsKafkaModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthModelType.AttrTypes),
@@ -3608,6 +4026,13 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaAuthModel) GetDisabled() ty
 }
 func (m *yandexConnectionmanagerConnectionParamsKafkaAuthModel) GetSasl() types.Object {
 	return m.Sasl
+}
+
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthModel) SetSasl(target types.Object) {
+	m.Sasl = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthModel() yandexConnectionmanagerConnectionParamsKafkaAuthModel {
@@ -3737,6 +4162,16 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel) GetUser() ty
 	return m.User
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel) SetSupportedMechanisms(target types.List) {
+	m.SupportedMechanisms = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel) SetUser(target types.String) {
+	m.User = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslModel() yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel {
 	return yandexConnectionmanagerConnectionParamsKafkaAuthSaslModel{
 		Password:            types.ObjectNull(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModelType.AttrTypes),
@@ -3821,6 +4256,16 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel) GetR
 	return m.Raw
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel() yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel {
 	return yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordModel{
 		LockboxSecretKey:          types.StringNull(),
@@ -3901,6 +4346,13 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGen
 }
 func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsModel {
@@ -3997,6 +4449,28 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGen
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -4080,10 +4554,10 @@ func expandYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordG
 func expandYandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsKafkaAuthSaslPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -4139,6 +4613,13 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaClusterModel) GetHosts() ty
 }
 func (m *yandexConnectionmanagerConnectionParamsKafkaClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsKafkaClusterModel() yandexConnectionmanagerConnectionParamsKafkaClusterModel {
@@ -4249,6 +4730,13 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel) GetD
 }
 func (m *yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel) GetTls() types.Object {
 	return m.Tls
+}
+
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsModel {
@@ -4369,6 +4857,10 @@ func (m *yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel) G
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsKafkaClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -4440,6 +4932,19 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbModel) GetDatabases() typ
 }
 func (m *yandexConnectionmanagerConnectionParamsMongodbModel) GetManagedClusterId() types.String {
 	return m.ManagedClusterId
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbModel) SetDatabases(target types.List) {
+	m.Databases = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbModel) SetManagedClusterId(target types.String) {
+	m.ManagedClusterId = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbModel() yandexConnectionmanagerConnectionParamsMongodbModel {
@@ -4529,6 +5034,13 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbAuthModel) GetUserPasswor
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthModel) SetAuthSource(target types.String) {
+	m.AuthSource = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthModel() yandexConnectionmanagerConnectionParamsMongodbAuthModel {
 	return yandexConnectionmanagerConnectionParamsMongodbAuthModel{
 		AuthSource:   types.StringNull(),
@@ -4602,6 +5114,13 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel) Ge
 }
 func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordModel {
@@ -4679,6 +5198,16 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordM
 }
 func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordModel {
@@ -4761,6 +5290,13 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordP
 }
 func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -4857,6 +5393,28 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordP
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -4940,10 +5498,10 @@ func expandYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswor
 func expandYandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsMongodbAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -4962,6 +5520,13 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbClusterModel) GetHosts() 
 }
 func (m *yandexConnectionmanagerConnectionParamsMongodbClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbClusterModel() yandexConnectionmanagerConnectionParamsMongodbClusterModel {
@@ -5072,6 +5637,13 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel) Ge
 }
 func (m *yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel) GetTls() types.Object {
 	return m.Tls
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsModel {
@@ -5192,6 +5764,10 @@ func (m *yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel)
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsMongodbClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -5302,6 +5878,19 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlModel) GetManagedClusterId(
 	return m.ManagedClusterId
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlModel) SetDatabases(target types.List) {
+	m.Databases = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlModel) SetManagedClusterId(target types.String) {
+	m.ManagedClusterId = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlModel() yandexConnectionmanagerConnectionParamsMysqlModel {
 	return yandexConnectionmanagerConnectionParamsMysqlModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthModelType.AttrTypes),
@@ -5385,6 +5974,10 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlAuthModel) GetUserPassword(
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthModel() yandexConnectionmanagerConnectionParamsMysqlAuthModel {
 	return yandexConnectionmanagerConnectionParamsMysqlAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModelType.AttrTypes),
@@ -5451,6 +6044,13 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel) GetP
 }
 func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordModel {
@@ -5528,6 +6128,16 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordMod
 }
 func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordModel {
@@ -5610,6 +6220,13 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPas
 }
 func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -5706,6 +6323,28 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPas
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -5789,10 +6428,10 @@ func expandYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordP
 func expandYandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsMysqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -5811,6 +6450,13 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlClusterModel) GetHosts() ty
 }
 func (m *yandexConnectionmanagerConnectionParamsMysqlClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlClusterModel() yandexConnectionmanagerConnectionParamsMysqlClusterModel {
@@ -5921,6 +6567,13 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel) GetD
 }
 func (m *yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel) GetTls() types.Object {
 	return m.Tls
+}
+
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsModel {
@@ -6041,6 +6694,10 @@ func (m *yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel) G
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsMysqlClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -6147,6 +6804,16 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchModel) GetManagedClust
 	return m.ManagedClusterId
 }
 
+func (m *yandexConnectionmanagerConnectionParamsOpensearchModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchModel) SetManagedClusterId(target types.String) {
+	m.ManagedClusterId = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsOpensearchModel() yandexConnectionmanagerConnectionParamsOpensearchModel {
 	return yandexConnectionmanagerConnectionParamsOpensearchModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthModelType.AttrTypes),
@@ -6223,6 +6890,10 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthModel) GetUserPass
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthModel() yandexConnectionmanagerConnectionParamsOpensearchAuthModel {
 	return yandexConnectionmanagerConnectionParamsOpensearchAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModelType.AttrTypes),
@@ -6289,6 +6960,13 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel)
 }
 func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordModel {
@@ -6366,6 +7044,16 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswo
 }
 func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordModel {
@@ -6448,6 +7136,13 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswo
 }
 func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -6544,6 +7239,28 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswo
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -6627,10 +7344,10 @@ func expandYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPass
 func expandYandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsOpensearchAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -6649,6 +7366,13 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterModel) GetHosts
 }
 func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsOpensearchClusterModel() yandexConnectionmanagerConnectionParamsOpensearchClusterModel {
@@ -6770,6 +7494,13 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel)
 	return m.Tls
 }
 
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel {
 	return yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsModel{
 		Disabled: types.ObjectNull(yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsDisabledModelType.AttrTypes),
@@ -6888,6 +7619,10 @@ func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsMod
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsOpensearchClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -6959,6 +7694,19 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) GetDatabases() 
 }
 func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) GetManagedClusterId() types.String {
 	return m.ManagedClusterId
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) SetDatabases(target types.List) {
+	m.Databases = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlModel) SetManagedClusterId(target types.String) {
+	m.ManagedClusterId = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlModel() yandexConnectionmanagerConnectionParamsPostgresqlModel {
@@ -7044,6 +7792,10 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthModel) GetUserPass
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthModel {
 	return yandexConnectionmanagerConnectionParamsPostgresqlAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModelType.AttrTypes),
@@ -7110,6 +7862,13 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel)
 }
 func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordModel {
@@ -7187,6 +7946,16 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswo
 }
 func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordModel {
@@ -7269,6 +8038,13 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswo
 }
 func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -7365,6 +8141,28 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswo
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -7448,10 +8246,10 @@ func expandYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPass
 func expandYandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsPostgresqlAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -7470,6 +8268,13 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterModel) GetHosts
 }
 func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterModel() yandexConnectionmanagerConnectionParamsPostgresqlClusterModel {
@@ -7580,6 +8385,13 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel)
 }
 func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel) GetTls() types.Object {
 	return m.Tls
+}
+
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsModel {
@@ -7700,6 +8512,10 @@ func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsMod
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsPostgresqlClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -7806,6 +8622,16 @@ func (m *yandexConnectionmanagerConnectionParamsRedisModel) GetDatabases() types
 	return m.Databases
 }
 
+func (m *yandexConnectionmanagerConnectionParamsRedisModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisModel) SetDatabases(target types.List) {
+	m.Databases = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsRedisModel() yandexConnectionmanagerConnectionParamsRedisModel {
 	return yandexConnectionmanagerConnectionParamsRedisModel{
 		Auth:      types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthModelType.AttrTypes),
@@ -7882,6 +8708,10 @@ func (m *yandexConnectionmanagerConnectionParamsRedisAuthModel) GetUserPassword(
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsRedisAuthModel() yandexConnectionmanagerConnectionParamsRedisAuthModel {
 	return yandexConnectionmanagerConnectionParamsRedisAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModelType.AttrTypes),
@@ -7948,6 +8778,13 @@ func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel) GetP
 }
 func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordModel {
@@ -8025,6 +8862,16 @@ func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordMod
 }
 func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordModel {
@@ -8107,6 +8954,13 @@ func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPas
 }
 func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -8203,6 +9057,28 @@ func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPas
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -8286,10 +9162,10 @@ func expandYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordP
 func expandYandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsRedisAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -8312,6 +9188,16 @@ func (m *yandexConnectionmanagerConnectionParamsRedisClusterModel) GetSentinelPo
 }
 func (m *yandexConnectionmanagerConnectionParamsRedisClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterModel) SetSentinelPort(target types.Int64) {
+	m.SentinelPort = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisClusterModel() yandexConnectionmanagerConnectionParamsRedisClusterModel {
@@ -8429,6 +9315,13 @@ func (m *yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel) GetD
 }
 func (m *yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel) GetTls() types.Object {
 	return m.Tls
+}
+
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsModel {
@@ -8549,6 +9442,10 @@ func (m *yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel) G
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsRedisClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -8659,6 +9556,19 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocModel) GetManagedCluster
 	return m.ManagedClusterId
 }
 
+func (m *yandexConnectionmanagerConnectionParamsStoredocModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocModel) SetDatabases(target types.List) {
+	m.Databases = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocModel) SetManagedClusterId(target types.String) {
+	m.ManagedClusterId = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsStoredocModel() yandexConnectionmanagerConnectionParamsStoredocModel {
 	return yandexConnectionmanagerConnectionParamsStoredocModel{
 		Auth:             types.ObjectNull(yandexConnectionmanagerConnectionParamsStoredocAuthModelType.AttrTypes),
@@ -8746,6 +9656,13 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocAuthModel) GetUserPasswo
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthModel) SetAuthSource(target types.String) {
+	m.AuthSource = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsStoredocAuthModel() yandexConnectionmanagerConnectionParamsStoredocAuthModel {
 	return yandexConnectionmanagerConnectionParamsStoredocAuthModel{
 		AuthSource:   types.StringNull(),
@@ -8819,6 +9736,13 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel) G
 }
 func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordModel {
@@ -8896,6 +9820,16 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword
 }
 func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordModel {
@@ -8978,6 +9912,13 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword
 }
 func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -9074,6 +10015,28 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPassword
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -9157,10 +10120,10 @@ func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswo
 func expandYandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsStoredocAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -9179,6 +10142,13 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocClusterModel) GetHosts()
 }
 func (m *yandexConnectionmanagerConnectionParamsStoredocClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsStoredocClusterModel() yandexConnectionmanagerConnectionParamsStoredocClusterModel {
@@ -9289,6 +10259,13 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel) G
 }
 func (m *yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel) GetTls() types.Object {
 	return m.Tls
+}
+
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsModel {
@@ -9409,6 +10386,10 @@ func (m *yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsStoredocClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -9511,6 +10492,13 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoModel) GetCluster() types.O
 	return m.Cluster
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoModel() yandexConnectionmanagerConnectionParamsTrinoModel {
 	return yandexConnectionmanagerConnectionParamsTrinoModel{
 		Auth:    types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthModelType.AttrTypes),
@@ -9580,6 +10568,10 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoAuthModel) GetUserPassword(
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthModel() yandexConnectionmanagerConnectionParamsTrinoAuthModel {
 	return yandexConnectionmanagerConnectionParamsTrinoAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModelType.AttrTypes),
@@ -9646,6 +10638,13 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel) GetP
 }
 func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordModel {
@@ -9723,6 +10722,16 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordMod
 }
 func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordModel {
@@ -9805,6 +10814,13 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPas
 }
 func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -9901,6 +10917,28 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPas
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -9984,10 +11022,10 @@ func expandYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordP
 func expandYandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsTrinoAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -10006,6 +11044,13 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoClusterModel) GetCoordinato
 }
 func (m *yandexConnectionmanagerConnectionParamsTrinoClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterModel) SetCoordinator(target types.Object) {
+	m.Coordinator = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoClusterModel() yandexConnectionmanagerConnectionParamsTrinoClusterModel {
@@ -10080,6 +11125,13 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel) Ge
 	return m.Port
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel) SetHost(target types.String) {
+	m.Host = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel) SetPort(target types.Int64) {
+	m.Port = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel() yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel {
 	return yandexConnectionmanagerConnectionParamsTrinoClusterCoordinatorModel{
 		Host: types.StringNull(),
@@ -10150,6 +11202,13 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel) GetD
 }
 func (m *yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel) GetTls() types.Object {
 	return m.Tls
+}
+
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsModel {
@@ -10270,6 +11329,10 @@ func (m *yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel) G
 	return m.CaCertificate
 }
 
+func (m *yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel {
 	return yandexConnectionmanagerConnectionParamsTrinoClusterTlsParamsTlsModel{
 		CaCertificate: types.StringNull(),
@@ -10341,6 +11404,19 @@ func (m *yandexConnectionmanagerConnectionParamsValkeyModel) GetDatabases() type
 }
 func (m *yandexConnectionmanagerConnectionParamsValkeyModel) GetManagedClusterId() types.String {
 	return m.ManagedClusterId
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyModel) SetAuth(target types.Object) {
+	m.Auth = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyModel) SetCluster(target types.Object) {
+	m.Cluster = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyModel) SetDatabases(target types.List) {
+	m.Databases = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyModel) SetManagedClusterId(target types.String) {
+	m.ManagedClusterId = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyModel() yandexConnectionmanagerConnectionParamsValkeyModel {
@@ -10426,6 +11502,10 @@ func (m *yandexConnectionmanagerConnectionParamsValkeyAuthModel) GetUserPassword
 	return m.UserPassword
 }
 
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthModel) SetUserPassword(target types.Object) {
+	m.UserPassword = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthModel() yandexConnectionmanagerConnectionParamsValkeyAuthModel {
 	return yandexConnectionmanagerConnectionParamsValkeyAuthModel{
 		UserPassword: types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModelType.AttrTypes),
@@ -10492,6 +11572,13 @@ func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel) Get
 }
 func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel) GetUser() types.String {
 	return m.User
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel) SetPassword(target types.Object) {
+	m.Password = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel) SetUser(target types.String) {
+	m.User = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel() yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordModel {
@@ -10569,6 +11656,16 @@ func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordMo
 }
 func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel) GetRaw() types.String {
 	return m.Raw
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel) SetLockboxSecretKey(target types.String) {
+	m.LockboxSecretKey = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel) SetPasswordGenerationOptions(target types.Object) {
+	m.PasswordGenerationOptions = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel() yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordModel {
@@ -10651,6 +11748,13 @@ func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPa
 }
 func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel) GetLockboxPasswordGenerationOptions() types.Object {
 	return m.LockboxPasswordGenerationOptions
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetCookie(target types.String) {
+	m.Cookie = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel) SetLockboxPasswordGenerationOptions(target types.Object) {
+	m.LockboxPasswordGenerationOptions = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsModel {
@@ -10747,6 +11851,28 @@ func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPa
 	return m.Length
 }
 
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetExcludedPunctuation(target types.String) {
+	m.ExcludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeDigits(target types.Bool) {
+	m.IncludeDigits = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeLowercase(target types.Bool) {
+	m.IncludeLowercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludePunctuation(target types.Bool) {
+	m.IncludePunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludeUppercase(target types.Bool) {
+	m.IncludeUppercase = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetIncludedPunctuation(target types.String) {
+	m.IncludedPunctuation = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel) SetLength(target types.Int64) {
+	m.Length = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel() yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel {
 	return yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel{
 		ExcludedPunctuation: types.StringNull(),
@@ -10830,10 +11956,10 @@ func expandYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPassword
 func expandYandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel(ctx context.Context, yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsModel, diags *diag.Diagnostics) *connectionmanager.LockboxPasswordGenerationOptions {
 	value := &connectionmanager.LockboxPasswordGenerationOptions{}
 	value.SetExcludedPunctuation(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.ExcludedPunctuation.ValueString())
-	value.SetIncludeDigits(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits.ValueBool()))
-	value.SetIncludeLowercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase.ValueBool()))
-	value.SetIncludePunctuation(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation.ValueBool()))
-	value.SetIncludeUppercase(wrapperspb.Bool(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase.ValueBool()))
+	value.SetIncludeDigits(converter.WrappedBool(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeDigits))
+	value.SetIncludeLowercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeLowercase))
+	value.SetIncludePunctuation(converter.WrappedBool(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludePunctuation))
+	value.SetIncludeUppercase(converter.WrappedBool(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludeUppercase))
 	value.SetIncludedPunctuation(yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.IncludedPunctuation.ValueString())
 	value.SetLength((yandexConnectionmanagerConnectionParamsValkeyAuthUserPasswordPasswordPasswordGenerationOptionsLockboxPasswordGenerationOptionsState.Length.ValueInt64()))
 	if diags.HasError() {
@@ -10856,6 +11982,16 @@ func (m *yandexConnectionmanagerConnectionParamsValkeyClusterModel) GetSentinelP
 }
 func (m *yandexConnectionmanagerConnectionParamsValkeyClusterModel) GetTlsParams() types.Object {
 	return m.TlsParams
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterModel) SetHosts(target types.List) {
+	m.Hosts = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterModel) SetSentinelPort(target types.Int64) {
+	m.SentinelPort = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterModel) SetTlsParams(target types.Object) {
+	m.TlsParams = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyClusterModel() yandexConnectionmanagerConnectionParamsValkeyClusterModel {
@@ -10975,6 +12111,13 @@ func (m *yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel) Get
 	return m.Tls
 }
 
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel) SetDisabled(target types.Object) {
+	m.Disabled = target
+}
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel) SetTls(target types.Object) {
+	m.Tls = target
+}
+
 func NewYandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel() yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel {
 	return yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsModel{
 		Disabled: types.ObjectNull(yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsDisabledModelType.AttrTypes),
@@ -11091,6 +12234,10 @@ type yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel struc
 
 func (m *yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel) GetCaCertificate() types.String {
 	return m.CaCertificate
+}
+
+func (m *yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
 }
 
 func NewYandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel() yandexConnectionmanagerConnectionParamsValkeyClusterTlsParamsTlsModel {

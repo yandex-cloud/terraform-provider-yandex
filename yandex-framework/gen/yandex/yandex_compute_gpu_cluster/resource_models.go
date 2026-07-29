@@ -25,6 +25,7 @@ type yandexComputeGpuClusterModel struct {
 	Labels           types.Map      `tfsdk:"labels"`
 	Name             types.String   `tfsdk:"name"`
 	Status           types.String   `tfsdk:"status"`
+	Subnets          types.Int64    `tfsdk:"subnets"`
 	Zone             types.String   `tfsdk:"zone"`
 	Timeouts         timeouts.Value `tfsdk:"timeouts"`
 }
@@ -56,8 +57,45 @@ func (m *yandexComputeGpuClusterModel) GetName() types.String {
 func (m *yandexComputeGpuClusterModel) GetStatus() types.String {
 	return m.Status
 }
+func (m *yandexComputeGpuClusterModel) GetSubnets() types.Int64 {
+	return m.Subnets
+}
 func (m *yandexComputeGpuClusterModel) GetZone() types.String {
 	return m.Zone
+}
+
+func (m *yandexComputeGpuClusterModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexComputeGpuClusterModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexComputeGpuClusterModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexComputeGpuClusterModel) SetGpuClusterId(target types.String) {
+	m.GpuClusterId = target
+}
+func (m *yandexComputeGpuClusterModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexComputeGpuClusterModel) SetInterconnectType(target types.String) {
+	m.InterconnectType = target
+}
+func (m *yandexComputeGpuClusterModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexComputeGpuClusterModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexComputeGpuClusterModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexComputeGpuClusterModel) SetSubnets(target types.Int64) {
+	m.Subnets = target
+}
+func (m *yandexComputeGpuClusterModel) SetZone(target types.String) {
+	m.Zone = target
 }
 
 func NewYandexComputeGpuClusterModel() yandexComputeGpuClusterModel {
@@ -71,6 +109,7 @@ func NewYandexComputeGpuClusterModel() yandexComputeGpuClusterModel {
 		Labels:           types.MapNull(types.StringType),
 		Name:             types.StringNull(),
 		Status:           types.StringNull(),
+		Subnets:          types.Int64Null(),
 		Zone:             types.StringNull(),
 	}
 }
@@ -103,6 +142,9 @@ func yandexComputeGpuClusterModelFillUnknown(target yandexComputeGpuClusterModel
 	if target.Status.IsUnknown() || target.Status.IsNull() {
 		target.Status = types.StringNull()
 	}
+	if target.Subnets.IsUnknown() || target.Subnets.IsNull() {
+		target.Subnets = types.Int64Null()
+	}
 	if target.Zone.IsUnknown() || target.Zone.IsNull() {
 		target.Zone = types.StringNull()
 	}
@@ -120,6 +162,7 @@ var yandexComputeGpuClusterModelType = types.ObjectType{
 		"labels":            types.MapType{ElemType: types.StringType},
 		"name":              types.StringType,
 		"status":            types.StringType,
+		"subnets":           types.Int64Type,
 		"zone":              types.StringType,
 		"timeouts":          timeouts.BlockAll(context.Background()).Type(),
 	},
@@ -143,6 +186,7 @@ func flattenYandexComputeGpuCluster(ctx context.Context,
 		Labels:           flattenYandexComputeGpuClusterLabels(ctx, yandexComputeGpuCluster.GetLabels(), state.Labels, diags),
 		Name:             types.StringValue(yandexComputeGpuCluster.GetName()),
 		Status:           types.StringValue(yandexComputeGpuCluster.GetStatus().String()),
+		Subnets:          types.Int64Value(int64(yandexComputeGpuCluster.GetSubnets())),
 		Zone:             types.StringValue(yandexComputeGpuCluster.GetZoneId()),
 		Timeouts:         to,
 	})
@@ -168,11 +212,11 @@ func expandYandexComputeGpuClusterModel(ctx context.Context, yandexComputeGpuClu
 	value.SetDescription(yandexComputeGpuClusterState.Description.ValueString())
 	value.SetFolderId(yandexComputeGpuClusterState.FolderId.ValueString())
 	value.SetId(yandexComputeGpuClusterState.GpuClusterId.ValueString())
-	value.SetId(yandexComputeGpuClusterState.GpuClusterId.ValueString())
 	value.SetInterconnectType(compute.GpuInterconnectType(compute.GpuInterconnectType_value[yandexComputeGpuClusterState.InterconnectType.ValueString()]))
 	value.SetLabels(expandYandexComputeGpuClusterLabels(ctx, yandexComputeGpuClusterState.Labels, diags))
 	value.SetName(yandexComputeGpuClusterState.Name.ValueString())
 	value.SetStatus(compute.GpuCluster_Status(compute.GpuCluster_Status_value[yandexComputeGpuClusterState.Status.ValueString()]))
+	value.SetSubnets((yandexComputeGpuClusterState.Subnets.ValueInt64()))
 	value.SetZoneId(yandexComputeGpuClusterState.Zone.ValueString())
 	if diags.HasError() {
 		return nil

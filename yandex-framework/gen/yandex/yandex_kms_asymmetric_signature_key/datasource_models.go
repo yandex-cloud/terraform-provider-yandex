@@ -58,6 +58,37 @@ func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) GetStatus() types.Strin
 	return m.Status
 }
 
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetAsymmetricSignatureKeyId(target types.String) {
+	m.AsymmetricSignatureKeyId = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetDeletionProtection(target types.Bool) {
+	m.DeletionProtection = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetSignatureAlgorithm(target types.String) {
+	m.SignatureAlgorithm = target
+}
+func (m *yandexKmsAsymmetricSignatureKeyDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexKmsAsymmetricSignatureKeyDatasourceModel() yandexKmsAsymmetricSignatureKeyDatasourceModel {
 	return yandexKmsAsymmetricSignatureKeyDatasourceModel{
 		AsymmetricSignatureKeyId: types.StringNull(),

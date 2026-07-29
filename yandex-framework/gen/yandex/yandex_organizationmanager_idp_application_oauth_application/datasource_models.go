@@ -63,6 +63,40 @@ func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel)
 	return m.UpdatedAt
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetApplicationId(target types.String) {
+	m.ApplicationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetClientGrant(target types.Object) {
+	m.ClientGrant = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetGroupClaimsSettings(target types.Object) {
+	m.GroupClaimsSettings = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+
 func NewYandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel() yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel {
 	return yandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceModel{
 		ApplicationId:       types.StringNull(),

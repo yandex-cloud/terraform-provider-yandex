@@ -28,8 +28,8 @@ func YandexIamWorkloadIdentityFederatedCredentialDatasourceSchema(ctx context.Co
 			},
 
 			"external_subject_id": schema.StringAttribute{
-				MarkdownDescription: "Id of the external subject.",
-				Description: "Id of the external subject." +
+				MarkdownDescription: "Id of the external subject (exact match).",
+				Description: "Id of the external subject (exact match)." +
 					// proto paths: +
 					// -> yandex.cloud.iam.v1.workload.FederatedCredential.external_subject_id
 					"package: yandex.cloud.iam.v1.workload\n" +

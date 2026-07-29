@@ -289,7 +289,6 @@ func expandYandexServerlessWorkflowModel(ctx context.Context, yandexServerlessWo
 	value.SetSpecification(expandYandexServerlessWorkflowSpecification(ctx, yandexServerlessWorkflowState.Specification, diags))
 	value.SetStatus(workflows.Workflow_Status(workflows.Workflow_Status_value[yandexServerlessWorkflowState.Status.ValueString()]))
 	value.SetId(yandexServerlessWorkflowState.WorkflowId.ValueString())
-	value.SetId(yandexServerlessWorkflowState.WorkflowId.ValueString())
 	if diags.HasError() {
 		return nil
 	}

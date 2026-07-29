@@ -28,7 +28,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Transfer.data_objectsyandex.cloud.datatransfer.v1.DataObjects.include_objects
+								// -> yandex.cloud.datatransfer.v1.Transfer.data_objects -> yandex.cloud.datatransfer.v1.DataObjects.include_objects
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 							Computed: true,
@@ -96,7 +96,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.disabled
+								// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.disabled
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 							Computed: true,
@@ -111,7 +111,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Use a cron expression to schedule transfer regular snapshots in UTC time.\n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week),\n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set",
 										Description: "Use a cron expression to schedule transfer regular snapshots in UTC time.\n The used cron expression format is 5 columns specifying the execution time\n (minute, hour, day, month, day of the week),\n they can contain a numeric list separated by commas, a range of numbers\n separated by a hyphen, symbols * or /.\n only one of schedule or cron_expression should be set" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.cron_expression
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.cron_expression
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -121,7 +121,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot.\n This may be useful if source cannot guarantee that cursor values grows\n monotonically -\n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order",
 										Description: "Wait for transaction completion time, in seconds\n Set load delay time to insure that current transactions on source are completed\n and thus full data is visible for snapshot.\n This may be useful if source cannot guarantee that cursor values grows\n monotonically -\n due to transaction race or well-known problem that serial id sequence does not\n actually guarantee the order" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.increment_delay_seconds
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.increment_delay_seconds
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -136,7 +136,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Number of attempts to retry regular snapshot in case of failure. Applicable only\n for cloud installation.",
 													Description: "Number of attempts to retry regular snapshot in case of failure. Applicable only\n for cloud installation." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_configyandex.cloud.datatransfer.v1.RegularSnapshotSettings.RetryConfig.max_attempts
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_config -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.RetryConfig.max_attempts
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -146,7 +146,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Regular snapshot retries, only for cloud installation",
 										Description: "Regular snapshot retries, only for cloud installation" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_config
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.retry_config
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -156,7 +156,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "User predefined periods to schedule regular snapshots:\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_15MIN,\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_HOUR, etc.\n only one of schedule or cron_expression should be set",
 										Description: "User predefined periods to schedule regular snapshots:\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_15MIN,\n REGULAR_SNAPSHOT_SCHEDULE_INTERVAL_HOUR, etc.\n only one of schedule or cron_expression should be set" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.schedule
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.schedule
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -171,7 +171,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.cursor_column
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables -> yandex.cloud.datatransfer.v1.IncrementalTable.cursor_column
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -181,7 +181,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.initial_state
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables -> yandex.cloud.datatransfer.v1.IncrementalTable.initial_state
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -191,7 +191,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_name
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables -> yandex.cloud.datatransfer.v1.IncrementalTable.table_name
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -201,7 +201,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tablesyandex.cloud.datatransfer.v1.IncrementalTable.table_namespace
+														// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables -> yandex.cloud.datatransfer.v1.IncrementalTable.table_namespace
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -211,7 +211,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Incremental tables configuration for regular snapshot.\n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value.",
 										Description: "Incremental tables configuration for regular snapshot.\n If not empty, each snapshot will copy only data changed since last snapshot\n based on cursor column value." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settingsyandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables
+											// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings -> yandex.cloud.datatransfer.v1.RegularSnapshotSettings.tables
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -221,7 +221,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshotyandex.cloud.datatransfer.v1.RegularSnapshot.settings
+								// -> yandex.cloud.datatransfer.v1.Transfer.regular_snapshot -> yandex.cloud.datatransfer.v1.RegularSnapshot.settings
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 							Computed: true,
@@ -251,7 +251,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.flavor
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -261,7 +261,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Number of workers in parallel replication.",
 										Description: "Number of workers in parallel replication." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.job_count
+											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.job_count
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -276,7 +276,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Number of workers.",
 													Description: "Number of workers." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.job_count
+														// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params -> yandex.cloud.datatransfer.v1.ShardingUploadParams.job_count
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -286,7 +286,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Number of threads.",
 													Description: "Number of threads." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.process_count
+														// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params -> yandex.cloud.datatransfer.v1.ShardingUploadParams.process_count
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -296,7 +296,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Parallel snapshot parameters",
 										Description: "Parallel snapshot parameters" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params
+											// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -306,7 +306,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtime
+								// -> yandex.cloud.datatransfer.v1.Transfer.replication_runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 							Computed: true,
@@ -336,7 +336,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "",
 										Description: "" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.flavor
+											// -> yandex.cloud.datatransfer.v1.Transfer.runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.flavor
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -346,7 +346,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Number of workers in parallel replication.",
 										Description: "Number of workers in parallel replication." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.job_count
+											// -> yandex.cloud.datatransfer.v1.Transfer.runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.job_count
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -361,7 +361,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Number of workers.",
 													Description: "Number of workers." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.job_count
+														// -> yandex.cloud.datatransfer.v1.Transfer.runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params -> yandex.cloud.datatransfer.v1.ShardingUploadParams.job_count
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -371,7 +371,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Number of threads.",
 													Description: "Number of threads." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_paramsyandex.cloud.datatransfer.v1.ShardingUploadParams.process_count
+														// -> yandex.cloud.datatransfer.v1.Transfer.runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params -> yandex.cloud.datatransfer.v1.ShardingUploadParams.process_count
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -381,7 +381,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Parallel snapshot parameters",
 										Description: "Parallel snapshot parameters" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtimeyandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params
+											// -> yandex.cloud.datatransfer.v1.Transfer.runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime -> yandex.cloud.datatransfer.v1.YcRuntime.upload_shard_params
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -391,7 +391,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "",
 							Description: "" +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Transfer.runtimeyandex.cloud.datatransfer.v1.Runtime.yc_runtime
+								// -> yandex.cloud.datatransfer.v1.Transfer.runtime -> yandex.cloud.datatransfer.v1.Runtime.yc_runtime
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 							Computed: true,
@@ -456,7 +456,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of columns that will be excluded to transfer",
 																Description: "List of columns that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.columnsyandex.cloud.datatransfer.v1.ColumnsFilter.exclude_columns
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.convert_to_string -> yandex.cloud.datatransfer.v1.ToStringTransformer.columns -> yandex.cloud.datatransfer.v1.ColumnsFilter.exclude_columns
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -467,7 +467,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of columns that will be included to transfer",
 																Description: "List of columns that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.columnsyandex.cloud.datatransfer.v1.ColumnsFilter.include_columns
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.convert_to_string -> yandex.cloud.datatransfer.v1.ToStringTransformer.columns -> yandex.cloud.datatransfer.v1.ColumnsFilter.include_columns
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -477,7 +477,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of included and excluded columns",
 													Description: "List of included and excluded columns" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.columns
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.convert_to_string -> yandex.cloud.datatransfer.v1.ToStringTransformer.columns
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -487,7 +487,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "When true, time values keep their original timezone, otherwise time values converts (normalizes) to UTC.",
 													Description: "When true, time values keep their original timezone, otherwise time values converts (normalizes) to UTC." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.skip_utc_conversion
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.convert_to_string -> yandex.cloud.datatransfer.v1.ToStringTransformer.skip_utc_conversion
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -503,7 +503,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be excluded to transfer",
 																Description: "List of tables that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.convert_to_string -> yandex.cloud.datatransfer.v1.ToStringTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -514,7 +514,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be included to transfer",
 																Description: "List of tables that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.include_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.convert_to_string -> yandex.cloud.datatransfer.v1.ToStringTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.include_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -524,7 +524,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of included and excluded tables",
 													Description: "List of included and excluded tables" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_stringyandex.cloud.datatransfer.v1.ToStringTransformer.tables
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.convert_to_string -> yandex.cloud.datatransfer.v1.ToStringTransformer.tables
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -534,7 +534,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Convert column values to strings",
 										Description: "Convert column values to strings" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.convert_to_string
+											// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.convert_to_string
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -555,7 +555,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of columns that will be excluded to transfer",
 																Description: "List of columns that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_columnsyandex.cloud.datatransfer.v1.FilterColumnsTransformer.columnsyandex.cloud.datatransfer.v1.ColumnsFilter.exclude_columns
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_columns -> yandex.cloud.datatransfer.v1.FilterColumnsTransformer.columns -> yandex.cloud.datatransfer.v1.ColumnsFilter.exclude_columns
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -566,7 +566,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of columns that will be included to transfer",
 																Description: "List of columns that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_columnsyandex.cloud.datatransfer.v1.FilterColumnsTransformer.columnsyandex.cloud.datatransfer.v1.ColumnsFilter.include_columns
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_columns -> yandex.cloud.datatransfer.v1.FilterColumnsTransformer.columns -> yandex.cloud.datatransfer.v1.ColumnsFilter.include_columns
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -576,7 +576,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of the columns to transfer to the target tables using lists of included and\n excluded columns.",
 													Description: "List of the columns to transfer to the target tables using lists of included and\n excluded columns." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_columnsyandex.cloud.datatransfer.v1.FilterColumnsTransformer.columns
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_columns -> yandex.cloud.datatransfer.v1.FilterColumnsTransformer.columns
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -592,7 +592,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be excluded to transfer",
 																Description: "List of tables that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_columnsyandex.cloud.datatransfer.v1.FilterColumnsTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_columns -> yandex.cloud.datatransfer.v1.FilterColumnsTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -603,7 +603,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be included to transfer",
 																Description: "List of tables that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_columnsyandex.cloud.datatransfer.v1.FilterColumnsTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.include_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_columns -> yandex.cloud.datatransfer.v1.FilterColumnsTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.include_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -613,7 +613,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of the tables to filter using lists of included and excluded tables.",
 													Description: "List of the tables to filter using lists of included and excluded tables." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_columnsyandex.cloud.datatransfer.v1.FilterColumnsTransformer.tables
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_columns -> yandex.cloud.datatransfer.v1.FilterColumnsTransformer.tables
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -623,7 +623,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Set up a list of table columns to transfer",
 										Description: "Set up a list of table columns to transfer" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_columns
+											// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_columns
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -638,7 +638,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Filtering criterion. This can be comparison operators for numeric, string, and\n Boolean values,\n comparison to NULL, and checking whether a substring is part of a string.\n Details here:\n https://yandex.cloud/en-ru/docs/data-transfer/concepts/data-transformation#append-only-sources.\n Deprecated: Use filters instead.",
 													Description: "Filtering criterion. This can be comparison operators for numeric, string, and\n Boolean values,\n comparison to NULL, and checking whether a substring is part of a string.\n Details here:\n https://yandex.cloud/en-ru/docs/data-transfer/concepts/data-transformation#append-only-sources.\n Deprecated: Use filters instead." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_rowsyandex.cloud.datatransfer.v1.FilterRowsTransformer.filter
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_rows -> yandex.cloud.datatransfer.v1.FilterRowsTransformer.filter
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -649,7 +649,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Data is transported if it satisfies at least one of filters. Consider that there\n is OR statement between filters.\n Each filter can be comparison operators for numeric, string, and Boolean values,\n comparison to NULL, and\n checking whether a substring is part of a string.\n Details in docs:\n https://yandex.cloud/en-ru/docs/data-transfer/concepts/data-transformation#append-only-sources.",
 													Description: "Data is transported if it satisfies at least one of filters. Consider that there\n is OR statement between filters.\n Each filter can be comparison operators for numeric, string, and Boolean values,\n comparison to NULL, and\n checking whether a substring is part of a string.\n Details in docs:\n https://yandex.cloud/en-ru/docs/data-transfer/concepts/data-transformation#append-only-sources." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_rowsyandex.cloud.datatransfer.v1.FilterRowsTransformer.filters
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_rows -> yandex.cloud.datatransfer.v1.FilterRowsTransformer.filters
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -665,7 +665,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be excluded to transfer",
 																Description: "List of tables that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_rowsyandex.cloud.datatransfer.v1.FilterRowsTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_rows -> yandex.cloud.datatransfer.v1.FilterRowsTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -676,7 +676,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be included to transfer",
 																Description: "List of tables that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_rowsyandex.cloud.datatransfer.v1.FilterRowsTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.include_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_rows -> yandex.cloud.datatransfer.v1.FilterRowsTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.include_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -686,7 +686,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of included and excluded tables.",
 													Description: "List of included and excluded tables." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_rowsyandex.cloud.datatransfer.v1.FilterRowsTransformer.tables
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_rows -> yandex.cloud.datatransfer.v1.FilterRowsTransformer.tables
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -696,7 +696,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "This filter only applies to transfers with queues (Logbroker or Apache Kafka®)\n as a data source. When running a transfer, only the strings meeting the\n specified criteria remain in a changefeed.",
 										Description: "This filter only applies to transfers with queues (Logbroker or Apache Kafka®)\n as a data source. When running a transfer, only the strings meeting the\n specified criteria remain in a changefeed." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.filter_rows
+											// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.filter_rows
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -712,7 +712,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Specify the name of the column for data masking (a regular expression).",
 													Description: "Specify the name of the column for data masking (a regular expression)." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_fieldyandex.cloud.datatransfer.v1.MaskFieldTransformer.columns
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.mask_field -> yandex.cloud.datatransfer.v1.MaskFieldTransformer.columns
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -732,7 +732,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "This string will be used in the HMAC(sha256, salt) function applied to the\n column data.",
 																			Description: "This string will be used in the HMAC(sha256, salt) function applied to the\n column data." +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_fieldyandex.cloud.datatransfer.v1.MaskFieldTransformer.functionyandex.cloud.datatransfer.v1.MaskFunction.mask_function_hashyandex.cloud.datatransfer.v1.MaskFunctionHash.user_defined_salt
+																				// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.mask_field -> yandex.cloud.datatransfer.v1.MaskFieldTransformer.function -> yandex.cloud.datatransfer.v1.MaskFunction.mask_function_hash -> yandex.cloud.datatransfer.v1.MaskFunctionHash.user_defined_salt
 																				"package: yandex.cloud.datatransfer.v1\n" +
 																				"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																			Computed: true,
@@ -742,7 +742,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Hash mask function",
 																Description: "Hash mask function" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_fieldyandex.cloud.datatransfer.v1.MaskFieldTransformer.functionyandex.cloud.datatransfer.v1.MaskFunction.mask_function_hash
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.mask_field -> yandex.cloud.datatransfer.v1.MaskFieldTransformer.function -> yandex.cloud.datatransfer.v1.MaskFunction.mask_function_hash
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -752,7 +752,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Mask function",
 													Description: "Mask function" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_fieldyandex.cloud.datatransfer.v1.MaskFieldTransformer.function
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.mask_field -> yandex.cloud.datatransfer.v1.MaskFieldTransformer.function
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -768,7 +768,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be excluded to transfer",
 																Description: "List of tables that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_fieldyandex.cloud.datatransfer.v1.MaskFieldTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.mask_field -> yandex.cloud.datatransfer.v1.MaskFieldTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -779,7 +779,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be included to transfer",
 																Description: "List of tables that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_fieldyandex.cloud.datatransfer.v1.MaskFieldTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.include_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.mask_field -> yandex.cloud.datatransfer.v1.MaskFieldTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.include_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -789,7 +789,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of included and excluded tables",
 													Description: "List of included and excluded tables" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_fieldyandex.cloud.datatransfer.v1.MaskFieldTransformer.tables
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.mask_field -> yandex.cloud.datatransfer.v1.MaskFieldTransformer.tables
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -799,7 +799,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Mask field transformer allows you to hash data",
 										Description: "Mask field transformer allows you to hash data" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.mask_field
+											// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.mask_field
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -824,7 +824,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTable.new_nameyandex.cloud.datatransfer.v1.Table.name
+																				// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTable.new_name -> yandex.cloud.datatransfer.v1.Table.name
 																				"package: yandex.cloud.datatransfer.v1\n" +
 																				"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																			Computed: true,
@@ -834,7 +834,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTable.new_nameyandex.cloud.datatransfer.v1.Table.name_space
+																				// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTable.new_name -> yandex.cloud.datatransfer.v1.Table.name_space
 																				"package: yandex.cloud.datatransfer.v1\n" +
 																				"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																			Computed: true,
@@ -844,7 +844,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Specify the new names for this table in the target",
 																Description: "Specify the new names for this table in the target" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTable.new_name
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTable.new_name
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -859,7 +859,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTable.original_nameyandex.cloud.datatransfer.v1.Table.name
+																				// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTable.original_name -> yandex.cloud.datatransfer.v1.Table.name
 																				"package: yandex.cloud.datatransfer.v1\n" +
 																				"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																			Computed: true,
@@ -869,7 +869,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																			MarkdownDescription: "",
 																			Description: "" +
 																				// proto paths: +
-																				// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTable.original_nameyandex.cloud.datatransfer.v1.Table.name_space
+																				// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTable.original_name -> yandex.cloud.datatransfer.v1.Table.name_space
 																				"package: yandex.cloud.datatransfer.v1\n" +
 																				"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																			Computed: true,
@@ -879,7 +879,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "Specify the current names of the table in the source",
 																Description: "Specify the current names of the table in the source" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTable.original_name
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTable.original_name
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -889,7 +889,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of renaming rules",
 													Description: "List of renaming rules" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tablesyandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tables
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.rename_tables -> yandex.cloud.datatransfer.v1.RenameTablesTransformer.rename_tables
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -899,7 +899,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Set rules for renaming tables by specifying the current names of the tables in\n the source and new names for these tables in the target",
 										Description: "Set rules for renaming tables by specifying the current names of the tables in\n the source and new names for these tables in the target" +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.rename_tables
+											// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.rename_tables
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -915,7 +915,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of columns to be used as primary keys",
 													Description: "List of columns to be used as primary keys" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.replace_primary_keyyandex.cloud.datatransfer.v1.ReplacePrimaryKeyTransformer.keys
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.replace_primary_key -> yandex.cloud.datatransfer.v1.ReplacePrimaryKeyTransformer.keys
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -931,7 +931,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be excluded to transfer",
 																Description: "List of tables that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.replace_primary_keyyandex.cloud.datatransfer.v1.ReplacePrimaryKeyTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.replace_primary_key -> yandex.cloud.datatransfer.v1.ReplacePrimaryKeyTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -942,7 +942,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be included to transfer",
 																Description: "List of tables that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.replace_primary_keyyandex.cloud.datatransfer.v1.ReplacePrimaryKeyTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.include_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.replace_primary_key -> yandex.cloud.datatransfer.v1.ReplacePrimaryKeyTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.include_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -952,7 +952,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of included and excluded tables",
 													Description: "List of included and excluded tables" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.replace_primary_keyyandex.cloud.datatransfer.v1.ReplacePrimaryKeyTransformer.tables
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.replace_primary_key -> yandex.cloud.datatransfer.v1.ReplacePrimaryKeyTransformer.tables
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -962,7 +962,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Override primary keys.",
 										Description: "Override primary keys." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.replace_primary_key
+											// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.replace_primary_key
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -983,7 +983,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of columns that will be excluded to transfer",
 																Description: "List of columns that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformeryandex.cloud.datatransfer.v1.SharderTransformer.columnsyandex.cloud.datatransfer.v1.ColumnsFilter.exclude_columns
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.sharder_transformer -> yandex.cloud.datatransfer.v1.SharderTransformer.columns -> yandex.cloud.datatransfer.v1.ColumnsFilter.exclude_columns
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -994,7 +994,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of columns that will be included to transfer",
 																Description: "List of columns that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformeryandex.cloud.datatransfer.v1.SharderTransformer.columnsyandex.cloud.datatransfer.v1.ColumnsFilter.include_columns
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.sharder_transformer -> yandex.cloud.datatransfer.v1.SharderTransformer.columns -> yandex.cloud.datatransfer.v1.ColumnsFilter.include_columns
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -1004,7 +1004,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of included and excluded columns",
 													Description: "List of included and excluded columns" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformeryandex.cloud.datatransfer.v1.SharderTransformer.columns
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.sharder_transformer -> yandex.cloud.datatransfer.v1.SharderTransformer.columns
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -1015,7 +1015,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "",
 													Description: "" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformeryandex.cloud.datatransfer.v1.SharderTransformer.random
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.sharder_transformer -> yandex.cloud.datatransfer.v1.SharderTransformer.random
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -1025,7 +1025,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Number of shards",
 													Description: "Number of shards" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformeryandex.cloud.datatransfer.v1.SharderTransformer.shards_count
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.sharder_transformer -> yandex.cloud.datatransfer.v1.SharderTransformer.shards_count
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -1041,7 +1041,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be excluded to transfer",
 																Description: "List of tables that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformeryandex.cloud.datatransfer.v1.SharderTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.sharder_transformer -> yandex.cloud.datatransfer.v1.SharderTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -1052,7 +1052,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be included to transfer",
 																Description: "List of tables that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformeryandex.cloud.datatransfer.v1.SharderTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.include_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.sharder_transformer -> yandex.cloud.datatransfer.v1.SharderTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.include_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -1062,7 +1062,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of included and excluded tables",
 													Description: "List of included and excluded tables" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformeryandex.cloud.datatransfer.v1.SharderTransformer.tables
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.sharder_transformer -> yandex.cloud.datatransfer.v1.SharderTransformer.tables
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -1072,7 +1072,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Set the number of shards for particular tables and a list of columns whose\n values will be used for calculating a hash to determine a shard.",
 										Description: "Set the number of shards for particular tables and a list of columns whose\n values will be used for calculating a hash to determine a shard." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.sharder_transformer
+											// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.sharder_transformer
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -1088,7 +1088,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Specify the columns in the tables to be partitioned.",
 													Description: "Specify the columns in the tables to be partitioned." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.table_splitter_transformeryandex.cloud.datatransfer.v1.TableSplitterTransformer.columns
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.table_splitter_transformer -> yandex.cloud.datatransfer.v1.TableSplitterTransformer.columns
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -1098,7 +1098,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "Specify the split string to be used for merging components in a new table name.",
 													Description: "Specify the split string to be used for merging components in a new table name." +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.table_splitter_transformeryandex.cloud.datatransfer.v1.TableSplitterTransformer.splitter
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.table_splitter_transformer -> yandex.cloud.datatransfer.v1.TableSplitterTransformer.splitter
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -1114,7 +1114,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be excluded to transfer",
 																Description: "List of tables that will be excluded to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.table_splitter_transformeryandex.cloud.datatransfer.v1.TableSplitterTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.table_splitter_transformer -> yandex.cloud.datatransfer.v1.TableSplitterTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.exclude_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -1125,7 +1125,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 																MarkdownDescription: "List of tables that will be included to transfer",
 																Description: "List of tables that will be included to transfer" +
 																	// proto paths: +
-																	// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.table_splitter_transformeryandex.cloud.datatransfer.v1.TableSplitterTransformer.tablesyandex.cloud.datatransfer.v1.TablesFilter.include_tables
+																	// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.table_splitter_transformer -> yandex.cloud.datatransfer.v1.TableSplitterTransformer.tables -> yandex.cloud.datatransfer.v1.TablesFilter.include_tables
 																	"package: yandex.cloud.datatransfer.v1\n" +
 																	"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 																Computed: true,
@@ -1135,7 +1135,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 													MarkdownDescription: "List of included and excluded tables",
 													Description: "List of included and excluded tables" +
 														// proto paths: +
-														// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.table_splitter_transformeryandex.cloud.datatransfer.v1.TableSplitterTransformer.tables
+														// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.table_splitter_transformer -> yandex.cloud.datatransfer.v1.TableSplitterTransformer.tables
 														"package: yandex.cloud.datatransfer.v1\n" +
 														"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 													Computed: true,
@@ -1145,7 +1145,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 										MarkdownDescription: "Splits the X table into multiple tables (X_1, X_2, ..., X_n) based on data.",
 										Description: "Splits the X table into multiple tables (X_1, X_2, ..., X_n) based on data." +
 											// proto paths: +
-											// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformersyandex.cloud.datatransfer.v1.Transformer.table_splitter_transformer
+											// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers -> yandex.cloud.datatransfer.v1.Transformer.table_splitter_transformer
 											"package: yandex.cloud.datatransfer.v1\n" +
 											"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 										Computed: true,
@@ -1155,7 +1155,7 @@ func YandexDatatransferTransferDatasourceSchema(ctx context.Context) schema.Sche
 							MarkdownDescription: "A list of transformers. You can specify exactly 1 transformer in each element of\n list\n When activating a transfer, a transformation plan is made for the tables that\n match the specified criteria.\n Transformers are applied to the tables in the sequence specified in the list.",
 							Description: "A list of transformers. You can specify exactly 1 transformer in each element of\n list\n When activating a transfer, a transformation plan is made for the tables that\n match the specified criteria.\n Transformers are applied to the tables in the sequence specified in the list." +
 								// proto paths: +
-								// -> yandex.cloud.datatransfer.v1.Transfer.transformationyandex.cloud.datatransfer.v1.Transformation.transformers
+								// -> yandex.cloud.datatransfer.v1.Transfer.transformation -> yandex.cloud.datatransfer.v1.Transformation.transformers
 								"package: yandex.cloud.datatransfer.v1\n" +
 								"filename: yandex/cloud/datatransfer/v1/transfer.proto\n",
 							Computed: true,

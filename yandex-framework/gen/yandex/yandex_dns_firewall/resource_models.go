@@ -226,7 +226,6 @@ func expandYandexDnsFirewallModel(ctx context.Context, yandexDnsFirewallState ya
 	value.SetDeletionProtection(yandexDnsFirewallState.DeletionProtection.ValueBool())
 	value.SetDescription(yandexDnsFirewallState.Description.ValueString())
 	value.SetId(yandexDnsFirewallState.DnsFirewallId.ValueString())
-	value.SetId(yandexDnsFirewallState.DnsFirewallId.ValueString())
 	value.SetEnabled(yandexDnsFirewallState.Enabled.ValueBool())
 	value.SetFolderId(yandexDnsFirewallState.FolderId.ValueString())
 	value.SetLabels(expandYandexDnsFirewallLabels(ctx, yandexDnsFirewallState.Labels, diags))

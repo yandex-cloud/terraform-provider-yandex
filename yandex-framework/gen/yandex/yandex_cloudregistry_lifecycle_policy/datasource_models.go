@@ -62,6 +62,40 @@ func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) GetState() types.Str
 	return m.State
 }
 
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetCreatedBy(target types.String) {
+	m.CreatedBy = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetModifiedAt(target types.String) {
+	m.ModifiedAt = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetModifiedBy(target types.String) {
+	m.ModifiedBy = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetPolicyId(target types.String) {
+	m.PolicyId = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetRegistryId(target types.String) {
+	m.RegistryId = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetRules(target types.List) {
+	m.Rules = target
+}
+func (m *yandexCloudregistryLifecyclePolicyDatasourceModel) SetState(target types.String) {
+	m.State = target
+}
+
 func NewYandexCloudregistryLifecyclePolicyDatasourceModel() yandexCloudregistryLifecyclePolicyDatasourceModel {
 	return yandexCloudregistryLifecyclePolicyDatasourceModel{
 		CreatedAt:   types.StringNull(),

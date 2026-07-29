@@ -44,6 +44,25 @@ func (m *yandexIamWorkloadIdentityFederatedCredentialModel) GetServiceAccountId(
 	return m.ServiceAccountId
 }
 
+func (m *yandexIamWorkloadIdentityFederatedCredentialModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialModel) SetExternalSubjectId(target types.String) {
+	m.ExternalSubjectId = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialModel) SetFederatedCredentialId(target types.String) {
+	m.FederatedCredentialId = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialModel) SetFederationId(target types.String) {
+	m.FederationId = target
+}
+func (m *yandexIamWorkloadIdentityFederatedCredentialModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+
 func NewYandexIamWorkloadIdentityFederatedCredentialModel() yandexIamWorkloadIdentityFederatedCredentialModel {
 	return yandexIamWorkloadIdentityFederatedCredentialModel{
 		CreatedAt:             types.StringNull(),
@@ -126,7 +145,6 @@ func expandYandexIamWorkloadIdentityFederatedCredentialModel(ctx context.Context
 	value := &workload.FederatedCredential{}
 	value.SetCreatedAt(converter.ParseTimestamp(yandexIamWorkloadIdentityFederatedCredentialState.CreatedAt.ValueString(), diags))
 	value.SetExternalSubjectId(yandexIamWorkloadIdentityFederatedCredentialState.ExternalSubjectId.ValueString())
-	value.SetId(yandexIamWorkloadIdentityFederatedCredentialState.FederatedCredentialId.ValueString())
 	value.SetId(yandexIamWorkloadIdentityFederatedCredentialState.FederatedCredentialId.ValueString())
 	value.SetFederationId(yandexIamWorkloadIdentityFederatedCredentialState.FederationId.ValueString())
 	value.SetServiceAccountId(yandexIamWorkloadIdentityFederatedCredentialState.ServiceAccountId.ValueString())

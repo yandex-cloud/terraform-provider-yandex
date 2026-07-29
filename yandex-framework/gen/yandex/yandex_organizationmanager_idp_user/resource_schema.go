@@ -23,10 +23,30 @@ import (
 
 func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Description:         "A user in the Identity Provider system.\n\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
-		MarkdownDescription: "A user in the Identity Provider system.\n\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
+		Description:         "A user in the Identity Provider system.\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
+		MarkdownDescription: "A user in the Identity Provider system.\n Users are created within a userpool and can authenticate to access cloud resources.\n Each user has a unique identifier, credentials, and profile information.",
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
+
+			"company_name": schema.StringAttribute{
+				MarkdownDescription: "User's company name.",
+				Description: "User's company name." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.company_name
+					// -> yandex.cloud.organizationmanager.v1.idp.UpdateUserRequest.company_name
+					// -> yandex.cloud.organizationmanager.v1.idp.User.company_name
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(0, 256),
+				},
+			},
 
 			"created_at": schema.StringAttribute{
 				MarkdownDescription: "Timestamp when the user was created.",
@@ -36,6 +56,26 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 					"package: yandex.cloud.organizationmanager.v1.idp\n" +
 					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
 				Computed: true,
+			},
+
+			"department": schema.StringAttribute{
+				MarkdownDescription: "User's department.",
+				Description: "User's department." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.department
+					// -> yandex.cloud.organizationmanager.v1.idp.UpdateUserRequest.department
+					// -> yandex.cloud.organizationmanager.v1.idp.User.department
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(0, 256),
+				},
 			},
 
 			"email": schema.StringAttribute{
@@ -56,6 +96,43 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(regexp.MustCompile("^(|(.{3,254}))$"), "error validating regexp"),
 					stringvalidator.LengthBetween(0, 254),
+				},
+			},
+
+			"employee_id": schema.StringAttribute{
+				MarkdownDescription: "User's employee ID",
+				Description: "User's employee ID" +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.employee_id
+					// -> yandex.cloud.organizationmanager.v1.idp.UpdateUserRequest.employee_id
+					// -> yandex.cloud.organizationmanager.v1.idp.User.employee_id
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(0, 256),
+				},
+			},
+
+			"expires_at": schema.StringAttribute{
+				MarkdownDescription: "Timestamp when the user account expires.",
+				Description: "Timestamp when the user account expires." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.expires_at
+					// -> yandex.cloud.organizationmanager.v1.idp.UpdateUserRequest.expires_at
+					// -> yandex.cloud.organizationmanager.v1.idp.User.expires_at
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 
@@ -154,6 +231,26 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 				},
 			},
 
+			"job_title": schema.StringAttribute{
+				MarkdownDescription: "User's job title.",
+				Description: "User's job title." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.job_title
+					// -> yandex.cloud.organizationmanager.v1.idp.UpdateUserRequest.job_title
+					// -> yandex.cloud.organizationmanager.v1.idp.User.job_title
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(0, 256),
+				},
+			},
+
 			"password_hash": schema.SingleNestedAttribute{
 
 				Attributes: map[string]schema.Attribute{
@@ -162,7 +259,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 						MarkdownDescription: "The password hash string.",
 						Description: "The password hash string." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_hashyandex.cloud.organizationmanager.v1.idp.PasswordHash.password_hash
+							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_hash -> yandex.cloud.organizationmanager.v1.idp.PasswordHash.password_hash
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/user_service.proto\n",
 						Required:  true,
@@ -173,7 +270,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 							planmodifiers.NullWriteOnlyString(),
 						},
 						Validators: []validator.String{
-							stringvalidator.LengthBetween(0, 128),
+							stringvalidator.LengthBetween(0, 512),
 						},
 					},
 
@@ -181,7 +278,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 						MarkdownDescription: "Type of the password hash.",
 						Description: "Type of the password hash." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_hashyandex.cloud.organizationmanager.v1.idp.PasswordHash.password_hash_type
+							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_hash -> yandex.cloud.organizationmanager.v1.idp.PasswordHash.password_hash_type
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/user_service.proto\n",
 						Required: true,
@@ -224,7 +321,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 						MarkdownDescription: "Proof that the password was generated by the system.",
 						Description: "Proof that the password was generated by the system." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_specyandex.cloud.organizationmanager.v1.idp.PasswordSpec.generation_proof
+							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_spec -> yandex.cloud.organizationmanager.v1.idp.PasswordSpec.generation_proof
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/user_service.proto\n",
 						Optional:  true,
@@ -245,7 +342,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 						MarkdownDescription: "The password string.",
 						Description: "The password string." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_specyandex.cloud.organizationmanager.v1.idp.PasswordSpec.password
+							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_spec -> yandex.cloud.organizationmanager.v1.idp.PasswordSpec.password
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/user_service.proto\n",
 						Required:  true,

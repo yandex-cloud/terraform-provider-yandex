@@ -568,7 +568,7 @@ func flattenYandexCloudregistryFolder(ctx context.Context,
 		Name:        types.StringValue(yandexCloudregistryFolder.GetName()),
 		Path:        state.Path,
 		Properties:  flattenYandexCloudregistryFolderProperties(ctx, yandexCloudregistryFolder.GetProperties(), state.Properties, diags),
-		RegistryId:  state.RegistryId,
+		RegistryId:  types.StringValue(yandexCloudregistryFolder.GetRegistryId()),
 		Status:      types.StringValue(yandexCloudregistryFolder.GetStatus().String()),
 		WithHistory: state.WithHistory,
 		Timeouts:    to,
@@ -592,7 +592,6 @@ func expandYandexCloudregistryFolder(ctx context.Context, yandexCloudregistryFol
 func expandYandexCloudregistryFolderModel(ctx context.Context, yandexCloudregistryFolderState yandexCloudregistryFolderModel, diags *diag.Diagnostics) *cloudregistry.Artifact {
 	value := &cloudregistry.Artifact{}
 	value.SetId(yandexCloudregistryFolderState.ArtifactId.ValueString())
-	value.SetId(yandexCloudregistryFolderState.ArtifactId.ValueString())
 	value.SetContent(expandYandexCloudregistryFolderContent(ctx, yandexCloudregistryFolderState.Content, diags))
 	value.SetCreatedAt(converter.ParseTimestamp(yandexCloudregistryFolderState.CreatedAt.ValueString(), diags))
 	value.SetCreatedBy(yandexCloudregistryFolderState.CreatedBy.ValueString())
@@ -601,6 +600,7 @@ func expandYandexCloudregistryFolderModel(ctx context.Context, yandexCloudregist
 	value.SetModifiedBy(yandexCloudregistryFolderState.ModifiedBy.ValueString())
 	value.SetName(yandexCloudregistryFolderState.Name.ValueString())
 	value.SetProperties(expandYandexCloudregistryFolderProperties(ctx, yandexCloudregistryFolderState.Properties, diags))
+	value.SetRegistryId(yandexCloudregistryFolderState.RegistryId.ValueString())
 	value.SetStatus(cloudregistry.Artifact_Status(cloudregistry.Artifact_Status_value[yandexCloudregistryFolderState.Status.ValueString()]))
 	if diags.HasError() {
 		return nil

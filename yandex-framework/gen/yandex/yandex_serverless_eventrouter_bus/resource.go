@@ -311,13 +311,13 @@ func (r *yandexServerlessEventrouterBusResource) Update(ctx context.Context, req
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.BusId.Equal(state.BusId) {
+	if !plan.BusId.IsUnknown() && !plan.BusId.Equal(state.BusId) {
 		updatePaths = append(updatePaths, "bus_id")
 	}
-	if !plan.DeletionProtection.Equal(state.DeletionProtection) {
+	if !plan.DeletionProtection.IsUnknown() && !plan.DeletionProtection.Equal(state.DeletionProtection) {
 		updatePaths = append(updatePaths, "deletion_protection")
 	}
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
 	if plan.Labels.IsNull() {
@@ -326,10 +326,10 @@ func (r *yandexServerlessEventrouterBusResource) Update(ctx context.Context, req
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
 	if len(updatePaths) != 0 {

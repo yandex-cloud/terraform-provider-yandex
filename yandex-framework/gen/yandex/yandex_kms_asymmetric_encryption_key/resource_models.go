@@ -60,6 +60,37 @@ func (m *yandexKmsAsymmetricEncryptionKeyModel) GetStatus() types.String {
 	return m.Status
 }
 
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetAsymmetricEncryptionKeyId(target types.String) {
+	m.AsymmetricEncryptionKeyId = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetDeletionProtection(target types.Bool) {
+	m.DeletionProtection = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetEncryptionAlgorithm(target types.String) {
+	m.EncryptionAlgorithm = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexKmsAsymmetricEncryptionKeyModel() yandexKmsAsymmetricEncryptionKeyModel {
 	return yandexKmsAsymmetricEncryptionKeyModel{
 		AsymmetricEncryptionKeyId: types.StringNull(),
@@ -164,7 +195,6 @@ func expandYandexKmsAsymmetricEncryptionKey(ctx context.Context, yandexKmsAsymme
 
 func expandYandexKmsAsymmetricEncryptionKeyModel(ctx context.Context, yandexKmsAsymmetricEncryptionKeyState yandexKmsAsymmetricEncryptionKeyModel, diags *diag.Diagnostics) *asymmetricencryption.AsymmetricEncryptionKey {
 	value := &asymmetricencryption.AsymmetricEncryptionKey{}
-	value.SetId(yandexKmsAsymmetricEncryptionKeyState.AsymmetricEncryptionKeyId.ValueString())
 	value.SetId(yandexKmsAsymmetricEncryptionKeyState.AsymmetricEncryptionKeyId.ValueString())
 	value.SetCreatedAt(converter.ParseTimestamp(yandexKmsAsymmetricEncryptionKeyState.CreatedAt.ValueString(), diags))
 	value.SetDeletionProtection(yandexKmsAsymmetricEncryptionKeyState.DeletionProtection.ValueBool())

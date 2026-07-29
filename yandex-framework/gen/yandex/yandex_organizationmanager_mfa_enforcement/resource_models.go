@@ -64,6 +64,40 @@ func (m *yandexOrganizationmanagerMfaEnforcementModel) GetTtl() types.String {
 	return m.Ttl
 }
 
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetAcrId(target types.String) {
+	m.AcrId = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetApplyAt(target types.String) {
+	m.ApplyAt = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetEnrollWindow(target types.String) {
+	m.EnrollWindow = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetMfaEnforcementId(target types.String) {
+	m.MfaEnforcementId = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetTtl(target types.String) {
+	m.Ttl = target
+}
+
 func NewYandexOrganizationmanagerMfaEnforcementModel() yandexOrganizationmanagerMfaEnforcementModel {
 	return yandexOrganizationmanagerMfaEnforcementModel{
 		AcrId:            types.StringNull(),
@@ -179,7 +213,6 @@ func expandYandexOrganizationmanagerMfaEnforcementModel(ctx context.Context, yan
 	value.SetCreatedAt(converter.ParseTimestamp(yandexOrganizationmanagerMfaEnforcementState.CreatedAt.ValueString(), diags))
 	value.SetDescription(yandexOrganizationmanagerMfaEnforcementState.Description.ValueString())
 	value.SetEnrollWindow(converter.ParseDuration(yandexOrganizationmanagerMfaEnforcementState.EnrollWindow.ValueString(), diags))
-	value.SetId(yandexOrganizationmanagerMfaEnforcementState.MfaEnforcementId.ValueString())
 	value.SetId(yandexOrganizationmanagerMfaEnforcementState.MfaEnforcementId.ValueString())
 	value.SetName(yandexOrganizationmanagerMfaEnforcementState.Name.ValueString())
 	value.SetOrganizationId(yandexOrganizationmanagerMfaEnforcementState.OrganizationId.ValueString())

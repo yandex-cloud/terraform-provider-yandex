@@ -314,10 +314,10 @@ func (r *yandexComputeFilesystemResource) Update(ctx context.Context, req resour
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.FilesystemId.Equal(state.FilesystemId) {
+	if !plan.FilesystemId.IsUnknown() && !plan.FilesystemId.Equal(state.FilesystemId) {
 		updatePaths = append(updatePaths, "filesystem_id")
 	}
 	if plan.Labels.IsNull() {
@@ -326,13 +326,13 @@ func (r *yandexComputeFilesystemResource) Update(ctx context.Context, req resour
 	if state.Labels.IsNull() {
 		state.Labels = types.MapNull(types.StringType)
 	}
-	if !plan.Labels.Equal(state.Labels) {
+	if !plan.Labels.IsUnknown() && !plan.Labels.Equal(state.Labels) {
 		updatePaths = append(updatePaths, "labels")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.Size.Equal(state.Size) {
+	if !plan.Size.IsUnknown() && !plan.Size.Equal(state.Size) {
 		updatePaths = append(updatePaths, "size")
 	}
 	if len(updatePaths) != 0 {

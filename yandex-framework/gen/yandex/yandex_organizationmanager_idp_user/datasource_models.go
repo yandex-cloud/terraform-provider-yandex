@@ -14,12 +14,17 @@ import (
 )
 
 type yandexOrganizationmanagerIdpUserDatasourceModel struct {
+	CompanyName types.String   `tfsdk:"company_name"`
 	CreatedAt   types.String   `tfsdk:"created_at"`
+	Department  types.String   `tfsdk:"department"`
 	Email       types.String   `tfsdk:"email"`
+	EmployeeId  types.String   `tfsdk:"employee_id"`
+	ExpiresAt   types.String   `tfsdk:"expires_at"`
 	ExternalId  types.String   `tfsdk:"external_id"`
 	FamilyName  types.String   `tfsdk:"family_name"`
 	FullName    types.String   `tfsdk:"full_name"`
 	GivenName   types.String   `tfsdk:"given_name"`
+	JobTitle    types.String   `tfsdk:"job_title"`
 	PhoneNumber types.String   `tfsdk:"phone_number"`
 	Status      types.String   `tfsdk:"status"`
 	UpdatedAt   types.String   `tfsdk:"updated_at"`
@@ -30,11 +35,23 @@ type yandexOrganizationmanagerIdpUserDatasourceModel struct {
 	Timeouts    timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetCompanyName() types.String {
+	return m.CompanyName
+}
 func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetCreatedAt() types.String {
 	return m.CreatedAt
 }
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetDepartment() types.String {
+	return m.Department
+}
 func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetEmail() types.String {
 	return m.Email
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetEmployeeId() types.String {
+	return m.EmployeeId
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetExpiresAt() types.String {
+	return m.ExpiresAt
 }
 func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetExternalId() types.String {
 	return m.ExternalId
@@ -47,6 +64,9 @@ func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetFullName() types.St
 }
 func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetGivenName() types.String {
 	return m.GivenName
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetJobTitle() types.String {
+	return m.JobTitle
 }
 func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetPhoneNumber() types.String {
 	return m.PhoneNumber
@@ -70,14 +90,74 @@ func (m *yandexOrganizationmanagerIdpUserDatasourceModel) GetUserpoolId() types.
 	return m.UserpoolId
 }
 
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetCompanyName(target types.String) {
+	m.CompanyName = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetDepartment(target types.String) {
+	m.Department = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetEmail(target types.String) {
+	m.Email = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetEmployeeId(target types.String) {
+	m.EmployeeId = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetExpiresAt(target types.String) {
+	m.ExpiresAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetExternalId(target types.String) {
+	m.ExternalId = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetFamilyName(target types.String) {
+	m.FamilyName = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetFullName(target types.String) {
+	m.FullName = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetGivenName(target types.String) {
+	m.GivenName = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetJobTitle(target types.String) {
+	m.JobTitle = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetPhoneNumber(target types.String) {
+	m.PhoneNumber = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetUpdatedAt(target types.String) {
+	m.UpdatedAt = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetUserId(target types.String) {
+	m.UserId = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetUsername(target types.String) {
+	m.Username = target
+}
+func (m *yandexOrganizationmanagerIdpUserDatasourceModel) SetUserpoolId(target types.String) {
+	m.UserpoolId = target
+}
+
 func NewYandexOrganizationmanagerIdpUserDatasourceModel() yandexOrganizationmanagerIdpUserDatasourceModel {
 	return yandexOrganizationmanagerIdpUserDatasourceModel{
+		CompanyName: types.StringNull(),
 		CreatedAt:   types.StringNull(),
+		Department:  types.StringNull(),
 		Email:       types.StringNull(),
+		EmployeeId:  types.StringNull(),
+		ExpiresAt:   types.StringNull(),
 		ExternalId:  types.StringNull(),
 		FamilyName:  types.StringNull(),
 		FullName:    types.StringNull(),
 		GivenName:   types.StringNull(),
+		JobTitle:    types.StringNull(),
 		PhoneNumber: types.StringNull(),
 		Status:      types.StringNull(),
 		UpdatedAt:   types.StringNull(),
@@ -89,11 +169,23 @@ func NewYandexOrganizationmanagerIdpUserDatasourceModel() yandexOrganizationmana
 }
 
 func yandexOrganizationmanagerIdpUserDatasourceModelFillUnknown(target yandexOrganizationmanagerIdpUserDatasourceModel) yandexOrganizationmanagerIdpUserDatasourceModel {
+	if target.CompanyName.IsUnknown() || target.CompanyName.IsNull() {
+		target.CompanyName = types.StringNull()
+	}
 	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
 		target.CreatedAt = types.StringNull()
 	}
+	if target.Department.IsUnknown() || target.Department.IsNull() {
+		target.Department = types.StringNull()
+	}
 	if target.Email.IsUnknown() || target.Email.IsNull() {
 		target.Email = types.StringNull()
+	}
+	if target.EmployeeId.IsUnknown() || target.EmployeeId.IsNull() {
+		target.EmployeeId = types.StringNull()
+	}
+	if target.ExpiresAt.IsUnknown() || target.ExpiresAt.IsNull() {
+		target.ExpiresAt = types.StringNull()
 	}
 	if target.ExternalId.IsUnknown() || target.ExternalId.IsNull() {
 		target.ExternalId = types.StringNull()
@@ -106,6 +198,9 @@ func yandexOrganizationmanagerIdpUserDatasourceModelFillUnknown(target yandexOrg
 	}
 	if target.GivenName.IsUnknown() || target.GivenName.IsNull() {
 		target.GivenName = types.StringNull()
+	}
+	if target.JobTitle.IsUnknown() || target.JobTitle.IsNull() {
+		target.JobTitle = types.StringNull()
 	}
 	if target.PhoneNumber.IsUnknown() || target.PhoneNumber.IsNull() {
 		target.PhoneNumber = types.StringNull()
@@ -133,12 +228,17 @@ func yandexOrganizationmanagerIdpUserDatasourceModelFillUnknown(target yandexOrg
 
 var yandexOrganizationmanagerIdpUserDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"company_name": types.StringType,
 		"created_at":   types.StringType,
+		"department":   types.StringType,
 		"email":        types.StringType,
+		"employee_id":  types.StringType,
+		"expires_at":   types.StringType,
 		"external_id":  types.StringType,
 		"family_name":  types.StringType,
 		"full_name":    types.StringType,
 		"given_name":   types.StringType,
+		"job_title":    types.StringType,
 		"phone_number": types.StringType,
 		"status":       types.StringType,
 		"updated_at":   types.StringType,
@@ -159,12 +259,17 @@ func flattenYandexOrganizationmanagerIdpUserDatasource(ctx context.Context,
 		return types.ObjectNull(yandexOrganizationmanagerIdpUserDatasourceModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserDatasourceModelType.AttrTypes, yandexOrganizationmanagerIdpUserDatasourceModel{
+		CompanyName: types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetCompanyName()),
 		CreatedAt:   types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetCreatedAt().AsTime().Format(time.RFC3339)),
+		Department:  types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetDepartment()),
 		Email:       types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetEmail()),
+		EmployeeId:  types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetEmployeeId()),
+		ExpiresAt:   types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetExpiresAt().AsTime().Format(time.RFC3339)),
 		ExternalId:  types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetExternalId()),
 		FamilyName:  types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetFamilyName()),
 		FullName:    types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetFullName()),
 		GivenName:   types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetGivenName()),
+		JobTitle:    types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetJobTitle()),
 		PhoneNumber: types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetPhoneNumber()),
 		Status:      types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetStatus().String()),
 		UpdatedAt:   types.StringValue(yandexOrganizationmanagerIdpUserDatasource.GetUpdatedAt().AsTime().Format(time.RFC3339)),

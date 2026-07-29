@@ -26,7 +26,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Number of failed attempts allowed within the window before blocking.",
 						Description: "Number of failed attempts allowed within the window before blocking." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.bruteforce_protection_policyyandex.cloud.organizationmanager.v1.idp.BruteforceProtectionPolicy.attempts
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.bruteforce_protection_policy -> yandex.cloud.organizationmanager.v1.idp.BruteforceProtectionPolicy.attempts
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -36,7 +36,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Duration of the block after too many failed attempts.",
 						Description: "Duration of the block after too many failed attempts." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.bruteforce_protection_policyyandex.cloud.organizationmanager.v1.idp.BruteforceProtectionPolicy.block
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.bruteforce_protection_policy -> yandex.cloud.organizationmanager.v1.idp.BruteforceProtectionPolicy.block
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -46,7 +46,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Time window for counting failed authentication attempts.",
 						Description: "Time window for counting failed authentication attempts." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.bruteforce_protection_policyyandex.cloud.organizationmanager.v1.idp.BruteforceProtectionPolicy.window
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.bruteforce_protection_policy -> yandex.cloud.organizationmanager.v1.idp.BruteforceProtectionPolicy.window
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -131,7 +131,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Whether check in common password database is enabled. Default value is true.",
 						Description: "Whether check in common password database is enabled. Default value is true." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_blacklist_policyyandex.cloud.organizationmanager.v1.idp.PasswordBlacklistPolicy.check_common
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_blacklist_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordBlacklistPolicy.check_common
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -154,7 +154,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Maximum number of days a password remains valid.\n Zero means passwords never expire.",
 						Description: "Maximum number of days a password remains valid.\n Zero means passwords never expire." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_lifetime_policyyandex.cloud.organizationmanager.v1.idp.PasswordLifetimePolicy.max_days_count
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_lifetime_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordLifetimePolicy.max_days_count
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -164,7 +164,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Minimum number of days before a password can be changed.",
 						Description: "Minimum number of days before a password can be changed." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_lifetime_policyyandex.cloud.organizationmanager.v1.idp.PasswordLifetimePolicy.min_days_count
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_lifetime_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordLifetimePolicy.min_days_count
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -187,7 +187,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Whether passwords similar to previous ones are allowed.",
 						Description: "Whether passwords similar to previous ones are allowed." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.allow_similar
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.allow_similar
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -201,7 +201,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 								MarkdownDescription: "Whether digits are required in the password.",
 								Description: "Whether digits are required in the password." +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.digits_required
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixed -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.digits_required
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
@@ -211,7 +211,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 								MarkdownDescription: "Whether lowercase letters are required in the password.",
 								Description: "Whether lowercase letters are required in the password." +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.lowers_required
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixed -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.lowers_required
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
@@ -221,7 +221,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 								MarkdownDescription: "Minimum length required for all passwords.",
 								Description: "Minimum length required for all passwords." +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.min_length
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixed -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.min_length
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
@@ -231,7 +231,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 								MarkdownDescription: "Whether special characters are required in the password.",
 								Description: "Whether special characters are required in the password." +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.specials_required
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixed -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.specials_required
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
@@ -241,7 +241,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 								MarkdownDescription: "Whether uppercase letters are required in the password.",
 								Description: "Whether uppercase letters are required in the password." +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixedyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.uppers_required
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixed -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Fixed.uppers_required
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
@@ -250,7 +250,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Fixed complexity requirements. Exactly one of complexity requirements must be specified.",
 						Description: "Fixed complexity requirements. Exactly one of complexity requirements must be specified." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixed
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.fixed
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -260,7 +260,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Minimum length of substrings to check for similarity to vulnerable sequences.",
 						Description: "Minimum length of substrings to check for similarity to vulnerable sequences." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.match_length
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.match_length
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -270,7 +270,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Maximum password length. Zero means no maximum length is enforced.",
 						Description: "Maximum password length. Zero means no maximum length is enforced." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.max_length
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.max_length
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -284,7 +284,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 								MarkdownDescription: "For passwords with all four classes of characters",
 								Description: "For passwords with all four classes of characters" +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smartyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.four_classes
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smart -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.four_classes
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
@@ -294,7 +294,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 								MarkdownDescription: "For passwords with one class of characters",
 								Description: "For passwords with one class of characters" +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smartyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.one_class
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smart -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.one_class
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
@@ -304,7 +304,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 								MarkdownDescription: "For passwords with three classes of characters",
 								Description: "For passwords with three classes of characters" +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smartyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.three_classes
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smart -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.three_classes
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
@@ -314,7 +314,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 								MarkdownDescription: "For passwords with two classes of characters",
 								Description: "For passwords with two classes of characters" +
 									// proto paths: +
-									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smartyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.two_classes
+									// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smart -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.Smart.two_classes
 									"package: yandex.cloud.organizationmanager.v1.idp\n" +
 									"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 								Computed: true,
@@ -323,7 +323,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Smart complexity requirements. Exactly one of complexity requirements must be specified.",
 						Description: "Smart complexity requirements. Exactly one of complexity requirements must be specified." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policyyandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smart
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.password_quality_policy -> yandex.cloud.organizationmanager.v1.idp.PasswordQualityPolicy.smart
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -366,7 +366,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Whether users can edit their own contact information.",
 						Description: "Whether users can edit their own contact information." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.user_settingsyandex.cloud.organizationmanager.v1.idp.UserSettings.allow_edit_self_contacts
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.user_settings -> yandex.cloud.organizationmanager.v1.idp.UserSettings.allow_edit_self_contacts
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -376,7 +376,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Whether users can edit their own profile information.",
 						Description: "Whether users can edit their own profile information." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.user_settingsyandex.cloud.organizationmanager.v1.idp.UserSettings.allow_edit_self_info
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.user_settings -> yandex.cloud.organizationmanager.v1.idp.UserSettings.allow_edit_self_info
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -386,7 +386,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Whether users can edit their own login information.",
 						Description: "Whether users can edit their own login information." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.user_settingsyandex.cloud.organizationmanager.v1.idp.UserSettings.allow_edit_self_login
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.user_settings -> yandex.cloud.organizationmanager.v1.idp.UserSettings.allow_edit_self_login
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,
@@ -396,7 +396,7 @@ func YandexOrganizationmanagerIdpUserpoolDatasourceSchema(ctx context.Context) s
 						MarkdownDescription: "Whether users can change their own passwords.",
 						Description: "Whether users can change their own passwords." +
 							// proto paths: +
-							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.user_settingsyandex.cloud.organizationmanager.v1.idp.UserSettings.allow_edit_self_password
+							// -> yandex.cloud.organizationmanager.v1.idp.Userpool.user_settings -> yandex.cloud.organizationmanager.v1.idp.UserSettings.allow_edit_self_password
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +
 							"filename: yandex/cloud/organizationmanager/v1/idp/userpool.proto\n",
 						Computed: true,

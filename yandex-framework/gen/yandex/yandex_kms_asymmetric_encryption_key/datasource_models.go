@@ -58,6 +58,37 @@ func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) GetStatus() types.Stri
 	return m.Status
 }
 
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetAsymmetricEncryptionKeyId(target types.String) {
+	m.AsymmetricEncryptionKeyId = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetID(target types.String) {
+	m.ID = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetCreatedAt(target types.String) {
+	m.CreatedAt = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetDeletionProtection(target types.Bool) {
+	m.DeletionProtection = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetDescription(target types.String) {
+	m.Description = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetEncryptionAlgorithm(target types.String) {
+	m.EncryptionAlgorithm = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetLabels(target types.Map) {
+	m.Labels = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetName(target types.String) {
+	m.Name = target
+}
+func (m *yandexKmsAsymmetricEncryptionKeyDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
+
 func NewYandexKmsAsymmetricEncryptionKeyDatasourceModel() yandexKmsAsymmetricEncryptionKeyDatasourceModel {
 	return yandexKmsAsymmetricEncryptionKeyDatasourceModel{
 		AsymmetricEncryptionKeyId: types.StringNull(),

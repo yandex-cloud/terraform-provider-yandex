@@ -181,9 +181,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 									MarkdownDescription: "Always delete (use with caution).",
 									Description: "Always delete (use with caution)." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.always
-										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.always
-										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.always
+										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.always
+										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.always
+										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.always
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 									Optional: true,
@@ -198,9 +198,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 									MarkdownDescription: "Cooldown period in days before deletion.",
 									Description: "Cooldown period in days before deletion." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.cooldown_period_days
-										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.cooldown_period_days
-										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.cooldown_period_days
+										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.cooldown_period_days
+										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.cooldown_period_days
+										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.cooldown_period_days
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 									Optional: true,
@@ -215,9 +215,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 									MarkdownDescription: "Delete artifacts older than specified days.",
 									Description: "Delete artifacts older than specified days." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.older_than_days
-										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.older_than_days
-										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.older_than_days
+										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.older_than_days
+										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.older_than_days
+										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.older_than_days
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 									Optional: true,
@@ -232,9 +232,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 									MarkdownDescription: "Type of deletion.",
 									Description: "Type of deletion." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.type
-										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.type
-										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.type
+										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.type
+										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.type
+										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.type
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 									Optional: true,
@@ -256,9 +256,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 											MarkdownDescription: "Delete when version count exceeds this number.",
 											Description: "Delete when version count exceeds this number." +
 												// proto paths: +
-												// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_conditionyandex.cloud.cloudregistry.v1.DeleteByVersionCondition.versions_count_greater_than
-												// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_conditionyandex.cloud.cloudregistry.v1.DeleteByVersionCondition.versions_count_greater_than
-												// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_conditionyandex.cloud.cloudregistry.v1.DeleteByVersionCondition.versions_count_greater_than
+												// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_condition -> yandex.cloud.cloudregistry.v1.DeleteByVersionCondition.versions_count_greater_than
+												// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_condition -> yandex.cloud.cloudregistry.v1.DeleteByVersionCondition.versions_count_greater_than
+												// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_condition -> yandex.cloud.cloudregistry.v1.DeleteByVersionCondition.versions_count_greater_than
 												"package: yandex.cloud.cloudregistry.v1\n" +
 												"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 											Optional: true,
@@ -272,9 +272,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 									MarkdownDescription: "Delete artifacts by version count condition.",
 									Description: "Delete artifacts by version count condition." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_condition
-										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_condition
-										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.deleteyandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_condition
+										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_condition
+										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_condition
+										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete -> yandex.cloud.cloudregistry.v1.DeleteLifecycleRule.version_condition
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 									Optional: true,
@@ -288,9 +288,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 							MarkdownDescription: "Rule that deletes artifacts.",
 							Description: "Rule that deletes artifacts." +
 								// proto paths: +
-								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.delete
-								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.delete
-								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.delete
+								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete
+								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete
+								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.delete
 								"package: yandex.cloud.cloudregistry.v1\n" +
 								"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 							Optional: true,
@@ -298,6 +298,23 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 
 							PlanModifiers: []planmodifier.Object{
 								objectplanmodifier.UseStateForUnknown(),
+							},
+						},
+
+						"description": schema.StringAttribute{
+							MarkdownDescription: "Description of the lifecycle policy rule",
+							Description: "Description of the lifecycle policy rule" +
+								// proto paths: +
+								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.description
+								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.description
+								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.description
+								"package: yandex.cloud.cloudregistry.v1\n" +
+								"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 
@@ -309,9 +326,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 									MarkdownDescription: "Filter by tag status.",
 									Description: "Filter by tag status." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.docker_filtersyandex.cloud.cloudregistry.v1.DockerFilters.tag_status
-										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.docker_filtersyandex.cloud.cloudregistry.v1.DockerFilters.tag_status
-										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.docker_filtersyandex.cloud.cloudregistry.v1.DockerFilters.tag_status
+										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.docker_filters -> yandex.cloud.cloudregistry.v1.DockerFilters.tag_status
+										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.docker_filters -> yandex.cloud.cloudregistry.v1.DockerFilters.tag_status
+										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.docker_filters -> yandex.cloud.cloudregistry.v1.DockerFilters.tag_status
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 									Optional: true,
@@ -328,9 +345,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 							MarkdownDescription: "Docker-specific filters.",
 							Description: "Docker-specific filters." +
 								// proto paths: +
-								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.docker_filters
-								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.docker_filters
-								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.docker_filters
+								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.docker_filters
+								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.docker_filters
+								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.docker_filters
 								"package: yandex.cloud.cloudregistry.v1\n" +
 								"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 							Optional: true,
@@ -349,9 +366,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 									MarkdownDescription: "Keep artifacts younger than this number of days.",
 									Description: "Keep artifacts younger than this number of days." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_ageyandex.cloud.cloudregistry.v1.KeepByAgeLifecycleRule.younger_than_days
-										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_ageyandex.cloud.cloudregistry.v1.KeepByAgeLifecycleRule.younger_than_days
-										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_ageyandex.cloud.cloudregistry.v1.KeepByAgeLifecycleRule.younger_than_days
+										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_age -> yandex.cloud.cloudregistry.v1.KeepByAgeLifecycleRule.younger_than_days
+										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_age -> yandex.cloud.cloudregistry.v1.KeepByAgeLifecycleRule.younger_than_days
+										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_age -> yandex.cloud.cloudregistry.v1.KeepByAgeLifecycleRule.younger_than_days
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 									Optional: true,
@@ -365,9 +382,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 							MarkdownDescription: "Rule that keeps artifacts by age.",
 							Description: "Rule that keeps artifacts by age." +
 								// proto paths: +
-								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_age
-								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_age
-								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_age
+								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_age
+								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_age
+								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_age
 								"package: yandex.cloud.cloudregistry.v1\n" +
 								"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 							Optional: true,
@@ -386,9 +403,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 									MarkdownDescription: "Number of versions to keep.",
 									Description: "Number of versions to keep." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_versionyandex.cloud.cloudregistry.v1.KeepByVersionLifecycleRule.keep_versions_count
-										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_versionyandex.cloud.cloudregistry.v1.KeepByVersionLifecycleRule.keep_versions_count
-										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_versionyandex.cloud.cloudregistry.v1.KeepByVersionLifecycleRule.keep_versions_count
+										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_version -> yandex.cloud.cloudregistry.v1.KeepByVersionLifecycleRule.keep_versions_count
+										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_version -> yandex.cloud.cloudregistry.v1.KeepByVersionLifecycleRule.keep_versions_count
+										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_version -> yandex.cloud.cloudregistry.v1.KeepByVersionLifecycleRule.keep_versions_count
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 									Optional: true,
@@ -402,9 +419,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 							MarkdownDescription: "Rule that keeps artifacts by version count.",
 							Description: "Rule that keeps artifacts by version count." +
 								// proto paths: +
-								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_version
-								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_version
-								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_version
+								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_version
+								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_version
+								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.keep_by_version
 								"package: yandex.cloud.cloudregistry.v1\n" +
 								"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 							Optional: true,
@@ -423,9 +440,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 									MarkdownDescription: "Filter by version type.",
 									Description: "Filter by version type." +
 										// proto paths: +
-										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.maven_filtersyandex.cloud.cloudregistry.v1.MavenFilters.version_type
-										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.maven_filtersyandex.cloud.cloudregistry.v1.MavenFilters.version_type
-										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.maven_filtersyandex.cloud.cloudregistry.v1.MavenFilters.version_type
+										// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.maven_filters -> yandex.cloud.cloudregistry.v1.MavenFilters.version_type
+										// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.maven_filters -> yandex.cloud.cloudregistry.v1.MavenFilters.version_type
+										// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.maven_filters -> yandex.cloud.cloudregistry.v1.MavenFilters.version_type
 										"package: yandex.cloud.cloudregistry.v1\n" +
 										"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 									Optional: true,
@@ -442,9 +459,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 							MarkdownDescription: "Maven-specific filters.",
 							Description: "Maven-specific filters." +
 								// proto paths: +
-								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.maven_filters
-								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.maven_filters
-								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.maven_filters
+								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.maven_filters
+								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.maven_filters
+								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.maven_filters
 								"package: yandex.cloud.cloudregistry.v1\n" +
 								"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 							Optional: true,
@@ -459,9 +476,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 							MarkdownDescription: "Path prefix to which the rule applies.",
 							Description: "Path prefix to which the rule applies." +
 								// proto paths: +
-								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.path_prefix
-								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.path_prefix
-								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.path_prefix
+								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.path_prefix
+								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.path_prefix
+								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.path_prefix
 								"package: yandex.cloud.cloudregistry.v1\n" +
 								"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 							Optional: true,
@@ -476,9 +493,9 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 							MarkdownDescription: "Regular expression pattern to match package version or docker tag.",
 							Description: "Regular expression pattern to match package version or docker tag." +
 								// proto paths: +
-								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.version_regexp
-								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.version_regexp
-								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rulesyandex.cloud.cloudregistry.v1.LifecycleRule.version_regexp
+								// -> yandex.cloud.cloudregistry.v1.CreateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.version_regexp
+								// -> yandex.cloud.cloudregistry.v1.LifecyclePolicy.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.version_regexp
+								// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.rules -> yandex.cloud.cloudregistry.v1.LifecycleRule.version_regexp
 								"package: yandex.cloud.cloudregistry.v1\n" +
 								"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy.proto\n",
 							Optional: true,

@@ -308,13 +308,13 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateResource
 	defer cancel()
 	var updatePaths []string
 
-	if !plan.Description.Equal(state.Description) {
+	if !plan.Description.IsUnknown() && !plan.Description.Equal(state.Description) {
 		updatePaths = append(updatePaths, "description")
 	}
-	if !plan.Name.Equal(state.Name) {
+	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.SignatureCertificateId.Equal(state.SignatureCertificateId) {
+	if !plan.SignatureCertificateId.IsUnknown() && !plan.SignatureCertificateId.Equal(state.SignatureCertificateId) {
 		updatePaths = append(updatePaths, "signature_certificate_id")
 	}
 	if len(updatePaths) != 0 {
