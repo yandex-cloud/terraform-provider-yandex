@@ -5,6 +5,8 @@ package yandex
 import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_airflow_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_api_gateway_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_api_gateway_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_folder"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_folder_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_lifecycle_policy"
@@ -43,6 +45,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dns_inbound_endpoint_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dns_zone_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_function_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_function_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_oauth_client"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_service_account"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_iam_service_account_iam_binding"
@@ -98,9 +101,11 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_folder_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_folder_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_container_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_container_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_eventrouter_bus"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_workflow"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_workflow_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_workflow_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_spark_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_advanced_rate_limiter_profile"
@@ -207,11 +212,16 @@ func init() {
 		yandex_lockbox_secret_iam_member.NewResource,
 		yandex_logging_group.NewResource,
 		yandex_metastore_cluster_iam_binding.NewResource,
+		yandex_api_gateway_iam_binding.NewResource,
+		yandex_api_gateway_iam_member.NewResource,
 		yandex_serverless_container_iam_binding.NewResource,
+		yandex_serverless_container_iam_member.NewResource,
 		yandex_serverless_eventrouter_bus.NewResource,
 		yandex_function_iam_binding.NewResource,
+		yandex_function_iam_member.NewResource,
 		yandex_serverless_workflow.NewResource,
 		yandex_serverless_workflow_iam_binding.NewResource,
+		yandex_serverless_workflow_iam_member.NewResource,
 		yandex_smartcaptcha_captcha.NewResource,
 		yandex_sws_advanced_rate_limiter_profile.NewResource,
 		yandex_sws_match_list.NewResource,

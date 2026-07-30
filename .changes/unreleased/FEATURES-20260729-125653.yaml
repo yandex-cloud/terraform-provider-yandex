@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'serverless: added new resources `yandex_api_gateway_iam_binding` `yandex_api_gateway_iam_member` `yandex_function_iam_member` `yandex_serverless_container_iam_member` `yandex_serverless_workflow_iam_member`'
+time: 2026-07-29T12:56:53.386831809+03:00

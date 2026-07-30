@@ -845,6 +845,8 @@ github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.50 h1:VgyvzEdBO
 github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.50/go.mod h1:6yc7G5s4qJpUDryPwrGBUsgqw2QgPQqH9PoAYze8GY8=
 github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.12 h1:P0oYVlHoxG48w8gAP/C5F3brZnrMGS1cFSMZg85Rhj0=
 github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.12/go.mod h1:xM5Hus5UFV1EC8kQYIJX5LnC+VW930cvxUwpO/4H9jY=
+github.com/yandex-cloud/go-sdk/services/serverless/apigateway v0.0.72 h1:/slC0n9O0pMF6sF6YpKbPfOzGO0eNRaF+maUnaJcy58=
+github.com/yandex-cloud/go-sdk/services/serverless/apigateway v0.0.72/go.mod h1:ilkAxt3LSmOoJBFZyt6kU6TDXpx8uk28V/ZMB8REp+w=
 github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.1 h1:fxVRk80vL5ku0tNUrLA5riysQg2HZH1XCcCqxc9G9Ig=
 github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.1/go.mod h1:HlviLC/a1T89V+fyQHCwNEtBrF0Cp3HmrFwIbCUga6M=
 github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.3 h1:LP57siLOgVIFWjnj5R1a3gPYvmXRvRl4XBR5jTqsApY=

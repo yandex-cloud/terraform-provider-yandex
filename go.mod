@@ -71,6 +71,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/metastore v0.0.26
 	github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.50
 	github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.12
+	github.com/yandex-cloud/go-sdk/services/serverless/apigateway v0.0.72
 	github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.1
 	github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.3
 	github.com/yandex-cloud/go-sdk/services/serverless/functions v0.0.3
