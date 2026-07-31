@@ -47,8 +47,9 @@ func testAccDataSourceSecurityProfileCheck(name string) resource.TestCheckFunc {
 func testAccSecurityProfileResourceConfig(name string) string {
 	return fmt.Sprintf(`
 resource "yandex_sws_security_profile" "this" {	
-	name = "%[1]v"
-	default_action = "ALLOW"
+	name                     = "%[1]v"
+	default_action           = "ALLOW"
+	disallow_data_processing = false
 	security_rule {
 		name = "smart-protection"
 		priority = 99999

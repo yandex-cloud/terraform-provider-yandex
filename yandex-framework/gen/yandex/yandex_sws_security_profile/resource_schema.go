@@ -161,8 +161,7 @@ func YandexSwsSecurityProfileResourceSchema(ctx context.Context) schema.Schema {
 					// -> yandex.cloud.smartwebsecurity.v1.UpdateSecurityProfileRequest.disallow_data_processing
 					"package: yandex.cloud.smartwebsecurity.v1\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
-				Optional: true,
-				Computed: true,
+				Required: true,
 
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),

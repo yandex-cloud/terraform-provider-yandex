@@ -129,8 +129,9 @@ func testAccCheckSmartwebsecuritySecurityProfileASNMatchers(s *terraform.State) 
 func testAccSmartwebsecuritySecurityProfileBasicMigration(targetName string) string {
 	return fmt.Sprintf(`
 resource "yandex_sws_security_profile" "this" {
-  name                             = "%[1]v"
-  default_action                   = "ALLOW"
+  name                     = "%[1]v"
+  default_action           = "ALLOW"
+  disallow_data_processing = false
   captcha_id = yandex_smartcaptcha_captcha.this.id
 
   security_rule {
@@ -253,9 +254,10 @@ resource "yandex_smartcaptcha_captcha" "this" {
 func testAccSmartwebsecuritySecurityProfileBasic(targetName string) string {
 	return fmt.Sprintf(`
 resource "yandex_sws_security_profile" "this" {	
-  name = "%[1]v"
-  default_action = "ALLOW"
-  captcha_id = yandex_smartcaptcha_captcha.this.id
+  name                     = "%[1]v"
+  default_action           = "ALLOW"
+  disallow_data_processing = false
+  captcha_id               = yandex_smartcaptcha_captcha.this.id
   security_rule {
     name = "smart-protection"
     priority = 99999

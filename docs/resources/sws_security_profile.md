@@ -13,8 +13,9 @@ A SecurityProfile resource.
 // Create a new SWS Security Profile (Simple).
 //
 resource "yandex_sws_security_profile" "demo-profile-simple" {
-  name           = "demo-profile-simple"
-  default_action = "ALLOW"
+  name                     = "demo-profile-simple"
+  default_action           = "ALLOW"
+  disallow_data_processing = false
 
   security_rule {
     name     = "smart-protection"
@@ -33,6 +34,7 @@ resource "yandex_sws_security_profile" "demo-profile-simple" {
 resource "yandex_sws_security_profile" "demo-profile-advanced" {
   name                             = "demo-profile-advanced"
   default_action                   = "ALLOW"
+  disallow_data_processing         = false
   captcha_id                       = "<captcha_id>"
   advanced_rate_limiter_profile_id = "<arl_id>"
 
@@ -169,7 +171,7 @@ resource "yandex_sws_security_profile" "demo-profile-advanced" {
 - `custom_page_id` (String). ID of the default custom page shown to the user when a request is denied.
 - `default_action` (**Required**)(String). Action to perform if none of rules matched.
 - `description` (String). Optional description of the security profile.
-- `disallow_data_processing` (Bool). Disables the use of HTTP request data for training and improving the service's ML models.
+- `disallow_data_processing` (**Required**)(Bool). Disables the use of HTTP request data for training and improving the service's ML models.
 - `folder_id` (String). ID of the folder that the security profile belongs to.
 - `id` (String). ID of the SecurityProfile resource to return.
 - `labels` (Map Of String). Labels as `` key:value `` pairs. Maximum of 64 per resource.

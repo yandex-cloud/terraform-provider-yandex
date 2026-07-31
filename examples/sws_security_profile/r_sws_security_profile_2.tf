@@ -4,6 +4,7 @@
 resource "yandex_sws_security_profile" "demo-profile-advanced" {
   name                             = "demo-profile-advanced"
   default_action                   = "ALLOW"
+  disallow_data_processing         = false
   captcha_id                       = "<captcha_id>"
   advanced_rate_limiter_profile_id = "<arl_id>"
 
