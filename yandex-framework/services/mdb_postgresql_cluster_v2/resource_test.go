@@ -79,8 +79,8 @@ resource "yandex_kms_symmetric_key" "disk_encrypt" {}
 `
 
 var (
-	pgVersions   = [...]string{"14", "15", "16", "17", "18"}
-	pg1CVersions = [...]string{"14-1c", "15-1c", "16-1c", "17-1c", "18-1c"} //nolint:unused
+	pgVersions   = [...]string{"15", "16", "17", "18"}
+	pg1CVersions = [...]string{"15-1c", "16-1c", "17-1c", "18-1c"} //nolint:unused
 )
 
 // TestMain - add sweepers flag to the go test command
@@ -314,8 +314,8 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	t.Parallel()
 
-	version := "14-1c"
-	versionUpdate := "15-1c"
+	version := "17-1c"
+	versionUpdate := "18-1c"
 
 	resources := `
 	  resource_preset_id = "s2.micro"
