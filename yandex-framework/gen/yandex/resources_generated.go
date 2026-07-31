@@ -9,9 +9,11 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_api_gateway_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_folder"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_folder_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_folder_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_lifecycle_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cm_certificate_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cm_certificate_iam_member"
@@ -180,9 +182,11 @@ func init() {
 		yandex_cm_certificate_iam_member.NewResource,
 		yandex_cloudregistry_folder.NewResource,
 		yandex_cloudregistry_folder_iam_binding.NewResource,
+		yandex_cloudregistry_folder_iam_member.NewResource,
 		yandex_cloudregistry_lifecycle_policy.NewResource,
 		yandex_cloudregistry_registry.NewResource,
 		yandex_cloudregistry_registry_iam_binding.NewResource,
+		yandex_cloudregistry_registry_iam_member.NewResource,
 		yandex_cloudregistry_scan_policy.NewResource,
 		yandex_compute_disk_placement_group.NewResource,
 		yandex_compute_disk_placement_group_iam_binding.NewResource,

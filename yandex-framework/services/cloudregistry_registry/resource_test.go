@@ -91,7 +91,7 @@ func TestAccCloudRegistryRegistry_patternFilter(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCloudRegistryRegistryConfigWithPatternFilter(registryName, updatedInclude, nil),
+				Config: testAccCloudRegistryRegistryConfigWithPatternFilter(registryName, updatedInclude, []string{}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCloudRegistryExists(cloudRegistryResource),
 					resource.TestCheckResourceAttr(cloudRegistryResource, "pattern_filter.include_patterns.#", fmt.Sprint(len(updatedInclude))),
@@ -121,7 +121,7 @@ resource "yandex_cloudregistry_registry" "test-registry" {
 func testAccCloudRegistryRegistryConfigWithPatternFilter(registryName string, include, exclude []string) string {
 	block := ""
 	if include != nil || exclude != nil {
-		lines := []string{"  pattern_filter {"}
+		lines := []string{"  pattern_filter = {"}
 		if include != nil {
 			lines = append(lines, fmt.Sprintf("    include_patterns = [%s]", quoteJoin(include)))
 		}
