@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/monitoring/v3"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/codes"
@@ -916,9 +917,10 @@ func monitoringDashboardWidgetSchema(includeGroup bool) *schema.Resource {
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"group_id": {
-						Type:        schema.TypeString,
-						Description: "Group ID.",
-						Required:    true,
+						Type:         schema.TypeString,
+						Description:  "Group ID.",
+						Required:     true,
+						ValidateFunc: validation.StringIsNotEmpty,
 					},
 					"title": {
 						Type:        schema.TypeString,
@@ -960,9 +962,10 @@ func monitoringDashboardWidgetSchema(includeGroup bool) *schema.Resource {
 	} else {
 		// The API requires an explicit id on each widget nested inside a group; top-level widgets have no such field.
 		widgetSchema.Schema["widget_id"] = &schema.Schema{
-			Type:        schema.TypeString,
-			Description: "Widget ID.",
-			Required:    true,
+			Type:         schema.TypeString,
+			Description:  "Widget ID.",
+			Required:     true,
+			ValidateFunc: validation.StringIsNotEmpty,
 		}
 	}
 
