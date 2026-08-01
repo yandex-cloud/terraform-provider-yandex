@@ -116,6 +116,17 @@ func testAccDataSourceMonitoringDashboardWithDataSpecified(t *testing.T, dataStr
 					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.1.chart.0.visualization_settings.0.yaxis_settings.0.left.0.precision", "3"),
 					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.1.chart.0.visualization_settings.0.yaxis_settings.0.left.0.type", "YAXIS_TYPE_LOGARITHMIC"),
 					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.1.chart.0.visualization_settings.0.yaxis_settings.0.left.0.unit_format", "UNIT_CELSIUS"),
+
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.group.0.group_id", "test-group"),
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.group.0.title", "Group section"),
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.group.0.collapsed", "true"),
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.group.0.repeat_settings.0.repeat_by.0", "host"),
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.group.0.widgets.#", "3"),
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.group.0.widgets.0.widget_id", "child-title"),
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.group.0.widgets.0.title.0.text", "grouped title"),
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.group.0.widgets.1.chart.0.chart_id", "groupchart1id"),
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.group.0.widgets.2.text.0.text", "grouped text"),
+					resource.TestCheckResourceAttr(monitoringDashboardDataSource, "widgets.3.position.0.h", "10"),
 				),
 			},
 		},
@@ -260,9 +271,11 @@ func testAccDataSourceMonitoringDashboard(data string, name string) string {
 		  y = 1
 		}
 	  }
+
+	%s
 	}
 
-	%s`, name, data)
+	%s`, name, testAccGroupWidgetBlock, data)
 }
 
 func testAccCheckMonitoringDashboardDestroy(s *terraform.State) error {
