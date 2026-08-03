@@ -35,6 +35,12 @@ const (
 	pgResource                              = "yandex_mdb_postgresql_cluster_v2.foo"
 	pgRestoreBackupId                       = "c9qrbucrcvm6a50tblv2:c9q698sst87e4vhkvrsm"
 	pgRestoreBackupIdEncrypted              = "c9qu0h1fg6rt1jnu62ro:mdb4er3h4lqov20tedc3"
+	pgLatestVersion                         = "18"
+	pgUpgradeSourceVersion                  = "17"
+	pgUpgradeTargetVersion                  = pgLatestVersion
+	pg1CUpgradeSourceVersion                = "17-1c"
+	pg1CUpgradeTargetVersion                = "18-1c"
+	pgRestoreVersion                        = "15"
 	yandexMDBPostgreSQLClusterCreateTimeout = 30 * time.Minute // TODO refactor
 	yandexMDBPostgreSQLClusterDeleteTimeout = 15 * time.Minute
 	yandexMDBPostgreSQLClusterUpdateTimeout = 60 * time.Minute
@@ -107,8 +113,8 @@ func mdbPGClusterImportStep(name string) resource.TestStep {
 func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 	t.Parallel()
 
-	version := "14"
-	versionUpdate := "15"
+	version := pgUpgradeSourceVersion
+	versionUpdate := pgUpgradeTargetVersion
 
 	resources := `
 	  resource_preset_id = "s2.micro"
@@ -147,7 +153,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create PostgreSQL Cluster
 			{
-				Config: testAccMDBPGClusterBasic(resourceId, clusterName, description, "PRESTABLE", labels, version, resources),
+				Config: testAccMDBPGClusterBasic(resourceId, clusterName, description, "PRESTABLE", labels, version, resources, ""),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(description)),
@@ -158,6 +164,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"enabled":                      knownvalue.Bool(false),
+						"advanced_mode":                knownvalue.Bool(false),
 						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					})),
@@ -227,7 +234,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// Update PostgreSQL Cluster
 			{
-				Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionUpdated, "PRESTABLE", labelsUpdated, versionUpdate, resourcesUpdated),
+				Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionUpdated, "PRESTABLE", labelsUpdated, versionUpdate, resourcesUpdated, ""),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
@@ -247,6 +254,7 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 					)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(map[string]knownvalue.Check{
 						"enabled":                      knownvalue.Bool(false),
+						"advanced_mode":                knownvalue.Bool(false),
 						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					})),
@@ -314,8 +322,8 @@ func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	t.Parallel()
 
-	version := "17-1c"
-	versionUpdate := "18-1c"
+	version := pg1CUpgradeSourceVersion
+	versionUpdate := pg1CUpgradeTargetVersion
 
 	resources := `
 	  resource_preset_id = "s2.micro"
@@ -506,6 +514,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
 							"enabled":                      knownvalue.Bool(true),
+							"advanced_mode":                knownvalue.Bool(false),
 							"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 							"statements_sampling_interval": knownvalue.Int64Exact(600),
 						},
@@ -596,16 +605,16 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						DiskSizeLimit:           datasize.ToBytes(15),
 						EmergencyUsageThreshold: 20,
 					}),
-					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig14_1C{
+					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17_1C{
 						MaxConnections:              wrapperspb.Int64(100),
 						EnableParallelHash:          wrapperspb.Bool(true),
 						AutovacuumVacuumScaleFactor: wrapperspb.Double(0.34),
-						DefaultTransactionIsolation: pconfig.PostgresqlConfig14_1C_TRANSACTION_ISOLATION_READ_COMMITTED,
-						SharedPreloadLibraries: []pconfig.PostgresqlConfig14_1C_SharedPreloadLibraries{
-							pconfig.PostgresqlConfig14_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
-							pconfig.PostgresqlConfig14_1C_SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,
+						DefaultTransactionIsolation: pconfig.PostgresqlConfig17_1C_TRANSACTION_ISOLATION_READ_COMMITTED,
+						SharedPreloadLibraries: []pconfig.PostgresqlConfig17_1C_SharedPreloadLibraries{
+							pconfig.PostgresqlConfig17_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
+							pconfig.PostgresqlConfig17_1C_SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,
 						},
-						AutoExplainLogFormat: pconfig.PostgresqlConfig14_1C_AUTO_EXPLAIN_LOG_FORMAT_XML,
+						AutoExplainLogFormat: pconfig.PostgresqlConfig17_1C_AUTO_EXPLAIN_LOG_FORMAT_XML,
 					}, []string{
 						"MaxConnections",
 						"EnableParallelHash",
@@ -665,6 +674,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
 							"enabled":                      knownvalue.Bool(false),
+							"advanced_mode":                knownvalue.Bool(false),
 							"sessions_sampling_interval":   knownvalue.Int64Exact(500),
 							"statements_sampling_interval": knownvalue.Int64Exact(1000),
 						},
@@ -741,15 +751,15 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 						Enabled: wrapperspb.Bool(false),
 					}),
 					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(14)),
-					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig15_1C{
+					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig18_1C{
 						MaxConnections:              wrapperspb.Int64(200),
 						EnableParallelHash:          wrapperspb.Bool(false),
 						AutovacuumVacuumScaleFactor: wrapperspb.Double(0.35),
-						DefaultTransactionIsolation: pconfig.PostgresqlConfig15_1C_TRANSACTION_ISOLATION_REPEATABLE_READ,
-						SharedPreloadLibraries: []pconfig.PostgresqlConfig15_1C_SharedPreloadLibraries{
-							pconfig.PostgresqlConfig15_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
+						DefaultTransactionIsolation: pconfig.PostgresqlConfig18_1C_TRANSACTION_ISOLATION_REPEATABLE_READ,
+						SharedPreloadLibraries: []pconfig.PostgresqlConfig18_1C_SharedPreloadLibraries{
+							pconfig.PostgresqlConfig18_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
 						},
-						AutoExplainLogFormat: pconfig.PostgresqlConfig15_1C_AUTO_EXPLAIN_LOG_FORMAT_XML,
+						AutoExplainLogFormat: pconfig.PostgresqlConfig18_1C_AUTO_EXPLAIN_LOG_FORMAT_XML,
 					}, []string{
 						"MaxConnections",
 						"EnableParallelHash",
@@ -857,7 +867,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 	t.Parallel()
 
-	version := "17"
+	version := pgLatestVersion
 
 	log.Printf("TestAccMDBPostgreSQLCluster_mixed: version %s", version)
 	var cluster postgresql.Cluster
@@ -882,7 +892,14 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 	`
 
 	performanceDiagnostics := `
+		enabled = true
+		advanced_mode = true
+		sessions_sampling_interval = 60
+		statements_sampling_interval = 600
+	`
+	performanceDiagnosticsDisabled := `
 		enabled = false
+		advanced_mode = false
 		sessions_sampling_interval = 60
 		statements_sampling_interval = 600
 	`
@@ -924,7 +941,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 
 	stepsFullBasic := []resource.TestStep{
 		{
-			Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version, resources),
+			Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version, resources, ""),
 			ConfigStateChecks: []statecheck.StateCheck{
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionBasic)),
@@ -945,6 +962,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"enabled":                      knownvalue.Bool(false),
+						"advanced_mode":                knownvalue.Bool(false),
 						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					},
@@ -996,8 +1014,8 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
 				testAccCheckClusterPoolerConfigExact(&cluster, nil),
 				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{}),
-				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
-					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
+				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig18{
+					PasswordEncryption: pconfig.PostgresqlConfig18_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
 				}, nil),
 				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 					Hours:   0,
@@ -1044,7 +1062,8 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
-						"enabled":                      knownvalue.Bool(false),
+						"enabled":                      knownvalue.Bool(true),
+						"advanced_mode":                knownvalue.Bool(true),
 						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					},
@@ -1089,7 +1108,8 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					Serverless:   false,
 				}),
 				testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &postgresql.PerformanceDiagnostics{
-					Enabled:                    false,
+					Enabled:                    true,
+					AdvancedMode:               true,
 					SessionsSamplingInterval:   60,
 					StatementsSamplingInterval: 600,
 				}),
@@ -1104,8 +1124,8 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					PlannedUsageThreshold:   0,
 					EmergencyUsageThreshold: 85,
 				}),
-				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
-					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
+				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig18{
+					PasswordEncryption: pconfig.PostgresqlConfig18_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
 				}, nil),
 				testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
 					Policy: &postgresql.MaintenanceWindow_Anytime{
@@ -1116,7 +1136,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 			),
 		},
 		{
-			Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version, resources),
+			Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version, resources, performanceDiagnosticsDisabled),
 			ConfigStateChecks: []statecheck.StateCheck{
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionBasic)),
@@ -1137,6 +1157,7 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
 					map[string]knownvalue.Check{
 						"enabled":                      knownvalue.Bool(false),
+						"advanced_mode":                knownvalue.Bool(false),
 						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
 						"statements_sampling_interval": knownvalue.Int64Exact(600),
 					},
@@ -1192,8 +1213,8 @@ func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
 					PlannedUsageThreshold:   0,
 					EmergencyUsageThreshold: 85,
 				}),
-				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17{
-					PasswordEncryption: pconfig.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
+				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig18{
+					PasswordEncryption: pconfig.PostgresqlConfig18_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
 				}, nil),
 				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
 					Hours:   0,
@@ -1624,12 +1645,8 @@ func testAccCheckClusterBackupWindowStartExact(r *postgresql.Cluster, expected *
 
 func testAccCheckClusterPostgresqlConfigExact(r *postgresql.Cluster, expectedUserConfig interface{}, checkFields []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		var cmpObj interface{}
+		var cmpObj any
 		switch expectedUserConfig.(type) {
-		case *pconfig.PostgresqlConfig14:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_14().GetUserConfig()
-		case *pconfig.PostgresqlConfig14_1C:
-			cmpObj = r.GetConfig().GetPostgresqlConfig_14_1C().GetUserConfig()
 		case *pconfig.PostgresqlConfig15:
 			cmpObj = r.GetConfig().GetPostgresqlConfig_15().GetUserConfig()
 		case *pconfig.PostgresqlConfig15_1C:
@@ -1814,7 +1831,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "foo" {
   }
 
   config {
-    version = "15"
+    version = "%s"
     resources {
       resource_preset_id = "s2.micro"
       disk_size          = 10
@@ -1833,10 +1850,19 @@ resource "yandex_mdb_postgresql_cluster_v2" "foo" {
     create = "%s"
   }
 }
-`, clusterName, test.GetExampleFolderID(), pgRestoreBackupId, createTimeout)
+`, clusterName, test.GetExampleFolderID(), pgRestoreBackupId, pgRestoreVersion, createTimeout)
 }
 
-func testAccMDBPGClusterBasic(resourceId, name, description, environment, labels, version, resources string) string {
+func testAccMDBPGClusterBasic(resourceId, name, description, environment, labels, version, resources, performanceDiagnostics string) string {
+	performanceDiagnosticsBlock := ""
+	if performanceDiagnostics != "" {
+		performanceDiagnosticsBlock = fmt.Sprintf(`
+    performance_diagnostics = {
+      %s
+    }
+`, performanceDiagnostics)
+	}
+
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster_v2" "%s" {
   name        = "%s"
@@ -1860,9 +1886,10 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
     resources {
       %s
     }
+    %s
   }
 }
-`, resourceId, name, description, environment, labels, version, resources)
+`, resourceId, name, description, environment, labels, version, resources, performanceDiagnosticsBlock)
 }
 
 func testAccMDBPGClusterFull(
@@ -2237,7 +2264,7 @@ func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection boo
 		}
 	  
 		config {
-		  version = "15"
+		  version = "%s"
 	  
 		  resources {
 			resource_preset_id = "s2.micro"
@@ -2255,7 +2282,7 @@ func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection boo
 	  
 		deletion_protection = %t
 	  }
-`, clusterName, test.GetExampleFolderID(), pgRestoreBackupId, deletionProtection)
+`, clusterName, test.GetExampleFolderID(), pgRestoreBackupId, pgRestoreVersion, deletionProtection)
 }
 
 func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId, diskEncryption string) string {
@@ -2282,7 +2309,7 @@ func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId
 		}
 	  
 		config {
-		  version = "15"
+		  version = "%s"
 	  
 		  resources {
 			resource_preset_id = "s2.micro"
@@ -2308,7 +2335,7 @@ func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId
 		deletion_protection = false
 		%s
 	  }
-`, clusterName, test.GetExampleFolderID(), backupId, diskEncryption)
+`, clusterName, test.GetExampleFolderID(), backupId, pgRestoreVersion, diskEncryption)
 }
 
 func testAccMDBPGClusterConfigRestoreDropEncryption(clusterName string) string {

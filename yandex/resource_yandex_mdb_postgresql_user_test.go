@@ -454,7 +454,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 	network_id  = "${yandex_vpc_network.mdb-pg-test-net.id}"
 
 	config {
-	    version = 16
+	    version = "%s"
 	    resources {
 		  resource_preset_id = "s2.micro"
 		  disk_size          = 10
@@ -462,6 +462,9 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 	    }
 		connection_manager {
 			enabled = true
+		}
+		postgresql_config = {
+			password_encryption = "PASSWORD_ENCRYPTION_MD5"
 		}
 	}
 
@@ -479,7 +482,7 @@ resource "yandex_mdb_postgresql_database" "testdb" {
 	lc_collate = "en_US.UTF-8"
 	lc_type    = "en_US.UTF-8"
 }
-`, name)
+`, name, postgresqlLatestVersion)
 }
 
 // Create cluster, user and database

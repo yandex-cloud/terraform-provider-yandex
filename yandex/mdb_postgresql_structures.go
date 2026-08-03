@@ -80,18 +80,19 @@ func flattenPGResources(r *postgresql.Resources) []interface{} {
 	return []interface{}{out}
 }
 
-func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) []interface{} {
+func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) []any {
 	if p == nil {
 		return nil
 	}
 
-	out := map[string]interface{}{}
+	out := map[string]any{}
 
 	out["enabled"] = p.Enabled
+	out["advanced_mode"] = p.AdvancedMode
 	out["sessions_sampling_interval"] = int(p.SessionsSamplingInterval)
 	out["statements_sampling_interval"] = int(p.StatementsSamplingInterval)
 
-	return []interface{}{out}
+	return []any{out}
 }
 
 func flattenPGManagedRepack(p *postgresql.ManagedRepack) []interface{} {
@@ -1029,6 +1030,7 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 		"config.0.access.0.data_transfer":                                 "config_spec.access.data_transfer",
 		"config.0.access.0.yandex_query":                                  "config_spec.access.yandex_query",
 		"config.0.performance_diagnostics.0.enabled":                      "config_spec.performance_diagnostics.enabled",
+		"config.0.performance_diagnostics.0.advanced_mode":                "config_spec.performance_diagnostics.advanced_mode",
 		"config.0.performance_diagnostics.0.sessions_sampling_interval":   "config_spec.performance_diagnostics.sessions_sampling_interval",
 		"config.0.performance_diagnostics.0.statements_sampling_interval": "config_spec.performance_diagnostics.statements_sampling_interval",
 		"config.0.disk_size_autoscaling.0.emergency_usage_threshold":      "config_spec.disk_size_autoscaling.emergency_usage_threshold",
@@ -1442,6 +1444,10 @@ func expandPGPerformanceDiagnostics(d *schema.ResourceData) *postgresql.Performa
 
 	if v, ok := d.GetOk("config.0.performance_diagnostics.0.enabled"); ok {
 		out.Enabled = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.performance_diagnostics.0.advanced_mode"); ok {
+		out.AdvancedMode = v.(bool)
 	}
 
 	if v, ok := d.GetOk("config.0.performance_diagnostics.0.sessions_sampling_interval"); ok {

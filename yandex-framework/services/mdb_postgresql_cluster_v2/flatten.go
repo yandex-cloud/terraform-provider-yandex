@@ -22,6 +22,7 @@ func flattenPerformanceDiagnostics(ctx context.Context, pd *postgresql.Performan
 	obj, d := types.ObjectValueFrom(
 		ctx, PerformanceDiagnosticsAttrTypes, PerformanceDiagnostics{
 			Enabled:                    types.BoolValue(pd.Enabled),
+			AdvancedMode:               types.BoolValue(pd.AdvancedMode),
 			SessionsSamplingInterval:   types.Int64Value(pd.SessionsSamplingInterval),
 			StatementsSamplingInterval: types.Int64Value(pd.StatementsSamplingInterval),
 		},

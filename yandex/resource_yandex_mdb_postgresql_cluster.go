@@ -296,6 +296,12 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 							Optional:    true,
 							Computed:    true,
 						},
+						"advanced_mode": {
+							Type:        schema.TypeBool,
+							Description: "Switch performance diagnostics from standard to advanced mode.",
+							Optional:    true,
+							Computed:    true,
+						},
 						"sessions_sampling_interval": {
 							Type:        schema.TypeInt,
 							Description: "Interval (in seconds) for pg_stat_activity sampling. Acceptable values are 1 to 86400, inclusive.",

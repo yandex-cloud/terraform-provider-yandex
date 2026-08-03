@@ -35,11 +35,13 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *
 			testname: "CheckAllAttributes",
 			testData: &postgresql.PerformanceDiagnostics{
 				Enabled:                    true,
+				AdvancedMode:               true,
 				SessionsSamplingInterval:   10,
 				StatementsSamplingInterval: 5,
 			},
 			expectedObject: types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
 				"enabled":                      types.BoolValue(true),
+				"advanced_mode":                types.BoolValue(true),
 				"sessions_sampling_interval":   types.Int64Value(10),
 				"statements_sampling_interval": types.Int64Value(5),
 			}),
@@ -52,6 +54,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *
 			},
 			expectedObject: types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
 				"enabled":                      types.BoolValue(true),
+				"advanced_mode":                types.BoolValue(false),
 				"sessions_sampling_interval":   types.Int64Value(10),
 				"statements_sampling_interval": types.Int64Value(0),
 			}),
@@ -61,6 +64,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsFlatten(t *
 			testData: &postgresql.PerformanceDiagnostics{},
 			expectedObject: types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
 				"enabled":                      types.BoolValue(false),
+				"advanced_mode":                types.BoolValue(false),
 				"sessions_sampling_interval":   types.Int64Value(0),
 				"statements_sampling_interval": types.Int64Value(0),
 			}),
@@ -581,6 +585,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 				},
 				PerformanceDiagnostics: &postgresql.PerformanceDiagnostics{
 					Enabled:                    true,
+					AdvancedMode:               true,
 					SessionsSamplingInterval:   60,
 					StatementsSamplingInterval: 600,
 				},
@@ -623,6 +628,7 @@ func TestYandexProvider_MDBPostgresClusterConfigFlatten(t *testing.T) {
 					}),
 					"performance_diagnostics": types.ObjectValueMust(expectedPDAttrs, map[string]attr.Value{
 						"enabled":                      types.BoolValue(true),
+						"advanced_mode":                types.BoolValue(true),
 						"sessions_sampling_interval":   types.Int64Value(60),
 						"statements_sampling_interval": types.Int64Value(600),
 					}),

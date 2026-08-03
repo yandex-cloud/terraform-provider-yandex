@@ -38,13 +38,15 @@ func buildMWTestBlockObj(mwType, mwDay *string, mwHour *int64) types.Object {
 
 var pdTestExpand = map[string]attr.Type{
 	"enabled":                      types.BoolType,
+	"advanced_mode":                types.BoolType,
 	"sessions_sampling_interval":   types.Int64Type,
 	"statements_sampling_interval": types.Int64Type,
 }
 
-func buildPDTestBlockObj(enabled *bool, sessionsSi, statementsSi *int64) types.Object {
+func buildPDTestBlockObj(enabled, advancedMode *bool, sessionsSi, statementsSi *int64) types.Object {
 	return types.ObjectValueMust(pdTestExpand, map[string]attr.Value{
 		"enabled":                      types.BoolPointerValue(enabled),
+		"advanced_mode":                types.BoolPointerValue(advancedMode),
 		"sessions_sampling_interval":   types.Int64PointerValue(sessionsSi),
 		"statements_sampling_interval": types.Int64PointerValue(statementsSi),
 	})
@@ -71,16 +73,17 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsExpand(t *t
 		},
 		{
 			testname:  "CheckFullBlock",
-			testBlock: buildPDTestBlockObj(&rBool, &rInt64, &rInt64),
+			testBlock: buildPDTestBlockObj(&rBool, &rBool, &rInt64, &rInt64),
 			expected: &postgresql.PerformanceDiagnostics{
 				Enabled:                    rBool,
+				AdvancedMode:               rBool,
 				SessionsSamplingInterval:   rInt64,
 				StatementsSamplingInterval: rInt64,
 			},
 		},
 		{
 			testname:  "CheckPartialBlock",
-			testBlock: buildPDTestBlockObj(nil, &rInt64, &rInt64),
+			testBlock: buildPDTestBlockObj(nil, nil, &rInt64, &rInt64),
 			expected: &postgresql.PerformanceDiagnostics{
 				Enabled:                    false,
 				SessionsSamplingInterval:   rInt64,
@@ -89,7 +92,7 @@ func TestYandexProvider_MDBPostgresClusterConfigPerfomanceDiagnosticsExpand(t *t
 		},
 		{
 			testname:  "CheckEmptyBlock",
-			testBlock: buildPDTestBlockObj(nil, nil, nil),
+			testBlock: buildPDTestBlockObj(nil, nil, nil, nil),
 			expected: &postgresql.PerformanceDiagnostics{
 				Enabled:                    false,
 				SessionsSamplingInterval:   0,
@@ -595,6 +598,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 						expectedPDAttrs,
 						map[string]attr.Value{
 							"enabled":                      types.BoolValue(true),
+							"advanced_mode":                types.BoolValue(true),
 							"statements_sampling_interval": types.Int64Value(600),
 							"sessions_sampling_interval":   types.Int64Value(60),
 						},
@@ -636,6 +640,7 @@ func TestYandexProvider_MDBPostgresClusterConfigExpand(t *testing.T) {
 				},
 				PerformanceDiagnostics: &postgresql.PerformanceDiagnostics{
 					Enabled:                    true,
+					AdvancedMode:               true,
 					StatementsSamplingInterval: 600,
 					SessionsSamplingInterval:   60,
 				},

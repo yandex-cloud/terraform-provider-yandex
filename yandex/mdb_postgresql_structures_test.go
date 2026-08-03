@@ -1,6 +1,53 @@
 package yandex
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+)
+
+func TestPGPerformanceDiagnosticsAdvancedMode(t *testing.T) {
+	t.Run("expand configured advanced mode", func(t *testing.T) {
+		resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBPostgreSQLCluster().Schema, map[string]any{
+			"config": []any{
+				map[string]any{
+					"performance_diagnostics": []any{
+						map[string]any{
+							"enabled":                      true,
+							"advanced_mode":                true,
+							"sessions_sampling_interval":   60,
+							"statements_sampling_interval": 600,
+						},
+					},
+				},
+			},
+		})
+
+		got := expandPGPerformanceDiagnostics(resourceData)
+		if got == nil {
+			t.Fatal("expandPGPerformanceDiagnostics() returned nil")
+		}
+		if !got.AdvancedMode {
+			t.Error("expandPGPerformanceDiagnostics() did not preserve advanced_mode=true")
+		}
+	})
+
+	t.Run("flatten API advanced mode", func(t *testing.T) {
+		got := flattenPGPerformanceDiagnostics(&postgresql.PerformanceDiagnostics{AdvancedMode: true})
+		if len(got) != 1 {
+			t.Fatalf("flattenPGPerformanceDiagnostics() returned %d items, want 1", len(got))
+		}
+
+		values, ok := got[0].(map[string]any)
+		if !ok {
+			t.Fatalf("flattenPGPerformanceDiagnostics() item has type %T, want map[string]any", got[0])
+		}
+		if advancedMode, ok := values["advanced_mode"].(bool); !ok || !advancedMode {
+			t.Errorf("flattenPGPerformanceDiagnostics() advanced_mode = %v, want true", values["advanced_mode"])
+		}
+	})
+}
 
 func TestComparePGNoNamedHostInfo(t *testing.T) {
 	tests := []struct {
