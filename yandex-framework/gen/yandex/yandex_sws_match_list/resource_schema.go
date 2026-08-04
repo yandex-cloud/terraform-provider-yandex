@@ -51,6 +51,10 @@ func YandexSwsMatchListResourceSchema(ctx context.Context) schema.Schema {
 					"package: yandex.cloud.smartwebsecurity.v1.match_list\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/match_list/match_list.proto\n",
 				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 
 			"description": schema.StringAttribute{
