@@ -110,7 +110,8 @@ func mdbRedisUserImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"passwords", // passwords are not returned
+			"passwords",           // passwords are not returned
+			"password_wo_version", // write-only password version is not importable
 		},
 	}
 }

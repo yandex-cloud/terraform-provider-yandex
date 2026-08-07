@@ -19,6 +19,7 @@ func userRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnostics
 
 	state.ACLOptions = types.StringValue(user.AclOptions)
 	state.Enabled = types.BoolValue(user.Enabled)
+	state.PasswordWo = types.StringNull()
 	permissions, diags := flattenPermissions(ctx, user.Permissions)
 	state.Permissions = permissions
 	diagnostics.Append(diags...)

@@ -132,9 +132,8 @@ func flattenAccess(ctx context.Context, r *redis.Access) (types.Object, diag.Dia
 func FlattenConfig(cc *redis.ClusterConfig) Config {
 	c := cc.Redis.UserConfig
 
-	res := Config{
-		Version: types.StringValue(cc.Version),
-	}
+	res := Config{}
+	res.Version = types.StringValue(cc.Version)
 
 	// Enum field — 0 means unspecified (not set by user)
 	if c.GetMaxmemoryPolicy() != 0 {

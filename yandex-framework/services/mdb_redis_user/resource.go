@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -99,11 +101,28 @@ func (r *bindingResource) Schema(ctx context.Context,
 			},
 			"passwords": schema.SetAttribute{
 				ElementType:         basetypes.StringType{},
-				Required:            true,
+				Optional:            true,
 				Sensitive:           true,
 				MarkdownDescription: "Set of user passwords",
 				Validators: []validator.Set{
 					setvalidator.SizeBetween(1, 1),
+					setvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("password_wo")),
+				},
+			},
+			"password_wo": schema.StringAttribute{
+				Optional:            true,
+				Sensitive:           true,
+				WriteOnly:           true,
+				MarkdownDescription: "User password. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.",
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo_version")),
+				},
+			},
+			"password_wo_version": schema.Int64Attribute{
+				Optional:            true,
+				MarkdownDescription: "A version number for the write-only password. Increment this to trigger a password update.",
+				Validators: []validator.Int64{
+					int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo")),
 				},
 			},
 			"enabled": schema.BoolAttribute{
@@ -247,6 +266,8 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	var plan User
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -260,7 +281,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
-	userPlan, diags := userFromState(ctx, &plan)
+	userPlan, diags := userFromState(ctx, &plan, passwordWo)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -312,7 +333,11 @@ func getUpdatePaths(ctx context.Context, diags *diag.Diagnostics, plan, state Us
 		updatePaths = append(updatePaths, "enabled")
 	}
 
-	if !plan.Passwords.Equal(state.Passwords) {
+	if !plan.Passwords.IsNull() && !plan.Passwords.Equal(state.Passwords) {
+		updatePaths = append(updatePaths, "passwords")
+	}
+
+	if !plan.PasswordWoVersion.IsNull() && !plan.PasswordWoVersion.Equal(state.PasswordWoVersion) {
 		updatePaths = append(updatePaths, "passwords")
 	}
 
@@ -323,6 +348,8 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	var plan, state User
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -340,7 +367,16 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	userPlan, diags := userFromState(ctx, &plan)
+	if !plan.PasswordWoVersion.IsNull() && !plan.PasswordWoVersion.Equal(state.PasswordWoVersion) && (passwordWo.IsNull() || passwordWo.IsUnknown()) {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("password_wo"),
+			"Missing Redis user password",
+			"password_wo must be configured when password_wo_version changes",
+		)
+		return
+	}
+
+	userPlan, diags := userFromState(ctx, &plan, passwordWo)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

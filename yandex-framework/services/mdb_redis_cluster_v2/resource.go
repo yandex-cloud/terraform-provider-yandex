@@ -251,9 +251,34 @@ func (r *redisClusterResource) Schema(ctx context.Context,
 				Required:            true,
 				Attributes: map[string]schema.Attribute{
 					"password": schema.StringAttribute{
-						Required:            true,
+						Optional:            true,
 						Sensitive:           true,
 						MarkdownDescription: "Authentication password.",
+						Validators: []validator.String{
+							stringvalidator.ExactlyOneOf(
+								path.MatchRelative().AtParent().AtName("password_wo"),
+							),
+						},
+					},
+					"password_wo": schema.StringAttribute{
+						Optional:            true,
+						Sensitive:           true,
+						WriteOnly:           true,
+						MarkdownDescription: "Authentication password. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.",
+						Validators: []validator.String{
+							stringvalidator.AlsoRequires(
+								path.MatchRelative().AtParent().AtName("password_wo_version"),
+							),
+						},
+					},
+					"password_wo_version": schema.Int64Attribute{
+						Optional:            true,
+						MarkdownDescription: "A version number for the write-only password. Increment this to trigger a password update.",
+						Validators: []validator.Int64{
+							int64validator.AlsoRequires(
+								path.MatchRelative().AtParent().AtName("password_wo"),
+							),
+						},
 					},
 					"timeout": schema.Int64Attribute{
 						Optional:            true,
@@ -580,6 +605,11 @@ func (r *redisClusterResource) ModifyPlan(ctx context.Context, req resource.Modi
 func (r *redisClusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Cluster
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("config").AtName("password_wo"), &passwordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	createTimeout, diags := plan.Timeouts.Create(ctx, yandexMDBRedisClusterCreateTimeout)
 	resp.Diagnostics.Append(diags...)
@@ -594,7 +624,7 @@ func (r *redisClusterResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	request := prepareCreateRedisRequest(ctx, r.providerConfig, &resp.Diagnostics, &plan, hostSpecsSlice)
+	request := prepareCreateRedisRequest(ctx, r.providerConfig, &resp.Diagnostics, &plan, passwordWo, hostSpecsSlice)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -622,6 +652,11 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 	var state Cluster
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("config").AtName("password_wo"), &passwordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBRedisClusterUpdateTimeout)
 	resp.Diagnostics.Append(diags...)
@@ -653,7 +688,7 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 	}
 
-	updateRedisClusterParams(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan, &state)
+	updateRedisClusterParams(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan, &state, passwordWo)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -61,7 +61,9 @@ resource "yandex_vpc_subnet" "foo" {
 - `enabled` (Bool). Is redis user enabled.
 - `id` (*Read-Only*) (String). The resource identifier.
 - `name` (**Required**)(String). The name of the user.
-- `passwords` (**Required**)(Set Of String). Set of user passwords
+- `password_wo` (String). User password. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.
+- `password_wo_version` (Number). A version number for the write-only password. Increment this to trigger a password update.
+- `passwords` (Set Of String). Set of user passwords
 - `permissions` [Block]. Set of permissions granted to the user.
   - `categories` (String). Command categories user has permissions to.
   - `commands` (String). Commands user can execute.
