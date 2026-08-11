@@ -74,7 +74,8 @@ func TestConfigToStatePreservesStateOnlyFields(t *testing.T) {
 	ctx := context.Background()
 	state := Config{
 		configModel: configModel{
-			Password: types.StringValue("legacy-password"),
+			Password:             types.StringValue("legacy-password"),
+			NotifyKeyspaceEvents: types.StringValue(""),
 		},
 		PasswordWo:        types.StringNull(),
 		PasswordWoVersion: types.Int64Value(2),
@@ -88,6 +89,9 @@ func TestConfigToStatePreservesStateOnlyFields(t *testing.T) {
 
 	if state.Password.ValueString() != "legacy-password" {
 		t.Fatalf("password = %q, want legacy-password", state.Password.ValueString())
+	}
+	if state.NotifyKeyspaceEvents.IsNull() || state.NotifyKeyspaceEvents.ValueString() != "" {
+		t.Fatalf("notify_keyspace_events = %#v, want explicit empty string", state.NotifyKeyspaceEvents)
 	}
 	if state.PasswordWoVersion.ValueInt64() != 2 {
 		t.Fatalf("password_wo_version = %d, want 2", state.PasswordWoVersion.ValueInt64())
