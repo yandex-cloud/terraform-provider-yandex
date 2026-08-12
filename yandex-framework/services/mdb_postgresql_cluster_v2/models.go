@@ -89,12 +89,14 @@ var accessAttrTypes = mdbcommon.AccessAttrTypes(true, true, true, true, true)
 
 type PerformanceDiagnostics struct {
 	Enabled                    types.Bool  `tfsdk:"enabled"`
+	AdvancedMode               types.Bool  `tfsdk:"advanced_mode"`
 	SessionsSamplingInterval   types.Int64 `tfsdk:"sessions_sampling_interval"`
 	StatementsSamplingInterval types.Int64 `tfsdk:"statements_sampling_interval"`
 }
 
 var PerformanceDiagnosticsAttrTypes = map[string]attr.Type{
 	"enabled":                      types.BoolType,
+	"advanced_mode":                types.BoolType,
 	"sessions_sampling_interval":   types.Int64Type,
 	"statements_sampling_interval": types.Int64Type,
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config"
@@ -13,8 +15,31 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
-func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnostics, plan, state *Cluster) {
+func redisClusterPasswordChange(plan, state *Config, passwordWo types.String) (string, bool, diag.Diagnostics) {
+	password := plan.Password.ValueString()
+	passwordChanged := !plan.Password.IsNull() && !plan.Password.Equal(state.Password)
+
+	if plan.PasswordWoVersion.IsNull() || plan.PasswordWoVersion.Equal(state.PasswordWoVersion) {
+		return password, passwordChanged, nil
+	}
+	if passwordWo.IsNull() || passwordWo.IsUnknown() {
+		diagnostics := diag.Diagnostics{}
+		diagnostics.AddAttributeError(
+			path.Root("config").AtName("password_wo"),
+			"Missing Redis password",
+			"config.password_wo must be configured when config.password_wo_version changes",
+		)
+		return "", false, diagnostics
+	}
+
+	return passwordWo.ValueString(), true, nil
+}
+
+func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnostics, plan, state *Cluster, passwordWo types.String) {
+	planConfig := plan.Config
+	stateConfig := state.Config
 	var diags diag.Diagnostics
+
 	req := &redis.UpdateClusterRequest{
 		ClusterId: state.ID.ValueString(),
 		UpdateMask: &field_mask.FieldMask{
@@ -88,10 +113,10 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, paths...)
 	}
 
-	mask := plan.Config.EvalUpdateMask(state.Config)
+	mask := planConfig.EvalUpdateMask(stateConfig)
 	if msk := mask; len(msk) > 0 {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, mask...)
-		conf, err := expandRedisConfig(plan.Config)
+		conf, err := expandRedisConfig(planConfig)
 		if err != nil {
 			diagnostics.AddError(
 				"Wrong attribute value",
@@ -99,15 +124,15 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 			)
 		}
 
-		req.ConfigSpec.Version = plan.Config.Version.ValueString()
+		req.ConfigSpec.Version = planConfig.Version.ValueString()
 		req.ConfigSpec.Redis = conf
 	}
-	if !plan.Config.BackupWindowStart.Equal(state.Config.BackupWindowStart) {
-		req.ConfigSpec.BackupWindowStart = mdbcommon.ExpandBackupWindow(ctx, plan.Config.BackupWindowStart, diagnostics)
+	if !planConfig.BackupWindowStart.Equal(stateConfig.BackupWindowStart) {
+		req.ConfigSpec.BackupWindowStart = mdbcommon.ExpandBackupWindow(ctx, planConfig.BackupWindowStart, diagnostics)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.backup_window_start")
 	}
-	if !plan.Config.BackupRetainPeriodDays.Equal(state.Config.BackupRetainPeriodDays) {
-		req.ConfigSpec.BackupRetainPeriodDays = utils.Int64FromTF(plan.Config.BackupRetainPeriodDays)
+	if !planConfig.BackupRetainPeriodDays.Equal(stateConfig.BackupRetainPeriodDays) {
+		req.ConfigSpec.BackupRetainPeriodDays = utils.Int64FromTF(planConfig.BackupRetainPeriodDays)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.backup_retain_period_days")
 	}
 
@@ -150,7 +175,11 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 	if diagnostics.HasError() {
 		return
 	}
-	password := plan.Config.Password.ValueString()
+	password, passwordChanged, diags := redisClusterPasswordChange(planConfig, stateConfig, passwordWo)
+	diagnostics.Append(diags...)
+	if diagnostics.HasError() {
+		return
+	}
 
 	tflog.Debug(ctx, "Update Params", map[string]interface{}{
 		"update_mask": req.UpdateMask.Paths,
@@ -167,7 +196,7 @@ func updateRedisClusterParams(ctx context.Context, sdk *ycsdk.SDK, diagnostics *
 		}
 	}
 
-	if password != "" && !plan.Config.Password.Equal(state.Config.Password) {
+	if password != "" && passwordChanged {
 		reqPasswordUpdate := &redis.UpdateClusterRequest{
 			ClusterId: state.ID.ValueString(),
 			ConfigSpec: &redis.ConfigSpec{

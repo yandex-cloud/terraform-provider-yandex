@@ -7,16 +7,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func TestExpandGreenplumConfigSpecDBMSConfig_Positive(t *testing.T) {
 	for _, tt := range []struct {
-		name               string
-		rawConfig          map[string]interface{}
-		expectedConfigMask *field_mask.FieldMask
-		expectedConfig     *greenplum.DBMSConfig
+		name                 string
+		rawConfig            map[string]interface{}
+		expectedSettingNames []string
+		expectedConfig       *greenplum.DBMSConfig
 	}{
 		{
 			name: "greenplum_config single field",
@@ -26,11 +25,7 @@ func TestExpandGreenplumConfigSpecDBMSConfig_Positive(t *testing.T) {
 					"max_connections": 100,
 				},
 			},
-			expectedConfigMask: &field_mask.FieldMask{
-				Paths: []string{
-					"config_spec.dbms_config.max_connections", // greenplum_config serialized as dbms_config
-				},
-			},
+			expectedSettingNames: []string{"max_connections"},
 			expectedConfig: &greenplum.DBMSConfig{
 				MaxConnections: wrapperspb.Int64(100),
 			},
@@ -54,21 +49,19 @@ func TestExpandGreenplumConfigSpecDBMSConfig_Positive(t *testing.T) {
 					"gp_global_deadlock_detector_period":   108,
 				},
 			},
-			expectedConfigMask: &field_mask.FieldMask{
-				Paths: []string{
-					"config_spec.dbms_config.max_slot_wal_keep_size",
-					"config_spec.dbms_config.max_connections",
-					"config_spec.dbms_config.gp_workfile_limit_per_segment",
-					"config_spec.dbms_config.gp_workfile_limit_per_query",
-					"config_spec.dbms_config.gp_workfile_limit_files_per_query",
-					"config_spec.dbms_config.max_prepared_transactions",
-					"config_spec.dbms_config.gp_workfile_compression",
-					"config_spec.dbms_config.max_statement_mem",
-					"config_spec.dbms_config.log_statement",
-					"config_spec.dbms_config.gp_add_column_inherits_table_setting",
-					"config_spec.dbms_config.gp_enable_global_deadlock_detector",
-					"config_spec.dbms_config.gp_global_deadlock_detector_period",
-				},
+			expectedSettingNames: []string{
+				"max_slot_wal_keep_size",
+				"max_connections",
+				"gp_workfile_limit_per_segment",
+				"gp_workfile_limit_per_query",
+				"gp_workfile_limit_files_per_query",
+				"max_prepared_transactions",
+				"gp_workfile_compression",
+				"max_statement_mem",
+				"log_statement",
+				"gp_add_column_inherits_table_setting",
+				"gp_enable_global_deadlock_detector",
+				"gp_global_deadlock_detector_period",
 			},
 			expectedConfig: &greenplum.DBMSConfig{
 				MaxConnections:                  wrapperspb.Int64(100),
@@ -89,11 +82,11 @@ func TestExpandGreenplumConfigSpecDBMSConfig_Positive(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			rd := schema.TestResourceDataRaw(t, resourceYandexMDBGreenplumCluster().Schema, tt.rawConfig)
 
-			config, configMask, err := expandGreenplumConfigSpecDBMSConfig(rd)
+			config, settingNames, err := expandGreenplumConfigSpecDBMSConfig(rd)
 
 			require.NoError(t, err)
 			assert.Equal(t, config, tt.expectedConfig)
-			assert.ElementsMatch(t, tt.expectedConfigMask.GetPaths(), configMask.GetPaths())
+			assert.ElementsMatch(t, tt.expectedSettingNames, settingNames)
 		})
 	}
 }
@@ -133,11 +126,11 @@ func TestExpandGreenplumConfigSpecGreenplumConfig_Negative(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			rd := schema.TestResourceDataRaw(t, resourceYandexMDBGreenplumCluster().Schema, tt.rawConfig)
 
-			config, configMask, err := expandGreenplumConfigSpecDBMSConfig(rd)
+			config, settingNames, err := expandGreenplumConfigSpecDBMSConfig(rd)
 
 			assert.EqualError(t, err, tt.expectedErrorMessage)
 			assert.Nil(t, config)
-			assert.Nil(t, configMask)
+			assert.Nil(t, settingNames)
 		})
 	}
 }

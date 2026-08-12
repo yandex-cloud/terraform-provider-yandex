@@ -25,6 +25,8 @@ const (
 	pgResourceFoo              = pgResourceType + ".foo"
 	pgRestoreBackupId          = "c9qrbucrcvm6a50tblv2:c9q698sst87e4vhkvrsm"
 	pgRestoreBackupIdEncrypted = "c9qu0h1fg6rt1jnu62ro:mdb4er3h4lqov20tedc3"
+	postgresqlLatestVersion    = "18"
+	postgresqlRestoreVersion   = "15"
 )
 
 var postgresql_versions = [...]string{"15", "15-1c", "16", "16-1c", "17", "17-1c", "18", "18-1c"}
@@ -149,6 +151,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	t.Parallel()
 
 	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	advancedMode := !strings.HasSuffix(version, "-1c")
 	log.Printf("TestAccMDBPostgreSQLCluster_full: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-full")
@@ -246,7 +249,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
 					testAccCheckMDBPGClusterHasUsers(clusterResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
 					testAccCheckClusterSettingsAccessWebSQL(clusterResource),
-					testAccCheckClusterSettingsPerformanceDiagnostics(clusterResource, true),
+					testAccCheckClusterSettingsPerformanceDiagnostics(clusterResource, true, advancedMode),
 					testAccCheckConnLimitUpdateUserSettings(clusterResource),
 					testAccCheckMDBPGClusterHasDatabases(clusterResource, []string{"testdb", "newdb", "fornewuserdb"}),
 					testAccCheckSettingsUpdateUserSettings(clusterResource),
@@ -306,7 +309,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16, false, false),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckClusterSettingsPerformanceDiagnostics(clusterResource, false),
+					testAccCheckClusterSettingsPerformanceDiagnostics(clusterResource, false, false),
 					resource.TestCheckResourceAttr(clusterResource, "config.0.managed_repack.0.enabled", "false"),
 				),
 			},
@@ -844,7 +847,7 @@ func testAccCheckClusterSettingsAccessWebSQL(r string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckClusterSettingsPerformanceDiagnostics(r string, enabled bool) resource.TestCheckFunc {
+func testAccCheckClusterSettingsPerformanceDiagnostics(r string, enabled, advancedMode bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
@@ -864,9 +867,14 @@ func testAccCheckClusterSettingsPerformanceDiagnostics(r string, enabled bool) r
 			return err
 		}
 
-		if enabled && !found.Config.PerformanceDiagnostics.Enabled {
-			return fmt.Errorf("Cluster Config.PerformanceDiagnostics.Enabled must be true, current %v",
-				found.Config.PerformanceDiagnostics.Enabled)
+		if found.Config.PerformanceDiagnostics.Enabled != enabled {
+			return fmt.Errorf("Cluster Config.PerformanceDiagnostics.Enabled must be %v, current %v",
+				enabled, found.Config.PerformanceDiagnostics.Enabled)
+		}
+
+		if found.Config.PerformanceDiagnostics.AdvancedMode != advancedMode {
+			return fmt.Errorf("Cluster Config.PerformanceDiagnostics.AdvancedMode must be %v, current %v",
+				advancedMode, found.Config.PerformanceDiagnostics.AdvancedMode)
 		}
 
 		if found.Config.PerformanceDiagnostics.SessionsSamplingInterval != 9 {
@@ -1398,6 +1406,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 }
 
 func testAccMDBPGClusterConfigUpdated(name, desc, version string, diskSize int32, isPerfdiagEnable, isManagedRepackEnable bool) string {
+	isPerfdiagAdvancedMode := isPerfdiagEnable && !strings.HasSuffix(version, "-1c")
 
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
@@ -1433,6 +1442,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     }
     performance_diagnostics {
 	  enabled                      = %t
+	  advanced_mode                = %t
       sessions_sampling_interval   = 9
       statements_sampling_interval = 60
     }
@@ -1526,7 +1536,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
 }
-`, name, desc, version, diskSize, isPerfdiagEnable, isManagedRepackEnable)
+`, name, desc, version, diskSize, isPerfdiagEnable, isPerfdiagAdvancedMode, isManagedRepackEnable)
 }
 
 func testAccMDBPGClusterConfigUpdated_removePoolerConfig(name, desc, version string, diskSize int32) string {
@@ -2026,7 +2036,7 @@ func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection boo
 		}
 	  
 		config {
-		  version = "15"
+		  version = "%s"
 	  
 		  resources {
 			resource_preset_id = "s2.micro"
@@ -2050,7 +2060,7 @@ func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection boo
 		security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id]
 		deletion_protection = %t
 	  }
-`, clusterName, getExampleFolderID(), pgRestoreBackupId, deletionProtection)
+`, clusterName, getExampleFolderID(), pgRestoreBackupId, postgresqlRestoreVersion, deletionProtection)
 }
 
 func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId, diskEncryptionKeyId string) string {
@@ -2077,7 +2087,7 @@ func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId
 		}
 	  
 		config {
-		  version = "15"
+		  version = "%s"
 	  
 		  resources {
 			resource_preset_id = "s2.micro"
@@ -2101,7 +2111,7 @@ func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId
 		deletion_protection = false
 		disk_encryption_key_id = "%s"
 	  }
-`, clusterName, getExampleFolderID(), backupId, diskEncryptionKeyId)
+`, clusterName, getExampleFolderID(), backupId, postgresqlRestoreVersion, diskEncryptionKeyId)
 }
 
 func testAccMDBPGClusterConfigRestoreDropEncryption(clusterName string) string {

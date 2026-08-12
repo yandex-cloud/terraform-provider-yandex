@@ -331,21 +331,22 @@ func expandGreenplumLogging(d *schema.ResourceData) *greenplum.LoggingConfig {
 
 func expandGreenplumUpdateMask(d *schema.ResourceData) *field_mask.FieldMask {
 	mdbGreenplumUpdateFieldsMap := map[string]string{
-		"name":                   "name",
-		"description":            "description",
-		"user_password":          "user_password",
-		"labels":                 "labels",
-		"network_id":             "network_id",
-		"service_account_id":     "service_account_id",
-		"access.0.data_lens":     "config.access.data_lens",
-		"access.0.web_sql":       "config.access.web_sql",
-		"access.0.data_transfer": "config.access.data_transfer",
-		"access.0.yandex_query":  "config.access.yandex_query",
-		"cloud_storage.0.enable": "cloud_storage",
-		"backup_window_start":    "config.backup_window_start",
-		"maintenance_window":     "maintenance_window",
-		"deletion_protection":    "deletion_protection",
-		"security_group_ids":     "security_group_ids",
+		"name":                     "name",
+		"description":              "description",
+		"user_password":            "user_password",
+		"user_password_wo_version": "user_password",
+		"labels":                   "labels",
+		"network_id":               "network_id",
+		"service_account_id":       "service_account_id",
+		"access.0.data_lens":       "config.access.data_lens",
+		"access.0.web_sql":         "config.access.web_sql",
+		"access.0.data_transfer":   "config.access.data_transfer",
+		"access.0.yandex_query":    "config.access.yandex_query",
+		"cloud_storage.0.enable":   "cloud_storage",
+		"backup_window_start":      "config.backup_window_start",
+		"maintenance_window":       "maintenance_window",
+		"deletion_protection":      "deletion_protection",
+		"security_group_ids":       "security_group_ids",
 
 		"logging.0.enabled":                "logging.enabled",
 		"logging.0.log_group_id":           "logging.log_group_id",
@@ -401,7 +402,27 @@ func expandGreenplumUpdateMask(d *schema.ResourceData) *field_mask.FieldMask {
 	return &field_mask.FieldMask{Paths: updatePath}
 }
 
-func expandGreenplumConfigSpec(d *schema.ResourceData) (*greenplum.ConfigSpec, *field_mask.FieldMask, error) {
+type greenplumChangeProvider interface {
+	HasChange(string) bool
+}
+
+func expandGreenplumConfigUpdateMask(d greenplumChangeProvider, settingNames []string) *field_mask.FieldMask {
+	const (
+		terraformPrefix = "greenplum_config."
+		apiPrefix       = "config_spec.dbms_config."
+	)
+
+	paths := make([]string, 0, len(settingNames))
+	for _, settingName := range settingNames {
+		if d.HasChange(terraformPrefix + settingName) {
+			paths = append(paths, apiPrefix+settingName)
+		}
+	}
+
+	return &field_mask.FieldMask{Paths: paths}
+}
+
+func expandGreenplumConfigSpec(d *schema.ResourceData) (*greenplum.ConfigSpec, []string, error) {
 	poolerConfig, err := expandGreenplumPoolerConfig(d)
 	if err != nil {
 		return nil, nil, err
@@ -412,7 +433,7 @@ func expandGreenplumConfigSpec(d *schema.ResourceData) (*greenplum.ConfigSpec, *
 		return nil, nil, err
 	}
 
-	config, configMask, err := expandGreenplumConfigSpecDBMSConfig(d)
+	config, settingNames, err := expandGreenplumConfigSpecDBMSConfig(d)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -429,10 +450,10 @@ func expandGreenplumConfigSpec(d *schema.ResourceData) (*greenplum.ConfigSpec, *
 		DbmsConfig:           config,
 	}
 
-	return configSpec, configMask, nil
+	return configSpec, settingNames, nil
 }
 
-func expandGreenplumConfigSpecDBMSConfig(resourceData *schema.ResourceData) (*greenplum.DBMSConfig, *field_mask.FieldMask, error) {
+func expandGreenplumConfigSpecDBMSConfig(resourceData *schema.ResourceData) (*greenplum.DBMSConfig, []string, error) {
 	version := resourceData.Get("version").(string)
 
 	// Since version 6.25 all config parameters stored in "greenplum_config_6" field regardless of minor version.
@@ -460,12 +481,7 @@ func expandGreenplumConfigSpecDBMSConfig(resourceData *schema.ResourceData) (*gr
 		return nil, nil, err
 	}
 
-	paths := make([]string, 0, len(settingNames))
-	for _, settingName := range settingNames {
-		paths = append(paths, fmt.Sprintf("config_spec.dbms_config.%s", settingName))
-	}
-
-	return conf, &field_mask.FieldMask{Paths: paths}, nil
+	return conf, settingNames, nil
 }
 
 func expandGreenplumPoolerConfig(d *schema.ResourceData) (*greenplum.ConnectionPoolerConfig, error) {

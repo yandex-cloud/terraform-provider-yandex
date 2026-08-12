@@ -150,7 +150,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 	network_id  = "${yandex_vpc_network.mdb-pg-test-net.id}"
 
 	config {
-		version = 16
+		version = "%s"
 		resources {
 			resource_preset_id = "s2.micro"
 			disk_size          = 10
@@ -177,7 +177,7 @@ data "yandex_mdb_postgresql_user" "alice" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = yandex_mdb_postgresql_user.alice.name
 }
-`, name, description)
+`, name, description, postgresqlLatestVersion)
 }
 
 func testAccCheckMDBPostgreSQLUserDestroy(s *terraform.State) error {

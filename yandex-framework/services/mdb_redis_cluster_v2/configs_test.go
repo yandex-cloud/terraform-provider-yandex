@@ -304,6 +304,8 @@ type host struct {
 
 type config struct {
 	Password                        *string
+	PasswordWo                      *string
+	PasswordWoVersion               *int
 	Timeout                         *int
 	MaxmemoryPolicy                 *string
 	NotifyKeyspaceEvents            *string
@@ -505,6 +507,8 @@ resource "yandex_mdb_redis_cluster_v2" "bar" {
   {{with .Config}}
   config = {
 	  {{with .Password}} password  = "{{.}}" {{end}}
+	  {{with .PasswordWo}} password_wo  = "{{.}}" {{end}}
+	  {{with .PasswordWoVersion}} password_wo_version  = {{.}} {{end}}
 	  {{with .Timeout}} timeout  = {{.}} {{end}}
 	  {{with .MaxmemoryPolicy}} maxmemory_policy  = "{{.}}"{{end}}
 	  {{with .NotifyKeyspaceEvents}} notify_keyspace_events  = "{{.}}"{{end}}

@@ -91,7 +91,7 @@ func mdbMySQLUserImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"password", "generate_password", // not returned
+			"password", "generate_password", "password_wo_version", // password and generate_password are not returned
 		},
 	}
 }

@@ -44,8 +44,9 @@ func mdbRedisClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"config.password", // not returned
-			"hosts",           // todo change after fix import
+			"config.password",            // not returned
+			"config.password_wo_version", // write-only password version is not importable
+			"hosts",                      // todo change after fix import
 			"access",
 			"maintenance_window",
 			"disk_size_autoscaling",

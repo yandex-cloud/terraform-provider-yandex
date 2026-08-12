@@ -35,6 +35,7 @@ func expandPerformanceDiagnostics(ctx context.Context, pd types.Object, diags *d
 
 	return &postgresql.PerformanceDiagnostics{
 		Enabled:                    pdConf.Enabled.ValueBool(),
+		AdvancedMode:               pdConf.AdvancedMode.ValueBool(),
 		SessionsSamplingInterval:   pdConf.SessionsSamplingInterval.ValueInt64(),
 		StatementsSamplingInterval: pdConf.StatementsSamplingInterval.ValueInt64(),
 	}

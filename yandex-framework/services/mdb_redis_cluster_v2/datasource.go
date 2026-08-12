@@ -53,7 +53,7 @@ func (o *redisClusterDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	var config Cluster
+	var config dataSourceCluster
 	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	if resp.Diagnostics.HasError() {
 		return

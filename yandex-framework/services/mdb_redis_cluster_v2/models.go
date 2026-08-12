@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-type Cluster struct {
+type clusterModel struct {
 	//----Attributes----
 	ID                  types.String `tfsdk:"id"`
 	ClusterID           types.String `tfsdk:"cluster_id"`
@@ -33,8 +33,24 @@ type Cluster struct {
 	Resources           types.Object `tfsdk:"resources"`
 	Modules             types.Object `tfsdk:"modules"`
 
-	Config   *Config        `tfsdk:"config"`
 	Timeouts timeouts.Value `tfsdk:"timeouts"`
+}
+
+type Cluster struct {
+	clusterModel
+
+	Config *Config `tfsdk:"config"`
+}
+
+func (c *Cluster) commonCluster() *clusterModel {
+	return &c.clusterModel
+}
+
+func (c *Cluster) commonConfig() *configModel {
+	if c.Config == nil {
+		c.Config = &Config{}
+	}
+	return &c.Config.configModel
 }
 
 type Access struct {
@@ -118,7 +134,7 @@ var ValkeyModulesType = types.ObjectType{
 	},
 }
 
-type Config struct {
+type configModel struct {
 	Password                        types.String `tfsdk:"password"`
 	Timeout                         types.Int64  `tfsdk:"timeout"`
 	MaxmemoryPolicy                 types.String `tfsdk:"maxmemory_policy"`
@@ -144,4 +160,11 @@ type Config struct {
 	BackupRetainPeriodDays          types.Int64  `tfsdk:"backup_retain_period_days"`
 	BackupWindowStart               types.Object `tfsdk:"backup_window_start"`
 	ZsetMaxListpackEntries          types.Int64  `tfsdk:"zset_max_listpack_entries"`
+}
+
+type Config struct {
+	configModel
+
+	PasswordWo        types.String `tfsdk:"password_wo"`
+	PasswordWoVersion types.Int64  `tfsdk:"password_wo_version"`
 }

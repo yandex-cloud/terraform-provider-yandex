@@ -324,6 +324,12 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 								Computed:    true,
 								Default:     booldefault.StaticBool(false),
 							},
+							"advanced_mode": schema.BoolAttribute{
+								Description: "Switch performance diagnostics from standard to advanced mode",
+								Optional:    true,
+								Computed:    true,
+								Default:     booldefault.StaticBool(false),
+							},
 							"sessions_sampling_interval": schema.Int64Attribute{
 								Description: "Interval (in seconds) for pg_stat_activity sampling. Acceptable values are 1 to 86400, inclusive.",
 								Required:    true,

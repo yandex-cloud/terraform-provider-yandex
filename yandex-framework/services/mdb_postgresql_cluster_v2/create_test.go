@@ -39,6 +39,7 @@ var (
 	}
 	expectedPDAttrs = map[string]attr.Type{
 		"enabled":                      types.BoolType,
+		"advanced_mode":                types.BoolType,
 		"sessions_sampling_interval":   types.Int64Type,
 		"statements_sampling_interval": types.Int64Type,
 	}

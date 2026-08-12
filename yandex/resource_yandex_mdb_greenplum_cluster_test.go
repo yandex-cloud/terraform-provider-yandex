@@ -109,8 +109,9 @@ func mdbGreenplumClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"user_password", // passwords are not returned
-			"health",        // volatile value
+			"user_password",            // passwords are not returned
+			"user_password_wo_version", // write-only password versions are not returned
+			"health",                   // volatile value
 		},
 	}
 }

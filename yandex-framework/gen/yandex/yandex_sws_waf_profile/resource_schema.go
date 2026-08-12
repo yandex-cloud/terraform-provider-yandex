@@ -56,6 +56,10 @@ func YandexSwsWafProfileResourceSchema(ctx context.Context) schema.Schema {
 					"package: yandex.cloud.smartwebsecurity.v1.waf\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/waf/waf_profile.proto\n",
 				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 
 			"description": schema.StringAttribute{

@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	pgBRPClusterResource = "yandex_mdb_postgresql_cluster_v2.foo"
-	pgBRPResource        = "yandex_mdb_postgresql_backup_retention_policy.test"
-	pgBRPTestPrefix      = "tf-pg-brp"
+	pgBRPClusterResource   = "yandex_mdb_postgresql_cluster_v2.foo"
+	pgBRPResource          = "yandex_mdb_postgresql_backup_retention_policy.test"
+	pgBRPTestPrefix        = "tf-pg-brp"
+	pgBRPPostgreSQLVersion = "18"
 )
 
 func TestMain(m *testing.M) {
@@ -120,7 +121,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "foo" {
   network_id  = yandex_vpc_network.foo.id
 
   config {
-    version = "18"
+    version = "%s"
 
     resources {
       resource_preset_id = "s2.micro"
@@ -136,7 +137,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "foo" {
     }
   }
 }
-`, clusterName)
+`, clusterName, pgBRPPostgreSQLVersion)
 }
 
 func testAccMDBPGBRPConfig(clusterName, policyName, description string, retainForDays int, dayOfMonth, dayOfWeek, month string) string {

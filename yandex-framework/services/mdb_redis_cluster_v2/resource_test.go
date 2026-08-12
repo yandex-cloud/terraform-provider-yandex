@@ -1003,6 +1003,85 @@ func TestAccMDBRedisClusterV2_empty_labels(t *testing.T) {
 	})
 }
 
+// TestAccMDBRedisClusterV2_create_with_falsy_config verifies that a cluster can be
+// created with explicit "falsy" config values (timeout=0, notify_keyspace_events="",
+// use_luajit=false, io_threads_allowed=false) without triggering
+// "inconsistent values for sensitive attribute" error.
+// Reproduces MDBEXTSUPPORT-3921.
+func TestAccMDBRedisClusterV2_create_with_falsy_config(t *testing.T) {
+	t.Parallel()
+
+	var r redis.Cluster
+	redisName := acctest.RandomWithPrefix("tf-redis-falsy")
+	redisDesc := "Redis Cluster Terraform Test Falsy Config"
+	folderID := test.GetExampleFolderID()
+	baseDiskSize := 16
+	diskTypeId := "network-ssd"
+	baseFlavor := "hm3-c2-m8"
+	tlsEnabled := true
+	version := "8.1-valkey"
+	password := "12345678Pfalsy"
+
+	nonShardedHosts := map[string]host{
+		"hst_0": {Zone: &defaultZone, SubnetId: &defaultSubnet},
+	}
+	ops := []Op{
+		OpCreate,
+	}
+	conf := testAccBaseConfig(redisName, redisDesc)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBRedisClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create Redis Cluster with falsy config values
+			{
+				Config: makeConfig(t, conf, &redisConfigTest{
+					Config: &config{
+						Version:              &version,
+						Password:             &password,
+						Timeout:              newPtr(0),
+						NotifyKeyspaceEvents: newPtr(""),
+						UseLuajit:            newPtr(false),
+						IoThreadsAllowed:     newPtr(false),
+					},
+					TlsEnabled:         &tlsEnabled,
+					Hosts:              nonShardedHosts,
+					DeletionProtection: newPtr(false),
+				}),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, false, false, "ON"),
+					resource.TestCheckResourceAttr(redisResource, "name", redisName),
+					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+					resource.TestCheckResourceAttrSet(redisResource, "hosts.hst_0.fqdn"),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+					resource.TestCheckResourceAttr(redisResource, "config.timeout", "0"),
+					resource.TestCheckResourceAttr(redisResource, "config.notify_keyspace_events", ""),
+					resource.TestCheckResourceAttr(redisResource, "config.use_luajit", "false"),
+					resource.TestCheckResourceAttr(redisResource, "config.io_threads_allowed", "false"),
+					testAccCheckMDBRedisOperations(redisResource, ops),
+				),
+			},
+			// Import: notify_keyspace_events="" is normalized to nil by API on import (no prior state)
+			{
+				ResourceName:      redisResource,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"config.password",
+					"hosts",
+					"access",
+					"maintenance_window",
+					"disk_size_autoscaling",
+					"config.notify_keyspace_events",
+				},
+			},
+		},
+	})
+}
+
 /*func TestAccMDBRedisClusterV2_diskEncryption(t *testing.T) {
 	t.Parallel()
 

@@ -18,6 +18,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 const (
@@ -37,6 +38,9 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 		Delete: resourceYandexMDBRedisClusterDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta any) error {
+			return validateRedisClusterPasswordConflict(d)
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -74,10 +78,26 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"password": {
-							Type:        schema.TypeString,
-							Description: "Password for the Redis cluster.",
-							Required:    true,
-							Sensitive:   true,
+							Type:         schema.TypeString,
+							Description:  "Password for the Redis cluster.",
+							Optional:     true,
+							Sensitive:    true,
+							AtLeastOneOf: []string{"config.0.password", "config.0.password_wo"},
+						},
+						"password_wo": {
+							Type:         schema.TypeString,
+							Description:  "Password for the Redis cluster. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.",
+							Optional:     true,
+							WriteOnly:    true,
+							Sensitive:    true,
+							AtLeastOneOf: []string{"config.0.password", "config.0.password_wo"},
+							RequiredWith: []string{"config.0.password_wo_version"},
+						},
+						"password_wo_version": {
+							Type:         schema.TypeInt,
+							Description:  "A version number for the write-only password. Increment this to trigger a password update.",
+							Optional:     true,
+							RequiredWith: []string{"config.0.password_wo"},
 						},
 						"timeout": {
 							Type:        schema.TypeInt,
@@ -464,8 +484,42 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 	}
 }
 
+func validateRedisClusterPasswordConflict(d mdbcommon.RawConfigProvider) error {
+	_, hasPassword := mdbcommon.LookupRawConfigPath(d, "config.0.password")
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "config.0.password_wo")
+	if hasPassword && hasPasswordWo {
+		return fmt.Errorf("only one of `config.password` or `config.password_wo` can be specified")
+	}
+	return nil
+}
+
+func validateRedisClusterPasswordPair(d mdbcommon.RawConfigProvider) error {
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "config.0.password_wo")
+	_, hasPasswordWoVersion := mdbcommon.LookupRawConfigPath(d, "config.0.password_wo_version")
+	if hasPasswordWo != hasPasswordWoVersion {
+		return fmt.Errorf("`config.password_wo` and `config.password_wo_version` must be specified together")
+	}
+	return nil
+}
+
+func redisClusterPassword(d *schema.ResourceData) string {
+	if passwordWo, ok := mdbcommon.LookupRawConfigPath(d, "config.0.password_wo"); ok {
+		return passwordWo.AsString()
+	}
+	if password, ok := d.GetOk("config.0.password"); ok {
+		return password.(string)
+	}
+	return ""
+}
+
 func resourceYandexMDBRedisClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	if err := validateRedisClusterPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateRedisClusterPasswordPair(d); err != nil {
+		return err
+	}
 
 	req, err := prepareCreateRedisRequest(d, config)
 
@@ -534,6 +588,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding config while creating Redis Cluster: %s", err)
 	}
+	conf.Password = redisClusterPassword(d)
 
 	resources, err := expandRedisResources(d)
 	if err != nil {
@@ -654,34 +709,16 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		password = v.(string)
 	}
 
-	err = d.Set("config", []map[string]interface{}{
-		{
-			"timeout":                             conf.timeout,
-			"maxmemory_policy":                    conf.maxmemoryPolicy,
-			"notify_keyspace_events":              conf.notifyKeyspaceEvents,
-			"slowlog_log_slower_than":             conf.slowlogLogSlowerThan,
-			"slowlog_max_len":                     conf.slowlogMaxLen,
-			"databases":                           conf.databases,
-			"maxmemory_percent":                   conf.maxmemoryPercent,
-			"version":                             conf.version,
-			"password":                            password,
-			"client_output_buffer_limit_normal":   conf.clientOutputBufferLimitNormal,
-			"client_output_buffer_limit_pubsub":   conf.clientOutputBufferLimitPubsub,
-			"lua_time_limit":                      conf.luaTimeLimit,
-			"repl_backlog_size_percent":           conf.replBacklogSizePercent,
-			"cluster_require_full_coverage":       conf.clusterRequireFullCoverage,
-			"cluster_allow_reads_when_down":       conf.clusterAllowReadsWhenDown,
-			"cluster_allow_pubsubshard_when_down": conf.clusterAllowPubsubshardWhenDown,
-			"lfu_decay_time":                      conf.lfuDecayTime,
-			"lfu_log_factor":                      conf.lfuLogFactor,
-			"turn_before_switchover":              conf.turnBeforeSwitchover,
-			"allow_data_loss":                     conf.allowDataLoss,
-			"use_luajit":                          conf.useLuajit,
-			"zset_max_listpack_entries":           conf.zsetMaxListpackEntries,
-			"io_threads_allowed":                  conf.ioThreadsAllowed,
-			"backup_window_start":                 flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
-		},
-	})
+	passwordWoVersion, hasPasswordWoVersion := d.GetOkExists("config.0.password_wo_version")
+	configState := flattenRedisConfigState(
+		conf,
+		password,
+		passwordWoVersion,
+		hasPasswordWoVersion,
+		flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart()),
+	)
+
+	err = d.Set("config", []map[string]interface{}{configState})
 	if err != nil {
 		return err
 	}
@@ -731,7 +768,48 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 	return d.Set("labels", cluster.Labels)
 }
 
+func flattenRedisConfigState(conf redisConfig, password string, passwordWoVersion interface{}, hasPasswordWoVersion bool, backupWindowStart interface{}) map[string]interface{} {
+	configState := map[string]interface{}{
+		"timeout":                             conf.timeout,
+		"maxmemory_policy":                    conf.maxmemoryPolicy,
+		"notify_keyspace_events":              conf.notifyKeyspaceEvents,
+		"slowlog_log_slower_than":             conf.slowlogLogSlowerThan,
+		"slowlog_max_len":                     conf.slowlogMaxLen,
+		"databases":                           conf.databases,
+		"maxmemory_percent":                   conf.maxmemoryPercent,
+		"version":                             conf.version,
+		"client_output_buffer_limit_normal":   conf.clientOutputBufferLimitNormal,
+		"client_output_buffer_limit_pubsub":   conf.clientOutputBufferLimitPubsub,
+		"lua_time_limit":                      conf.luaTimeLimit,
+		"repl_backlog_size_percent":           conf.replBacklogSizePercent,
+		"cluster_require_full_coverage":       conf.clusterRequireFullCoverage,
+		"cluster_allow_reads_when_down":       conf.clusterAllowReadsWhenDown,
+		"cluster_allow_pubsubshard_when_down": conf.clusterAllowPubsubshardWhenDown,
+		"lfu_decay_time":                      conf.lfuDecayTime,
+		"lfu_log_factor":                      conf.lfuLogFactor,
+		"turn_before_switchover":              conf.turnBeforeSwitchover,
+		"allow_data_loss":                     conf.allowDataLoss,
+		"use_luajit":                          conf.useLuajit,
+		"zset_max_listpack_entries":           conf.zsetMaxListpackEntries,
+		"io_threads_allowed":                  conf.ioThreadsAllowed,
+		"backup_window_start":                 backupWindowStart,
+	}
+	if password != "" {
+		configState["password"] = password
+	}
+	if hasPasswordWoVersion {
+		configState["password_wo_version"] = passwordWoVersion
+	}
+	return configState
+}
+
 func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	if err := validateRedisClusterPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateRedisClusterPasswordPair(d); err != nil {
+		return err
+	}
 	d.Partial(true)
 	if err := setRedisFolderID(d, meta); err != nil {
 		return err
@@ -860,6 +938,9 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			password = conf.Password
 			conf.Password = ""
 		}
+		if passwordWo := redisClusterPassword(d); passwordWo != "" {
+			password = passwordWo
+		}
 
 		req.ConfigSpec.Redis = conf
 		fields := [...]string{
@@ -950,7 +1031,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Password change cannot be mixed with other updates
-	if d.HasChange("config.0.password") && password != "" {
+	if (d.HasChange("config.0.password") || d.HasChange("config.0.password_wo_version")) && password != "" {
 		reqPasswordUpdate := &redis.UpdateClusterRequest{
 			ClusterId: d.Id(),
 			ConfigSpec: &redis.ConfigSpec{

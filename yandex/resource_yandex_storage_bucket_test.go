@@ -56,13 +56,26 @@ func testSweepStorageBucket(_ string) error {
 		return result.ErrorOrNil()
 	}
 
-	for _, b := range buckets.Buckets {
-		_, err := s3Client.S3().DeleteBucket(&awsS3.DeleteBucketInput{
-			Bucket: b.Name,
-		})
+	return sweepStorageBuckets(context.TODO(), buckets.Buckets, s3Client.DeleteBucket)
+}
 
-		if err != nil {
-			result = multierror.Append(result, fmt.Errorf("failed to delete bucket: %s, error: %s", *b.Name, err))
+func sweepStorageBuckets(
+	ctx context.Context,
+	buckets []*awsS3.Bucket,
+	deleteBucket func(context.Context, string, bool) error,
+) error {
+	result := &multierror.Error{}
+	for _, b := range buckets {
+		bucketName := aws.StringValue(b.Name)
+		if !strings.HasPrefix(bucketName, "tf-test-") {
+			continue
+		}
+
+		if err := deleteBucket(ctx, bucketName, true); err != nil {
+			result = multierror.Append(
+				result,
+				fmt.Errorf("failed to delete bucket: %s, error: %s", bucketName, err),
+			)
 		}
 	}
 
@@ -956,6 +969,81 @@ func TestStorageBucketName(t *testing.T) {
 	}
 }
 
+func TestStorageBucketValidGrantUsesLeastPrivilege(t *testing.T) {
+	config := testAccStorageBucketConfigWithValidGrant(1)
+	authenticatedUsersGrant := `grant {
+		type        = "Group"
+		permissions = ["READ"]
+		uri         = "http://acs.amazonaws.com/groups/global/AuthenticatedUsers"
+	}`
+	authenticatedUsersFullControlGrant := strings.Replace(
+		authenticatedUsersGrant,
+		`permissions = ["READ"]`,
+		`permissions = ["FULL_CONTROL"]`,
+		1,
+	)
+
+	if !strings.Contains(config, authenticatedUsersGrant) {
+		t.Fatalf("AuthenticatedUsers grant is not read-only:\n%s", config)
+	}
+	if strings.Contains(config, authenticatedUsersFullControlGrant) {
+		t.Fatalf("AuthenticatedUsers grant contains FULL_CONTROL:\n%s", config)
+	}
+}
+
+func TestStorageBucketConfigsEnableForceDestroy(t *testing.T) {
+	tests := map[string]string{
+		"builder":        newBucketConfigBuilder(1).render(),
+		"name prefix":    testAccStorageBucketConfigWithNamePrefix(1),
+		"generated name": testAccStorageBucketConfigWithGeneratedName(1),
+		"logging":        testAccStorageBucketConfigWithLogging(1),
+	}
+
+	for name, config := range tests {
+		t.Run(name, func(t *testing.T) {
+			bucketCount := strings.Count(config, `resource "yandex_storage_bucket"`)
+			forceDestroyCount := strings.Count(config, "force_destroy = true")
+			if forceDestroyCount != bucketCount {
+				t.Fatalf(
+					"expected force_destroy for all %d bucket resources, got %d:\n%s",
+					bucketCount,
+					forceDestroyCount,
+					config,
+				)
+			}
+		})
+	}
+}
+
+func TestSweepStorageBucketsForceDeletes(t *testing.T) {
+	const bucketName = "tf-test-bucket"
+	deleteCalls := 0
+
+	err := sweepStorageBuckets(
+		context.Background(),
+		[]*awsS3.Bucket{
+			{Name: aws.String(bucketName)},
+			{Name: aws.String("unrelated-bucket")},
+		},
+		func(_ context.Context, gotBucketName string, force bool) error {
+			deleteCalls++
+			if gotBucketName != bucketName {
+				t.Errorf("expected bucket %q, got %q", bucketName, gotBucketName)
+			}
+			if !force {
+				t.Error("expected force deletion")
+			}
+			return nil
+		},
+	)
+	if err != nil {
+		t.Fatalf("unexpected sweep error: %v", err)
+	}
+	if deleteCalls != 1 {
+		t.Fatalf("expected exactly one test bucket deletion, got %d", deleteCalls)
+	}
+}
+
 func testAccCheckStorageBucketDestroy(s *terraform.State) error {
 	return testAccCheckStorageBucketDestroyWithProvider(s, testAccProvider)
 }
@@ -1619,7 +1707,8 @@ func (b testAccStorageBucketConfigBuilder) render() string {
 		bucketNameTemplate = "tf-test-bucket-%d"
 
 		baseTemplate = `resource "yandex_storage_bucket" "test" {
-	bucket = "%s"`
+	bucket        = "%s"
+	force_destroy = true`
 
 		awsKeysTemplate = `
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
@@ -1929,6 +2018,7 @@ func testAccStorageBucketConfigWithNamePrefix(randInt int) string {
 	// do not use render here because it use prefix here.
 	return `resource "yandex_storage_bucket" "test" {
 	bucket_prefix = "tf-test-"
+	force_destroy = true
 
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
@@ -1946,6 +2036,8 @@ func testAccStorageBucketConfigWithNamePrefix(randInt int) string {
 func testAccStorageBucketConfigWithGeneratedName(randInt int) string {
 	// do not use render here because name will be generated.
 	return `resource "yandex_storage_bucket" "test" {
+	force_destroy = true
+
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
@@ -1966,7 +2058,8 @@ func testAccStorageBucketConfigWithLogging(randInt int) string {
   	}`
 
 	before := fmt.Sprintf(`resource "yandex_storage_bucket" "log_bucket" {
-  	bucket = "tf-test-bucket-%[1]d-log"
+	  	bucket        = "tf-test-bucket-%[1]d-log"
+	force_destroy = true
 
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
@@ -2134,7 +2227,7 @@ func testAccStorageBucketConfigWithValidGrant(randInt int) string {
 
 	grant {
 		type        = "Group"
-		permissions = ["FULL_CONTROL"]
+		permissions = ["READ"]
 		uri         = "http://acs.amazonaws.com/groups/global/AuthenticatedUsers"
 	}`
 
@@ -2633,19 +2726,25 @@ func TestAccStorageBucket_Grants(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "grant.#", "2"),
-					resource.TestCheckResourceAttr(
+					resource.TestCheckTypeSetElemNestedAttrs(
 						resourceName,
-						"grant.0.uri",
-						"http://acs.amazonaws.com/groups/global/AuthenticatedUsers",
+						"grant.*",
+						map[string]string{
+							"uri":           "http://acs.amazonaws.com/groups/global/AuthenticatedUsers",
+							"type":          "Group",
+							"permissions.#": "1",
+						},
 					),
-					resource.TestCheckResourceAttr(resourceName, "grant.0.type", "Group"),
-					resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.0", "FULL_CONTROL"),
-					resource.TestCheckResourceAttrSet(resourceName, "grant.1.id"),
-					resource.TestCheckResourceAttr(resourceName, "grant.1.type", "CanonicalUser"),
-					resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.0", "READ"),
-					resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.1", "WRITE"),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						resourceName,
+						"grant.*",
+						map[string]string{
+							"type":          "CanonicalUser",
+							"permissions.#": "2",
+						},
+					),
+					resource.TestCheckTypeSetElemAttr(resourceName, "grant.*.permissions.*", "READ"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "grant.*.permissions.*", "WRITE"),
 				),
 			},
 		},

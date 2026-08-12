@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'Valkey: Fixed issue when passed falsy notify keyspace events field'
+time: 2026-07-07T21:51:06.940204+03:00

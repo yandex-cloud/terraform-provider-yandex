@@ -140,24 +140,47 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 
 	if !plan.Access.Equal(state.Access) {
 		config.SetAccess(mdbcommon.ExpandAccess[*postgresql.Access](ctx, plan.Access, &diags))
-		updateMaskPaths = append(
-			updateMaskPaths,
-			"config_spec.access.web_sql",
-			"config_spec.access.data_lens",
-			"config_spec.access.data_transfer",
-			"config_spec.access.serverless",
-			"config_spec.access.yandex_query",
-		)
+
+		var planAccess, stateAccess mdbcommon.Access
+		diags.Append(state.Access.As(ctx, &stateAccess, datasize.UnhandledOpts)...)
+		diags.Append(plan.Access.As(ctx, &planAccess, datasize.UnhandledOpts)...)
+
+		if !planAccess.WebSql.Equal(stateAccess.WebSql) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.access.web_sql")
+		}
+		if !planAccess.DataLens.Equal(stateAccess.DataLens) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.access.data_lens")
+		}
+		if !planAccess.DataTransfer.Equal(stateAccess.DataTransfer) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.access.data_transfer")
+		}
+		if !planAccess.Serverless.Equal(stateAccess.Serverless) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.access.serverless")
+		}
+		if !planAccess.YandexQuery.Equal(stateAccess.YandexQuery) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.access.yandex_query")
+		}
 	}
 
 	if !plan.PerformanceDiagnostics.Equal(state.PerformanceDiagnostics) {
 		config.SetPerformanceDiagnostics(expandPerformanceDiagnostics(ctx, plan.PerformanceDiagnostics, &diags))
-		updateMaskPaths = append(
-			updateMaskPaths,
-			"config_spec.performance_diagnostics.enabled",
-			"config_spec.performance_diagnostics.sessions_sampling_interval",
-			"config_spec.performance_diagnostics.statements_sampling_interval",
-		)
+
+		var planPD, statePD PerformanceDiagnostics
+		diags.Append(state.PerformanceDiagnostics.As(ctx, &statePD, datasize.UnhandledOpts)...)
+		diags.Append(plan.PerformanceDiagnostics.As(ctx, &planPD, datasize.UnhandledOpts)...)
+
+		if !planPD.Enabled.Equal(statePD.Enabled) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.performance_diagnostics.enabled")
+		}
+		if !planPD.AdvancedMode.Equal(statePD.AdvancedMode) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.performance_diagnostics.advanced_mode")
+		}
+		if !planPD.SessionsSamplingInterval.Equal(statePD.SessionsSamplingInterval) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.performance_diagnostics.sessions_sampling_interval")
+		}
+		if !planPD.StatementsSamplingInterval.Equal(statePD.StatementsSamplingInterval) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.performance_diagnostics.statements_sampling_interval")
+		}
 	}
 
 	if !plan.BackupRetainPeriodDays.Equal(state.BackupRetainPeriodDays) {
@@ -172,21 +195,35 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*postgresql.
 
 	if !plan.PoolerConfig.Equal(state.PoolerConfig) {
 		config.SetPoolerConfig(expandPoolerConfig(ctx, plan.PoolerConfig, &diags))
-		updateMaskPaths = append(
-			updateMaskPaths,
-			"config_spec.pooler_config.pooling_mode",
-			"config_spec.pooler_config.pool_discard",
-		)
+
+		var planPooler, statePooler PoolerConfig
+		diags.Append(state.PoolerConfig.As(ctx, &statePooler, datasize.UnhandledOpts)...)
+		diags.Append(plan.PoolerConfig.As(ctx, &planPooler, datasize.UnhandledOpts)...)
+
+		if !planPooler.PoolingMode.Equal(statePooler.PoolingMode) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.pooler_config.pooling_mode")
+		}
+		if !planPooler.PoolDiscard.Equal(statePooler.PoolDiscard) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.pooler_config.pool_discard")
+		}
 	}
 
 	if !plan.DiskSizeAutoscaling.Equal(state.DiskSizeAutoscaling) {
 		config.SetDiskSizeAutoscaling(expandDiskSizeAutoscaling(ctx, plan.DiskSizeAutoscaling, &diags))
-		updateMaskPaths = append(
-			updateMaskPaths,
-			"config_spec.disk_size_autoscaling.disk_size_limit",
-			"config_spec.disk_size_autoscaling.planned_usage_threshold",
-			"config_spec.disk_size_autoscaling.emergency_usage_threshold",
-		)
+
+		var planDSA, stateDSA DiskSizeAutoscaling
+		diags.Append(state.DiskSizeAutoscaling.As(ctx, &stateDSA, datasize.UnhandledOpts)...)
+		diags.Append(plan.DiskSizeAutoscaling.As(ctx, &planDSA, datasize.UnhandledOpts)...)
+
+		if !planDSA.DiskSizeLimit.Equal(stateDSA.DiskSizeLimit) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.disk_size_autoscaling.disk_size_limit")
+		}
+		if !planDSA.PlannedUsageThreshold.Equal(stateDSA.PlannedUsageThreshold) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.disk_size_autoscaling.planned_usage_threshold")
+		}
+		if !planDSA.EmergencyUsageThreshold.Equal(stateDSA.EmergencyUsageThreshold) {
+			updateMaskPaths = append(updateMaskPaths, "config_spec.disk_size_autoscaling.emergency_usage_threshold")
+		}
 	}
 
 	if !plan.ConnectionManager.Equal(state.ConnectionManager) {

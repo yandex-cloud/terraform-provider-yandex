@@ -2410,14 +2410,36 @@ func YandexMdbGreenplumClusterV2ResourceSchema(ctx context.Context) schema.Schem
 					// -> yandex.cloud.mdb.greenplum.v1.UpdateClusterRequest.user_password
 					"package: yandex.cloud.mdb.greenplum.v1\n" +
 					"filename: yandex/cloud/mdb/greenplum/v1/cluster_service.proto\n",
-				Required: true,
+				Optional:  true,
+				Sensitive: true,
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-					planmodifiers.NullWriteOnlyString(),
 				},
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(8, 128),
+					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("user_password_wo")),
+				},
+			},
+
+			"user_password_wo": schema.StringAttribute{
+				MarkdownDescription: "Owner user password. This attribute is write-only and is not stored in state. Requires `user_password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.",
+				Description:         "Owner user password. This attribute is write-only and is not stored in state. Requires `user_password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.",
+				Optional:            true,
+				Sensitive:           true,
+				WriteOnly:           true,
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(8, 128),
+					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("user_password_wo_version")),
+				},
+			},
+
+			"user_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "A version number for the write-only password. Increment this to trigger a password update.",
+				Description:         "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("user_password_wo")),
 				},
 			},
 			"timeouts": timeouts.AttributesAll(ctx),

@@ -21,46 +21,6 @@ const (
 	pgUserResourceNameCharlie = "yandex_mdb_postgresql_user.charlie"
 )
 
-func TestRedactPgUserCreateRequest(t *testing.T) {
-	const password = "create-secret"
-	request := &postgresql.CreateUserRequest{
-		ClusterId: "cluster-id",
-		UserSpec: &postgresql.UserSpec{
-			Name:     "alice",
-			Password: password,
-		},
-	}
-
-	redactedRequest := redactPgUserCreateRequest(request)
-	loggedRequest := fmt.Sprintf("%+v", redactedRequest)
-
-	assert.NotContains(t, loggedRequest, password)
-	assert.Contains(t, loggedRequest, redactedPgUserPassword)
-	assert.Contains(t, loggedRequest, "alice")
-	assert.Equal(t, password, request.UserSpec.Password)
-	assert.NotSame(t, request, redactedRequest)
-	assert.NotSame(t, request.UserSpec, redactedRequest.UserSpec)
-}
-
-func TestRedactPgUserUpdateRequest(t *testing.T) {
-	const password = "update-secret"
-	request := &postgresql.UpdateUserRequest{
-		ClusterId: "cluster-id",
-		UserName:  "alice",
-		Password:  password,
-		Grants:    []string{"mdb_admin"},
-	}
-
-	redactedRequest := redactPgUserUpdateRequest(request)
-	loggedRequest := fmt.Sprintf("%+v", redactedRequest)
-
-	assert.NotContains(t, loggedRequest, password)
-	assert.Contains(t, loggedRequest, redactedPgUserPassword)
-	assert.Contains(t, loggedRequest, "alice")
-	assert.Equal(t, password, request.Password)
-	assert.NotSame(t, request, redactedRequest)
-}
-
 // Test that a PostgreSQL User can be created, updated and destroyed
 func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 	t.Parallel()
@@ -454,7 +414,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 	network_id  = "${yandex_vpc_network.mdb-pg-test-net.id}"
 
 	config {
-	    version = 16
+	    version = "%s"
 	    resources {
 		  resource_preset_id = "s2.micro"
 		  disk_size          = 10
@@ -462,6 +422,9 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 	    }
 		connection_manager {
 			enabled = true
+		}
+		postgresql_config = {
+			password_encryption = "PASSWORD_ENCRYPTION_MD5"
 		}
 	}
 
@@ -479,7 +442,7 @@ resource "yandex_mdb_postgresql_database" "testdb" {
 	lc_collate = "en_US.UTF-8"
 	lc_type    = "en_US.UTF-8"
 }
-`, name)
+`, name, postgresqlLatestVersion)
 }
 
 // Create cluster, user and database

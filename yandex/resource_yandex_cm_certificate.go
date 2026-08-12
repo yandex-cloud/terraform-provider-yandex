@@ -26,7 +26,7 @@ const (
 
 func resourceYandexCMCertificate() *schema.Resource {
 	return &schema.Resource{
-		Description: "Creates or requests a TLS certificate in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).\n\n~> At the moment, a resource may not work correctly if it declares the use of a DNS challenge, but the certificate is confirmed using an HTTP challenge. And vice versa.\n\nIn this case, the service does not provide the parameters of the required type of challenges.\n\n~> Only one type `managed` or `self_managed` should be specified.\n",
+		Description: "Creates or requests a TLS certificate in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/certificate-manager/concepts/).\n\n~> At the moment, a resource may not work correctly if it declares the use of a DNS challenge, but the certificate is confirmed using an HTTP challenge. And vice versa.\n\nIn this case, the service does not provide the parameters of the required type of challenges.\n\n~> Only one type `managed` or `self_managed` should be specified.\n\n~> Please be informed that imported certificate will have DNS_CNAME type for DNS challenges.\n",
 
 		CreateContext: resourceYandexCMCertificateCreate,
 		ReadContext:   resourceYandexCMCertificateRead,
@@ -864,7 +864,61 @@ func yandexCMCertificateImport(ctx context.Context, d *schema.ResourceData, m in
 			return nil, err
 		}
 		managed := make(map[string]interface{})
-		managed["challenge_count"] = 0
+
+		if resp.Challenges == nil || len(resp.Challenges) == 0 {
+			log.Printf("[ERROR] unexpected challenge set state")
+			err = fmt.Errorf("unexpected challenge set state")
+			return nil, err
+		}
+		managed["challenge_type"] = resp.Challenges[0].Type.String()
+
+		for _, ch := range resp.Challenges {
+			if ch.Type.String() != managed["challenge_type"] {
+				log.Printf("[ERROR] found different challenge type: %s having %s before", ch.Type.String(), managed["challenge_type"])
+				err = fmt.Errorf("found different challenge type: %s having %s before", ch.Type.String(), managed["challenge_type"])
+				return nil, err
+			}
+		}
+
+		if managed["challenge_type"] == "DNS" {
+			// We cannot define real target challenge type selected by user
+			// Since YCM creates both dns-type challenges if asked for either DNS_CNAME or DNS_TXT
+			// User should re-apply resource if he wants exactly DNS_TXT.
+			managed["challenge_type"] = "DNS_CNAME"
+		}
+
+		// Count deduplicated challenges using the same key logic as the Read
+		// function, so that challenge_count matches what the provider reports
+		// after import (e.g. testseo.ru + *.testseo.ru share one CNAME record
+		// and must count as 1, not 2).
+		exists := make(map[string]bool)
+		for i, ch := range resp.Challenges {
+			if ch.Challenge == nil {
+				continue
+			}
+			if resp.Challenges[i].Type.String() == "DNS" {
+				dns, ok := ch.Challenge.(*certificatemanager.Challenge_DnsChallenge)
+				if !ok || dns.DnsChallenge == nil {
+					continue
+				}
+				key := dns.DnsChallenge.Name
+				exists[key] = true
+			} else if resp.Challenges[i].Type.String() == "HTTP" {
+				httpCh, ok := ch.Challenge.(*certificatemanager.Challenge_HttpChallenge)
+				if !ok || httpCh.HttpChallenge == nil {
+					continue
+				}
+				key := httpCh.HttpChallenge.Url + " " + httpCh.HttpChallenge.Content
+				exists[key] = true
+			} else {
+				log.Printf("[ERROR] unexpected challenge type: %s", managed["challenge_type"])
+				err = fmt.Errorf("unexpected challenge type: %s", managed["challenge_type"])
+				return nil, err
+			}
+		}
+
+		managed["challenge_count"] = len(exists)
+
 		if err := d.Set("managed", []interface{}{managed}); err != nil {
 			log.Printf("[ERROR] failed set field managed: %s", err)
 			return nil, err

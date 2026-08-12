@@ -335,6 +335,11 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 							Description: performanceDiagnosticsElem.Schema["enabled"].Description,
 							Computed:    true,
 						},
+						"advanced_mode": {
+							Type:        schema.TypeBool,
+							Description: performanceDiagnosticsElem.Schema["advanced_mode"].Description,
+							Computed:    true,
+						},
 						"sessions_sampling_interval": {
 							Type:        schema.TypeInt,
 							Description: performanceDiagnosticsElem.Schema["sessions_sampling_interval"].Description,

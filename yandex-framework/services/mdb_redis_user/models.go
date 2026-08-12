@@ -14,6 +14,21 @@ import (
 )
 
 type User struct {
+	Id                types.String   `tfsdk:"id"`
+	ClusterID         types.String   `tfsdk:"cluster_id"`
+	Name              types.String   `tfsdk:"name"`
+	Permissions       types.Object   `tfsdk:"permissions"`
+	Enabled           types.Bool     `tfsdk:"enabled"`
+	Passwords         types.Set      `tfsdk:"passwords"`
+	PasswordWo        types.String   `tfsdk:"password_wo"`
+	PasswordWoVersion types.Int64    `tfsdk:"password_wo_version"`
+	ACLOptions        types.String   `tfsdk:"acl_options"`
+	Timeouts          timeouts.Value `tfsdk:"timeouts"`
+}
+
+// dataSourceUser follows the data source schema independently from resource-only
+// arguments in User.
+type dataSourceUser struct {
 	Id          types.String   `tfsdk:"id"`
 	ClusterID   types.String   `tfsdk:"cluster_id"`
 	Name        types.String   `tfsdk:"name"`
@@ -53,32 +68,49 @@ func userToState(ctx context.Context, user *redis.User, state *User) diag.Diagno
 	if state.Passwords.IsNull() {
 		state.Passwords = types.SetNull(types.StringType)
 	}
+	state.PasswordWo = types.StringNull()
 
 	return permissionsToState(ctx, user.Permissions, state)
 }
 
-func permissionsToState(ctx context.Context, perms *redis.Permissions, state *User) diag.Diagnostics {
-	var permissions Permissions
+func dataSourceUserToState(ctx context.Context, user *redis.User, state *dataSourceUser) diag.Diagnostics {
+	state.Name = types.StringValue(user.Name)
+	state.ClusterID = types.StringValue(user.ClusterId)
+	state.Enabled = types.BoolValue(user.Enabled)
+	state.ACLOptions = types.StringValue(user.AclOptions)
+	state.Passwords = types.SetNull(types.StringType)
 
-	permissions.Commands = types.StringValue(perms.Commands.GetValue())
-	permissions.Categories = types.StringValue(perms.Categories.GetValue())
-	permissions.Patterns = types.StringValue(perms.Patterns.GetValue())
-	permissions.PubSubChannels = types.StringValue(perms.PubSubChannels.GetValue())
-	permissions.SanitizePayload = types.StringValue(perms.SanitizePayload.GetValue())
-	permissions.Databases = types.StringValue(perms.Databases.GetValue())
-
-	permissionsObject, diags := types.ObjectValueFrom(ctx, permissionType.AttrTypes, permissions)
-
-	state.Permissions = permissionsObject
-
-	return diags
+	permissions, diagnostics := permissionsToObject(ctx, user.Permissions)
+	state.Permissions = permissions
+	return diagnostics
 }
 
-func userFromState(ctx context.Context, state *User) (*redis.UserSpec, diag.Diagnostics) {
+func permissionsToState(ctx context.Context, perms *redis.Permissions, state *User) diag.Diagnostics {
+	permissions, diagnostics := permissionsToObject(ctx, perms)
+	state.Permissions = permissions
+	return diagnostics
+}
+
+func permissionsToObject(ctx context.Context, permissions *redis.Permissions) (types.Object, diag.Diagnostics) {
+	model := Permissions{
+		Commands:        types.StringValue(permissions.Commands.GetValue()),
+		Categories:      types.StringValue(permissions.Categories.GetValue()),
+		Patterns:        types.StringValue(permissions.Patterns.GetValue()),
+		PubSubChannels:  types.StringValue(permissions.PubSubChannels.GetValue()),
+		SanitizePayload: types.StringValue(permissions.SanitizePayload.GetValue()),
+		Databases:       types.StringValue(permissions.Databases.GetValue()),
+	}
+	return types.ObjectValueFrom(ctx, permissionType.AttrTypes, model)
+}
+
+func userFromState(ctx context.Context, state *User, passwordWo types.String) (*redis.UserSpec, diag.Diagnostics) {
 	permissions, diags := permissionsFromState(ctx, state.Permissions)
 
 	var passwords = make([]string, 0, len(state.Passwords.Elements()))
 	diags.Append(state.Passwords.ElementsAs(ctx, &passwords, false)...)
+	if !passwordWo.IsNull() && !passwordWo.IsUnknown() {
+		passwords = []string{passwordWo.ValueString()}
+	}
 
 	return &redis.UserSpec{
 		Name:        state.Name.ValueString(),

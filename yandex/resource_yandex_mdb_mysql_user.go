@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -8,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -17,6 +20,7 @@ const (
 	yandexMDBMySQLUserReadTimeout   = 1 * time.Minute
 	yandexMDBMySQLUserUpdateTimeout = 10 * time.Minute
 	yandexMDBMySQLUserDeleteTimeout = 10 * time.Minute
+	redactedMySQLUserPassword       = "[REDACTED]"
 )
 
 func resourceYandexMDBMySQLUser() *schema.Resource {
@@ -29,6 +33,9 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 		Delete: resourceYandexMDBMySQLUserDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta any) error {
+			return validateMySQLUserPasswordConflict(d)
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -57,6 +64,20 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 				Description: "The password of the user.",
 				Optional:    true,
 				Sensitive:   true,
+			},
+			"password_wo": {
+				Type:         schema.TypeString,
+				Description:  "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher",
+				Optional:     true,
+				WriteOnly:    true,
+				Sensitive:    true,
+				RequiredWith: []string{"password_wo_version"},
+			},
+			"password_wo_version": {
+				Type:         schema.TypeInt,
+				Description:  "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:     true,
+				RequiredWith: []string{"password_wo"},
 			},
 			"permission": {
 				Type:        schema.TypeSet,
@@ -103,6 +124,24 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 			},
 		},
 	}
+}
+
+func validateMySQLUserPasswordConflict(d mdbcommon.RawConfigProvider) error {
+	_, hasPassword := mdbcommon.LookupRawConfigPath(d, "password")
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
+	if hasPassword && hasPasswordWo {
+		return fmt.Errorf("only one of `password` or `password_wo` can be specified")
+	}
+	return nil
+}
+
+func validateMySQLUserPasswordPair(d mdbcommon.RawConfigProvider) error {
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
+	_, hasPasswordWoVersion := mdbcommon.LookupRawConfigPath(d, "password_wo_version")
+	if hasPasswordWo != hasPasswordWoVersion {
+		return fmt.Errorf("`password_wo` and `password_wo_version` must be specified together")
+	}
+	return nil
 }
 
 func resourceYandexMDBMySQLUserPermission() *schema.Resource {
@@ -162,6 +201,13 @@ func resourceYandexMDBMySQLUserCreate(d *schema.ResourceData, meta interface{}) 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
+	if err := validateMySQLUserPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateMySQLUserPasswordPair(d); err != nil {
+		return err
+	}
+
 	clusterID := d.Get("cluster_id").(string)
 	userSpec, err := expandMySQLUserSpec(d)
 	if err != nil {
@@ -177,7 +223,7 @@ func resourceYandexMDBMySQLUserCreate(d *schema.ResourceData, meta interface{}) 
 		UserSpec:  userSpec,
 	}
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
-		log.Printf("[DEBUG] Sending MySQL user create request: %+v", request)
+		log.Printf("[DEBUG] Sending MySQL user create request: %+v", redactMySQLUserCreateRequest(request))
 		return config.sdk.MDB().MySQL().User().Create(ctx, request)
 	})
 
@@ -208,6 +254,10 @@ func expandMySQLUserSpec(d *schema.ResourceData) (*mysql.UserSpec, error) {
 
 	if v, ok := d.GetOk("password"); ok {
 		user.Password = v.(string)
+	}
+
+	if passwordWo, ok := mdbcommon.LookupRawConfigPath(d, "password_wo"); ok {
+		user.Password = passwordWo.AsString()
 	}
 
 	if v, ok := d.GetOk("permission"); ok {
@@ -291,6 +341,13 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
+	if err := validateMySQLUserPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateMySQLUserPasswordPair(d); err != nil {
+		return err
+	}
+
 	user, err := expandMySQLUserSpec(d)
 	if err != nil {
 		return err
@@ -302,9 +359,10 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 
 	updatePath := []string{}
 	changeMask := map[string]string{
-		"password":           "password",
-		"permission":         "permissions",
-		"global_permissions": "global_permissions",
+		"password":            "password",
+		"password_wo_version": "password",
+		"permission":          "permissions",
+		"global_permissions":  "global_permissions",
 		"connection_limits.0.max_questions_per_hour":   "connection_limits.max_questions_per_hour",
 		"connection_limits.0.max_updates_per_hour":     "connection_limits.max_updates_per_hour",
 		"connection_limits.0.max_connections_per_hour": "connection_limits.max_connections_per_hour",
@@ -334,7 +392,7 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 		UpdateMask:           &fieldmaskpb.FieldMask{Paths: updatePath},
 	}
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
-		log.Printf("[DEBUG] Sending MySQL user update request: %+v", request)
+		log.Printf("[DEBUG] Sending MySQL user update request: %+v", redactMySQLUserUpdateRequest(request))
 		return config.sdk.MDB().MySQL().User().Update(ctx, request)
 	})
 	if err != nil {
@@ -349,6 +407,22 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("updating user for MySQL Cluster %q failed: %s", clusterID, err)
 	}
 	return nil
+}
+
+func redactMySQLUserCreateRequest(request *mysql.CreateUserRequest) *mysql.CreateUserRequest {
+	redactedRequest := proto.Clone(request).(*mysql.CreateUserRequest)
+	if redactedRequest.UserSpec != nil && redactedRequest.UserSpec.Password != "" {
+		redactedRequest.UserSpec.Password = redactedMySQLUserPassword
+	}
+	return redactedRequest
+}
+
+func redactMySQLUserUpdateRequest(request *mysql.UpdateUserRequest) *mysql.UpdateUserRequest {
+	redactedRequest := proto.Clone(request).(*mysql.UpdateUserRequest)
+	if redactedRequest.Password != "" {
+		redactedRequest.Password = redactedMySQLUserPassword
+	}
+	return redactedRequest
 }
 
 func resourceYandexMDBMySQLUserDelete(d *schema.ResourceData, meta interface{}) error {

@@ -85,9 +85,10 @@ func mdbRedisClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"config.0.password", // not returned
-			"health",            // volatile value
-			"host",              // the order of hosts differs
+			"config.0.password",            // not returned
+			"config.0.password_wo_version", // write-only password version is not importable
+			"health",                       // volatile value
+			"host",                         // the order of hosts differs
 		},
 	}
 }

@@ -92,6 +92,10 @@ func YandexSwsAdvancedRateLimiterProfileResourceSchema(ctx context.Context) sche
 					"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
 				Computed: true,
+
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 
 			"description": schema.StringAttribute{

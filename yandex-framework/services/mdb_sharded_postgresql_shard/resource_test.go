@@ -13,6 +13,7 @@ const (
 	clusterResourceName     = "yandex_mdb_sharded_postgresql_cluster.foo"
 	shardResourceNameShard1 = "yandex_mdb_sharded_postgresql_shard.shard1"
 	shardResourceNameShard2 = "yandex_mdb_sharded_postgresql_shard.shard2"
+	postgresqlVersion       = "18"
 
 	VPCDependencies = `
 	resource "yandex_vpc_network" "foo" {}
@@ -92,7 +93,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
   }
 
   config {
-    version = "17"
+	version = "%s"
 	resources {
 		resource_preset_id = "s2.micro"
 		disk_size          = 10
@@ -100,7 +101,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
 	}
   }
 }
-`, name, name)
+`, name, name, postgresqlVersion)
 }
 
 func testAccMDBShardedPostgreSQLShardConfigStep0(name string) string {
