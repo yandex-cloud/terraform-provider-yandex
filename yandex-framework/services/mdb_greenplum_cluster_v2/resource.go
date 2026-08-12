@@ -8,6 +8,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -27,10 +28,11 @@ import (
 )
 
 const (
-	ClusterDefaultTimeout = 120 * time.Minute
-	ClusterUpdateTimeout  = 120 * time.Minute
-	ClusterExpandTimeout  = 24 * 60 * time.Minute
-	ClusterExpandDuration = 7200 // in seconds
+	ClusterDefaultTimeout     = 120 * time.Minute
+	ClusterUpdateTimeout      = 120 * time.Minute
+	ClusterExpandTimeout      = 24 * 60 * time.Minute
+	ClusterExpandDuration     = 7200 // in seconds
+	redactedGreenplumPassword = "[REDACTED]"
 )
 
 var _ resource.ResourceWithConfigure = (*clusterResource)(nil)
@@ -118,10 +120,61 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *yande
 	}
 }
 
+func greenplumClusterPasswordForCreate(plan *yandexMdbGreenplumClusterV2Model, passwordWo types.String) string {
+	if !passwordWo.IsNull() && !passwordWo.IsUnknown() {
+		return passwordWo.ValueString()
+	}
+	return plan.UserPassword.ValueString()
+}
+
+func greenplumClusterPasswordChange(plan, state *yandexMdbGreenplumClusterV2Model, passwordWo types.String) (string, bool, diag.Diagnostics) {
+	password := plan.UserPassword.ValueString()
+	passwordChanged := !plan.UserPassword.IsNull() && !plan.UserPassword.Equal(state.UserPassword)
+
+	if plan.UserPasswordWoVersion.IsNull() || plan.UserPasswordWoVersion.Equal(state.UserPasswordWoVersion) {
+		return password, passwordChanged, nil
+	}
+	if passwordWo.IsNull() || passwordWo.IsUnknown() {
+		diagnostics := diag.Diagnostics{}
+		diagnostics.AddAttributeError(
+			path.Root("user_password_wo"),
+			"Missing Greenplum owner password",
+			"user_password_wo must be configured when user_password_wo_version changes",
+		)
+		return "", false, diagnostics
+	}
+
+	return passwordWo.ValueString(), true, nil
+}
+
+func redactCreateClusterRequest(req *greenplum.CreateClusterRequest) *greenplum.CreateClusterRequest {
+	if req == nil {
+		return nil
+	}
+	redacted := proto.Clone(req).(*greenplum.CreateClusterRequest)
+	if redacted.GetUserPassword() != "" {
+		redacted.SetUserPassword(redactedGreenplumPassword)
+	}
+	return redacted
+}
+
+func redactUpdateClusterRequest(req *greenplum.UpdateClusterRequest) *greenplum.UpdateClusterRequest {
+	if req == nil {
+		return nil
+	}
+	redacted := proto.Clone(req).(*greenplum.UpdateClusterRequest)
+	if redacted.GetUserPassword() != "" {
+		redacted.SetUserPassword(redactedGreenplumPassword)
+	}
+	return redacted
+}
+
 func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan yandexMdbGreenplumClusterV2Model
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("user_password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -148,7 +201,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	createReq.SetSegmentInHost(plan.SegmentInHost.ValueInt64())
 	createReq.SetSegmentHostCount(plan.SegmentHostCount.ValueInt64())
 	createReq.SetUserName(plan.UserName.ValueString())
-	createReq.SetUserPassword(plan.UserPassword.ValueString())
+	createReq.SetUserPassword(greenplumClusterPasswordForCreate(&plan, passwordWo))
 	createReq.SetNetworkId(plan.NetworkId.ValueString())
 	createReq.SetSecurityGroupIds(expandYandexMdbGreenplumClusterV2SecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
 	createReq.SetDeletionProtection(plan.DeletionProtection.ValueBool())
@@ -164,7 +217,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, fmt.Sprintf("Create cluster request: %s", validate.ProtoDump(createReq)))
+	tflog.Debug(ctx, fmt.Sprintf("Create cluster request: %s", validate.ProtoDump(redactCreateClusterRequest(createReq))))
 
 	if utils.IsPresent(plan.Restore) {
 		r.restoreCluster(ctx, diags, &plan, resp)
@@ -427,6 +480,8 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	resp.Diagnostics.Append(diags...)
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("user_password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -877,7 +932,12 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !plan.ServiceAccountId.Equal(state.ServiceAccountId) {
 		updatePaths = append(updatePaths, "service_account_id")
 	}
-	if !plan.UserPassword.Equal(state.UserPassword) {
+	password, passwordChanged, passwordDiags := greenplumClusterPasswordChange(&plan, &state, passwordWo)
+	resp.Diagnostics.Append(passwordDiags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if passwordChanged {
 		updatePaths = append(updatePaths, "user_password")
 	}
 
@@ -913,7 +973,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		updateReq.SetConfig(expandYandexMdbGreenplumClusterV2Config(ctx, plan.Config, &diags))
 		updateReq.SetMasterConfig(expandYandexMdbGreenplumClusterV2MasterConfig(ctx, plan.MasterConfig, &diags))
 		updateReq.SetSegmentConfig(expandYandexMdbGreenplumClusterV2SegmentConfig(ctx, plan.SegmentConfig, &diags))
-		updateReq.SetUserPassword(plan.UserPassword.ValueString())
+		updateReq.SetUserPassword(password)
 		updateReq.SetNetworkId(plan.NetworkId.ValueString())
 		updateReq.SetMaintenanceWindow(expandYandexMdbGreenplumClusterV2MaintenanceWindow(ctx, plan.MaintenanceWindow, &diags))
 		updateReq.SetSecurityGroupIds(expandYandexMdbGreenplumClusterV2SecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
@@ -928,7 +988,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		if resp.Diagnostics.HasError() {
 			return
 		}
-		tflog.Debug(ctx, fmt.Sprintf("Update cluster request: %s", validate.ProtoDump(updateReq)))
+		tflog.Debug(ctx, fmt.Sprintf("Update cluster request: %s", validate.ProtoDump(redactUpdateClusterRequest(updateReq))))
 
 		md := new(metadata.MD)
 		op, err := greenplumv1sdk.NewClusterClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))

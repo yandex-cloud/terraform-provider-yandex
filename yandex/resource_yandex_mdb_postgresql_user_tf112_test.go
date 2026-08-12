@@ -45,12 +45,12 @@ func TestAccMDBPostgreSQLUserPasswordWo_TF1_12(t *testing.T) {
 			{
 				Config:      testAccMDBPostgreSQLUserConfigPasswordWoWithoutVersion(clusterName),
 				PlanOnly:    true,
-				ExpectError: regexp.MustCompile(`all of .password_wo,password_wo_version. must be\s+specified`),
+				ExpectError: regexp.MustCompile(`all of .password_wo,password_wo_version. must\s+be\s+specified`),
 			},
 			{
 				Config:      testAccMDBPostgreSQLUserConfigPasswordWoVersionWithoutPassword(clusterName),
 				PlanOnly:    true,
-				ExpectError: regexp.MustCompile(`all of .password_wo,password_wo_version. must be\s+specified`),
+				ExpectError: regexp.MustCompile(`all of .password_wo,password_wo_version. must\s+be\s+specified`),
 			},
 			{
 				Config: testAccMDBPostgreSQLUserConfigPasswordWo(clusterName, "rotatedP@ssw0rd", 2, "USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256"),

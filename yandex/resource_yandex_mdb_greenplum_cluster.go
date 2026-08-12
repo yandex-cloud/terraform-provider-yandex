@@ -35,6 +35,9 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta any) error {
+			return validateGreenplumClusterPasswordConflict(d)
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexMDBGreenplumClusterDefaultTimeout),
@@ -266,10 +269,26 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Required:    true,
 			},
 			"user_password": {
-				Type:        schema.TypeString,
-				Description: "Greenplum cluster admin password name.",
-				Required:    true,
-				Sensitive:   true,
+				Type:         schema.TypeString,
+				Description:  "Greenplum cluster admin password.",
+				Optional:     true,
+				Sensitive:    true,
+				AtLeastOneOf: []string{"user_password", "user_password_wo"},
+			},
+			"user_password_wo": {
+				Type:         schema.TypeString,
+				Description:  "Greenplum cluster admin password. This attribute is write-only and is not stored in state. Requires `user_password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.",
+				Optional:     true,
+				WriteOnly:    true,
+				Sensitive:    true,
+				AtLeastOneOf: []string{"user_password", "user_password_wo"},
+				RequiredWith: []string{"user_password_wo_version"},
+			},
+			"user_password_wo_version": {
+				Type:         schema.TypeInt,
+				Description:  "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:     true,
+				RequiredWith: []string{"user_password_wo"},
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -692,7 +711,58 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 	}
 }
 
+func validateGreenplumClusterPasswordConflict(d mdbcommon.RawConfigProvider) error {
+	_, hasPassword := mdbcommon.LookupRawConfigPath(d, "user_password")
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "user_password_wo")
+	if hasPassword && hasPasswordWo {
+		return fmt.Errorf("only one of `user_password` or `user_password_wo` can be specified")
+	}
+	return nil
+}
+
+func validateGreenplumClusterPasswordPair(d mdbcommon.RawConfigProvider) error {
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "user_password_wo")
+	_, hasPasswordWoVersion := mdbcommon.LookupRawConfigPath(d, "user_password_wo_version")
+	if hasPasswordWo != hasPasswordWoVersion {
+		return fmt.Errorf("`user_password_wo` and `user_password_wo_version` must be specified together")
+	}
+	return nil
+}
+
+type greenplumClusterPasswordProvider interface {
+	mdbcommon.RawConfigProvider
+	GetOk(string) (interface{}, bool)
+}
+
+type greenplumClusterPasswordUpdateProvider interface {
+	greenplumClusterPasswordProvider
+	HasChange(string) bool
+}
+
+func greenplumClusterPassword(d greenplumClusterPasswordProvider) string {
+	if passwordWo, ok := mdbcommon.LookupRawConfigPath(d, "user_password_wo"); ok {
+		return passwordWo.AsString()
+	}
+	if password, ok := d.GetOk("user_password"); ok {
+		return password.(string)
+	}
+	return ""
+}
+
+func greenplumClusterPasswordForUpdate(d greenplumClusterPasswordUpdateProvider) string {
+	if !d.HasChange("user_password") && !d.HasChange("user_password_wo_version") {
+		return ""
+	}
+	return greenplumClusterPassword(d)
+}
+
 func resourceYandexMDBGreenplumClusterCreate(d *schema.ResourceData, meta interface{}) error {
+	if err := validateGreenplumClusterPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateGreenplumClusterPasswordPair(d); err != nil {
+		return err
+	}
 	config := meta.(*Config)
 	req, err := prepareCreateGreenplumClusterRequest(d, config)
 	if err != nil {
@@ -871,7 +941,7 @@ func prepareCreateGreenplumClusterRequest(d *schema.ResourceData, meta *Config) 
 		},
 
 		UserName:     d.Get("user_name").(string),
-		UserPassword: d.Get("user_password").(string),
+		UserPassword: greenplumClusterPassword(d),
 
 		ConfigSpec:          configSpec,
 		CloudStorage:        expandGreenplumCloudStorage(d),
@@ -1056,6 +1126,12 @@ func listGreenplumSegmentHosts(ctx context.Context, config *Config, id string) (
 }
 
 func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	if err := validateGreenplumClusterPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateGreenplumClusterPasswordPair(d); err != nil {
+		return err
+	}
 	d.Partial(true)
 
 	config := meta.(*Config)
@@ -1144,10 +1220,11 @@ func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData, config *Config
 		return nil, fmt.Errorf("error while expanding labels on Greenplum cluster update: %s", err)
 	}
 
-	configSpec, configMask, err := expandGreenplumConfigSpec(d)
+	configSpec, settingNames, err := expandGreenplumConfigSpec(d)
 	if err != nil {
 		return nil, fmt.Errorf("error while expanding config spec on Greenplum Cluster update: %s", err)
 	}
+	configMask := expandGreenplumConfigUpdateMask(d, settingNames)
 
 	maintenanceWindow, err := expandGreenplumMaintenanceWindow(d)
 	if err != nil {
@@ -1162,7 +1239,7 @@ func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData, config *Config
 	return &greenplum.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
-		UserPassword:       d.Get("user_password").(string),
+		UserPassword:       greenplumClusterPasswordForUpdate(d),
 		Description:        d.Get("description").(string),
 		Labels:             labels,
 		NetworkId:          networkID,

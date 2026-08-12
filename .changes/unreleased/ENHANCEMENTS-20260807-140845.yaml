@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'greenplum: add write-only password attributes to yandex_mdb_greenplum_cluster, yandex_mdb_greenplum_cluster_v2, and yandex_mdb_greenplum_user resources'
+time: 2026-08-07T14:08:45.537082+03:00

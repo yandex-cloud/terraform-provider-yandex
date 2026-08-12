@@ -45,12 +45,12 @@ func TestAccMDBMySQLUserPasswordWo_TF1_12(t *testing.T) {
 			{
 				Config:      testAccMDBMySQLUserConfigPasswordWoWithoutVersion(clusterName),
 				PlanOnly:    true,
-				ExpectError: regexp.MustCompile(`all of .password_wo,password_wo_version. must be\s+specified`),
+				ExpectError: regexp.MustCompile(`all of .password_wo,password_wo_version. must\s+be\s+specified`),
 			},
 			{
 				Config:      testAccMDBMySQLUserConfigPasswordWoVersionWithoutPassword(clusterName),
 				PlanOnly:    true,
-				ExpectError: regexp.MustCompile(`all of .password_wo,password_wo_version. must be\s+specified`),
+				ExpectError: regexp.MustCompile(`all of .password_wo,password_wo_version. must\s+be\s+specified`),
 			},
 			{
 				Config: testAccMDBMySQLUserConfigPasswordWo(clusterName, "rotatedP@ssw0rd", 2, "CACHING_SHA2_PASSWORD"),

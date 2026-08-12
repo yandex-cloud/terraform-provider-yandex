@@ -139,8 +139,9 @@ func TestAccResourceYandexMdbGreenplumClusterV2_full(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"restore",       // restore is write-only
-					"user_password", // user_password is write-only
+					"restore",                  // restore is write-only
+					"user_password",            // user_password is not returned
+					"user_password_wo_version", // write-only password versions are not returned
 				},
 			},
 		},
@@ -160,7 +161,7 @@ resource "yandex_mdb_greenplum_cluster_v2" "test" {
   segment_host_count = 2
   segment_in_host   = 1
 
-  user_name = "test-user"
+  user_name = "testuser"
   user_password = "test-user-password"
   network_id = yandex_vpc_network.mdb-gp-test-net.id
 
@@ -212,7 +213,7 @@ resource "yandex_mdb_greenplum_cluster_v2" "test" {
   segment_host_count = 3
   segment_in_host   = 2
 
-  user_name = "test-user"
+  user_name = "testuser"
   user_password = "test-user-password"
   network_id = yandex_vpc_network.mdb-gp-test-net.id
 

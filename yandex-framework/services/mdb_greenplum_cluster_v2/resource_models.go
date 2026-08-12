@@ -172,36 +172,38 @@ func expandYandexMdbGreenplumClusterV2MonitoringStructModel(ctx context.Context,
 }
 
 type yandexMdbGreenplumClusterV2Model struct {
-	Restore             types.Object   `tfsdk:"restore"`
-	CloudStorage        types.Object   `tfsdk:"cloud_storage"`
-	ClusterConfig       types.Object   `tfsdk:"cluster_config"`
-	ID                  types.String   `tfsdk:"id"`
-	Config              types.Object   `tfsdk:"config"`
-	CreatedAt           types.String   `tfsdk:"created_at"`
-	DeletionProtection  types.Bool     `tfsdk:"deletion_protection"`
-	Description         types.String   `tfsdk:"description"`
-	Environment         types.String   `tfsdk:"environment"`
-	FolderId            types.String   `tfsdk:"folder_id"`
-	HostGroupIds        types.Set      `tfsdk:"host_group_ids"`
-	Labels              types.Map      `tfsdk:"labels"`
-	Logging             types.Object   `tfsdk:"logging"`
-	MaintenanceWindow   types.Object   `tfsdk:"maintenance_window"`
-	MasterConfig        types.Object   `tfsdk:"master_config"`
-	MasterHostCount     types.Int64    `tfsdk:"master_host_count"`
-	MasterHostGroupIds  types.Set      `tfsdk:"master_host_group_ids"`
-	Monitoring          types.Set      `tfsdk:"monitoring"`
-	Name                types.String   `tfsdk:"name"`
-	NetworkId           types.String   `tfsdk:"network_id"`
-	PlannedOperation    types.Object   `tfsdk:"planned_operation"`
-	SecurityGroupIds    types.Set      `tfsdk:"security_group_ids"`
-	SegmentConfig       types.Object   `tfsdk:"segment_config"`
-	SegmentHostCount    types.Int64    `tfsdk:"segment_host_count"`
-	SegmentHostGroupIds types.Set      `tfsdk:"segment_host_group_ids"`
-	SegmentInHost       types.Int64    `tfsdk:"segment_in_host"`
-	ServiceAccountId    types.String   `tfsdk:"service_account_id"`
-	UserName            types.String   `tfsdk:"user_name"`
-	UserPassword        types.String   `tfsdk:"user_password"`
-	Timeouts            timeouts.Value `tfsdk:"timeouts"`
+	Restore               types.Object   `tfsdk:"restore"`
+	CloudStorage          types.Object   `tfsdk:"cloud_storage"`
+	ClusterConfig         types.Object   `tfsdk:"cluster_config"`
+	ID                    types.String   `tfsdk:"id"`
+	Config                types.Object   `tfsdk:"config"`
+	CreatedAt             types.String   `tfsdk:"created_at"`
+	DeletionProtection    types.Bool     `tfsdk:"deletion_protection"`
+	Description           types.String   `tfsdk:"description"`
+	Environment           types.String   `tfsdk:"environment"`
+	FolderId              types.String   `tfsdk:"folder_id"`
+	HostGroupIds          types.Set      `tfsdk:"host_group_ids"`
+	Labels                types.Map      `tfsdk:"labels"`
+	Logging               types.Object   `tfsdk:"logging"`
+	MaintenanceWindow     types.Object   `tfsdk:"maintenance_window"`
+	MasterConfig          types.Object   `tfsdk:"master_config"`
+	MasterHostCount       types.Int64    `tfsdk:"master_host_count"`
+	MasterHostGroupIds    types.Set      `tfsdk:"master_host_group_ids"`
+	Monitoring            types.Set      `tfsdk:"monitoring"`
+	Name                  types.String   `tfsdk:"name"`
+	NetworkId             types.String   `tfsdk:"network_id"`
+	PlannedOperation      types.Object   `tfsdk:"planned_operation"`
+	SecurityGroupIds      types.Set      `tfsdk:"security_group_ids"`
+	SegmentConfig         types.Object   `tfsdk:"segment_config"`
+	SegmentHostCount      types.Int64    `tfsdk:"segment_host_count"`
+	SegmentHostGroupIds   types.Set      `tfsdk:"segment_host_group_ids"`
+	SegmentInHost         types.Int64    `tfsdk:"segment_in_host"`
+	ServiceAccountId      types.String   `tfsdk:"service_account_id"`
+	UserName              types.String   `tfsdk:"user_name"`
+	UserPassword          types.String   `tfsdk:"user_password"`
+	UserPasswordWo        types.String   `tfsdk:"user_password_wo"`
+	UserPasswordWoVersion types.Int64    `tfsdk:"user_password_wo_version"`
+	Timeouts              timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (m *yandexMdbGreenplumClusterV2Model) GetRestore() types.Object {
@@ -291,38 +293,46 @@ func (m *yandexMdbGreenplumClusterV2Model) GetUserName() types.String {
 func (m *yandexMdbGreenplumClusterV2Model) GetUserPassword() types.String {
 	return m.UserPassword
 }
+func (m *yandexMdbGreenplumClusterV2Model) GetUserPasswordWo() types.String {
+	return m.UserPasswordWo
+}
+func (m *yandexMdbGreenplumClusterV2Model) GetUserPasswordWoVersion() types.Int64 {
+	return m.UserPasswordWoVersion
+}
 
 func NewYandexMdbGreenplumClusterV2Model() yandexMdbGreenplumClusterV2Model {
 	return yandexMdbGreenplumClusterV2Model{
-		Restore:             types.ObjectNull(yandexMdbGreenplumClusterV2RestoreModelType.AttrTypes),
-		CloudStorage:        types.ObjectNull(yandexMdbGreenplumClusterV2CloudStorageModelType.AttrTypes),
-		ClusterConfig:       types.ObjectNull(yandexMdbGreenplumClusterV2ClusterConfigModelType.AttrTypes),
-		ID:                  types.StringNull(),
-		Config:              types.ObjectNull(yandexMdbGreenplumClusterV2ConfigModelType.AttrTypes),
-		CreatedAt:           types.StringNull(),
-		DeletionProtection:  types.BoolNull(),
-		Description:         types.StringNull(),
-		Environment:         types.StringNull(),
-		FolderId:            types.StringNull(),
-		HostGroupIds:        types.SetNull(types.StringType),
-		Labels:              types.MapNull(types.StringType),
-		Logging:             types.ObjectNull(yandexMdbGreenplumClusterV2LoggingModelType.AttrTypes),
-		MaintenanceWindow:   types.ObjectNull(yandexMdbGreenplumClusterV2MaintenanceWindowModelType.AttrTypes),
-		MasterConfig:        types.ObjectNull(yandexMdbGreenplumClusterV2MasterConfigModelType.AttrTypes),
-		MasterHostCount:     types.Int64Null(),
-		MasterHostGroupIds:  types.SetNull(types.StringType),
-		Monitoring:          types.SetNull(yandexMdbGreenplumClusterV2MonitoringStructModelType),
-		Name:                types.StringNull(),
-		NetworkId:           types.StringNull(),
-		PlannedOperation:    types.ObjectNull(yandexMdbGreenplumClusterV2PlannedOperationModelType.AttrTypes),
-		SecurityGroupIds:    types.SetNull(types.StringType),
-		SegmentConfig:       types.ObjectNull(yandexMdbGreenplumClusterV2SegmentConfigModelType.AttrTypes),
-		SegmentHostCount:    types.Int64Null(),
-		SegmentHostGroupIds: types.SetNull(types.StringType),
-		SegmentInHost:       types.Int64Null(),
-		ServiceAccountId:    types.StringNull(),
-		UserName:            types.StringNull(),
-		UserPassword:        types.StringNull(),
+		Restore:               types.ObjectNull(yandexMdbGreenplumClusterV2RestoreModelType.AttrTypes),
+		CloudStorage:          types.ObjectNull(yandexMdbGreenplumClusterV2CloudStorageModelType.AttrTypes),
+		ClusterConfig:         types.ObjectNull(yandexMdbGreenplumClusterV2ClusterConfigModelType.AttrTypes),
+		ID:                    types.StringNull(),
+		Config:                types.ObjectNull(yandexMdbGreenplumClusterV2ConfigModelType.AttrTypes),
+		CreatedAt:             types.StringNull(),
+		DeletionProtection:    types.BoolNull(),
+		Description:           types.StringNull(),
+		Environment:           types.StringNull(),
+		FolderId:              types.StringNull(),
+		HostGroupIds:          types.SetNull(types.StringType),
+		Labels:                types.MapNull(types.StringType),
+		Logging:               types.ObjectNull(yandexMdbGreenplumClusterV2LoggingModelType.AttrTypes),
+		MaintenanceWindow:     types.ObjectNull(yandexMdbGreenplumClusterV2MaintenanceWindowModelType.AttrTypes),
+		MasterConfig:          types.ObjectNull(yandexMdbGreenplumClusterV2MasterConfigModelType.AttrTypes),
+		MasterHostCount:       types.Int64Null(),
+		MasterHostGroupIds:    types.SetNull(types.StringType),
+		Monitoring:            types.SetNull(yandexMdbGreenplumClusterV2MonitoringStructModelType),
+		Name:                  types.StringNull(),
+		NetworkId:             types.StringNull(),
+		PlannedOperation:      types.ObjectNull(yandexMdbGreenplumClusterV2PlannedOperationModelType.AttrTypes),
+		SecurityGroupIds:      types.SetNull(types.StringType),
+		SegmentConfig:         types.ObjectNull(yandexMdbGreenplumClusterV2SegmentConfigModelType.AttrTypes),
+		SegmentHostCount:      types.Int64Null(),
+		SegmentHostGroupIds:   types.SetNull(types.StringType),
+		SegmentInHost:         types.Int64Null(),
+		ServiceAccountId:      types.StringNull(),
+		UserName:              types.StringNull(),
+		UserPassword:          types.StringNull(),
+		UserPasswordWo:        types.StringNull(),
+		UserPasswordWoVersion: types.Int64Null(),
 	}
 }
 
@@ -414,42 +424,50 @@ func yandexMdbGreenplumClusterV2ModelFillUnknown(target yandexMdbGreenplumCluste
 	if target.UserPassword.IsUnknown() || target.UserPassword.IsNull() {
 		target.UserPassword = types.StringNull()
 	}
+	if target.UserPasswordWo.IsUnknown() || target.UserPasswordWo.IsNull() {
+		target.UserPasswordWo = types.StringNull()
+	}
+	if target.UserPasswordWoVersion.IsUnknown() || target.UserPasswordWoVersion.IsNull() {
+		target.UserPasswordWoVersion = types.Int64Null()
+	}
 	return target
 }
 
 var yandexMdbGreenplumClusterV2ModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"restore":                yandexMdbGreenplumClusterV2RestoreModelType,
-		"cloud_storage":          yandexMdbGreenplumClusterV2CloudStorageModelType,
-		"cluster_config":         yandexMdbGreenplumClusterV2ClusterConfigModelType,
-		"cluster_id":             types.StringType,
-		"id":                     types.StringType,
-		"config":                 yandexMdbGreenplumClusterV2ConfigModelType,
-		"created_at":             types.StringType,
-		"deletion_protection":    types.BoolType,
-		"description":            types.StringType,
-		"environment":            types.StringType,
-		"folder_id":              types.StringType,
-		"host_group_ids":         types.SetType{ElemType: types.StringType},
-		"labels":                 types.MapType{ElemType: types.StringType},
-		"logging":                yandexMdbGreenplumClusterV2LoggingModelType,
-		"maintenance_window":     yandexMdbGreenplumClusterV2MaintenanceWindowModelType,
-		"master_config":          yandexMdbGreenplumClusterV2MasterConfigModelType,
-		"master_host_count":      types.Int64Type,
-		"master_host_group_ids":  types.SetType{ElemType: types.StringType},
-		"monitoring":             types.SetType{ElemType: yandexMdbGreenplumClusterV2MonitoringStructModelType},
-		"name":                   types.StringType,
-		"network_id":             types.StringType,
-		"planned_operation":      yandexMdbGreenplumClusterV2PlannedOperationModelType,
-		"security_group_ids":     types.SetType{ElemType: types.StringType},
-		"segment_config":         yandexMdbGreenplumClusterV2SegmentConfigModelType,
-		"segment_host_count":     types.Int64Type,
-		"segment_host_group_ids": types.SetType{ElemType: types.StringType},
-		"segment_in_host":        types.Int64Type,
-		"service_account_id":     types.StringType,
-		"user_name":              types.StringType,
-		"user_password":          types.StringType,
-		"timeouts":               timeouts.AttributesAll(context.Background()).GetType(),
+		"restore":                  yandexMdbGreenplumClusterV2RestoreModelType,
+		"cloud_storage":            yandexMdbGreenplumClusterV2CloudStorageModelType,
+		"cluster_config":           yandexMdbGreenplumClusterV2ClusterConfigModelType,
+		"cluster_id":               types.StringType,
+		"id":                       types.StringType,
+		"config":                   yandexMdbGreenplumClusterV2ConfigModelType,
+		"created_at":               types.StringType,
+		"deletion_protection":      types.BoolType,
+		"description":              types.StringType,
+		"environment":              types.StringType,
+		"folder_id":                types.StringType,
+		"host_group_ids":           types.SetType{ElemType: types.StringType},
+		"labels":                   types.MapType{ElemType: types.StringType},
+		"logging":                  yandexMdbGreenplumClusterV2LoggingModelType,
+		"maintenance_window":       yandexMdbGreenplumClusterV2MaintenanceWindowModelType,
+		"master_config":            yandexMdbGreenplumClusterV2MasterConfigModelType,
+		"master_host_count":        types.Int64Type,
+		"master_host_group_ids":    types.SetType{ElemType: types.StringType},
+		"monitoring":               types.SetType{ElemType: yandexMdbGreenplumClusterV2MonitoringStructModelType},
+		"name":                     types.StringType,
+		"network_id":               types.StringType,
+		"planned_operation":        yandexMdbGreenplumClusterV2PlannedOperationModelType,
+		"security_group_ids":       types.SetType{ElemType: types.StringType},
+		"segment_config":           yandexMdbGreenplumClusterV2SegmentConfigModelType,
+		"segment_host_count":       types.Int64Type,
+		"segment_host_group_ids":   types.SetType{ElemType: types.StringType},
+		"segment_in_host":          types.Int64Type,
+		"service_account_id":       types.StringType,
+		"user_name":                types.StringType,
+		"user_password":            types.StringType,
+		"user_password_wo":         types.StringType,
+		"user_password_wo_version": types.Int64Type,
+		"timeouts":                 timeouts.AttributesAll(context.Background()).GetType(),
 	},
 }
 
@@ -462,36 +480,38 @@ func flattenYandexMdbGreenplumClusterV2(ctx context.Context,
 		return yandexMdbGreenplumClusterV2Model{}
 	}
 	return yandexMdbGreenplumClusterV2Model{
-		Restore:             state.Restore,
-		CloudStorage:        flattenYandexMdbGreenplumClusterV2CloudStorage(ctx, yandexMdbGreenplumClusterV2.GetCloudStorage(), diags),
-		ClusterConfig:       flattenYandexMdbGreenplumClusterV2ClusterConfig(ctx, yandexMdbGreenplumClusterV2.GetClusterConfig(), converter.ExpandObject(ctx, state.ClusterConfig, yandexMdbGreenplumClusterV2ClusterConfigModel{}, diags).(yandexMdbGreenplumClusterV2ClusterConfigModel), diags),
-		ID:                  types.StringValue(yandexMdbGreenplumClusterV2.GetId()),
-		Config:              flattenYandexMdbGreenplumClusterV2Config(ctx, yandexMdbGreenplumClusterV2.GetConfig(), converter.ExpandObject(ctx, state.Config, yandexMdbGreenplumClusterV2ConfigModel{}, diags).(yandexMdbGreenplumClusterV2ConfigModel), diags),
-		CreatedAt:           types.StringValue(yandexMdbGreenplumClusterV2.GetCreatedAt().AsTime().Format(time.RFC3339)),
-		DeletionProtection:  types.BoolValue(yandexMdbGreenplumClusterV2.GetDeletionProtection()),
-		Description:         types.StringValue(yandexMdbGreenplumClusterV2.GetDescription()),
-		Environment:         flattenEnum(yandexMdbGreenplumClusterV2.GetEnvironment()),
-		FolderId:            types.StringValue(yandexMdbGreenplumClusterV2.GetFolderId()),
-		HostGroupIds:        flattenYandexMdbGreenplumClusterV2HostGroupIds(ctx, yandexMdbGreenplumClusterV2.GetHostGroupIds(), state.HostGroupIds, diags),
-		Labels:              flattenYandexMdbGreenplumClusterV2Labels(ctx, yandexMdbGreenplumClusterV2.GetLabels(), state.Labels, diags),
-		Logging:             flattenYandexMdbGreenplumClusterV2Logging(ctx, yandexMdbGreenplumClusterV2.GetLogging(), diags),
-		MaintenanceWindow:   flattenYandexMdbGreenplumClusterV2MaintenanceWindow(ctx, yandexMdbGreenplumClusterV2.GetMaintenanceWindow(), diags),
-		MasterConfig:        flattenYandexMdbGreenplumClusterV2MasterConfig(ctx, yandexMdbGreenplumClusterV2.GetMasterConfig(), diags),
-		MasterHostCount:     types.Int64Value(yandexMdbGreenplumClusterV2.GetMasterHostCount()),
-		MasterHostGroupIds:  flattenYandexMdbGreenplumClusterV2HostGroupIds(ctx, yandexMdbGreenplumClusterV2.GetMasterHostGroupIds(), state.MasterHostGroupIds, diags),
-		Monitoring:          flattenYandexMdbGreenplumClusterV2Monitoring(ctx, yandexMdbGreenplumClusterV2.GetMonitoring(), state.Monitoring, diags),
-		Name:                types.StringValue(yandexMdbGreenplumClusterV2.GetName()),
-		NetworkId:           types.StringValue(yandexMdbGreenplumClusterV2.GetNetworkId()),
-		PlannedOperation:    flattenYandexMdbGreenplumClusterV2PlannedOperation(ctx, yandexMdbGreenplumClusterV2.GetPlannedOperation(), diags),
-		SecurityGroupIds:    flattenYandexMdbGreenplumClusterV2SecurityGroupIds(ctx, yandexMdbGreenplumClusterV2.GetSecurityGroupIds(), state.SecurityGroupIds, diags),
-		SegmentConfig:       flattenYandexMdbGreenplumClusterV2SegmentConfig(ctx, yandexMdbGreenplumClusterV2.GetSegmentConfig(), diags),
-		SegmentHostCount:    types.Int64Value(yandexMdbGreenplumClusterV2.GetSegmentHostCount()),
-		SegmentHostGroupIds: flattenYandexMdbGreenplumClusterV2HostGroupIds(ctx, yandexMdbGreenplumClusterV2.GetSegmentHostGroupIds(), state.SegmentHostGroupIds, diags),
-		SegmentInHost:       types.Int64Value(yandexMdbGreenplumClusterV2.GetSegmentInHost()),
-		ServiceAccountId:    types.StringValue(yandexMdbGreenplumClusterV2.GetServiceAccountId()),
-		UserName:            types.StringValue(yandexMdbGreenplumClusterV2.GetUserName()),
-		UserPassword:        state.UserPassword,
-		Timeouts:            to,
+		Restore:               state.Restore,
+		CloudStorage:          flattenYandexMdbGreenplumClusterV2CloudStorage(ctx, yandexMdbGreenplumClusterV2.GetCloudStorage(), diags),
+		ClusterConfig:         flattenYandexMdbGreenplumClusterV2ClusterConfig(ctx, yandexMdbGreenplumClusterV2.GetClusterConfig(), converter.ExpandObject(ctx, state.ClusterConfig, yandexMdbGreenplumClusterV2ClusterConfigModel{}, diags).(yandexMdbGreenplumClusterV2ClusterConfigModel), diags),
+		ID:                    types.StringValue(yandexMdbGreenplumClusterV2.GetId()),
+		Config:                flattenYandexMdbGreenplumClusterV2Config(ctx, yandexMdbGreenplumClusterV2.GetConfig(), converter.ExpandObject(ctx, state.Config, yandexMdbGreenplumClusterV2ConfigModel{}, diags).(yandexMdbGreenplumClusterV2ConfigModel), diags),
+		CreatedAt:             types.StringValue(yandexMdbGreenplumClusterV2.GetCreatedAt().AsTime().Format(time.RFC3339)),
+		DeletionProtection:    types.BoolValue(yandexMdbGreenplumClusterV2.GetDeletionProtection()),
+		Description:           types.StringValue(yandexMdbGreenplumClusterV2.GetDescription()),
+		Environment:           flattenEnum(yandexMdbGreenplumClusterV2.GetEnvironment()),
+		FolderId:              types.StringValue(yandexMdbGreenplumClusterV2.GetFolderId()),
+		HostGroupIds:          flattenYandexMdbGreenplumClusterV2HostGroupIds(ctx, yandexMdbGreenplumClusterV2.GetHostGroupIds(), state.HostGroupIds, diags),
+		Labels:                flattenYandexMdbGreenplumClusterV2Labels(ctx, yandexMdbGreenplumClusterV2.GetLabels(), state.Labels, diags),
+		Logging:               flattenYandexMdbGreenplumClusterV2Logging(ctx, yandexMdbGreenplumClusterV2.GetLogging(), diags),
+		MaintenanceWindow:     flattenYandexMdbGreenplumClusterV2MaintenanceWindow(ctx, yandexMdbGreenplumClusterV2.GetMaintenanceWindow(), diags),
+		MasterConfig:          flattenYandexMdbGreenplumClusterV2MasterConfig(ctx, yandexMdbGreenplumClusterV2.GetMasterConfig(), diags),
+		MasterHostCount:       types.Int64Value(yandexMdbGreenplumClusterV2.GetMasterHostCount()),
+		MasterHostGroupIds:    flattenYandexMdbGreenplumClusterV2HostGroupIds(ctx, yandexMdbGreenplumClusterV2.GetMasterHostGroupIds(), state.MasterHostGroupIds, diags),
+		Monitoring:            flattenYandexMdbGreenplumClusterV2Monitoring(ctx, yandexMdbGreenplumClusterV2.GetMonitoring(), state.Monitoring, diags),
+		Name:                  types.StringValue(yandexMdbGreenplumClusterV2.GetName()),
+		NetworkId:             types.StringValue(yandexMdbGreenplumClusterV2.GetNetworkId()),
+		PlannedOperation:      flattenYandexMdbGreenplumClusterV2PlannedOperation(ctx, yandexMdbGreenplumClusterV2.GetPlannedOperation(), diags),
+		SecurityGroupIds:      flattenYandexMdbGreenplumClusterV2SecurityGroupIds(ctx, yandexMdbGreenplumClusterV2.GetSecurityGroupIds(), state.SecurityGroupIds, diags),
+		SegmentConfig:         flattenYandexMdbGreenplumClusterV2SegmentConfig(ctx, yandexMdbGreenplumClusterV2.GetSegmentConfig(), diags),
+		SegmentHostCount:      types.Int64Value(yandexMdbGreenplumClusterV2.GetSegmentHostCount()),
+		SegmentHostGroupIds:   flattenYandexMdbGreenplumClusterV2HostGroupIds(ctx, yandexMdbGreenplumClusterV2.GetSegmentHostGroupIds(), state.SegmentHostGroupIds, diags),
+		SegmentInHost:         types.Int64Value(yandexMdbGreenplumClusterV2.GetSegmentInHost()),
+		ServiceAccountId:      types.StringValue(yandexMdbGreenplumClusterV2.GetServiceAccountId()),
+		UserName:              types.StringValue(yandexMdbGreenplumClusterV2.GetUserName()),
+		UserPassword:          state.UserPassword,
+		UserPasswordWo:        types.StringNull(),
+		UserPasswordWoVersion: state.UserPasswordWoVersion,
+		Timeouts:              to,
 	}
 }
 

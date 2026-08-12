@@ -333,11 +333,9 @@ func getUpdatePaths(ctx context.Context, diags *diag.Diagnostics, plan, state Us
 		updatePaths = append(updatePaths, "enabled")
 	}
 
-	if !plan.Passwords.IsNull() && !plan.Passwords.Equal(state.Passwords) {
-		updatePaths = append(updatePaths, "passwords")
-	}
-
-	if !plan.PasswordWoVersion.IsNull() && !plan.PasswordWoVersion.Equal(state.PasswordWoVersion) {
+	passwordsChanged := !plan.Passwords.IsNull() && !plan.Passwords.Equal(state.Passwords)
+	passwordWoVersionChanged := !plan.PasswordWoVersion.IsNull() && !plan.PasswordWoVersion.Equal(state.PasswordWoVersion)
+	if passwordsChanged || passwordWoVersionChanged {
 		updatePaths = append(updatePaths, "passwords")
 	}
 

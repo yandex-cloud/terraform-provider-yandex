@@ -76,7 +76,7 @@ func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaReque
 }
 
 func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var state User
+	var state dataSourceUser
 	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -90,7 +90,7 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 	state.Id = types.StringValue(resourceid.Construct(cid, userName))
 
-	userToState(user, &state)
+	dataSourceUserToState(user, &state)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

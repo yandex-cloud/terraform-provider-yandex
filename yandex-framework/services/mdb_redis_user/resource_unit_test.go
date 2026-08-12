@@ -5,6 +5,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	frameworkresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -33,18 +34,19 @@ func TestPasswordWoSchema(t *testing.T) {
 	}
 }
 
-func TestGetUpdatePathsPasswordWoVersion(t *testing.T) {
+func TestGetUpdatePathsPasswordChanges(t *testing.T) {
 	state := User{
 		Permissions:       types.ObjectNull(permissionType.AttributeTypes()),
 		Enabled:           types.BoolValue(true),
-		Passwords:         types.SetNull(types.StringType),
+		Passwords:         types.SetValueMust(types.StringType, []attr.Value{types.StringValue("old-password")}),
 		PasswordWoVersion: types.Int64Value(1),
 	}
 	plan := state
+	plan.Passwords = types.SetValueMust(types.StringType, []attr.Value{types.StringValue("new-password")})
 	plan.PasswordWoVersion = types.Int64Value(2)
 
 	paths := getUpdatePaths(context.Background(), nil, plan, state)
-	if !slices.Contains(paths, "passwords") {
-		t.Fatalf("update paths = %v, want passwords", paths)
+	if want := []string{"passwords"}; !slices.Equal(paths, want) {
+		t.Fatalf("update paths = %v, want %v", paths, want)
 	}
 }

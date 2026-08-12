@@ -13,7 +13,7 @@ import (
 )
 
 var redisPasswordWoPairError = regexp.MustCompile(
-	`(?s)all of.*config\.0\.password_wo,config\.0\.password_wo_version.*must be\s+specified`,
+	`(?s)all of.*config\.0\.password_wo,config\.0\.password_wo_version.*must\s+be\s+specified`,
 )
 
 func TestAccMDBRedisClusterPasswordWo_TF1_12(t *testing.T) {

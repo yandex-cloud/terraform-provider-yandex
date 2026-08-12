@@ -6,11 +6,16 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
@@ -87,6 +92,25 @@ func getSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "The password of the user.",
 				Optional:            true,
 				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("password_wo")),
+				},
+			},
+			"password_wo": schema.StringAttribute{
+				MarkdownDescription: "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.",
+				Optional:            true,
+				Sensitive:           true,
+				WriteOnly:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo_version")),
+				},
+			},
+			"password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo")),
+				},
 			},
 			"resource_group": schema.StringAttribute{
 				MarkdownDescription: "The resource group of the user.",
@@ -121,10 +145,46 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 	resp.Diagnostics.Append(diags...)
 }
 
+func greenplumUserLegacyPassword(user *User) string {
+	if user.Password == nil {
+		return ""
+	}
+	return *user.Password
+}
+
+func greenplumUserPasswordForCreate(plan *User, passwordWo types.String) string {
+	if !passwordWo.IsNull() && !passwordWo.IsUnknown() {
+		return passwordWo.ValueString()
+	}
+	return greenplumUserLegacyPassword(plan)
+}
+
+func greenplumUserPasswordChange(plan, state *User, passwordWo types.String) (string, bool, diag.Diagnostics) {
+	password := greenplumUserLegacyPassword(plan)
+	passwordChanged := plan.Password != nil && (state.Password == nil || *plan.Password != *state.Password)
+
+	if plan.PasswordWoVersion.IsNull() || plan.PasswordWoVersion.Equal(state.PasswordWoVersion) {
+		return password, passwordChanged, nil
+	}
+	if passwordWo.IsNull() || passwordWo.IsUnknown() {
+		diagnostics := diag.Diagnostics{}
+		diagnostics.AddAttributeError(
+			path.Root("password_wo"),
+			"Missing Greenplum user password",
+			"password_wo must be configured when password_wo_version changes",
+		)
+		return "", false, diagnostics
+	}
+
+	return passwordWo.ValueString(), true, nil
+}
+
 func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan User
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -138,7 +198,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
-	userPlan := userFromState(ctx, &plan)
+	userPlan := userFromState(&plan, greenplumUserPasswordForCreate(&plan, passwordWo))
 
 	createUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userPlan)
 	if resp.Diagnostics.HasError() {
@@ -150,9 +210,9 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	resp.Diagnostics.Append(diags...)
 }
 
-func getUpdatePaths(plan, state *greenplum.User) []string {
+func getUpdatePaths(plan, state *greenplum.User, passwordChanged bool) []string {
 	var updatePaths []string
-	if state.Password != plan.Password {
+	if passwordChanged {
 		updatePaths = append(updatePaths, "user.password")
 	}
 	if state.ResourceGroup != plan.ResourceGroup {
@@ -166,6 +226,8 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	var state User
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -179,9 +241,14 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
-	userState := userFromState(ctx, &state)
-	userPlan := userFromState(ctx, &plan)
-	updatePaths := getUpdatePaths(userPlan, userState)
+	password, passwordChanged, passwordDiags := greenplumUserPasswordChange(&plan, &state, passwordWo)
+	resp.Diagnostics.Append(passwordDiags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	userState := userFromState(&state, greenplumUserLegacyPassword(&state))
+	userPlan := userFromState(&plan, password)
+	updatePaths := getUpdatePaths(userPlan, userState, passwordChanged)
 
 	if len(updatePaths) > 0 {
 		updateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userPlan, updatePaths)
