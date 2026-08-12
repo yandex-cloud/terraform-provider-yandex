@@ -47,6 +47,237 @@ func TestAccSmartwebsecuritySecurityProfile_basic(t *testing.T) {
 	})
 }
 
+func TestAccSmartwebsecuritySecurityProfile_defaultsRoundTrip(t *testing.T) {
+	name := acctest.RandomWithPrefix("tf-yc-sws-default-captcha")
+	explicitConfig := testAccSmartwebsecuritySecurityProfileExplicitDefaults(name)
+	clearedConfig := testAccSmartwebsecuritySecurityProfileClearedDefaults(name)
+	defaultConfig := testAccSmartwebsecuritySecurityProfileDefaultCaptcha(name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		Steps: []resource.TestStep{
+			{
+				Config: explicitConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "name", name),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "security_rule.0.smart_protection.0.mode", "FULL"),
+					resource.TestCheckResourceAttrPair("yandex_sws_security_profile.this", "captcha_id", "yandex_smartcaptcha_captcha.this", "id"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "disallow_data_processing", "false"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "analyze_request_body.#", "1"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "analyze_request_body.0.size_limit", "8"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "analyze_request_body.0.size_limit_action", "DENY"),
+				),
+			},
+			{
+				Config: clearedConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "disallow_data_processing", "true"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "analyze_request_body.#", "0"),
+				),
+			},
+			{
+				Config: defaultConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "disallow_data_processing", "false"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "analyze_request_body.#", "0"),
+				),
+			},
+			{
+				ResourceName:      "yandex_sws_security_profile.this",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: defaultConfig,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func TestAccSmartwebsecuritySecurityProfile_bodySizeOmission(t *testing.T) {
+	name := acctest.RandomWithPrefix("tf-yc-sws-default-body-size")
+	config := testAccSmartwebsecuritySecurityProfileBodySizeOmission(name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "analyze_request_body.#", "1"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "analyze_request_body.0.size_limit", "0"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "analyze_request_body.0.size_limit_action", "DENY"),
+				),
+			},
+			{
+				ResourceName:      "yandex_sws_security_profile.this",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func TestAccSmartwebsecuritySecurityProfile_arlDetach(t *testing.T) {
+	name := acctest.RandomWithPrefix("tf-yc-sws-default-arl")
+	explicitConfig := testAccSmartwebsecuritySecurityProfileWithARL(name, true, false)
+	clearedConfig := testAccSmartwebsecuritySecurityProfileWithARL(name, false, true)
+	omittedConfig := testAccSmartwebsecuritySecurityProfileWithARL(name, false, false)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		Steps: []resource.TestStep{
+			{
+				Config: explicitConfig,
+				Check: resource.TestCheckResourceAttrPair(
+					"yandex_sws_security_profile.this", "advanced_rate_limiter_profile_id",
+					"yandex_sws_advanced_rate_limiter_profile.this", "id",
+				),
+			},
+			{
+				Config: clearedConfig,
+				Check: resource.TestCheckResourceAttr(
+					"yandex_sws_security_profile.this", "advanced_rate_limiter_profile_id", "",
+				),
+			},
+			{
+				Config: omittedConfig,
+				Check: resource.TestCheckResourceAttr(
+					"yandex_sws_security_profile.this", "advanced_rate_limiter_profile_id", "",
+				),
+			},
+			{
+				ResourceName:      "yandex_sws_security_profile.this",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: omittedConfig,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccSmartwebsecuritySecurityProfileExplicitDefaults(targetName string) string {
+	return fmt.Sprintf(`
+resource "yandex_sws_security_profile" "this" {
+  name                     = %[1]q
+  default_action           = "ALLOW"
+  disallow_data_processing = false
+  captcha_id               = yandex_smartcaptcha_captcha.this.id
+
+  analyze_request_body {
+    size_limit        = 8
+    size_limit_action = "DENY"
+  }
+
+  security_rule {
+    name     = "smart-protection"
+    priority = 99999
+
+    smart_protection {
+      mode = "FULL"
+    }
+  }
+}
+
+resource "yandex_smartcaptcha_captcha" "this" {
+  name           = "%[1]s-captcha"
+  complexity     = "MEDIUM"
+  pre_check_type = "CHECKBOX"
+  challenge_type = "IMAGE_TEXT"
+  allowed_sites  = ["*"]
+}
+`, targetName)
+}
+
+func testAccSmartwebsecuritySecurityProfileClearedDefaults(targetName string) string {
+	return fmt.Sprintf(`
+resource "yandex_sws_security_profile" "this" {
+  name                     = %[1]q
+  default_action           = "ALLOW"
+  disallow_data_processing = true
+  captcha_id               = ""
+
+  security_rule {
+    name     = "smart-protection"
+    priority = 99999
+
+    smart_protection {
+      mode = "FULL"
+    }
+  }
+}
+`, targetName)
+}
+
+func testAccSmartwebsecuritySecurityProfileBodySizeOmission(targetName string) string {
+	return fmt.Sprintf(`
+resource "yandex_sws_security_profile" "this" {
+  name                     = %[1]q
+  default_action           = "ALLOW"
+  disallow_data_processing = false
+
+  analyze_request_body {
+    size_limit_action = "DENY"
+  }
+}
+`, targetName)
+}
+
+func testAccSmartwebsecuritySecurityProfileWithARL(targetName string, attach, clear bool) string {
+	arlID := ""
+	if attach {
+		arlID = "  advanced_rate_limiter_profile_id = yandex_sws_advanced_rate_limiter_profile.this.id\n"
+	} else if clear {
+		arlID = "  advanced_rate_limiter_profile_id = \"\"\n"
+	}
+
+	return fmt.Sprintf(`
+resource "yandex_sws_security_profile" "this" {
+  name                     = %[1]q
+  default_action           = "ALLOW"
+  disallow_data_processing = false
+%[2]s}
+
+resource "yandex_sws_advanced_rate_limiter_profile" "this" {
+  name = "%[1]s-arl"
+
+  advanced_rate_limiter_rule {
+    name     = "rule1"
+    priority = 10
+
+    static_quota {
+      action = "DENY"
+      limit  = 100
+      period = 1
+    }
+  }
+}
+`, targetName, arlID)
+}
+
 func TestAccSmartwebsecuritySecurityProfile_UpgradeFromSDKv2(t *testing.T) {
 	t.Parallel()
 
@@ -272,6 +503,25 @@ resource "yandex_smartcaptcha_captcha" "this" {
   pre_check_type = "CHECKBOX"
   challenge_type = "IMAGE_TEXT"
   allowed_sites = ["*"]
+}
+`, targetName)
+}
+
+func testAccSmartwebsecuritySecurityProfileDefaultCaptcha(targetName string) string {
+	return fmt.Sprintf(`
+resource "yandex_sws_security_profile" "this" {
+  name                     = %[1]q
+  default_action           = "ALLOW"
+  disallow_data_processing = false
+
+  security_rule {
+    name     = "smart-protection"
+    priority = 99999
+
+    smart_protection {
+      mode = "FULL"
+    }
+  }
 }
 `, targetName)
 }
