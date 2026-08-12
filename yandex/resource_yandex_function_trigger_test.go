@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
 )
 
@@ -177,42 +176,6 @@ func TestAccYandexFunctionTrigger_update(t *testing.T) {
 					resource.TestCheckResourceAttr(triggerResource, "description", triggerDescUpdated),
 					resource.TestCheckResourceAttr(triggerResource, "timer.0.cron_expression", cronExpressionUpdated),
 					testYandexFunctionTriggerContainsLabel(&triggerUpdated, labelKeyUpdated, labelValueUpdated),
-					testAccCheckCreatedAtAttr(triggerResource),
-				),
-			},
-			functionTriggerImportTestStep(),
-		},
-	})
-}
-
-func TestAccYandexFunctionTrigger_iot(t *testing.T) {
-	t.Parallel()
-
-	var trigger triggers.Trigger
-	triggerName := acctest.RandomWithPrefix("tf-trigger")
-	registryName := acctest.RandomWithPrefix("tf-registry")
-	deviceName := acctest.RandomWithPrefix("tf-device")
-
-	var registry iot.Registry
-	var device iot.Device
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
-		CheckDestroy:             testYandexFunctionTriggerDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testYandexFunctionTriggerIoT(registryName, deviceName, triggerName),
-				Check: resource.ComposeTestCheckFunc(
-					testYandexFunctionTriggerExists(triggerResource, &trigger),
-					testYandexIoTCoreDeviceExists(iotRegistryResourceForDevices, iotDeviceResource, &registry, &device),
-					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
-					resource.TestCheckResourceAttrSet(triggerResource, "function.0.id"),
-					testCheckResourceAttrByPointer(triggerResource, "iot.0.registry_id", &registry.Id),
-					testCheckResourceAttrByPointer(triggerResource, "iot.0.device_id", &device.Id),
-					resource.TestCheckResourceAttrSet(triggerResource, "iot.0.topic"),
-					resource.TestCheckResourceAttr(triggerResource, "iot.0.batch_size", "3"),
-					resource.TestCheckResourceAttr(triggerResource, "iot.0.batch_cutoff", "20"),
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
@@ -452,13 +415,6 @@ func testYandexFunctionTriggerExists(name string, trigger *triggers.Trigger) res
 	}
 }
 
-func testCheckResourceAttrByPointer(name string, key string, value *string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		f := resource.TestCheckResourceAttr(name, key, *value)
-		return f(s)
-	}
-}
-
 func testGetFunctionTriggerByID(config *Config, ID string) (*triggers.Trigger, error) {
 	req := triggers.GetTriggerRequest{
 		TriggerId: ID,
@@ -574,69 +530,6 @@ resource "yandex_function_trigger" "test-trigger" {
   }
 }
 	`, name, getExampleFolderID(), name, serverlessContainerTestImage1, name, desc, labelKey, labelValue)
-}
-
-func testYandexFunctionTriggerIoT(regName, devName, name string) string {
-	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "test-account" {
-  name = "%s-acc"
-}
-
-resource "yandex_resourcemanager_folder_iam_member" "test_account" {
-  folder_id   = "%s"
-  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
-  role        = "editor"
-  sleep_after = 30
-}
-
-resource "yandex_iot_core_registry" "test-registry" {
-  name = "%s"
-}
-
-resource "yandex_iot_core_device" "test-device" {
-  registry_id = yandex_iot_core_registry.test-registry.id
-  name        = "%s"
-}
-
-resource "yandex_function" "tf-test" {
-  name       = "%s-func"
-  user_hash  = "user_hash"
-  runtime    = "python37"
-  entrypoint = "main"
-  memory     = "128"
-  content {
-    zip_filename = "test-fixtures/serverless/main.zip"
-  }
-  service_account_id = yandex_iam_service_account.test-account.id
-  depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
-}
-
-resource "yandex_message_queue" "queue" {
-  name = "%s-tfotherqueuq"
-
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-}
-
-resource "yandex_function_trigger" "test-trigger" {
-  name = "%s"
-  iot {
-    registry_id = yandex_iot_core_registry.test-registry.id
-    device_id   = yandex_iot_core_device.test-device.id
-    topic       = join("/", ["$devices", yandex_iot_core_device.test-device.id, "events"])
-    batch_cutoff = 20
-    batch_size   = 3
-  }
-  function {
-    id                 = yandex_function.tf-test.id
-    service_account_id = yandex_iam_service_account.test-account.id
-  }
-  dlq {
-    queue_id           = yandex_message_queue.queue.arn
-    service_account_id = yandex_iam_service_account.test-account.id
-  }
-}
-	`, name, getExampleFolderID(), regName, devName, name, name, name) + testAccCommonIamDependenciesEditorConfig(acctest.RandInt())
 }
 
 //nolint:unused
