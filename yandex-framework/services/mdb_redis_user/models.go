@@ -146,9 +146,6 @@ func permissionsFromState(ctx context.Context, u types.Object) (*redis.Permissio
 	if utils.IsPresent(permissions.PubSubChannels) {
 		res.PubSubChannels = &wrapperspb.StringValue{Value: permissions.PubSubChannels.ValueString()}
 	}
-	if utils.IsPresent(permissions.SanitizePayload) {
-		res.SanitizePayload = &wrapperspb.StringValue{Value: permissions.SanitizePayload.ValueString()}
-	}
 	if utils.IsPresent(permissions.Databases) {
 		res.Databases = &wrapperspb.StringValue{Value: permissions.Databases.ValueString()}
 	}

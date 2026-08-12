@@ -181,7 +181,6 @@ resource "yandex_mdb_redis_user" "foo" {
     	categories = "-@all +@geo"
 		patterns = "~456*"
 		pub_sub_channels = "&123*"
-		sanitize_payload = "sanitize-payload"
 		databases = "0,1,2"
   	}
 	enabled = false
