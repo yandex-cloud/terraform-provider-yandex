@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mdb_clickhouse: do not log user passwords, cluster admin password and external dictionary credentials in `yandex_mdb_clickhouse_user` and `yandex_mdb_clickhouse_cluster_v2`'
+time: 2026-08-12T02:15:00+03:00

@@ -193,8 +193,6 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	defer cancel()
 
 	tflog.Debug(ctx, "Updating ClickHouse Cluster", map[string]interface{}{"id": plan.Id.ValueString()})
-	tflog.Debug(ctx, fmt.Sprintf("Update ClickHouse Cluster state: %+v", state))
-	tflog.Debug(ctx, fmt.Sprintf("Update ClickHouse Cluster plan: %+v", plan))
 
 	if !state.FolderId.Equal(plan.FolderId) {
 		// Update folder id

@@ -109,9 +109,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 
 	cid := plan.ClusterID.ValueString()
 	userName := plan.Name.ValueString()
-	log.Printf("[DEBUG] User state: %v\n", plan)
 	userSpec, diags := userFromState(ctx, &plan)
-	log.Printf("[DEBUG] User spec from state: %v\n", userSpec)
 
 	if err := validateAuthConfiguration(userSpec); err != nil {
 		resp.Diagnostics.AddError(
@@ -165,7 +163,6 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 }
 
 func getUpdatePaths(plan, state *ResourceUser) []string {
-	log.Printf("[DEBUG] Calculate update paths plan: %v state: %v\n", plan, state)
 	var updatePaths []string
 	if state.AuthMethod != plan.AuthMethod {
 		updatePaths = append(updatePaths, "auth_method")

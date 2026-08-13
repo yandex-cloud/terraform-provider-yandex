@@ -75,7 +75,7 @@ func (c *ClickHouseAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 }
 
 func (c *ClickHouseAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateClusterRequest) string {
-	tflog.Debug(ctx, "Creating ClickHouse Cluster", map[string]any{"request": req})
+	tflog.Debug(ctx, "Creating ClickHouse Cluster", map[string]any{"name": req.GetName(), "folder_id": req.GetFolderId()})
 
 	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Create(ctx, req))
 	if err != nil {
@@ -116,7 +116,7 @@ func (c *ClickHouseAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 }
 
 func (c *ClickHouseAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *clickhouse.UpdateClusterRequest) {
-	tflog.Debug(ctx, "Updating ClickHouse Cluster", map[string]any{"request": req})
+	tflog.Debug(ctx, "Updating ClickHouse Cluster", map[string]any{"cluster_id": req.GetClusterId(), "update_mask": req.GetUpdateMask().GetPaths()})
 
 	if req == nil || len(req.UpdateMask.Paths) == 0 {
 		return
@@ -951,7 +951,7 @@ func (c *ClickHouseAPI) SetExtensions(ctx context.Context, sdk *ycsdk.SDK, diags
 // Restore
 
 func (c *ClickHouseAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.RestoreClusterRequest) string {
-	tflog.Debug(ctx, "Restoring ClickHouse Cluster from backup", map[string]any{"request": req})
+	tflog.Debug(ctx, "Restoring ClickHouse Cluster from backup", map[string]any{"name": req.GetName(), "folder_id": req.GetFolderId(), "backup_id": req.GetBackupId()})
 
 	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Restore(ctx, req))
 	if err != nil {

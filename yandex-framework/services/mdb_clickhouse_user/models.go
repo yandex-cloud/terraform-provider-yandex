@@ -560,7 +560,6 @@ func userToState(ctx context.Context, user *clickhouse.User, state User) diag.Di
 
 func userFromState(ctx context.Context, state *ResourceUser) (*clickhouse.UserSpec, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	log.Printf("[TRACE] mdb_clickhouse_user: expand user from state: %+v\n", state)
 	permissions := expandPermissionsFromState(ctx, state.Permissions, &diags)
 	log.Printf("[TRACE] mdb_clickhouse_user: expanded quotas: %+v\n", permissions)
 	quotas := expandQuotasFromState(ctx, state.Quotas, &diags)
