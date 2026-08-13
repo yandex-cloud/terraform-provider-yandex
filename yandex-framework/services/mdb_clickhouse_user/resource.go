@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
@@ -269,7 +270,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 
 	var state ResourceUser
 	// default settings object for correct import unchanged settings
-	state.SetSettings(types.ObjectNull(settingsType))
+	state.SetSettings(types.ObjectNull(usersettings.AttrTypes))
 
 	resp.Diagnostics.Append(userToState(ctx, user, &state)...)
 	state.Timeouts = timeouts.Value{

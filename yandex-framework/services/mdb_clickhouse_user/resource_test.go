@@ -11,10 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_user"
 )
 
 // TestMain - add sweepers flag to the go test command
@@ -131,7 +131,7 @@ func TestAccMDBClickHouseUser_settings(t *testing.T) {
 	clusterName := acctest.RandomWithPrefix("tf-clickhouse-user-settings")
 	description := "Clickhouse User Terraform full settings Test"
 
-	settingsCreate := mdb_clickhouse_user.Setting{
+	settingsCreate := usersettings.Setting{
 		Readonly:                            types.Int64Value(0),
 		AllowDdl:                            types.BoolValue(false),
 		AllowIntrospectionFunctions:         types.BoolValue(false),
@@ -298,7 +298,7 @@ func TestAccMDBClickHouseUser_settings(t *testing.T) {
 		S3UseAdaptiveTimeouts:                         types.BoolValue(false),
 	}
 
-	settingsUpdate := mdb_clickhouse_user.Setting{
+	settingsUpdate := usersettings.Setting{
 		Readonly:                            types.Int64Value(1),
 		AllowDdl:                            types.BoolValue(true),
 		AllowIntrospectionFunctions:         types.BoolValue(true),
@@ -575,7 +575,7 @@ func testAccMDBClickHouseUserConfig_iamAuth(name, description, userName string) 
 	`, chClusterResourceIDLink, userName)
 }
 
-func testAccMDBClickHouseUserWithFullSettings(name, desc, userName, dbName string, settings mdb_clickhouse_user.Setting) string {
+func testAccMDBClickHouseUserWithFullSettings(name, desc, userName, dbName string, settings usersettings.Setting) string {
 	return testAccMDBClickHouseClusterConfigMain(name, desc) + fmt.Sprintf(`
    resource "yandex_mdb_clickhouse_user" "%s" {
     cluster_id = %s
@@ -920,7 +920,7 @@ func testAccMDBClickHouseUserWithFullSettings(name, desc, userName, dbName strin
 	)
 }
 
-func testAccCheckMDBClickHouseUserSettingsSet(chUserID string, settings mdb_clickhouse_user.Setting) resource.TestCheckFunc {
+func testAccCheckMDBClickHouseUserSettingsSet(chUserID string, settings usersettings.Setting) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		resource.TestCheckResourceAttr(chUserID, "settings.readonly", settings.Readonly.String()),
 		resource.TestCheckResourceAttr(chUserID, "settings.allow_ddl", settings.AllowDdl.String()),

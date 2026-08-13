@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/customplanmodifiers"
@@ -408,7 +409,22 @@ func ClickHouseSchema() schema.SingleNestedAttribute {
 			"resources":             ResourcesSchema(),
 			"disk_size_autoscaling": DiskSizeAutoscalingSchema(),
 			"config":                ClickHouseConfigSchema(),
+			"default_user_settings": DefaultUserSettingsSchema(),
 		},
+	}
+}
+
+func DefaultUserSettingsSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "Settings that are applied to all users of the ClickHouse cluster by default. " +
+			"They are overridden by the settings of a particular user. For more information, see [the official documentation](https://clickhouse.com/docs/ru/operations/settings/settings).",
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Object{
+			objectplanmodifier.UseStateForUnknown(),
+			customplanmodifiers.DefaultUserSettingsPlanModifier(),
+		},
+		Attributes: usersettings.ComputedResourceAttributes(),
 	}
 }
 

@@ -18,12 +18,26 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/models"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/utils"
 )
+
+func makeDefaultUserSettingsTF(settings usersettings.Setting) types.Object {
+	if settings.JoinAlgorithm.IsNull() {
+		settings.JoinAlgorithm = types.SetNull(types.StringType)
+	}
+
+	obj, diags := types.ObjectValueFrom(context.Background(), usersettings.AttrTypes, settings)
+	if diags.HasError() {
+		panic(diags)
+	}
+
+	return obj
+}
 
 var (
 	clusterId = "cluster-id"
@@ -452,6 +466,14 @@ var (
 							"emergency_usage_threshold": types.Int64Value(20),
 						},
 					),
+					"default_user_settings": makeDefaultUserSettingsTF(usersettings.Setting{
+						MaxThreads:       types.Int64Value(8),
+						MaxMemoryUsage:   types.Int64Value(1000000000),
+						ReadOverflowMode: types.StringValue("throw"),
+						JoinAlgorithm: types.SetValueMust(types.StringType, []attr.Value{
+							types.StringValue("hash"),
+						}),
+					}),
 				},
 			),
 			"zookeeper": types.ObjectValueMust(
@@ -1123,6 +1145,14 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 							DiskSizeLimit:           wrapperspb.Int64(datasize.ToBytes(5)),
 							PlannedUsageThreshold:   wrapperspb.Int64(20),
 							EmergencyUsageThreshold: wrapperspb.Int64(20),
+						},
+						DefaultUserSettings: &clickhouse.UserSettings{
+							MaxThreads:       wrapperspb.Int64(8),
+							MaxMemoryUsage:   wrapperspb.Int64(1000000000),
+							ReadOverflowMode: clickhouse.UserSettings_OVERFLOW_MODE_THROW,
+							JoinAlgorithm: []clickhouse.UserSettings_JoinAlgorithm{
+								clickhouse.UserSettings_JOIN_ALGORITHM_HASH,
+							},
 						},
 					},
 					Zookeeper: &clickhouse.ConfigSpec_Zookeeper{

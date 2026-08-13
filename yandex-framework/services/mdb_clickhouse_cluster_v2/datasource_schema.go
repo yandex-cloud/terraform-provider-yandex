@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 )
 
 func DataSourceClusterSchema(ctx context.Context) schema.Schema {
@@ -284,7 +285,16 @@ func DataSourceClickHouseSchema() schema.SingleNestedAttribute {
 			"resources":             DataSourceResourcesSchema(),
 			"disk_size_autoscaling": DataSourceDiskSizeAutoscalingSchema(),
 			"config":                DataSourceClickHouseConfigSchema(),
+			"default_user_settings": DataSourceDefaultUserSettingsSchema(),
 		},
+	}
+}
+
+func DataSourceDefaultUserSettingsSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "Settings that are applied to all users of the ClickHouse cluster by default.",
+		Computed:            true,
+		Attributes:          usersettings.DataSourceAttributes(),
 	}
 }
 

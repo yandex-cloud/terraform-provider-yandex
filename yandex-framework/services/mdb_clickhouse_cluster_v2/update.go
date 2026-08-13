@@ -7,6 +7,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/models"
@@ -151,6 +152,8 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterRe
 			)
 		}
 
+		updateMaskPaths = append(updateMaskPaths, getDefaultUserSettingsUpdatePaths(planClickHouse, stateClickHouse)...)
+
 		// Get update paths for clickhouse config
 		updateMaskPaths = append(updateMaskPaths, getClickHouseConfigUpdatePaths(ctx, planClickHouse, stateClickHouse, diags)...)
 		if diags.HasError() {
@@ -256,6 +259,28 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterRe
 	}
 
 	return config, updateMaskPaths
+}
+
+func getDefaultUserSettingsUpdatePaths(planClickHouse, stateClickHouse models.Clickhouse) []string {
+	var updateMaskPaths []string
+
+	if planClickHouse.DefaultUserSettings.Equal(stateClickHouse.DefaultUserSettings) {
+		return updateMaskPaths
+	}
+
+	planAttrs := planClickHouse.DefaultUserSettings.Attributes()
+	stateAttrs := stateClickHouse.DefaultUserSettings.Attributes()
+	for setting := range usersettings.AttrTypes {
+		planVal := planAttrs[setting]
+		if planVal != nil && !planVal.IsUnknown() && !planVal.Equal(stateAttrs[setting]) {
+			updateMaskPaths = append(
+				updateMaskPaths,
+				"config_spec.clickhouse.default_user_settings."+setting,
+			)
+		}
+	}
+
+	return updateMaskPaths
 }
 
 func getClickHouseConfigUpdatePaths(ctx context.Context, planClickHouse, stateClickHouse models.Clickhouse, diags *diag.Diagnostics) []string {

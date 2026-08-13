@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -214,7 +215,7 @@ func testResourceUserAuth(authMethod clickhouse.AuthMethod, password types.Strin
 		Password:          password,
 		GeneratePassword:  types.BoolValue(generatePassword),
 		Permissions:       types.SetNull(permissionType),
-		Settings:          types.ObjectNull(settingsType),
+		Settings:          types.ObjectNull(usersettings.AttrTypes),
 		Quotas:            types.SetNull(quotaType),
 		ConnectionManager: types.ObjectNull(connectionManagerType),
 	}
