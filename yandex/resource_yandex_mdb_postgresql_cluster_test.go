@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -143,6 +144,140 @@ func mdbPGClusterImportStep(name string) resource.TestStep {
 			"host.3.role",                    // not returned
 			"host_master_name",               // not returned
 		},
+	}
+}
+
+// pgIgnoredHostAttrs are host attributes not verified after import: they are not returned by the API.
+// Every other host attribute, including the ones added to the schema later, is compared.
+var pgIgnoredHostAttrs = map[string]bool{
+	"name":                    true,
+	"replication_source_name": true,
+	"role":                    true,
+}
+
+// mdbPGClusterImportStepCompareHostsByFQDN is an import step for clusters with several hosts in the same zone.
+//
+// There is no config on import, so the provider returns hosts in the API order, which is not
+// the config order used in the state after apply. Hosts of the same zone are indistinguishable,
+// so their indexes may swap and index based verification becomes flaky. Such hosts are excluded
+// from ImportStateVerify and compared by FQDN instead: savedHosts must be filled with
+// testAccPGSaveHostAttrs in the preceding step.
+func mdbPGClusterImportStepCompareHostsByFQDN(name string, savedHosts *map[string]map[string]string) resource.TestStep {
+	step := mdbPGClusterImportStep(name)
+	step.ImportStateVerifyIgnore = append(step.ImportStateVerifyIgnore, "host.")
+	step.ImportStateCheck = func(states []*terraform.InstanceState) error {
+		resourceType := strings.SplitN(name, ".", 2)[0]
+
+		var importedState *terraform.InstanceState
+		for _, state := range states {
+			if state.Ephemeral.Type == resourceType {
+				importedState = state
+				break
+			}
+		}
+		if importedState == nil {
+			return fmt.Errorf("imported state of %s not found", name)
+		}
+
+		importedHosts, err := pgHostsFromStateAttrs(importedState.Attributes)
+		if err != nil {
+			return err
+		}
+
+		expectedHosts := *savedHosts
+		if len(importedHosts) != len(expectedHosts) {
+			return fmt.Errorf("got %d hosts after import, expected %d", len(importedHosts), len(expectedHosts))
+		}
+
+		for fqdn, expectedHost := range expectedHosts {
+			importedHost, ok := importedHosts[fqdn]
+			if !ok {
+				return fmt.Errorf("host %s is missing after import", fqdn)
+			}
+
+			for _, attr := range pgHostAttrNames(expectedHost, importedHost) {
+				if importedHost[attr] != expectedHost[attr] {
+					return fmt.Errorf(
+						"host %s: attribute %q is %q after import, expected %q",
+						fqdn, attr, importedHost[attr], expectedHost[attr],
+					)
+				}
+			}
+		}
+
+		return nil
+	}
+
+	return step
+}
+
+// pgHostsFromStateAttrs reads host attributes from flatmapped resource state, keyed by host FQDN.
+// All attributes of a host are read except pgIgnoredHostAttrs.
+func pgHostsFromStateAttrs(attrs map[string]string) (map[string]map[string]string, error) {
+	hostsCount, err := strconv.Atoi(attrs["host.#"])
+	if err != nil {
+		return nil, fmt.Errorf("failed to read hosts count: %w", err)
+	}
+
+	hosts := make(map[string]map[string]string, hostsCount)
+	for i := 0; i < hostsCount; i++ {
+		prefix := fmt.Sprintf("host.%d.", i)
+
+		fqdn := attrs[prefix+"fqdn"]
+		if fqdn == "" {
+			return nil, fmt.Errorf("host %d has no fqdn", i)
+		}
+
+		host := make(map[string]string)
+		for key, value := range attrs {
+			attr, ok := strings.CutPrefix(key, prefix)
+			// the first segment is the attribute itself, the rest is a nested block, if any
+			if !ok || pgIgnoredHostAttrs[strings.SplitN(attr, ".", 2)[0]] {
+				continue
+			}
+			host[attr] = value
+		}
+		hosts[fqdn] = host
+	}
+
+	return hosts, nil
+}
+
+// pgHostAttrNames returns the sorted union of attribute names of the given hosts,
+// so an attribute present on one side only is compared too.
+func pgHostAttrNames(hosts ...map[string]string) []string {
+	unique := make(map[string]struct{})
+	for _, host := range hosts {
+		for attr := range host {
+			unique[attr] = struct{}{}
+		}
+	}
+
+	names := make([]string, 0, len(unique))
+	for attr := range unique {
+		names = append(names, attr)
+	}
+	sort.Strings(names)
+
+	return names
+}
+
+// testAccPGSaveHostAttrs saves cluster host attributes to compare them with the imported ones.
+func testAccPGSaveHostAttrs(resourceName string, savedHosts *map[string]map[string]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		hosts, err := pgHostsFromStateAttrs(rs.Primary.Attributes)
+		if err != nil {
+			return err
+		}
+
+		*savedHosts = hosts
+
+		return nil
 	}
 }
 
@@ -442,6 +577,8 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-names-update")
 	clusterResource := "yandex_mdb_postgresql_cluster.ha_cluster_with_names"
 	var hostNames *[]string = new([]string)
+	// hosts 'nd' and 'nb' share a zone, so they are compared by FQDN after import
+	savedHosts := new(map[string]map[string]string)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -463,9 +600,10 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.3.assign_public_ip", "false"),
 					testAccPGGetHostNames(clusterResource, hostNames),
+					testAccPGSaveHostAttrs(clusterResource, savedHosts),
 				),
 			},
-			mdbPGClusterImportStep(clusterResource),
+			mdbPGClusterImportStepCompareHostsByFQDN(clusterResource, savedHosts),
 			// 3. Change Public IP
 			{
 				Config: testAccMDBPGClusterConfigHANamedChangePublicIP(clusterName, version),
@@ -477,9 +615,10 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.3.assign_public_ip", "true"),
 					testAccPGCompareHostNames(clusterResource, hostNames),
+					testAccPGSaveHostAttrs(clusterResource, savedHosts),
 				),
 			},
-			mdbPGClusterImportStep(clusterResource),
+			mdbPGClusterImportStepCompareHostsByFQDN(clusterResource, savedHosts),
 			// 5. Set cascade replication
 			{
 				Config: testAccMDBPGClusterConfigHANamedWithCascade(clusterName, version),
@@ -490,9 +629,10 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.2.replication_source_name", "na"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.3.replication_source"),
 					resource.TestCheckResourceAttr(clusterResource, "host.3.replication_source_name", "nb"),
+					testAccPGSaveHostAttrs(clusterResource, savedHosts),
 				),
 			},
-			mdbPGClusterImportStep(clusterResource),
+			mdbPGClusterImportStepCompareHostsByFQDN(clusterResource, savedHosts),
 			// 7. Unset cascade replication
 			{
 				Config: testAccMDBPGClusterConfigHANamedChangePublicIP(clusterName, version),
@@ -503,9 +643,10 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.1.replication_source_name", ""),
 					resource.TestCheckResourceAttr(clusterResource, "host.3.replication_source", ""),
 					resource.TestCheckResourceAttr(clusterResource, "host.3.replication_source_name", ""),
+					testAccPGSaveHostAttrs(clusterResource, savedHosts),
 				),
 			},
-			mdbPGClusterImportStep(clusterResource),
+			mdbPGClusterImportStepCompareHostsByFQDN(clusterResource, savedHosts),
 			// 9. Delete last host
 			{
 				Config: testAccMDBPGClusterConfigHANamedDeleteLastHost(clusterName, version),
@@ -515,9 +656,10 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.0.name", "na"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nd"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.name", "nb"),
+					testAccPGSaveHostAttrs(clusterResource, savedHosts),
 				),
 			},
-			mdbPGClusterImportStep(clusterResource), // 10
+			mdbPGClusterImportStepCompareHostsByFQDN(clusterResource, savedHosts), // 10
 			// 11. delete first host
 			{
 				Config: testAccMDBPGClusterConfigHANamedDeleteFirstHost(clusterName, version),
@@ -526,9 +668,10 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.name", "nd"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nb"),
+					testAccPGSaveHostAttrs(clusterResource, savedHosts),
 				),
 			},
-			mdbPGClusterImportStep(clusterResource),
+			mdbPGClusterImportStepCompareHostsByFQDN(clusterResource, savedHosts),
 		},
 	})
 }

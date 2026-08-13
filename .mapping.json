@@ -2430,6 +2430,7 @@
   "yandex/mdb_mysql_structures.go":"opensource/terraform-provider-yandex-mirror/yandex/mdb_mysql_structures.go",
   "yandex/mdb_mysql_structures_test.go":"opensource/terraform-provider-yandex-mirror/yandex/mdb_mysql_structures_test.go",
   "yandex/mdb_postgresql_api.go":"opensource/terraform-provider-yandex-mirror/yandex/mdb_postgresql_api.go",
+  "yandex/mdb_postgresql_import_helpers_test.go":"opensource/terraform-provider-yandex-mirror/yandex/mdb_postgresql_import_helpers_test.go",
   "yandex/mdb_postgresql_structures.go":"opensource/terraform-provider-yandex-mirror/yandex/mdb_postgresql_structures.go",
   "yandex/mdb_postgresql_structures_test.go":"opensource/terraform-provider-yandex-mirror/yandex/mdb_postgresql_structures_test.go",
   "yandex/mdb_redis_structures.go":"opensource/terraform-provider-yandex-mirror/yandex/mdb_redis_structures.go",
