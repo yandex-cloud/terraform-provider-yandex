@@ -504,9 +504,10 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
 }
 
 resource "yandex_serverless_container" "tf-test" {
-  name       = "%s-container"
+  depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
+  name               = "%s-container"
   service_account_id = yandex_iam_service_account.test-account.id
-  memory = 128
+  memory             = 128
   image {
     url = "%s"
   }
