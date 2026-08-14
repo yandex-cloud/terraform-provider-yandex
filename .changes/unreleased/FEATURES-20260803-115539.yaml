@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'smartwebsecurity: add CAPTCHA security rule action and temporary ban period for dynamic rate limiter quotas'
+time: 2026-08-03T11:55:39.224741+03:00

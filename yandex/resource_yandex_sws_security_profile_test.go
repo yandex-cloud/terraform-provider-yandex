@@ -36,6 +36,8 @@ func TestAccSmartwebsecuritySecurityProfile_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "name", name),
 					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "default_action", "ALLOW"),
 					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "security_rule.0.name", "smart-protection"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "security_rule.1.name", "captcha-rule"),
+					resource.TestCheckResourceAttr("yandex_sws_security_profile.this", "security_rule.1.rule_condition.0.action", "CAPTCHA"),
 				),
 			},
 			{
@@ -494,6 +496,23 @@ resource "yandex_sws_security_profile" "this" {
     priority = 99999
     smart_protection {
       mode = "FULL"
+    }
+  }
+
+  security_rule {
+    name     = "captcha-rule"
+    priority = 1
+
+    rule_condition {
+      action = "CAPTCHA"
+
+      condition {
+        request_uri {
+          path {
+            prefix_match = "/captcha"
+          }
+        }
+      }
     }
   }
 }
