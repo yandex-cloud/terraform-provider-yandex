@@ -197,8 +197,9 @@ func resourceYandexFunction() *schema.Resource {
 			},
 
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
 			},
 
 			"secrets": {
@@ -858,7 +859,8 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 			if name, ok := mount["name"].(string); ok {
 				fm.Name = name
 			}
-			if mode, ok := mount["mode"].(string); ok {
+
+			if mode, ok := mount["mode"].(string); ok && mode != "" {
 				fm.Mode = mapFunctionModeFromTF(mode)
 			} else {
 				fm.Mode = functions.Mount_MODE_UNSPECIFIED

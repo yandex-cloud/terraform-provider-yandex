@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -601,6 +602,67 @@ func TestAccYandexServerlessContainer_logOptions(t *testing.T) {
 	})
 }
 
+func TestAccYandexServerlessContainer_mounts(t *testing.T) {
+	var container containers.Container
+	var revision containers.Revision
+	name := acctest.RandomWithPrefix("tf-serverless-container-mounts")
+	resourceName := "test-container"
+	resourcePath := "yandex_serverless_container." + resourceName
+
+	newConfig := func(extraOptions ...testResourceYandexServerlessContainerOption) string {
+		sb := &strings.Builder{}
+		testWriteResourceYandexServerlessContainer(
+			sb,
+			resourceName,
+			name,
+			128,
+			serverlessContainerTestImage1,
+			extraOptions...,
+		)
+		return sb.String()
+	}
+
+	applyServerlessContainerMountNoMode := resource.TestStep{
+		Config: newConfig(
+			testResourceYandexServerlessContainerOptionFactory.WithMountEphemeralDisk(
+				"/mount/point/a",
+				"",
+				1,
+			),
+		),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexServerlessContainerExists(resourcePath, &container),
+			testYandexServerlessContainerRevisionExists(resourcePath, &revision),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.0.mount_point_path", "/mount/point/a"),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.0.mode", ""),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.0.ephemeral_disk.0.size_gb", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.0.ephemeral_disk.0.block_size_kb", "4"),
+			testYandexServerlessContainerRevisionMounts(&revision, []*containers.Mount{
+				{
+					MountPointPath: "/mount/point/a",
+					Mode:           containers.Mount_MODE_UNSPECIFIED,
+					Target: &containers.Mount_EphemeralDiskSpec{
+						EphemeralDiskSpec: &containers.Mount_DiskSpec{
+							Size:      1 << 30,
+							BlockSize: 4 << 10,
+						},
+					},
+				},
+			}),
+		),
+	}
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexServerlessContainerDestroy,
+		Steps: []resource.TestStep{
+			applyServerlessContainerMountNoMode,
+		},
+	})
+}
+
 func testYandexServerlessContainerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -914,6 +976,54 @@ func testYandexServerlessContainerRevisionLogOptionsPtr(
 	}
 }
 
+func testYandexServerlessContainerRevisionMounts(
+	revision *containers.Revision,
+	expected []*containers.Mount,
+) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		expectedByMountPoint := make(map[string]*containers.Mount, len(expected))
+		for _, mount := range expected {
+			expectedByMountPoint[mount.MountPointPath] = mount
+		}
+
+		actual := revision.GetMounts()
+		actualByMountPoint := make(map[string]*containers.Mount, len(actual))
+		for _, mount := range actual {
+			actualByMountPoint[mount.MountPointPath] = mount
+		}
+
+		errNotEqual := func() error {
+			mountsToString := func(m map[string]*containers.Mount) string {
+				ss := make([]string, 0, len(m))
+				for _, v := range m {
+					ss = append(ss, "{"+v.String()+"}")
+				}
+				slices.Sort(ss)
+				return "[" + strings.Join(ss, ",") + "]"
+			}
+			return fmt.Errorf("Created Container Revision mounts not equal to expected:\n"+
+				"\nExpected:\n%s\n"+
+				"\nActual:\n%s\n",
+				mountsToString(expectedByMountPoint),
+				mountsToString(actualByMountPoint),
+			)
+		}
+
+		if len(expectedByMountPoint) != len(actualByMountPoint) {
+			return errNotEqual()
+		}
+
+		for mountPoint, expectedMount := range expectedByMountPoint {
+			actualMount, ok := actualByMountPoint[mountPoint]
+			if !ok || !assert.ObjectsAreEqual(expectedMount, actualMount) {
+				return errNotEqual()
+			}
+		}
+
+		return nil
+	}
+}
+
 func testYandexServerlessContainerRevisionAsyncInvocationServiceAccountID(revision *containers.Revision, serviceAccountResource string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		sa, ok := s.RootModule().Resources[serviceAccountResource]
@@ -1150,6 +1260,7 @@ type testResourceYandexServerlessContainerOptions struct {
 	serviceAccountID *string
 	image            *testResourceYandexServerlessContainerOptionsImage
 	logOptions       *testResourceYandexServerlessContainerOptionsLogOptions
+	mounts           []testResourceYandexServerlessContainerOptionsMount
 }
 
 type testResourceYandexServerlessContainerOptionsImage struct {
@@ -1161,6 +1272,16 @@ type testResourceYandexServerlessContainerOptionsLogOptions struct {
 	folderID   string
 	LogGroupID string
 	minLevel   string
+}
+
+type testResourceYandexServerlessContainerOptionsMount struct {
+	mountPointPath string
+	mode           string
+	ephemeralDisk  *testResourceYandexServerlessContainerOptionsMountEphemeralDisk
+}
+
+type testResourceYandexServerlessContainerOptionsMountEphemeralDisk struct {
+	sizeGB int
 }
 
 type testResourceYandexServerlessContainerOption func(o *testResourceYandexServerlessContainerOptions)
@@ -1194,6 +1315,22 @@ func (testResourceYandexServerlessContainerOptionFactoryImpl) WithLogOptions(
 			LogGroupID: LogGroupID,
 			minLevel:   minLevel,
 		}
+	}
+}
+
+func (testResourceYandexServerlessContainerOptionFactoryImpl) WithMountEphemeralDisk(
+	mountPointPath string,
+	mode string,
+	sizeGB int,
+) testResourceYandexServerlessContainerOption {
+	return func(o *testResourceYandexServerlessContainerOptions) {
+		o.mounts = append(o.mounts, testResourceYandexServerlessContainerOptionsMount{
+			mountPointPath: mountPointPath,
+			mode:           mode,
+			ephemeralDisk: &testResourceYandexServerlessContainerOptionsMountEphemeralDisk{
+				sizeGB: sizeGB,
+			},
+		})
 	}
 }
 
@@ -1242,6 +1379,23 @@ func testWriteResourceYandexServerlessContainer(
 		}
 		if minLevel := logOptions.minLevel; len(minLevel) > 0 {
 			fprintfLn(sb, "    min_level = \"%s\"", minLevel)
+		}
+		fprintfLn(sb, "  }")
+	}
+	for _, mount := range o.mounts {
+		fprintfLn(sb, "  mounts {")
+		if mountPointPath := mount.mountPointPath; mountPointPath != "" {
+			fprintfLn(sb, "    mount_point_path = \"%s\"", mountPointPath)
+		}
+		if mode := mount.mode; mode != "" {
+			fprintfLn(sb, "    mode = \"%s\"", mode)
+		}
+		if ephemeralDisk := mount.ephemeralDisk; ephemeralDisk != nil {
+			fprintfLn(sb, "    ephemeral_disk {")
+			if sizeGB := ephemeralDisk.sizeGB; sizeGB != 0 {
+				fprintfLn(sb, "      size_gb = %d", sizeGB)
+			}
+			fprintfLn(sb, "    }")
 		}
 		fprintfLn(sb, "  }")
 	}
