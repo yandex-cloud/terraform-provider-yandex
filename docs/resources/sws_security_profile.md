@@ -188,7 +188,7 @@ resource "yandex_sws_security_profile" "demo-profile-advanced" {
   - `enabled_actions` (List Of String). List of verdicts for which requests will be logged.
   - `enabled_modules` (List Of String). List of modules whose requests will be logged.
   - `log_group_id` (String). ID of the Cloud Logging log group to write SWS logs to.
-  - `outputs` (List Of String). List of log destinations: Cloud Logging and/or Audit Trails.
+  - `outputs` (List Of String). List of log destinations: Cloud Logging, Audit Trails, and/or Monium.
 - `security_rule` [Block]. List of security rules.
   - `custom_page_id` (String). ID of the custom page shown to the user when the rule denies a request.
   - `description` (String). Optional description of the rule. 0-512 characters long.

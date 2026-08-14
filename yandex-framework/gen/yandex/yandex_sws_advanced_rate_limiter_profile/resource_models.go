@@ -12080,6 +12080,7 @@ func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructModel
 
 type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel struct {
 	Action         types.String `tfsdk:"action"`
+	BanPeriod      types.Int64  `tfsdk:"ban_period"`
 	Characteristic types.List   `tfsdk:"characteristic"`
 	Condition      types.List   `tfsdk:"condition"`
 	Limit          types.Int64  `tfsdk:"limit"`
@@ -12088,6 +12089,9 @@ type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuot
 
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel) GetAction() types.String {
 	return m.Action
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel) GetBanPeriod() types.Int64 {
+	return m.BanPeriod
 }
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel) GetCharacteristic() types.List {
 	return m.Characteristic
@@ -12105,6 +12109,9 @@ func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamic
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel) SetAction(target types.String) {
 	m.Action = target
 }
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel) SetBanPeriod(target types.Int64) {
+	m.BanPeriod = target
+}
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel) SetCharacteristic(target types.List) {
 	m.Characteristic = target
 }
@@ -12121,6 +12128,7 @@ func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamic
 func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel {
 	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel{
 		Action:         types.StringNull(),
+		BanPeriod:      types.Int64Null(),
 		Characteristic: types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCharacteristicStructModelType),
 		Condition:      types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModelType),
 		Limit:          types.Int64Null(),
@@ -12131,6 +12139,9 @@ func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQ
 func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel {
 	if target.Action.IsUnknown() || target.Action.IsNull() {
 		target.Action = types.StringNull()
+	}
+	if target.BanPeriod.IsUnknown() || target.BanPeriod.IsNull() {
+		target.BanPeriod = types.Int64Null()
 	}
 	if target.Characteristic.IsUnknown() || target.Characteristic.IsNull() {
 		target.Characteristic = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCharacteristicStructModelType)
@@ -12150,6 +12161,7 @@ func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuot
 var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"action":         types.StringType,
+		"ban_period":     types.Int64Type,
 		"characteristic": types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCharacteristicStructModelType},
 		"condition":      types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModelType},
 		"limit":          types.Int64Type,
@@ -12189,6 +12201,7 @@ func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDyna
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel{
 		Action:         types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuota.GetAction().String()),
+		BanPeriod:      types.Int64Value(int64(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuota.GetBanPeriod())),
 		Characteristic: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCharacteristic(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuota.GetCharacteristics(), state.Characteristic, diags),
 		Condition:      flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCondition(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuota.GetCondition(), state.Condition, diags),
 		Limit:          types.Int64Value(int64(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuota.GetLimit())),
@@ -12218,6 +12231,7 @@ func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynam
 func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaModel, diags *diag.Diagnostics) *advanced_rate_limiter.AdvancedRateLimiterRule_DynamicQuota {
 	value := &advanced_rate_limiter.AdvancedRateLimiterRule_DynamicQuota{}
 	value.SetAction(advanced_rate_limiter.AdvancedRateLimiterRule_Action(advanced_rate_limiter.AdvancedRateLimiterRule_Action_value[yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaState.Action.ValueString()]))
+	value.SetBanPeriod((yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaState.BanPeriod.ValueInt64()))
 	value.SetCharacteristics(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCharacteristic(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaState.Characteristic, diags))
 	value.SetCondition(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCondition(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaState.Condition, diags))
 	value.SetLimit((yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaState.Limit.ValueInt64()))

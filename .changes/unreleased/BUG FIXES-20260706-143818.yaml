@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'crypto: Fixed missing certificate challenge type after import'
-time: 2026-07-06T14:38:18.394921+03:00

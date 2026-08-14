@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'smartwebsecurity: add acceptance coverage for server defaults, omitted request body size, ARL detachment, and WAF case sensitivity'
-time: 2026-08-12T16:00:43.869258+03:00

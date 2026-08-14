@@ -305,6 +305,26 @@ func YandexSwsAdvancedRateLimiterProfileResourceSchema(ctx context.Context) sche
 										},
 									},
 
+									"ban_period": schema.Int64Attribute{
+										MarkdownDescription: "Duration of the temporary ban, in seconds.",
+										Description: "Duration of the temporary ban, in seconds." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.ban_period
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.CreateAdvancedRateLimiterProfileRequest.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.ban_period
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.UpdateAdvancedRateLimiterProfileRequest.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.ban_period
+											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
+										Optional: true,
+										Computed: true,
+
+										PlanModifiers: []planmodifier.Int64{
+											int64planmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.Int64{
+											int64validator.Between(0, 86400),
+										},
+									},
+
 									"limit": schema.Int64Attribute{
 										MarkdownDescription: "Desired maximum number of requests per period.\n Enter an integer within the range of 1 and 9999999999999.",
 										Description: "Desired maximum number of requests per period.\n Enter an integer within the range of 1 and 9999999999999." +

@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mysql: add write-only password_wo and password_wo_version attributes to yandex_mdb_mysql_user'
-time: 2026-08-03T21:30:15+03:00

@@ -12,6 +12,8 @@ In this case, the service does not provide the parameters of the required type o
 
 ~> Only one type `managed` or `self_managed` should be specified.
 
+~> Please be informed that imported certificate will have DNS_CNAME type for DNS challenges.
+
 ## Example usage
 
 ```terraform

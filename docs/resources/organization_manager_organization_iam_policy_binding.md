@@ -1,20 +1,22 @@
 ---
-subcategory: "Serverless Cloud Functions"
+subcategory: "Unknown"
 ---
 
-# yandex_function_iam_member (Resource)
+# yandex_organization_manager_organization_iam_policy_binding (Resource)
 
-Allows creation and management of a single binding within IAM policy for an existing `function`.
+Allows creation and management of a single binding within IAM policy for an existing `organization`.
 
 
 ## Arguments & Attributes Reference
 
-- `function_id` (**Required**)(String). The ID of the `function` to attach the policy to.
+- `access_policy_template_id` (**Required**)(String). The role that should be assigned. Only one yandex_organization_manager_organization_iam_policy_binding can be used per role.
 - `id` (String). The ID of this resource.
-- `member` (**Required**)(String). An identity that will be granted the privilege in the `role`. It can have one of the following values:
+- `organization_id` (**Required**)(String). The ID of the compute `organization` to attach the policy to.
+- `parameters` (Map Of String). An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:
  * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
  * **serviceAccount:{service_account_id}**: A unique service account ID.
  * **federatedUser:{federated_user_id}**: A unique federated user ID.
+ * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID.
  * **group:{group_id}**: A unique group ID.
  * **system:group:federation:{federation_id}:users**: All users in federation.
  * **system:group:organization:{organization_id}:users**: All users in organization.
@@ -24,7 +26,6 @@ Allows creation and management of a single binding within IAM policy for an exis
 ~> for more information about system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
 
 
-- `role` (**Required**)(String). The role that should be assigned to the member.
 - `sleep_after` (Number). For test purposes, to compensate IAM operations delay
 
 

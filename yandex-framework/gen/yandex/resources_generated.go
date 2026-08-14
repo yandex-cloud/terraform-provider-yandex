@@ -84,6 +84,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_redis_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_sharded_postgresql_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_metastore_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organization_manager_organization_iam_policy_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_group"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_group_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_oauth_application"
@@ -96,6 +97,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_organization_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_organization_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_user_ssh_key"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resource_manager_cloud_iam_policy_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resource_manager_folder_iam_policy_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_cloud"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_cloud_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resourcemanager_cloud_iam_member"
@@ -105,6 +108,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_container_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_container_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_eventrouter_bus"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_triggers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_workflow"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_workflow_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_workflow_iam_member"
@@ -169,13 +173,16 @@ func init() {
 		yandex_organizationmanager_mfa_enforcement.NewResource,
 		yandex_organizationmanager_organization_iam_binding.NewResource,
 		yandex_organizationmanager_organization_iam_member.NewResource,
+		yandex_organization_manager_organization_iam_policy_binding.NewResource,
 		yandex_organizationmanager_user_ssh_key.NewResource,
 		yandex_resourcemanager_cloud.NewResource,
 		yandex_resourcemanager_cloud_iam_binding.NewResource,
 		yandex_resourcemanager_cloud_iam_member.NewResource,
+		yandex_resource_manager_cloud_iam_policy_binding.NewResource,
 		yandex_resourcemanager_folder.NewResource,
 		yandex_resourcemanager_folder_iam_binding.NewResource,
 		yandex_resourcemanager_folder_iam_member.NewResource,
+		yandex_resource_manager_folder_iam_policy_binding.NewResource,
 		yandex_ydb_database_iam_binding.NewResource,
 		yandex_airflow_cluster_iam_binding.NewResource,
 		yandex_cm_certificate_iam_binding.NewResource,
@@ -223,6 +230,7 @@ func init() {
 		yandex_serverless_eventrouter_bus.NewResource,
 		yandex_function_iam_binding.NewResource,
 		yandex_function_iam_member.NewResource,
+		yandex_serverless_triggers.NewResource,
 		yandex_serverless_workflow.NewResource,
 		yandex_serverless_workflow_iam_binding.NewResource,
 		yandex_serverless_workflow_iam_member.NewResource,
