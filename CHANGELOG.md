@@ -1,5 +1,18 @@
 # Release notes
 
+## 0.222.0 (August 17, 2026)
+
+##### FEATURES:
+* smartwebsecurity: add CAPTCHA security rule action and temporary ban period for dynamic rate limiter quotas
+
+##### BUG FIXES:
+* serverless: fixed panic on creation or update of `yandex_function` and `yandex_serverless_container` resources with omitted mounts.mode attribute
+
+##### ENHANCEMENTS:
+* clickhouse: add write-only password attributes to yandex_mdb_clickhouse_cluster, yandex_mdb_clickhouse_cluster_v2, and yandex_mdb_clickhouse_user resources
+
+
+
 ## 0.221.0 (August 13, 2026)
 
 ##### FEATURES:

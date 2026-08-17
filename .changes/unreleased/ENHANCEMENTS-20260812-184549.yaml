@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'clickhouse: add write-only password attributes to yandex_mdb_clickhouse_cluster, yandex_mdb_clickhouse_cluster_v2, and yandex_mdb_clickhouse_user resources'
-time: 2026-08-12T18:45:49.587803+03:00

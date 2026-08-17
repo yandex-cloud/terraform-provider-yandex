@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: "serverless: fixed panic on creation or update of `yandex_function` and `yandex_serverless_container` resources with omitted mounts.mode attribute"
-time: 2026-08-11T14:51:02.141946499+03:00
