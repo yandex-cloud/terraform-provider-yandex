@@ -50,7 +50,7 @@ func prepareVersionUpdateRequest(state, plan *models.ClusterResource) *clickhous
 
 // Cluster
 
-func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.ClusterResource, diags *diag.Diagnostics) *clickhouse.UpdateClusterRequest {
+func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.ClusterResource, adminPassword string, adminPasswordChanged bool, diags *diag.Diagnostics) *clickhouse.UpdateClusterRequest {
 	request := &clickhouse.UpdateClusterRequest{
 		ClusterId:  state.Id.ValueString(),
 		UpdateMask: &field_mask.FieldMask{},
@@ -74,7 +74,7 @@ func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.Cluste
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "labels")
 	}
 
-	config, updateMaskPaths := prepareClusterConfigSpec(ctx, plan, state, diags)
+	config, updateMaskPaths := prepareClusterConfigSpec(ctx, plan, state, adminPassword, adminPasswordChanged, diags)
 	if diags.HasError() {
 		return nil
 	}
@@ -121,7 +121,7 @@ func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.Cluste
 
 // Cluster config
 
-func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterResource, diags *diag.Diagnostics) (*clickhouse.ConfigSpec, []string) {
+func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterResource, adminPassword string, adminPasswordChanged bool, diags *diag.Diagnostics) (*clickhouse.ConfigSpec, []string) {
 	var updateMaskPaths []string
 	config := &clickhouse.ConfigSpec{}
 
@@ -233,6 +233,11 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterRe
 	if !plan.SqlUserManagement.Equal(state.SqlUserManagement) {
 		config.SetSqlUserManagement(&wrapperspb.BoolValue{Value: plan.SqlUserManagement.ValueBool()})
 		updateMaskPaths = append(updateMaskPaths, "config_spec.sql_user_management")
+	}
+
+	if adminPasswordChanged {
+		config.SetAdminPassword(adminPassword)
+		updateMaskPaths = append(updateMaskPaths, "config_spec.admin_password")
 	}
 
 	if !plan.EmbeddedKeeper.Equal(state.EmbeddedKeeper) {

@@ -109,6 +109,25 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				Description: "A password used to authorize as user `admin` when `sql_user_management` enabled.",
 				Optional:    true,
 				Sensitive:   true,
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("admin_password_wo")),
+				},
+			},
+			"admin_password_wo": schema.StringAttribute{
+				Description: "A password used to authorize as user `admin` when `sql_user_management` enabled. This attribute is write-only and is not stored in state. Requires `admin_password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.",
+				Optional:    true,
+				Sensitive:   true,
+				WriteOnly:   true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("admin_password_wo_version")),
+				},
+			},
+			"admin_password_wo_version": schema.Int64Attribute{
+				Description: "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:    true,
+				Validators: []validator.Int64{
+					int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("admin_password_wo")),
+				},
 			},
 			"sql_user_management": schema.BoolAttribute{
 				Description: "Enables `admin` user with user management permission.",

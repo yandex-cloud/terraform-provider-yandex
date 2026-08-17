@@ -29,8 +29,9 @@ func mdbClickHouseUserImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"password",          // sensitive
-			"generate_password", // does not return
+			"password",            // sensitive
+			"password_wo_version", // write-only password versions are not returned
+			"generate_password",   // does not return
 		},
 	}
 

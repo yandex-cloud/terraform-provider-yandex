@@ -2638,6 +2638,7 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"copy_schema_on_new_hosts",   // special parameter
 			"allow_host_recreation",      // special parameter
 			"admin_password",             // passwords are not returned
+			"admin_password_wo_version",  // write-only password versions are not returned
 			"clickhouse.config.kafka",    // passwords are not returned
 			"clickhouse.config.rabbitmq", // passwords are not returned
 			"external_dictionary.mysql_dict.source.mysql_source.replicas.0.password", // passwords are not returned

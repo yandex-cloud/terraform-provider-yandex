@@ -117,6 +117,7 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"health",                            // volatile value
 			"copy_schema_on_new_hosts",          // special parameter
 			"admin_password",                    // passwords are not returned
+			"admin_password_wo_version",         // write-only password versions are not returned
 			"clickhouse.0.config.0.kafka",       // passwords are not returned
 			"clickhouse.0.config.0.kafka_topic", // passwords are not returned
 			"clickhouse.0.config.0.rabbitmq",    // passwords are not returned

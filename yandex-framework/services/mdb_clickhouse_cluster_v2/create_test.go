@@ -65,6 +65,8 @@ var (
 			"sql_database_management":   types.BoolNull(),
 			"sql_user_management":       types.BoolNull(),
 			"admin_password":            types.StringNull(),
+			"admin_password_wo":         types.StringNull(),
+			"admin_password_wo_version": types.Int64Null(),
 			"embedded_keeper":           types.BoolNull(),
 			"backup_retain_period_days": types.Int64Null(),
 			"deletion_protection":       types.BoolNull(),
@@ -674,6 +676,8 @@ var (
 			"sql_database_management":   types.BoolValue(true),
 			"sql_user_management":       types.BoolValue(true),
 			"admin_password":            types.StringNull(),
+			"admin_password_wo":         types.StringNull(),
+			"admin_password_wo_version": types.Int64Null(),
 			"embedded_keeper":           types.BoolValue(false),
 			"backup_retain_period_days": types.Int64Value(14),
 			"deletion_protection":       types.BoolValue(true),
@@ -1315,7 +1319,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 			}
 
 			// Check create cluster request
-			req := prepareClusterCreateRequest(ctx, cluster, &config.State{}, &diags, c.hostSpecs)
+			req := prepareClusterCreateRequest(ctx, cluster, "", &config.State{}, &diags, c.hostSpecs)
 			if diags.HasError() != c.expectedError {
 				t.Errorf(
 					"Unexpected diagnostics status %s: expectedError=%t, actual=%t, errors=%v",
@@ -1522,7 +1526,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareRestoreRequest(t *testing.T) 
 		expected.PartialRestore = &clickhouse.PartialRestoreSpec{
 			IncludePatterns: []string{"default.*"},
 		}
-		req, diags := prepareRestoreRequest(ctx, cluster, &config.State{}, hostSpecs)
+		req, diags := prepareRestoreRequest(ctx, cluster, "", &config.State{}, hostSpecs)
 		if diags.HasError() {
 			t.Fatalf("Unexpected error: %v", diags.Errors())
 		}
@@ -1535,7 +1539,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareRestoreRequest(t *testing.T) 
 		expected.PartialRestore = &clickhouse.PartialRestoreSpec{
 			ExcludePatterns: []string{"secret.*"},
 		}
-		req, diags := prepareRestoreRequest(ctx, cluster, &config.State{}, hostSpecs)
+		req, diags := prepareRestoreRequest(ctx, cluster, "", &config.State{}, hostSpecs)
 		if diags.HasError() {
 			t.Fatalf("Unexpected error: %v", diags.Errors())
 		}

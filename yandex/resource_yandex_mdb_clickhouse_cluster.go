@@ -13,11 +13,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 const (
@@ -25,6 +27,7 @@ const (
 	yandexMDBClickHouseClusterDeleteTimeout = 30 * time.Minute
 	yandexMDBClickHouseClusterUpdateTimeout = 90 * time.Minute
 	yandexMDBClickHouseClusterPollInterval  = 10 * time.Second
+	redactedClickHousePassword              = "[REDACTED]"
 )
 
 var yandexMDBClickhouseRetryOperationConfig = &OperationRetryConfig{
@@ -325,6 +328,9 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 		Delete: resourceYandexMDBClickHouseClusterDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta any) error {
+			return validateClickHouseClusterAdminPasswordConflict(d)
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -985,6 +991,20 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Optional:    true,
 				Sensitive:   true,
 			},
+			"admin_password_wo": {
+				Type:         schema.TypeString,
+				Description:  "A password used to authorize as user `admin` when `sql_user_management` enabled. This attribute is write-only and is not stored in state. Requires `admin_password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.",
+				Optional:     true,
+				WriteOnly:    true,
+				Sensitive:    true,
+				RequiredWith: []string{"admin_password_wo_version"},
+			},
+			"admin_password_wo_version": {
+				Type:         schema.TypeInt,
+				Description:  "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:     true,
+				RequiredWith: []string{"admin_password_wo"},
+			},
 			"sql_user_management": {
 				Type:        schema.TypeBool,
 				Description: "Enables `admin` user with user management permission.",
@@ -1103,7 +1123,58 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 	}
 }
 
+func validateClickHouseClusterAdminPasswordConflict(d mdbcommon.RawConfigProvider) error {
+	_, hasPassword := mdbcommon.LookupRawConfigPath(d, "admin_password")
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "admin_password_wo")
+	if hasPassword && hasPasswordWo {
+		return fmt.Errorf("only one of `admin_password` or `admin_password_wo` can be specified")
+	}
+	return nil
+}
+
+func validateClickHouseClusterAdminPasswordPair(d mdbcommon.RawConfigProvider) error {
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "admin_password_wo")
+	_, hasPasswordWoVersion := mdbcommon.LookupRawConfigPath(d, "admin_password_wo_version")
+	if hasPasswordWo != hasPasswordWoVersion {
+		return fmt.Errorf("`admin_password_wo` and `admin_password_wo_version` must be specified together")
+	}
+	return nil
+}
+
+type clickHouseClusterAdminPasswordProvider interface {
+	mdbcommon.RawConfigProvider
+	GetOk(string) (any, bool)
+}
+
+type clickHouseClusterAdminPasswordUpdateProvider interface {
+	clickHouseClusterAdminPasswordProvider
+	HasChange(string) bool
+}
+
+func clickHouseClusterAdminPassword(d clickHouseClusterAdminPasswordProvider) string {
+	if passwordWo, ok := mdbcommon.LookupRawConfigPath(d, "admin_password_wo"); ok {
+		return passwordWo.AsString()
+	}
+	if password, ok := d.GetOk("admin_password"); ok {
+		return password.(string)
+	}
+	return ""
+}
+
+func clickHouseClusterAdminPasswordForUpdate(d clickHouseClusterAdminPasswordUpdateProvider) string {
+	if !d.HasChange("admin_password") && !d.HasChange("admin_password_wo_version") {
+		return ""
+	}
+	return clickHouseClusterAdminPassword(d)
+}
+
 func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta interface{}) error {
+	if err := validateClickHouseClusterAdminPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateClickHouseClusterAdminPasswordPair(d); err != nil {
+		return err
+	}
 	log.Println("[DEBUG] create started")
 	backupOriginalClusterResource(d)
 	config := meta.(*Config)
@@ -1292,8 +1363,8 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		return nil, nil, fmt.Errorf("error while expanding shard specs on ClickHouse Cluster create: %s", err)
 	}
 
-	if val, ok := d.GetOk("admin_password"); ok {
-		configSpec.SetAdminPassword(val.(string))
+	if password := clickHouseClusterAdminPassword(d); password != "" {
+		configSpec.SetAdminPassword(password)
 	}
 
 	if val, ok := d.GetOk("sql_user_management"); ok {
@@ -1531,11 +1602,17 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	log.Printf("[DEBUG] cluster read finished: schema after read=%+v\n", d)
+	log.Printf("[DEBUG] cluster read finished: id=%q\n", d.Id())
 	return d.Set("labels", cluster.Labels)
 }
 
 func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	if err := validateClickHouseClusterAdminPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateClickHouseClusterAdminPasswordPair(d); err != nil {
+		return err
+	}
 	log.Printf("[DEBUG] Started update ClickHouse Cluster %q", d.Id())
 	backupOriginalClusterResource(d)
 
@@ -1763,6 +1840,9 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 			})
 		}
 	}
+	if d.HasChange("admin_password_wo_version") && !d.HasChange("admin_password") {
+		updatePath = append(updatePath, "config_spec.admin_password")
+	}
 
 	if d.HasChange("clickhouse.0.resources") {
 		updatePath = append(updatePath, "config_spec.clickhouse.resources")
@@ -1813,7 +1893,7 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	log.Printf("[DEBUG] update_request: %v update_paths: %v\n", req, updatePath)
+	log.Printf("[DEBUG] update_request: %v update_paths: %v\n", redactClickHouseClusterUpdateRequest(req), updatePath)
 
 	if len(updatePath) == 0 {
 		return nil
@@ -1889,11 +1969,41 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData, config *Config) (
 		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
-	if pass, ok := d.GetOk("admin_password"); ok {
-		req.ConfigSpec.SetAdminPassword(pass.(string))
+	if password := clickHouseClusterAdminPasswordForUpdate(d); password != "" {
+		req.ConfigSpec.SetAdminPassword(password)
 	}
 
 	return req, nil
+}
+
+func redactClickHouseClusterUpdateRequest(req *clickhouse.UpdateClusterRequest) *clickhouse.UpdateClusterRequest {
+	if req == nil {
+		return nil
+	}
+	redacted := proto.Clone(req).(*clickhouse.UpdateClusterRequest)
+	if redacted.ConfigSpec == nil {
+		return redacted
+	}
+	if redacted.ConfigSpec.GetAdminPassword() != "" {
+		redacted.ConfigSpec.SetAdminPassword(redactedClickHousePassword)
+	}
+
+	clickhouseSettings := redacted.ConfigSpec.GetClickhouse().GetConfig()
+	if clickhouseSettings == nil {
+		return redacted
+	}
+	if kafka := clickhouseSettings.GetKafka(); kafka != nil && kafka.GetSaslPassword() != "" {
+		kafka.SaslPassword = redactedClickHousePassword
+	}
+	for _, kafkaTopic := range clickhouseSettings.GetKafkaTopics() {
+		if settings := kafkaTopic.GetSettings(); settings != nil && settings.GetSaslPassword() != "" {
+			settings.SaslPassword = redactedClickHousePassword
+		}
+	}
+	if rabbitmq := clickhouseSettings.GetRabbitmq(); rabbitmq != nil && rabbitmq.GetPassword() != "" {
+		rabbitmq.Password = redactedClickHousePassword
+	}
+	return redacted
 }
 
 func updateClickHouseClusterDatabases(d *schema.ResourceData, meta interface{}) error {

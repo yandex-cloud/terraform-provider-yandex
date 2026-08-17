@@ -4,12 +4,16 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 )
@@ -48,9 +52,28 @@ func UserSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Password of the ClickHouse user. Provided by the client when the user is created.",
 				Optional:            true,
 				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("password_wo")),
+				},
+			},
+			"password_wo": schema.StringAttribute{
+				MarkdownDescription: "Password of the ClickHouse user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.",
+				Optional:            true,
+				Sensitive:           true,
+				WriteOnly:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo_version")),
+				},
+			},
+			"password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo")),
+				},
 			},
 			"generate_password": schema.BoolAttribute{
-				MarkdownDescription: "Generate password using Connection Manager. Allowed values: `true` or `false`.\n\n~> **For password authentication, must specify exactly one of password or generate_password**.\n",
+				MarkdownDescription: "Generate password using Connection Manager. Allowed values: `true` or `false`.\n\n~> **For password authentication, must specify exactly one of password, password_wo, or generate_password**.\n",
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),

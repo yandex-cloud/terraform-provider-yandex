@@ -62,6 +62,33 @@ func (r *clusterResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
+func clickHouseClusterAdminPasswordForCreate(plan *models.ClusterResource, passwordWo types.String) string {
+	if !passwordWo.IsNull() && !passwordWo.IsUnknown() {
+		return passwordWo.ValueString()
+	}
+	return plan.AdminPassword.ValueString()
+}
+
+func clickHouseClusterAdminPasswordChange(plan, state *models.ClusterResource, passwordWo types.String) (string, bool, diag.Diagnostics) {
+	password := plan.AdminPassword.ValueString()
+	passwordChanged := !plan.AdminPassword.IsNull() && !plan.AdminPassword.Equal(state.AdminPassword)
+
+	if plan.AdminPasswordWoVersion.IsNull() || plan.AdminPasswordWoVersion.Equal(state.AdminPasswordWoVersion) {
+		return password, passwordChanged, nil
+	}
+	if passwordWo.IsNull() || passwordWo.IsUnknown() {
+		diagnostics := diag.Diagnostics{}
+		diagnostics.AddAttributeError(
+			path.Root("admin_password_wo"),
+			"Missing ClickHouse admin password",
+			"admin_password_wo must be configured when admin_password_wo_version changes",
+		)
+		return "", false, diagnostics
+	}
+
+	return passwordWo.ValueString(), true, nil
+}
+
 func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Load the current state of the resource
 	var state models.ClusterResource
@@ -94,6 +121,8 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("admin_password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -116,10 +145,35 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	hostSpecsSlice, diags := mdbcommon.CreateClusterHosts(ctx, clickhouseHostService, plan.HostSpecs)
 
 	// Create or restore cluster
+	adminPassword := clickHouseClusterAdminPasswordForCreate(&plan, passwordWo)
 	if isRestore {
-		r.createClusterFromBackup(ctx, &plan, hostSpecsSlice, &resp.Diagnostics)
+		request, requestDiags := prepareRestoreRequest(
+			ctx,
+			&plan,
+			adminPassword,
+			&r.providerConfig.ProviderState,
+			hostSpecsSlice,
+		)
+		resp.Diagnostics.Append(requestDiags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		r.createClusterFromBackup(ctx, request, &plan, &resp.Diagnostics)
 	} else {
-		r.createCluster(ctx, &plan, hostSpecsSlice, &resp.Diagnostics)
+		request := prepareClusterCreateRequest(
+			ctx,
+			&plan,
+			adminPassword,
+			&r.providerConfig.ProviderState,
+			&resp.Diagnostics,
+			hostSpecsSlice,
+		)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		r.createCluster(ctx, request, &plan, &resp.Diagnostics)
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -180,6 +234,8 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	var state models.ClusterResource
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("admin_password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -192,7 +248,12 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 
-	tflog.Debug(ctx, "Updating ClickHouse Cluster", map[string]interface{}{"id": plan.Id.ValueString()})
+	tflog.Debug(ctx, "Updating ClickHouse Cluster", map[string]any{"id": plan.Id.ValueString()})
+	adminPassword, adminPasswordChanged, passwordDiags := clickHouseClusterAdminPasswordChange(&plan, &state, passwordWo)
+	resp.Diagnostics.Append(passwordDiags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	if !state.FolderId.Equal(plan.FolderId) {
 		// Update folder id
@@ -218,7 +279,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	// Update cluster settings
 	tflog.Debug(ctx, "Updating ClickHouse cluster settings")
-	updateRequest := prepareClusterUpdateRequest(ctx, &state, &plan, &resp.Diagnostics)
+	updateRequest := prepareClusterUpdateRequest(ctx, &state, &plan, adminPassword, adminPasswordChanged, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -573,6 +634,8 @@ func refreshState(ctx context.Context, prevState, state *models.ClusterResource,
 	state.Access = models.FlattenAccess(ctx, cluster.Config.Access, diags)
 	state.CloudStorage = models.FlattenCloudStorage(ctx, cluster.Config.CloudStorage, diags)
 	state.AdminPassword = prevState.AdminPassword
+	state.AdminPasswordWo = types.StringNull()
+	state.AdminPasswordWoVersion = prevState.AdminPasswordWoVersion
 	state.SqlDatabaseManagement = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.SqlDatabaseManagement, diags)
 	state.SqlUserManagement = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.SqlUserManagement, diags)
 	state.EmbeddedKeeper = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.EmbeddedKeeper, diags)

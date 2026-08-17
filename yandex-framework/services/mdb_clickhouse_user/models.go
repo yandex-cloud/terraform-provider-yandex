@@ -34,6 +34,8 @@ type ResourceUser struct {
 	ClusterID         types.String   `tfsdk:"cluster_id"`
 	Name              types.String   `tfsdk:"name"`
 	Password          types.String   `tfsdk:"password"`
+	PasswordWo        types.String   `tfsdk:"password_wo"`
+	PasswordWoVersion types.Int64    `tfsdk:"password_wo_version"`
 	GeneratePassword  types.Bool     `tfsdk:"generate_password"`
 	AuthMethod        types.String   `tfsdk:"auth_method"`
 	Permissions       types.Set      `tfsdk:"permission"`
@@ -57,6 +59,10 @@ func (ru *ResourceUser) SetName(name types.String) {
 
 func (ru *ResourceUser) SetPassword(password types.String) {
 	ru.Password = password
+}
+
+func (ru *ResourceUser) SetPasswordWo(password types.String) {
+	ru.PasswordWo = password
 }
 
 func (ru *ResourceUser) SetAuthMethod(authMethod types.String) {
@@ -204,6 +210,9 @@ func userToState(ctx context.Context, user *clickhouse.User, state User) diag.Di
 	if state, ok := state.(interface{ SetAuthMethod(types.String) }); ok {
 		state.SetAuthMethod(getAuthMethodName(user.AuthMethod))
 	}
+	if state, ok := state.(interface{ SetPasswordWo(types.String) }); ok {
+		state.SetPasswordWo(types.StringNull())
+	}
 
 	state.SetPermissions(flattenPermissions(ctx, user.Permissions, &diags))
 	log.Printf("[TRACE] mdb_clickhouse_user: flattened permissions: %+v\n", state.GetPermissions())
@@ -222,7 +231,7 @@ func userToState(ctx context.Context, user *clickhouse.User, state User) diag.Di
 	return diags
 }
 
-func userFromState(ctx context.Context, state *ResourceUser) (*clickhouse.UserSpec, diag.Diagnostics) {
+func userFromState(ctx context.Context, state *ResourceUser, password string) (*clickhouse.UserSpec, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	permissions := expandPermissionsFromState(ctx, state.Permissions, &diags)
 	log.Printf("[TRACE] mdb_clickhouse_user: expanded quotas: %+v\n", permissions)
@@ -232,7 +241,7 @@ func userFromState(ctx context.Context, state *ResourceUser) (*clickhouse.UserSp
 	log.Printf("[TRACE] mdb_clickhouse_user: expanded settings: %+v\n", settings)
 	return &clickhouse.UserSpec{
 		Name:             state.Name.ValueString(),
-		Password:         state.Password.ValueString(),
+		Password:         password,
 		Permissions:      permissions,
 		Quotas:           quotas,
 		Settings:         settings,

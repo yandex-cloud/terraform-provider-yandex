@@ -18,30 +18,6 @@ func dataSourceYandexMDBMongodbCluster() *schema.Resource {
 	}
 }
 
-func convertToOptional(originalSchema map[string]*schema.Schema) map[string]*schema.Schema {
-	optionalSchema := map[string]*schema.Schema{}
-	for key, value := range originalSchema {
-		newItem := *value
-		newItem.Required = false
-		newItem.ExactlyOneOf = []string{}
-		newItem.Optional = true
-		newItem.ForceNew = false
-
-		switch newItem.Type {
-		case schema.TypeList, schema.TypeSet:
-			switch newItem.Elem.(type) {
-			case *schema.Resource:
-				elem := *newItem.Elem.(*schema.Resource)
-				elem.Schema = convertToOptional(elem.Schema)
-				newItem.Elem = &elem
-			}
-		}
-
-		optionalSchema[key] = &newItem
-	}
-	return optionalSchema
-}
-
 func dataSourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// fix to import users and databases
 	ctx = context.WithValue(ctx, ReadModeKey, true)
