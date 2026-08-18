@@ -19,16 +19,11 @@ import (
 
 func (r *clusterResource) createCluster(
 	ctx context.Context,
+	request *clickhouse.CreateClusterRequest,
 	plan *models.ClusterResource,
-	hostSpecsSlice []*clickhouse.HostSpec,
 	diags *diag.Diagnostics,
 ) {
 	tflog.Debug(ctx, "Creating ClickHouse cluster")
-
-	request := prepareClusterCreateRequest(ctx, plan, &r.providerConfig.ProviderState, diags, hostSpecsSlice)
-	if diags.HasError() {
-		return
-	}
 
 	cid := clickhouseApi.CreateCluster(ctx, r.providerConfig.SDK, diags, request)
 	if diags.HasError() {
@@ -40,6 +35,7 @@ func (r *clusterResource) createCluster(
 func prepareClusterCreateRequest(
 	ctx context.Context,
 	plan *models.ClusterResource,
+	adminPassword string,
 	providerConfig *config.State,
 	diags *diag.Diagnostics,
 	hostSpecsSlice []*clickhouse.HostSpec,
@@ -53,7 +49,7 @@ func prepareClusterCreateRequest(
 		CloudStorage:           models.ExpandCloudStorage(ctx, plan.CloudStorage, diags),
 		SqlDatabaseManagement:  mdbcommon.ExpandBoolWrapper(ctx, plan.SqlDatabaseManagement, diags),
 		SqlUserManagement:      mdbcommon.ExpandBoolWrapper(ctx, plan.SqlUserManagement, diags),
-		AdminPassword:          plan.AdminPassword.ValueString(),
+		AdminPassword:          adminPassword,
 		EmbeddedKeeper:         mdbcommon.ExpandBoolWrapper(ctx, plan.EmbeddedKeeper, diags),
 		BackupRetainPeriodDays: mdbcommon.ExpandInt64Wrapper(ctx, plan.BackupRetainPeriodDays, diags),
 		PerformanceDiagnostics: models.ExpandPerformanceDiagnostics(ctx, plan.PerformanceDiagnostics, diags),
@@ -295,17 +291,11 @@ func prepareExtensionsCreateRequests(ctx context.Context, plan *models.ClusterRe
 
 func (r *clusterResource) createClusterFromBackup(
 	ctx context.Context,
+	request *clickhouse.RestoreClusterRequest,
 	plan *models.ClusterResource,
-	hostSpecsSlice []*clickhouse.HostSpec,
 	diags *diag.Diagnostics,
 ) {
 	tflog.Debug(ctx, "Restoring ClickHouse cluster from backup")
-
-	request, d := prepareRestoreRequest(ctx, plan, &r.providerConfig.ProviderState, hostSpecsSlice)
-	diags.Append(d...)
-	if diags.HasError() {
-		return
-	}
 
 	cid := clickhouseApi.RestoreCluster(ctx, r.providerConfig.SDK, diags, request)
 	if diags.HasError() {
@@ -317,6 +307,7 @@ func (r *clusterResource) createClusterFromBackup(
 func prepareRestoreRequest(
 	ctx context.Context,
 	plan *models.ClusterResource,
+	adminPassword string,
 	providerConfig *config.State,
 	hostSpecsSlice []*clickhouse.HostSpec,
 ) (*clickhouse.RestoreClusterRequest, diag.Diagnostics) {
@@ -361,7 +352,7 @@ func prepareRestoreRequest(
 			CloudStorage:           models.ExpandCloudStorage(ctx, plan.CloudStorage, &diags),
 			SqlDatabaseManagement:  mdbcommon.ExpandBoolWrapper(ctx, plan.SqlDatabaseManagement, &diags),
 			SqlUserManagement:      mdbcommon.ExpandBoolWrapper(ctx, plan.SqlUserManagement, &diags),
-			AdminPassword:          plan.AdminPassword.ValueString(),
+			AdminPassword:          adminPassword,
 			EmbeddedKeeper:         mdbcommon.ExpandBoolWrapper(ctx, plan.EmbeddedKeeper, &diags),
 			BackupRetainPeriodDays: mdbcommon.ExpandInt64Wrapper(ctx, plan.BackupRetainPeriodDays, &diags),
 		},

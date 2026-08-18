@@ -43,6 +43,40 @@ func TestAccSmartwebsecurityWafProfile_basic(t *testing.T) {
 	})
 }
 
+func TestAccSmartwebsecurityWafProfile_defaultCaseSensitivity(t *testing.T) {
+	name := acctest.RandomWithPrefix("tf-yc-waf-default-case")
+	config := testAccSmartwebsecurityWafProfileDefaultCaseSensitivity(name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_sws_waf_profile.this", "name", name),
+					resource.TestCheckResourceAttr("yandex_sws_waf_profile.this", "exclusion_rule.0.request_condition.0.header_matcher.0.header_name.0.case_sensitive", "false"),
+					resource.TestCheckResourceAttr("yandex_sws_waf_profile.this", "exclusion_rule.0.request_condition.0.param_matcher.0.param_name.0.case_sensitive", "false"),
+					resource.TestCheckResourceAttr("yandex_sws_waf_profile.this", "exclusion_rule.0.request_condition.0.cookie_matcher.0.cookie_name.0.case_sensitive", "false"),
+				),
+			},
+			{
+				ResourceName:      "yandex_sws_waf_profile.this",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
 func TestAccSmartwebsecurityWAF_UpgradeFromSDKv2(t *testing.T) {
 	t.Parallel()
 
@@ -166,6 +200,60 @@ resource "yandex_sws_waf_profile" "this" {
         	}
     	}
 	}
+}
+`, targetName)
+}
+
+func testAccSmartwebsecurityWafProfileDefaultCaseSensitivity(targetName string) string {
+	return fmt.Sprintf(`
+resource "yandex_sws_waf_profile" "this" {
+  name = %[1]q
+
+  rule_set {
+    action     = "DENY"
+    is_enabled = true
+    priority   = 1
+
+    core_rule_set {
+      inbound_anomaly_score = 2
+      paranoia_level        = 4
+
+      rule_set {
+        id      = "OWASP_CRS_4_0_0"
+        name    = "OWASP Core Ruleset"
+        version = "4.0.0"
+        type    = "CORE"
+      }
+    }
+  }
+
+  exclusion_rule {
+    name = "case-insensitive-header"
+
+    exclude_rules {
+      exclude_all = true
+    }
+
+    request_condition {
+      param_matcher {
+        param_name {
+          value = "query"
+        }
+      }
+
+      header_matcher {
+        header_name {
+          value = "X-Test-Header"
+        }
+      }
+
+      cookie_matcher {
+        cookie_name {
+          value = "session"
+        }
+      }
+    }
+  }
 }
 `, targetName)
 }

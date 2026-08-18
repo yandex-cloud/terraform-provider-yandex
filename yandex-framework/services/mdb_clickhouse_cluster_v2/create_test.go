@@ -18,12 +18,26 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/models"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/utils"
 )
+
+func makeDefaultUserSettingsTF(settings usersettings.Setting) types.Object {
+	if settings.JoinAlgorithm.IsNull() {
+		settings.JoinAlgorithm = types.SetNull(types.StringType)
+	}
+
+	obj, diags := types.ObjectValueFrom(context.Background(), usersettings.AttrTypes, settings)
+	if diags.HasError() {
+		panic(diags)
+	}
+
+	return obj
+}
 
 var (
 	clusterId = "cluster-id"
@@ -51,6 +65,8 @@ var (
 			"sql_database_management":   types.BoolNull(),
 			"sql_user_management":       types.BoolNull(),
 			"admin_password":            types.StringNull(),
+			"admin_password_wo":         types.StringNull(),
+			"admin_password_wo_version": types.Int64Null(),
 			"embedded_keeper":           types.BoolNull(),
 			"backup_retain_period_days": types.Int64Null(),
 			"deletion_protection":       types.BoolNull(),
@@ -452,6 +468,14 @@ var (
 							"emergency_usage_threshold": types.Int64Value(20),
 						},
 					),
+					"default_user_settings": makeDefaultUserSettingsTF(usersettings.Setting{
+						MaxThreads:       types.Int64Value(8),
+						MaxMemoryUsage:   types.Int64Value(1000000000),
+						ReadOverflowMode: types.StringValue("throw"),
+						JoinAlgorithm: types.SetValueMust(types.StringType, []attr.Value{
+							types.StringValue("hash"),
+						}),
+					}),
 				},
 			),
 			"zookeeper": types.ObjectValueMust(
@@ -652,6 +676,8 @@ var (
 			"sql_database_management":   types.BoolValue(true),
 			"sql_user_management":       types.BoolValue(true),
 			"admin_password":            types.StringNull(),
+			"admin_password_wo":         types.StringNull(),
+			"admin_password_wo_version": types.Int64Null(),
 			"embedded_keeper":           types.BoolValue(false),
 			"backup_retain_period_days": types.Int64Value(14),
 			"deletion_protection":       types.BoolValue(true),
@@ -1124,6 +1150,14 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 							PlannedUsageThreshold:   wrapperspb.Int64(20),
 							EmergencyUsageThreshold: wrapperspb.Int64(20),
 						},
+						DefaultUserSettings: &clickhouse.UserSettings{
+							MaxThreads:       wrapperspb.Int64(8),
+							MaxMemoryUsage:   wrapperspb.Int64(1000000000),
+							ReadOverflowMode: clickhouse.UserSettings_OVERFLOW_MODE_THROW,
+							JoinAlgorithm: []clickhouse.UserSettings_JoinAlgorithm{
+								clickhouse.UserSettings_JOIN_ALGORITHM_HASH,
+							},
+						},
 					},
 					Zookeeper: &clickhouse.ConfigSpec_Zookeeper{
 						Resources: &clickhouse.Resources{
@@ -1285,7 +1319,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 			}
 
 			// Check create cluster request
-			req := prepareClusterCreateRequest(ctx, cluster, &config.State{}, &diags, c.hostSpecs)
+			req := prepareClusterCreateRequest(ctx, cluster, "", &config.State{}, &diags, c.hostSpecs)
 			if diags.HasError() != c.expectedError {
 				t.Errorf(
 					"Unexpected diagnostics status %s: expectedError=%t, actual=%t, errors=%v",
@@ -1492,7 +1526,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareRestoreRequest(t *testing.T) 
 		expected.PartialRestore = &clickhouse.PartialRestoreSpec{
 			IncludePatterns: []string{"default.*"},
 		}
-		req, diags := prepareRestoreRequest(ctx, cluster, &config.State{}, hostSpecs)
+		req, diags := prepareRestoreRequest(ctx, cluster, "", &config.State{}, hostSpecs)
 		if diags.HasError() {
 			t.Fatalf("Unexpected error: %v", diags.Errors())
 		}
@@ -1505,7 +1539,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareRestoreRequest(t *testing.T) 
 		expected.PartialRestore = &clickhouse.PartialRestoreSpec{
 			ExcludePatterns: []string{"secret.*"},
 		}
-		req, diags := prepareRestoreRequest(ctx, cluster, &config.State{}, hostSpecs)
+		req, diags := prepareRestoreRequest(ctx, cluster, "", &config.State{}, hostSpecs)
 		if diags.HasError() {
 			t.Fatalf("Unexpected error: %v", diags.Errors())
 		}

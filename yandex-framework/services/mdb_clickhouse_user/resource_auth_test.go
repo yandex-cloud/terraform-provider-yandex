@@ -1,10 +1,14 @@
 package mdb_clickhouse_user
 
 import (
+	"context"
 	"testing"
 
+	frameworkresource "github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -86,10 +90,11 @@ func TestGetUpdatePathsAuthTransitions(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name  string
-		state ResourceUser
-		plan  ResourceUser
-		want  []string
+		name            string
+		state           ResourceUser
+		plan            ResourceUser
+		passwordChanged bool
+		want            []string
 	}{
 		{
 			name: "password to iam updates only auth method",
@@ -131,7 +136,8 @@ func TestGetUpdatePathsAuthTransitions(t *testing.T) {
 				types.StringValue("new-secret"),
 				false,
 			),
-			want: []string{"auth_method", "password"},
+			passwordChanged: true,
+			want:            []string{"auth_method", "password"},
 		},
 		{
 			name: "iam to generated password updates auth method and generate password",
@@ -167,9 +173,147 @@ func TestGetUpdatePathsAuthTransitions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := getUpdatePaths(&tt.plan, &tt.state)
+			got := getUpdatePaths(&tt.plan, &tt.state, tt.passwordChanged)
 			assertSamePaths(t, got, tt.want)
 		})
+	}
+}
+
+func TestClickHouseUserPasswordWoSchema(t *testing.T) {
+	t.Parallel()
+
+	var resp frameworkresource.SchemaResponse
+	NewResource().Schema(context.Background(), frameworkresource.SchemaRequest{}, &resp)
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("schema diagnostics: %#v", resp.Diagnostics)
+	}
+
+	legacyPassword := resp.Schema.Attributes["password"].(schema.StringAttribute)
+	if !legacyPassword.IsOptional() || legacyPassword.IsRequired() || !legacyPassword.IsSensitive() || len(legacyPassword.Validators) != 1 {
+		t.Fatal("password must remain optional, sensitive, and conflict with password_wo")
+	}
+
+	writeOnlyPassword := resp.Schema.Attributes["password_wo"].(schema.StringAttribute)
+	if !writeOnlyPassword.IsOptional() || !writeOnlyPassword.IsWriteOnly() || !writeOnlyPassword.IsSensitive() || len(writeOnlyPassword.Validators) != 1 {
+		t.Fatal("password_wo must be optional, write-only, sensitive, and require its version")
+	}
+
+	version := resp.Schema.Attributes["password_wo_version"].(schema.Int64Attribute)
+	if !version.IsOptional() || version.IsWriteOnly() || len(version.Validators) != 1 {
+		t.Fatal("password_wo_version must be an optional state attribute requiring password_wo")
+	}
+}
+
+func TestClickHouseUserPasswordForCreate(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		plan       ResourceUser
+		passwordWo types.String
+		want       string
+	}{
+		{
+			name: "write-only password takes precedence",
+			plan: ResourceUser{
+				Password: types.StringValue("legacy-password"),
+			},
+			passwordWo: types.StringValue("write-only-password"),
+			want:       "write-only-password",
+		},
+		{
+			name: "legacy password is used without write-only password",
+			plan: ResourceUser{
+				Password: types.StringValue("legacy-password"),
+			},
+			passwordWo: types.StringNull(),
+			want:       "legacy-password",
+		},
+		{
+			name: "stale write-only password version is not a password",
+			plan: ResourceUser{
+				Password:          types.StringNull(),
+				PasswordWoVersion: types.Int64Value(1),
+			},
+			passwordWo: types.StringNull(),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := clickHouseUserPasswordForCreate(&tt.plan, tt.passwordWo); got != tt.want {
+				t.Fatalf("clickHouseUserPasswordForCreate() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestClickHouseUserPasswordChange(t *testing.T) {
+	t.Parallel()
+
+	state := ResourceUser{
+		Password:          types.StringNull(),
+		PasswordWoVersion: types.Int64Value(1),
+	}
+	plan := state
+
+	password, changed, diags := clickHouseUserPasswordChange(&plan, &state, types.StringValue("ignored-password"))
+	if diags.HasError() || changed || password != "" {
+		t.Fatalf("unchanged password = %q, changed = %t, diagnostics = %#v", password, changed, diags)
+	}
+
+	plan.PasswordWoVersion = types.Int64Value(2)
+	password, changed, diags = clickHouseUserPasswordChange(&plan, &state, types.StringValue("rotated-password"))
+	if diags.HasError() || !changed || password != "rotated-password" {
+		t.Fatalf("rotated password = %q, changed = %t, diagnostics = %#v", password, changed, diags)
+	}
+
+	_, _, diags = clickHouseUserPasswordChange(&plan, &state, types.StringNull())
+	if !diags.HasError() {
+		t.Fatal("missing write-only password must produce an error when the version changes")
+	}
+}
+
+func TestValidateAuthConfigurationWithWriteOnlyPassword(t *testing.T) {
+	t.Parallel()
+
+	err := validateAuthConfigurationWithPassword(&clickhouse.UserSpec{
+		GeneratePassword: wrapperspb.Bool(false),
+		AuthMethod:       clickhouse.AuthMethod_AUTH_METHOD_PASSWORD,
+	}, true)
+	if err != nil {
+		t.Fatalf("write-only password auth validation failed: %v", err)
+	}
+}
+
+func TestGetUpdatePathsPasswordWoVersionChange(t *testing.T) {
+	t.Parallel()
+
+	state := testResourceUserAuth(clickhouse.AuthMethod_AUTH_METHOD_PASSWORD, types.StringNull(), false)
+	plan := state
+	paths := getUpdatePaths(&plan, &state, true)
+	assertSamePaths(t, paths, []string{"password"})
+}
+
+func TestClickHouseUserWriteOnlyPasswordState(t *testing.T) {
+	t.Parallel()
+
+	state := testResourceUserAuth(clickhouse.AuthMethod_AUTH_METHOD_PASSWORD, types.StringNull(), false)
+	state.PasswordWo = types.StringValue("must-not-survive")
+	state.PasswordWoVersion = types.Int64Value(2)
+	diags := userToState(context.Background(), &clickhouse.User{
+		Name:       "alice",
+		ClusterId:  "cluster-id",
+		Settings:   &clickhouse.UserSettings{},
+		AuthMethod: clickhouse.AuthMethod_AUTH_METHOD_PASSWORD,
+	}, &state)
+	if diags.HasError() {
+		t.Fatalf("userToState() diagnostics: %#v", diags)
+	}
+	if !state.PasswordWo.IsNull() || state.PasswordWoVersion.ValueInt64() != 2 {
+		t.Fatalf("write-only password state was not preserved safely: %#v", state)
 	}
 }
 
@@ -214,7 +358,7 @@ func testResourceUserAuth(authMethod clickhouse.AuthMethod, password types.Strin
 		Password:          password,
 		GeneratePassword:  types.BoolValue(generatePassword),
 		Permissions:       types.SetNull(permissionType),
-		Settings:          types.ObjectNull(settingsType),
+		Settings:          types.ObjectNull(usersettings.AttrTypes),
 		Quotas:            types.SetNull(quotaType),
 		ConnectionManager: types.ObjectNull(connectionManagerType),
 	}

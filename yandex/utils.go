@@ -813,6 +813,48 @@ func (h *schemaGetHelper) GetInt(key string) int {
 	return h.d.Get(h.pathPrefix + key).(int)
 }
 
+func convertToOptional(originalSchema map[string]*schema.Schema) map[string]*schema.Schema {
+	optionalSchema := map[string]*schema.Schema{}
+	for key, value := range originalSchema {
+		newItem := *value
+		newItem.Required = false
+		newItem.ExactlyOneOf = []string{}
+		newItem.Optional = true
+		newItem.ForceNew = false
+
+		switch newItem.Type {
+		case schema.TypeList, schema.TypeSet:
+			switch newItem.Elem.(type) {
+			case *schema.Resource:
+				elem := *newItem.Elem.(*schema.Resource)
+				elem.Schema = convertToOptional(elem.Schema)
+				newItem.Elem = &elem
+			}
+		}
+
+		optionalSchema[key] = &newItem
+	}
+	return optionalSchema
+}
+
+func removeWriteOnlyFields(resourceSchema map[string]*schema.Schema) {
+	for fieldName, fieldSchema := range resourceSchema {
+		if nestedResource, ok := fieldSchema.Elem.(*schema.Resource); ok {
+			removeWriteOnlyFields(nestedResource.Schema)
+		}
+
+		if !fieldSchema.WriteOnly {
+			continue
+		}
+
+		delete(resourceSchema, fieldName)
+		for _, requiredFieldPath := range fieldSchema.RequiredWith {
+			requiredFieldName := requiredFieldPath[strings.LastIndex(requiredFieldPath, ".")+1:]
+			delete(resourceSchema, requiredFieldName)
+		}
+	}
+}
+
 func convertResourceToDataSource(resource *schema.Resource) *schema.Resource {
 	return recursivelyUpdateResource(resource, func(schema *schema.Schema) {
 		schema.Computed = true

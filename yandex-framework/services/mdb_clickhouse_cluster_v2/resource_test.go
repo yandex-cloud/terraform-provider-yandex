@@ -854,18 +854,35 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 		},
 	}
 
+	defaultUserSettingsForFirstStep := `
+	default_user_settings = {
+		max_threads      = 8
+		max_memory_usage = 1000000000
+	}
+`
+
+	defaultUserSettingsForSecondStep := `
+	default_user_settings = {
+		max_threads    = 16
+		join_algorithm = ["hash"]
+	}
+`
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
 		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForFirstStep),
+				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForFirstStep, defaultUserSettingsForFirstStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.default_user_settings.max_threads", "8"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.default_user_settings.max_memory_usage", "1000000000"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.log_level", "TRACE"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.max_connections", "512"),
@@ -1049,12 +1066,16 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			{
-				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForSecondStep),
+				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForSecondStep, defaultUserSettingsForSecondStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.default_user_settings.max_threads", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.default_user_settings.join_algorithm.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.default_user_settings.max_memory_usage", "1000000000"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.log_level", "WARNING"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.max_connections", "1024"),
@@ -1871,7 +1892,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 	)
 }
 
-func testAccMDBClickHouseCluster_clickhouse_config(name string, config *clickhouseConfig.ClickhouseConfig) string {
+func testAccMDBClickHouseCluster_clickhouse_config(name string, config *clickhouseConfig.ClickhouseConfig, defaultUserSettings string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           = "%s"
@@ -1882,6 +1903,9 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   version = "%s"
   clickhouse = {
 	# clickhouse config
+	%s
+
+	# default user settings
 	%s
 
 	resources = {
@@ -1956,6 +1980,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		name,
 		chVersion,
 		buildClickhouseConfigHCL(config),
+		defaultUserSettings,
 		maintenanceWindowAnytime,
 	)
 }
@@ -2613,6 +2638,7 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"copy_schema_on_new_hosts",   // special parameter
 			"allow_host_recreation",      // special parameter
 			"admin_password",             // passwords are not returned
+			"admin_password_wo_version",  // write-only password versions are not returned
 			"clickhouse.config.kafka",    // passwords are not returned
 			"clickhouse.config.rabbitmq", // passwords are not returned
 			"external_dictionary.mysql_dict.source.mysql_source.replicas.0.password", // passwords are not returned

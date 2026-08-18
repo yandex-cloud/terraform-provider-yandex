@@ -32,10 +32,11 @@ import (
 )
 
 const (
-	yandexMDBRedisUserCreateTimeout = 45 * time.Minute
-	yandexMDBRedisUserUpdateTimeout = 60 * time.Minute
-	yandexMDBRedisUserDeleteTimeout = 20 * time.Minute
-	defaultName                     = "default"
+	yandexMDBRedisUserCreateTimeout   = 45 * time.Minute
+	yandexMDBRedisUserUpdateTimeout   = 60 * time.Minute
+	yandexMDBRedisUserDeleteTimeout   = 20 * time.Minute
+	defaultName                       = "default"
+	sanitizePayloadDeprecationMessage = "WARNING: The sanitize-payload parameter is deprecated and no longer affects user permissions."
 )
 
 type bindingResource struct {
@@ -194,7 +195,8 @@ func (r *bindingResource) Schema(ctx context.Context,
 						},
 					},
 					"sanitize_payload": schema.StringAttribute{
-						MarkdownDescription: "SanitizePayload parameter.",
+						MarkdownDescription: "Deprecated. This parameter no longer affects user permissions.",
+						DeprecationMessage:  sanitizePayloadDeprecationMessage,
 						Optional:            true,
 						Computed:            true,
 						Validators: []validator.String{
@@ -321,9 +323,6 @@ func getUpdatePaths(ctx context.Context, diags *diag.Diagnostics, plan, state Us
 		if !planPermissions.PubSubChannels.Equal(statePermissions.PubSubChannels) {
 			updatePaths = append(updatePaths, permissionsPrefix+"pub_sub_channels")
 		}
-		if !planPermissions.SanitizePayload.Equal(statePermissions.SanitizePayload) {
-			updatePaths = append(updatePaths, permissionsPrefix+"sanitize_payload")
-		}
 		if !planPermissions.Databases.Equal(statePermissions.Databases) {
 			updatePaths = append(updatePaths, permissionsPrefix+"databases")
 		}
@@ -380,9 +379,11 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	updateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, plan.ClusterID.ValueString(), userPlan, updatePaths)
-	if resp.Diagnostics.HasError() {
-		return
+	if len(updatePaths) > 0 {
+		updateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, plan.ClusterID.ValueString(), userPlan, updatePaths)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	userRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan)

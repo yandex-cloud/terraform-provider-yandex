@@ -194,6 +194,11 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		disk_type_id       = "network-ssd"
 		disk_size          = 10
 	  }
+
+	  default_user_settings = {
+		max_threads    = 8
+		join_algorithm = ["hash"]
+	  }
   }
 
   hosts = {

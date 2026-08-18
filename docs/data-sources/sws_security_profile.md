@@ -44,7 +44,7 @@ data "yandex_sws_security_profile" "by-name" {
   - `enabled_actions` (List Of String). List of verdicts for which requests will be logged.
   - `enabled_modules` (List Of String). List of modules whose requests will be logged.
   - `log_group_id` (String). ID of the Cloud Logging log group to write SWS logs to.
-  - `outputs` (List Of String). List of log destinations: Cloud Logging and/or Audit Trails.
+  - `outputs` (List Of String). List of log destinations: Cloud Logging, Audit Trails, and/or Monium.
 - `name` (**Required**)(String). Name of the security profile. The name is unique within the folder. 1-50 characters long.
 - `security_profile_id` (String). ID of the SecurityProfile resource to return.
 - `security_rule` [Block]. List of security rules.

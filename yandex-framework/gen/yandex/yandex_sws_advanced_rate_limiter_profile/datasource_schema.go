@@ -83,6 +83,16 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 										Computed: true,
 									},
 
+									"ban_period": schema.Int64Attribute{
+										MarkdownDescription: "Duration of the temporary ban, in seconds.",
+										Description: "Duration of the temporary ban, in seconds." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.ban_period
+											"package: yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter/advanced_rate_limiter_profile.proto\n",
+										Computed: true,
+									},
+
 									"characteristic": schema.ListNestedAttribute{
 										NestedObject: schema.NestedAttributeObject{
 

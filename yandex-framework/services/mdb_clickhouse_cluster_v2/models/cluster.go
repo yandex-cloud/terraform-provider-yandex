@@ -31,6 +31,8 @@ type ClusterResource struct {
 	SqlDatabaseManagement  types.Bool   `tfsdk:"sql_database_management"`
 	SqlUserManagement      types.Bool   `tfsdk:"sql_user_management"`
 	AdminPassword          types.String `tfsdk:"admin_password"`
+	AdminPasswordWo        types.String `tfsdk:"admin_password_wo"`
+	AdminPasswordWoVersion types.Int64  `tfsdk:"admin_password_wo_version"`
 	EmbeddedKeeper         types.Bool   `tfsdk:"embedded_keeper"`
 	BackupRetainPeriodDays types.Int64  `tfsdk:"backup_retain_period_days"`
 
@@ -75,6 +77,8 @@ var ClusterResourceAttrTypes = map[string]attr.Type{
 	"sql_database_management":   types.BoolType,
 	"sql_user_management":       types.BoolType,
 	"admin_password":            types.StringType,
+	"admin_password_wo":         types.StringType,
+	"admin_password_wo_version": types.Int64Type,
 	"embedded_keeper":           types.BoolType,
 	"backup_retain_period_days": types.Int64Type,
 

@@ -12,12 +12,14 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const (
 	defaultMDBPageSize               = 1000
 	defaultConvertTablesToReplicated = true
+	redactedClickHousePassword       = "[REDACTED]"
 )
 
 var clickhouseApi = ClickHouseAPI{}
@@ -29,6 +31,63 @@ type ClickHouseOpts struct {
 	CoordinatorResources     *clickhouse.Resources
 	HasCoordinator           bool
 	PlanShardSpecByShardName map[string]*clickhouse.ShardConfigSpec
+}
+
+func redactClickHouseCreateClusterRequest(req *clickhouse.CreateClusterRequest) *clickhouse.CreateClusterRequest {
+	if req == nil {
+		return nil
+	}
+	redacted := proto.Clone(req).(*clickhouse.CreateClusterRequest)
+	redactClickHouseConfigSpecPasswords(redacted.ConfigSpec)
+	for _, userSpec := range redacted.UserSpecs {
+		if userSpec.GetPassword() != "" {
+			userSpec.Password = redactedClickHousePassword
+		}
+	}
+	return redacted
+}
+
+func redactClickHouseUpdateClusterRequest(req *clickhouse.UpdateClusterRequest) *clickhouse.UpdateClusterRequest {
+	if req == nil {
+		return nil
+	}
+	redacted := proto.Clone(req).(*clickhouse.UpdateClusterRequest)
+	redactClickHouseConfigSpecPasswords(redacted.ConfigSpec)
+	return redacted
+}
+
+func redactClickHouseRestoreClusterRequest(req *clickhouse.RestoreClusterRequest) *clickhouse.RestoreClusterRequest {
+	if req == nil {
+		return nil
+	}
+	redacted := proto.Clone(req).(*clickhouse.RestoreClusterRequest)
+	redactClickHouseConfigSpecPasswords(redacted.ConfigSpec)
+	return redacted
+}
+
+func redactClickHouseConfigSpecPasswords(configSpec *clickhouse.ConfigSpec) {
+	if configSpec == nil {
+		return
+	}
+	if configSpec.GetAdminPassword() != "" {
+		configSpec.SetAdminPassword(redactedClickHousePassword)
+	}
+
+	clickhouseConfig := configSpec.GetClickhouse().GetConfig()
+	if clickhouseConfig == nil {
+		return
+	}
+	if kafka := clickhouseConfig.GetKafka(); kafka != nil && kafka.GetSaslPassword() != "" {
+		kafka.SaslPassword = redactedClickHousePassword
+	}
+	for _, kafkaTopic := range clickhouseConfig.GetKafkaTopics() {
+		if settings := kafkaTopic.GetSettings(); settings != nil && settings.GetSaslPassword() != "" {
+			settings.SaslPassword = redactedClickHousePassword
+		}
+	}
+	if rabbitmq := clickhouseConfig.GetRabbitmq(); rabbitmq != nil && rabbitmq.GetPassword() != "" {
+		rabbitmq.Password = redactedClickHousePassword
+	}
 }
 
 // Cluster
@@ -75,7 +134,7 @@ func (c *ClickHouseAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 }
 
 func (c *ClickHouseAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateClusterRequest) string {
-	tflog.Debug(ctx, "Creating ClickHouse Cluster", map[string]any{"request": req})
+	tflog.Debug(ctx, "Creating ClickHouse Cluster", map[string]any{"request": redactClickHouseCreateClusterRequest(req)})
 
 	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Create(ctx, req))
 	if err != nil {
@@ -116,7 +175,7 @@ func (c *ClickHouseAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 }
 
 func (c *ClickHouseAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *clickhouse.UpdateClusterRequest) {
-	tflog.Debug(ctx, "Updating ClickHouse Cluster", map[string]any{"request": req})
+	tflog.Debug(ctx, "Updating ClickHouse Cluster", map[string]any{"request": redactClickHouseUpdateClusterRequest(req)})
 
 	if req == nil || len(req.UpdateMask.Paths) == 0 {
 		return
@@ -951,7 +1010,7 @@ func (c *ClickHouseAPI) SetExtensions(ctx context.Context, sdk *ycsdk.SDK, diags
 // Restore
 
 func (c *ClickHouseAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.RestoreClusterRequest) string {
-	tflog.Debug(ctx, "Restoring ClickHouse Cluster from backup", map[string]any{"request": req})
+	tflog.Debug(ctx, "Restoring ClickHouse Cluster from backup", map[string]any{"request": redactClickHouseRestoreClusterRequest(req)})
 
 	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Restore(ctx, req))
 	if err != nil {

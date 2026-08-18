@@ -777,7 +777,8 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 			if name, ok := mount["mount_point_path"].(string); ok {
 				cm.MountPointPath = name
 			}
-			if mode, ok := mount["mode"].(string); ok {
+
+			if mode, ok := mount["mode"].(string); ok && mode != "" {
 				cm.Mode = mapContainerModeFromTF(mode)
 			} else {
 				cm.Mode = containers.Mount_MODE_UNSPECIFIED

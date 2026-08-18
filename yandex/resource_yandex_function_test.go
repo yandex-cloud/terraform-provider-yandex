@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -562,6 +563,66 @@ func TestAccYandexFunction_logOptions(t *testing.T) {
 	})
 }
 
+func TestAccYandexFunction_mounts(t *testing.T) {
+	var function functions.Function
+	var version *functions.Version
+	functionName := acctest.RandomWithPrefix("tf-function-mounts")
+	resourceName := "test-function"
+	resourcePath := "yandex_function." + resourceName
+
+	applyFunctionMountNoMode := resource.TestStep{
+		Config: func() string {
+			sb := &strings.Builder{}
+			testWriteResourceYandexFunction(
+				sb,
+				resourceName,
+				functionName,
+				"user_hash",
+				128,
+				"main",
+				"python37",
+				"test-fixtures/serverless/main.zip",
+				testResourceYandexFunctionOptionFactory.WithMountEphemeralDisk(
+					"mp-name-1",
+					"", // mode
+					1,
+				),
+			)
+			return sb.String()
+		}(),
+		Check: resource.ComposeTestCheckFunc(
+			testYandexFunctionExists(resourcePath, &function),
+			testYandexFunctionVersionExists(resourcePath, &version),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.#", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.0.name", "mp-name-1"),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.0.mode", ""),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.0.ephemeral_disk.0.size_gb", "1"),
+			resource.TestCheckResourceAttr(resourcePath, "mounts.0.ephemeral_disk.0.block_size_kb", "4"),
+			testYandexFunctionVersionMounts(&version, []*functions.Mount{
+				{
+					Name: "mp-name-1",
+					Mode: functions.Mount_MODE_UNSPECIFIED,
+					Target: &functions.Mount_EphemeralDiskSpec{
+						EphemeralDiskSpec: &functions.Mount_DiskSpec{
+							Size:      1 << 30,
+							BlockSize: 4 << 10,
+						},
+					},
+				},
+			}),
+		),
+	}
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexFunctionDestroy,
+		Steps: []resource.TestStep{
+			applyFunctionMountNoMode,
+		},
+	})
+}
+
 func modeBoolToString(isReadOnly bool) string {
 	if isReadOnly {
 		return "ro"
@@ -794,6 +855,54 @@ func testYandexFunctionVersionLogOptionsPtr(
 			expected.String(),
 			actual.String(),
 		)
+	}
+}
+
+func testYandexFunctionVersionMounts(
+	versionPtr **functions.Version,
+	expected []*functions.Mount,
+) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		expectedByName := make(map[string]*functions.Mount, len(expected))
+		for _, mount := range expected {
+			expectedByName[mount.Name] = mount
+		}
+
+		actual := (*versionPtr).GetMounts()
+		actualByName := make(map[string]*functions.Mount, len(actual))
+		for _, mount := range actual {
+			actualByName[mount.Name] = mount
+		}
+
+		errNotEqual := func() error {
+			mountsToString := func(m map[string]*functions.Mount) string {
+				ss := make([]string, 0, len(m))
+				for _, v := range m {
+					ss = append(ss, "{"+v.String()+"}")
+				}
+				slices.Sort(ss)
+				return "[" + strings.Join(ss, ",") + "]"
+			}
+			return fmt.Errorf("Created Function Version mounts not equal to expected:\n"+
+				"\nExpected:\n%s\n"+
+				"\nActual:\n%s\n",
+				mountsToString(expectedByName),
+				mountsToString(actualByName),
+			)
+		}
+
+		if len(expectedByName) != len(actualByName) {
+			return errNotEqual()
+		}
+
+		for mountPoint, expectedMount := range expectedByName {
+			actualMount, ok := actualByName[mountPoint]
+			if !ok || !assert.ObjectsAreEqual(expectedMount, actualMount) {
+				return errNotEqual()
+			}
+		}
+
+		return nil
 	}
 }
 
@@ -1056,6 +1165,7 @@ type testResourceYandexFunctionOptions struct {
 	description      *string
 	executionTimeout *string
 	logOptions       *testResourceYandexFunctionOptionsLogOptions
+	mounts           []testResourceYandexFunctionOptionsMount
 }
 
 type testResourceYandexFunctionOptionsLogOptions struct {
@@ -1063,6 +1173,16 @@ type testResourceYandexFunctionOptionsLogOptions struct {
 	folderID   string
 	LogGroupID string
 	minLevel   string
+}
+
+type testResourceYandexFunctionOptionsMount struct {
+	name          string
+	mode          string
+	ephemeralDisk *testResourceYandexFunctionOptionsMountEphemeralDisk
+}
+
+type testResourceYandexFunctionOptionsMountEphemeralDisk struct {
+	sizeGB int
 }
 
 type testResourceYandexFunctionOption func(o *testResourceYandexFunctionOptions)
@@ -1096,6 +1216,22 @@ func (testResourceYandexFunctionOptionFactoryImpl) WithLogOptions(
 			LogGroupID: LogGroupID,
 			minLevel:   minLevel,
 		}
+	}
+}
+
+func (testResourceYandexFunctionOptionFactoryImpl) WithMountEphemeralDisk(
+	mountPointPath string,
+	mode string,
+	sizeGB int,
+) testResourceYandexFunctionOption {
+	return func(o *testResourceYandexFunctionOptions) {
+		o.mounts = append(o.mounts, testResourceYandexFunctionOptionsMount{
+			name: mountPointPath,
+			mode: mode,
+			ephemeralDisk: &testResourceYandexFunctionOptionsMountEphemeralDisk{
+				sizeGB: sizeGB,
+			},
+		})
 	}
 }
 
@@ -1148,6 +1284,23 @@ func testWriteResourceYandexFunction(
 		}
 		if minLevel := logOptions.minLevel; len(minLevel) > 0 {
 			fprintfLn(sb, "    min_level = \"%s\"", minLevel)
+		}
+		fprintfLn(sb, "  }")
+	}
+	for _, mount := range o.mounts {
+		fprintfLn(sb, "  mounts {")
+		if mountPointPath := mount.name; mountPointPath != "" {
+			fprintfLn(sb, "    name = \"%s\"", mountPointPath)
+		}
+		if mode := mount.mode; mode != "" {
+			fprintfLn(sb, "    mode = \"%s\"", mode)
+		}
+		if ephemeralDisk := mount.ephemeralDisk; ephemeralDisk != nil {
+			fprintfLn(sb, "    ephemeral_disk {")
+			if sizeGB := ephemeralDisk.sizeGB; sizeGB != 0 {
+				fprintfLn(sb, "      size_gb = %d", sizeGB)
+			}
+			fprintfLn(sb, "    }")
 		}
 		fprintfLn(sb, "  }")
 	}

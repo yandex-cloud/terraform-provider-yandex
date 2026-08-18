@@ -872,3 +872,56 @@ func TestEveryOf(t *testing.T) {
 		require.Error(t, checkEveryOf(d, "field_one", ""), "empty keys not allowed")
 	})
 }
+
+func TestRemoveWriteOnlyFields(t *testing.T) {
+	resourceSchema := map[string]*schema.Schema{
+		"password": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Password.",
+		},
+		"password_wo": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			WriteOnly:    true,
+			RequiredWith: []string{"password_wo_version"},
+			Description:  "Write-only password.",
+		},
+		"password_wo_version": {
+			Type:         schema.TypeInt,
+			Optional:     true,
+			RequiredWith: []string{"password_wo"},
+			Description:  "Version of the write-only password.",
+		},
+		"config": {
+			Type:        schema.TypeList,
+			Optional:    true,
+			Description: "Configuration.",
+			Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+				"token_wo": {
+					Type:         schema.TypeString,
+					Optional:     true,
+					WriteOnly:    true,
+					RequiredWith: []string{"config.0.token_wo_version"},
+					Description:  "Write-only token.",
+				},
+				"token_wo_version": {
+					Type:         schema.TypeInt,
+					Optional:     true,
+					RequiredWith: []string{"config.0.token_wo"},
+					Description:  "Version of the write-only token.",
+				},
+			}},
+		},
+	}
+
+	removeWriteOnlyFields(resourceSchema)
+
+	require.Contains(t, resourceSchema, "password")
+	require.NotContains(t, resourceSchema, "password_wo")
+	require.NotContains(t, resourceSchema, "password_wo_version")
+
+	nestedSchema := resourceSchema["config"].Elem.(*schema.Resource).Schema
+	require.NotContains(t, nestedSchema, "token_wo")
+	require.NotContains(t, nestedSchema, "token_wo_version")
+}

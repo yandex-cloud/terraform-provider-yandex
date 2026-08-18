@@ -226,8 +226,8 @@ func YandexSwsSecurityProfileDatasourceSchema(ctx context.Context) schema.Schema
 
 						"outputs": schema.ListAttribute{
 							ElementType:         types.StringType,
-							MarkdownDescription: "List of log destinations: Cloud Logging and/or Audit Trails.",
-							Description: "List of log destinations: Cloud Logging and/or Audit Trails." +
+							MarkdownDescription: "List of log destinations: Cloud Logging, Audit Trails, and/or Monium.",
+							Description: "List of log destinations: Cloud Logging, Audit Trails, and/or Monium." +
 								// proto paths: +
 								// -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_options -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.outputs
 								"package: yandex.cloud.smartwebsecurity.v1\n" +

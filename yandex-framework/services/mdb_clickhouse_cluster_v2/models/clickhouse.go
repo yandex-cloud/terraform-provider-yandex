@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
@@ -15,12 +16,14 @@ type Clickhouse struct {
 	Config              types.Object `tfsdk:"config"`
 	Resources           types.Object `tfsdk:"resources"`
 	DiskSizeAutoscaling types.Object `tfsdk:"disk_size_autoscaling"`
+	DefaultUserSettings types.Object `tfsdk:"default_user_settings"`
 }
 
 var ClickhouseAttrTypes = map[string]attr.Type{
 	"config":                types.ObjectType{AttrTypes: ClickhouseConfigAttrTypes},
 	"resources":             types.ObjectType{AttrTypes: ResourcesAttrTypes},
 	"disk_size_autoscaling": types.ObjectType{AttrTypes: DiskSizeAutoscalingAttrTypes},
+	"default_user_settings": types.ObjectType{AttrTypes: usersettings.AttrTypes},
 }
 
 func FlattenClickHouse(ctx context.Context, prevClickHouse types.Object, clickhouse *clickhouse.ClusterConfig_Clickhouse, diags *diag.Diagnostics) types.Object {
@@ -38,6 +41,7 @@ func FlattenClickHouse(ctx context.Context, prevClickHouse types.Object, clickho
 			Config:              FlattenClickHouseConfig(ctx, prevClickHouse, effectiveCfg, effectiveCfg.GetTls(), diags),
 			Resources:           mdbcommon.FlattenResources(ctx, clickhouse.Resources, diags),
 			DiskSizeAutoscaling: FlattenDiskSizeAutoscaling(ctx, clickhouse.DiskSizeAutoscaling, diags),
+			DefaultUserSettings: usersettings.Flatten(ctx, clickhouse.DefaultUserSettings, diags),
 		},
 	)
 	diags.Append(d...)
@@ -60,5 +64,6 @@ func ExpandClickHouse(ctx context.Context, c types.Object, diags *diag.Diagnosti
 		Config:              ExpandClickHouseConfig(ctx, clickhouseData.Config, diags),
 		Resources:           mdbcommon.ExpandResources[clickhouse.Resources](ctx, clickhouseData.Resources, diags),
 		DiskSizeAutoscaling: ExpandDiskSizeAutoscaling(ctx, clickhouseData.DiskSizeAutoscaling, diags),
+		DefaultUserSettings: usersettings.Expand(ctx, clickhouseData.DefaultUserSettings, diags),
 	}
 }

@@ -99,7 +99,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareUpdateRequests(t *testing.T) 
 			}
 
 			// Check cluster update
-			clusterReq := prepareClusterUpdateRequest(ctx, state, plan, &diags)
+			clusterReq := prepareClusterUpdateRequest(ctx, state, plan, "", false, &diags)
 			if diags.HasError() {
 				t.Errorf("Unexpected diagnostics in prepareClusterUpdateRequest for %s: %v", c.testname, diags.Errors())
 				return

@@ -100,7 +100,8 @@ func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaReque
 						Computed:            true,
 					},
 					"sanitize_payload": schema.StringAttribute{
-						MarkdownDescription: "SanitizePayload parameter.",
+						MarkdownDescription: "Deprecated. This parameter no longer affects user permissions.",
+						DeprecationMessage:  sanitizePayloadDeprecationMessage,
 						Computed:            true,
 					},
 					"databases": schema.StringAttribute{

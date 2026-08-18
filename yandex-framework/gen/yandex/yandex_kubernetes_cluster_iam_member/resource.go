@@ -31,8 +31,6 @@ const (
 	defaultTimeout  = 5 * time.Minute
 )
 
-type iamPolicyModifyFunc func(p *accessbinding.Policy) error
-
 var mutexKV = globallock.NewMutexKV()
 
 type IAMMemberUpdater struct {
@@ -57,14 +55,14 @@ func (u *IAMMemberUpdater) Schema(_ context.Context, _ resource.SchemaRequest, r
 				},
 			},
 			"role": schema.StringAttribute{
-				MarkdownDescription: "The role that should be assigned. Only one yandex_kubernetes_cluster_iam_member can be used per role.",
+				MarkdownDescription: "The role that should be assigned to the member.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"member": schema.StringAttribute{
-				MarkdownDescription: "An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:\n * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.\n * **serviceAccount:{service_account_id}**: A unique service account ID.\n * **federatedUser:{federated_user_id}**: A unique federated user ID.\n * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID.\n * **group:{group_id}**: A unique group ID.\n * **system:group:federation:{federation_id}:users**: All users in federation.\n * **system:group:organization:{organization_id}:users**: All users in organization.\n * **system:allAuthenticatedUsers**: All authenticated users.\n * **system:allUsers**: All users, including unauthenticated ones.\n\n~> for more information about system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).\n\n",
+				MarkdownDescription: "An identity that will be granted the privilege in the `role`. It can have one of the following values:\n * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.\n * **serviceAccount:{service_account_id}**: A unique service account ID.\n * **federatedUser:{federated_user_id}**: A unique federated user ID.\n * **group:{group_id}**: A unique group ID.\n * **system:group:federation:{federation_id}:users**: All users in federation.\n * **system:group:organization:{organization_id}:users**: All users in organization.\n * **system:allAuthenticatedUsers**: All authenticated users.\n * **system:allUsers**: All users, including unauthenticated ones.\n\n~> for more information about system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).\n\n",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -169,20 +167,6 @@ func (u *IAMMemberUpdater) Create(ctx context.Context, req resource.CreateReques
 	mutexKV.Lock(fmt.Sprintf("yandex_kubernetes_cluster_iam_member-%s", u.clusterId))
 	defer mutexKV.Unlock(fmt.Sprintf("yandex_kubernetes_cluster_iam_member-%s", u.clusterId))
 
-	tflog.Debug(ctx, fmt.Sprintf("Retrieving access member for yandex_kubernetes_cluster_iam_member '%s'", u.clusterId))
-
-	p, err := u.GetResourceIamPolicy(ctx)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Failed to get IAM policy",
-			fmt.Sprintf("Error retrieving current IAM policy: %v", err),
-		)
-		return
-	}
-	tflog.Debug(ctx, "Retrieved current access bindings", map[string]interface{}{
-		"cluster_id":     u.clusterId,
-		"current_policy": p,
-	})
 	tflog.Debug(ctx, "Applying policy delta", map[string]interface{}{
 		"delta": policyDelta,
 	})
@@ -261,25 +245,11 @@ func (u *IAMMemberUpdater) Delete(ctx context.Context, req resource.DeleteReques
 	mutexKV.Lock(fmt.Sprintf("yandex_kubernetes_cluster_iam_member-%s", u.clusterId))
 	defer mutexKV.Unlock(fmt.Sprintf("yandex_kubernetes_cluster_iam_member-%s", u.clusterId))
 
-	tflog.Debug(ctx, fmt.Sprintf("Retrieving access member for yandex_kubernetes_cluster_iam_member '%s'", u.clusterId))
-
-	p, err := u.GetResourceIamPolicy(ctx)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Failed to get IAM policy",
-			fmt.Sprintf("Error retrieving current IAM policy: %v", err),
-		)
-		return
-	}
-	tflog.Debug(ctx, "Retrieved current access bindings", map[string]interface{}{
-		"cluster_id":     u.clusterId,
-		"current_policy": p,
-	})
 	tflog.Debug(ctx, "Applying policy delta", map[string]interface{}{
 		"delta": policyDelta,
 	})
 
-	if err = u.UpdateResourceIamPolicy(ctx, policyDelta); err != nil {
+	if err := u.UpdateResourceIamPolicy(ctx, policyDelta); err != nil {
 		if accessbinding.IsStatusWithCode(err, codes.NotFound) {
 			tflog.Debug(ctx, "Resource not found, assuming already deleted")
 			return
@@ -328,29 +298,6 @@ func (u *IAMMemberUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbin
 	}
 
 	return &accessbinding.Policy{Bindings: bindings}, nil
-}
-
-func (u *IAMMemberUpdater) SetResourceIamPolicy(ctx context.Context, policy *accessbinding.Policy) error {
-	req := &access.SetAccessBindingsRequest{
-		ResourceId:     u.clusterId,
-		AccessBindings: policy.Bindings,
-	}
-
-	md := new(metadata.MD)
-	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
-	defer cancel()
-
-	op, err := k8sv1sdk.NewClusterClient(u.providerConfig.SDKv2).SetAccessBindings(ctx, req, grpc.Header(md))
-	if err != nil {
-		return fmt.Errorf("error setting access bindings of yandex_kubernetes_cluster_iam_member '%s': %w", u.clusterId, err)
-	}
-
-	_, err = op.Wait(ctx)
-	if err != nil {
-		return fmt.Errorf("error setting access bindings of yandex_kubernetes_cluster_iam_member '%s': %w", u.clusterId, err)
-	}
-
-	return nil
 }
 
 func (u *IAMMemberUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *accessbinding.PolicyDelta) error {

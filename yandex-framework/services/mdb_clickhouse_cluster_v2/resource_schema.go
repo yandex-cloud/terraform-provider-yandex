@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/customplanmodifiers"
@@ -108,6 +109,25 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				Description: "A password used to authorize as user `admin` when `sql_user_management` enabled.",
 				Optional:    true,
 				Sensitive:   true,
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("admin_password_wo")),
+				},
+			},
+			"admin_password_wo": schema.StringAttribute{
+				Description: "A password used to authorize as user `admin` when `sql_user_management` enabled. This attribute is write-only and is not stored in state. Requires `admin_password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later.",
+				Optional:    true,
+				Sensitive:   true,
+				WriteOnly:   true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("admin_password_wo_version")),
+				},
+			},
+			"admin_password_wo_version": schema.Int64Attribute{
+				Description: "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:    true,
+				Validators: []validator.Int64{
+					int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("admin_password_wo")),
+				},
 			},
 			"sql_user_management": schema.BoolAttribute{
 				Description: "Enables `admin` user with user management permission.",
@@ -408,7 +428,22 @@ func ClickHouseSchema() schema.SingleNestedAttribute {
 			"resources":             ResourcesSchema(),
 			"disk_size_autoscaling": DiskSizeAutoscalingSchema(),
 			"config":                ClickHouseConfigSchema(),
+			"default_user_settings": DefaultUserSettingsSchema(),
 		},
+	}
+}
+
+func DefaultUserSettingsSchema() schema.SingleNestedAttribute {
+	return schema.SingleNestedAttribute{
+		MarkdownDescription: "Settings that are applied to all users of the ClickHouse cluster by default. " +
+			"They are overridden by the settings of a particular user. For more information, see [the official documentation](https://clickhouse.com/docs/ru/operations/settings/settings).",
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Object{
+			objectplanmodifier.UseStateForUnknown(),
+			customplanmodifiers.DefaultUserSettingsPlanModifier(),
+		},
+		Attributes: usersettings.ComputedResourceAttributes(),
 	}
 }
 

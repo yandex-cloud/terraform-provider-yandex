@@ -7,6 +7,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/models"
@@ -49,7 +50,7 @@ func prepareVersionUpdateRequest(state, plan *models.ClusterResource) *clickhous
 
 // Cluster
 
-func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.ClusterResource, diags *diag.Diagnostics) *clickhouse.UpdateClusterRequest {
+func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.ClusterResource, adminPassword string, adminPasswordChanged bool, diags *diag.Diagnostics) *clickhouse.UpdateClusterRequest {
 	request := &clickhouse.UpdateClusterRequest{
 		ClusterId:  state.Id.ValueString(),
 		UpdateMask: &field_mask.FieldMask{},
@@ -73,7 +74,7 @@ func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.Cluste
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "labels")
 	}
 
-	config, updateMaskPaths := prepareClusterConfigSpec(ctx, plan, state, diags)
+	config, updateMaskPaths := prepareClusterConfigSpec(ctx, plan, state, adminPassword, adminPasswordChanged, diags)
 	if diags.HasError() {
 		return nil
 	}
@@ -120,7 +121,7 @@ func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.Cluste
 
 // Cluster config
 
-func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterResource, diags *diag.Diagnostics) (*clickhouse.ConfigSpec, []string) {
+func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterResource, adminPassword string, adminPasswordChanged bool, diags *diag.Diagnostics) (*clickhouse.ConfigSpec, []string) {
 	var updateMaskPaths []string
 	config := &clickhouse.ConfigSpec{}
 
@@ -150,6 +151,8 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterRe
 				"config_spec.clickhouse.disk_size_autoscaling",
 			)
 		}
+
+		updateMaskPaths = append(updateMaskPaths, getDefaultUserSettingsUpdatePaths(planClickHouse, stateClickHouse)...)
 
 		// Get update paths for clickhouse config
 		updateMaskPaths = append(updateMaskPaths, getClickHouseConfigUpdatePaths(ctx, planClickHouse, stateClickHouse, diags)...)
@@ -232,6 +235,11 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterRe
 		updateMaskPaths = append(updateMaskPaths, "config_spec.sql_user_management")
 	}
 
+	if adminPasswordChanged {
+		config.SetAdminPassword(adminPassword)
+		updateMaskPaths = append(updateMaskPaths, "config_spec.admin_password")
+	}
+
 	if !plan.EmbeddedKeeper.Equal(state.EmbeddedKeeper) {
 		config.SetEmbeddedKeeper(&wrapperspb.BoolValue{Value: plan.EmbeddedKeeper.ValueBool()})
 		updateMaskPaths = append(updateMaskPaths, "config_spec.embedded_keeper")
@@ -256,6 +264,28 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterRe
 	}
 
 	return config, updateMaskPaths
+}
+
+func getDefaultUserSettingsUpdatePaths(planClickHouse, stateClickHouse models.Clickhouse) []string {
+	var updateMaskPaths []string
+
+	if planClickHouse.DefaultUserSettings.Equal(stateClickHouse.DefaultUserSettings) {
+		return updateMaskPaths
+	}
+
+	planAttrs := planClickHouse.DefaultUserSettings.Attributes()
+	stateAttrs := stateClickHouse.DefaultUserSettings.Attributes()
+	for setting := range usersettings.AttrTypes {
+		planVal := planAttrs[setting]
+		if planVal != nil && !planVal.IsUnknown() && !planVal.Equal(stateAttrs[setting]) {
+			updateMaskPaths = append(
+				updateMaskPaths,
+				"config_spec.clickhouse.default_user_settings."+setting,
+			)
+		}
+	}
+
+	return updateMaskPaths
 }
 
 func getClickHouseConfigUpdatePaths(ctx context.Context, planClickHouse, stateClickHouse models.Clickhouse, diags *diag.Diagnostics) []string {

@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'valkey: add write-only password attributes to yandex_mdb_redis_cluster, yandex_mdb_redis_cluster_v2 and yandex_mdb_redis_user'
-time: 2026-08-05T23:55:00+03:00

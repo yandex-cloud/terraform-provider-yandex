@@ -37,12 +37,11 @@ func TestMain(m *testing.M) {
 }
 
 type Permissions struct {
-	Commands        string
-	Categories      string
-	Patterns        string
-	PubSubChannels  string
-	SanitizePayload string
-	Databases       string
+	Commands       string
+	Categories     string
+	Patterns       string
+	PubSubChannels string
+	Databases      string
 }
 
 // Test that a Redis User can be created, updated and destroyed
@@ -59,10 +58,9 @@ func TestAccMDBRedisUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisUserResourceNameAlice, "name", "alice"),
 					testAccCheckMDBRedisUserComparePermissions(t, "alice",
 						Permissions{
-							PubSubChannels:  "resetchannels",
-							Patterns:        "allkeys",
-							SanitizePayload: "sanitize-payload",
-							Databases:       "alldbs",
+							PubSubChannels: "resetchannels",
+							Patterns:       "allkeys",
+							Databases:      "alldbs",
 						}),
 				),
 			},
@@ -73,12 +71,11 @@ func TestAccMDBRedisUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisUserResourceNameBob, "name", "bob"),
 					testAccCheckMDBRedisUserComparePermissions(t, "bob",
 						Permissions{
-							Commands:        "+ping -set",
-							Categories:      "-@all +@geo",
-							Patterns:        "~456*",
-							PubSubChannels:  "&123*",
-							SanitizePayload: "sanitize-payload",
-							Databases:       "0,1,2",
+							Commands:       "+ping -set",
+							Categories:     "-@all +@geo",
+							Patterns:       "~456*",
+							PubSubChannels: "&123*",
+							Databases:      "0,1,2",
 						}),
 				),
 			},
@@ -90,12 +87,11 @@ func TestAccMDBRedisUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisUserResourceNameAlice, "name", "alice"),
 					testAccCheckMDBRedisUserComparePermissions(t, "alice",
 						Permissions{
-							Commands:        "+get",
-							Categories:      "-@admin",
-							Patterns:        "~4242*",
-							PubSubChannels:  "&4242*",
-							SanitizePayload: "skip-sanitize-payload",
-							Databases:       "resetdbs",
+							Commands:       "+get",
+							Categories:     "-@admin",
+							Patterns:       "~4242*",
+							PubSubChannels: "&4242*",
+							Databases:      "resetdbs",
 						}),
 				),
 			},
@@ -145,7 +141,6 @@ func testAccCheckMDBRedisUserComparePermissions(t *testing.T, username string, e
 		assert.Equal(t, expected.Categories, actual.Categories.GetValue())
 		assert.Equal(t, expected.Patterns, actual.Patterns.GetValue())
 		assert.Equal(t, expected.PubSubChannels, actual.PubSubChannels.GetValue())
-		assert.Equal(t, expected.SanitizePayload, actual.SanitizePayload.GetValue())
 		assert.Equal(t, expected.Databases, actual.Databases.GetValue())
 
 		return nil
@@ -206,7 +201,6 @@ resource "yandex_mdb_redis_user" "bob" {
     	categories = "-@all +@geo"
 		patterns = "~456*"
 		pub_sub_channels = "&123*"
-		sanitize_payload = "sanitize-payload"
 		databases = "0,1,2"
   	}
 	enabled = false
@@ -225,7 +219,6 @@ resource "yandex_mdb_redis_user" "alice" {
     	categories = "-@admin"
 		patterns = "~4242*"
 		pub_sub_channels = "&4242*"
-		sanitize_payload = "skip-sanitize-payload"
 		databases = "resetdbs"
   	}
 }`

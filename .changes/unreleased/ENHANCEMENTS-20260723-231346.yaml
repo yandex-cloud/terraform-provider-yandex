@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'opensearch: add write-only admin_password_wo and admin_password_wo_version attributes'
-time: 2026-07-23T23:13:46+03:00

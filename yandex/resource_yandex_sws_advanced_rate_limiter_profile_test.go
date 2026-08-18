@@ -32,6 +32,7 @@ func TestAccSmartwebsecurityArlProfile_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_sws_advanced_rate_limiter_profile.this", "name", name),
 					resource.TestCheckResourceAttr("yandex_sws_advanced_rate_limiter_profile.this", "advanced_rate_limiter_rule.0.priority", "10"),
 					resource.TestCheckResourceAttr("yandex_sws_advanced_rate_limiter_profile.this", "advanced_rate_limiter_rule.0.static_quota.0.action", "DENY"),
+					resource.TestCheckResourceAttr("yandex_sws_advanced_rate_limiter_profile.this", "advanced_rate_limiter_rule.1.dynamic_quota.0.ban_period", "60"),
 				),
 			},
 			{
@@ -59,14 +60,14 @@ func TestAccSmartwebsecurityArlProfile_UpgradeFromSDKv2(t *testing.T) {
 						Source:            "yandex-cloud/yandex",
 					},
 				},
-				Config: testAccSmartwebsecurityArlProfileBasic(name),
+				Config: testAccSmartwebsecurityArlProfileLegacy(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("yandex_sws_advanced_rate_limiter_profile.this", "name", name),
 				),
 			},
 			{
 				ProtoV6ProviderFactories: testAccProviderFactoriesV6,
-				Config:                   testAccSmartwebsecurityArlProfileBasic(name),
+				Config:                   testAccSmartwebsecurityArlProfileLegacy(name),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectEmptyPlan(),
@@ -95,6 +96,52 @@ resource "yandex_sws_advanced_rate_limiter_profile" "this" {
                   path {
                       exact_match = "/api"
                   }
+                }
+            }
+        }
+    }
+
+    advanced_rate_limiter_rule {
+        name        = "rule2"
+        priority    = 20
+        description = "Dynamic quota with temporary ban"
+        dry_run     = false
+
+        dynamic_quota {
+            action     = "DENY"
+            limit      = 100
+            period     = 60
+            ban_period = 60
+
+            characteristic {
+                simple_characteristic {
+                    type = "REQUEST_PATH"
+                }
+            }
+        }
+    }
+}
+`, targetName)
+}
+
+func testAccSmartwebsecurityArlProfileLegacy(targetName string) string {
+	return fmt.Sprintf(`
+resource "yandex_sws_advanced_rate_limiter_profile" "this" {
+    name = "%[1]v"
+    advanced_rate_limiter_rule {
+        name        = "rule1"
+        priority    = 10
+        description = "First test rule"
+        dry_run     = true
+        static_quota {
+            action = "DENY"
+            limit  = 10000000
+            period = 1
+            condition {
+                request_uri {
+                    path {
+                        exact_match = "/api"
+                    }
                 }
             }
         }
