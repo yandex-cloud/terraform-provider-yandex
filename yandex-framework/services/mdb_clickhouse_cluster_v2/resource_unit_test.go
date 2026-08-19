@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	frameworkresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
@@ -37,6 +38,75 @@ func TestClickHouseClusterAdminPasswordWoSchema(t *testing.T) {
 	version := resp.Schema.Attributes["admin_password_wo_version"].(schema.Int64Attribute)
 	if !version.IsOptional() || version.IsWriteOnly() || len(version.Validators) != 1 {
 		t.Fatal("admin_password_wo_version must be an optional state attribute requiring admin_password_wo")
+	}
+}
+
+func TestKafkaSaslPasswordPlanModifiers(t *testing.T) {
+	t.Parallel()
+
+	passwordAttribute := KafkaSchema().Attributes["sasl_password"].(schema.StringAttribute)
+	if len(passwordAttribute.PlanModifiers) != 2 {
+		t.Fatalf("sasl_password plan modifiers count = %d, want 2", len(passwordAttribute.PlanModifiers))
+	}
+
+	testCases := []struct {
+		name   string
+		config types.String
+		state  types.String
+		plan   types.String
+		want   types.String
+	}{
+		{
+			name:   "null state normalizes unknown plan to null",
+			config: types.StringNull(),
+			state:  types.StringNull(),
+			plan:   types.StringUnknown(),
+			want:   types.StringNull(),
+		},
+		{
+			name:   "known state is preserved",
+			config: types.StringNull(),
+			state:  types.StringValue("old-password"),
+			plan:   types.StringUnknown(),
+			want:   types.StringValue("old-password"),
+		},
+		{
+			name:   "known config remains known",
+			config: types.StringValue("new-password"),
+			state:  types.StringNull(),
+			plan:   types.StringValue("new-password"),
+			want:   types.StringValue("new-password"),
+		},
+		{
+			name:   "unknown config remains unknown",
+			config: types.StringUnknown(),
+			state:  types.StringNull(),
+			plan:   types.StringUnknown(),
+			want:   types.StringUnknown(),
+		},
+	}
+
+	for _, testCase := range testCases {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			request := planmodifier.StringRequest{
+				ConfigValue: testCase.config,
+				StateValue:  testCase.state,
+				PlanValue:   testCase.plan,
+			}
+			response := planmodifier.StringResponse{PlanValue: testCase.plan}
+
+			for _, modifier := range passwordAttribute.PlanModifiers {
+				modifier.PlanModifyString(context.Background(), request, &response)
+				request.PlanValue = response.PlanValue
+			}
+
+			if !response.PlanValue.Equal(testCase.want) {
+				t.Fatalf("planned sasl_password = %s, want %s", response.PlanValue, testCase.want)
+			}
+		})
 	}
 }
 

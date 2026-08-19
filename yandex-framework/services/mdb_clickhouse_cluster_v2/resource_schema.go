@@ -1960,6 +1960,7 @@ func KafkaSchema() schema.SingleNestedAttribute {
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					planmodifiers.NullWriteOnlyString(),
 				},
 				Sensitive: true,
 			},
