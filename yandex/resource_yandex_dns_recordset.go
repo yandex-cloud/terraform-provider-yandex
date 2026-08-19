@@ -77,7 +77,9 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringLenBetween(1, 1024),
 				},
-				Set: schema.HashString,
+				Set: func(v interface{}) int {
+					return schema.HashString(canonicalizeTXTRecordValue(v.(string)))
+				},
 			},
 		},
 	}
@@ -138,9 +140,15 @@ func resourceYandexDnsRecordSetRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("DnsRecordSet %s", rsId(d)))
 	}
 
-	d.Set("description", rs.Description)
-	d.Set("ttl", int(rs.Ttl))
-	d.Set("data", convertStringArrToInterface(rs.Data))
+	if err := d.Set("description", rs.Description); err != nil {
+		return fmt.Errorf("failed to set DNS RecordSet description: %w", err)
+	}
+	if err := d.Set("ttl", int(rs.Ttl)); err != nil {
+		return fmt.Errorf("failed to set DNS RecordSet TTL: %w", err)
+	}
+	if err := d.Set("data", convertStringArrToInterface(rs.Data)); err != nil {
+		return fmt.Errorf("failed to set DNS RecordSet data: %w", err)
+	}
 
 	return nil
 }
