@@ -692,6 +692,9 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"minimal_action": {
+							Type: schema.TypeString,
+						},
 					},
 				},
 			},
