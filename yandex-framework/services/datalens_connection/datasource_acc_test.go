@@ -80,6 +80,11 @@ func TestAccDataSourceDatalensConnection_basic(t *testing.T) {
 // a connection resource, and then reads it back via a data source.
 func testAccDatalensConnectionDataSourceConfig(saName, dbName, name string) string {
 	return testAccDatalensConnectionInfraConfig(saName, dbName) + fmt.Sprintf(`
+resource "yandex_datalens_workbook" "test" {
+  title           = "tf-acc-conn-ds-%s"
+  organization_id = "%s"
+}
+
 resource "yandex_datalens_connection" "test" {
   name            = "%s"
   type            = "ydb"
@@ -90,11 +95,11 @@ resource "yandex_datalens_connection" "test" {
   ydb = {
     host                  = local.ydb_host
     port                  = 2135
-    db_name               = yandex_ydb_database_serverless.test.database_path
+    db_name               = local.ydb_db_path
     cloud_id              = "%s"
     folder_id             = "%s"
     service_account_id    = yandex_iam_service_account.datalens_test_sa.id
-    workbook_id           = "c7e0nsirdp1cw"
+    workbook_id           = yandex_datalens_workbook.test.id
     data_export_forbidden = "off"
   }
 }
@@ -103,5 +108,5 @@ data "yandex_datalens_connection" "test" {
   id              = yandex_datalens_connection.test.id
   organization_id = "%s"
 }
-`, name, test.GetExampleOrganizationID(), test.GetExampleCloudID(), test.GetExampleFolderID(), test.GetExampleOrganizationID())
+`, name, test.GetExampleOrganizationID(), name, test.GetExampleOrganizationID(), test.GetExampleCloudID(), test.GetExampleFolderID(), test.GetExampleOrganizationID())
 }

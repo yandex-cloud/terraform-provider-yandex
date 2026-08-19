@@ -113,8 +113,17 @@ func TestAccDatalensConnection_noDescription(t *testing.T) {
 	})
 }
 
+func testAccDatalensConnectionWorkbook(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_datalens_workbook" "test" {
+  title           = "tf-acc-conn-%s"
+  organization_id = "%s"
+}
+`, name, test.GetExampleOrganizationID())
+}
+
 func testAccDatalensConnectionConfig_basic(saName, dbName, name, description string) string {
-	return testAccDatalensConnectionInfraConfig(saName, dbName) + fmt.Sprintf(`
+	return testAccDatalensConnectionInfraConfig(saName, dbName) + testAccDatalensConnectionWorkbook(name) + fmt.Sprintf(`
 resource "yandex_datalens_connection" "test" {
   name            = "%s"
   description     = "%s"
@@ -126,11 +135,11 @@ resource "yandex_datalens_connection" "test" {
   ydb = {
     host                  = local.ydb_host
     port                  = 2135
-    db_name               = yandex_ydb_database_serverless.test.database_path
+    db_name               = local.ydb_db_path
     cloud_id              = "%s"
     folder_id             = "%s"
     service_account_id    = yandex_iam_service_account.datalens_test_sa.id
-    workbook_id           = "c7e0nsirdp1cw"
+    workbook_id           = yandex_datalens_workbook.test.id
     data_export_forbidden = "off"
   }
 }
@@ -138,7 +147,7 @@ resource "yandex_datalens_connection" "test" {
 }
 
 func testAccDatalensConnectionConfig_noDescription(saName, dbName, name string) string {
-	return testAccDatalensConnectionInfraConfig(saName, dbName) + fmt.Sprintf(`
+	return testAccDatalensConnectionInfraConfig(saName, dbName) + testAccDatalensConnectionWorkbook(name) + fmt.Sprintf(`
 resource "yandex_datalens_connection" "test" {
   name            = "%s"
   type            = "ydb"
@@ -149,11 +158,11 @@ resource "yandex_datalens_connection" "test" {
   ydb = {
     host                  = local.ydb_host
     port                  = 2135
-    db_name               = yandex_ydb_database_serverless.test.database_path
+    db_name               = local.ydb_db_path
     cloud_id              = "%s"
     folder_id             = "%s"
     service_account_id    = yandex_iam_service_account.datalens_test_sa.id
-    workbook_id           = "c7e0nsirdp1cw"
+    workbook_id           = yandex_datalens_workbook.test.id
     data_export_forbidden = "off"
   }
 }
