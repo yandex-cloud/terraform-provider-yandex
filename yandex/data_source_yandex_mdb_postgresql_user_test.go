@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 )
 
 func TestAccDataSourceMDBPostgreSQLUser_basic(t *testing.T) {
@@ -192,7 +193,7 @@ func testAccCheckMDBPostgreSQLUserDestroy(s *terraform.State) error {
 		if err != nil {
 			return err
 		}
-		_, err = config.sdk.MDB().PostgreSQL().User().Get(context.Background(), &postgresql.GetUserRequest{
+		_, err = postgresqlsdk.NewUserClient(config.SDK).Get(context.Background(), &postgresql.GetUserRequest{
 			ClusterId: clusterId,
 			UserName:  username,
 		})

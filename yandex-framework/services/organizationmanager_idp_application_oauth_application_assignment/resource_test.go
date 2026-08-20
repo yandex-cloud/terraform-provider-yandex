@@ -103,7 +103,7 @@ func testAccOauthApplication(organizationId, appName, clientName string) string 
 resource "yandex_iam_oauth_client" "test_client" {
   name      = "%s"
   folder_id = "%s"
-  scopes    = ["iam"]
+  scopes    = ["openid"]
 }
 
 resource "yandex_organizationmanager_idp_application_oauth_application" "foo" {
@@ -111,7 +111,7 @@ resource "yandex_organizationmanager_idp_application_oauth_application" "foo" {
   name            = "%s"
   client_grant = {
     client_id         = yandex_iam_oauth_client.test_client.id
-    authorized_scopes  = ["openid", "profile", "email"]
+    authorized_scopes  = ["openid"]
   }
   group_claims_settings = {
     group_distribution_type = "ALL_GROUPS"

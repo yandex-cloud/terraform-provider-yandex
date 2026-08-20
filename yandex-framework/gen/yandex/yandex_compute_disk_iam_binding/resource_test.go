@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -54,7 +55,7 @@ func TestAccComputeDisk_basicIamMember(t *testing.T) {
 					),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-						return cfg.SDK.Compute().Disk()
+						return computesdk.NewDiskClient(cfg.SDKv2)
 					}, &disk, role, []string{"system:" + userID}),
 				),
 			},
@@ -79,7 +80,7 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.Compute().Disk().Get(context.Background(), &compute.GetDiskRequest{
+		_, err := computesdk.NewDiskClient(config.SDKv2).Get(context.Background(), &compute.GetDiskRequest{
 			DiskId: rs.Primary.ID,
 		})
 		if err == nil {

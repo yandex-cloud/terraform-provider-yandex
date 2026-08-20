@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
+	devicessdk "github.com/yandex-cloud/go-sdk/services/iot/devices/v1"
 )
 
 const iotRegistryResourceForDevices = "yandex_iot_core_registry.test-registry"
@@ -56,8 +57,10 @@ func testSweepIoTCoreDevice(_ string) error {
 }
 
 func listDevicesWithRetry(conf *Config, folderId string) (resp *iot.ListDevicesResponse, err error) {
+	client := devicessdk.NewDeviceClient(conf.SDK)
+
 	for i := 1; i <= conf.MaxRetries; i++ {
-		resp, err = conf.sdk.IoT().Devices().Device().List(conf.Context(), &iot.ListDevicesRequest{
+		resp, err = client.List(conf.Context(), &iot.ListDevicesRequest{
 			Id:        &iot.ListDevicesRequest_FolderId{FolderId: conf.FolderID},
 			PageSize:  100,
 			PageToken: "",
@@ -76,11 +79,12 @@ func sweepIoTCoreDevice(conf *Config, id string) bool {
 func sweepIoTCoreDeviceOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexIoTDefaultTimeout)
 	defer cancel()
+	client := devicessdk.NewDeviceClient(conf.SDK)
 
-	op, err := conf.sdk.IoT().Devices().Device().Delete(ctx, &iot.DeleteDeviceRequest{
+	op, err := client.Delete(ctx, &iot.DeleteDeviceRequest{
 		DeviceId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func TestAccYandexIoTCoreDevice_basic(t *testing.T) {
@@ -396,15 +400,19 @@ EOF
 }
 
 func testGetDeviceByID(config *Config, ID string) (*iot.Device, error) {
+	client := devicessdk.NewDeviceClient(config.SDK)
+
 	req := iot.GetDeviceRequest{
 		DeviceId: ID,
 	}
 
-	return config.sdk.IoT().Devices().Device().Get(context.Background(), &req)
+	return client.Get(context.Background(), &req)
 }
 
 func testGetDeviceCertificatesByID(config *Config, ID string) (map[string]interface{}, error) {
-	certs, err := config.sdk.IoT().Devices().Device().ListCertificates(context.Background(), &iot.ListDeviceCertificatesRequest{DeviceId: ID})
+	client := devicessdk.NewDeviceClient(config.SDK)
+
+	certs, err := client.ListCertificates(context.Background(), &iot.ListDeviceCertificatesRequest{DeviceId: ID})
 	if err != nil {
 		return nil, err
 	}
@@ -417,7 +425,9 @@ func testGetDeviceCertificatesByID(config *Config, ID string) (map[string]interf
 }
 
 func testGetDevicePasswordsByID(config *Config, ID string) (map[string]interface{}, error) {
-	passwords, err := config.sdk.IoT().Devices().Device().ListPasswords(context.Background(), &iot.ListDevicePasswordsRequest{DeviceId: ID})
+	client := devicessdk.NewDeviceClient(config.SDK)
+
+	passwords, err := client.ListPasswords(context.Background(), &iot.ListDevicePasswordsRequest{DeviceId: ID})
 	if err != nil {
 		return nil, err
 	}

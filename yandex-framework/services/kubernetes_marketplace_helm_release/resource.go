@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	marketplace "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/marketplace/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -197,7 +197,7 @@ func (r *helmReleaseResource) Create(ctx context.Context, req resource.CreateReq
 	defer cancel()
 
 	// Install requested release
-	id, diags := installHelmRelease(ctx, r.providerConfig.SDK, installHelmReleaseRequest)
+	id, diags := installHelmRelease(ctx, r.providerConfig.SDKv2, installHelmReleaseRequest)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		if id == "" {
@@ -210,7 +210,7 @@ func (r *helmReleaseResource) Create(ctx context.Context, req resource.CreateReq
 
 	// Map response body to schema and populate Computed attribute values
 	plan.ID = types.StringValue(id)
-	diags = updateState(ctx, r.providerConfig.SDK, &plan)
+	diags = updateState(ctx, r.providerConfig.SDKv2, &plan)
 	if diags.HasError() {
 		return
 	}
@@ -233,7 +233,7 @@ func (r *helmReleaseResource) Read(ctx context.Context, req resource.ReadRequest
 
 	id := state.ID.ValueString()
 	tflog.Debug(ctx, "Reading Helm Release", helmReleaseIDLogField(id))
-	hr, d := getHelmRelease(ctx, r.providerConfig.SDK, id)
+	hr, d := getHelmRelease(ctx, r.providerConfig.SDKv2, id)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
@@ -295,13 +295,13 @@ func (r *helmReleaseResource) Update(ctx context.Context, req resource.UpdateReq
 	defer cancel()
 
 	// Update release
-	d := updateHelmRelease(ctx, r.providerConfig.SDK, updateHelmReleaseRequest)
+	d := updateHelmRelease(ctx, r.providerConfig.SDKv2, updateHelmReleaseRequest)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	diags = updateState(ctx, r.providerConfig.SDK, &plan)
+	diags = updateState(ctx, r.providerConfig.SDKv2, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -331,7 +331,7 @@ func (r *helmReleaseResource) Delete(ctx context.Context, req resource.DeleteReq
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	d := uninstallHelmRelease(ctx, r.providerConfig.SDK, &marketplace.UninstallHelmReleaseRequest{
+	d := uninstallHelmRelease(ctx, r.providerConfig.SDKv2, &marketplace.UninstallHelmReleaseRequest{
 		Id: id,
 	})
 	resp.Diagnostics.Append(d)

@@ -13,6 +13,7 @@ import (
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -206,29 +207,16 @@ func resourceYandexComputeSnapshotScheduleCreate(ctx context.Context, d *schema.
 		req.SetSnapshotCount(int64(v.(int)))
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().SnapshotSchedule().Create(ctx, req))
+	op, err := computesdk.NewSnapshotScheduleClient(config.SDK).Create(ctx, req)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	md, ok := protoMetadata.(*compute.CreateSnapshotScheduleMetadata)
-	if !ok {
-		return diag.FromErr(fmt.Errorf("could not get Snapshot Schedule ID from create operation metadata"))
-	}
-
+	md := op.Metadata()
 	d.SetId(md.SnapshotScheduleId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if _, err := op.Response(); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -238,7 +226,7 @@ func resourceYandexComputeSnapshotScheduleCreate(ctx context.Context, d *schema.
 func resourceYandexComputeSnapshotScheduleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	schedule, err := config.sdk.Compute().SnapshotSchedule().Get(config.Context(), &compute.GetSnapshotScheduleRequest{
+	schedule, err := computesdk.NewSnapshotScheduleClient(config.SDK).Get(config.Context(), &compute.GetSnapshotScheduleRequest{
 		SnapshotScheduleId: d.Id(),
 	})
 	if err != nil {
@@ -248,7 +236,7 @@ func resourceYandexComputeSnapshotScheduleRead(ctx context.Context, d *schema.Re
 	var diskIDs []string
 	var token string
 	for {
-		resp, err := config.sdk.Compute().SnapshotSchedule().ListDisks(config.Context(), &compute.ListSnapshotScheduleDisksRequest{
+		resp, err := computesdk.NewSnapshotScheduleClient(config.SDK).ListDisks(config.Context(), &compute.ListSnapshotScheduleDisksRequest{
 			SnapshotScheduleId: d.Id(),
 			PageToken:          token,
 		})
@@ -368,17 +356,12 @@ func resourceYandexComputeSnapshotScheduleDelete(ctx context.Context, d *schema.
 		SnapshotScheduleId: d.Id(),
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().SnapshotSchedule().Delete(ctx, req))
+	op, err := computesdk.NewSnapshotScheduleClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -392,12 +375,12 @@ func makeSnapshotScheduleUpdateRequest(ctx context.Context, req *compute.UpdateS
 
 	log.Printf("[DEBUG] Updating SnapshotSchedule %q", d.Id())
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().SnapshotSchedule().Update(ctx, req))
+	op, err := computesdk.NewSnapshotScheduleClient(config.SDK).Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update SnapshotSchedule %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating SnapshotSchedule %q: %s", d.Id(), err)
 	}
@@ -416,7 +399,7 @@ func updateSnapshotScheduleDisks(ctx context.Context, d *schema.ResourceData, me
 	oldDisks := make(map[string]bool)
 	var token string
 	for {
-		resp, err := config.sdk.Compute().SnapshotSchedule().ListDisks(ctx, &compute.ListSnapshotScheduleDisksRequest{
+		resp, err := computesdk.NewSnapshotScheduleClient(config.SDK).ListDisks(ctx, &compute.ListSnapshotScheduleDisksRequest{
 			SnapshotScheduleId: d.Id(),
 			PageToken:          token,
 		})
@@ -447,12 +430,12 @@ func updateSnapshotScheduleDisks(ctx context.Context, d *schema.ResourceData, me
 
 	log.Printf("[DEBUG] Updating SnapshotSchedule disks %q", d.Id())
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().SnapshotSchedule().UpdateDisks(ctx, req))
+	op, err := computesdk.NewSnapshotScheduleClient(config.SDK).UpdateDisks(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update SnapshotSchedule disks %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating SnapshotSchedule disks %q: %s", d.Id(), err)
 	}

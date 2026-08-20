@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/gitlab/v1"
+	gitlabsdk "github.com/yandex-cloud/go-sdk/services/gitlab/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -40,7 +41,7 @@ func testSweepGitlabInstance(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.SDK.Gitlab().Instance().List(context.Background(), &gitlab.ListInstancesRequest{
+	resp, err := gitlabsdk.NewInstanceClient(conf.SDKv2).List(context.Background(), &gitlab.ListInstancesRequest{
 		FolderId: conf.ProviderState.FolderID.ValueString(),
 		PageSize: pageSize,
 	})
@@ -67,20 +68,20 @@ func sweepGitlabInstanceOnce(conf *config.Config, id string) error {
 
 	ctxUpd, cancelUpd := context.WithTimeout(context.Background(), updateTimeout)
 	defer cancelUpd()
-	op, err := conf.SDK.Gitlab().Instance().Update(ctxUpd, &gitlab.UpdateInstanceRequest{
+	op, err := gitlabsdk.NewInstanceClient(conf.SDKv2).Update(ctxUpd, &gitlab.UpdateInstanceRequest{
 		InstanceId:         id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = testhelpers.HandleSweepOperation(ctxUpd, conf, op, err)
+	err = testhelpers.HandleSweepOperation(ctxUpd, op, err)
 	if err != nil && !strings.EqualFold(testhelpers.ErrorMessage(err), "no changes detected") {
 		return err
 	}
 
 	ctxDel, cancelDel := context.WithTimeout(context.Background(), deleteTimeout)
 	defer cancelDel()
-	op, err = conf.SDK.Gitlab().Instance().Delete(ctxDel, &gitlab.DeleteInstanceRequest{
+	deleteOp, err := gitlabsdk.NewInstanceClient(conf.SDKv2).Delete(ctxDel, &gitlab.DeleteInstanceRequest{
 		InstanceId: id,
 	})
-	return testhelpers.HandleSweepOperation(ctxDel, conf, op, err)
+	return testhelpers.HandleSweepOperation(ctxDel, deleteOp, err)
 }

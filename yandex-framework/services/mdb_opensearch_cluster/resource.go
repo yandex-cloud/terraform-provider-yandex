@@ -21,7 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -185,7 +185,7 @@ func (o *openSearchClusterResource) Create(ctx context.Context, req resource.Cre
 
 	tflog.Debug(ctx, fmt.Sprintf("Creating OpenSearch Cluster request: %+v", log.RedactCreateClusterRequest(clusterCreateRequest)))
 
-	clusterID := request.CreateCluster(ctx, o.providerConfig.SDK, &resp.Diagnostics, clusterCreateRequest)
+	clusterID := request.CreateCluster(ctx, o.providerConfig.SDKv2, &resp.Diagnostics, clusterCreateRequest)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -205,7 +205,7 @@ func (o *openSearchClusterResource) Create(ctx context.Context, req resource.Cre
 
 		tflog.Debug(ctx, fmt.Sprintf("UpdateAuthSettings request: %+v", authSettingReq))
 
-		request.UpdateAuthSettings(ctx, o.providerConfig.SDK, &resp.Diagnostics, authSettingReq)
+		request.UpdateAuthSettings(ctx, o.providerConfig.SDKv2, &resp.Diagnostics, authSettingReq)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -214,7 +214,7 @@ func (o *openSearchClusterResource) Create(ctx context.Context, req resource.Cre
 	//TODO: check maybe we need to getClusterById and store result to state?
 	plan.ID = types.StringValue(clusterID)
 
-	updateState(ctx, o.providerConfig.SDK, &plan, &resp.Diagnostics, false)
+	updateState(ctx, o.providerConfig.SDKv2, &plan, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -242,7 +242,7 @@ func (o *openSearchClusterResource) Delete(ctx context.Context, req resource.Del
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	request.DeleteCluster(ctx, o.providerConfig.SDK, &resp.Diagnostics, state.ID.ValueString())
+	request.DeleteCluster(ctx, o.providerConfig.SDKv2, &resp.Diagnostics, state.ID.ValueString())
 
 	state.ID = types.StringUnknown()
 	tflog.Debug(ctx, "Finished deleting OpenSearch Cluster", log.IdFromModel(&state))
@@ -257,7 +257,7 @@ func (o *openSearchClusterResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	updateState(ctx, o.providerConfig.SDK, &state, &resp.Diagnostics, true)
+	updateState(ctx, o.providerConfig.SDKv2, &state, &resp.Diagnostics, true)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -299,7 +299,7 @@ func (o *openSearchClusterResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("UpdateOpenSearch Cluster request: %+v", log.RedactUpdateClusterRequest(updateReq)))
-	request.UpdateClusterSpec(ctx, o.providerConfig.SDK, &resp.Diagnostics, updateReq)
+	request.UpdateClusterSpec(ctx, o.providerConfig.SDKv2, &resp.Diagnostics, updateReq)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -319,7 +319,7 @@ func (o *openSearchClusterResource) Update(ctx context.Context, req resource.Upd
 
 		tflog.Debug(ctx, fmt.Sprintf("UpdateAuthSettings request: %+v", authSettingReq))
 
-		request.UpdateAuthSettings(ctx, o.providerConfig.SDK, &resp.Diagnostics, authSettingReq)
+		request.UpdateAuthSettings(ctx, o.providerConfig.SDKv2, &resp.Diagnostics, authSettingReq)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -327,7 +327,7 @@ func (o *openSearchClusterResource) Update(ctx context.Context, req resource.Upd
 
 	if plan.Config.Equal(state.Config) {
 		tflog.Debug(ctx, "No changes in Config section. Finishing updating OpenSearch Cluster", log.IdFromModel(&plan))
-		updateState(ctx, o.providerConfig.SDK, &plan, &resp.Diagnostics, false)
+		updateState(ctx, o.providerConfig.SDKv2, &plan, &resp.Diagnostics, false)
 		resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 		return
 	}
@@ -348,7 +348,7 @@ func (o *openSearchClusterResource) Update(ctx context.Context, req resource.Upd
 		return
 	}
 
-	updateState(ctx, o.providerConfig.SDK, &plan, &resp.Diagnostics, false)
+	updateState(ctx, o.providerConfig.SDKv2, &plan, &resp.Diagnostics, false)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 	tflog.Debug(ctx, "Finishing updating OpenSearch Cluster", log.IdFromModel(&plan))
 }
@@ -375,7 +375,7 @@ func (o *openSearchClusterResource) processOpenSearchNodeGroupsUpdate(ctx contex
 	}
 
 	//Create new nodegroups
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareAddOpenSearchRequests, request.AddOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
@@ -393,35 +393,35 @@ func (o *openSearchClusterResource) processOpenSearchNodeGroupsUpdate(ctx contex
 	//TODO: maybe we should separate changing hostcount from other operations?
 
 	//1) increase managers count
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareManagersToIncreaseRequests, request.UpdateOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//2) decrease data/managers host count
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareDataManagersToDecreaseRequests, request.UpdateOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//3) all other activities
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareOtherGroupsToUpdateRequests, request.UpdateOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	// Delete old nodegroups
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareDeleteOpenSearchRequests, request.DeleteOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//4) decrease host count in managers group
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareManagersToDecreaseRequests, request.UpdateOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
@@ -452,28 +452,28 @@ func (o *openSearchClusterResource) processDashboardsNodeGroupsUpdate(ctx contex
 	}
 
 	//Create new nodegroups
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareAddDashboardsRequests, request.AddDashboardsNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//Update existing nodegroups
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareUpdateDashboardsRequests, request.UpdateDashboardsNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//Update existing nodegroups network settings
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareUpdateDashboardsZoneAndSubnetIdsRequests, request.UpdateDashboardsNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//Delete old nodegroups
-	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDKv2, cid, planNodeGroups, stateNodeGroups,
 		nodegroups.PrepareDeleteDashboardsRequests, request.DeleteDashboardsNodeGroup)
 
 	return diags

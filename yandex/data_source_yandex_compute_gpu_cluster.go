@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -85,12 +85,12 @@ func dataSourceYandexComputeGpuClusterRead(ctx context.Context, d *schema.Resour
 	_, gpuClusterNameOk := d.GetOk("name")
 
 	if gpuClusterNameOk {
-		if gpuClusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.GpuClusterResolver); err != nil {
+		if gpuClusterID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(computesdk.NewGpuClusterClient(config.SDK), computesdk.GpuClusterResolver)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	gpuCluster, err := config.sdk.Compute().GpuCluster().Get(ctx, &compute.GetGpuClusterRequest{
+	gpuCluster, err := computesdk.NewGpuClusterClient(config.SDK).Get(ctx, &compute.GetGpuClusterRequest{
 		GpuClusterId: gpuClusterID,
 	})
 	if err != nil {

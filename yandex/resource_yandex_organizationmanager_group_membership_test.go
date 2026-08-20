@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 )
 
 // Test that a Group Membership can be applied to an organization.
@@ -322,31 +323,20 @@ func testAccOrganizationManagerGroupMembershipAddMember(group *organizationmanag
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := organizationmanagersdk.NewGroupClient(config.SDK)
+
 		ctx, cancel := context.WithTimeout(config.Context(), yandexOrganizationManagerGroupMembershipDefaultTimeout)
 		defer cancel()
 
-		op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().Group().UpdateMembers(ctx, &req))
+		op, err := client.UpdateMembers(ctx, &req)
 		if err != nil {
 			return fmt.Errorf("Error while requesting API to create GroupMembership: %s", err)
 		}
 
-		protoMetadata, err := op.Metadata()
-		if err != nil {
-			return fmt.Errorf("Error while get GroupMembership create operation metadata: %s", err)
-		}
-
-		_, ok := protoMetadata.(*organizationmanager.UpdateGroupMembersMetadata)
-		if !ok {
-			return fmt.Errorf("could not get GroupMembership from create operation metadata")
-		}
-
-		err = op.Wait(ctx)
+		_ = op.Metadata()
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error while waiting operation to create GroupMembership: %s", err)
-		}
-
-		if _, err := op.Response(); err != nil {
-			return fmt.Errorf("GroupMembership creation failed: %s", err)
 		}
 
 		return nil
@@ -366,31 +356,20 @@ func testAccOrganizationManagerGroupMembershipRemoveMember(group *organizationma
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := organizationmanagersdk.NewGroupClient(config.SDK)
+
 		ctx, cancel := context.WithTimeout(config.Context(), yandexOrganizationManagerGroupMembershipDefaultTimeout)
 		defer cancel()
 
-		op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().Group().UpdateMembers(ctx, &req))
+		op, err := client.UpdateMembers(ctx, &req)
 		if err != nil {
 			return fmt.Errorf("Error while requesting API to create GroupMembership: %s", err)
 		}
 
-		protoMetadata, err := op.Metadata()
-		if err != nil {
-			return fmt.Errorf("Error while get GroupMembership create operation metadata: %s", err)
-		}
-
-		_, ok := protoMetadata.(*organizationmanager.UpdateGroupMembersMetadata)
-		if !ok {
-			return fmt.Errorf("could not get GroupMembership from create operation metadata")
-		}
-
-		err = op.Wait(ctx)
+		_ = op.Metadata()
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error while waiting operation to create GroupMembership: %s", err)
-		}
-
-		if _, err := op.Response(); err != nil {
-			return fmt.Errorf("GroupMembership creation failed: %s", err)
 		}
 
 		return nil

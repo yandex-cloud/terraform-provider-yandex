@@ -13,6 +13,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -293,30 +294,17 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Create(ctx, &req))
+	op, err := computesdk.NewDiskClient(config.SDK).Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create disk: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get disk create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*compute.CreateDiskMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Disk ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.DiskId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create disk: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Disk creation failed: %s", err)
 	}
 
 	return resourceYandexComputeDiskRead(d, meta)
@@ -325,7 +313,7 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	disk, err := config.sdk.Compute().Disk().Get(config.Context(), &compute.GetDiskRequest{
+	disk, err := computesdk.NewDiskClient(config.SDK).Get(config.Context(), &compute.GetDiskRequest{
 		DiskId: d.Id(),
 	})
 
@@ -494,7 +482,7 @@ func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceYandexComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	disk, err := config.sdk.Compute().Disk().Get(config.Context(), &compute.GetDiskRequest{
+	disk, err := computesdk.NewDiskClient(config.SDK).Get(config.Context(), &compute.GetDiskRequest{
 		DiskId: d.Id(),
 	})
 	if err != nil {
@@ -523,17 +511,12 @@ func resourceYandexComputeDiskDelete(d *schema.ResourceData, meta interface{}) e
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Delete(ctx, req))
+	op, err := computesdk.NewDiskClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Disk %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -548,12 +531,12 @@ func makeDiskUpdateRequest(req *compute.UpdateDiskRequest, d *schema.ResourceDat
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Update(ctx, req))
+	op, err := computesdk.NewDiskClient(config.SDK).Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Disk %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
 	}
@@ -567,12 +550,12 @@ func makeDiskMoveRequest(req *compute.MoveDiskRequest, d *schema.ResourceData, m
 	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeDiskMoveTimeout)
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Move(ctx, req))
+	op, err := computesdk.NewDiskClient(config.SDK).Move(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to move Disk %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error moving Disk %q: %s", d.Id(), err)
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 )
 
 func makeCheck(sg *vpc.SecurityGroup, folderID, name, desc string) resource.TestCheckFunc {
@@ -86,8 +87,9 @@ func testAccDataSourceVPCSecurityGroupExists(n string, sg *vpc.SecurityGroup) re
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := vpcsdk.NewSecurityGroupClient(config.SDK)
 
-		found, err := config.sdk.VPC().SecurityGroup().Get(context.Background(), &vpc.GetSecurityGroupRequest{
+		found, err := client.Get(context.Background(), &vpc.GetSecurityGroupRequest{
 			SecurityGroupId: ds.Primary.ID,
 		})
 

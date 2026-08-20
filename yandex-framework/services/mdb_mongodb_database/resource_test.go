@@ -3,6 +3,7 @@ package mdb_mongodb_database_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 	"regexp"
 	"testing"
 
@@ -113,7 +114,7 @@ func testAccLoadMongoDBDatabase(s *terraform.State, dbname string) (*mongodb.Dat
 	}
 
 	config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-	return config.SDK.MDB().MongoDB().Database().Get(context.Background(), &mongodb.GetDatabaseRequest{
+	return mongodbsdk.NewDatabaseClient(config.SDKv2).Get(context.Background(), &mongodb.GetDatabaseRequest{
 		ClusterId:    rs.Primary.ID,
 		DatabaseName: dbname,
 	})

@@ -2,6 +2,7 @@ package yq_monitoring_connection
 
 import (
 	"context"
+	"github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -34,7 +35,7 @@ func (r *monitoringConnectionStrategy) ExpandSetting(ctx context.Context, config
 
 	cloudID := model.CloudID.ValueString()
 	if len(cloudID) == 0 {
-		folder, err := config.SDK.ResourceManager().Folder().Get(ctx, &resourcemanager.GetFolderRequest{
+		folder, err := resourcemanagersdk.NewFolderClient(config.SDKv2).Get(ctx, &resourcemanager.GetFolderRequest{
 			FolderId: folderID,
 		})
 		if err != nil {

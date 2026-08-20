@@ -18,6 +18,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	k8ssdk "github.com/yandex-cloud/go-sdk/services/k8s/v1"
 )
 
 const (
@@ -562,30 +563,23 @@ func resourceYandexKubernetesClusterCreate(d *schema.ResourceData, meta interfac
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Kubernetes().Cluster().Create(ctx, req))
+	client := k8ssdk.NewClusterClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Kubernetes cluster: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while get Kubernetes cluster create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*k8s.CreateClusterMetadata)
-	if !ok {
+	md := op.Metadata()
+	if md == nil {
 		return fmt.Errorf("could not get Kubernetes cluster ID from create operation metadata")
 	}
 
 	d.SetId(md.GetClusterId())
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting operation to create Kubernetes cluster: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Kubernetes cluster creation failed: %s", err)
 	}
 
 	return resourceYandexKubernetesClusterRead(d, meta)
@@ -598,7 +592,9 @@ func resourceYandexKubernetesClusterRead(d *schema.ResourceData, meta interface{
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.Kubernetes().Cluster().Get(ctx, &k8s.GetClusterRequest{
+	client := k8ssdk.NewClusterClient(config.SDK)
+
+	cluster, err := client.Get(ctx, &k8s.GetClusterRequest{
 		ClusterId: clusterID,
 	})
 
@@ -649,12 +645,14 @@ func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interfac
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Kubernetes().Cluster().Update(ctx, req))
+	client := k8ssdk.NewClusterClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update Kubernetes cluster %q: %s", clusterID, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error updating Kubernetes cluster %q: %s", clusterID, err)
 	}
@@ -730,17 +728,14 @@ func resourceYandexKubernetesClusterDelete(d *schema.ResourceData, meta interfac
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Kubernetes().Cluster().Delete(ctx, req))
+	client := k8ssdk.NewClusterClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Kubernetes cluster %q", clusterID))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

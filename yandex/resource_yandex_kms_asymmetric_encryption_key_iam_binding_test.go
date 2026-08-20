@@ -12,7 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricencryption"
+	kms "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricencryption"
+	kmsencryptionsdk "github.com/yandex-cloud/go-sdk/services/kms/v1/asymmetricencryption"
 )
 
 const kmsAsymmetricEncryptionKeyResource = "yandex_kms_asymmetric_encryption_key.test-key"
@@ -173,8 +174,9 @@ func testAccCheckKMSAsymmetricEncryptionKeyExists(name string, asymmetricEncrypt
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := kmsencryptionsdk.NewAsymmetricEncryptionKeyClient(config.SDK)
 
-		found, err := config.sdk.KMSAsymmetricEncryption().AsymmetricEncryptionKey().Get(context.Background(), &kms.GetAsymmetricEncryptionKeyRequest{
+		found, err := client.Get(context.Background(), &kms.GetAsymmetricEncryptionKeyRequest{
 			KeyId: rs.Primary.ID,
 		})
 		if err != nil {

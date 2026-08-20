@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -77,13 +77,13 @@ func dataSourceYandexComputePlacementGroupRead(d *schema.ResourceData, meta inte
 	_, groupNameOk := d.GetOk("name")
 
 	if groupNameOk {
-		groupID, err = resolveObjectID(ctx, config, d, sdkresolvers.PlacementGroupResolver)
+		groupID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(computesdk.NewPlacementGroupClient(config.SDK), computesdk.PlacementGroupResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Placement Group by name: %v", err)
 		}
 	}
 
-	group, err := config.sdk.Compute().PlacementGroup().Get(ctx, &compute.GetPlacementGroupRequest{
+	group, err := computesdk.NewPlacementGroupClient(config.SDK).Get(ctx, &compute.GetPlacementGroupRequest{
 		PlacementGroupId: groupID,
 	})
 

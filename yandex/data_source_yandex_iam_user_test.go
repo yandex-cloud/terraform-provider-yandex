@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 //revive:disable:var-naming
@@ -100,8 +101,9 @@ func testAccDataSourceYandexLoginExists(n string, user *iam.UserAccount) resourc
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := iamsdk.NewUserAccountClient(config.SDK)
 
-		found, err := config.sdk.IAM().UserAccount().Get(context.Background(), &iam.GetUserAccountRequest{
+		found, err := client.Get(context.Background(), &iam.GetUserAccountRequest{
 			UserAccountId: rs.Primary.ID,
 		})
 

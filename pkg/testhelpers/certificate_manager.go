@@ -31,7 +31,7 @@ func TestAccCheckCMCertificateExists(name string, certificate *certificatemanage
 
 		config := AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Certificates().Certificate().Get(ctx, &certificatemanager.GetCertificateRequest{
+		found, err := cm1sdk.NewCertificateClient(config.SDKv2).Get(ctx, &certificatemanager.GetCertificateRequest{
 			CertificateId: rs.Primary.ID,
 		})
 		if err != nil {

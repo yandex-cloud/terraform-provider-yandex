@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/clouddesktop/v1"
+	clouddesktopsdk "github.com/yandex-cloud/go-sdk/services/clouddesktop/v1/api"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -184,7 +185,7 @@ func testAccCheckCloudDesktopsDesktopGroupCheckDestroy(s *terraform.State) error
 			return err
 		}
 
-		dGroups, err := config.SDK.CloudDesktop().DesktopGroup().List(context.Background(), &clouddesktop.ListDesktopGroupsRequest{
+		dGroups, err := clouddesktopsdk.NewDesktopGroupClient(config.SDKv2).List(context.Background(), &clouddesktop.ListDesktopGroupsRequest{
 			FolderId: folderID,
 		})
 		if err != nil {
@@ -205,7 +206,7 @@ func testAccCheckCloudDesktopsDesktopGroupCheckDestroy(s *terraform.State) error
 				break
 			}
 
-			dGroups, err = config.SDK.CloudDesktop().DesktopGroup().List(context.Background(), &clouddesktop.ListDesktopGroupsRequest{
+			dGroups, err = clouddesktopsdk.NewDesktopGroupClient(config.SDKv2).List(context.Background(), &clouddesktop.ListDesktopGroupsRequest{
 				FolderId:  folderID,
 				PageToken: dGroups.NextPageToken,
 			})

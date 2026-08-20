@@ -10,6 +10,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -116,30 +117,19 @@ func resourceYandexVPCGatewayCreate(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Gateway().Create(ctx, &req))
+	client := vpcsdk.NewGatewayClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create VPC Gateway: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get gateway create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*vpc.CreateGatewayMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Gateway ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.GatewayId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create gateway: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Gateway creation failed: %s", err)
 	}
 
 	return resourceYandexVPCGatewayRead(d, meta)
@@ -155,7 +145,9 @@ func yandexVPCGatewayRead(d *schema.ResourceData, meta interface{}, id string) e
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	gateway, err := config.sdk.VPC().Gateway().Get(ctx, &vpc.GetGatewayRequest{
+	client := vpcsdk.NewGatewayClient(config.SDK)
+
+	gateway, err := client.Get(ctx, &vpc.GetGatewayRequest{
 		GatewayId: id,
 	})
 
@@ -209,12 +201,14 @@ func resourceYandexVPCGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Gateway().Update(ctx, req))
+	client := vpcsdk.NewGatewayClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update VPC Gateway %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating VPC Gateway %q: %s", d.Id(), err)
 	}
@@ -236,17 +230,14 @@ func resourceYandexVPCGatewayDelete(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Gateway().Delete(ctx, req))
+	client := vpcsdk.NewGatewayClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("VPC Gateway %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

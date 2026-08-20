@@ -3,6 +3,7 @@ package mdb_redis_user_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -206,7 +207,7 @@ func testAccCheckMDBRedisUserDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = config.SDK.MDB().Redis().User().Get(context.Background(), &redis.GetUserRequest{
+		_, err = redissdk.NewUserClient(config.SDKv2).Get(context.Background(), &redis.GetUserRequest{
 			ClusterId: clusterId,
 			UserName:  userName,
 		})

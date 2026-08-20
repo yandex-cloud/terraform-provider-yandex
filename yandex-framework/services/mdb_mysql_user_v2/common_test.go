@@ -3,6 +3,7 @@ package mdb_mysql_user_v2_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -67,7 +68,7 @@ func testAccCheckMDBMySQLUserV2Exists(resourceName string) resource.TestCheckFun
 			return err
 		}
 
-		_, err = config.SDK.MDB().MySQL().User().Get(
+		_, err = mysqlsdk.NewUserClient(config.SDKv2).Get(
 			context.Background(),
 			&mysql.GetUserRequest{
 				ClusterId: clusterID,
@@ -92,7 +93,7 @@ func testAccCheckMDBMySQLUserV2Destroy(s *terraform.State) error {
 		if err != nil {
 			return fmt.Errorf("failed to deconstruct resource ID %s: %w", rs.Primary.ID, err)
 		}
-		_, err = config.SDK.MDB().MySQL().User().Get(
+		_, err = mysqlsdk.NewUserClient(config.SDKv2).Get(
 			context.Background(),
 			&mysql.GetUserRequest{
 				ClusterId: clusterID,
@@ -142,7 +143,7 @@ func testAccLoadMySQLUserV2(s *terraform.State, userName string) (*mysql.User, e
 	}
 
 	config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-	return config.SDK.MDB().MySQL().User().Get(
+	return mysqlsdk.NewUserClient(config.SDKv2).Get(
 		context.Background(),
 		&mysql.GetUserRequest{
 			ClusterId: rs.Primary.ID,

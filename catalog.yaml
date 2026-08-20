@@ -1353,6 +1353,22 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  sws_security_profile_advanced_rate_limiter_profile_attachment:
+    Category: "Smart Web Security (SWS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
+  sws_security_profile_waf_profile_attachment:
+    Category: "Smart Web Security (SWS)"
+    Type: sdk
+    HasR: true
+    HasD: false
+    HasI: true
+    #HasF: false
+    #HasE: false
   sws_waf_profile:
     Category: "Smart Web Security (SWS)"
     Type: sdk

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	containerregistrysdk "github.com/yandex-cloud/go-sdk/services/containerregistry/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -385,15 +386,15 @@ func getAccResourceContainerRepositoryLifecyclePolicyConfigWithThreeRulesShuffle
 
 func testAccCheckContainerRepositoryLifecyclePolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := containerregistrysdk.NewLifecyclePolicyClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_container_repository_lifecycle_policy" {
 			continue
 		}
 
-		lifecyclePolicyService := config.sdk.ContainerRegistry().LifecyclePolicy()
 		getLifecyclePolicyRequest := containerregistry.GetLifecyclePolicyRequest{LifecyclePolicyId: rs.Primary.ID}
-		_, err := lifecyclePolicyService.Get(context.Background(), &getLifecyclePolicyRequest)
+		_, err := client.Get(context.Background(), &getLifecyclePolicyRequest)
 		if err != nil {
 			if grpcStatus, ok := status.FromError(err); ok && grpcStatus != nil && grpcStatus.Code() == codes.NotFound {
 				return nil

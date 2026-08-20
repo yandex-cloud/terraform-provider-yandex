@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -43,7 +44,7 @@ func TestAccComputeGpuCluster_basicIamMember(t *testing.T) {
 					testAccCheckComputeGpuClusterExists("yandex_compute_gpu_cluster.foobar", &gpuCluster),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-						return cfg.SDK.Compute().GpuCluster()
+						return computesdk.NewGpuClusterClient(cfg.SDKv2)
 					}, &gpuCluster, role, []string{"system:" + userID}),
 				),
 			},
@@ -59,7 +60,7 @@ func testAccCheckComputeGpuClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.Compute().GpuCluster().Get(context.Background(), &compute.GetGpuClusterRequest{
+		_, err := computesdk.NewGpuClusterClient(config.SDKv2).Get(context.Background(), &compute.GetGpuClusterRequest{
 			GpuClusterId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -83,7 +84,7 @@ func testAccCheckComputeGpuClusterExists(n string, gpuCluster *compute.GpuCluste
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Compute().GpuCluster().Get(context.Background(), &compute.GetGpuClusterRequest{
+		found, err := computesdk.NewGpuClusterClient(config.SDKv2).Get(context.Background(), &compute.GetGpuClusterRequest{
 			GpuClusterId: rs.Primary.ID,
 		})
 		if err != nil {

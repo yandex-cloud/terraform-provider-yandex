@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	containerregistrysdk "github.com/yandex-cloud/go-sdk/services/containerregistry/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -155,7 +156,9 @@ func resolveLifecyclePolicyID(ctx context.Context, d *schema.ResourceData, meta 
 			RepositoryId: d.Get("repository_id").(string),
 		},
 	}
-	lifecyclePolicyIterator := config.sdk.ContainerRegistry().LifecyclePolicy().LifecyclePolicyIterator(ctx, listLifecyclePoliciesRequest)
+	client := containerregistrysdk.NewLifecyclePolicyClient(config.SDK)
+
+	lifecyclePolicyIterator := client.Iterator(ctx, listLifecyclePoliciesRequest)
 
 	for lifecyclePolicyIterator.Next() {
 		if err := lifecyclePolicyIterator.Error(); err != nil {
@@ -183,10 +186,11 @@ func getLifecyclePolicy(ctx context.Context, lifecyclePolicyID string, meta inte
 		return nil, errors.New("failed to cast meta to config")
 	}
 
-	lifecyclePolicyService := config.sdk.ContainerRegistry().LifecyclePolicy()
+	client := containerregistrysdk.NewLifecyclePolicyClient(config.SDK)
+
 	getLifecyclePolicyRequest := &containerregistry.GetLifecyclePolicyRequest{
 		LifecyclePolicyId: lifecyclePolicyID,
 	}
 
-	return lifecyclePolicyService.Get(ctx, getLifecyclePolicyRequest)
+	return client.Get(ctx, getLifecyclePolicyRequest)
 }

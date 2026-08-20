@@ -3,6 +3,7 @@ package mdb_clickhouse_cluster_v2_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
 	"os"
 	"reflect"
 	"regexp"
@@ -23,6 +24,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_clickhouse_cluster_v2/utils"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -40,6 +43,7 @@ const (
 	chResource              = "yandex_mdb_clickhouse_cluster_v2.foo"
 	chResourceRestore       = "yandex_mdb_clickhouse_cluster_v2.restore_test"
 	chResourceRemoteServers = "yandex_mdb_clickhouse_cluster_v2.remote_servers"
+	chResourceMigrateKeeper = "yandex_mdb_clickhouse_cluster_v2.migrate_to_keeper"
 
 	chRestoreBackupWithExtensionId = "c9qqv135s8oadbbjcq7m:c9qmqctragekko24qtt3"
 
@@ -1609,6 +1613,49 @@ func TestAccMDBClickHouseCluster_remoteServers(t *testing.T) {
 	})
 }
 
+// Test that a ClickHouse cluster with dedicated ZooKeeper hosts can be migrated to Keeper.
+func TestAccMDBClickHouseCluster_migrateToKeeper(t *testing.T) {
+	var cluster clickhouse.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-clickhouse-migrate-keeper")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "ZOOKEEPER", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceMigrateKeeper, &cluster, 4),
+					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "hosts.za.type", "ZOOKEEPER"),
+					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "hosts.zb.type", "ZOOKEEPER"),
+					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "hosts.zd.type", "ZOOKEEPER"),
+					testAccCheckMDBClickHouseCoordinatorHosts(chResourceMigrateKeeper, clickhouse.Host_ZOOKEEPER, 3),
+				),
+			},
+			{
+				Config: testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "KEEPER", true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceMigrateKeeper, &cluster, 4),
+					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "allow_degradation_to_read_only", "true"),
+					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "hosts.za.type", "KEEPER"),
+					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "hosts.zb.type", "KEEPER"),
+					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "hosts.zd.type", "KEEPER"),
+					resource.TestCheckResourceAttrSet(chResourceMigrateKeeper, "hosts.za.fqdn"),
+					resource.TestCheckResourceAttrSet(chResourceMigrateKeeper, "hosts.zb.fqdn"),
+					resource.TestCheckResourceAttrSet(chResourceMigrateKeeper, "hosts.zd.fqdn"),
+					testAccCheckMDBClickHouseCoordinatorHosts(chResourceMigrateKeeper, clickhouse.Host_KEEPER, 3),
+				),
+			},
+			{
+				Config:             testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "KEEPER", true),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
 // Test that a Keeper-based ClickHouse Cluster can be created and destroyed
 func TestAccMDBClickHouseCluster_keeper(t *testing.T) {
 	t.Parallel()
@@ -2112,6 +2159,65 @@ resource "yandex_mdb_clickhouse_cluster_v2" "keeper" {
 	)
 }
 
+func testAccMDBClickHouseClusterMigrateToKeeper(name, coordinatorType string, allowDegradation bool) string {
+	allowDegradationConfig := ""
+	if allowDegradation {
+		allowDegradationConfig = "allow_degradation_to_read_only = true"
+	}
+
+	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+resource "yandex_mdb_clickhouse_cluster_v2" "migrate_to_keeper" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-ch-test-net.id
+
+  zookeeper = {
+    resources = {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 10
+    }
+  }
+
+  hosts = {
+    "za" = {
+      type      = "%s"
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-a.id
+    }
+    "zb" = {
+      type      = "%s"
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-b.id
+    }
+    "zd" = {
+      type      = "%s"
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-d.id
+    }
+    "ha" = {
+      type       = "CLICKHOUSE"
+      zone       = "ru-central1-a"
+      subnet_id  = yandex_vpc_subnet.mdb-ch-test-subnet-a.id
+      shard_name = "shard1"
+    }
+  }
+
+  shards = {
+    shard1 = {}
+  }
+
+  %s
+}
+`,
+		name,
+		coordinatorType,
+		coordinatorType,
+		coordinatorType,
+		allowDegradationConfig,
+	)
+}
+
 func testAccMDBClickHouseCluster_cloud_storage(name, desc, bucket, cloudStorage string, randInt int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+clickhouseObjectStorageDependencies(bucket, randInt)+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "cloud" {
@@ -2266,7 +2372,7 @@ func testAccCheckMDBClickHouseShardHasDiskSizeAutoscaling(r *clickhouse.Cluster,
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		shard, err := config.SDK.MDB().Clickhouse().Cluster().GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
+		shard, err := clickhousesdk.NewClusterClient(config.SDKv2).GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
 			ClusterId: r.Id,
 			ShardName: shardName,
 		})
@@ -2310,7 +2416,7 @@ func testAccCheckMDBClickHouseShardHasResources(r *clickhouse.Cluster, shardName
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		shard, err := config.SDK.MDB().Clickhouse().Cluster().GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
+		shard, err := clickhousesdk.NewClusterClient(config.SDKv2).GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
 			ClusterId: r.Id,
 			ShardName: shardName,
 		})
@@ -2340,7 +2446,7 @@ func testAccCheckMDBClickHouseClusterHasShards(r *clickhouse.Cluster, shards []s
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		resp, err := config.SDK.MDB().Clickhouse().Cluster().ListShards(context.Background(), &clickhouse.ListClusterShardsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDKv2).ListShards(context.Background(), &clickhouse.ListClusterShardsRequest{
 			ClusterId: r.Id,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2370,7 +2476,7 @@ func testAccCheckMDBClickHouseClusterHasShardGroups(r *clickhouse.Cluster, shard
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		resp, err := config.SDK.MDB().Clickhouse().Cluster().ListShardGroups(context.Background(), &clickhouse.ListClusterShardGroupsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDKv2).ListShardGroups(context.Background(), &clickhouse.ListClusterShardGroupsRequest{
 			ClusterId: r.Id,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2403,7 +2509,7 @@ func testAccCheckMDBClickHouseClusterHasExternalShards(r *clickhouse.Cluster, gr
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		resp, err := config.SDK.MDB().Clickhouse().Cluster().ListShardGroups(context.Background(), &clickhouse.ListClusterShardGroupsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDKv2).ListShardGroups(context.Background(), &clickhouse.ListClusterShardGroupsRequest{
 			ClusterId: r.Id,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2490,7 +2596,7 @@ func testAccCheckMDBClickHouseClusterExists(n string, r *clickhouse.Cluster, hos
 
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		found, err := config.SDK.MDB().Clickhouse().Cluster().Get(context.Background(), &clickhouse.GetClusterRequest{
+		found, err := clickhousesdk.NewClusterClient(config.SDKv2).Get(context.Background(), &clickhouse.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -2503,7 +2609,7 @@ func testAccCheckMDBClickHouseClusterExists(n string, r *clickhouse.Cluster, hos
 
 		*r = *found
 
-		resp, err := config.SDK.MDB().Clickhouse().Cluster().ListHosts(context.Background(), &clickhouse.ListClusterHostsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDKv2).ListHosts(context.Background(), &clickhouse.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2519,6 +2625,41 @@ func testAccCheckMDBClickHouseClusterExists(n string, r *clickhouse.Cluster, hos
 	}
 }
 
+func testAccCheckMDBClickHouseCoordinatorHosts(n string, expectedType clickhouse.Host_Type, expectedCount int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		config := test.AccProvider.(*provider.Provider).GetConfig()
+		resp, err := clickhousesdk.NewClusterClient(config.SDKv2).ListHosts(context.Background(), &clickhouse.ListClusterHostsRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		coordinatorCount := 0
+		for _, host := range resp.Hosts {
+			if host.GetType() != clickhouse.Host_ZOOKEEPER && host.GetType() != clickhouse.Host_KEEPER {
+				continue
+			}
+			if host.GetType() != expectedType {
+				return fmt.Errorf("Expected coordinator host type %s, got %s for host %q", expectedType, host.GetType(), host.GetName())
+			}
+			coordinatorCount++
+		}
+
+		if coordinatorCount != expectedCount {
+			return fmt.Errorf("Expected %d coordinator hosts of type %s, got %d", expectedCount, expectedType, coordinatorCount)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckMDBClickHouseClusterDestroy(s *terraform.State) error {
 	config := test.AccProvider.(*provider.Provider).GetConfig()
 
@@ -2527,7 +2668,7 @@ func testAccCheckMDBClickHouseClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.MDB().Clickhouse().Cluster().Get(context.Background(), &clickhouse.GetClusterRequest{
+		_, err := clickhousesdk.NewClusterClient(config.SDKv2).Get(context.Background(), &clickhouse.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -2552,7 +2693,7 @@ func testAccCheckMDBClickHouseClusterHasFormatSchemas(r string, targetSchemas ma
 
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		resp, err := config.SDK.MDB().Clickhouse().FormatSchema().List(context.Background(), &clickhouse.ListFormatSchemasRequest{
+		resp, err := clickhousesdk.NewFormatSchemaClient(config.SDKv2).List(context.Background(), &clickhouse.ListFormatSchemasRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2597,7 +2738,7 @@ func testAccCheckMDBClickHouseClusterHasExtensions(r string, targetExtensions ma
 
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		resp, err := config.SDK.MDB().Clickhouse().ClusterExtension().List(context.Background(), &clickhouse.ListClusterExtensionsRequest{
+		resp, err := clickhousesdk.NewClusterExtensionClient(config.SDKv2).List(context.Background(), &clickhouse.ListClusterExtensionsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2631,16 +2772,17 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"user",                       // passwords are not returned
-			"host",                       // zookeeper hosts are not imported by default
-			"zookeeper",                  // zookeeper spec is not imported by default
-			"health",                     // volatile value
-			"copy_schema_on_new_hosts",   // special parameter
-			"allow_host_recreation",      // special parameter
-			"admin_password",             // passwords are not returned
-			"admin_password_wo_version",  // write-only password versions are not returned
-			"clickhouse.config.kafka",    // passwords are not returned
-			"clickhouse.config.rabbitmq", // passwords are not returned
+			"user",                           // passwords are not returned
+			"host",                           // zookeeper hosts are not imported by default
+			"zookeeper",                      // zookeeper spec is not imported by default
+			"health",                         // volatile value
+			"copy_schema_on_new_hosts",       // special parameter
+			"allow_host_recreation",          // special parameter
+			"allow_degradation_to_read_only", // special parameter
+			"admin_password",                 // passwords are not returned
+			"admin_password_wo_version",      // write-only password versions are not returned
+			"clickhouse.config.kafka",        // passwords are not returned
+			"clickhouse.config.rabbitmq",     // passwords are not returned
 			"external_dictionary.mysql_dict.source.mysql_source.replicas.0.password", // passwords are not returned
 			"external_dictionary.mysql_dict.source.mysql_source.replicas.1.password", // passwords are not returned
 			"shard_group.0.external_shard.0.replica.0.password",                      // passwords are not returned
@@ -2657,7 +2799,7 @@ func testSweepMDBClickHouseCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.SDK.MDB().Clickhouse().Cluster().List(context.Background(), &clickhouse.ListClustersRequest{
+	resp, err := clickhousesdk.NewClusterClient(conf.SDKv2).List(context.Background(), &clickhouse.ListClustersRequest{
 		FolderId: conf.ProviderState.FolderID.ValueString(),
 		PageSize: defaultMDBPageSize,
 	})
@@ -2684,20 +2826,32 @@ func sweepMDBClickHouseClusterOnce(conf *config.Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.SDK.MDB().Clickhouse().Cluster().Update(ctx, &clickhouse.UpdateClusterRequest{
+	client := clickhousesdk.NewClusterClient(conf.SDKv2)
+	clusterAbsent := func() bool {
+		_, getErr := client.Get(ctx, &clickhouse.GetClusterRequest{ClusterId: id})
+		return status.Code(getErr) == codes.NotFound
+	}
+	op, err := client.Update(ctx, &clickhouse.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = test.HandleSweepOperation(ctx, conf, op, err)
+	err = test.HandleSweepOperation(ctx, op, err)
 	if err != nil && !strings.EqualFold(test.ErrorMessage(err), "no changes detected") {
+		if clusterAbsent() {
+			return nil
+		}
 		return err
 	}
 
-	op, err = conf.SDK.MDB().Clickhouse().Cluster().Delete(ctx, &clickhouse.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctx, &clickhouse.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return test.HandleSweepOperation(ctx, conf, op, err)
+	err = test.HandleSweepOperation(ctx, deleteOp, err)
+	if err != nil && clusterAbsent() {
+		return nil
+	}
+	return err
 }
 
 // Build HCL functions

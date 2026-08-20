@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
-	"github.com/yandex-cloud/go-sdk/operation"
+	dnssdk "github.com/yandex-cloud/go-sdk/services/dns/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/status"
 )
@@ -151,9 +151,9 @@ func resourceYandexDnsZoneCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
-	dnsZone, err := sdk.DNS().DnsZone().Get(config.Context(), &dns.GetDnsZoneRequest{
+	dnsZone, err := client.Get(config.Context(), &dns.GetDnsZoneRequest{
 		DnsZoneId: d.Id(),
 	})
 
@@ -215,7 +215,7 @@ func resourceYandexDnsZoneUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceYandexDnsZoneDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
 	log.Printf("[DEBUG] Deleting DnsZone %q", d.Id())
 
@@ -226,17 +226,12 @@ func resourceYandexDnsZoneDelete(d *schema.ResourceData, meta interface{}) error
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := sdk.WrapOperation(sdk.DNS().DnsZone().Delete(ctx, req))
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DnsZone %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	resp, err := op.Response()
+	resp, err := op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -277,40 +272,27 @@ func prepareDnsZoneUpdateRequest(d *schema.ResourceData) (*dns.UpdateDnsZoneRequ
 
 func makeDnsZoneCreateRequest(req *dns.CreateDnsZoneRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	timeouts := []time.Duration{time.Millisecond * 500, time.Second * 2, time.Second * 10}
 
-	op, err := retrySpecificError(timeouts, func() (*operation.Operation, error) {
-		return sdk.WrapOperation(sdk.DNS().DnsZone().Create(ctx, req))
+	op, err := retrySpecificError(timeouts, func() (*dnssdk.DnsZoneCreateOperation, error) {
+		return client.Create(ctx, req)
 	}, isErrNetworkNotFound)
 
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create DnsZone: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get DnsZone create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*dns.CreateDnsZoneMetadata)
-	if !ok {
-		return fmt.Errorf("could not get DnsZone ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.DnsZoneId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create DnsZone: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("DnsZone creation failed: %s", err)
 	}
 
 	return nil
@@ -318,17 +300,17 @@ func makeDnsZoneCreateRequest(req *dns.CreateDnsZoneRequest, d *schema.ResourceD
 
 func makeDnsZoneUpdateRequest(req *dns.UpdateDnsZoneRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := sdk.WrapOperation(sdk.DNS().DnsZone().Update(ctx, req))
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update DnsZone %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating DnsZone %q: %s", d.Id(), err)
 	}
@@ -338,17 +320,17 @@ func makeDnsZoneUpdateRequest(req *dns.UpdateDnsZoneRequest, d *schema.ResourceD
 
 func makeDnsZoneMoveRequest(req *dns.MoveDnsZoneRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := sdk.WrapOperation(sdk.DNS().DnsZone().Move(ctx, req))
+	op, err := client.Move(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to move DnsZone %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error moving DnsZone %q: %s", d.Id(), err)
 	}
@@ -373,8 +355,8 @@ func validateZoneName() schema.SchemaValidateFunc {
 	}
 }
 
-func retrySpecificError(timeouts []time.Duration, fn func() (*operation.Operation, error), qualifier func(err error) bool) (*operation.Operation, error) {
-	var op *operation.Operation
+func retrySpecificError[T any](timeouts []time.Duration, fn func() (T, error), qualifier func(err error) bool) (T, error) {
+	var op T
 	var err error
 
 	for i := 0; i < len(timeouts); i++ {
@@ -410,11 +392,14 @@ func zoneVisibilityChanged(ctx context.Context, d *schema.ResourceDiff, meta int
 
 func shouldReplaceZone(id string, hasChangePublicAttr, hasChangePrivateNetworksAttr bool, isPublic bool, meta interface{}) bool {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
-	dnsZone, _ := sdk.DNS().DnsZone().Get(config.Context(), &dns.GetDnsZoneRequest{
+	dnsZone, _ := client.Get(config.Context(), &dns.GetDnsZoneRequest{
 		DnsZoneId: id,
 	})
+	if dnsZone == nil {
+		return false
+	}
 
 	privateNetworkIds := dnsZone.GetPrivateVisibility().GetNetworkIds()
 	networkIdsSet := hasChangePrivateNetworksAttr && privateNetworkIds == nil

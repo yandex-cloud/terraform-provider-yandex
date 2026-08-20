@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/audittrails/v1"
+	audittrailssdk "github.com/yandex-cloud/go-sdk/services/audittrails/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"golang.org/x/exp/slices"
 	"google.golang.org/grpc/codes"
@@ -339,13 +340,14 @@ func retryErrorForCode(err error) *retry.RetryError {
 
 func readTrailDataSource(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := audittrailssdk.NewTrailClient(config.SDK)
 
 	id := data.Get("trail_id").(string)
 
 	var unpackingErrors diag.Diagnostics
 
 	err := retry.RetryContext(ctx, data.Timeout(schema.TimeoutRead), func() *retry.RetryError {
-		trail, err := config.sdk.AuditTrails().Trail().Get(ctx, &audittrails.GetTrailRequest{
+		trail, err := client.Get(ctx, &audittrails.GetTrailRequest{
 			TrailId: id,
 		})
 		if err != nil {

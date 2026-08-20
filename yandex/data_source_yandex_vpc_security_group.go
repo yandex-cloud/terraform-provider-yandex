@@ -3,10 +3,10 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 )
 
 func dataSourceYandexVPCSecurityGroup() *schema.Resource {
@@ -166,7 +166,7 @@ func dataSourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface
 	_, nameOk := d.GetOk("name")
 
 	if nameOk {
-		sgID, err = resolveObjectID(config.Context(), config, d, sdkresolvers.SecurityGroupResolver)
+		sgID, err = resolveObjectIDV2(config.Context(), config, d, resolverWithClient(vpcsdk.NewSecurityGroupClient(config.SDK), vpcsdk.SecurityGroupResolver))
 		if err != nil {
 			return fmt.Errorf("VPC security group: failed to resolve data source security group by name: %v", err)
 		}

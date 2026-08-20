@@ -2,17 +2,17 @@ package mdb_redis_user
 
 import (
 	"context"
+	"github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 func readUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, userName string) *redis.User {
-	user, err := sdk.MDB().Redis().User().Get(ctx, &redis.GetUserRequest{
+	user, err := redissdk.NewUserClient(sdk).Get(ctx, &redis.GetUserRequest{
 		ClusterId: cid,
 		UserName:  userName,
 	})
@@ -28,8 +28,8 @@ func readUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid s
 }
 
 func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, user *redis.UserSpec) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().Redis().User().Create(ctx, &redis.CreateUserRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*redissdk.UserCreateOperation, error) {
+		return redissdk.NewUserClient(sdk).Create(ctx, &redis.CreateUserRequest{
 			ClusterId: cid,
 			UserSpec:  user,
 		})
@@ -43,7 +43,7 @@ func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Create resource",
 			"Error while waiting for operation to create Redis user: "+err.Error(),
@@ -52,8 +52,8 @@ func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 }
 
 func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, user *redis.UserSpec, updatePaths []string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().Redis().User().Update(ctx, &redis.UpdateUserRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*redissdk.UserUpdateOperation, error) {
+		return redissdk.NewUserClient(sdk).Update(ctx, &redis.UpdateUserRequest{
 			ClusterId:   cid,
 			UserName:    user.Name,
 			Passwords:   user.Passwords,
@@ -71,7 +71,7 @@ func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Update resource",
 			"Error while waiting for operation to update Redis user: "+err.Error(),
@@ -80,8 +80,8 @@ func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 }
 
 func deleteUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, userName string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().Redis().User().Delete(ctx, &redis.DeleteUserRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*redissdk.UserDeleteOperation, error) {
+		return redissdk.NewUserClient(sdk).Delete(ctx, &redis.DeleteUserRequest{
 			ClusterId: cid,
 			UserName:  userName,
 		})
@@ -95,7 +95,7 @@ func deleteUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
 			"Error while waiting for operation to delete Redis user: "+err.Error(),

@@ -6,7 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
@@ -518,13 +519,17 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.PostgreSQLClusterResolver)
+		clusterID, err = resolveObjectIDV2(ctx, config, d,
+			func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+				return postgresqlsdk.ClusterResolver(name, postgresqlsdk.NewClusterClient(config.SDK), opts...)
+			},
+		)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source PostgreSQL Cluster by name: %v", err)
 		}
 	}
 
-	cluster, err := config.sdk.MDB().PostgreSQL().Cluster().Get(ctx, &postgresql.GetClusterRequest{
+	cluster, err := postgresqlsdk.NewClusterClient(config.SDK).Get(ctx, &postgresql.GetClusterRequest{
 		ClusterId: clusterID,
 	})
 	if err != nil {

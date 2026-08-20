@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: support migration from ZooKeeper to ClickHouse Keeper in yandex_mdb_clickhouse_cluster_v2'
+time: 2026-08-17T15:56:44+03:00

@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -137,13 +137,15 @@ func dataSourceYandexALBHTTPRouterRead(d *schema.ResourceData, meta interface{})
 	_, routerNameOk := d.GetOk("name")
 
 	if routerNameOk {
-		routerID, err = resolveObjectID(ctx, config, d, sdkresolvers.ALBHTTPRouterResolver)
+		routerID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(albsdk.NewHttpRouterClient(config.SDK), albsdk.HttpRouterResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Http Router by name: %v", err)
 		}
 	}
 
-	router, err := config.sdk.ApplicationLoadBalancer().HttpRouter().Get(ctx, &apploadbalancer.GetHttpRouterRequest{
+	client := albsdk.NewHttpRouterClient(config.SDK)
+
+	router, err := client.Get(ctx, &apploadbalancer.GetHttpRouterRequest{
 		HttpRouterId: routerID,
 	})
 

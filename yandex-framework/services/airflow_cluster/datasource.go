@@ -6,7 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	airflowsdk "github.com/yandex-cloud/go-sdk/services/airflow/v1"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/objectid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -48,7 +49,9 @@ func (a *airflowClusterDatasource) Read(ctx context.Context, req datasource.Read
 			return
 		}
 
-		id, d = objectid.ResolveByNameAndFolderID(ctx, a.providerConfig.SDK, folderID, state.Name.ValueString(), sdkresolvers.AirflowClusterResolver)
+		id, d = objectid.ResolveByNameAndFolderID(ctx, folderID, state.Name.ValueString(), func(name string, opts ...sdkresolvers.ResolveOption) sdkresolvers.Resolver {
+			return airflowsdk.ClusterResolver(name, airflowsdk.NewClusterClient(a.providerConfig.SDKv2), opts...)
+		})
 		resp.Diagnostics.Append(d)
 		if resp.Diagnostics.HasError() {
 			return
@@ -57,7 +60,7 @@ func (a *airflowClusterDatasource) Read(ctx context.Context, req datasource.Read
 		state.Id = types.StringValue(id)
 	}
 
-	updateState(ctx, a.providerConfig.SDK, &state)
+	updateState(ctx, a.providerConfig.SDKv2, &state)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

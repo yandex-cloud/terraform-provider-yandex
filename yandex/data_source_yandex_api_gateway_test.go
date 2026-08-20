@@ -83,9 +83,9 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 	params.executionTimeoutSeconds = "5"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexAPIGatewayDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexAPIGatewayDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testYandexAPIGatewayDataSource(params),

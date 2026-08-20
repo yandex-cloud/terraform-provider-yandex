@@ -3,6 +3,7 @@ package datasphere_project
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/datasphere/v2"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -120,7 +121,7 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 	tflog.Info(ctx,
 		fmt.Sprintf("Making API call to create new project with parameters %+v", &createProjectRequestData),
 	)
-	op, err := r.providerConfig.SDK.WrapOperation(r.providerConfig.SDK.Datasphere().Project().Create(ctx, &createProjectRequestData))
+	op, err := dataspheresdk.NewProjectClient(r.providerConfig.SDKv2).Create(ctx, &createProjectRequestData)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create Resource",
@@ -130,7 +131,7 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 		)
 		return
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create Resource",
@@ -141,17 +142,7 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	protoResponse, err := op.Response()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Create Resource",
-			fmt.Sprintf("An unexpected error occurred while parsing API create response. "+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err),
-		)
-		return
-	}
-	createdProject := protoResponse.(*datasphere.Project)
+	createdProject := op.Response()
 	plannedProject.Id = types.StringValue(createdProject.Id)
 
 	// Balance has his descriptors methods
@@ -166,9 +157,8 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 			ProjectId:   plannedProject.Id.ValueString(),
 			UnitBalance: wrapperspb.Int64(plannedBalance.ValueInt64()),
 		}
-		opBalance, errBalance := r.providerConfig.SDK.WrapOperation(
-			r.providerConfig.SDK.Datasphere().Project().SetUnitBalance(ctx, &setProjectBalanceRequest),
-		)
+		opBalance, errBalance :=
+			dataspheresdk.NewProjectClient(r.providerConfig.SDKv2).SetUnitBalance(ctx, &setProjectBalanceRequest)
 		if errBalance != nil {
 			resp.Diagnostics.AddError(
 				"Unable to Create Resource",
@@ -178,7 +168,7 @@ func (r *projectResource) Create(ctx context.Context, req resource.CreateRequest
 			)
 			return
 		}
-		errBalance = opBalance.Wait(ctx)
+		_, errBalance = opBalance.Wait(ctx)
 		if errBalance != nil {
 			resp.Diagnostics.AddError(
 				"Unable to Create Resource",
@@ -203,7 +193,7 @@ func (r *projectResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &stateProject)...)
 
-	existingProject, err := r.providerConfig.SDK.Datasphere().Project().Get(ctx,
+	existingProject, err := dataspheresdk.NewProjectClient(r.providerConfig.SDKv2).Get(ctx,
 		&datasphere.GetProjectRequest{ProjectId: stateProject.Id.ValueString()})
 
 	if err != nil {
@@ -216,7 +206,7 @@ func (r *projectResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 		return
 	}
-	unitBalance, err := r.providerConfig.SDK.Datasphere().Project().GetUnitBalance(
+	unitBalance, err := dataspheresdk.NewProjectClient(r.providerConfig.SDKv2).GetUnitBalance(
 		ctx,
 		&datasphere.GetUnitBalanceRequest{ProjectId: stateProject.Id.ValueString()},
 	)
@@ -341,7 +331,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	updateProjectRequest.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
-	op, err := r.providerConfig.SDK.WrapOperation(r.providerConfig.SDK.Datasphere().Project().Update(ctx, updateProjectRequest))
+	op, err := dataspheresdk.NewProjectClient(r.providerConfig.SDKv2).Update(ctx, updateProjectRequest)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Update Resource",
@@ -352,7 +342,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -364,27 +354,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	protoResponse, err := op.Response()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Update Resource",
-			fmt.Sprintf("An unexpected error occurred while parsing update response API. "+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err),
-		)
-
-		return
-	}
-	updatedProject, ok := protoResponse.(*datasphere.Project)
-
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unable to Update Resource",
-			fmt.Sprintf("Expected *datasphere.Project, got: %T. "+
-				"Please report this issue to the provider developers.", updatedProject),
-		)
-		return
-	}
+	updatedProject := op.Response()
 
 	// Balance has his descriptors methods
 	var plannedBalance, stateBalance types.Int64
@@ -400,8 +370,8 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 			ProjectId:   planProject.Id.ValueString(),
 			UnitBalance: wrapperspb.Int64(plannedBalance.ValueInt64()),
 		}
-		opBalance, errBalance := r.providerConfig.SDK.WrapOperation(
-			r.providerConfig.SDK.Datasphere().Project().SetUnitBalance(ctx, &setProjectBalanceRequest))
+		opBalance, errBalance :=
+			dataspheresdk.NewProjectClient(r.providerConfig.SDKv2).SetUnitBalance(ctx, &setProjectBalanceRequest)
 		if errBalance != nil {
 			resp.Diagnostics.AddError(
 				"Unable to Update Resource",
@@ -411,7 +381,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 			)
 			return
 		}
-		errBalance = opBalance.Wait(ctx)
+		_, errBalance = opBalance.Wait(ctx)
 		if errBalance != nil {
 			resp.Diagnostics.AddError(
 				"Unable to Update Resource",
@@ -455,10 +425,10 @@ func (r *projectResource) Delete(ctx context.Context, req resource.DeleteRequest
 	)
 
 	deleteProjectRequest := datasphere.DeleteProjectRequest{ProjectId: stateProject.Id.ValueString()}
-	op, err := r.providerConfig.SDK.WrapOperation(
-		r.providerConfig.SDK.Datasphere().Project().Delete(ctx, &deleteProjectRequest))
+	op, err :=
+		dataspheresdk.NewProjectClient(r.providerConfig.SDKv2).Delete(ctx, &deleteProjectRequest)
 
-	timoutErr := op.Wait(ctx)
+	_, timoutErr := op.Wait(ctx)
 	if timoutErr != nil {
 		return
 	}

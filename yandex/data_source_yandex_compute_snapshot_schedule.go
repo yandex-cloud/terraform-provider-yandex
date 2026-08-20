@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -155,13 +155,13 @@ func dataSourceYandexComputeSnapshotScheduleRead(ctx context.Context, d *schema.
 	_, scheduleNameOk := d.GetOk("name")
 
 	if scheduleNameOk {
-		scheduleID, err = resolveObjectID(ctx, config, d, sdkresolvers.SnapshotScheduleResolver)
+		scheduleID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(computesdk.NewSnapshotScheduleClient(config.SDK), computesdk.SnapshotScheduleResolver))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	schedule, err := config.sdk.Compute().SnapshotSchedule().Get(ctx, &compute.GetSnapshotScheduleRequest{
+	schedule, err := computesdk.NewSnapshotScheduleClient(config.SDK).Get(ctx, &compute.GetSnapshotScheduleRequest{
 		SnapshotScheduleId: scheduleID,
 	})
 	if err != nil {
@@ -171,7 +171,7 @@ func dataSourceYandexComputeSnapshotScheduleRead(ctx context.Context, d *schema.
 	var diskIDs []string
 	var token string
 	for {
-		resp, err := config.sdk.Compute().SnapshotSchedule().ListDisks(ctx, &compute.ListSnapshotScheduleDisksRequest{
+		resp, err := computesdk.NewSnapshotScheduleClient(config.SDK).ListDisks(ctx, &compute.ListSnapshotScheduleDisksRequest{
 			SnapshotScheduleId: scheduleID,
 			PageToken:          token,
 		})

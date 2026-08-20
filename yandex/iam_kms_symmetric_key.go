@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	kmssdk "github.com/yandex-cloud/go-sdk/services/kms/v1"
 )
 
 const yandexIAMKMSDefaultTimeout = 1 * time.Minute
@@ -49,6 +50,8 @@ func (u *KMSSymmetricKeyIamUpdater) GetResourceIamPolicy(ctx context.Context) (*
 }
 
 func (u *KMSSymmetricKeyIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
+	client := kmssdk.NewSymmetricKeyClient(u.Config.SDK)
+
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.symmetricKeyID,
 		AccessBindings: policy.Bindings,
@@ -57,12 +60,12 @@ func (u *KMSSymmetricKeyIamUpdater) SetResourceIamPolicy(ctx context.Context, po
 	ctx, cancel := context.WithTimeout(ctx, yandexIAMKMSDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.KMS().SymmetricKey().SetAccessBindings(ctx, req))
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -71,6 +74,8 @@ func (u *KMSSymmetricKeyIamUpdater) SetResourceIamPolicy(ctx context.Context, po
 }
 
 func (u *KMSSymmetricKeyIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	client := kmssdk.NewSymmetricKeyClient(u.Config.SDK)
+
 	bSize := yandexIAMKMSUpdateAccessBindingsBatchSize
 	deltas := policy.Deltas
 	dLen := len(deltas)
@@ -81,7 +86,7 @@ func (u *KMSSymmetricKeyIamUpdater) UpdateResourceIamPolicy(ctx context.Context,
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.KMS().SymmetricKey().UpdateAccessBindings(ctx, req))
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -89,7 +94,7 @@ func (u *KMSSymmetricKeyIamUpdater) UpdateResourceIamPolicy(ctx context.Context,
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -111,11 +116,13 @@ func (u *KMSSymmetricKeyIamUpdater) DescribeResource() string {
 }
 
 func getKMSSymmetricKeyAccessBindings(ctx context.Context, config *Config, symmetricKeyID string) ([]*access.AccessBinding, error) {
+	client := kmssdk.NewSymmetricKeyClient(config.SDK)
+
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.KMS().SymmetricKey().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: symmetricKeyID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

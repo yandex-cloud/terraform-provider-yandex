@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	dnssdk "github.com/yandex-cloud/go-sdk/services/dns/v1"
 )
 
 const yandexIAMDnsZoneDefaultTimeout = 1 * time.Minute
@@ -49,6 +50,8 @@ func (u *DnsZoneIamUpdater) GetResourceIamPolicy(ctx context.Context) (*Policy, 
 }
 
 func (u *DnsZoneIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
+	client := dnssdk.NewDnsZoneClient(u.Config.SDK)
+
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.dnsZoneId,
 		AccessBindings: policy.Bindings,
@@ -57,12 +60,12 @@ func (u *DnsZoneIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Po
 	ctx, cancel := context.WithTimeout(ctx, yandexIAMDnsZoneDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.DNS().DnsZone().SetAccessBindings(ctx, req))
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -71,6 +74,8 @@ func (u *DnsZoneIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Po
 }
 
 func (u *DnsZoneIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	client := dnssdk.NewDnsZoneClient(u.Config.SDK)
+
 	bSize := yandexIAMDnsZoneUpdateAccessBindingsBatchSize
 	deltas := policy.Deltas
 	dLen := len(deltas)
@@ -81,7 +86,7 @@ func (u *DnsZoneIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy 
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.DNS().DnsZone().UpdateAccessBindings(ctx, req))
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -89,7 +94,7 @@ func (u *DnsZoneIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy 
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -111,11 +116,13 @@ func (u *DnsZoneIamUpdater) DescribeResource() string {
 }
 
 func getDnsZoneAccessBindings(ctx context.Context, config *Config, databaseID string) ([]*access.AccessBinding, error) {
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.DNS().DnsZone().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: databaseID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

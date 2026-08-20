@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	k8ssdk "github.com/yandex-cloud/go-sdk/services/k8s/v1"
 )
 
 var IamKubernetesClusterSchema = map[string]*schema.Schema{
@@ -53,12 +54,14 @@ func (u *KubernetesClusterIamUpdater) SetResourceIamPolicy(ctx context.Context, 
 	ctx, cancel := context.WithTimeout(ctx, yandexIAMKMSDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Kubernetes().Cluster().SetAccessBindings(ctx, req))
+	client := k8ssdk.NewClusterClient(u.Config.SDK)
+
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -77,7 +80,9 @@ func (u *KubernetesClusterIamUpdater) UpdateResourceIamPolicy(ctx context.Contex
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Kubernetes().Cluster().UpdateAccessBindings(ctx, req))
+		client := k8ssdk.NewClusterClient(u.Config.SDK)
+
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -85,7 +90,7 @@ func (u *KubernetesClusterIamUpdater) UpdateResourceIamPolicy(ctx context.Contex
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -109,9 +114,10 @@ func (u *KubernetesClusterIamUpdater) DescribeResource() string {
 func getKubernetesClusterBindings(ctx context.Context, config *Config, clusterID string) ([]*access.AccessBinding, error) {
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
+	client := k8ssdk.NewClusterClient(config.SDK)
 
 	for {
-		resp, err := config.sdk.Kubernetes().Cluster().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: clusterID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

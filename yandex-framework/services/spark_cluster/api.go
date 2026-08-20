@@ -2,21 +2,30 @@ package spark_cluster
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	operationpb "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/spark/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	sparksdk "github.com/yandex-cloud/go-sdk/services/spark/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"google.golang.org/grpc/codes"
 
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/operationcompat"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 )
 
+func requestUpdateCluster(ctx context.Context, sdk *ycsdk.SDK, req *spark.UpdateClusterRequest) (*operationpb.Operation, error) {
+	conn, err := sdk.GetConnection(ctx, sparksdk.ClusterUpdate)
+	if err != nil {
+		return nil, err
+	}
+	return spark.NewClusterServiceClient(conn).Update(ctx, req)
+}
+
 func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *spark.CreateClusterRequest) (string, diag.Diagnostic) {
-	op, err := sdk.WrapOperation(sdk.Spark().Cluster().Create(ctx, req))
+	op, err := sparksdk.NewClusterClient(sdk).Create(ctx, req)
 	if err != nil {
 		return "", diag.NewErrorDiagnostic(
 			"Failed to create Spark cluster",
@@ -24,7 +33,7 @@ func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics,
 		)
 	}
 
-	err = op.WaitInterval(ctx, 5*time.Second)
+	_, err = op.WaitInterval(ctx, func(int) time.Duration { return 5 * time.Second })
 	if err != nil {
 		return "", diag.NewErrorDiagnostic(
 			"Failed to create Spark cluster",
@@ -32,27 +41,11 @@ func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics,
 		)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return "", diag.NewErrorDiagnostic(
-			"Failed to create Spark cluster",
-			"Failed to unmarshal metadata: "+err.Error(),
-		)
-	}
-
-	md, ok := protoMetadata.(*spark.CreateClusterMetadata)
-	if !ok {
-		return "", diag.NewErrorDiagnostic(
-			"Failed to create Spark cluster",
-			"Failed to convert response metadata to CreateClusterMetadata",
-		)
-	}
-
-	return md.ClusterId, nil
+	return op.Metadata().ClusterId, nil
 }
 
 func GetClusterByID(ctx context.Context, sdk *ycsdk.SDK, cid string) (*spark.Cluster, diag.Diagnostic) {
-	cluster, err := sdk.Spark().Cluster().Get(ctx, &spark.GetClusterRequest{
+	cluster, err := sparksdk.NewClusterClient(sdk).Get(ctx, &spark.GetClusterRequest{
 		ClusterId: cid,
 	})
 	if err != nil {
@@ -73,9 +66,16 @@ func UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, req *spark.UpdateCluster
 		return nil
 	}
 
-	return waitOperation(ctx, sdk, "update Spark cluster", func() (*operation.Operation, error) {
-		return sdk.Spark().Cluster().Update(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*operationpb.Operation, error) {
+		return requestUpdateCluster(ctx, sdk, req)
 	})
+	if err == nil {
+		err = operationcompat.Wait(ctx, sdk, op.GetId())
+	}
+	if err != nil {
+		return diag.NewErrorDiagnostic("Failed to update Spark cluster", err.Error())
+	}
+	return nil
 }
 
 func DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, cid string) diag.Diagnostic {
@@ -83,21 +83,14 @@ func DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, cid string) diag.Diagnos
 		ClusterId: cid,
 	}
 
-	return waitOperation(ctx, sdk, "delete Spark cluster", func() (*operation.Operation, error) {
-		return sdk.Spark().Cluster().Delete(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*sparksdk.ClusterDeleteOperation, error) {
+		return sparksdk.NewClusterClient(sdk).Delete(ctx, req)
 	})
-}
-
-func waitOperation(ctx context.Context, sdk *ycsdk.SDK, action string, callback func() (*operation.Operation, error)) diag.Diagnostic {
-	op, err := retry.ConflictingOperation(ctx, sdk, callback)
-
 	if err == nil {
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 	}
-
 	if err != nil {
-		return diag.NewErrorDiagnostic(fmt.Sprintf("Failed to %s", action), err.Error())
+		return diag.NewErrorDiagnostic("Failed to delete Spark cluster", err.Error())
 	}
-
 	return nil
 }

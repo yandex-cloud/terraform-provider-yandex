@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -117,18 +118,21 @@ func dataSourceYandexOrganizationManagerGroupRead(context context.Context, d *sc
 }
 
 func resolveGroupIDByName(ctx context.Context, config *Config, groupName, organizationID string) (string, error) {
-	var objectID string
-	resolver := sdkresolvers.OrganizationGroupResolver(groupName, sdkresolvers.OrganizationID(organizationID), sdkresolvers.Out(&objectID))
+	client := organizationmanagersdk.NewGroupClient(config.SDK)
 
-	err := config.sdk.Resolve(ctx, resolver)
-	if err != nil {
+	resolver := organizationmanagersdk.GroupResolver(groupName, client, sdkresolversv2.OrganizationID(organizationID))
+	if err := resolver.Run(ctx); err != nil {
 		return "", err
 	}
-
-	return objectID, nil
+	if err := resolver.Err(); err != nil {
+		return "", err
+	}
+	return resolver.ID(), nil
 }
 
 func getGroupMembers(context context.Context, config *Config, groupID string) ([]*organizationmanager.GroupMember, error) {
+	client := organizationmanagersdk.NewGroupClient(config.SDK)
+
 	var token string
 	result := make([]*organizationmanager.GroupMember, 0, 100)
 	for {
@@ -138,7 +142,7 @@ func getGroupMembers(context context.Context, config *Config, groupID string) ([
 			PageToken: token,
 		}
 
-		resp, err := config.sdk.OrganizationManager().Group().ListMembers(context, req)
+		resp, err := client.ListMembers(context, req)
 		if err != nil {
 			return nil, err
 		}
@@ -153,8 +157,9 @@ func getGroupMembers(context context.Context, config *Config, groupID string) ([
 
 func flattenGroup(context context.Context, groupID string, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := organizationmanagersdk.NewGroupClient(config.SDK)
 
-	group, err := config.sdk.OrganizationManager().Group().Get(context,
+	group, err := client.Get(context,
 		&organizationmanager.GetGroupRequest{
 			GroupId: groupID,
 		})

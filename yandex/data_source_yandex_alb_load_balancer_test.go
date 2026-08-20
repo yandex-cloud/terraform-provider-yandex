@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 )
 
 const albLoadBalancerDataSourceResource = "data.yandex_alb_load_balancer.test-alb-ds"
@@ -841,8 +842,9 @@ func testAccDataSourceALBLoadBalancerExists(n string, loadBalancer *apploadbalan
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := albsdk.NewLoadBalancerClient(config.SDK)
 
-		found, err := config.sdk.ApplicationLoadBalancer().LoadBalancer().Get(context.Background(), &apploadbalancer.GetLoadBalancerRequest{
+		found, err := client.Get(context.Background(), &apploadbalancer.GetLoadBalancerRequest{
 			LoadBalancerId: ds.Primary.ID,
 		})
 
@@ -1031,6 +1033,46 @@ func TestAccDataSourceALBLoadBalancer_tlsListenerWithClientCertificatesVerificat
 							bytesVal := alb.GetListeners()[0].GetTls().GetSniHandlers()[0].GetHandler().GetClientCertificatesVerification().GetBytes()
 							if value != bytesVal {
 								return fmt.Errorf("ALB Load Balancer's TLS handler's client certificates verification bytes doesn't match. %s != %s", value, bytesVal)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.default_handler.0.client_certificates_verification.0.accept_untrusted", func(value string) error {
+							acceptUntrusted := alb.GetListeners()[0].GetTls().GetDefaultHandler().GetClientCertificatesVerification().GetAcceptUntrusted()
+							realValue, _ := strconv.ParseBool(value)
+							if realValue != acceptUntrusted {
+								return fmt.Errorf("ALB Load Balancer's TLS handler's client certificates verification accept_untrusted doesn't match. %t != %t", realValue, acceptUntrusted)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.default_handler.0.client_certificates_verification.0.allow_expired", func(value string) error {
+							allowExpired := alb.GetListeners()[0].GetTls().GetDefaultHandler().GetClientCertificatesVerification().GetAllowExpired()
+							realValue, _ := strconv.ParseBool(value)
+							if realValue != allowExpired {
+								return fmt.Errorf("ALB Load Balancer's TLS handler's client certificates verification allow_expired doesn't match. %t != %t", realValue, allowExpired)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.sni_handler.0.handler.0.client_certificates_verification.0.accept_untrusted", func(value string) error {
+							acceptUntrusted := alb.GetListeners()[0].GetTls().GetSniHandlers()[0].GetHandler().GetClientCertificatesVerification().GetAcceptUntrusted()
+							realValue, _ := strconv.ParseBool(value)
+							if realValue != acceptUntrusted {
+								return fmt.Errorf("ALB Load Balancer's TLS handler's client certificates verification accept_untrusted doesn't match. %t != %t", realValue, acceptUntrusted)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albLoadBalancerDataSourceResource, &listenerPath, "tls.0.sni_handler.0.handler.0.client_certificates_verification.0.allow_expired", func(value string) error {
+							allowExpired := alb.GetListeners()[0].GetTls().GetSniHandlers()[0].GetHandler().GetClientCertificatesVerification().GetAllowExpired()
+							realValue, _ := strconv.ParseBool(value)
+							if realValue != allowExpired {
+								return fmt.Errorf("ALB Load Balancer's TLS handler's client certificates verification allow_expired doesn't match. %t != %t", realValue, allowExpired)
 							}
 							return nil
 						},

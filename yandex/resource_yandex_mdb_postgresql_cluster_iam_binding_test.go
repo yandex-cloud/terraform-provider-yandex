@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 )
 
@@ -51,7 +52,7 @@ func TestAccMDBPostgreSQLClusterIamBinding_basic(t *testing.T) {
 					testAccCheckMDBPGClusterExists(pgResourceFoo, &cluster, 1),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().PostgreSQL().Cluster()
+						return postgresqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -88,7 +89,7 @@ func TestAccMDBPostgreSQLClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckMDBPGClusterExists(pgResourceFoo, &cluster, 1),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().PostgreSQL().Cluster()
+						return postgresqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -100,7 +101,7 @@ func TestAccMDBPostgreSQLClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().PostgreSQL().Cluster()
+						return postgresqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 				),
 			},
@@ -113,11 +114,11 @@ func TestAccMDBPostgreSQLClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().PostgreSQL().Cluster()
+						return postgresqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().PostgreSQL().Cluster()
+						return postgresqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -131,11 +132,11 @@ func TestAccMDBPostgreSQLClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().PostgreSQL().Cluster()
+						return postgresqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().PostgreSQL().Cluster()
+						return postgresqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar),
 				),
 			},

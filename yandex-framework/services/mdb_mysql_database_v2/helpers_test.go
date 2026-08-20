@@ -3,6 +3,7 @@ package mdb_mysql_database_v2_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -76,7 +77,7 @@ func testAccCheckMDBMySQLDatabaseExists(resourceName string) resource.TestCheckF
 			return err
 		}
 
-		_, err = config.SDK.MDB().MySQL().Database().Get(
+		_, err = mysqlsdk.NewDatabaseClient(config.SDKv2).Get(
 			context.Background(),
 			&mysql.GetDatabaseRequest{
 				ClusterId:    clusterID,
@@ -104,7 +105,7 @@ func testAccCheckMDBMySQLDatabaseDestroy(s *terraform.State) error {
 			return fmt.Errorf("failed to deconstruct resource ID %s: %w", rs.Primary.ID, err)
 		}
 
-		_, err = config.SDK.MDB().MySQL().Database().Get(
+		_, err = mysqlsdk.NewDatabaseClient(config.SDKv2).Get(
 			context.Background(),
 			&mysql.GetDatabaseRequest{
 				ClusterId:    clusterID,
@@ -156,7 +157,7 @@ func testAccLoadMySQLDatabase(s *terraform.State, dbname string) (*mysql.Databas
 	}
 
 	config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-	return config.SDK.MDB().MySQL().Database().Get(
+	return mysqlsdk.NewDatabaseClient(config.SDKv2).Get(
 		context.Background(),
 		&mysql.GetDatabaseRequest{
 			ClusterId:    rs.Primary.ID,

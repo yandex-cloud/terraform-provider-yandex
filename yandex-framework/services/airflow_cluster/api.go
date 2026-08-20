@@ -2,13 +2,12 @@ package airflow_cluster
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/airflow/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	airflowsdk "github.com/yandex-cloud/go-sdk/services/airflow/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
@@ -16,7 +15,7 @@ import (
 )
 
 func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *airflow.CreateClusterRequest) (string, diag.Diagnostic) {
-	op, err := sdk.WrapOperation(sdk.Airflow().Cluster().Create(ctx, req))
+	op, err := airflowsdk.NewClusterClient(sdk).Create(ctx, req)
 	if err != nil {
 		return "", diag.NewErrorDiagnostic(
 			"Failed to create Airflow cluster",
@@ -24,7 +23,7 @@ func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics,
 		)
 	}
 
-	err = op.WaitInterval(ctx, 5*time.Second)
+	_, err = op.WaitInterval(ctx, func(int) time.Duration { return 5 * time.Second })
 	if err != nil {
 		return "", diag.NewErrorDiagnostic(
 			"Failed to create Airflow cluster",
@@ -32,27 +31,11 @@ func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics,
 		)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return "", diag.NewErrorDiagnostic(
-			"Failed to create Airflow cluster",
-			"Failed to unmarshal metadata: "+err.Error(),
-		)
-	}
-
-	md, ok := protoMetadata.(*airflow.CreateClusterMetadata)
-	if !ok {
-		return "", diag.NewErrorDiagnostic(
-			"Failed to create Airflow cluster",
-			"Failed to convert response metadata to CreateClusterMetadata",
-		)
-	}
-
-	return md.ClusterId, nil
+	return op.Metadata().ClusterId, nil
 }
 
 func GetClusterByID(ctx context.Context, sdk *ycsdk.SDK, cid string) (*airflow.Cluster, diag.Diagnostic) {
-	cluster, err := sdk.Airflow().Cluster().Get(ctx, &airflow.GetClusterRequest{
+	cluster, err := airflowsdk.NewClusterClient(sdk).Get(ctx, &airflow.GetClusterRequest{
 		ClusterId: cid,
 	})
 	if err != nil {
@@ -73,9 +56,16 @@ func UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, req *airflow.UpdateClust
 		return nil
 	}
 
-	return waitOperation(ctx, sdk, "update Airflow cluster", func() (*operation.Operation, error) {
-		return sdk.Airflow().Cluster().Update(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*airflowsdk.ClusterUpdateOperation, error) {
+		return airflowsdk.NewClusterClient(sdk).Update(ctx, req)
 	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		return diag.NewErrorDiagnostic("Failed to update Airflow cluster", err.Error())
+	}
+	return nil
 }
 
 func DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, cid string) diag.Diagnostic {
@@ -83,21 +73,14 @@ func DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, cid string) diag.Diagnos
 		ClusterId: cid,
 	}
 
-	return waitOperation(ctx, sdk, "delete Airflow cluster", func() (*operation.Operation, error) {
-		return sdk.Airflow().Cluster().Delete(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*airflowsdk.ClusterDeleteOperation, error) {
+		return airflowsdk.NewClusterClient(sdk).Delete(ctx, req)
 	})
-}
-
-func waitOperation(ctx context.Context, sdk *ycsdk.SDK, action string, callback func() (*operation.Operation, error)) diag.Diagnostic {
-	op, err := retry.ConflictingOperation(ctx, sdk, callback)
-
 	if err == nil {
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 	}
-
 	if err != nil {
-		return diag.NewErrorDiagnostic(fmt.Sprintf("Failed to %s", action), err.Error())
+		return diag.NewErrorDiagnostic("Failed to delete Airflow cluster", err.Error())
 	}
-
 	return nil
 }

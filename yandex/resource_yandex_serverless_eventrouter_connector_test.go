@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/eventrouter/v1"
+	eventroutersdk "github.com/yandex-cloud/go-sdk/services/serverless/eventrouter/v1"
 )
 
 const eventrouterConnectorResource = "yandex_serverless_eventrouter_connector.test-connector"
@@ -36,7 +37,9 @@ func testSweepEventrouterConnector(_ string) error {
 		},
 	}
 
-	it := conf.sdk.Serverless().Eventrouter().Connector().ConnectorIterator(conf.Context(), req)
+	client := eventroutersdk.NewConnectorClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -56,10 +59,16 @@ func sweepEventrouterConnectorOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexEventrouterConnectorDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Serverless().Eventrouter().Connector().Delete(ctx, &eventrouter.DeleteConnectorRequest{
+	client := eventroutersdk.NewConnectorClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &eventrouter.DeleteConnectorRequest{
 		ConnectorId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func TestAccEventrouterConnector_yds(t *testing.T) {
@@ -270,7 +279,9 @@ func testGetEventrouterConnectorByID(config *Config, ID string) (*eventrouter.Co
 		ConnectorId: ID,
 	}
 
-	return config.sdk.Serverless().Eventrouter().Connector().Get(context.Background(), &req)
+	client := eventroutersdk.NewConnectorClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
 }
 
 func testYandexEventrouterConnectorContainsLabel(connector *eventrouter.Connector, key string, value string) resource.TestCheckFunc {

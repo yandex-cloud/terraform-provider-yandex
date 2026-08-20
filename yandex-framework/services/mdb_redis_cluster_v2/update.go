@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
 	"google.golang.org/genproto/protobuf/field_mask"

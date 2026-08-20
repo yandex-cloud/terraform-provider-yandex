@@ -3,6 +3,7 @@ package mdb_mysql_cluster_v2
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"log"
 	"math"
 	"time"
@@ -10,8 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 )
 
@@ -71,7 +71,7 @@ func (r *MysqlAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK, diags *dia
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().MySQL().Cluster().ListHosts(ctx, &mysql.ListClusterHostsRequest{
+		resp, err := mysqlsdk.NewClusterClient(sdk).ListHosts(ctx, &mysql.ListClusterHostsRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -97,12 +97,11 @@ func (r *MysqlAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK, diags *dia
 
 func (r *MysqlAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*mysql.HostSpec, opts struct{}) {
 	for _, spec := range specs {
-		op, err := sdk.WrapOperation(
-			sdk.MDB().MySQL().Cluster().AddHosts(ctx, &mysql.AddClusterHostsRequest{
+		op, err :=
+			mysqlsdk.NewClusterClient(sdk).AddHosts(ctx, &mysql.AddClusterHostsRequest{
 				ClusterId: cid,
 				HostSpecs: []*mysql.HostSpec{spec},
-			}),
-		)
+			})
 		if err != nil {
 			diag.AddError(
 				"Failed to create hosts",
@@ -111,10 +110,10 @@ func (r *MysqlAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diag.AddError(
 				"Failed to create hosts",
-				fmt.Sprintf("Error while waiting for operation %q to create host MySQL cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to create host MySQL cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}
@@ -129,9 +128,9 @@ func (r *MysqlAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 				spec,
 			},
 		}
-		op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
+		op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*mysqlsdk.ClusterUpdateHostsOperation, error) {
 			log.Printf("[DEBUG] Sending MySQL cluster update hosts request: %+v", request)
-			return sdk.MDB().MySQL().Cluster().UpdateHosts(ctx, request)
+			return mysqlsdk.NewClusterClient(sdk).UpdateHosts(ctx, request)
 		})
 		if err != nil {
 			diag.AddError(
@@ -141,10 +140,10 @@ func (r *MysqlAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diag.AddError(
 				"Failed to update hosts",
-				fmt.Sprintf("Error while waiting for operation %q to update host MySQL cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to update host MySQL cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}
@@ -153,12 +152,11 @@ func (r *MysqlAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 
 func (r *MysqlAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, fqdns []string) {
 	for _, fqdn := range fqdns {
-		op, err := sdk.WrapOperation(
-			sdk.MDB().MySQL().Cluster().DeleteHosts(ctx, &mysql.DeleteClusterHostsRequest{
+		op, err :=
+			mysqlsdk.NewClusterClient(sdk).DeleteHosts(ctx, &mysql.DeleteClusterHostsRequest{
 				ClusterId: cid,
 				HostNames: []string{fqdn},
-			}),
-		)
+			})
 		if err != nil {
 			diag.AddError(
 				"Failed to delete hosts",
@@ -167,10 +165,10 @@ func (r *MysqlAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diag.AddError(
 				"Failed to delete hosts",
-				fmt.Sprintf("Error while waiting for operation %q to delete host MySQL cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to delete host MySQL cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}
@@ -182,7 +180,7 @@ func (r *MysqlAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 // ==============================================================================
 
 func (r *MysqlAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) *mysql.Cluster {
-	db, err := sdk.MDB().MySQL().Cluster().Get(ctx, &mysql.GetClusterRequest{
+	db, err := mysqlsdk.NewClusterClient(sdk).Get(ctx, &mysql.GetClusterRequest{
 		ClusterId: cid,
 	})
 
@@ -197,9 +195,9 @@ func (r *MysqlAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.D
 }
 
 func (r *MysqlAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) {
-	op, err := sdk.WrapOperation(sdk.MDB().MySQL().Cluster().Delete(ctx, &mysql.DeleteClusterRequest{
+	op, err := mysqlsdk.NewClusterClient(sdk).Delete(ctx, &mysql.DeleteClusterRequest{
 		ClusterId: cid,
-	}))
+	})
 
 	if err != nil {
 		diags.AddError(
@@ -211,16 +209,16 @@ func (r *MysqlAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *dia
 
 	tflog.Debug(ctx, "Deleting MySQL Cluster", map[string]any{"cluster_id": cid})
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete resource",
-			fmt.Sprintf("Error while waiting for operation %q to delete MySQL cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete MySQL cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 	}
 }
 
 func (r *MysqlAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *mysql.CreateClusterRequest) string {
-	op, err := sdk.WrapOperation(sdk.MDB().MySQL().Cluster().Create(ctx, req))
+	op, err := mysqlsdk.NewClusterClient(sdk).Create(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to create resource",
@@ -229,30 +227,14 @@ func (r *MysqlAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *dia
 		return ""
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
-		)
-		return ""
-	}
-
-	md, ok := protoMetadata.(*mysql.CreateClusterMetadata)
-	if !ok {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
-		)
-		return ""
-	}
+	md := op.Metadata()
 
 	tflog.Debug(ctx, "Creating MySQL Cluster", map[string]any{"request_body": req})
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
-			fmt.Sprintf("Error while waiting for operation %q to create MySQL cluster: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create MySQL cluster: %s", op.ID(), err.Error()),
 		)
 		return ""
 	}
@@ -261,7 +243,7 @@ func (r *MysqlAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *dia
 }
 
 func (p *MysqlAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *mysql.RestoreClusterRequest) string {
-	op, err := sdk.WrapOperation(sdk.MDB().MySQL().Cluster().Restore(ctx, req))
+	op, err := mysqlsdk.NewClusterClient(sdk).Restore(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to restore resource from backup",
@@ -270,30 +252,14 @@ func (p *MysqlAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diags *di
 		return ""
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		diags.AddError(
-			"Failed to restore resource from backup",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
-		)
-		return ""
-	}
-
-	md, ok := protoMetadata.(*mysql.RestoreClusterMetadata)
-	if !ok {
-		diags.AddError(
-			"Failed to restore resource from backup",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
-		)
-		return ""
-	}
+	md := op.Metadata()
 
 	tflog.Debug(ctx, "Restoring MySQL Cluster from backup", map[string]any{"request_body": req})
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to restore resource from backup",
-			fmt.Sprintf("Error while waiting for operation %q to restore MySQL cluster from backup: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to restore MySQL cluster from backup: %s", op.ID(), err.Error()),
 		)
 		return ""
 	}
@@ -307,7 +273,7 @@ func (r *MysqlAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag
 		return
 	}
 
-	op, err := sdk.WrapOperation(sdk.MDB().MySQL().Cluster().Update(ctx, req))
+	op, err := mysqlsdk.NewClusterClient(sdk).Update(ctx, req)
 	if err != nil {
 		diag.AddError(
 			"Failed to update resource",
@@ -318,10 +284,10 @@ func (r *MysqlAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag
 
 	tflog.Debug(ctx, "Updating MySQL Cluster", map[string]any{"request_body": req})
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to update resource",
-			fmt.Sprintf("Error while waiting for operation %q to update MySQL cluster: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to update MySQL cluster: %s", op.ID(), err.Error()),
 		)
 		return
 	}

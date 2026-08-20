@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 )
 
 const (
@@ -107,7 +108,7 @@ func testAccCheckComputeSnapshotScheduleDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Compute().SnapshotSchedule().Get(context.Background(), &compute.GetSnapshotScheduleRequest{
+		_, err := computesdk.NewSnapshotScheduleClient(config.SDK).Get(context.Background(), &compute.GetSnapshotScheduleRequest{
 			SnapshotScheduleId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -136,7 +137,7 @@ func testAccCheckComputeSnapshotScheduleExists(n string, schedule *compute.Snaps
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.Compute().SnapshotSchedule().Get(context.Background(), &compute.GetSnapshotScheduleRequest{
+		found, err := computesdk.NewSnapshotScheduleClient(config.SDK).Get(context.Background(), &compute.GetSnapshotScheduleRequest{
 			SnapshotScheduleId: rs.Primary.ID,
 		})
 		if err != nil {

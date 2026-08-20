@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1/privatelink"
+	privatelinksdk "github.com/yandex-cloud/go-sdk/services/vpc/v1/privatelink"
+	"google.golang.org/grpc/codes"
 )
 
 func init() {
@@ -31,13 +33,18 @@ func testSweepVPCPrivateEndpoints(_ string) error {
 			FolderId: conf.FolderID,
 		},
 	}
-	it := conf.sdk.VPCPrivateLink().PrivateEndpoint().PrivateEndpointIterator(conf.Context(), req)
+	client := privatelinksdk.NewPrivateEndpointClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
 		if !sweepVPCPrivateEndpoint(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC Private Endpoint %q", id))
 		}
+	}
+	if err := it.Error(); err != nil {
+		result = multierror.Append(result, err)
 	}
 
 	return result.ErrorOrNil()
@@ -51,11 +58,19 @@ func sweepVPCPrivateEndpointOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexVPCPrivateEndpointDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.VPCPrivateLink().PrivateEndpoint().Delete(ctx, &privatelink.DeletePrivateEndpointRequest{
+	client := privatelinksdk.NewPrivateEndpointClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &privatelink.DeletePrivateEndpointRequest{
 		PrivateEndpointId: id,
 	})
-
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		if isStatusWithCode(err, codes.NotFound) {
+			return nil
+		}
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func TestAccVPCPrivateEndpoint_Basic(t *testing.T) {
@@ -157,13 +172,14 @@ func testAccCheckVPCPrivateEndpointContainsLabel(pe *privatelink.PrivateEndpoint
 
 func testAccCheckVPCPrivateEndpointDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_vpc_private_endpoint" {
 			continue
 		}
 
-		_, err := config.sdk.VPCPrivateLink().PrivateEndpoint().Get(context.Background(), &privatelink.GetPrivateEndpointRequest{
+		_, err := client.Get(context.Background(), &privatelink.GetPrivateEndpointRequest{
 			PrivateEndpointId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -186,8 +202,9 @@ func testAccCheckVPCPrivateEndpointExists(name string, pe *privatelink.PrivateEn
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
 
-		found, err := config.sdk.VPCPrivateLink().PrivateEndpoint().Get(context.Background(), &privatelink.GetPrivateEndpointRequest{
+		found, err := client.Get(context.Background(), &privatelink.GetPrivateEndpointRequest{
 			PrivateEndpointId: rs.Primary.ID,
 		})
 		if err != nil {

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 )
 
@@ -48,7 +49,7 @@ func TestAccMDBKafkaClusterIamBinding_basic(t *testing.T) {
 					testAccCheckMDBKafkaClusterExists(kfResourceFoo, &cluster, 1),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Kafka().Cluster()
+						return kafkasdk.NewClusterClient(cfg.SDK)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -83,7 +84,7 @@ func TestAccMDBKafkaClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckMDBKafkaClusterExists(kfResourceFoo, &cluster, 1),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Kafka().Cluster()
+						return kafkasdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -95,7 +96,7 @@ func TestAccMDBKafkaClusterIamBinding_multiple(t *testing.T) {
 						ctx,
 						func() iam.BindingsGetter {
 							cfg := testAccProvider.Meta().(*Config)
-							return cfg.sdk.MDB().Kafka().Cluster()
+							return kafkasdk.NewClusterClient(cfg.SDK)
 						},
 						&cluster,
 						roleFoo,
@@ -110,11 +111,11 @@ func TestAccMDBKafkaClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Kafka().Cluster()
+						return kafkasdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Kafka().Cluster()
+						return kafkasdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -126,11 +127,11 @@ func TestAccMDBKafkaClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Kafka().Cluster()
+						return kafkasdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Kafka().Cluster()
+						return kafkasdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar),
 				),
 			},

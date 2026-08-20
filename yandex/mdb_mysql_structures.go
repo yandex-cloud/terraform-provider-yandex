@@ -15,6 +15,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
@@ -475,7 +476,7 @@ func listMysqlHosts(ctx context.Context, config *Config, id string) ([]*mysql.Ho
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.MDB().MySQL().Cluster().ListHosts(ctx, &mysql.ListClusterHostsRequest{
+		resp, err := mysqlsdk.NewClusterClient(config.SDK).ListHosts(ctx, &mysql.ListClusterHostsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -496,22 +497,22 @@ func listMysqlHosts(ctx context.Context, config *Config, id string) ([]*mysql.Ho
 }
 
 func addMySQLHost(ctx context.Context, config *Config, d *schema.ResourceData, host *mysql.HostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MySQL().Cluster().AddHosts(ctx, &mysql.AddClusterHostsRequest{
+	op, err :=
+		mysqlsdk.NewClusterClient(config.SDK).AddHosts(ctx, &mysql.AddClusterHostsRequest{
 			ClusterId: d.Id(),
 			HostSpecs: []*mysql.HostSpec{host},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create host for MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while creating host for MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("creating host for MySQL Cluster %q failed: %s", d.Id(), err)
 	}
 
@@ -519,22 +520,22 @@ func addMySQLHost(ctx context.Context, config *Config, d *schema.ResourceData, h
 }
 
 func updateMySQLHost(ctx context.Context, config *Config, d *schema.ResourceData, host *mysql.UpdateHostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MySQL().Cluster().UpdateHosts(ctx, &mysql.UpdateClusterHostsRequest{
+	op, err :=
+		mysqlsdk.NewClusterClient(config.SDK).UpdateHosts(ctx, &mysql.UpdateClusterHostsRequest{
 			ClusterId:       d.Id(),
 			UpdateHostSpecs: []*mysql.UpdateHostSpec{host},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update host for MySQL Cluster %q - host %v: %s", d.Id(), host.HostName, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating host for MySQL Cluster %q - host %v: %s", d.Id(), host.HostName, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("updating host for MySQL Cluster %q - host %v failed: %s", d.Id(), host.HostName, err)
 	}
 
@@ -968,7 +969,7 @@ func listMysqlUsers(ctx context.Context, config *Config, id string) ([]*mysql.Us
 	users := []*mysql.User{}
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().MySQL().User().List(ctx, &mysql.ListUsersRequest{
+		resp, err := mysqlsdk.NewUserClient(config.SDK).List(ctx, &mysql.ListUsersRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1080,7 +1081,7 @@ func listMysqlDatabases(ctx context.Context, config *Config, id string) ([]*mysq
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.MDB().MySQL().Database().List(ctx, &mysql.ListDatabasesRequest{
+		resp, err := mysqlsdk.NewDatabaseClient(config.SDK).List(ctx, &mysql.ListDatabasesRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,

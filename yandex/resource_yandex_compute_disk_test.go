@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 )
 
 func init() {
@@ -33,10 +34,11 @@ func testSweepComputeDisks(_ string) error {
 	}
 
 	req := &compute.ListDisksRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Compute().Disk().DiskIterator(conf.Context(), req)
+	it := computesdk.NewDiskClient(conf.SDK).Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
-		id := it.Value().GetId()
+		disk := it.Value()
+		id := disk.GetId()
 		if !sweepComputeDisk(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Compute Disk %q", id))
 		}
@@ -53,10 +55,12 @@ func sweepComputeDiskOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexComputeDiskDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Compute().Disk().Delete(ctx, &compute.DeleteDiskRequest{
-		DiskId: id,
-	})
-	return handleSweepOperation(ctx, conf, op, err)
+	op, err := computesdk.NewDiskClient(conf.
+		SDK).
+		Delete(ctx, &compute.DeleteDiskRequest{
+			DiskId: id,
+		})
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func TestAccComputeDisk_basic(t *testing.T) {
@@ -254,7 +258,7 @@ func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Compute().Disk().Get(context.Background(), &compute.GetDiskRequest{
+		_, err := computesdk.NewDiskClient(config.SDK).Get(context.Background(), &compute.GetDiskRequest{
 			DiskId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -279,7 +283,7 @@ func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCh
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.Compute().Disk().Get(context.Background(), &compute.GetDiskRequest{
+		found, err := computesdk.NewDiskClient(config.SDK).Get(context.Background(), &compute.GetDiskRequest{
 			DiskId: rs.Primary.ID,
 		})
 		if err != nil {

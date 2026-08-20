@@ -3,6 +3,7 @@ package trino_access_control
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/trino/v1"
 	"time"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
@@ -12,9 +13,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/trino/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 )
 
 const (
@@ -36,8 +36,8 @@ func UpdateClusterAccessControl(ctx context.Context, sdk *ycsdk.SDK, clusterID s
 	}
 	tflog.Debug(ctx, fmt.Sprintf("Update Trino cluster request: %+v", req))
 
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.Trino().Cluster().Update(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*trinosdk.ClusterUpdateOperation, error) {
+		return trinosdk.NewClusterClient(sdk).Update(ctx, req)
 	})
 	var diags diag.Diagnostics
 	if err != nil {
@@ -45,7 +45,7 @@ func UpdateClusterAccessControl(ctx context.Context, sdk *ycsdk.SDK, clusterID s
 		return diags
 	}
 
-	err = op.WaitInterval(ctx, operationWaitInterval)
+	_, err = op.WaitInterval(ctx, func(int) time.Duration { return operationWaitInterval })
 	if err != nil {
 		diags.AddError("Failed to update Trino access control", "Waiting operation to complete finished with error: "+err.Error())
 		return diags
@@ -56,7 +56,7 @@ func UpdateClusterAccessControl(ctx context.Context, sdk *ycsdk.SDK, clusterID s
 
 func GetClusterAccessControl(ctx context.Context, sdk *ycsdk.SDK, clusterID string) (*trino.AccessControlConfig, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	cluster, err := sdk.Trino().Cluster().Get(ctx, &trino.GetClusterRequest{
+	cluster, err := trinosdk.NewClusterClient(sdk).Get(ctx, &trino.GetClusterRequest{
 		ClusterId: clusterID,
 	})
 	if err != nil {

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 )
 
 func TestAccDataSourceVPCSubnet_basic(t *testing.T) {
@@ -149,8 +150,9 @@ func testAccDataSourceVPCSubnetExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := vpcsdk.NewSubnetClient(config.SDK)
 
-		found, err := config.sdk.VPC().Subnet().Get(context.Background(), &vpc.GetSubnetRequest{
+		found, err := client.Get(context.Background(), &vpc.GetSubnetRequest{
 			SubnetId: ds.Primary.ID,
 		})
 

@@ -3,22 +3,22 @@ package trino_catalog
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/trino/v1"
 	"time"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/trino/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 )
 
 func CreateCatalog(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *trino.CreateCatalogRequest) (string, diag.Diagnostic) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.Trino().Catalog().Create(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*trinosdk.CatalogCreateOperation, error) {
+		return trinosdk.NewCatalogClient(sdk).Create(ctx, req)
 	})
 	if err != nil {
 		return "", diag.NewErrorDiagnostic(
@@ -27,7 +27,7 @@ func CreateCatalog(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics,
 		)
 	}
 
-	err = op.WaitInterval(ctx, 5*time.Second)
+	_, err = op.WaitInterval(ctx, func(int) time.Duration { return 5 * time.Second })
 	if err != nil {
 		return "", diag.NewErrorDiagnostic(
 			"Failed to create Trino catalog",
@@ -35,27 +35,13 @@ func CreateCatalog(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics,
 		)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return "", diag.NewErrorDiagnostic(
-			"Failed to create Trino catalog",
-			"Failed to unmarshal metadata: "+err.Error(),
-		)
-	}
-
-	md, ok := protoMetadata.(*trino.CreateCatalogMetadata)
-	if !ok {
-		return "", diag.NewErrorDiagnostic(
-			"Failed to create Trino catalog",
-			"Failed to convert response metadata to CreateCatalogMetadata",
-		)
-	}
+	md := op.Metadata()
 
 	return md.CatalogId, nil
 }
 
 func GetCatalogByID(ctx context.Context, sdk *ycsdk.SDK, catalogID, cid string) (*trino.Catalog, diag.Diagnostic) {
-	catalog, err := sdk.Trino().Catalog().Get(ctx, &trino.GetCatalogRequest{
+	catalog, err := trinosdk.NewCatalogClient(sdk).Get(ctx, &trino.GetCatalogRequest{
 		ClusterId: cid,
 		CatalogId: catalogID,
 	})
@@ -77,13 +63,20 @@ func UpdateCatalog(ctx context.Context, sdk *ycsdk.SDK, req *trino.UpdateCatalog
 		return nil
 	}
 
-	return waitOperation(ctx, sdk, "update Trino catalog", func() (*operation.Operation, error) {
-		return sdk.Trino().Catalog().Update(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*trinosdk.CatalogUpdateOperation, error) {
+		return trinosdk.NewCatalogClient(sdk).Update(ctx, req)
 	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		return diag.NewErrorDiagnostic("Failed to update Trino catalog", err.Error())
+	}
+	return nil
 }
 
 func GetCatalogByName(ctx context.Context, sdk *ycsdk.SDK, clusterId, catalogName string) (string, diag.Diagnostic) {
-	catalogs, err := sdk.Trino().Catalog().List(ctx, &trino.ListCatalogsRequest{
+	catalogs, err := trinosdk.NewCatalogClient(sdk).List(ctx, &trino.ListCatalogsRequest{
 		ClusterId: clusterId,
 	})
 	if err != nil {
@@ -111,21 +104,14 @@ func DeleteCatalog(ctx context.Context, sdk *ycsdk.SDK, catalogID, cid string) d
 		CatalogId: catalogID,
 	}
 
-	return waitOperation(ctx, sdk, "delete Trino catalog", func() (*operation.Operation, error) {
-		return sdk.Trino().Catalog().Delete(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*trinosdk.CatalogDeleteOperation, error) {
+		return trinosdk.NewCatalogClient(sdk).Delete(ctx, req)
 	})
-}
-
-func waitOperation(ctx context.Context, sdk *ycsdk.SDK, action string, callback func() (*operation.Operation, error)) diag.Diagnostic {
-	op, err := retry.ConflictingOperation(ctx, sdk, callback)
-
 	if err == nil {
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 	}
-
 	if err != nil {
-		return diag.NewErrorDiagnostic(fmt.Sprintf("Failed to %s", action), err.Error())
+		return diag.NewErrorDiagnostic("Failed to delete Trino catalog", err.Error())
 	}
-
 	return nil
 }

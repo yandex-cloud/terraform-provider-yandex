@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 )
 
 const (
@@ -213,7 +214,7 @@ func testAccLoadPostgreSQLUser(s *terraform.State, username string) (*postgresql
 	}
 
 	config := testAccProvider.Meta().(*Config)
-	return config.sdk.MDB().PostgreSQL().User().Get(context.Background(), &postgresql.GetUserRequest{
+	return postgresqlsdk.NewUserClient(config.SDK).Get(context.Background(), &postgresql.GetUserRequest{
 		ClusterId: rs.Primary.ID,
 		UserName:  username,
 	})
@@ -244,7 +245,7 @@ func testAccCheckMDBPostgreSQLUserHasSettings(t *testing.T, username string, exp
 
 		config := testAccProvider.Meta().(*Config)
 
-		user, err := config.sdk.MDB().PostgreSQL().User().Get(context.Background(), &postgresql.GetUserRequest{
+		user, err := postgresqlsdk.NewUserClient(config.SDK).Get(context.Background(), &postgresql.GetUserRequest{
 			ClusterId: rs.Primary.ID,
 			UserName:  username,
 		})
@@ -323,7 +324,7 @@ func testAccCheckMDBPostgreSQLUserHasNoSettings(t *testing.T, username string, n
 
 		config := testAccProvider.Meta().(*Config)
 
-		user, err := config.sdk.MDB().PostgreSQL().User().Get(context.Background(), &postgresql.GetUserRequest{
+		user, err := postgresqlsdk.NewUserClient(config.SDK).Get(context.Background(), &postgresql.GetUserRequest{
 			ClusterId: rs.Primary.ID,
 			UserName:  username,
 		})

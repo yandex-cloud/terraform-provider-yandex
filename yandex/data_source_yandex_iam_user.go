@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 func dataSourceYandexIAMUser() *schema.Resource {
@@ -43,8 +44,10 @@ func dataSourceYandexLoginRead(d *schema.ResourceData, meta interface{}) error {
 	var user *iam.UserAccount
 
 	if v, ok := d.GetOk("login"); ok {
+		client := iamsdk.NewYandexPassportUserAccountClient(config.SDK)
+
 		login := v.(string)
-		resp, err := config.sdk.IAM().YandexPassportUserAccount().GetByLogin(ctx, &iam.GetUserAccountByLoginRequest{
+		resp, err := client.GetByLogin(ctx, &iam.GetUserAccountByLoginRequest{
 			Login: login,
 		})
 
@@ -57,9 +60,11 @@ func dataSourceYandexLoginRead(d *schema.ResourceData, meta interface{}) error {
 
 		user = resp
 	} else if v, ok := d.GetOk("user_id"); ok {
+		client := iamsdk.NewUserAccountClient(config.SDK)
+
 		userID := v.(string)
 
-		resp, err := config.sdk.IAM().UserAccount().Get(ctx, &iam.GetUserAccountRequest{
+		resp, err := client.Get(ctx, &iam.GetUserAccountRequest{
 			UserAccountId: userID,
 		})
 

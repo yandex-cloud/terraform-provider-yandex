@@ -2,12 +2,12 @@ package mdb_clickhouse_user
 
 import (
 	"context"
+	"github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"google.golang.org/grpc/codes"
@@ -15,7 +15,7 @@ import (
 )
 
 func readUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, userName string) *clickhouse.User {
-	user, err := sdk.MDB().Clickhouse().User().Get(ctx, &clickhouse.GetUserRequest{
+	user, err := clickhousesdk.NewUserClient(sdk).Get(ctx, &clickhouse.GetUserRequest{
 		ClusterId: cid,
 		UserName:  userName,
 	})
@@ -40,8 +40,8 @@ func readUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid s
 }
 
 func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, user *clickhouse.UserSpec) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().Clickhouse().User().Create(ctx, &clickhouse.CreateUserRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*clickhousesdk.UserCreateOperation, error) {
+		return clickhousesdk.NewUserClient(sdk).Create(ctx, &clickhouse.CreateUserRequest{
 			ClusterId: cid,
 			UserSpec:  user,
 		})
@@ -55,7 +55,7 @@ func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Create resource",
 			"Error while waiting for operation to create ClickHouse user:"+err.Error(),
@@ -64,8 +64,8 @@ func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 }
 
 func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, user *clickhouse.UserSpec, updatePaths []string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().Clickhouse().User().Update(ctx, &clickhouse.UpdateUserRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*clickhousesdk.UserUpdateOperation, error) {
+		return clickhousesdk.NewUserClient(sdk).Update(ctx, &clickhouse.UpdateUserRequest{
 			ClusterId:        cid,
 			UserName:         user.Name,
 			Password:         user.Password,
@@ -88,7 +88,7 @@ func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Update resource",
 			"Error while waiting for operation to update ClickHouse user:"+err.Error(),
@@ -97,8 +97,8 @@ func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 }
 
 func deleteUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, userName string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().Clickhouse().User().Delete(ctx, &clickhouse.DeleteUserRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*clickhousesdk.UserDeleteOperation, error) {
+		return clickhousesdk.NewUserClient(sdk).Delete(ctx, &clickhouse.DeleteUserRequest{
 			ClusterId: cid,
 			UserName:  userName,
 		})
@@ -112,7 +112,7 @@ func deleteUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
 			"Error while waiting for operation to delete ClickHouse user:"+err.Error(),

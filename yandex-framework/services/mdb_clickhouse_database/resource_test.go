@@ -3,6 +3,7 @@ package mdb_clickhouse_database_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
 	"sort"
 	"testing"
 
@@ -140,7 +141,7 @@ func testAccCheckMDBClickHouseClusterHasDatabases(r string, databases []string) 
 
 		cid := rs.Primary.ID
 
-		resp, err := config.SDK.MDB().Clickhouse().Database().List(context.Background(), &clickhouse.ListDatabasesRequest{
+		resp, err := clickhousesdk.NewDatabaseClient(config.SDKv2).List(context.Background(), &clickhouse.ListDatabasesRequest{
 			ClusterId: cid,
 			PageSize:  100,
 		})

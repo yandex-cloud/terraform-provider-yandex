@@ -3,6 +3,7 @@ package mdb_clickhouse_user_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
 	"sort"
 	"testing"
 
@@ -1087,7 +1088,7 @@ func testAccCheckMDBClickHouseUserHasDatabases(r string, databases []string) res
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		resp, err := config.SDK.MDB().Clickhouse().User().Get(context.Background(), &clickhouse.GetUserRequest{
+		resp, err := clickhousesdk.NewUserClient(config.SDKv2).Get(context.Background(), &clickhouse.GetUserRequest{
 			ClusterId: clusterId,
 			UserName:  userName,
 		})
@@ -1135,7 +1136,7 @@ func testAccCheckMDBClickHouseUserAuthMethod(r string, authMethod clickhouse.Aut
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		resp, err := config.SDK.MDB().Clickhouse().User().Get(context.Background(), &clickhouse.GetUserRequest{
+		resp, err := clickhousesdk.NewUserClient(config.SDKv2).Get(context.Background(), &clickhouse.GetUserRequest{
 			ClusterId: clusterId,
 			UserName:  userName,
 		})
@@ -1163,7 +1164,7 @@ func testAccCheckMDBClickHouseClusterHasUsers(r string, users []string) resource
 
 		cid := rs.Primary.ID
 
-		resp, err := config.SDK.MDB().Clickhouse().User().List(context.Background(), &clickhouse.ListUsersRequest{
+		resp, err := clickhousesdk.NewUserClient(config.SDKv2).List(context.Background(), &clickhouse.ListUsersRequest{
 			ClusterId: cid,
 			PageSize:  100,
 		})

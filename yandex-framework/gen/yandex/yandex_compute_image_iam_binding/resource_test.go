@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -46,7 +47,7 @@ func TestAccComputeImage_basicIamMember(t *testing.T) {
 					testAccCheckComputeImageExists("yandex_compute_image.foobar", &image),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-						return cfg.SDK.Compute().Image()
+						return computesdk.NewImageClient(cfg.SDKv2)
 					}, &image, role, []string{"system:" + userID}),
 				),
 			},
@@ -67,7 +68,7 @@ func testAccCheckComputeImageExists(n string, image *compute.Image) resource.Tes
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Compute().Image().Get(context.Background(), &compute.GetImageRequest{
+		found, err := computesdk.NewImageClient(config.SDKv2).Get(context.Background(), &compute.GetImageRequest{
 			ImageId: rs.Primary.ID,
 		})
 
@@ -117,7 +118,7 @@ func testAccCheckComputeImageDestroy(s *terraform.State) error {
 			continue
 		}
 
-		r, err := config.SDK.Compute().Image().Get(context.Background(), &compute.GetImageRequest{
+		r, err := computesdk.NewImageClient(config.SDKv2).Get(context.Background(), &compute.GetImageRequest{
 			ImageId: rs.Primary.ID,
 		})
 

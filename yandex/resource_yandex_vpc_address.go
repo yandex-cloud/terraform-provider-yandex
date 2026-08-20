@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -193,7 +194,9 @@ func yandexVPCAddressRead(d *schema.ResourceData, meta interface{}, id string) e
 	defer cancel()
 
 	req := &vpc.GetAddressRequest{AddressId: id}
-	address, err := config.sdk.VPC().Address().Get(ctx, req)
+	client := vpcsdk.NewAddressClient(config.SDK)
+
+	address, err := client.Get(ctx, req)
 
 	if err != nil {
 		return handleAddressNotFoundError(err, d, id)
@@ -302,30 +305,19 @@ func resourceYandexVPCAddressCreate(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Address().Create(ctx, &req))
+	client := vpcsdk.NewAddressClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return addressError("while requesting API to create address: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return addressError("while get address create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*vpc.CreateAddressMetadata)
-	if !ok {
-		return addressError("could not get Address ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.AddressId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return addressError("while waiting operation to create address: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return addressError("creation failed: %s", err)
 	}
 
 	return resourceYandexVPCAddressRead(d, meta)
@@ -394,12 +386,14 @@ func resourceYandexVPCAddressUpdateContext(ctx context.Context, d *schema.Resour
 	ctx, cancel := context.WithTimeout(ctx, d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Address().Update(ctx, req))
+	client := vpcsdk.NewAddressClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return diag.FromErr(addressError("while requesting API to update Address %q: %s", d.Id(), err))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return diag.FromErr(addressError("updating Address %q: %s", d.Id(), err))
 	}
@@ -423,17 +417,14 @@ func resourceYandexVPCAddressDelete(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Address().Delete(ctx, req))
+	client := vpcsdk.NewAddressClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleAddressNotFoundError(err, d, d.Id())
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

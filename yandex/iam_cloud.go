@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
 )
 
 const yandexResourceManagerCloudDefaultTimeout = time.Second * 60
@@ -57,7 +58,9 @@ func (u *CloudIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Poli
 	ctx, cancel := context.WithTimeout(ctx, yandexResourceManagerCloudDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Cloud().SetAccessBindings(ctx, req))
+	client := resourcemanagersdk.NewCloudClient(u.Config.SDK)
+
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		if reqID, ok := isRequestIDPresent(err); ok {
 			log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -65,7 +68,7 @@ func (u *CloudIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Poli
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -84,7 +87,9 @@ func (u *CloudIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *P
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Cloud().UpdateAccessBindings(ctx, req))
+		client := resourcemanagersdk.NewCloudClient(u.Config.SDK)
+
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -92,7 +97,7 @@ func (u *CloudIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *P
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -114,11 +119,13 @@ func (u *CloudIamUpdater) DescribeResource() string {
 }
 
 func getCloudAccessBindings(ctx context.Context, config *Config, cloudID string) ([]*access.AccessBinding, error) {
+	client := resourcemanagersdk.NewCloudClient(config.SDK)
+
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.ResourceManager().Cloud().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: cloudID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

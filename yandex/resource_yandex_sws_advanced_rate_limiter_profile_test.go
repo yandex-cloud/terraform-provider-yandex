@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	advanced_rate_limiter "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1/advanced_rate_limiter"
+	arlsdk "github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1/advanced_rate_limiter"
 )
 
 func init() {
@@ -156,7 +157,8 @@ func testSweepArlProfile(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.SmartWebSecurityArl().AdvancedRateLimiterProfile().List(conf.Context(), &advanced_rate_limiter.ListAdvancedRateLimiterProfilesRequest{
+	client := arlsdk.NewAdvancedRateLimiterProfileClient(conf.SDK)
+	resp, err := client.List(conf.Context(), &advanced_rate_limiter.ListAdvancedRateLimiterProfilesRequest{
 		FolderId: conf.FolderID,
 	})
 	if err != nil {
@@ -181,8 +183,9 @@ func sweepArlProfileOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.SmartWebSecurityArl().AdvancedRateLimiterProfile().Delete(ctx, &advanced_rate_limiter.DeleteAdvancedRateLimiterProfileRequest{
+	client := arlsdk.NewAdvancedRateLimiterProfileClient(conf.SDK)
+	op, err := client.Delete(ctx, &advanced_rate_limiter.DeleteAdvancedRateLimiterProfileRequest{
 		AdvancedRateLimiterProfileId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }

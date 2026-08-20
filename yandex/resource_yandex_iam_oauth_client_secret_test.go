@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/vault/helper/pgpkeys"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 // Test that an OAuth client secret can be created and destroyed
@@ -357,7 +358,9 @@ func testAccCheckOAuthClientSecretDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.IAM().OAuthClientSecret().Get(context.Background(), &iam.GetOAuthClientSecretRequest{
+		client := iamsdk.NewOAuthClientSecretClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &iam.GetOAuthClientSecretRequest{
 			OauthClientSecretId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -381,7 +384,9 @@ func testAccCheckOAuthClientSecretExists(r string) resource.TestCheckFunc {
 		}
 		config := testAccProvider.Meta().(*Config)
 
-		_, err := config.sdk.IAM().OAuthClientSecret().Get(context.Background(), &iam.GetOAuthClientSecretRequest{
+		client := iamsdk.NewOAuthClientSecretClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &iam.GetOAuthClientSecretRequest{
 			OauthClientSecretId: rs.Primary.ID,
 		})
 
@@ -395,7 +400,7 @@ func testAccOAuthClientSecretConfig(clientName, secretDesc string) string {
 resource "yandex_iam_oauth_client" "acceptance" {
   name       = "%s"
   folder_id  = "%s"
-  scopes     = ["iam"]
+  scopes     = ["openid"]
 }
 
 resource "yandex_iam_oauth_client_secret" "acceptance" {
@@ -411,7 +416,7 @@ func testAccOAuthClientSecretConfigEncrypted(clientName, key string) string {
 resource "yandex_iam_oauth_client" "acceptance" {
   name       = "%s"
   folder_id  = "%s"
-  scopes     = ["iam"]
+  scopes     = ["openid"]
 }
 
 resource "yandex_iam_oauth_client_secret" "acceptance" {
@@ -438,7 +443,7 @@ resource "yandex_lockbox_secret" "target_secret_2" {
 resource "yandex_iam_oauth_client" "acceptance" {
   name       = "%s"
   folder_id  = "%s"
-  scopes     = ["iam"]
+  scopes     = ["openid"]
 }
 
 resource "yandex_iam_oauth_client_secret" "acceptance" {

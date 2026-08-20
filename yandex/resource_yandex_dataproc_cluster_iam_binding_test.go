@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
+	dataprocsdk "github.com/yandex-cloud/go-sdk/services/dataproc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 )
 
@@ -46,10 +47,7 @@ func TestAccDataprocClusterIamBinding_basic(t *testing.T) {
 				Config: testAccDataprocClusterIamBindingConfig(t, role, userID, templateParams),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(dataprocResourceType+".tf-dataproc-cluster", &cluster),
-					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
-						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.Dataproc().Cluster()
-					}, &cluster, role, []string{userID}),
+					iam.TestAccCheckIamBindingEqualsMembers(ctx, testAccDataprocClusterIAMClient(t), &cluster, role, []string{userID}),
 				),
 			},
 			iam.IAMBindingImportTestStep(dataprocIAMBindingResourceFoo, &cluster, role, "cluster_id"),
@@ -81,33 +79,21 @@ func TestAccDataprocClusterIamBinding_multiple(t *testing.T) {
 				Config: testAccDataprocClusterConfig(t, templateParams),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(dataprocResourceType+".tf-dataproc-cluster", &cluster),
-					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
-						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.Dataproc().Cluster()
-					}, &cluster, roleFoo),
+					iam.TestAccCheckIamBindingEmpty(ctx, testAccDataprocClusterIAMClient(t), &cluster, roleFoo),
 				),
 			},
 			// One binding
 			{
 				Config: testAccDataprocClusterIamBindingConfig(t, roleFoo, userID, templateParams),
-				Check: iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
-					cfg := testAccProvider.Meta().(*Config)
-					return cfg.sdk.Dataproc().Cluster()
-				}, &cluster, roleFoo, []string{userID}),
+				Check:  iam.TestAccCheckIamBindingEqualsMembers(ctx, testAccDataprocClusterIAMClient(t), &cluster, roleFoo, []string{userID}),
 			},
 			iam.IAMBindingImportTestStep(dataprocIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
 			// Two bindings
 			{
 				Config: testAccDataprocClusterIamBindingMultipleConfig(t, roleFoo, roleBar, userID, templateParams),
 				Check: resource.ComposeTestCheckFunc(
-					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
-						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.Dataproc().Cluster()
-					}, &cluster, roleFoo, []string{userID}),
-					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
-						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.Dataproc().Cluster()
-					}, &cluster, roleBar, []string{userID}),
+					iam.TestAccCheckIamBindingEqualsMembers(ctx, testAccDataprocClusterIAMClient(t), &cluster, roleFoo, []string{userID}),
+					iam.TestAccCheckIamBindingEqualsMembers(ctx, testAccDataprocClusterIAMClient(t), &cluster, roleBar, []string{userID}),
 				),
 			},
 			iam.IAMBindingImportTestStep(dataprocIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
@@ -116,18 +102,21 @@ func TestAccDataprocClusterIamBinding_multiple(t *testing.T) {
 			{
 				Config: testAccDataprocClusterConfig(t, templateParams),
 				Check: resource.ComposeTestCheckFunc(
-					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
-						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.Dataproc().Cluster()
-					}, &cluster, roleFoo),
-					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
-						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.Dataproc().Cluster()
-					}, &cluster, roleBar),
+					iam.TestAccCheckIamBindingEmpty(ctx, testAccDataprocClusterIAMClient(t), &cluster, roleFoo),
+					iam.TestAccCheckIamBindingEmpty(ctx, testAccDataprocClusterIAMClient(t), &cluster, roleBar),
 				),
 			},
 		},
 	})
+}
+
+func testAccDataprocClusterIAMClient(t *testing.T) iam.SDKGetter {
+	return func() iam.BindingsGetter {
+		cfg := testAccProvider.Meta().(*Config)
+		client := dataprocsdk.NewClusterClient(cfg.SDK)
+
+		return client
+	}
 }
 
 func testAccDataprocClusterIamBindingConfig(t *testing.T, role, userID string, templateParams dataprocTFConfigParams) string {

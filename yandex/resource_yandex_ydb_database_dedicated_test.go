@@ -12,6 +12,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
+	ydbsdk "github.com/yandex-cloud/go-sdk/services/ydb/v1"
 )
 
 const (
@@ -32,7 +33,9 @@ func testSweepYDBDatabaseDedicated(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.YDB().Database().List(conf.Context(), &ydb.ListDatabasesRequest{
+	client := ydbsdk.NewDatabaseClient(conf.SDK)
+
+	resp, err := client.List(conf.Context(), &ydb.ListDatabasesRequest{
 		FolderId: conf.FolderID,
 		PageSize: 1000,
 	})
@@ -72,21 +75,14 @@ func unsetYDBDatabaseDeletionProtection(
 	}
 	req.DeletionProtection = false
 
-	op, err := conf.sdk.YDB().Database().Update(ctx, req)
+	client := ydbsdk.NewDatabaseClient(conf.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to unset deletion_protection for database %q: %s", db.Id, err)
 	}
 
-	sdkop, err := conf.sdk.WrapOperation(op, err)
-	if err != nil {
-		return err
-	}
-
-	err = sdkop.Wait(ctx)
-	if err != nil {
-		return err
-	}
-	_, err = sdkop.Response()
+	_, err = op.Wait(ctx)
 	return err
 }
 
@@ -95,7 +91,9 @@ func checkAndUnsetYDBDeletionProtection(
 	ctx context.Context,
 	id string,
 ) error {
-	db, err := conf.sdk.YDB().Database().Get(ctx, &ydb.GetDatabaseRequest{
+	client := ydbsdk.NewDatabaseClient(conf.SDK)
+
+	db, err := client.Get(ctx, &ydb.GetDatabaseRequest{
 		DatabaseId: id,
 	})
 	if err != nil {
@@ -118,10 +116,16 @@ func sweepYDBDatabaseDedicatedOnce(conf *Config, id string) error {
 		return err
 	}
 
-	op, err := conf.sdk.YDB().Database().Delete(ctx, &ydb.DeleteDatabaseRequest{
+	client := ydbsdk.NewDatabaseClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &ydb.DeleteDatabaseRequest{
 		DatabaseId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func TestAccYandexYDBDatabaseDedicated_basic(t *testing.T) {
@@ -277,7 +281,9 @@ func testGetYDBDatabaseDedicatedByID(config *Config, ID string) (*ydb.Database, 
 		DatabaseId: ID,
 	}
 
-	return config.sdk.YDB().Database().Get(context.Background(), &req)
+	client := ydbsdk.NewDatabaseClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
 }
 
 func testYandexYDBDatabaseDedicatedContainsLabel(database *ydb.Database, key string, value string) resource.TestCheckFunc {

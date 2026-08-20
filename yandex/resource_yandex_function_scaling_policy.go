@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
+	functionssdk "github.com/yandex-cloud/go-sdk/services/serverless/functions/v1"
 )
 
 func resourceYandexFunctionScalingPolicy() *schema.Resource {
@@ -110,6 +111,7 @@ func resourceYandexFunctionScalingPolicyImporterFunc(d *schema.ResourceData, met
 func fetchFunctionScalingPolicies(ctx context.Context, config *Config, functionID string) ([]*functions.ScalingPolicy, error) {
 	var policies []*functions.ScalingPolicy
 	var nextPageToken = ""
+	client := functionssdk.NewFunctionClient(config.SDK)
 
 	for {
 		req := &functions.ListScalingPoliciesRequest{
@@ -117,7 +119,7 @@ func fetchFunctionScalingPolicies(ctx context.Context, config *Config, functionI
 			PageToken:  nextPageToken,
 		}
 
-		resp, err := config.sdk.Serverless().Functions().Function().ListScalingPolicies(ctx, req)
+		resp, err := client.ListScalingPolicies(ctx, req)
 		if err != nil {
 			return nil, fmt.Errorf("Cannot fetch Yandex Cloud Function Scaling Policies: %s", err)
 		}
@@ -181,6 +183,7 @@ func compareAndUpdateFunctionScalingPolicies(oldPoliciesSet *schema.Set, newPoli
 	defer cancel()
 
 	functionID := d.Get("function_id").(string)
+	client := functionssdk.NewFunctionClient(config.SDK)
 
 	for tag, newPolicy := range *newPolicies {
 		oldPolicy := (*oldPolicies)[tag]
@@ -192,8 +195,10 @@ func compareAndUpdateFunctionScalingPolicies(oldPoliciesSet *schema.Set, newPoli
 				ZoneRequestsLimit:  newPolicy.ZoneRequestsLimit,
 			}
 
-			op, err := config.sdk.Serverless().Functions().Function().SetScalingPolicy(ctx, req)
-			err = waitOperation(ctx, config, op, err)
+			op, err := client.SetScalingPolicy(ctx, req)
+			if err == nil {
+				_, err = op.Wait(ctx)
+			}
 			if err != nil {
 				return fmt.Errorf("Error while requesting API to set Yandex Cloud Function Scaling Policy: %s", err)
 			}
@@ -208,8 +213,10 @@ func compareAndUpdateFunctionScalingPolicies(oldPoliciesSet *schema.Set, newPoli
 				Tag:        tag,
 			}
 
-			op, err := config.sdk.Serverless().Functions().Function().RemoveScalingPolicy(ctx, req)
-			err = waitOperation(ctx, config, op, err)
+			op, err := client.RemoveScalingPolicy(ctx, req)
+			if err == nil {
+				_, err = op.Wait(ctx)
+			}
 			if err != nil {
 				return fmt.Errorf("Error while requesting API to remove Yandex Cloud Function Scaling Policy: %s", err)
 			}

@@ -48,11 +48,11 @@ func (d *connectionDataSource) Configure(_ context.Context, req datasource.Confi
 	dlClient, err := datalens.NewClient(datalens.Config{
 		Endpoint: providerConfig.ProviderState.DatalensEndpoint.ValueString(),
 		TokenProvider: func(ctx context.Context) (string, error) {
-			resp, err := providerConfig.SDK.CreateIAMToken(ctx)
+			resp, err := providerConfig.SDKv2.CreateIAMToken(ctx)
 			if err != nil {
 				return "", fmt.Errorf("failed to get IAM token: %w", err)
 			}
-			return resp.IamToken, nil
+			return resp.GetIamToken(), nil
 		},
 	})
 	if err != nil {

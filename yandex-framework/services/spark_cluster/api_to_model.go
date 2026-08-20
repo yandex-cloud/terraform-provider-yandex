@@ -188,7 +188,7 @@ func resourcePoolsFromAPI(ctx context.Context, cfg *spark.ResourcePools) (types.
 	if cfg == nil {
 		return types.ObjectNull(ResourcePoosAttrTypes), diags
 	}
-	driverResourcePool := ResourcePool{
+	driverResourcePool := DriverResourcePool{
 		ResourcePresetId: types.StringValue(cfg.GetDriver().GetResourcePresetId()),
 	}
 	driverScalePolicy := cfg.GetDriver().GetScalePolicy()
@@ -200,13 +200,14 @@ func resourcePoolsFromAPI(ctx context.Context, cfg *spark.ResourcePools) (types.
 	}
 	driverObj, d := types.ObjectValueFrom(
 		ctx,
-		ResourcePoolAttrTypes,
+		DriverPoolAttrTypes,
 		driverResourcePool,
 	)
 	diags.Append(d...)
 
 	executorResourcePool := ResourcePool{
 		ResourcePresetId: types.StringValue(cfg.GetExecutor().GetResourcePresetId()),
+		Preemptible:      types.BoolValue(cfg.GetExecutor().GetPreemptible()),
 	}
 	executorScalePolicy := cfg.GetExecutor().GetScalePolicy()
 	if executorScalePolicy.GetFixedScale() != nil {
@@ -217,7 +218,7 @@ func resourcePoolsFromAPI(ctx context.Context, cfg *spark.ResourcePools) (types.
 	}
 	executorObj, d := types.ObjectValueFrom(
 		ctx,
-		ResourcePoolAttrTypes,
+		ExecutorPoolAttrTypes,
 		executorResourcePool,
 	)
 	diags.Append(d...)

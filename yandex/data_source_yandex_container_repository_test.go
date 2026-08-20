@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	containerregistrysdk "github.com/yandex-cloud/go-sdk/services/containerregistry/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -71,13 +72,14 @@ func TestAccDataSourceContainerRepository_byName(t *testing.T) {
 
 func testAccCheckContainerRepositoryDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := containerregistrysdk.NewRepositoryClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_container_repository" {
 			continue
 		}
 
-		_, err := config.sdk.ContainerRegistry().Repository().Get(context.Background(), &containerregistry.GetRepositoryRequest{
+		_, err := client.Get(context.Background(), &containerregistry.GetRepositoryRequest{
 			RepositoryId: rs.Primary.ID,
 		})
 
@@ -106,8 +108,9 @@ func testAccCheckContainerRepositoryExists(n string, repository *containerregist
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := containerregistrysdk.NewRepositoryClient(config.SDK)
 
-		found, err := config.sdk.ContainerRegistry().Repository().Get(context.Background(), &containerregistry.GetRepositoryRequest{
+		found, err := client.Get(context.Background(), &containerregistry.GetRepositoryRequest{
 			RepositoryId: rs.Primary.ID,
 		})
 		if err != nil {

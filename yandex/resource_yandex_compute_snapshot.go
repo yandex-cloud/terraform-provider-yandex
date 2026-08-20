@@ -10,6 +10,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -169,30 +170,17 @@ func resourceYandexComputeSnapshotCreate(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Snapshot().Create(ctx, &req))
+	op, err := computesdk.NewSnapshotClient(config.SDK).Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create snapshot: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get snapshot create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*compute.CreateSnapshotMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Snapshot ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.SnapshotId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create snapshot: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Snapshot creation failed: %s", err)
 	}
 
 	return resourceYandexComputeSnapshotRead(d, meta)
@@ -201,7 +189,7 @@ func resourceYandexComputeSnapshotCreate(d *schema.ResourceData, meta interface{
 func resourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	snapshot, err := config.sdk.Compute().Snapshot().Get(config.Context(), &compute.GetSnapshotRequest{
+	snapshot, err := computesdk.NewSnapshotClient(config.SDK).Get(config.Context(), &compute.GetSnapshotRequest{
 		SnapshotId: d.Id(),
 	})
 
@@ -305,17 +293,12 @@ func resourceYandexComputeSnapshotDelete(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Snapshot().Delete(ctx, req))
+	op, err := computesdk.NewSnapshotClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Snapshot %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -330,12 +313,12 @@ func makeSnapshotUpdateRequest(req *compute.UpdateSnapshotRequest, d *schema.Res
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Snapshot().Update(ctx, req))
+	op, err := computesdk.NewSnapshotClient(config.SDK).Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Snapshot %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Snapshot %q: %s", d.Id(), err)
 	}

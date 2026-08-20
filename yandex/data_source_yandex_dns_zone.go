@@ -5,7 +5,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	dnssdk "github.com/yandex-cloud/go-sdk/services/dns/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -97,7 +98,7 @@ func dataSourceYandexDnsZone() *schema.Resource {
 
 func dataSourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
 	err := checkOneOf(d, "dns_zone_id", "name")
 	if err != nil {
@@ -108,13 +109,15 @@ func dataSourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error
 	_, zoneNameOk := d.GetOk("name")
 
 	if zoneNameOk {
-		id, err = resolveObjectID(config.Context(), config, d, sdkresolvers.DNSZoneResolver)
+		id, err = resolveObjectIDV2(config.Context(), config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return dnssdk.DnsZoneResolver(name, client, opts...)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source dns zone by name: %v", err)
 		}
 	}
 
-	dnsZone, err := sdk.DNS().DnsZone().Get(config.Context(), &dns.GetDnsZoneRequest{
+	dnsZone, err := client.Get(config.Context(), &dns.GetDnsZoneRequest{
 		DnsZoneId: id,
 	})
 

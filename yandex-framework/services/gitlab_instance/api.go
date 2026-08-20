@@ -2,13 +2,12 @@ package gitlab_instance
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/gitlab/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	gitlabsdk "github.com/yandex-cloud/go-sdk/services/gitlab/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
@@ -16,7 +15,7 @@ import (
 )
 
 func CreateInstance(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *gitlab.CreateInstanceRequest) (string, diag.Diagnostic) {
-	op, err := sdk.WrapOperation(sdk.Gitlab().Instance().Create(ctx, req))
+	op, err := gitlabsdk.NewInstanceClient(sdk).Create(ctx, req)
 	if err != nil {
 		return "", diag.NewErrorDiagnostic(
 			"Failed to create Gitlab instance",
@@ -24,7 +23,7 @@ func CreateInstance(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics
 		)
 	}
 
-	err = op.WaitInterval(ctx, 5*time.Second)
+	_, err = op.WaitInterval(ctx, func(int) time.Duration { return 5 * time.Second })
 	if err != nil {
 		return "", diag.NewErrorDiagnostic(
 			"Failed to create Gitlab instance",
@@ -32,27 +31,11 @@ func CreateInstance(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics
 		)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return "", diag.NewErrorDiagnostic(
-			"Failed to create Gitlab instance",
-			"Failed to unmarshal metadata: "+err.Error(),
-		)
-	}
-
-	md, ok := protoMetadata.(*gitlab.CreateInstanceMetadata)
-	if !ok {
-		return "", diag.NewErrorDiagnostic(
-			"Failed to create Gitlab instance",
-			"Failed to convert response metadata to CreateInstanceMetadata",
-		)
-	}
-
-	return md.InstanceId, nil
+	return op.Metadata().InstanceId, nil
 }
 
 func GetInstanceByID(ctx context.Context, sdk *ycsdk.SDK, id string) (*gitlab.Instance, diag.Diagnostic) {
-	instance, err := sdk.Gitlab().Instance().Get(ctx, &gitlab.GetInstanceRequest{
+	instance, err := gitlabsdk.NewInstanceClient(sdk).Get(ctx, &gitlab.GetInstanceRequest{
 		InstanceId: id,
 	})
 	if err != nil {
@@ -73,9 +56,16 @@ func DeleteInstance(ctx context.Context, sdk *ycsdk.SDK, cid string) diag.Diagno
 		InstanceId: cid,
 	}
 
-	return waitOperation(ctx, sdk, "delete Gitlab instance", func() (*operation.Operation, error) {
-		return sdk.Gitlab().Instance().Delete(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*gitlabsdk.InstanceDeleteOperation, error) {
+		return gitlabsdk.NewInstanceClient(sdk).Delete(ctx, req)
 	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		return diag.NewErrorDiagnostic("Failed to delete Gitlab instance", err.Error())
+	}
+	return nil
 }
 
 func UpdateInstance(ctx context.Context, sdk *ycsdk.SDK, req *gitlab.UpdateInstanceRequest) diag.Diagnostic {
@@ -83,21 +73,14 @@ func UpdateInstance(ctx context.Context, sdk *ycsdk.SDK, req *gitlab.UpdateInsta
 		return nil
 	}
 
-	return waitOperation(ctx, sdk, "update Gitlab instance", func() (*operation.Operation, error) {
-		return sdk.Gitlab().Instance().Update(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*gitlabsdk.InstanceUpdateOperation, error) {
+		return gitlabsdk.NewInstanceClient(sdk).Update(ctx, req)
 	})
-}
-
-func waitOperation(ctx context.Context, sdk *ycsdk.SDK, action string, callback func() (*operation.Operation, error)) diag.Diagnostic {
-	op, err := retry.ConflictingOperation(ctx, sdk, callback)
-
 	if err == nil {
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 	}
-
 	if err != nil {
-		return diag.NewErrorDiagnostic(fmt.Sprintf("Failed to %s", action), err.Error())
+		return diag.NewErrorDiagnostic("Failed to update Gitlab instance", err.Error())
 	}
-
 	return nil
 }

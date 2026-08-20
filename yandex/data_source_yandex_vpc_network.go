@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -80,7 +80,7 @@ func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) er
 	_, networkNameOk := d.GetOk("name")
 
 	if networkNameOk {
-		networkID, err = resolveObjectID(ctx, config, d, sdkresolvers.NetworkResolver)
+		networkID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(vpcsdk.NewNetworkClient(config.SDK), vpcsdk.NetworkResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source network by name: %v", err)
 		}

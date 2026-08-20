@@ -46,11 +46,11 @@ func testSweepDatalensConnection(_ string) error {
 	dlClient, err := datalens.NewClient(datalens.Config{
 		Endpoint: conf.ProviderState.DatalensEndpoint.ValueString(),
 		TokenProvider: func(ctx context.Context) (string, error) {
-			resp, err := conf.SDK.CreateIAMToken(ctx)
+			resp, err := conf.SDKv2.CreateIAMToken(ctx)
 			if err != nil {
 				return "", err
 			}
-			return resp.IamToken, nil
+			return resp.GetIamToken(), nil
 		},
 	})
 	if err != nil {
@@ -219,11 +219,11 @@ func newTestDatalensClient(config *provider_config.Config) (*datalens.Client, er
 	return datalens.NewClient(datalens.Config{
 		Endpoint: config.ProviderState.DatalensEndpoint.ValueString(),
 		TokenProvider: func(ctx context.Context) (string, error) {
-			resp, err := config.SDK.CreateIAMToken(ctx)
+			resp, err := config.SDKv2.CreateIAMToken(ctx)
 			if err != nil {
 				return "", err
 			}
-			return resp.IamToken, nil
+			return resp.GetIamToken(), nil
 		},
 	})
 }

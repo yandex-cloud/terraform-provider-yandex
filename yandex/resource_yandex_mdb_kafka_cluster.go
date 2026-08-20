@@ -15,7 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -832,29 +832,21 @@ func resourceYandexMDBKafkaClusterCreate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Creating Kafka cluster: %+v", req)
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Kafka().Cluster().Create(ctx, req))
+	op, err := kafkasdk.NewClusterClient(config.SDK).Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Kafka Cluster: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while getting Kafka create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*kafka.CreateClusterMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Cluster ID from create operation metadata")
-	}
+	md := op.Metadata()
 
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting for operation to create Kafka Cluster: %s", err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("kafka cluster creation failed: %s", err)
 	}
 	log.Printf("[DEBUG] Finished creating Kafka cluster %q", md.ClusterId)
@@ -948,7 +940,7 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.MDB().Kafka().Cluster().Get(ctx, &kafka.GetClusterRequest{
+	cluster, err := kafkasdk.NewClusterClient(config.SDK).Get(ctx, &kafka.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -1093,17 +1085,17 @@ func resourceYandexMDBKafkaClusterDelete(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Kafka().Cluster().Delete(ctx, req))
+	op, err := kafkasdk.NewClusterClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Kafka Cluster %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
 
-	_, err = op.Response()
+	err = op.Error()
 	if err != nil {
 		return err
 	}
@@ -1116,7 +1108,7 @@ func listKafkaTopics(ctx context.Context, config *Config, id string) ([]*kafka.T
 	ret := []*kafka.Topic{}
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Kafka().Topic().List(ctx, &kafka.ListTopicsRequest{
+		resp, err := kafkasdk.NewTopicClient(config.SDK).List(ctx, &kafka.ListTopicsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1137,7 +1129,7 @@ func listKafkaUsers(ctx context.Context, config *Config, id string) ([]*kafka.Us
 	ret := []*kafka.User{}
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Kafka().User().List(ctx, &kafka.ListUsersRequest{
+		resp, err := kafkasdk.NewUserClient(config.SDK).List(ctx, &kafka.ListUsersRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1158,7 +1150,7 @@ func listKafkaHosts(ctx context.Context, config *Config, id string) ([]*kafka.Ho
 	ret := []*kafka.Host{}
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Kafka().Cluster().ListHosts(ctx, &kafka.ListClusterHostsRequest{
+		resp, err := kafkasdk.NewClusterClient(config.SDK).ListHosts(ctx, &kafka.ListClusterHostsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1320,15 +1312,15 @@ func updateKafkaClusterParams(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending Kafka cluster update request: %+v", req)
-		return config.sdk.MDB().Kafka().Cluster().Update(ctx, req)
+		return kafkasdk.NewClusterClient(config.SDK).Update(ctx, req)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update Kafka Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating Kafka Cluster %q: %s", d.Id(), err)
 	}
@@ -1384,17 +1376,17 @@ func updateKafkaClusterTopics(d *schema.ResourceData, topicModifier KafkaTopicMo
 }
 
 func deleteKafkaTopic(ctx context.Context, config *Config, d *schema.ResourceData, topicName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Kafka().Topic().Delete(ctx, &kafka.DeleteTopicRequest{
+	op, err :=
+		kafkasdk.NewTopicClient(config.SDK).Delete(ctx, &kafka.DeleteTopicRequest{
 			ClusterId: d.Id(),
 			TopicName: topicName,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete topic from Kafka Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting topic from Kafka Cluster %q: %s", d.Id(), err)
 	}
@@ -1402,17 +1394,17 @@ func deleteKafkaTopic(ctx context.Context, config *Config, d *schema.ResourceDat
 }
 
 func createKafkaTopic(ctx context.Context, config *Config, d *schema.ResourceData, topicSpec *kafka.TopicSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Kafka().Topic().Create(ctx, &kafka.CreateTopicRequest{
+	op, err :=
+		kafkasdk.NewTopicClient(config.SDK).Create(ctx, &kafka.CreateTopicRequest{
 			ClusterId: d.Id(),
 			TopicSpec: topicSpec,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create topic in Kafka Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding topic to Kafka Cluster %q: %s", d.Id(), err)
 	}
@@ -1429,14 +1421,14 @@ func updateKafkaTopic(ctx context.Context, config *Config, d *schema.ResourceDat
 
 	log.Printf("[DEBUG] Sending topic update request: %+v", request)
 
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Kafka().Topic().Update(ctx, request),
-	)
+	op, err :=
+		kafkasdk.NewTopicClient(config.SDK).Update(ctx, request)
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update topic in Kafka Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating topic in Kafka Cluster %q: %s", d.Id(), err)
 	}
@@ -1489,15 +1481,15 @@ func deleteKafkaUser(ctx context.Context, config *Config, clusterID string, user
 		UserName:  userName,
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Deleting Kafka user %q within cluster %q", userName, clusterID)
-		return config.sdk.MDB().Kafka().User().Delete(ctx, req)
+		return kafkasdk.NewUserClient(config.SDK).Delete(ctx, req)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete user from Kafka Cluster %q: %s", clusterID, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting user from Kafka Cluster %q: %s", clusterID, err)
 	}
@@ -1511,19 +1503,19 @@ func createKafkaUser(ctx context.Context, config *Config, clusterID string, user
 		UserSpec:  userSpec,
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Creating Kafka user %q: %+v", userSpec.Name, req)
-		return config.sdk.MDB().Kafka().User().Create(ctx, req)
+		return kafkasdk.NewUserClient(config.SDK).Create(ctx, req)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create user %q in Kafka Cluster %q: %s", userSpec.Name, clusterID, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting for Kafka user %q in cluster %q create operation: %s", userSpec.Name, clusterID, err)
 	}
-	if _, err = op.Response(); err != nil {
+	if err = op.Error(); err != nil {
 		return fmt.Errorf("kafka user %q creation failed in cluster %q: %s", userSpec.Name, clusterID, err)
 	}
 	log.Printf("[DEBUG] Finished creating Kafka user %q", userSpec.Name)
@@ -1574,14 +1566,14 @@ func updateKafkaUsers(ctx context.Context, config *Config, d *schema.ResourceDat
 }
 
 func updateKafkaUser(ctx context.Context, config *Config, req *kafka.UpdateUserRequest) error {
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Updating Kafka user %q: %+v", req.UserName, req)
-		return config.sdk.MDB().Kafka().User().Update(ctx, req)
+		return kafkasdk.NewUserClient(config.SDK).Update(ctx, req)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user %q in Kafka Cluster %q: %s", req.UserName, req.ClusterId, err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating user %q in Kafka Cluster %q: %s", req.UserName, req.ClusterId, err)
 	}
@@ -1648,7 +1640,7 @@ func setKafkaFolderID(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.MDB().Kafka().Cluster().Get(ctx, &kafka.GetClusterRequest{
+	cluster, err := kafkasdk.NewClusterClient(config.SDK).Get(ctx, &kafka.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -1668,20 +1660,20 @@ func setKafkaFolderID(d *schema.ResourceData, meta interface{}) error {
 			ClusterId:           d.Id(),
 			DestinationFolderId: folderID.(string),
 		}
-		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 			log.Printf("[DEBUG] Sending Kafka cluster move request: %+v", request)
-			return config.sdk.MDB().Kafka().Cluster().Move(ctx, request)
+			return kafkasdk.NewClusterClient(config.SDK).Move(ctx, request)
 		})
 		if err != nil {
 			return fmt.Errorf("error while requesting API to move Kafka Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error while moving Kafka Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		if _, err := op.Response(); err != nil {
+		if err := op.Error(); err != nil {
 			return fmt.Errorf("moving Kafka Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
 		}
 

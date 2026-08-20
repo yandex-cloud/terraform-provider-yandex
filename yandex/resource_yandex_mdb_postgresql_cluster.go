@@ -17,9 +17,12 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	operationpb "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/operationcompat"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 )
 
 const (
@@ -643,7 +646,7 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.MDB().PostgreSQL().Cluster().Get(ctx, &postgresql.GetClusterRequest{
+	cluster, err := postgresqlsdk.NewClusterClient(config.SDK).Get(ctx, &postgresql.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -813,15 +816,15 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 	ctx, cancel := config.ContextWithTimeout(createTimeout)
 	defer cancel()
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL cluster create request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Cluster().Create(ctx, request)
+		return postgresqlsdk.NewClusterClient(config.SDK).Create(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create PostgreSQL Cluster: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
+	protoMetadata := op.Metadata()
 	if err != nil {
 		return fmt.Errorf("Error while get PostgreSQL Cluster create operation metadata: %s", err)
 	}
@@ -833,12 +836,12 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting for operation to create PostgreSQL Cluster: %s", err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("PostgreSQL Cluster creation failed: %s", err)
 	}
 
@@ -902,16 +905,16 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		request.DiskEncryptionKeyId = wrapperspb.String("")
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL cluster restore request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Cluster().Restore(ctx, request)
+		return postgresqlsdk.NewClusterClient(config.SDK).Restore(ctx, request)
 	})
 
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create PostgreSQL Cluster from backup %v: %s", backupID, err)
 	}
 
-	protoMetadata, err := op.Metadata()
+	protoMetadata := op.Metadata()
 	if err != nil {
 		return fmt.Errorf("Error while get PostgreSQL Cluster create from backup %v operation metadata: %s", backupID, err)
 	}
@@ -923,12 +926,12 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting for operation to create PostgreSQL Cluster from backup %v: %s", backupID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("PostgreSQL Cluster creation from backup %v failed: %s", backupID, err)
 	}
 
@@ -1090,16 +1093,16 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL cluster update request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Cluster().Update(ctx, request)
+		return postgresqlsdk.NewClusterClient(config.SDK).Update(ctx, request)
 	})
 
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while waiting for operation to update PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
@@ -1458,20 +1461,20 @@ func resourceYandexMDBPostgreSQLClusterDelete(d *schema.ResourceData, meta inter
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL cluster delete request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Cluster().Delete(ctx, request)
+		return postgresqlsdk.NewClusterClient(config.SDK).Delete(ctx, request)
 	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("PostgreSQL Cluster %q", d.Id()))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
 
-	_, err = op.Response()
+	err = op.Error()
 	if err != nil {
 		return err
 	}
@@ -1511,22 +1514,22 @@ func resourceYandexMDBPostgreSQLClusterCustomizeDiff(ctx context.Context, d *sch
 }
 
 func createPGUser(ctx context.Context, config *Config, d *schema.ResourceData, user *postgresql.UserSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().User().Create(ctx, &postgresql.CreateUserRequest{
+	op, err :=
+		postgresqlsdk.NewUserClient(config.SDK).Create(ctx, &postgresql.CreateUserRequest{
 			ClusterId: d.Id(),
 			UserSpec:  user,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create user for PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while creating user for PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("creating user for PostgreSQL Cluster %q failed: %s", d.Id(), err)
 	}
 
@@ -1591,14 +1594,14 @@ func updatePGUser(
 	}
 
 	log.Printf("[DEBUG] Sending PostgreSQL user update request: %+v", redactPgUserUpdateRequest(request))
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().User().Update(ctx, request),
-	)
+	op, err :=
+		postgresqlsdk.NewUserClient(config.SDK).Update(ctx, request)
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating user in PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
@@ -1607,29 +1610,29 @@ func updatePGUser(
 		f()
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("updating user for PostgreSQL Cluster %q failed: %s", d.Id(), err)
 	}
 	return nil
 }
 
 func deletePGUser(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().User().Delete(ctx, &postgresql.DeleteUserRequest{
+	op, err :=
+		postgresqlsdk.NewUserClient(config.SDK).Delete(ctx, &postgresql.DeleteUserRequest{
 			ClusterId: d.Id(),
 			UserName:  name,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete user from PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting user from PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("deleting user from PostgreSQL Cluster %q failed: %s", d.Id(), err)
 	}
 
@@ -1641,7 +1644,7 @@ func listPGUsers(ctx context.Context, config *Config, id string) ([]*postgresql.
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.MDB().PostgreSQL().User().List(ctx, &postgresql.ListUsersRequest{
+		resp, err := postgresqlsdk.NewUserClient(config.SDK).List(ctx, &postgresql.ListUsersRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1662,8 +1665,8 @@ func listPGUsers(ctx context.Context, config *Config, id string) ([]*postgresql.
 }
 
 func createPGDatabase(ctx context.Context, config *Config, d *schema.ResourceData, db *postgresql.DatabaseSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().Database().Create(ctx, &postgresql.CreateDatabaseRequest{
+	op, err :=
+		postgresqlsdk.NewDatabaseClient(config.SDK).Create(ctx, &postgresql.CreateDatabaseRequest{
 			ClusterId: d.Id(),
 			DatabaseSpec: &postgresql.DatabaseSpec{
 				Name:       db.Name,
@@ -1673,18 +1676,18 @@ func createPGDatabase(ctx context.Context, config *Config, d *schema.ResourceDat
 				TemplateDb: db.TemplateDb,
 				Extensions: db.Extensions,
 			},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create database in PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding database to PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("creating database for PostgreSQL Cluster %q failed: %s", d.Id(), err)
 	}
 
@@ -1709,47 +1712,43 @@ func updatePGDatabase(ctx context.Context, config *Config, d *schema.ResourceDat
 
 	// Deletion protection and dbname changing is not supported on purpose
 	// User should use separate resources for that
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().Database().Update(ctx, &postgresql.UpdateDatabaseRequest{
+	op, err := retry.ConflictingOperationV2(ctx, config.SDK, func() (*operationpb.Operation, error) {
+		return requestPostgreSQLDatabaseUpdate(ctx, config.SDK, &postgresql.UpdateDatabaseRequest{
 			ClusterId:    d.Id(),
 			DatabaseName: db.Name,
 			Extensions:   db.Extensions,
 			UpdateMask:   &field_mask.FieldMask{Paths: updatePath},
-		}),
-	)
+		})
+	})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update database in PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
+	if err = operationcompat.Wait(ctx, config.SDK, op.GetId()); err != nil {
 		return fmt.Errorf("error while updating database in PostgreSQL Cluster %q: %s", d.Id(), err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("updating database for PostgreSQL Cluster %q failed: %s", d.Id(), err)
 	}
 
 	return nil
 }
 
 func deletePGDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().Database().Delete(ctx, &postgresql.DeleteDatabaseRequest{
+	op, err :=
+		postgresqlsdk.NewDatabaseClient(config.SDK).Delete(ctx, &postgresql.DeleteDatabaseRequest{
 			ClusterId:    d.Id(),
 			DatabaseName: dbName,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete database from PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting database from PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("deleting database from PostgreSQL Cluster %q failed: %s", d.Id(), err)
 	}
 
@@ -1761,20 +1760,20 @@ func addPGHost(ctx context.Context, config *Config, d *schema.ResourceData, host
 		ClusterId: d.Id(),
 		HostSpecs: []*postgresql.HostSpec{host},
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL cluster add hosts request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Cluster().AddHosts(ctx, request)
+		return postgresqlsdk.NewClusterClient(config.SDK).AddHosts(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create host for PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while creating host for PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("creating host for PostgreSQL Cluster %q failed: %s", d.Id(), err)
 	}
 
@@ -1786,20 +1785,20 @@ func deletePGHost(ctx context.Context, config *Config, d *schema.ResourceData, n
 		ClusterId: d.Id(),
 		HostNames: []string{name},
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL cluster delete hosts request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Cluster().DeleteHosts(ctx, request)
+		return postgresqlsdk.NewClusterClient(config.SDK).DeleteHosts(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete host from PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting host from PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("deleting host from PostgreSQL Cluster %q failed: %s", d.Id(), err)
 	}
 
@@ -1811,20 +1810,20 @@ func startPGFailover(ctx context.Context, config *Config, d *schema.ResourceData
 		ClusterId: d.Id(),
 		HostName:  hostName,
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL cluster start failover request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Cluster().StartFailover(ctx, request)
+		return postgresqlsdk.NewClusterClient(config.SDK).StartFailover(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to start failover host in PostgreSQL Cluster %q - host %v: %s", d.Id(), hostName, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while start failover host in PostgreSQL Cluster %q - host %v: %s", d.Id(), hostName, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("start failover host in PostgreSQL Cluster %q - host %v failed: %s", d.Id(), hostName, err)
 	}
 
@@ -1836,20 +1835,20 @@ func updatePGHost(ctx context.Context, config *Config, d *schema.ResourceData, h
 		ClusterId:       d.Id(),
 		UpdateHostSpecs: []*postgresql.UpdateHostSpec{host},
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL cluster update hosts request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Cluster().UpdateHosts(ctx, request)
+		return postgresqlsdk.NewClusterClient(config.SDK).UpdateHosts(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update host for PostgreSQL Cluster %q - host %v: %s", d.Id(), host.HostName, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating host for PostgreSQL Cluster %q - host %v: %s", d.Id(), host.HostName, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("updating host for PostgreSQL Cluster %q - host %v failed: %s", d.Id(), host.HostName, err)
 	}
 
@@ -1868,7 +1867,7 @@ func retryListPGHosts(ctx context.Context, config *Config, id string, attempt in
 				PageSize:  defaultMDBPageSize,
 				PageToken: pageToken,
 			}
-			resp, err := config.sdk.MDB().PostgreSQL().Cluster().ListHosts(ctx, request)
+			resp, err := postgresqlsdk.NewClusterClient(config.SDK).ListHosts(ctx, request)
 			log.Printf("[DEBUG] Sending PostgreSQL cluster list hosts request: %+v", request)
 			if err != nil {
 				return nil, fmt.Errorf("Error while getting list of hosts for PostgreSQL Cluster '%q': %s", id, err)
@@ -1921,7 +1920,7 @@ func setPGFolderID(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.MDB().PostgreSQL().Cluster().Get(ctx, &postgresql.GetClusterRequest{
+	cluster, err := postgresqlsdk.NewClusterClient(config.SDK).Get(ctx, &postgresql.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -1941,20 +1940,20 @@ func setPGFolderID(d *schema.ResourceData, meta interface{}) error {
 			ClusterId:           d.Id(),
 			DestinationFolderId: folderID.(string),
 		}
-		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 			log.Printf("[DEBUG] Sending PostgreSQL cluster move request: %+v", request)
-			return config.sdk.MDB().PostgreSQL().Cluster().Move(ctx, request)
+			return postgresqlsdk.NewClusterClient(config.SDK).Move(ctx, request)
 		})
 		if err != nil {
 			return fmt.Errorf("error while requesting API to move PostgreSQL Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error while moving PostgreSQL Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		if _, err := op.Response(); err != nil {
+		if err := op.Error(); err != nil {
 			return fmt.Errorf("moving PostgreSQL Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
 		}
 

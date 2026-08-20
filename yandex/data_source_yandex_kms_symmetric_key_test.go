@@ -3,8 +3,10 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 	"testing"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
+	kmssdk "github.com/yandex-cloud/go-sdk/services/kms/v1"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -88,7 +90,9 @@ func testAccDataSourceKmsSymmetricKeyExists(name string) resource.TestCheckFunc 
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.KMS().SymmetricKey().Get(context.Background(), &kms.GetSymmetricKeyRequest{
+		client := kmssdk.NewSymmetricKeyClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &kms.GetSymmetricKeyRequest{
 			KeyId: ds.Primary.ID,
 		})
 
@@ -118,7 +122,9 @@ func testAccCheckYandexKmsSymmetricKeyAllDestroyed(s *terraform.State) error {
 
 func testAccCheckYandexKmsSymmetricKeyDestroyed(id string) error {
 	config := testAccProvider.Meta().(*Config)
-	_, err := config.sdk.KMS().SymmetricKey().Get(context.Background(), &kms.GetSymmetricKeyRequest{
+	client := kmssdk.NewSymmetricKeyClient(config.SDK)
+
+	_, err := client.Get(context.Background(), &kms.GetSymmetricKeyRequest{
 		KeyId: id,
 	})
 	if err == nil {

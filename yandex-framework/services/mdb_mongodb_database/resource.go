@@ -3,6 +3,7 @@ package mdb_mongodb_database
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 	"time"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
@@ -107,7 +108,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
-	db, err := r.providerConfig.SDK.MDB().MongoDB().Database().Get(ctx, &mongodb.GetDatabaseRequest{
+	db, err := mongodbsdk.NewDatabaseClient(r.providerConfig.SDKv2).Get(ctx, &mongodb.GetDatabaseRequest{
 		ClusterId:    cid,
 		DatabaseName: dbName,
 	})
@@ -154,7 +155,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		Name:               dbName,
 		DeletionProtection: wrappers.BoolFromTF(plan.DeletionProtection),
 	}
-	createDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, spec)
+	createDatabase(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, spec)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -221,7 +222,7 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
-	deleteDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
+	deleteDatabase(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, dbName)
 }
 
 func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -233,7 +234,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		)
 		return
 	}
-	db := readDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, clusterId, dbName)
+	db := readDatabase(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, clusterId, dbName)
 	if resp.Diagnostics.HasError() {
 		return
 	}

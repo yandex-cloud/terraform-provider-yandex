@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
+	devicessdk "github.com/yandex-cloud/go-sdk/services/iot/devices/v1"
 )
 
 const iotRegistryResource = "yandex_iot_core_registry.test-registry"
@@ -33,7 +34,9 @@ func testSweepIoTCoreRegistry(_ string) error {
 	}
 
 	req := &iot.ListRegistriesRequest{FolderId: conf.FolderID}
-	it := conf.sdk.IoT().Devices().Registry().RegistryIterator(conf.Context(), req)
+	client := devicessdk.NewRegistryClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -53,10 +56,12 @@ func sweepIoTCoreRegistryOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexIoTDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.IoT().Devices().Registry().Delete(ctx, &iot.DeleteRegistryRequest{
+	client := devicessdk.NewRegistryClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &iot.DeleteRegistryRequest{
 		RegistryId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func TestAccYandexIoTCoreRegistry_basic(t *testing.T) {
@@ -351,15 +356,19 @@ resource "yandex_logging_group" "logging-group" {
 }
 
 func testGetRegistryByID(config *Config, ID string) (*iot.Registry, error) {
+	client := devicessdk.NewRegistryClient(config.SDK)
+
 	req := iot.GetRegistryRequest{
 		RegistryId: ID,
 	}
 
-	return config.sdk.IoT().Devices().Registry().Get(context.Background(), &req)
+	return client.Get(context.Background(), &req)
 }
 
 func testGetRegistryCertificatesByID(config *Config, ID string) (map[string]interface{}, error) {
-	certs, err := config.sdk.IoT().Devices().Registry().ListCertificates(context.Background(), &iot.ListRegistryCertificatesRequest{RegistryId: ID})
+	client := devicessdk.NewRegistryClient(config.SDK)
+
+	certs, err := client.ListCertificates(context.Background(), &iot.ListRegistryCertificatesRequest{RegistryId: ID})
 	if err != nil {
 		return nil, err
 	}
@@ -372,7 +381,9 @@ func testGetRegistryCertificatesByID(config *Config, ID string) (map[string]inte
 }
 
 func testGetRegistryPasswordsByID(config *Config, ID string) (map[string]interface{}, error) {
-	passwords, err := config.sdk.IoT().Devices().Registry().ListPasswords(context.Background(), &iot.ListRegistryPasswordsRequest{RegistryId: ID})
+	client := devicessdk.NewRegistryClient(config.SDK)
+
+	passwords, err := client.ListPasswords(context.Background(), &iot.ListRegistryPasswordsRequest{RegistryId: ID})
 	if err != nil {
 		return nil, err
 	}

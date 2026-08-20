@@ -3,6 +3,7 @@ package testhelpers
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/datasphere/v2"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -30,7 +31,7 @@ func ProjectExists(name string) resource.TestCheckFunc {
 
 		id := rs.Primary.ID
 
-		found, err := config.SDK.Datasphere().Project().Get(context.Background(), &datasphere.GetProjectRequest{
+		found, err := dataspheresdk.NewProjectClient(config.SDKv2).Get(context.Background(), &datasphere.GetProjectRequest{
 			ProjectId: id,
 		})
 		if err != nil {
@@ -54,7 +55,7 @@ func AccCheckProjectDestroy(s *terraform.State) error {
 		}
 		id := rs.Primary.ID
 
-		_, err := config.SDK.Datasphere().Project().Get(context.Background(), &datasphere.GetProjectRequest{
+		_, err := dataspheresdk.NewProjectClient(config.SDKv2).Get(context.Background(), &datasphere.GetProjectRequest{
 			ProjectId: id,
 		})
 		if err == nil {
@@ -81,7 +82,7 @@ func CommunityExists(name string) resource.TestCheckFunc {
 
 		id := rs.Primary.ID
 
-		found, err := config.SDK.Datasphere().Community().Get(context.Background(), &datasphere.GetCommunityRequest{
+		found, err := dataspheresdk.NewCommunityClient(config.SDKv2).Get(context.Background(), &datasphere.GetCommunityRequest{
 			CommunityId: id,
 		})
 		if err != nil {
@@ -105,7 +106,7 @@ func AccCheckCommunityDestroy(s *terraform.State) error {
 		}
 		id := rs.Primary.ID
 
-		_, err := config.SDK.Datasphere().Community().Get(context.Background(), &datasphere.GetCommunityRequest{
+		_, err := dataspheresdk.NewCommunityClient(config.SDKv2).Get(context.Background(), &datasphere.GetCommunityRequest{
 			CommunityId: id,
 		})
 		if err == nil {

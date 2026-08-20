@@ -2,11 +2,13 @@ package mdbcommon
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	redissdk "github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/objectid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -39,7 +41,9 @@ func GetClusterIdForDatasource(ctx context.Context, providerConfig *provider_con
 			return "", diags
 		}
 
-		clusterIdStr, d = objectid.ResolveByNameAndFolderID(ctx, providerConfig.SDK, folderID, name.ValueString(), sdkresolvers.RedisClusterResolver)
+		clusterIdStr, d = objectid.ResolveByNameAndFolderID(ctx, folderID, name.ValueString(), func(name string, opts ...sdkresolvers.ResolveOption) sdkresolvers.Resolver {
+			return redissdk.ClusterResolver(name, redissdk.NewClusterClient(providerConfig.SDKv2), opts...)
+		})
 		if diags.Append(d); diags.HasError() {
 			return "", diags
 		}

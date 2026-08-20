@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/trino/v1"
 	"os"
 	"testing"
 	"text/template"
@@ -686,7 +687,7 @@ resource "yandex_trino_access_control" "trino_access_control" {
 }
 
 func testAccCheckTrinoAccessControlDestroy(s *terraform.State) error {
-	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
+	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_trino_access_control" {
@@ -694,7 +695,7 @@ func testAccCheckTrinoAccessControlDestroy(s *terraform.State) error {
 		}
 
 		clusterID := rs.Primary.Attributes["cluster_id"]
-		cluster, err := sdk.Trino().Cluster().Get(context.Background(), &trinov1.GetClusterRequest{
+		cluster, err := trinosdk.NewClusterClient(sdk).Get(context.Background(), &trinov1.GetClusterRequest{
 			ClusterId: clusterID,
 		})
 
@@ -739,9 +740,9 @@ func testAccCheckTrinoAccessControlExists(name string) resource.TestCheckFunc {
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("ID is not set")
 		}
-		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
+		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
 		clusterID := rs.Primary.Attributes["cluster_id"]
-		found, err := sdk.Trino().Cluster().Get(context.Background(), &trinov1.GetClusterRequest{
+		found, err := trinosdk.NewClusterClient(sdk).Get(context.Background(), &trinov1.GetClusterRequest{
 			ClusterId: clusterID,
 		})
 		if err != nil {

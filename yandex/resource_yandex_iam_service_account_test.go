@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 func init() {
@@ -34,7 +36,9 @@ func testSweepIAMServiceAccounts(_ string) error {
 	}
 
 	req := &iam.ListServiceAccountsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.IAM().ServiceAccount().ServiceAccountIterator(conf.Context(), req)
+	client := iamsdk.NewServiceAccountClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -54,10 +58,12 @@ func sweepIAMServiceAccountOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(1 * time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.IAM().ServiceAccount().Delete(ctx, &iam.DeleteServiceAccountRequest{
+	client := iamsdk.NewServiceAccountClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &iam.DeleteServiceAccountRequest{
 		ServiceAccountId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 // NOTE(dxan): function may return non-empty string and non-nil error. Example:
@@ -65,27 +71,21 @@ func sweepIAMServiceAccountOnce(conf *Config, id string) error {
 func createIAMServiceAccountForSweeper(conf *Config) (string, error) {
 	ctx, cancel := conf.ContextWithTimeout(yandexIAMServiceAccountDefaultTimeout)
 	defer cancel()
-	op, err := conf.sdk.WrapOperation(conf.sdk.IAM().ServiceAccount().Create(ctx, &iam.CreateServiceAccountRequest{
+	client := iamsdk.NewServiceAccountClient(conf.SDK)
+
+	op, err := client.Create(ctx, &iam.CreateServiceAccountRequest{
 		FolderId:    conf.FolderID,
 		Name:        acctest.RandomWithPrefix("sweeper"),
 		Description: "created by sweeper",
-	}))
+	})
 	if err != nil {
 		return "", fmt.Errorf("failed to create service account: %v", err)
 	}
 
-	protoMD, err := op.Metadata()
-	if err != nil {
-		return "", fmt.Errorf("failed to get metadata from create service account operation: %v", err)
-	}
-
-	md, ok := protoMD.(*iam.CreateServiceAccountMetadata)
-	if !ok {
-		return "", fmt.Errorf("failed to get Service Account ID from create operation metadata")
-	}
+	md := op.Metadata()
 	id := md.ServiceAccountId
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return id, fmt.Errorf("error while waiting for create service account operation: %v", err)
 	}
@@ -102,7 +102,9 @@ func assignEditorRoleToSweeperServiceAccount(conf *Config, saID string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexResourceManagerFolderDefaultTimeout)
 	defer cancel()
 	const role_EDITOR = "editor"
-	op, err := conf.sdk.WrapOperation(conf.sdk.ResourceManager().Folder().UpdateAccessBindings(ctx, &access.UpdateAccessBindingsRequest{
+	client := resourcemanagersdk.NewFolderClient(conf.SDK)
+
+	op, err := client.UpdateAccessBindings(ctx, &access.UpdateAccessBindingsRequest{
 		ResourceId: conf.FolderID,
 		AccessBindingDeltas: []*access.AccessBindingDelta{
 			{
@@ -116,14 +118,14 @@ func assignEditorRoleToSweeperServiceAccount(conf *Config, saID string) error {
 				},
 			},
 		},
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to assign '%s' role to the service account %q: %v", role_EDITOR, saID, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while waiting for grant access bindings operation '%q': %v", op.Id(), err)
+		return fmt.Errorf("error while waiting for grant access bindings operation '%q': %v", op.ID(), err)
 	}
 
 	debugLog("Service account '%s' was granted role '%s' to folder ID '%s'", saID, role_EDITOR, conf.FolderID)
@@ -143,8 +145,9 @@ func testAccCheckYandexIAMServiceAccountExistsWithID(n string, sa *iam.ServiceAc
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := iamsdk.NewServiceAccountClient(config.SDK)
 
-		found, err := config.sdk.IAM().ServiceAccount().Get(context.Background(), &iam.GetServiceAccountRequest{
+		found, err := client.Get(context.Background(), &iam.GetServiceAccountRequest{
 			ServiceAccountId: rs.Primary.ID,
 		})
 		if err != nil {

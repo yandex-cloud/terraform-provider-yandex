@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	dataspheresdk "github.com/yandex-cloud/go-sdk/services/datasphere/v2"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	//dataspheretest "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/tests/datasphere"
@@ -81,7 +82,7 @@ func testAccCheckDatasphereProjectIam(resourceName, role string, members []strin
 		if !ok {
 			return fmt.Errorf("can't find %s in state", resourceName)
 		}
-		bindings, err := config.SDK.Datasphere().Project().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
+		bindings, err := dataspheresdk.NewProjectClient(config.SDKv2).ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
 			ResourceId: rs.Primary.ID,
 		})
 		if err != nil {

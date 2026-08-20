@@ -3,6 +3,7 @@ package mdb_redis_user_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -123,7 +124,7 @@ func testAccLoadRedisUser(s *terraform.State, username string) (*redis.User, err
 	}
 
 	config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-	return config.SDK.MDB().Redis().User().Get(context.Background(), &redis.GetUserRequest{
+	return redissdk.NewUserClient(config.SDKv2).Get(context.Background(), &redis.GetUserRequest{
 		ClusterId: rs.Primary.ID,
 		UserName:  username,
 	})

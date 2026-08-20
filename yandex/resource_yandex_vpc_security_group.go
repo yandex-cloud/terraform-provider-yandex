@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -219,30 +220,19 @@ func resourceYandexVPCSecurityGroupCreate(d *schema.ResourceData, meta interface
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().SecurityGroup().Create(ctx, &req))
+	client := vpcsdk.NewSecurityGroupClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create security group: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while get security group create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*vpc.CreateSecurityGroupMetadata)
-	if !ok {
-		return fmt.Errorf("could not get SecurityGroup ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.SecurityGroupId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting operation to create security group: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("security group creation failed: %s", err)
 	}
 
 	return resourceYandexVPCSecurityGroupRead(d, meta)
@@ -258,7 +248,9 @@ func yandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}, id str
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	securityGroup, err := config.sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
+	client := vpcsdk.NewSecurityGroupClient(config.SDK)
+
+	securityGroup, err := client.Get(ctx, &vpc.GetSecurityGroupRequest{
 		SecurityGroupId: id,
 	})
 
@@ -329,14 +321,15 @@ func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
+	client := vpcsdk.NewSecurityGroupClient(config.SDK)
 
 	if len(req.UpdateMask.Paths) > 0 {
-		op, err := config.sdk.WrapOperation(config.sdk.VPC().SecurityGroup().Update(ctx, req))
+		op, err := client.Update(ctx, req)
 		if err != nil {
 			return fmt.Errorf("error while requesting API to update Security group %q: %s", d.Id(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error updating Security group %q: %s", d.Id(), err)
 		}
@@ -356,7 +349,9 @@ func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.ResourceData, config *Config) error {
-	sg, err := config.sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
+	client := vpcsdk.NewSecurityGroupClient(config.SDK)
+
+	sg, err := client.Get(ctx, &vpc.GetSecurityGroupRequest{
 		SecurityGroupId: d.Id(),
 	})
 
@@ -433,11 +428,11 @@ func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.Re
 		AdditionRuleSpecs: newRules,
 		DeletionRuleIds:   delRules,
 	}
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().SecurityGroup().UpdateRules(ctx, req))
+	op, err := client.UpdateRules(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update Security group rules %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error updating Security group rules %q: %s", d.Id(), err)
 	}
@@ -495,17 +490,14 @@ func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().SecurityGroup().Delete(ctx, req))
+	client := vpcsdk.NewSecurityGroupClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Security group %q", d.Id()))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

@@ -19,6 +19,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 )
 
 const (
@@ -45,7 +46,7 @@ func testSweepMDBPostgreSQLCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.MDB().PostgreSQL().Cluster().List(conf.Context(), &postgresql.ListClustersRequest{
+	resp, err := postgresqlsdk.NewClusterClient(conf.SDK).List(conf.Context(), &postgresql.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
 	})
@@ -76,7 +77,7 @@ func waitPostgreSQLClusterReadyForSweep(ctx context.Context, conf *Config, id st
 		case <-ctx.Done():
 			return fmt.Errorf("context cancelled while waiting for cluster %s to become ready for sweep", id)
 		case <-ticker.C:
-			cluster, err := conf.sdk.MDB().PostgreSQL().Cluster().Get(ctx, &postgresql.GetClusterRequest{
+			cluster, err := postgresqlsdk.NewClusterClient(conf.SDK).Get(ctx, &postgresql.GetClusterRequest{
 				ClusterId: id,
 			})
 			if err != nil {
@@ -105,20 +106,20 @@ func sweepMDBPostgreSQLClusterOnce(conf *Config, id string) error {
 	}
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.MDB().PostgreSQL().Cluster().Update(ctx, &postgresql.UpdateClusterRequest{
+	op, err := postgresqlsdk.NewClusterClient(conf.SDK).Update(ctx, &postgresql.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, op, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
-	op, err = conf.sdk.MDB().PostgreSQL().Cluster().Delete(ctx, &postgresql.DeleteClusterRequest{
+	deleteOp, err := postgresqlsdk.NewClusterClient(conf.SDK).Delete(ctx, &postgresql.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, deleteOp, err)
 }
 
 func mdbPGClusterImportStep(name string) resource.TestStep {
@@ -813,7 +814,7 @@ func testAccCheckMDBPGClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+		_, err := postgresqlsdk.NewClusterClient(config.SDK).Get(context.Background(), &postgresql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -838,7 +839,7 @@ func testAccCheckMDBPGClusterExists(n string, r *postgresql.Cluster, hosts int) 
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+		found, err := postgresqlsdk.NewClusterClient(config.SDK).Get(context.Background(), &postgresql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -851,7 +852,7 @@ func testAccCheckMDBPGClusterExists(n string, r *postgresql.Cluster, hosts int) 
 
 		*r = *found
 
-		resp, err := config.sdk.MDB().PostgreSQL().Cluster().ListHosts(context.Background(), &postgresql.ListClusterHostsRequest{
+		resp, err := postgresqlsdk.NewClusterClient(config.SDK).ListHosts(context.Background(), &postgresql.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -926,7 +927,7 @@ func testAccCheckMDBPGClusterHasUsers(r string, perms map[string][]string) resou
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().PostgreSQL().User().List(context.Background(), &postgresql.ListUsersRequest{
+		resp, err := postgresqlsdk.NewUserClient(config.SDK).List(context.Background(), &postgresql.ListUsersRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -974,7 +975,7 @@ func testAccCheckClusterSettingsAccessWebSQL(r string) resource.TestCheckFunc {
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+		found, err := postgresqlsdk.NewClusterClient(config.SDK).Get(context.Background(), &postgresql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -1003,7 +1004,7 @@ func testAccCheckClusterSettingsPerformanceDiagnostics(r string, enabled, advanc
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+		found, err := postgresqlsdk.NewClusterClient(config.SDK).Get(context.Background(), &postgresql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -1054,7 +1055,7 @@ func testAccCheckConnLimitUpdateUserSettings(r string) resource.TestCheckFunc {
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().PostgreSQL().User().List(context.Background(), &postgresql.ListUsersRequest{
+		resp, err := postgresqlsdk.NewUserClient(config.SDK).List(context.Background(), &postgresql.ListUsersRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1097,7 +1098,7 @@ func testAccCheckSettingsUpdateUserSettings(r string) resource.TestCheckFunc {
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().PostgreSQL().User().List(context.Background(), &postgresql.ListUsersRequest{
+		resp, err := postgresqlsdk.NewUserClient(config.SDK).List(context.Background(), &postgresql.ListUsersRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1135,7 +1136,7 @@ func testAccCheckPostgresqlConfigUpdate(r, version string) resource.TestCheckFun
 
 		config := testAccProvider.Meta().(*Config)
 
-		cluster, err := config.sdk.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+		cluster, err := postgresqlsdk.NewClusterClient(config.SDK).Get(context.Background(), &postgresql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -1321,7 +1322,7 @@ func testAccCheckMDBPGClusterHasDatabases(r string, databases []string) resource
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().PostgreSQL().Database().List(context.Background(), &postgresql.ListDatabasesRequest{
+		resp, err := postgresqlsdk.NewDatabaseClient(config.SDK).List(context.Background(), &postgresql.ListDatabasesRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})

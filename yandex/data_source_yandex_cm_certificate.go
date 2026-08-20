@@ -5,7 +5,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	certificatemanagersdk "github.com/yandex-cloud/go-sdk/services/certificatemanager/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -180,7 +181,11 @@ func dataSourceYandexCMCertificateRead(ctx context.Context, d *schema.ResourceDa
 
 	_, certificateNameOk := d.GetOk("name")
 	if certificateNameOk {
-		id, err = resolveObjectID(config.Context(), config, d, sdkresolvers.CertificateResolver)
+		client := certificatemanagersdk.NewCertificateClient(config.SDK)
+
+		id, err = resolveObjectIDV2(config.Context(), config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return certificatemanagersdk.CertificateResolver(name, client, opts...)
+		})
 		if err != nil {
 			return diag.FromErr(err)
 		}

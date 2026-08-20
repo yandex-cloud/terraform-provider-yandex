@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 )
 
 func init() {
@@ -32,7 +33,9 @@ func testSweepVPCNetworks(_ string) error {
 	}
 
 	req := &vpc.ListNetworksRequest{FolderId: conf.FolderID}
-	it := conf.sdk.VPC().Network().NetworkIterator(conf.Context(), req)
+	client := vpcsdk.NewNetworkClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -53,7 +56,9 @@ func sweepVPCNetworkOnce(conf *Config, id string) error {
 	defer cancel()
 
 	req := &vpc.ListNetworkSubnetsRequest{NetworkId: id}
-	subIt := conf.sdk.VPC().Network().NetworkSubnetsIterator(conf.Context(), req)
+	client := vpcsdk.NewNetworkClient(conf.SDK)
+
+	subIt := client.SubnetsIterator(conf.Context(), req)
 	for subIt.Next() {
 		subID := subIt.Value().GetId()
 		err := sweepVPCSubnetOnce(conf, subID)
@@ -62,10 +67,10 @@ func sweepVPCNetworkOnce(conf *Config, id string) error {
 		}
 	}
 
-	op, err := conf.sdk.VPC().Network().Delete(ctx, &vpc.DeleteNetworkRequest{
+	op, err := client.Delete(ctx, &vpc.DeleteNetworkRequest{
 		NetworkId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 // NOTE(dxan): function may return non-empty string and non-nil error. Example:
@@ -73,27 +78,21 @@ func sweepVPCNetworkOnce(conf *Config, id string) error {
 func createVPCNetworkForSweeper(conf *Config) (string, error) {
 	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
 	defer cancel()
-	op, err := conf.sdk.WrapOperation(conf.sdk.VPC().Network().Create(ctx, &vpc.CreateNetworkRequest{
+	client := vpcsdk.NewNetworkClient(conf.SDK)
+
+	op, err := client.Create(ctx, &vpc.CreateNetworkRequest{
 		FolderId:    conf.FolderID,
 		Name:        acctest.RandomWithPrefix("sweeper"),
 		Description: "created by sweeper",
-	}))
+	})
 	if err != nil {
 		return "", fmt.Errorf("failed to create network: %v", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return "", fmt.Errorf("failed to get metadata from create network operation: %v", err)
-	}
+	md := op.Metadata()
+	debugLog("Network '%s' was created, waiting for complete operation '%s'", md.GetNetworkId(), op.ID())
 
-	md, ok := protoMetadata.(*vpc.CreateNetworkMetadata)
-	if !ok {
-		return "", fmt.Errorf("failed to get Network ID from create operation metadata")
-	}
-	debugLog("Network '%s' was created, waiting for complete operation '%s'", md.GetNetworkId(), op.Id())
-
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return "", fmt.Errorf("error while waiting for create subnet operation: %v", err)
 	}
@@ -232,13 +231,14 @@ func TestAccVPCNetwork_addSubnets(t *testing.T) {
 
 func testAccCheckVPCNetworkDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := vpcsdk.NewNetworkClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_vpc_network" {
 			continue
 		}
 
-		_, err := config.sdk.VPC().Network().Get(context.Background(), &vpc.GetNetworkRequest{
+		_, err := client.Get(context.Background(), &vpc.GetNetworkRequest{
 			NetworkId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -261,8 +261,9 @@ func testAccCheckVPCNetworkExists(n string, network *vpc.Network) resource.TestC
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := vpcsdk.NewNetworkClient(config.SDK)
 
-		found, err := config.sdk.VPC().Network().Get(context.Background(), &vpc.GetNetworkRequest{
+		found, err := client.Get(context.Background(), &vpc.GetNetworkRequest{
 			NetworkId: rs.Primary.ID,
 		})
 		if err != nil {

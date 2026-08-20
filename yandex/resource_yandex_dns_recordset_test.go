@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
+	dnssdk "github.com/yandex-cloud/go-sdk/services/dns/v1"
 )
 
 func TestAccDNSRecordSet_basic(t *testing.T) {
@@ -183,9 +184,10 @@ func testAccCheckDNSRecordSetExists(name string, rst *dns.RecordSet) resource.Te
 		dnsName := rs.Primary.Attributes["name"]
 		dnsType := rs.Primary.Attributes["type"]
 
-		sdk := getSDK(testAccProvider.Meta().(*Config))
+		client := dnssdk.NewDnsZoneClient(testAccProvider.
+			Meta().(*Config).SDK)
 
-		found, err := sdk.DNS().DnsZone().GetRecordSet(context.Background(), &dns.GetDnsZoneRecordSetRequest{
+		found, err := client.GetRecordSet(context.Background(), &dns.GetDnsZoneRecordSetRequest{
 			DnsZoneId: dnsZoneId,
 			Name:      dnsName,
 			Type:      dnsType,

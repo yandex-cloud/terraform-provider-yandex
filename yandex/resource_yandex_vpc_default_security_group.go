@@ -8,6 +8,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -57,7 +58,9 @@ func resourceYandexVPCDefaultSecurityGroupCreate(d *schema.ResourceData, meta in
 	defer cancel()
 
 	networkId := d.Get("network_id").(string)
-	network, err := config.sdk.VPC().Network().Get(ctx, &vpc.GetNetworkRequest{
+	networkClient := vpcsdk.NewNetworkClient(config.SDK)
+
+	network, err := networkClient.Get(ctx, &vpc.GetNetworkRequest{
 		NetworkId: networkId,
 	})
 	if err != nil {
@@ -107,12 +110,14 @@ func resourceYandexVPCDefaultSecurityGroupCreate(d *schema.ResourceData, meta in
 		}
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().SecurityGroup().Update(ctx, upd))
+	securityGroupClient := vpcsdk.NewSecurityGroupClient(config.SDK)
+
+	op, err := securityGroupClient.Update(ctx, upd)
 	if err != nil {
 		return fmt.Errorf("error while updating security group %s: %s", sgId, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error updating security group %s: %s", sgId, err)
 	}

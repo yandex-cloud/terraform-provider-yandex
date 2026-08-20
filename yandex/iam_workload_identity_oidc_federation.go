@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	oidcsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/workload/oidc"
 )
 
 const yandexIAMWorkloadIdentityOidcFederationUpdateAccessBindingsBatchSize = 1000
@@ -56,12 +57,14 @@ func (u *WorkloadIdentityOidcFederationIamUpdater) SetResourceIamPolicy(ctx cont
 	ctx, cancel := context.WithTimeout(u.Config.Context(), 1*time.Minute)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.WorkloadOidc().Federation().SetAccessBindings(ctx, req))
+	client := oidcsdk.NewFederationClient(u.Config.SDK)
+
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -80,7 +83,9 @@ func (u *WorkloadIdentityOidcFederationIamUpdater) UpdateResourceIamPolicy(ctx c
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.WorkloadOidc().Federation().UpdateAccessBindings(ctx, req))
+		client := oidcsdk.NewFederationClient(u.Config.SDK)
+
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -88,7 +93,7 @@ func (u *WorkloadIdentityOidcFederationIamUpdater) UpdateResourceIamPolicy(ctx c
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -110,11 +115,13 @@ func (u *WorkloadIdentityOidcFederationIamUpdater) DescribeResource() string {
 }
 
 func getWorkloadIdentityOidcFederationAccessBindings(ctx context.Context, config *Config, federationID string) ([]*access.AccessBinding, error) {
+	client := oidcsdk.NewFederationClient(config.SDK)
+
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.WorkloadOidc().Federation().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: federationID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

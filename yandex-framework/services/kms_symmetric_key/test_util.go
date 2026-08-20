@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
+	kmssdk "github.com/yandex-cloud/go-sdk/services/kms/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
@@ -24,7 +25,7 @@ func TestAccCheckYandexKmsSymmetricKeyAllDestroyed(s *terraform.State) error {
 
 func testAccCheckYandexKmsSymmetricKeyDestroyed(id string) error {
 	cfg := test.AccProvider.(*provider.Provider).GetConfig()
-	_, err := cfg.SDK.KMS().SymmetricKey().Get(context.Background(), &kms.GetSymmetricKeyRequest{
+	_, err := kmssdk.NewSymmetricKeyClient(cfg.SDKv2).Get(context.Background(), &kms.GetSymmetricKeyRequest{
 		KeyId: id,
 	})
 	if err == nil {

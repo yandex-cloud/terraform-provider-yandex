@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 )
 
 func init() {
@@ -26,10 +27,11 @@ func testSweepComputeGpuCluster(_ string) error {
 	}
 
 	req := &compute.ListGpuClustersRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Compute().GpuCluster().GpuClusterIterator(conf.Context(), req)
+	it := computesdk.NewGpuClusterClient(conf.SDK).Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
-		id := it.Value().GetId()
+		cluster := it.Value()
+		id := cluster.GetId()
 		if !sweepComputeGpuCluster(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Compute GPU Cluster %q", id))
 		}
@@ -46,8 +48,11 @@ func sweepComputeGpuClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(5 * time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.Compute().GpuCluster().Delete(ctx, &compute.DeleteGpuClusterRequest{
-		GpuClusterId: id,
-	})
-	return handleSweepOperation(ctx, conf, op, err)
+	op, err := computesdk.NewGpuClusterClient(conf.
+		SDK,
+	).
+		Delete(ctx, &compute.DeleteGpuClusterRequest{
+			GpuClusterId: id,
+		})
+	return handleSweepOperationV2(ctx, op, err)
 }

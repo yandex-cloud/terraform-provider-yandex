@@ -3,12 +3,12 @@ package mdb_redis_cluster_v2
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 )
 
@@ -22,7 +22,7 @@ type RedisAPI struct {
 }
 
 func (r *RedisAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) *redis.Cluster {
-	db, err := sdk.MDB().Redis().Cluster().Get(ctx, &redis.GetClusterRequest{
+	db, err := redissdk.NewClusterClient(sdk).Get(ctx, &redis.GetClusterRequest{
 		ClusterId: cid,
 	})
 
@@ -37,9 +37,9 @@ func (r *RedisAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Di
 }
 
 func (r *RedisAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) {
-	op, err := sdk.WrapOperation(sdk.MDB().Redis().Cluster().Delete(ctx, &redis.DeleteClusterRequest{
+	op, err := redissdk.NewClusterClient(sdk).Delete(ctx, &redis.DeleteClusterRequest{
 		ClusterId: cid,
-	}))
+	})
 
 	if err != nil {
 		diag.AddError(
@@ -49,16 +49,16 @@ func (r *RedisAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"API Error Deleting",
-			fmt.Sprintf("Error while waiting for operation %q to delete Redis cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete Redis cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 	}
 }
 
 func (r *RedisAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *redis.CreateClusterRequest) string {
-	op, err := sdk.WrapOperation(sdk.MDB().Redis().Cluster().Create(ctx, req))
+	op, err := redissdk.NewClusterClient(sdk).Create(ctx, req)
 	if err != nil {
 		diag.AddError(
 			"API Error Creating",
@@ -67,30 +67,14 @@ func (r *RedisAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag
 		return ""
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		diag.AddError(
-			"API Error Creating",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
-		)
-		return ""
-	}
-
-	md, ok := protoMetadata.(*redis.CreateClusterMetadata)
-	if !ok {
-		diag.AddError(
-			"API Error Creating",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
-		)
-		return ""
-	}
+	md := op.Metadata()
 
 	log.Printf("[DEBUG] Creating Redis Cluster %q", md.ClusterId)
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"API Error Creating",
-			fmt.Sprintf("Error while waiting for operation %q to create Redis cluster: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create Redis cluster: %s", op.ID(), err.Error()),
 		)
 		return ""
 	}
@@ -99,7 +83,7 @@ func (r *RedisAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag
 }
 
 func (r *RedisAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *redis.UpdateClusterRequest) {
-	op, err := sdk.WrapOperation(sdk.MDB().Redis().Cluster().Update(ctx, req))
+	op, err := redissdk.NewClusterClient(sdk).Update(ctx, req)
 	if err != nil {
 		diag.AddError(
 			"API Error Updating",
@@ -108,10 +92,10 @@ func (r *RedisAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"API Error Updating",
-			fmt.Sprintf("Error while waiting for operation %q to update Redis cluster: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to update Redis cluster: %s", op.ID(), err.Error()),
 		)
 		return
 	}
@@ -122,7 +106,7 @@ func (r *RedisAPI) ListHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Dia
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().Redis().Cluster().ListHosts(ctx, &redis.ListClusterHostsRequest{
+		resp, err := redissdk.NewClusterClient(sdk).ListHosts(ctx, &redis.ListClusterHostsRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -150,9 +134,9 @@ func (r *RedisAPI) MoveCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 		ClusterId:           cid,
 		DestinationFolderId: folderID,
 	}
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*redissdk.ClusterMoveOperation, error) {
 		log.Printf("[DEBUG] Sending Redis cluster move request: %+v", request)
-		return sdk.MDB().Redis().Cluster().Move(ctx, request)
+		return redissdk.NewClusterClient(sdk).Move(ctx, request)
 	})
 	if err != nil {
 		diag.AddError(
@@ -162,16 +146,16 @@ func (r *RedisAPI) MoveCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"API Error Moving",
-			fmt.Sprintf("Error while waiting for operation %q to move Redis cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to move Redis cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 	}
 }
 
 func (r *RedisAPI) EnableShardingRedis(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) {
-	op, err := sdk.WrapOperation(sdk.MDB().Redis().Cluster().EnableSharding(ctx, &redis.EnableShardingClusterRequest{ClusterId: cid}))
+	op, err := redissdk.NewClusterClient(sdk).EnableSharding(ctx, &redis.EnableShardingClusterRequest{ClusterId: cid})
 	if err != nil {
 		diag.AddError(
 			"API Error EnableSharding",
@@ -180,22 +164,21 @@ func (r *RedisAPI) EnableShardingRedis(ctx context.Context, sdk *ycsdk.SDK, diag
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"API Error EnableSharding",
-			fmt.Sprintf("Error while waiting for operation %q to enable sharding Redis cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to enable sharding Redis cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 	}
 }
 
 func (r *RedisAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string, hostSpecs []*redis.HostSpec, opts struct{}) {
-	op, err := sdk.WrapOperation(
-		sdk.MDB().Redis().Cluster().AddShard(ctx, &redis.AddClusterShardRequest{
+	op, err :=
+		redissdk.NewClusterClient(sdk).AddShard(ctx, &redis.AddClusterShardRequest{
 			ClusterId: cid,
 			ShardName: shardName,
 			HostSpecs: hostSpecs,
-		}),
-	)
+		})
 	if err != nil {
 		diag.AddError(
 			"API Error Creating",
@@ -204,10 +187,10 @@ func (r *RedisAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"API Error Creating",
-			fmt.Sprintf("Error while waiting for operation %q to create shard Redis cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create shard Redis cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 		return
 	}
@@ -216,11 +199,10 @@ func (r *RedisAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 }
 
 func (r *RedisAPI) RebalanceCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) {
-	op, err := sdk.WrapOperation(
-		sdk.MDB().Redis().Cluster().Rebalance(ctx, &redis.RebalanceClusterRequest{
+	op, err :=
+		redissdk.NewClusterClient(sdk).Rebalance(ctx, &redis.RebalanceClusterRequest{
 			ClusterId: cid,
-		}),
-	)
+		})
 	if err != nil {
 		diag.AddError(
 			"API Error Rebalance",
@@ -229,10 +211,10 @@ func (r *RedisAPI) RebalanceCluster(ctx context.Context, sdk *ycsdk.SDK, diag *d
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"API Error Rebalance",
-			fmt.Sprintf("Error while waiting for operation %q to create shard Redis cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create shard Redis cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 		return
 	}
@@ -240,12 +222,11 @@ func (r *RedisAPI) RebalanceCluster(ctx context.Context, sdk *ycsdk.SDK, diag *d
 
 func (r *RedisAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*redis.HostSpec, opts struct{}) {
 	for _, spec := range specs {
-		op, err := sdk.WrapOperation(
-			sdk.MDB().Redis().Cluster().AddHosts(ctx, &redis.AddClusterHostsRequest{
+		op, err :=
+			redissdk.NewClusterClient(sdk).AddHosts(ctx, &redis.AddClusterHostsRequest{
 				ClusterId: cid,
 				HostSpecs: []*redis.HostSpec{spec},
-			}),
-		)
+			})
 		if err != nil {
 			diag.AddError(
 				"API Error Creating",
@@ -254,10 +235,10 @@ func (r *RedisAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diag.AddError(
 				"API Error Creating",
-				fmt.Sprintf("Error while waiting for operation %q to create host Redis cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to create host Redis cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}
@@ -265,12 +246,11 @@ func (r *RedisAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 }
 
 func (r *RedisAPI) DeleteShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string) {
-	op, err := sdk.WrapOperation(
-		sdk.MDB().Redis().Cluster().DeleteShard(ctx, &redis.DeleteClusterShardRequest{
+	op, err :=
+		redissdk.NewClusterClient(sdk).DeleteShard(ctx, &redis.DeleteClusterShardRequest{
 			ClusterId: cid,
 			ShardName: shardName,
-		}),
-	)
+		})
 	if err != nil {
 		diag.AddError(
 			"API Error Deleting",
@@ -279,10 +259,10 @@ func (r *RedisAPI) DeleteShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"API Error Deleting",
-			fmt.Sprintf("Error while waiting for operation %q to delete shard Redis cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete shard Redis cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 		return
 	}
@@ -290,12 +270,11 @@ func (r *RedisAPI) DeleteShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 
 func (r *RedisAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, fqdns []string) {
 	for _, fqdn := range fqdns {
-		op, err := sdk.WrapOperation(
-			sdk.MDB().Redis().Cluster().DeleteHosts(ctx, &redis.DeleteClusterHostsRequest{
+		op, err :=
+			redissdk.NewClusterClient(sdk).DeleteHosts(ctx, &redis.DeleteClusterHostsRequest{
 				ClusterId: cid,
 				HostNames: []string{fqdn},
-			}),
-		)
+			})
 		if err != nil {
 			diag.AddError(
 				"API Error Creating",
@@ -304,10 +283,10 @@ func (r *RedisAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diag.AddError(
 				"API Error Creating",
-				fmt.Sprintf("Error while waiting for operation %q to delete host Redis cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to delete host Redis cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}
@@ -322,9 +301,9 @@ func (r *RedisAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 				spec,
 			},
 		}
-		op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
+		op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*redissdk.ClusterUpdateHostsOperation, error) {
 			log.Printf("[DEBUG] Sending Redis cluster update hosts request: %+v", request)
-			return sdk.MDB().Redis().Cluster().UpdateHosts(ctx, request)
+			return redissdk.NewClusterClient(sdk).UpdateHosts(ctx, request)
 		})
 		if err != nil {
 			diag.AddError(
@@ -334,10 +313,10 @@ func (r *RedisAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.D
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diag.AddError(
 				"API Error Updating",
-				fmt.Sprintf("Error while waiting for operation %q to update host Redis cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to update host Redis cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}

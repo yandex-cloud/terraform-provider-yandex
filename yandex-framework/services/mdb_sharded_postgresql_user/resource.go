@@ -69,7 +69,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
 
-	user := shardedPostgreSQLAPI.ReadUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userName)
+	user := shardedPostgreSQLAPI.ReadUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userName)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -115,7 +115,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	shardedPostgreSQLAPI.CreateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userSpec)
+	shardedPostgreSQLAPI.CreateUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userSpec)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -179,7 +179,7 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	userName := plan.Name.ValueString()
 
-	shardedPostgreSQLAPI.UpdateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userPlan, updatePaths)
+	shardedPostgreSQLAPI.UpdateUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userPlan, updatePaths)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -208,7 +208,7 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
-	shardedPostgreSQLAPI.DeleteUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userName)
+	shardedPostgreSQLAPI.DeleteUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userName)
 }
 
 func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -221,7 +221,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		return
 	}
 	tfsdklog.Debug(ctx, fmt.Sprintf("import cid: %s", clusterId))
-	user := shardedPostgreSQLAPI.ReadUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, clusterId, userName)
+	user := shardedPostgreSQLAPI.ReadUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, clusterId, userName)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -246,7 +246,7 @@ func (r *bindingResource) refreshResourceState(ctx context.Context, state *User,
 	tfsdklog.Debug(ctx, fmt.Sprintf("refreshing state: %v", *state))
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
-	user := shardedPostgreSQLAPI.ReadUser(ctx, r.providerConfig.SDK, respDiagnostics, cid, userName)
+	user := shardedPostgreSQLAPI.ReadUser(ctx, r.providerConfig.SDKv2, respDiagnostics, cid, userName)
 	if respDiagnostics.HasError() {
 		return
 	}

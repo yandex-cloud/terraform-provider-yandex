@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -41,7 +42,7 @@ func testSweepVPCSecurityGroups(_ string) error {
 	}
 
 	req := &vpc.ListSecurityGroupsRequest{FolderId: conf.ProviderState.FolderID.ValueString()}
-	it := conf.SDK.VPC().SecurityGroup().SecurityGroupIterator(context.Background(), req)
+	it := vpcsdk.NewSecurityGroupClient(conf.SDKv2).Iterator(context.Background(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -61,7 +62,7 @@ func sweepVPCSecurityGroupOnce(conf *provider_config.Config, id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), YandexVPCNetworkDefaultTimeout)
 	defer cancel()
 
-	sg, err := conf.SDK.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
+	sg, err := vpcsdk.NewSecurityGroupClient(conf.SDKv2).Get(ctx, &vpc.GetSecurityGroupRequest{
 		SecurityGroupId: id,
 	})
 	if err != nil {
@@ -72,10 +73,10 @@ func sweepVPCSecurityGroupOnce(conf *provider_config.Config, id string) error {
 		return nil
 	}
 
-	op, err := conf.SDK.VPC().SecurityGroup().Delete(ctx, &vpc.DeleteSecurityGroupRequest{
+	op, err := vpcsdk.NewSecurityGroupClient(conf.SDKv2).Delete(ctx, &vpc.DeleteSecurityGroupRequest{
 		SecurityGroupId: id,
 	})
-	return test.HandleSweepOperation(ctx, conf, op, err)
+	return test.HandleSweepOperation(ctx, op, err)
 }
 
 func TestAccVPCSecurityGroup_UpgradeFromSDKv2(t *testing.T) {
@@ -236,8 +237,8 @@ func testAccCheckVPCSecurityGroupExists(name string, securityGroup *vpc.Security
 			return fmt.Errorf("no ID is set")
 		}
 
-		sdk := test.AccProvider.(*yandex_framework.Provider).GetConfig().SDK
-		found, err := sdk.VPC().SecurityGroup().Get(context.Background(), &vpc.GetSecurityGroupRequest{
+		sdk := test.AccProvider.(*yandex_framework.Provider).GetConfig().SDKv2
+		found, err := vpcsdk.NewSecurityGroupClient(sdk).Get(context.Background(), &vpc.GetSecurityGroupRequest{
 			SecurityGroupId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -351,7 +352,7 @@ func testAccCheckVPCSecurityGroupDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.VPC().SecurityGroup().Get(context.Background(), &vpc.GetSecurityGroupRequest{
+		_, err := vpcsdk.NewSecurityGroupClient(config.SDKv2).Get(context.Background(), &vpc.GetSecurityGroupRequest{
 			SecurityGroupId: rs.Primary.ID,
 		})
 		if err == nil {

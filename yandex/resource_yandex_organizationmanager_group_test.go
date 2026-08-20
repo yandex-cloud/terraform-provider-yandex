@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 )
 
 func init() {
@@ -25,24 +26,35 @@ func init() {
 func testSweepGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(1 * time.Minute)
 	defer cancel()
+	client := organizationmanagersdk.NewGroupClient(conf.SDK)
 
-	op, err := conf.sdk.OrganizationManager().Group().Delete(ctx, &organizationmanager.DeleteGroupRequest{
+	op, err := client.Delete(ctx, &organizationmanager.DeleteGroupRequest{
 		GroupId: id,
 	})
 
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func testSweepGroups(_ string) error {
+	return testSweepGroupsForOrganization(getExampleOrganizationID())
+}
+
+func testSweepGroupsForOrganization(organizationID string) error {
+	if organizationID == "" {
+		return nil
+	}
+
 	conf, err := configForSweepers()
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
 	req := &organizationmanager.ListGroupsRequest{
-		OrganizationId: getExampleOrganizationID(),
+		OrganizationId: organizationID,
 	}
-	it := conf.sdk.OrganizationManager().Group().GroupIterator(conf.Context(), req)
+	client := organizationmanagersdk.NewGroupClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -52,6 +64,15 @@ func testSweepGroups(_ string) error {
 	}
 
 	return result.ErrorOrNil()
+}
+
+func TestSweepGroupsWithoutOrganizationIDIsNoop(t *testing.T) {
+	t.Setenv("YC_TOKEN", "")
+	t.Setenv("YC_SERVICE_ACCOUNT_KEY_FILE", "")
+
+	if err := testSweepGroupsForOrganization(""); err != nil {
+		t.Fatalf("sweeper without organization ID must be a no-op: %v", err)
+	}
 }
 
 // Resource-level acceptance tests (TestAccOrganizationManagerGroup_basic, _Labels,
@@ -96,8 +117,9 @@ func testAccCheckGroupExists(n string, group *organizationmanager.Group) resourc
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := organizationmanagersdk.NewGroupClient(config.SDK)
 
-		found, err := config.sdk.OrganizationManager().Group().Get(context.Background(), &organizationmanager.GetGroupRequest{
+		found, err := client.Get(context.Background(), &organizationmanager.GetGroupRequest{
 			GroupId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -134,13 +156,14 @@ func GroupResourceTestCheckFunc(group *organizationmanager.Group, groupInfo *res
 
 func testAccCheckGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := organizationmanagersdk.NewGroupClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_organizationmanager_group" {
 			continue
 		}
 
-		_, err := config.sdk.OrganizationManager().Group().Get(context.Background(), &organizationmanager.GetGroupRequest{
+		_, err := client.Get(context.Background(), &organizationmanager.GetGroupRequest{
 			GroupId: rs.Primary.ID,
 		})
 		if err == nil {

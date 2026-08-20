@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/golang/protobuf/ptypes/duration"
@@ -2247,13 +2248,15 @@ func expandSnapshotScheduleSnapshotSpec(d *schema.ResourceData) (*compute.Snapsh
 
 func flattenUserSshKey(context context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := organizationmanagersdk.NewUserSshKeyClient(config.SDK)
+
 	userSSHKeyID := d.Id()
 	res, ok := d.GetOk("user_ssh_key_id")
 	if ok {
 		userSSHKeyID = res.(string)
 	}
 
-	userSshKey, err := config.sdk.OrganizationManager().UserSshKey().Get(context,
+	userSshKey, err := client.Get(context,
 		&organizationmanager.GetUserSshKeyRequest{
 			UserSshKeyId: userSSHKeyID,
 		})
@@ -2325,9 +2328,11 @@ func expandSshCertificateSettings(d *schema.ResourceData) (*organizationmanager.
 
 func flattenOsLoginSettings(context context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := organizationmanagersdk.NewOsLoginClient(config.SDK)
+
 	organizationID := d.Get("organization_id").(string)
 
-	osLoginSettings, err := config.sdk.OrganizationManager().OsLogin().GetSettings(context,
+	osLoginSettings, err := client.GetSettings(context,
 		&organizationmanager.GetOsLoginSettingsRequest{
 			OrganizationId: organizationID,
 		})

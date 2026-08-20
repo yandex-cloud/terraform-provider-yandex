@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload/oidc"
+	oidcsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/workload/oidc"
 )
 
 func TestAccDataSourceIAMWorkloadIdentityOidcFederationById(t *testing.T) {
@@ -90,7 +91,9 @@ func testAccCheckWorkloadIdentityOidcFederationExists(r string) resource.TestChe
 		}
 		config := testAccProvider.Meta().(*Config)
 
-		_, err := config.sdk.WorkloadOidc().Federation().Get(context.Background(), &oidc.GetFederationRequest{
+		client := oidcsdk.NewFederationClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &oidc.GetFederationRequest{
 			FederationId: rs.Primary.ID,
 		})
 
@@ -106,7 +109,9 @@ func testAccCheckWorkloadIdentityOidcFederationDestroy(s *terraform.State) error
 			continue
 		}
 
-		_, err := config.sdk.WorkloadOidc().Federation().Get(context.Background(), &oidc.GetFederationRequest{
+		client := oidcsdk.NewFederationClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &oidc.GetFederationRequest{
 			FederationId: rs.Primary.ID,
 		})
 		if err == nil {

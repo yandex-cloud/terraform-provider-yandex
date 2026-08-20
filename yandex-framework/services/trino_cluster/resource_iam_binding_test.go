@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	trinov1 "github.com/yandex-cloud/go-genproto/yandex/cloud/trino/v1"
+	trinosdk "github.com/yandex-cloud/go-sdk/services/trino/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -47,7 +48,7 @@ func TestAccTrinoClusterIamBinding_basic(t *testing.T) {
 					testAccCheckTrinoExists(trinoResourceType+".trino_cluster", &cluster),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Trino().Cluster()
+						return trinosdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -92,7 +93,7 @@ func TestAccTrinoClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckTrinoExists(trinoResourceType+".trino_cluster", &cluster),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Trino().Cluster()
+						return trinosdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -101,7 +102,7 @@ func TestAccTrinoClusterIamBinding_multiple(t *testing.T) {
 				Config: testAccTrinoClusterIamBindingConfig(t, roleFoo, userID, clusterName),
 				Check: iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 					cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-					return cfg.SDK.Trino().Cluster()
+					return trinosdk.NewClusterClient(cfg.SDKv2)
 				}, &cluster, roleFoo, []string{userID}),
 			},
 			iam.IAMBindingImportTestStep(trinoIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
@@ -111,11 +112,11 @@ func TestAccTrinoClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Trino().Cluster()
+						return trinosdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Trino().Cluster()
+						return trinosdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -140,11 +141,11 @@ func TestAccTrinoClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Trino().Cluster()
+						return trinosdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Trino().Cluster()
+						return trinosdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar),
 				),
 			},

@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -206,31 +207,17 @@ func resourceYandexLockboxSecretCreate(ctx context.Context, d *schema.ResourceDa
 
 	log.Printf("[INFO] creating Lockbox secret: %s", protojson.Format(req))
 
-	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().Create(ctx, req))
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return diag.Errorf("error while requesting API to create secret: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return diag.Errorf("error while getting operation metadata of create secret: %s", err)
-	}
+	d.SetId(op.Metadata().GetSecretId())
 
-	md, ok := protoMetadata.(*lockbox.CreateSecretMetadata)
-	if !ok {
-		return diag.Errorf("could not get Secret ID from create operation metadata")
-	}
-
-	d.SetId(md.SecretId)
-
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.Errorf("error while waiting operation to create secret: %s", err)
-
-	}
-
-	if _, err := op.Response(); err != nil {
-		return diag.Errorf("secret creation failed: %s", err)
 	}
 
 	log.Printf("[INFO] created Lockbox secret with ID: %s", d.Id())
@@ -252,7 +239,9 @@ func yandexLockboxSecretRead(id string, isDataSource bool, ctx context.Context, 
 
 	log.Printf("[INFO] reading Lockbox secret: %s", protojson.Format(req))
 
-	secret, err := config.sdk.LockboxSecret().Secret().Get(ctx, req)
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	secret, err := client.Get(ctx, req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("secret %q", id)))
 	}
@@ -347,19 +336,15 @@ func resourceYandexLockboxSecretUpdate(ctx context.Context, d *schema.ResourceDa
 
 	log.Printf("[INFO] updating Lockbox secret: %s", protojson.Format(req))
 
-	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().Update(ctx, req))
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return diag.Errorf("error while requesting API to update secret: %s", err)
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.Errorf("error while waiting operation to update secret: %s", err)
-
-	}
-
-	if _, err := op.Response(); err != nil {
-		return diag.Errorf("secret update failed: %s", err)
 	}
 
 	log.Printf("[INFO] updated Lockbox secret with ID: %s", d.Id())
@@ -376,18 +361,14 @@ func resourceYandexLockboxSecretDelete(ctx context.Context, d *schema.ResourceDa
 
 	log.Printf("[INFO] deleting Lockbox secret: %s", protojson.Format(req))
 
-	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().Delete(ctx, req))
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("secret %q", d.Id())))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	_, err = op.Response()
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 

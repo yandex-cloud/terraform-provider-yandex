@@ -3,6 +3,7 @@ package mdb_redis_user
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -236,7 +237,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
-	user, err := r.providerConfig.SDK.MDB().Redis().User().Get(ctx, &redis.GetUserRequest{
+	user, err := redissdk.NewUserClient(r.providerConfig.SDKv2).Get(ctx, &redis.GetUserRequest{
 		ClusterId: cid,
 		UserName:  userName,
 	})
@@ -289,13 +290,13 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	createUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userPlan)
+	createUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userPlan)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	id := types.StringValue(resourceid.Construct(cid, userPlan.Name))
-	userRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan)
+	userRead(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, &plan)
 	plan.Id = id
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -380,13 +381,13 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	if len(updatePaths) > 0 {
-		updateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, plan.ClusterID.ValueString(), userPlan, updatePaths)
+		updateUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, plan.ClusterID.ValueString(), userPlan, updatePaths)
 		if resp.Diagnostics.HasError() {
 			return
 		}
 	}
 
-	userRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan)
+	userRead(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, &plan)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -411,7 +412,7 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 	if name == defaultName {
 		return
 	}
-	deleteUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, name)
+	deleteUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, name)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -427,7 +428,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		return
 	}
 
-	user := readUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, clusterId, userName)
+	user := readUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, clusterId, userName)
 	if resp.Diagnostics.HasError() {
 		return
 	}

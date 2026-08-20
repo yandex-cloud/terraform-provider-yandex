@@ -3,6 +3,7 @@ package mdb_mongodb_user
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -146,7 +147,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
-	user, err := r.providerConfig.SDK.MDB().MongoDB().User().Get(ctx, &mongodb.GetUserRequest{
+	user, err := mongodbsdk.NewUserClient(r.providerConfig.SDKv2).Get(ctx, &mongodb.GetUserRequest{
 		ClusterId: cid,
 		UserName:  userName,
 	})
@@ -197,7 +198,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	createUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userPlan)
+	createUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userPlan)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -249,7 +250,7 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	updatePaths := getUpdatePaths(userPlan, userState)
 
 	if len(updatePaths) > 0 {
-		updateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userPlan, updatePaths)
+		updateUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userPlan, updatePaths)
 	}
 	if resp.Diagnostics.HasError() {
 		return
@@ -278,7 +279,7 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
-	deleteUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
+	deleteUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, dbName)
 }
 
 func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -290,7 +291,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		)
 		return
 	}
-	user := readUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, clusterId, userName)
+	user := readUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, clusterId, userName)
 	if resp.Diagnostics.HasError() {
 		return
 	}

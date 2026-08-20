@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 )
 
 const yandexOrganizationManagerGroupMappingItemDefaultTimeout = 1 * time.Minute
@@ -117,6 +118,8 @@ func resourceYandexOrganizationManagerGroupMappingItemDelete(context context.Con
 }
 
 func updateGroupMappingItems(ctx context.Context, config *Config, action organizationmanager.GroupMappingItemDelta_Action, federationID, internalID, externalID string) error {
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
+
 	req := &organizationmanager.UpdateGroupMappingItemsRequest{
 		FederationId: federationID,
 		GroupMappingItemDeltas: []*organizationmanager.GroupMappingItemDelta{
@@ -131,22 +134,20 @@ func updateGroupMappingItems(ctx context.Context, config *Config, action organiz
 	}
 	log.Printf("[DEBUG] group-mapping update-items request: %s", protoDump(req))
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().GroupMapping().UpdateItems(ctx, req))
+	op, err := client.UpdateItems(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update group mapping items op %s: %s", action, err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting operation to update group mapping items: %s", err)
 	}
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("group mapping update failed: %s", err)
-	}
-
 	return nil
 }
 
 func getGroupMappingItems(ctx context.Context, config *Config, federationID string) ([]*organizationmanager.GroupMappingItem, error) {
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
+
 	items := make([]*organizationmanager.GroupMappingItem, 0)
 
 	pageToken := ""
@@ -157,7 +158,7 @@ func getGroupMappingItems(ctx context.Context, config *Config, federationID stri
 			PageToken:    pageToken,
 		}
 
-		resp, err := config.sdk.OrganizationManager().GroupMapping().ListItems(ctx, req)
+		resp, err := client.ListItems(ctx, req)
 
 		if err != nil {
 			return nil, fmt.Errorf("error retrieving group-mapping items for federation %s: %s", federationID, err)

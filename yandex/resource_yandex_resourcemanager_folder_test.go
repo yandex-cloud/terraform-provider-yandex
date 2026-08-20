@@ -13,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -30,12 +32,20 @@ func sweepFolderOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(30 * time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.ResourceManager().Folder().Delete(ctx, &resourcemanager.DeleteFolderRequest{
+	client := resourcemanagersdk.NewFolderClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &resourcemanager.DeleteFolderRequest{
 		FolderId:    id,
 		DeleteAfter: timestamppb.Now(),
 	})
-
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		if isStatusWithCode(err, codes.NotFound) {
+			return nil
+		}
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func testSweepFolders(_ string) error {
@@ -45,7 +55,9 @@ func testSweepFolders(_ string) error {
 	}
 
 	req := &resourcemanager.ListFoldersRequest{CloudId: conf.CloudID}
-	it := conf.sdk.ResourceManager().Folder().FolderIterator(conf.Context(), req)
+	client := resourcemanagersdk.NewFolderClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		if !strings.HasPrefix(it.Value().Name, folderPrefix) {
@@ -55,6 +67,9 @@ func testSweepFolders(_ string) error {
 		if !sweepWithRetry(sweepFolderOnce, conf, "Folder", id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Folder %q", id))
 		}
+	}
+	if err := it.Error(); err != nil {
+		result = multierror.Append(result, err)
 	}
 
 	return result.ErrorOrNil()
@@ -138,7 +153,9 @@ func testAccCheckFolderDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.ResourceManager().Folder().Get(context.Background(), &resourcemanager.GetFolderRequest{
+		client := resourcemanagersdk.NewFolderClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &resourcemanager.GetFolderRequest{
 			FolderId: rs.Primary.ID,
 		})
 		if err == nil {

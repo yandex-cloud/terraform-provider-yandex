@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
+	loadbalancersdk "github.com/yandex-cloud/go-sdk/services/loadbalancer/v1"
 )
 
 const tgDataSourceResource = "data.yandex_lb_target_group.test-tg-ds"
@@ -134,8 +135,9 @@ func testAccDataSourceLBTargetGroupExists(n string, tg *loadbalancer.TargetGroup
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := loadbalancersdk.NewTargetGroupClient(config.SDK)
 
-		found, err := config.sdk.LoadBalancer().TargetGroup().Get(context.Background(), &loadbalancer.GetTargetGroupRequest{
+		found, err := client.Get(context.Background(), &loadbalancer.GetTargetGroupRequest{
 			TargetGroupId: ds.Primary.ID,
 		})
 

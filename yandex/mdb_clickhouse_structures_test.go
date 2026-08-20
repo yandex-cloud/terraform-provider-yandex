@@ -1,9 +1,10 @@
 package yandex
 
 import (
+	"testing"
+
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/wrapperspb"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"

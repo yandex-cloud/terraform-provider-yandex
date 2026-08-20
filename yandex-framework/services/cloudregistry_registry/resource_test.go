@@ -3,6 +3,7 @@ package cloudregistry_registry
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/cloudregistry/v1"
 	"reflect"
 	"sort"
 	"strings"
@@ -158,7 +159,7 @@ func testAccCheckCloudRegistryPatternFilter(n string, wantInclude, wantExclude [
 		}
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-		found, err := config.SDK.CloudRegistry().Registry().Get(context.Background(), &cloudregistry.GetRegistryRequest{
+		found, err := cloudregistrysdk.NewRegistryClient(config.SDKv2).Get(context.Background(), &cloudregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -199,7 +200,7 @@ func testAccCheckCloudRegistryExists(n string) resource.TestCheckFunc {
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.CloudRegistry().Registry().Get(context.Background(), &cloudregistry.GetRegistryRequest{
+		found, err := cloudregistrysdk.NewRegistryClient(config.SDKv2).Get(context.Background(), &cloudregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -222,7 +223,7 @@ func testAccCheckCloudRegistryDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.CloudRegistry().Registry().Get(context.Background(), &cloudregistry.GetRegistryRequest{
+		_, err := cloudregistrysdk.NewRegistryClient(config.SDKv2).Get(context.Background(), &cloudregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 

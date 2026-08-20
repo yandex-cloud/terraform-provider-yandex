@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/saml"
+	samlsdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/saml"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -214,30 +215,18 @@ func resourceYandexOrganizationManagerSamlFederationCreate(d *schema.ResourceDat
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManagerSAML().Federation().Create(ctx, &req))
+	client := samlsdk.NewFederationClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create SAML Federation: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get SAML Federation create operation metadata: %s", err)
-	}
+	d.SetId(op.Metadata().FederationId)
 
-	md, ok := protoMetadata.(*saml.CreateFederationMetadata)
-	if !ok {
-		return fmt.Errorf("could not get SAML Federation ID from create operation metadata")
-	}
-
-	d.SetId(md.FederationId)
-
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create SAML Federation: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("SAML Federation creation failed: %s", err)
 	}
 
 	return resourceYandexOrganizationManagerSamlFederationRead(d, meta)
@@ -250,7 +239,9 @@ func resourceYandexOrganizationManagerSamlFederationRead(d *schema.ResourceData,
 func flattenSamlFederation(federationID string, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	federation, err := config.sdk.OrganizationManagerSAML().Federation().Get(context.Background(),
+	client := samlsdk.NewFederationClient(config.SDK)
+
+	federation, err := client.Get(context.Background(),
 		&saml.GetFederationRequest{
 			FederationId: federationID,
 		})
@@ -350,17 +341,14 @@ func resourceYandexOrganizationManagerSamlFederationDelete(d *schema.ResourceDat
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManagerSAML().Federation().Delete(ctx, req))
+	client := samlsdk.NewFederationClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("SAML Federation %q", d.Id()))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -375,12 +363,14 @@ func makeSamlFederationUpdateRequest(req *saml.UpdateFederationRequest, d *schem
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManagerSAML().Federation().Update(ctx, req))
+	client := samlsdk.NewFederationClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update SAML Federation %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating SAML Federation %q: %s", d.Id(), err)
 	}

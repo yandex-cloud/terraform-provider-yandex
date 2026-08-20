@@ -9,7 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	metastoresdk "github.com/yandex-cloud/go-sdk/services/metastore/v1"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/objectid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 
@@ -48,7 +49,9 @@ func (d *metastoreClusterDatasource) Read(ctx context.Context, req datasource.Re
 			return
 		}
 
-		id, diags = objectid.ResolveByNameAndFolderID(ctx, d.providerConfig.SDK, folderID, state.Name.ValueString(), sdkresolvers.MetastoreClusterResolver)
+		id, diags = objectid.ResolveByNameAndFolderID(ctx, folderID, state.Name.ValueString(), func(name string, opts ...sdkresolvers.ResolveOption) sdkresolvers.Resolver {
+			return metastoresdk.ClusterResolver(name, metastoresdk.NewClusterClient(d.providerConfig.SDKv2), opts...)
+		})
 		resp.Diagnostics.Append(diags)
 		if resp.Diagnostics.HasError() {
 			return
@@ -57,7 +60,7 @@ func (d *metastoreClusterDatasource) Read(ctx context.Context, req datasource.Re
 		state.Id = types.StringValue(id)
 	}
 
-	refreshState(ctx, d.providerConfig.SDK, &state, &resp.Diagnostics)
+	refreshState(ctx, d.providerConfig.SDKv2, &state, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

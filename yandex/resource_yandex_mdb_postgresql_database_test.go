@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 )
 
 const (
@@ -89,7 +90,7 @@ func testAccLoadPostgreSQLDatabase(s *terraform.State, dbname string) (*postgres
 	}
 
 	config := testAccProvider.Meta().(*Config)
-	return config.sdk.MDB().PostgreSQL().Database().Get(context.Background(), &postgresql.GetDatabaseRequest{
+	return postgresqlsdk.NewDatabaseClient(config.SDK).Get(context.Background(), &postgresql.GetDatabaseRequest{
 		ClusterId:    rs.Primary.ID,
 		DatabaseName: dbname,
 	})

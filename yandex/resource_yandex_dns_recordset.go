@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
+	dnssdk "github.com/yandex-cloud/go-sdk/services/dns/v1"
 )
 
 func resourceYandexDnsRecordSet() *schema.Resource {
@@ -85,7 +86,7 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 
 func resourceYandexDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
 	rs := &dns.RecordSet{
 		Name:        d.Get("name").(string),
@@ -103,18 +104,14 @@ func resourceYandexDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := sdk.WrapOperation(sdk.DNS().DnsZone().UpdateRecordSets(ctx, &req))
+	op, err := client.UpdateRecordSets(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create DnsRecordSet: %s", err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create DnsRecordSet: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("DnsRecordSet creation failed: %s", err)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s/%s", d.Get("zone_id"), d.Get("name"), d.Get("type")))
@@ -124,7 +121,7 @@ func resourceYandexDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) 
 
 func resourceYandexDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
 	req := &dns.GetDnsZoneRecordSetRequest{
 		DnsZoneId: d.Get("zone_id").(string),
@@ -132,7 +129,7 @@ func resourceYandexDnsRecordSetRead(d *schema.ResourceData, meta interface{}) er
 		Name:      d.Get("name").(string),
 	}
 
-	rs, err := sdk.DNS().DnsZone().GetRecordSet(config.Context(), req)
+	rs, err := client.GetRecordSet(config.Context(), req)
 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("DnsRecordSet %s", rsId(d)))
@@ -161,7 +158,7 @@ func resourceYandexDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) 
 
 func resourceYandexDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
 	rs := &dns.RecordSet{
 		Name:        d.Get("name").(string),
@@ -179,18 +176,14 @@ func resourceYandexDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := sdk.WrapOperation(sdk.DNS().DnsZone().UpdateRecordSets(ctx, &req))
+	op, err := client.UpdateRecordSets(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create DnsRecordSet: %s", err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create DnsRecordSet: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("DnsRecordSet creation failed: %s", err)
 	}
 
 	log.Printf("[DEBUG] Finished deleting DnsRecordSet %s", rsId(d))
@@ -232,17 +225,17 @@ func prepareDnsRecordSetUpdateRequest(d *schema.ResourceData) (*dns.UpdateRecord
 
 func makeDnsRecordSetUpdateRequest(req *dns.UpdateRecordSetsRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := sdk.WrapOperation(sdk.DNS().DnsZone().UpdateRecordSets(ctx, req))
+	op, err := client.UpdateRecordSets(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update DnsRecordSet %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating DnsRecordSet %q: %s", d.Id(), err)
 	}

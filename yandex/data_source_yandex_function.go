@@ -8,7 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	functionssdk "github.com/yandex-cloud/go-sdk/services/serverless/functions/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -367,7 +368,11 @@ func dataSourceYandexFunctionRead(ctx context.Context, d *schema.ResourceData, m
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		functionID, err = resolveObjectID(ctx, config, d, sdkresolvers.FunctionResolver)
+		client := functionssdk.NewFunctionClient(config.SDK)
+
+		functionID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return functionssdk.FunctionResolver(name, client, opts...)
+		})
 		if err != nil {
 			return diag.Errorf("failed to resolve data source Yandex Cloud Function by name: %v", err)
 		}
@@ -377,7 +382,9 @@ func dataSourceYandexFunctionRead(ctx context.Context, d *schema.ResourceData, m
 		FunctionId: functionID,
 	}
 
-	function, err := config.sdk.Serverless().Functions().Function().Get(ctx, &req)
+	client := functionssdk.NewFunctionClient(config.SDK)
+
+	function, err := client.Get(ctx, &req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Function %q", d.Id())))
 	}

@@ -3,6 +3,7 @@ package datasphere_community_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/datasphere/v2"
 	"testing"
 	"time"
 
@@ -35,7 +36,7 @@ func testSweepCommunity(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.SDK.Datasphere().Community().CommunityIterator(
+	it := dataspheresdk.NewCommunityClient(conf.SDKv2).Iterator(
 		context.Background(),
 		&datasphere.ListCommunitiesRequest{OrganizationId: test.GetExampleOrganizationID()},
 	)
@@ -72,10 +73,10 @@ func sweepCommunityOnce(conf *provider_config.Config, id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
-	op, err := conf.SDK.Datasphere().Community().Delete(ctx, &datasphere.DeleteCommunityRequest{
+	op, err := dataspheresdk.NewCommunityClient(conf.SDKv2).Delete(ctx, &datasphere.DeleteCommunityRequest{
 		CommunityId: id,
 	})
-	return test.HandleSweepOperation(ctx, conf, op, err)
+	return test.HandleSweepOperation(ctx, op, err)
 }
 
 func TestAccDatasphereCommunityResource_basic(t *testing.T) {

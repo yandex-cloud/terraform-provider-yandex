@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 )
 
 // Test that an IAM member can be applied to a Group.
@@ -315,9 +316,11 @@ func testAccCheckGroupIam(group *organizationmanager.Group, role string, members
 
 func testAccGroupAddAccessBinding(groupID, role, userID string) error {
 	config := testAccProvider.Meta().(*Config)
+	client := organizationmanagersdk.NewGroupClient(config.SDK)
+
 	ctx, cancel := context.WithTimeout(config.Context(), yandexOrganizationManagerIAMGroupDefaultTimeout)
 	defer cancel()
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().Group().UpdateAccessBindings(config.Context(), &access.UpdateAccessBindingsRequest{
+	op, err := client.UpdateAccessBindings(config.Context(), &access.UpdateAccessBindingsRequest{
 		ResourceId: groupID,
 		AccessBindingDeltas: []*access.AccessBindingDelta{
 			{
@@ -331,12 +334,12 @@ func testAccGroupAddAccessBinding(groupID, role, userID string) error {
 				},
 			},
 		},
-	}))
+	})
 	if err != nil {
 		return err
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

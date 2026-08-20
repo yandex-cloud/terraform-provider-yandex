@@ -22,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/common/defaultschema"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -263,7 +263,7 @@ func (g *securityGroupResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	updateState(ctx, g.providerConfig.SDK, &state, &resp.Diagnostics, false)
+	updateState(ctx, g.providerConfig.SDKv2, &state, &resp.Diagnostics, false)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
@@ -286,7 +286,7 @@ func (g *securityGroupResource) Delete(ctx context.Context, req resource.DeleteR
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	sg_api.DeleteSecurityGroup(ctx, g.providerConfig.SDK, &resp.Diagnostics, state.ID.ValueString())
+	sg_api.DeleteSecurityGroup(ctx, g.providerConfig.SDKv2, &resp.Diagnostics, state.ID.ValueString())
 }
 
 func (g *securityGroupResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 )
 
 const (
@@ -461,7 +462,9 @@ func dataSourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}
 		virtualHostID = httpRouterID + "/" + virtualHostName
 	}
 
-	virtualHost, err := config.sdk.ApplicationLoadBalancer().VirtualHost().Get(ctx, &apploadbalancer.GetVirtualHostRequest{
+	client := albsdk.NewVirtualHostClient(config.SDK)
+
+	virtualHost, err := client.Get(ctx, &apploadbalancer.GetVirtualHostRequest{
 		HttpRouterId:    httpRouterID,
 		VirtualHostName: virtualHostName,
 	})

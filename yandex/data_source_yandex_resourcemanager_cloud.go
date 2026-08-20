@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -62,7 +62,9 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 		}
 	}
 
-	cloud, err := config.sdk.ResourceManager().Cloud().Get(ctx, &resourcemanager.GetCloudRequest{
+	client := resourcemanagersdk.NewCloudClient(config.SDK)
+
+	cloud, err := client.Get(ctx, &resourcemanager.GetCloudRequest{
 		CloudId: cloudID,
 	})
 
@@ -80,13 +82,15 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 }
 
 func resolveCloudIDByName(ctx context.Context, config *Config, name string) (string, error) {
-	var objectID string
-	resolver := sdkresolvers.CloudResolver(name, sdkresolvers.Out(&objectID))
+	client := resourcemanagersdk.NewCloudClient(config.SDK)
 
-	err := config.sdk.Resolve(ctx, resolver)
-	if err != nil {
+	resolver := resourcemanagersdk.CloudResolver(name, client)
+	if err := resolver.Run(ctx); err != nil {
+		return "", err
+	}
+	if err := resolver.Err(); err != nil {
 		return "", err
 	}
 
-	return objectID, nil
+	return resolver.ID(), nil
 }

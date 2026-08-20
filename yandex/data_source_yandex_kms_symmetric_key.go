@@ -9,7 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	kmssdk "github.com/yandex-cloud/go-sdk/services/kms/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -104,6 +105,7 @@ func dataSourceYandexKMSSymmetricKey() *schema.Resource {
 
 func dataSourceYandexKMSSymmetricKeyRead(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := kmssdk.NewSymmetricKeyClient(config.SDK)
 
 	err := checkOneOf(data, "symmetric_key_id", "name")
 	if err != nil {
@@ -113,7 +115,9 @@ func dataSourceYandexKMSSymmetricKeyRead(ctx context.Context, data *schema.Resou
 
 	_, keyNameOk := data.GetOk("name")
 	if keyNameOk {
-		keyID, err = resolveObjectID(config.Context(), config, data, sdkresolvers.SymmetricKeyResolver)
+		keyID, err = resolveObjectIDV2(config.Context(), config, data, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return kmssdk.SymmetricKeyResolver(name, client, opts...)
+		})
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -124,7 +128,7 @@ func dataSourceYandexKMSSymmetricKeyRead(ctx context.Context, data *schema.Resou
 	}
 
 	md := new(metadata.MD)
-	resp, err := config.sdk.KMS().SymmetricKey().Get(ctx, req, grpc.Header(md))
+	resp, err := client.Get(ctx, req, grpc.Header(md))
 
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, data, fmt.Sprintf("kms symmetric key %q", data.Get("symmetric_key_id").(string))))

@@ -21,6 +21,7 @@ const (
 	BadRequest                                     ErrCode = "BadRequest"
 	Forbidden                                      ErrCode = "Forbidden"
 	MalformedPolicy                                ErrCode = "MalformedPolicy"
+	BucketAlreadyOwnedByYou                        ErrCode = "BucketAlreadyOwnedByYou"
 	BucketNotEmpty                                 ErrCode = "BucketNotEmpty"
 	NoSuchBucketPolicy                             ErrCode = "NoSuchBucketPolicy"
 	NoSuchCORSConfiguration                        ErrCode = "NoSuchCORSConfiguration"

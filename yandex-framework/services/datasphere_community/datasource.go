@@ -3,6 +3,7 @@ package datasphere_community
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/datasphere/v2"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -54,7 +55,7 @@ func (d *communityDataSource) Read(ctx context.Context, req datasource.ReadReque
 	resp.Diagnostics.Append(req.Config.Get(ctx, &configCommunity)...)
 
 	tflog.Info(ctx, fmt.Sprintf("Making API call to fetch community data for community %s", configCommunity.Id.ValueString()))
-	existingCommunity, err := d.providerConfig.SDK.Datasphere().Community().Get(ctx,
+	existingCommunity, err := dataspheresdk.NewCommunityClient(d.providerConfig.SDKv2).Get(ctx,
 		&datasphere.GetCommunityRequest{CommunityId: configCommunity.Id.ValueString()},
 	)
 

@@ -22,6 +22,9 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	cfg "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
+	clickhousesdk "github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -62,7 +65,7 @@ func testSweepMDBClickHouseCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.MDB().Clickhouse().Cluster().List(conf.Context(), &clickhouse.ListClustersRequest{
+	resp, err := clickhousesdk.NewClusterClient(conf.SDK).List(conf.Context(), &clickhouse.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
 	})
@@ -89,20 +92,32 @@ func sweepMDBClickHouseClusterOnce(conf *Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.MDB().Clickhouse().Cluster().Update(ctx, &clickhouse.UpdateClusterRequest{
+	client := clickhousesdk.NewClusterClient(conf.SDK)
+	clusterAbsent := func() bool {
+		_, getErr := client.Get(ctx, &clickhouse.GetClusterRequest{ClusterId: id})
+		return status.Code(getErr) == codes.NotFound
+	}
+	op, err := client.Update(ctx, &clickhouse.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, op, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
+		if clusterAbsent() {
+			return nil
+		}
 		return err
 	}
 
-	op, err = conf.sdk.MDB().Clickhouse().Cluster().Delete(ctx, &clickhouse.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctx, &clickhouse.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, deleteOp, err)
+	if err != nil && clusterAbsent() {
+		return nil
+	}
+	return err
 }
 
 func mdbClickHouseClusterImportStep(name string) resource.TestStep {
@@ -1531,7 +1546,7 @@ func testAccCheckMDBClickHouseClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.MDB().Clickhouse().Cluster().Get(context.Background(), &clickhouse.GetClusterRequest{
+		_, err := clickhousesdk.NewClusterClient(config.SDK).Get(context.Background(), &clickhouse.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -1556,7 +1571,7 @@ func testAccCheckMDBClickHouseClusterExists(n string, r *clickhouse.Cluster, hos
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().Clickhouse().Cluster().Get(context.Background(), &clickhouse.GetClusterRequest{
+		found, err := clickhousesdk.NewClusterClient(config.SDK).Get(context.Background(), &clickhouse.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -1569,7 +1584,7 @@ func testAccCheckMDBClickHouseClusterExists(n string, r *clickhouse.Cluster, hos
 
 		*r = *found
 
-		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListHosts(context.Background(), &clickhouse.ListClusterHostsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDK).ListHosts(context.Background(), &clickhouse.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1605,7 +1620,7 @@ func testAccCheckMDBClickHouseClusterHasShards(r *clickhouse.Cluster, shards []s
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListShards(context.Background(), &clickhouse.ListClusterShardsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDK).ListShards(context.Background(), &clickhouse.ListClusterShardsRequest{
 			ClusterId: r.Id,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1635,7 +1650,7 @@ func testAccCheckMDBClickHouseClusterHasShardGroups(r *clickhouse.Cluster, shard
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListShardGroups(context.Background(), &clickhouse.ListClusterShardGroupsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDK).ListShardGroups(context.Background(), &clickhouse.ListClusterShardGroupsRequest{
 			ClusterId: r.Id,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1694,7 +1709,7 @@ func testAccCheckMDBClickHouseClusterHasUsers(r string, perms map[string][]strin
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Clickhouse().User().List(context.Background(), &clickhouse.ListUsersRequest{
+		resp, err := clickhousesdk.NewUserClient(config.SDK).List(context.Background(), &clickhouse.ListUsersRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1806,7 +1821,7 @@ func testAccCheckMDBClickHouseClusterHasDatabases(r string, databases []string) 
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Clickhouse().Database().List(context.Background(), &clickhouse.ListDatabasesRequest{
+		resp, err := clickhousesdk.NewDatabaseClient(config.SDK).List(context.Background(), &clickhouse.ListDatabasesRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1858,7 +1873,7 @@ func testAccCheckMDBClickHouseClusterHasFormatSchemas(r string, targetSchemas ma
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Clickhouse().FormatSchema().List(context.Background(), &clickhouse.ListFormatSchemasRequest{
+		resp, err := clickhousesdk.NewFormatSchemaClient(config.SDK).List(context.Background(), &clickhouse.ListFormatSchemasRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1903,7 +1918,7 @@ func testAccCheckMDBClickHouseClusterHasMlModels(r string, targetModels map[stri
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Clickhouse().MlModel().List(context.Background(), &clickhouse.ListMlModelsRequest{
+		resp, err := clickhousesdk.NewMlModelClient(config.SDK).List(context.Background(), &clickhouse.ListMlModelsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})

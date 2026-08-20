@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -101,13 +101,15 @@ func dataSourceYandexALBTargetGroupRead(d *schema.ResourceData, meta interface{}
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		tgID, err = resolveObjectID(ctx, config, d, sdkresolvers.ALBTargetGroupResolver)
+		tgID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(albsdk.NewTargetGroupClient(config.SDK), albsdk.TargetGroupResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source target group by name: %v", err)
 		}
 	}
 
-	tg, err := config.sdk.ApplicationLoadBalancer().TargetGroup().Get(ctx, &apploadbalancer.GetTargetGroupRequest{
+	client := albsdk.NewTargetGroupClient(config.SDK)
+
+	tg, err := client.Get(ctx, &apploadbalancer.GetTargetGroupRequest{
 		TargetGroupId: tgID,
 	})
 

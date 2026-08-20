@@ -774,6 +774,8 @@ HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA0EARRiU9hEq7k9Sa2tbPF7lI9xxknjZ
 D0M/nOBnNGaGBKG4hNAb5KMUSfrF6Jn6lp0yNIz+LNWNJQVOjZFiw2rM/g==
 -----END CERTIFICATE-----
 EOT
+          accept_untrusted = true
+          allow_expired = false
         }
         {{end}}
       }
@@ -790,7 +792,7 @@ EOT
             allow_http10 = true
           }
           certificate_ids = ["{{.CertificateID}}"]
-  		  {{if .IsClientCertificatesVerification}}
+   		  {{if .IsClientCertificatesVerification}}
 		  client_certificates_verification {
 		  require_client_certificate = true
 		  bytes = <<-EOT
@@ -806,6 +808,8 @@ HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA0EARRiU9hEq7k9Sa2tbPF7lI9xxknjZ
 D0M/nOBnNGaGBKG4hNAb5KMUSfrF6Jn6lp0yNIz+LNWNJQVOjZFiw2rM/g==
 -----END CERTIFICATE-----
 EOT
+		  accept_untrusted = true
+		  allow_expired = false
 		  }
 		  {{end}}
         }

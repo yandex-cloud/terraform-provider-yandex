@@ -9,7 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	certificatemanagersdk "github.com/yandex-cloud/go-sdk/services/certificatemanager/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -66,6 +67,9 @@ func dataSourceYandexCMCertificateContent() *schema.Resource {
 
 func dataSourceYandexCMCertificateContentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	certificateClient := certificatemanagersdk.NewCertificateClient(config.SDK)
+
+	contentClient := certificatemanagersdk.NewCertificateContentClient(config.SDK)
 
 	err := checkOneOf(d, "certificate_id", "name")
 	if err != nil {
@@ -75,7 +79,9 @@ func dataSourceYandexCMCertificateContentRead(ctx context.Context, d *schema.Res
 
 	_, certificateNameOk := d.GetOk("name")
 	if certificateNameOk {
-		id, err = resolveObjectID(config.Context(), config, d, sdkresolvers.CertificateResolver)
+		id, err = resolveObjectIDV2(config.Context(), config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return certificatemanagersdk.CertificateResolver(name, certificateClient, opts...)
+		})
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -98,7 +104,7 @@ func dataSourceYandexCMCertificateContentRead(ctx context.Context, d *schema.Res
 			}
 			log.Printf("[INFO] reading Certificate status: %s", protojson.Format(req))
 
-			resp, err := config.sdk.Certificates().Certificate().Get(ctx, req)
+			resp, err := certificateClient.Get(ctx, req)
 			if err != nil {
 				// TODO: SA1019: resource.NonRetryableError is deprecated: Use helper/retry package instead. This is required for migrating acceptance testing to terraform-plugin-testing. (staticcheck)
 				return resource.NonRetryableError(handleNotFoundError(err, d, fmt.Sprintf("certificate %q", id)))
@@ -112,7 +118,7 @@ func dataSourceYandexCMCertificateContentRead(ctx context.Context, d *schema.Res
 			}
 			log.Printf("[INFO] certificate status is %s", certificatemanager.Certificate_Status_name[int32(resp.Status)])
 		}
-		resp, err := config.sdk.CertificatesData().CertificateContent().Get(ctx, &certificatemanager.GetCertificateContentRequest{
+		resp, err := contentClient.Get(ctx, &certificatemanager.GetCertificateContentRequest{
 			CertificateId:    id,
 			PrivateKeyFormat: privateKeyFormat,
 		})

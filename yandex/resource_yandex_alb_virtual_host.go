@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -453,30 +454,19 @@ func resourceYandexALBVirtualHostCreate(d *schema.ResourceData, meta interface{}
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().VirtualHost().Create(ctx, req))
+	client := albsdk.NewVirtualHostClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Application Virtual Host: %w", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get Application Virtual Host create operation metadata: %w", err)
-	}
-
-	md, ok := protoMetadata.(*apploadbalancer.CreateVirtualHostMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Application Virtual Host ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.HttpRouterId + "/" + md.VirtualHostName)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create Application Virtual Host: %w", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Application Virtual Host creation failed: %w", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Application Virtual Host %q", d.Id())
@@ -537,7 +527,9 @@ func resourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}) 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	virtualHost, err := config.sdk.ApplicationLoadBalancer().VirtualHost().Get(ctx, &apploadbalancer.GetVirtualHostRequest{
+	client := albsdk.NewVirtualHostClient(config.SDK)
+
+	virtualHost, err := client.Get(ctx, &apploadbalancer.GetVirtualHostRequest{
 		HttpRouterId:    d.Get("http_router_id").(string),
 		VirtualHostName: d.Get("name").(string),
 	})
@@ -608,12 +600,14 @@ func resourceYandexALBVirtualHostUpdate(d *schema.ResourceData, meta interface{}
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().VirtualHost().Update(ctx, req))
+	client := albsdk.NewVirtualHostClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Application Virtual Host %q: %w", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Application Virtual Host %q: %w", d.Id(), err)
 	}
@@ -682,17 +676,14 @@ func resourceYandexALBVirtualHostDelete(d *schema.ResourceData, meta interface{}
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().VirtualHost().Delete(ctx, req))
+	client := albsdk.NewVirtualHostClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Application Virtual Host %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

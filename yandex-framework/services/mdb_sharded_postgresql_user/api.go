@@ -3,11 +3,11 @@ package mdb_sharded_postgresql_user
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -17,7 +17,7 @@ var shardedPostgreSQLAPI = ShardedPostgreSQLAPI{}
 type ShardedPostgreSQLAPI struct{}
 
 func (r *ShardedPostgreSQLAPI) ReadUser(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid, userName string) *spqr.User {
-	users, err := sdk.MDB().SPQR().User().List(ctx, &spqr.ListUsersRequest{
+	users, err := spqrsdk.NewUserClient(sdk).List(ctx, &spqr.ListUsersRequest{
 		ClusterId: cid,
 	})
 	if err != nil {
@@ -42,8 +42,8 @@ func (r *ShardedPostgreSQLAPI) ReadUser(ctx context.Context, sdk *ycsdk.SDK, dia
 }
 
 func (r *ShardedPostgreSQLAPI) CreateUser(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, user *spqr.UserSpec) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().SPQR().User().Create(ctx, &spqr.CreateUserRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*spqrsdk.UserCreateOperation, error) {
+		return spqrsdk.NewUserClient(sdk).Create(ctx, &spqr.CreateUserRequest{
 			ClusterId: cid,
 			UserSpec:  user,
 		})
@@ -55,7 +55,7 @@ func (r *ShardedPostgreSQLAPI) CreateUser(ctx context.Context, sdk *ycsdk.SDK, d
 		)
 		return
 	}
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to Create resource",
 			fmt.Sprintf("Error while waiting for operation to create Sharded PostgreSQL user: %s", err.Error()),
@@ -64,8 +64,8 @@ func (r *ShardedPostgreSQLAPI) CreateUser(ctx context.Context, sdk *ycsdk.SDK, d
 }
 
 func (r *ShardedPostgreSQLAPI) UpdateUser(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, user *spqr.UserSpec, updatePaths []string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().SPQR().User().Update(ctx, &spqr.UpdateUserRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*spqrsdk.UserUpdateOperation, error) {
+		return spqrsdk.NewUserClient(sdk).Update(ctx, &spqr.UpdateUserRequest{
 			ClusterId:   cid,
 			UserName:    user.Name,
 			Password:    user.Password,
@@ -84,7 +84,7 @@ func (r *ShardedPostgreSQLAPI) UpdateUser(ctx context.Context, sdk *ycsdk.SDK, d
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to Update resource",
 			fmt.Sprintf("Error while waiting for operation to update Sharded PostgreSQL user: %s", err.Error()),
@@ -93,8 +93,8 @@ func (r *ShardedPostgreSQLAPI) UpdateUser(ctx context.Context, sdk *ycsdk.SDK, d
 }
 
 func (r *ShardedPostgreSQLAPI) DeleteUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, userName string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().SPQR().User().Delete(ctx, &spqr.DeleteUserRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*spqrsdk.UserDeleteOperation, error) {
+		return spqrsdk.NewUserClient(sdk).Delete(ctx, &spqr.DeleteUserRequest{
 			ClusterId: cid,
 			UserName:  userName,
 		})
@@ -108,7 +108,7 @@ func (r *ShardedPostgreSQLAPI) DeleteUser(ctx context.Context, sdk *ycsdk.SDK, d
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
 			fmt.Sprintf("Error while waiting for operation to delete Sharded PostgreSQL user: %s", err.Error()),

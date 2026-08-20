@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 )
 
 // TestAccDataSourceLockboxSecretVersionEntry_basic verifies that both entries from the same
@@ -80,8 +81,9 @@ func testAccDataSourceLockboxSecretVersionEntryExists(name string) resource.Test
 
 		secretID := ds.Primary.Attributes["secret_id"]
 		versionID := ds.Primary.Attributes["version_id"]
+		client := lockboxsdk.NewPayloadClient(config.SDK)
 
-		found, err := config.sdk.LockboxPayload().Payload().Get(context.Background(), &lockbox.GetPayloadRequest{
+		found, err := client.Get(context.Background(), &lockbox.GetPayloadRequest{
 			SecretId:  secretID,
 			VersionId: versionID,
 		})

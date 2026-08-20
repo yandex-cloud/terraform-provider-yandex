@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	brokersdk "github.com/yandex-cloud/go-sdk/services/iot/broker/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -114,6 +115,7 @@ func resourceYandexIoTCoreBroker() *schema.Resource {
 
 func resourceYandexIoTCoreBrokerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := brokersdk.NewBrokerClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
@@ -148,24 +150,14 @@ func resourceYandexIoTCoreBrokerCreate(d *schema.ResourceData, meta interface{})
 		LogOptions:   logOptions,
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.IoT().Broker().Broker().Create(ctx, &req))
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create IoT Broker: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while requesting API to create IoT Broker: %s", err)
-	}
+	d.SetId(op.Metadata().BrokerId)
 
-	md, ok := protoMetadata.(*iot.CreateBrokerMetadata)
-	if !ok {
-		return fmt.Errorf("Could not get IoT Broker ID from create operation metadata")
-	}
-
-	d.SetId(md.BrokerId)
-
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create IoT Broker: %s", err)
 	}
@@ -189,6 +181,7 @@ func flattenYandexIoTCoreBroker(d *schema.ResourceData, broker *iot.Broker) erro
 
 func resourceYandexIoTCoreBrokerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := brokersdk.NewBrokerClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
@@ -197,7 +190,7 @@ func resourceYandexIoTCoreBrokerRead(d *schema.ResourceData, meta interface{}) e
 		BrokerId: d.Id(),
 	}
 
-	broker, err := config.sdk.IoT().Broker().Broker().Get(ctx, &req)
+	broker, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Broker %q", d.Id()))
 	}
@@ -207,6 +200,7 @@ func resourceYandexIoTCoreBrokerRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceYandexIoTCoreBrokerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := brokersdk.NewBrokerClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
@@ -215,8 +209,10 @@ func resourceYandexIoTCoreBrokerDelete(d *schema.ResourceData, meta interface{})
 		BrokerId: d.Id(),
 	}
 
-	op, err := config.sdk.IoT().Broker().Broker().Delete(ctx, &req)
-	err = waitOperation(ctx, config, op, err)
+	op, err := client.Delete(ctx, &req)
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Broker %q", d.Id()))
 	}
@@ -226,6 +222,7 @@ func resourceYandexIoTCoreBrokerDelete(d *schema.ResourceData, meta interface{})
 
 func resourceYandexIoTCoreBrokerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := brokersdk.NewBrokerClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -268,8 +265,10 @@ func resourceYandexIoTCoreBrokerUpdate(d *schema.ResourceData, meta interface{})
 			return fmt.Errorf("Error expanding log options while updating IoT Registry: %s", err)
 		}
 
-		op, err := config.sdk.IoT().Broker().Broker().Update(ctx, &req)
-		err = waitOperation(ctx, config, op, err)
+		op, err := client.Update(ctx, &req)
+		if err == nil {
+			_, err = op.Wait(ctx)
+		}
 		if err != nil {
 			return fmt.Errorf("Error while requesting API to update IoT Broker: %s", err)
 		}
@@ -279,7 +278,7 @@ func resourceYandexIoTCoreBrokerUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("certificates") {
 		certsSetInner := expandIoTCerts(d)
 
-		certsResp, err := config.sdk.IoT().Broker().Broker().ListCertificates(ctx, &iot.ListBrokerCertificatesRequest{BrokerId: d.Id()})
+		certsResp, err := client.ListCertificates(ctx, &iot.ListBrokerCertificatesRequest{BrokerId: d.Id()})
 		if err != nil {
 			return err
 		}
@@ -287,8 +286,10 @@ func resourceYandexIoTCoreBrokerUpdate(d *schema.ResourceData, meta interface{})
 		for _, cert := range certsResp.Certificates {
 			_, ok := certsSetInner[cert.CertificateData]
 			if !ok {
-				op, err := config.sdk.IoT().Broker().Broker().DeleteCertificate(ctx, &iot.DeleteBrokerCertificateRequest{BrokerId: d.Id(), Fingerprint: cert.Fingerprint})
-				err = waitOperation(ctx, config, op, err)
+				op, err := client.DeleteCertificate(ctx, &iot.DeleteBrokerCertificateRequest{BrokerId: d.Id(), Fingerprint: cert.Fingerprint})
+				if err == nil {
+					_, err = op.Wait(ctx)
+				}
 				if err != nil {
 					return fmt.Errorf("Failed to delete certificate: %s, fingerpring: %s", err, cert.Fingerprint)
 				}
@@ -298,8 +299,10 @@ func resourceYandexIoTCoreBrokerUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		for cert := range certsSetInner {
-			op, err := config.sdk.IoT().Broker().Broker().AddCertificate(ctx, &iot.AddBrokerCertificateRequest{BrokerId: d.Id(), CertificateData: cert})
-			err = waitOperation(ctx, config, op, err)
+			op, err := client.AddCertificate(ctx, &iot.AddBrokerCertificateRequest{BrokerId: d.Id(), CertificateData: cert})
+			if err == nil {
+				_, err = op.Wait(ctx)
+			}
 			if err != nil {
 				return fmt.Errorf("Failed to add certificate: %s", err)
 			}

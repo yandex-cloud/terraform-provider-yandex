@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	certificatemanagersdk "github.com/yandex-cloud/go-sdk/services/certificatemanager/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -300,7 +302,9 @@ func getSelfManagedPrivateKey(ctx context.Context, d *schema.ResourceData, meta 
 		if !ok {
 			return "", diag.Errorf("self_managed.private_key_lockbox_secret.key should be specified")
 		}
-		payload, err := config.sdk.LockboxPayload().Payload().Get(
+		client := lockboxsdk.NewPayloadClient(config.SDK)
+
+		payload, err := client.Get(
 			ctx,
 			&lockbox.GetPayloadRequest{
 				SecretId: lockboxId.(string),
@@ -324,6 +328,7 @@ func getSelfManagedPrivateKey(ctx context.Context, d *schema.ResourceData, meta 
 
 func resourceYandexCMCertificateCreateSelfManaged(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := certificatemanagersdk.NewCertificateClient(config.SDK)
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
@@ -344,7 +349,7 @@ func resourceYandexCMCertificateCreateSelfManaged(ctx context.Context, d *schema
 		return errDiag
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Certificates().Certificate().Create(
+	op, err := client.Create(
 		ctx,
 		&certificatemanager.CreateCertificateRequest{
 			FolderId:           folderID,
@@ -356,30 +361,15 @@ func resourceYandexCMCertificateCreateSelfManaged(ctx context.Context, d *schema
 			PrivateKey:         privateKey,
 			DeletionProtection: d.Get("deletion_protection").(bool),
 		},
-	))
+	)
 	if err != nil {
 		return diag.Errorf("error while requesting API to create certificate: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return diag.Errorf("error while getting operation metadata of create certificate: %s", err)
-	}
+	d.SetId(op.Metadata().GetCertificateId())
 
-	md, ok := protoMetadata.(*certificatemanager.CreateCertificateMetadata)
-	if !ok {
-		return diag.Errorf("could not get Certificate Id from create operation metadata")
-	}
-
-	d.SetId(md.CertificateId)
-
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.Errorf("error while waiting operation to create certificate: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return diag.Errorf("certificate creation failed: %s", err)
 	}
 
 	log.Printf("[INFO] created Certificate with ID: %s", d.Id())
@@ -421,6 +411,7 @@ func challengeTypeToCMChallengeType(challengeType challengeType) certificatemana
 
 func resourceYandexCMCertificateCreateManagedByLetsEncrypt(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := certificatemanagersdk.NewCertificateClient(config.SDK)
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
@@ -451,7 +442,7 @@ func resourceYandexCMCertificateCreateManagedByLetsEncrypt(ctx context.Context, 
 		domains = append(domains, v.(string))
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Certificates().Certificate().RequestNew(
+	op, err := client.RequestNew(
 		ctx,
 		&certificatemanager.RequestNewCertificateRequest{
 			FolderId:           folderID,
@@ -462,30 +453,15 @@ func resourceYandexCMCertificateCreateManagedByLetsEncrypt(ctx context.Context, 
 			Domains:            domains,
 			ChallengeType:      challengeTypeToCMChallengeType(challengeType),
 		},
-	))
+	)
 	if err != nil {
 		return diag.Errorf("error while requesting API to request certificate: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return diag.Errorf("error while getting operation metadata of request certificate: %s", err)
-	}
+	d.SetId(op.Metadata().GetCertificateId())
 
-	md, ok := protoMetadata.(*certificatemanager.RequestNewCertificateMetadata)
-	if !ok {
-		return diag.Errorf("could not get Certificate Id from request operation metadata")
-	}
-
-	d.SetId(md.CertificateId)
-
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.Errorf("error while waiting operation to request certificate: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return diag.Errorf("certificate request failed: %s", err)
 	}
 	log.Printf("[INFO] requested Certificate with ID: %s", d.Id())
 	d.Partial(true)
@@ -513,6 +489,7 @@ func resourceYandexCMCertificateRead(ctx context.Context, d *schema.ResourceData
 
 func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceData, meta interface{}, fromDataSource bool) diag.Diagnostics {
 	config := meta.(*Config)
+	client := certificatemanagersdk.NewCertificateClient(config.SDK)
 
 	var challengeCountMismatch string
 
@@ -523,7 +500,7 @@ func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceD
 		}
 		log.Printf("[INFO] reading Certificate: %s", protojson.Format(req))
 
-		resp, err := config.sdk.Certificates().Certificate().Get(ctx, req)
+		resp, err := client.Get(ctx, req)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
@@ -747,6 +724,7 @@ func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceD
 
 func resourceYandexCMCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := certificatemanagersdk.NewCertificateClient(config.SDK)
 
 	req := &certificatemanager.UpdateCertificateRequest{
 		CertificateId: d.Id(),
@@ -800,18 +778,13 @@ func resourceYandexCMCertificateUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if len(req.UpdateMask.Paths) > 0 {
-		op, err := config.sdk.WrapOperation(config.sdk.Certificates().Certificate().Update(ctx, req))
+		op, err := client.Update(ctx, req)
 		if err != nil {
 			return diag.Errorf("error while requesting API to update certificate: %s", err)
 		}
 
-		err = op.Wait(ctx)
-		if err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			return diag.Errorf("error while waiting operation to update certificate: %s", err)
-
-		}
-		if _, err := op.Response(); err != nil {
-			return diag.Errorf("certificate update failed: %s", err)
 		}
 	}
 	d.Partial(false)
@@ -821,6 +794,7 @@ func resourceYandexCMCertificateUpdate(ctx context.Context, d *schema.ResourceDa
 
 func resourceYandexCMCertificateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := certificatemanagersdk.NewCertificateClient(config.SDK)
 
 	req := &certificatemanager.DeleteCertificateRequest{
 		CertificateId: d.Id(),
@@ -828,18 +802,12 @@ func resourceYandexCMCertificateDelete(ctx context.Context, d *schema.ResourceDa
 
 	log.Printf("[INFO] deleting certificate: %s", protojson.Format(req))
 
-	op, err := config.sdk.WrapOperation(config.sdk.Certificates().Certificate().Delete(ctx, req))
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("certificate %q", d.Id())))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	_, err = op.Response()
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -849,12 +817,13 @@ func resourceYandexCMCertificateDelete(ctx context.Context, d *schema.ResourceDa
 
 func yandexCMCertificateImport(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 	config := m.(*Config)
+	client := certificatemanagersdk.NewCertificateClient(config.SDK)
 
 	req := &certificatemanager.GetCertificateRequest{
 		CertificateId: d.Id(),
 		View:          certificatemanager.CertificateView_FULL,
 	}
-	resp, err := config.sdk.Certificates().Certificate().Get(ctx, req)
+	resp, err := client.Get(ctx, req)
 	if err != nil {
 		return nil, err
 	}

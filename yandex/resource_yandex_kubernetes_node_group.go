@@ -11,6 +11,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	k8ssdk "github.com/yandex-cloud/go-sdk/services/k8s/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -651,30 +652,23 @@ func resourceYandexKubernetesNodeGroupCreate(d *schema.ResourceData, meta interf
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Kubernetes().NodeGroup().Create(ctx, req))
+	client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Kubernetes node group: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while get Kubernetes node group create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*k8s.CreateNodeGroupMetadata)
-	if !ok {
+	md := op.Metadata()
+	if md == nil {
 		return fmt.Errorf("could not get Instance ID from create operation metadata")
 	}
 
 	d.SetId(md.GetNodeGroupId())
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting operation to create Kubernetes node group: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Kubernetes node group creation failed: %s", err)
 	}
 
 	return resourceYandexKubernetesNodeGroupRead(d, meta)
@@ -687,7 +681,9 @@ func resourceYandexKubernetesNodeGroupRead(d *schema.ResourceData, meta interfac
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	ng, err := config.sdk.Kubernetes().NodeGroup().Get(ctx, &k8s.GetNodeGroupRequest{
+	client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+	ng, err := client.Get(ctx, &k8s.GetNodeGroupRequest{
 		NodeGroupId: ngID,
 	})
 
@@ -1340,12 +1336,14 @@ func resourceYandexKubernetesNodeGroupUpdate(d *schema.ResourceData, meta interf
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Kubernetes().NodeGroup().Update(ctx, req))
+	client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update Kubernetes node group %q: %s", ngID, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error updating Kubernetes node group %q: %s", ngID, err)
 	}
@@ -1429,17 +1427,14 @@ func resourceYandexKubernetesNodeGroupDelete(d *schema.ResourceData, meta interf
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Kubernetes().NodeGroup().Delete(ctx, req))
+	client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Kubernetes node group %q", ngID))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/eventrouter/v1"
+	eventroutersdk "github.com/yandex-cloud/go-sdk/services/serverless/eventrouter/v1"
 )
 
 const eventrouterRuleResource = "yandex_serverless_eventrouter_rule.test-rule"
@@ -36,7 +37,9 @@ func testSweepEventrouterRule(_ string) error {
 		},
 	}
 
-	it := conf.sdk.Serverless().Eventrouter().Rule().RuleIterator(conf.Context(), req)
+	client := eventroutersdk.NewRuleClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -56,10 +59,16 @@ func sweepEventrouterRuleOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexEventrouterRuleDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Serverless().Eventrouter().Rule().Delete(ctx, &eventrouter.DeleteRuleRequest{
+	client := eventroutersdk.NewRuleClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &eventrouter.DeleteRuleRequest{
 		RuleId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func TestAccEventrouterRule_yds(t *testing.T) {
@@ -406,7 +415,9 @@ func testGetEventrouterRuleByID(config *Config, ID string) (*eventrouter.Rule, e
 		RuleId: ID,
 	}
 
-	return config.sdk.Serverless().Eventrouter().Rule().Get(context.Background(), &req)
+	client := eventroutersdk.NewRuleClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
 }
 
 func testYandexEventrouterRuleContainsLabel(rule *eventrouter.Rule, key string, value string) resource.TestCheckFunc {

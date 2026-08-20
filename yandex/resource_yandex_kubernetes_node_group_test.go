@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	k8ssdk "github.com/yandex-cloud/go-sdk/services/k8s/v1"
 )
 
 func init() {
@@ -30,7 +31,9 @@ func testSweepKubernetesNodeGroups(_ string) error {
 	}
 
 	req := &k8s.ListNodeGroupsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Kubernetes().NodeGroup().NodeGroupIterator(conf.Context(), req)
+	client := k8ssdk.NewNodeGroupClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -50,10 +53,12 @@ func sweepKubernetesNodeGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexKubernetesNodeGroupDeleteTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Kubernetes().NodeGroup().Delete(ctx, &k8s.DeleteNodeGroupRequest{
+	client := k8ssdk.NewNodeGroupClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &k8s.DeleteNodeGroupRequest{
 		NodeGroupId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func k8sNodeGroupImportStep(nodeResourceFullName string, ignored ...string) resource.TestStep {
@@ -1435,7 +1440,9 @@ func testAccCheckKubernetesNodeGroupExists(n string, ng *k8s.NodeGroup) resource
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.Kubernetes().NodeGroup().Get(context.Background(), &k8s.GetNodeGroupRequest{
+		client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &k8s.GetNodeGroupRequest{
 			NodeGroupId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -1479,7 +1486,9 @@ func testAccCheckKubernetesNodeGroupDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Kubernetes().NodeGroup().Get(context.Background(), &k8s.GetNodeGroupRequest{
+		client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &k8s.GetNodeGroupRequest{
 			NodeGroupId: rs.Primary.ID,
 		})
 		if err == nil {

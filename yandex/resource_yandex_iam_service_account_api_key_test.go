@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/vault/helper/pgpkeys"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 // Test that a service account API key can be created and destroyed
@@ -442,7 +443,9 @@ func testAccCheckServiceAccountAPIKeyDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.IAM().ApiKey().Get(context.Background(), &iam.GetApiKeyRequest{
+		client := iamsdk.NewApiKeyClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &iam.GetApiKeyRequest{
 			ApiKeyId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -466,7 +469,9 @@ func testAccCheckServiceAccountAPIKeyExists(r string) resource.TestCheckFunc {
 		}
 		config := testAccProvider.Meta().(*Config)
 
-		_, err := config.sdk.IAM().ApiKey().Get(context.Background(), &iam.GetApiKeyRequest{
+		client := iamsdk.NewApiKeyClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &iam.GetApiKeyRequest{
 			ApiKeyId: rs.Primary.ID,
 		})
 

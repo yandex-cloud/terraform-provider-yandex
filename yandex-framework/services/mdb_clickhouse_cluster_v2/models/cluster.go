@@ -43,14 +43,15 @@ type ClusterResource struct {
 	Extension          types.Set  `tfsdk:"extension"`
 	ExternalDictionary types.Map  `tfsdk:"external_dictionary"`
 
-	HostSpecs              types.Map      `tfsdk:"hosts"`
-	Timeouts               timeouts.Value `tfsdk:"timeouts"`
-	CopySchemaOnNewHosts   types.Bool     `tfsdk:"copy_schema_on_new_hosts"`
-	AllowHostRecreation    types.Bool     `tfsdk:"allow_host_recreation"`
-	Restore                types.Object   `tfsdk:"restore"`
-	PerformanceDiagnostics types.Object   `tfsdk:"performance_diagnostics"`
-	Monitoring             types.List     `tfsdk:"monitoring"`
-	FullVersion            types.String   `tfsdk:"full_version"`
+	HostSpecs                  types.Map      `tfsdk:"hosts"`
+	Timeouts                   timeouts.Value `tfsdk:"timeouts"`
+	CopySchemaOnNewHosts       types.Bool     `tfsdk:"copy_schema_on_new_hosts"`
+	AllowHostRecreation        types.Bool     `tfsdk:"allow_host_recreation"`
+	AllowDegradationToReadOnly types.Bool     `tfsdk:"allow_degradation_to_read_only"`
+	Restore                    types.Object   `tfsdk:"restore"`
+	PerformanceDiagnostics     types.Object   `tfsdk:"performance_diagnostics"`
+	Monitoring                 types.List     `tfsdk:"monitoring"`
+	FullVersion                types.String   `tfsdk:"full_version"`
 }
 
 var ClusterResourceAttrTypes = map[string]attr.Type{
@@ -89,14 +90,15 @@ var ClusterResourceAttrTypes = map[string]attr.Type{
 	"extension":           types.SetType{ElemType: types.ObjectType{AttrTypes: ExtensionAttrTypes}},
 	"external_dictionary": types.MapType{ElemType: types.ObjectType{AttrTypes: ExternalDictionaryAttrTypes}},
 
-	"hosts":                    types.MapType{ElemType: types.StringType},
-	"timeouts":                 timeouts.Type{},
-	"copy_schema_on_new_hosts": types.BoolType,
-	"allow_host_recreation":    types.BoolType,
-	"restore":                  types.ObjectType{AttrTypes: RestoreAttrTypes},
-	"performance_diagnostics":  types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
-	"monitoring":               types.ListType{ElemType: types.ObjectType{AttrTypes: MonitoringAttrTypes}},
-	"full_version":             types.StringType,
+	"hosts":                          types.MapType{ElemType: types.StringType},
+	"timeouts":                       timeouts.Type{},
+	"copy_schema_on_new_hosts":       types.BoolType,
+	"allow_host_recreation":          types.BoolType,
+	"allow_degradation_to_read_only": types.BoolType,
+	"restore":                        types.ObjectType{AttrTypes: RestoreAttrTypes},
+	"performance_diagnostics":        types.ObjectType{AttrTypes: PerformanceDiagnosticsAttrTypes},
+	"monitoring":                     types.ListType{ElemType: types.ObjectType{AttrTypes: MonitoringAttrTypes}},
+	"full_version":                   types.StringType,
 }
 
 type ClusterDataSource struct {

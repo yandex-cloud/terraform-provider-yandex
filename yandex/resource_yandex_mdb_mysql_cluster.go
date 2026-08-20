@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
@@ -535,14 +535,14 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL cluster create request: %+v", req)
-		return config.sdk.MDB().MySQL().Cluster().Create(ctx, req)
+		return mysqlsdk.NewClusterClient(config.SDK).Create(ctx, req)
 	})
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create MySQL Cluster: %s", err)
 	}
-	protoMetadata, err := op.Metadata()
+	protoMetadata := op.Metadata()
 	if err != nil {
 		return fmt.Errorf("Error while get MySQL create operation metadata: %s", err)
 	}
@@ -552,11 +552,11 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting for operation to create MySQL Cluster: %s", err)
 	}
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("MySQL Cluster creation failed: %s", err)
 	}
 
@@ -615,14 +615,14 @@ func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface
 		request.DiskEncryptionKeyId = wrapperspb.String("")
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL cluster restore request: %+v", request)
-		return config.sdk.MDB().MySQL().Cluster().Restore(ctx, request)
+		return mysqlsdk.NewClusterClient(config.SDK).Restore(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create MySQL Cluster from backup %v: %s", backupID, err)
 	}
-	protoMetadata, err := op.Metadata()
+	protoMetadata := op.Metadata()
 	if err != nil {
 		return fmt.Errorf("Error while getting MySQL create operation metadata from backup %v: %s", backupID, err)
 	}
@@ -632,11 +632,11 @@ func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface
 	}
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting for operation to create MySQL Cluster from backup %v: %s", backupID, err)
 	}
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("MySQL Cluster creation from backup %v failed: %s", backupID, err)
 	}
 
@@ -731,7 +731,7 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.MDB().MySQL().Cluster().Get(ctx, &mysql.GetClusterRequest{
+	cluster, err := mysqlsdk.NewClusterClient(config.SDK).Get(ctx, &mysql.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -971,15 +971,15 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL cluster update request: %+v", request)
-		return config.sdk.MDB().MySQL().Cluster().Update(ctx, request)
+		return mysqlsdk.NewClusterClient(config.SDK).Update(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating MySQL Cluster %q: %s", d.Id(), err)
 	}
@@ -1102,17 +1102,17 @@ func mysqlDatabasesDiff(currDBs []*mysql.Database, targetDBs []*mysql.DatabaseSp
 }
 
 func deleteMysqlDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MySQL().Database().Delete(ctx, &mysql.DeleteDatabaseRequest{
+	op, err :=
+		mysqlsdk.NewDatabaseClient(config.SDK).Delete(ctx, &mysql.DeleteDatabaseRequest{
 			ClusterId:    d.Id(),
 			DatabaseName: dbName,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete database from MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting database from MySQL Cluster %q: %s", d.Id(), err)
 	}
@@ -1120,19 +1120,19 @@ func deleteMysqlDatabase(ctx context.Context, config *Config, d *schema.Resource
 }
 
 func createMysqlDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MySQL().Database().Create(ctx, &mysql.CreateDatabaseRequest{
+	op, err :=
+		mysqlsdk.NewDatabaseClient(config.SDK).Create(ctx, &mysql.CreateDatabaseRequest{
 			ClusterId: d.Id(),
 			DatabaseSpec: &mysql.DatabaseSpec{
 				Name: dbName,
 			},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create database in MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding database to MySQL Cluster %q: %s", d.Id(), err)
 	}
@@ -1215,17 +1215,17 @@ func mysqlUsersDiff(currUsers []*mysql.User, targetUsers []*mysql.UserSpec) ([]s
 }
 
 func deleteMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData, userName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MySQL().User().Delete(ctx, &mysql.DeleteUserRequest{
+	op, err :=
+		mysqlsdk.NewUserClient(config.SDK).Delete(ctx, &mysql.DeleteUserRequest{
 			ClusterId: d.Id(),
 			UserName:  userName,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete user from MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting user from MySQL Cluster %q: %s", d.Id(), err)
 	}
@@ -1233,17 +1233,17 @@ func deleteMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData
 }
 
 func createMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData, user *mysql.UserSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MySQL().User().Create(ctx, &mysql.CreateUserRequest{
+	op, err :=
+		mysqlsdk.NewUserClient(config.SDK).Create(ctx, &mysql.CreateUserRequest{
 			ClusterId: d.Id(),
 			UserSpec:  user,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create user for MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while creating user for MySQL Cluster %q: %s", d.Id(), err)
 	}
@@ -1283,8 +1283,8 @@ func mysqlChangedUsers(users []*mysql.User, d *schema.ResourceData) ([]*mysql.Us
 }
 
 func updateMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData, user *mysql.UserSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MySQL().User().Update(ctx, &mysql.UpdateUserRequest{
+	op, err :=
+		mysqlsdk.NewUserClient(config.SDK).Update(ctx, &mysql.UpdateUserRequest{
 			ClusterId:            d.Id(),
 			UserName:             user.Name,
 			Password:             user.Password,
@@ -1293,13 +1293,13 @@ func updateMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData
 			ConnectionLimits:     user.ConnectionLimits,
 			GlobalPermissions:    user.GlobalPermissions,
 			UpdateMask:           &field_mask.FieldMask{Paths: []string{"authentication_plugin", "password", "permissions", "connection_limits", "global_permissions"}},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating user in MySQL Cluster %q: %s", d.Id(), err)
 	}
@@ -1432,23 +1432,23 @@ func createMysqlClusterHosts(ctx context.Context, config *Config, d *schema.Reso
 }
 
 func deleteMysqlHost(ctx context.Context, config *Config, d *schema.ResourceData, fqdn string) error {
-	op, err := config.sdk.WrapOperation(
-		// FYI: Deleting multiple hosts at once is not supported yet
-		config.sdk.MDB().MySQL().Cluster().DeleteHosts(ctx, &mysql.DeleteClusterHostsRequest{
+	op, err :=
+
+		mysqlsdk.NewClusterClient(config.SDK).DeleteHosts(ctx, &mysql.DeleteClusterHostsRequest{
 			ClusterId: d.Id(),
 			HostNames: []string{fqdn},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete host from MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting host from MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("deleting host from MySQL Cluster %q failed: %s", d.Id(), err)
 	}
 
@@ -1467,17 +1467,17 @@ func resourceYandexMDBMySQLClusterDelete(d *schema.ResourceData, meta interface{
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Delete(ctx, req))
+	op, err := mysqlsdk.NewClusterClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("MySQL Cluster %q", d.Id()))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
 
-	_, err = op.Response()
+	err = op.Error()
 	if err != nil {
 		return err
 	}
@@ -1505,7 +1505,7 @@ func setMySQLFolderID(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.MDB().MySQL().Cluster().Get(ctx, &mysql.GetClusterRequest{
+	cluster, err := mysqlsdk.NewClusterClient(config.SDK).Get(ctx, &mysql.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -1525,20 +1525,20 @@ func setMySQLFolderID(d *schema.ResourceData, meta interface{}) error {
 			ClusterId:           d.Id(),
 			DestinationFolderId: folderID.(string),
 		}
-		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 			log.Printf("[DEBUG] Sending MySQL cluster move request: %+v", request)
-			return config.sdk.MDB().MySQL().Cluster().Move(ctx, request)
+			return mysqlsdk.NewClusterClient(config.SDK).Move(ctx, request)
 		})
 		if err != nil {
 			return fmt.Errorf("error while requesting API to move MySQL Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error while moving MySQL Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		if _, err := op.Response(); err != nil {
+		if err := op.Error(); err != nil {
 			return fmt.Errorf("moving MySQL Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
 		}
 

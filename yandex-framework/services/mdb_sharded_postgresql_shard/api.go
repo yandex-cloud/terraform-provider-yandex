@@ -3,11 +3,11 @@ package mdb_sharded_postgresql_shard
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 )
 
@@ -16,7 +16,7 @@ var shardedPostgreSQLAPI = ShardedPostgreSQLAPI{}
 type ShardedPostgreSQLAPI struct{}
 
 func (r *ShardedPostgreSQLAPI) ReadShard(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid, shardname string) *spqr.Shard {
-	shards, err := sdk.MDB().SPQR().Cluster().ListShards(ctx, &spqr.ListClusterShardsRequest{
+	shards, err := spqrsdk.NewClusterClient(sdk).ListShards(ctx, &spqr.ListClusterShardsRequest{
 		ClusterId: cid,
 	})
 	if err != nil {
@@ -41,8 +41,8 @@ func (r *ShardedPostgreSQLAPI) ReadShard(ctx context.Context, sdk *ycsdk.SDK, di
 }
 
 func (r *ShardedPostgreSQLAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, shardSpec *spqr.ShardSpec, opts struct{}) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().SPQR().Cluster().AddShard(ctx, &spqr.AddClusterShardRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*spqrsdk.ClusterAddShardOperation, error) {
+		return spqrsdk.NewClusterClient(sdk).AddShard(ctx, &spqr.AddClusterShardRequest{
 			ClusterId: cid,
 			ShardSpec: shardSpec,
 		})
@@ -54,7 +54,7 @@ func (r *ShardedPostgreSQLAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, 
 		)
 		return
 	}
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to Create resource",
 			fmt.Sprintf("Error while waiting for operation to create Sharded PostgreSQL shard: %s", err.Error()),
@@ -67,8 +67,8 @@ func (r *ShardedPostgreSQLAPI) UpdateShard(ctx context.Context, sdk *ycsdk.SDK, 
 }
 
 func (r *ShardedPostgreSQLAPI) DeleteShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardname string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().SPQR().Cluster().DeleteShard(ctx, &spqr.DeleteClusterShardRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*spqrsdk.ClusterDeleteShardOperation, error) {
+		return spqrsdk.NewClusterClient(sdk).DeleteShard(ctx, &spqr.DeleteClusterShardRequest{
 			ClusterId: cid,
 			ShardName: shardname,
 		})
@@ -82,7 +82,7 @@ func (r *ShardedPostgreSQLAPI) DeleteShard(ctx context.Context, sdk *ycsdk.SDK, 
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
 			fmt.Sprintf("Error while waiting for operation to delete Sharded PostgreSQL shard: %s", err.Error()),

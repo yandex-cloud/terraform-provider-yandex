@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -95,12 +95,12 @@ func dataSourceYandexComputeFilesystemRead(ctx context.Context, d *schema.Resour
 	_, fsNameOk := d.GetOk("name")
 
 	if fsNameOk {
-		if fsID, err = resolveObjectID(ctx, config, d, sdkresolvers.FilesystemResolver); err != nil {
+		if fsID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(computesdk.NewFilesystemClient(config.SDK), computesdk.FilesystemResolver)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	fs, err := config.sdk.Compute().Filesystem().Get(ctx, &compute.GetFilesystemRequest{
+	fs, err := computesdk.NewFilesystemClient(config.SDK).Get(ctx, &compute.GetFilesystemRequest{
 		FilesystemId: fsID,
 	})
 	if err != nil {

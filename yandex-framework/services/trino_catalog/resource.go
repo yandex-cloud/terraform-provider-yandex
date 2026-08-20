@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -95,14 +95,14 @@ func (t *trinoCatalogResource) Create(ctx context.Context, req resource.CreateRe
 	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
-	catalogID, d := CreateCatalog(ctx, t.providerConfig.SDK, &resp.Diagnostics, createCatalogRequest)
+	catalogID, d := CreateCatalog(ctx, t.providerConfig.SDKv2, &resp.Diagnostics, createCatalogRequest)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	plan.Id = types.StringValue(catalogID)
-	diags = updateState(ctx, t.providerConfig.SDK, &plan)
+	diags = updateState(ctx, t.providerConfig.SDKv2, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -135,7 +135,7 @@ func (t *trinoCatalogResource) Delete(ctx context.Context, req resource.DeleteRe
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	d := DeleteCatalog(ctx, t.providerConfig.SDK, catalogID, clusterID)
+	d := DeleteCatalog(ctx, t.providerConfig.SDKv2, catalogID, clusterID)
 	resp.Diagnostics.Append(d)
 
 	tflog.Debug(ctx, "Finished deleting Trino catalog", catalogIDLogField(catalogID))
@@ -153,7 +153,7 @@ func (t *trinoCatalogResource) Read(ctx context.Context, req resource.ReadReques
 	catalogID := state.Id.ValueString()
 	clusterID := state.ClusterId.ValueString()
 	tflog.Debug(ctx, "Reading Trino catalog", catalogIDLogField(catalogID))
-	catalog, d := GetCatalogByID(ctx, t.providerConfig.SDK, catalogID, clusterID)
+	catalog, d := GetCatalogByID(ctx, t.providerConfig.SDKv2, catalogID, clusterID)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
@@ -204,13 +204,13 @@ func (t *trinoCatalogResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 	tflog.Debug(ctx, fmt.Sprintf("Update Trino catalog request: %+v", updateReq))
 
-	d := UpdateCatalog(ctx, t.providerConfig.SDK, updateReq)
+	d := UpdateCatalog(ctx, t.providerConfig.SDKv2, updateReq)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	diags = updateState(ctx, t.providerConfig.SDK, &plan)
+	diags = updateState(ctx, t.providerConfig.SDKv2, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

@@ -11,6 +11,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	instancegroupsdk "github.com/yandex-cloud/go-sdk/services/compute/v1/instancegroup"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -1294,24 +1295,14 @@ func resourceYandexComputeInstanceGroupCreate(d *schema.ResourceData, meta inter
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.InstanceGroup().InstanceGroup().Create(ctx, req))
+	op, err := instancegroupsdk.NewInstanceGroupClient(config.SDK).Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create instance group: %s", err)
 	}
 
-	err = op.Wait(ctx)
+	instanceGroup, err := op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create instance group: %s", err)
-	}
-
-	resp, err := op.Response()
-	if err != nil {
-		return fmt.Errorf("Instance group creation failed: %s", err)
-	}
-
-	instanceGroup, ok := resp.(*instancegroup.InstanceGroup)
-	if !ok {
-		return fmt.Errorf("Create response doesn't contain Instance group")
 	}
 
 	d.SetId(instanceGroup.Id)
@@ -1325,7 +1316,7 @@ func resourceYandexComputeInstanceGroupRead(d *schema.ResourceData, meta interfa
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	instanceGroup, err := config.sdk.InstanceGroup().InstanceGroup().Get(ctx, &instancegroup.GetInstanceGroupRequest{
+	instanceGroup, err := instancegroupsdk.NewInstanceGroupClient(config.SDK).Get(ctx, &instancegroup.GetInstanceGroupRequest{
 		InstanceGroupId: d.Id(),
 		View:            instancegroup.InstanceGroupView_FULL,
 	})
@@ -1334,7 +1325,7 @@ func resourceYandexComputeInstanceGroupRead(d *schema.ResourceData, meta interfa
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance group %q", d.Id()))
 	}
 
-	instances, err := config.sdk.InstanceGroup().InstanceGroup().ListInstances(ctx, &instancegroup.ListInstanceGroupInstancesRequest{
+	instances, err := instancegroupsdk.NewInstanceGroupClient(config.SDK).ListInstances(ctx, &instancegroup.ListInstanceGroupInstancesRequest{
 		InstanceGroupId: d.Id(),
 	})
 
@@ -1464,17 +1455,12 @@ func resourceYandexComputeInstanceGroupDelete(d *schema.ResourceData, meta inter
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.InstanceGroup().InstanceGroup().Delete(ctx, req))
+	op, err := instancegroupsdk.NewInstanceGroupClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance group %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -1669,12 +1655,12 @@ func makeInstanceGroupUpdateRequest(req *instancegroup.UpdateInstanceGroupReques
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.InstanceGroup().InstanceGroup().Update(ctx, req))
+	op, err := instancegroupsdk.NewInstanceGroupClient(config.SDK).Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Instance group %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Instance group %q: %s", d.Id(), err)
 	}

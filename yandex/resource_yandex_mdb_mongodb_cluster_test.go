@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
+	mongodbsdk "github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 
 	"golang.org/x/exp/maps"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -640,7 +641,7 @@ func testSweepMDBMongoDBCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.MDB().MongoDB().Cluster().List(conf.Context(), &mongodb.ListClustersRequest{
+	resp, err := mongodbsdk.NewClusterClient(conf.SDK).List(conf.Context(), &mongodb.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
 	})
@@ -669,20 +670,20 @@ func sweepMDBMongoDBClusterOnce(conf *Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.MDB().MongoDB().Cluster().Update(ctx, &mongodb.UpdateClusterRequest{
+	op, err := mongodbsdk.NewClusterClient(conf.SDK).Update(ctx, &mongodb.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, op, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
-	op, err = conf.sdk.MDB().MongoDB().Cluster().Delete(ctx, &mongodb.DeleteClusterRequest{
+	deleteOp, err := mongodbsdk.NewClusterClient(conf.SDK).Delete(ctx, &mongodb.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, deleteOp, err)
 }
 
 func mdbMongoDBClusterImportStep() resource.TestStep {
@@ -2557,7 +2558,7 @@ func testAccCheckMDBMongoDBClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.MDB().MongoDB().Cluster().Get(context.Background(), &mongodb.GetClusterRequest{
+		_, err := mongodbsdk.NewClusterClient(config.SDK).Get(context.Background(), &mongodb.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -2582,7 +2583,7 @@ func testAccCheckMDBMongoDBClusterExists(n string, r *mongodb.Cluster, hosts int
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().MongoDB().Cluster().Get(context.Background(), &mongodb.GetClusterRequest{
+		found, err := mongodbsdk.NewClusterClient(config.SDK).Get(context.Background(), &mongodb.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -2596,7 +2597,7 @@ func testAccCheckMDBMongoDBClusterExists(n string, r *mongodb.Cluster, hosts int
 		//goland:noinspection GoVetCopyLock (this comment suppress warning in Idea IDE about coping sync.Mutex)
 		*r = *found
 
-		resp, err := config.sdk.MDB().MongoDB().Cluster().ListHosts(context.Background(), &mongodb.ListClusterHostsRequest{
+		resp, err := mongodbsdk.NewClusterClient(config.SDK).ListHosts(context.Background(), &mongodb.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2717,7 +2718,7 @@ func testAccCheckMDBMongoDBClusterHasHostParameters(n string, expected map[strin
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().MongoDB().Cluster().ListHosts(context.Background(), &mongodb.ListClusterHostsRequest{
+		resp, err := mongodbsdk.NewClusterClient(config.SDK).ListHosts(context.Background(), &mongodb.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2888,7 +2889,7 @@ func testAccCheckMDBMongoDBClusterHasUsers(r string, perms map[string][]string) 
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().MongoDB().User().List(context.Background(), &mongodb.ListUsersRequest{
+		resp, err := mongodbsdk.NewUserClient(config.SDK).List(context.Background(), &mongodb.ListUsersRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2936,7 +2937,7 @@ func testAccCheckMDBMongoDBClusterHasDatabases(r string, databases []string) res
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().MongoDB().Database().List(context.Background(), &mongodb.ListDatabasesRequest{
+		resp, err := mongodbsdk.NewDatabaseClient(config.SDK).List(context.Background(), &mongodb.ListDatabasesRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -2975,7 +2976,7 @@ func testAccCheckMDBMongoDBClusterHasShards(r string, shards []string) resource.
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().MongoDB().Cluster().ListShards(context.Background(), &mongodb.ListClusterShardsRequest{
+		resp, err := mongodbsdk.NewClusterClient(config.SDK).ListShards(context.Background(), &mongodb.ListClusterShardsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})

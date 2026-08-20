@@ -132,6 +132,13 @@
                                 "computed_optional_required": "computed",
                                 "description": "Maximum node count for the executor pool with autoscaling."
                               }
+                            },
+                            {
+                              "name": "preemptible",
+                              "bool": {
+                                "computed_optional_required": "computed",
+                                "description": "Whether executor nodes use preemptible (interruptible) compute instances. Defaults to `false`. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm)."
+                              }
                             }
                           ]
                         }
@@ -568,6 +575,16 @@
                               "int64": {
                                 "computed_optional_required": "optional",
                                 "description": "Maximum node count for the executor pool with autoscaling."
+                              }
+                            },
+                            {
+                              "name": "preemptible",
+                              "bool": {
+                                "computed_optional_required": "computed_optional",
+                                "description": "Whether executor nodes use preemptible (interruptible) compute instances. Defaults to `false`. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).",
+                                "default": {
+                                  "static": false
+                                }
                               }
                             }
                           ]

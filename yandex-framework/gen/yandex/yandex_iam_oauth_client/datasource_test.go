@@ -27,7 +27,7 @@ func TestAccDataSourceIAMOauthClient(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(oauthClientDataSourceName, "name", clientName),
 					resource.TestCheckTypeSetElemAttr(oauthClientDataSourceName, "redirect_uris.*", "https://localhost"),
-					resource.TestCheckTypeSetElemAttr(oauthClientDataSourceName, "scopes.*", "iam"),
+					resource.TestCheckTypeSetElemAttr(oauthClientDataSourceName, "scopes.*", "openid"),
 					resource.TestCheckResourceAttr(oauthClientDataSourceName, "folder_id", folderID),
 				),
 			},
@@ -46,6 +46,6 @@ resource "yandex_iam_oauth_client" "test-oauth-client" {
   name          = "%s"
   folder_id 	= "%s"
   redirect_uris = ["https://localhost"]
-  scopes        = ["iam"]
+  scopes        = ["openid"]
 }`, clientName, folderID)
 }

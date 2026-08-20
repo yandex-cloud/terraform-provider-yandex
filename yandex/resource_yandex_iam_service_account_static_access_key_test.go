@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/vault/helper/pgpkeys"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
+	awscompatibilitysdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/awscompatibility"
 )
 
 // Test that a service account key can be created and destroyed
@@ -392,7 +393,9 @@ func testAccCheckServiceAccountStaticAccessKeyDestroy(s *terraform.State) error 
 			continue
 		}
 
-		_, err := config.sdk.IAM().AWSCompatibility().AccessKey().Get(context.Background(), &awscompatibility.GetAccessKeyRequest{
+		client := awscompatibilitysdk.NewAccessKeyClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &awscompatibility.GetAccessKeyRequest{
 			AccessKeyId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -416,7 +419,9 @@ func testAccCheckServiceAccountStaticAccessKeyExists(r string) resource.TestChec
 		}
 		config := testAccProvider.Meta().(*Config)
 
-		_, err := config.sdk.IAM().AWSCompatibility().AccessKey().Get(context.Background(), &awscompatibility.GetAccessKeyRequest{
+		client := awscompatibilitysdk.NewAccessKeyClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &awscompatibility.GetAccessKeyRequest{
 			AccessKeyId: rs.Primary.ID,
 		})
 

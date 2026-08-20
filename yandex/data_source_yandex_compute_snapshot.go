@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -127,13 +127,13 @@ func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{
 	_, snapshotNameOk := d.GetOk("name")
 
 	if snapshotNameOk {
-		snapshotID, err = resolveObjectID(ctx, config, d, sdkresolvers.SnapshotResolver)
+		snapshotID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(computesdk.NewSnapshotClient(config.SDK), computesdk.SnapshotResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source snapshot by name: %v", err)
 		}
 	}
 
-	snapshot, err := config.sdk.Compute().Snapshot().Get(ctx, &compute.GetSnapshotRequest{
+	snapshot, err := computesdk.NewSnapshotClient(config.SDK).Get(ctx, &compute.GetSnapshotRequest{
 		SnapshotId: snapshotID,
 	})
 

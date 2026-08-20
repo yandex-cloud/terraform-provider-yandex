@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -139,7 +140,11 @@ func resourceYandexLockboxSecretVersionCreateAux(ctx context.Context, versionPay
 	resourceYandexLockboxSecretVersionMutex.Lock()
 	defer resourceYandexLockboxSecretVersionMutex.Unlock()
 
-	secret, err := config.sdk.LockboxSecret().Secret().Get(ctx, &lockbox.GetSecretRequest{
+	secretClient := lockboxsdk.NewSecretClient(config.SDK)
+
+	payloadClient := lockboxsdk.NewPayloadClient(config.SDK)
+
+	secret, err := secretClient.Get(ctx, &lockbox.GetSecretRequest{
 		SecretId: d.Get("secret_id").(string),
 	})
 	if err != nil {
@@ -163,7 +168,7 @@ func resourceYandexLockboxSecretVersionCreateAux(ctx context.Context, versionPay
 
 		log.Printf("[INFO] getting Lockbox payload (to compare entries): %s", protojson.Format(getPayloadReq))
 
-		payload, err := config.sdk.LockboxPayload().Payload().Get(ctx, getPayloadReq)
+		payload, err := payloadClient.Get(ctx, getPayloadReq)
 		if err != nil {
 			return diag.Errorf("could not get payload from secret %v and version %v: %s", getPayloadReq.SecretId, getPayloadReq.VersionId, err)
 		}
@@ -192,30 +197,15 @@ func resourceYandexLockboxSecretVersionCreateAux(ctx context.Context, versionPay
 
 	log.Printf("[INFO] adding Lockbox version for secret with ID: %s, base version ID: %s", req.SecretId, req.BaseVersionId)
 
-	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().AddVersion(ctx, req))
+	op, err := secretClient.AddVersion(ctx, req)
 	if err != nil {
 		return diag.Errorf("error while requesting API to add version: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return diag.Errorf("error while getting operation metadata of add secret version: %s", err)
-	}
+	d.SetId(op.Metadata().GetVersionId())
 
-	md, ok := protoMetadata.(*lockbox.AddVersionMetadata)
-	if !ok {
-		return diag.Errorf("could not get Secret ID from create operation metadata")
-	}
-
-	d.SetId(md.VersionId)
-
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.Errorf("error while waiting operation to add secret version: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return diag.Errorf("add secret version failed: %s", err)
 	}
 
 	log.Printf("[INFO] added Lockbox version with ID: %s", d.Id())
@@ -234,7 +224,9 @@ func resourceYandexLockboxSecretVersionRead(ctx context.Context, d *schema.Resou
 
 	log.Printf("[INFO] reading Lockbox version: %s", protojson.Format(req))
 
-	_, err := config.sdk.LockboxPayload().Payload().Get(ctx, req)
+	client := lockboxsdk.NewPayloadClient(config.SDK)
+
+	_, err := client.Get(ctx, req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("secret version payload %q", id)))
 	}
@@ -257,13 +249,14 @@ func resourceYandexLockboxSecretVersionDelete(ctx context.Context, d *schema.Res
 
 	log.Printf("[INFO] scheduling destruction of Lockbox version: %s", protojson.Format(req))
 
-	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().ScheduleVersionDestruction(ctx, req))
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	op, err := client.ScheduleVersionDestruction(ctx, req)
 	if err != nil {
 		return diag.Errorf("error while requesting API to destroy version: %s", err)
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.Errorf("error while waiting operation to destroy version: %s", err)
 	}
 

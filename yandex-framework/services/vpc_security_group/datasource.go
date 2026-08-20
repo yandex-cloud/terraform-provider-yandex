@@ -11,7 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/objectid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -100,7 +101,9 @@ func (g *securityGroupDataSource) Read(ctx context.Context, req datasource.ReadR
 			return
 		}
 
-		sgID, d = objectid.ResolveByNameAndFolderID(ctx, g.providerConfig.SDK, folderID, state.Name.ValueString(), sdkresolvers.SecurityGroupResolver)
+		sgID, d = objectid.ResolveByNameAndFolderID(ctx, folderID, state.Name.ValueString(), func(name string, opts ...sdkresolvers.ResolveOption) sdkresolvers.Resolver {
+			return vpcsdk.SecurityGroupResolver(name, vpcsdk.NewSecurityGroupClient(g.providerConfig.SDKv2), opts...)
+		})
 		resp.Diagnostics.Append(d)
 		if resp.Diagnostics.HasError() {
 			return
@@ -110,7 +113,7 @@ func (g *securityGroupDataSource) Read(ctx context.Context, req datasource.ReadR
 	}
 
 	state.ID = types.StringValue(sgID)
-	updateState(ctx, g.providerConfig.SDK, &state.securityGroupModel, &resp.Diagnostics, false)
+	updateState(ctx, g.providerConfig.SDKv2, &state.securityGroupModel, &resp.Diagnostics, false)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

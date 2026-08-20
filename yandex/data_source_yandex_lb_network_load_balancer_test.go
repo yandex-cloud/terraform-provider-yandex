@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
+	loadbalancersdk "github.com/yandex-cloud/go-sdk/services/loadbalancer/v1"
 )
 
 const nlbDataSourceResource = "data.yandex_lb_network_load_balancer.test-nlb-ds"
@@ -216,8 +217,9 @@ func testAccDataSourceLBNetworkLoadBalancerExists(n string, nlb *loadbalancer.Ne
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := loadbalancersdk.NewNetworkLoadBalancerClient(config.SDK)
 
-		found, err := config.sdk.LoadBalancer().NetworkLoadBalancer().Get(context.Background(), &loadbalancer.GetNetworkLoadBalancerRequest{
+		found, err := client.Get(context.Background(), &loadbalancer.GetNetworkLoadBalancerRequest{
 			NetworkLoadBalancerId: ds.Primary.ID,
 		})
 

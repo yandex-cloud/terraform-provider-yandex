@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	greenplumsdk "github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -544,15 +545,26 @@ func dataSourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interf
 	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.GreenplumClusterResolver)
+		folderID, err := getFolderID(d, config)
 		if err != nil {
+			return err
+		}
+		name := d.Get("name").(string)
+		resolver := sdkresolversv2.NewBaseNameResolver(name, "cluster", sdkresolversv2.FolderID(folderID))
+		resp, err := greenplumsdk.NewClusterClient(config.SDK).List(ctx, &greenplum.ListClustersRequest{
+			FolderId: folderID,
+			Filter:   sdkresolversv2.CreateResolverFilter("name", name),
+			PageSize: sdkresolversv2.DefaultResolverPageSize,
+		})
+		if err := resolver.FindName(resp.GetClusters(), err); err != nil {
 			return fmt.Errorf("failed to resolve data source Greenplum Cluster by name: %v", err)
 		}
+		clusterID = resolver.ID()
 
 		d.Set("cluster_id", clusterID)
 	}
 
-	cluster, err := config.sdk.MDB().Greenplum().Cluster().Get(ctx, &greenplum.GetClusterRequest{
+	cluster, err := greenplumsdk.NewClusterClient(config.SDK).Get(ctx, &greenplum.GetClusterRequest{
 		ClusterId: clusterID,
 	})
 	if err != nil {

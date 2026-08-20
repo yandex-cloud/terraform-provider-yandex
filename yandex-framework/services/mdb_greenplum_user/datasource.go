@@ -84,7 +84,7 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
-	user := readUser(ctx, d.providerConfig.SDK, &resp.Diagnostics, cid, userName)
+	user := readUser(ctx, d.providerConfig.SDKv2, &resp.Diagnostics, cid, userName)
 	if resp.Diagnostics.HasError() {
 		return
 	}

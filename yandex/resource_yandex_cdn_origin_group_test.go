@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	cdnsdk "github.com/yandex-cloud/go-sdk/services/cdn/v1"
 )
 
 func init() {
@@ -190,7 +191,9 @@ func testSweepCDNOriginGroups(_ string) error {
 	}
 
 	req := &cdn.ListOriginGroupsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.CDN().OriginGroup().OriginGroupIterator(conf.Context(), req)
+	client := cdnsdk.NewOriginGroupClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 
 	for it.Next() {
@@ -208,12 +211,14 @@ func sweepCDNOriginGroup(conf *Config, id int64) bool {
 		ctx, cancel := conf.ContextWithTimeout(yandexCDNOriginGroupDefaultTimeout)
 		defer cancel()
 
-		op, err := conf.sdk.CDN().OriginGroup().Delete(ctx, &cdn.DeleteOriginGroupRequest{
+		client := cdnsdk.NewOriginGroupClient(conf.SDK)
+
+		op, err := client.Delete(ctx, &cdn.DeleteOriginGroupRequest{
 			FolderId:      conf.FolderID,
 			OriginGroupId: id,
 		})
 
-		return handleSweepOperation(ctx, conf, op, err)
+		return handleSweepOperationV2(ctx, op, err)
 	})
 }
 
@@ -230,7 +235,9 @@ func testAccCheckCDNOriginGroupDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = config.sdk.CDN().OriginGroup().Get(context.Background(), &cdn.GetOriginGroupRequest{
+		client := cdnsdk.NewOriginGroupClient(config.SDK)
+
+		_, err = client.Get(context.Background(), &cdn.GetOriginGroupRequest{
 			OriginGroupId: id,
 		})
 
@@ -261,7 +268,9 @@ func testOriginGroupExists(resourceName string, originGroup *cdn.OriginGroup) re
 
 		folderID := getExampleFolderID()
 
-		found, err := config.sdk.CDN().OriginGroup().Get(context.Background(), &cdn.GetOriginGroupRequest{
+		client := cdnsdk.NewOriginGroupClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &cdn.GetOriginGroupRequest{
 			FolderId:      folderID,
 			OriginGroupId: groupID,
 		})

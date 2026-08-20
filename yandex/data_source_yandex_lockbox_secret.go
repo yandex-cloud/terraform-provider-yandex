@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -197,7 +198,11 @@ func dataSourceYandexLockboxSecretRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resolveSecretIDByName(ctx context.Context, d *schema.ResourceData, config *Config) (string, error) {
-	secretId, err := resolveObjectID(ctx, config, d, sdkresolvers.SecretResolver)
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	secretId, err := resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+		return lockboxsdk.SecretResolver(name, client, opts...)
+	})
 	if err != nil {
 		return "", fmt.Errorf("failed to resolve secret by name: %v ", err)
 	}

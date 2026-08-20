@@ -3,6 +3,7 @@ package mdb_redis_cluster_v2_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 	"math"
 	"slices"
 
@@ -62,7 +63,7 @@ func testAccCheckMDBRedisClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.MDB().Redis().Cluster().Get(context.Background(), &redis.GetClusterRequest{
+		_, err := redissdk.NewClusterClient(config.SDKv2).Get(context.Background(), &redis.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -88,7 +89,7 @@ func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tl
 
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		found, err := config.SDK.MDB().Redis().Cluster().Get(context.Background(), &redis.GetClusterRequest{
+		found, err := redissdk.NewClusterClient(config.SDKv2).Get(context.Background(), &redis.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -117,7 +118,7 @@ func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tl
 
 		*r = *found
 
-		resp, err := config.SDK.MDB().Redis().Cluster().ListHosts(context.Background(), &redis.ListClusterHostsRequest{
+		resp, err := redissdk.NewClusterClient(config.SDKv2).ListHosts(context.Background(), &redis.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultTestMDBPageSize,
 		})
@@ -146,7 +147,7 @@ func testAccCheckMDBRedisOperations(n string, ops []Op) resource.TestCheckFunc {
 
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		resp, err := config.SDK.MDB().Redis().Cluster().ListOperations(context.Background(), &redis.ListClusterOperationsRequest{
+		resp, err := redissdk.NewClusterClient(config.SDKv2).ListOperations(context.Background(), &redis.ListClusterOperationsRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -284,7 +285,7 @@ func testAccCheckMDBRedisClusterHasShards(r *redis.Cluster, shards []string) res
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		resp, err := config.SDK.MDB().Redis().Cluster().ListShards(context.Background(), &redis.ListClusterShardsRequest{
+		resp, err := redissdk.NewClusterClient(config.SDKv2).ListShards(context.Background(), &redis.ListClusterShardsRequest{
 			ClusterId: r.Id,
 			PageSize:  defaultTestMDBPageSize,
 		})

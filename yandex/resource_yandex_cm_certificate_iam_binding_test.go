@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
+	certificatemanagersdk "github.com/yandex-cloud/go-sdk/services/certificatemanager/v1"
 )
 
 func TestAccCMCertificateIamBinding_basic(t *testing.T) {
@@ -156,8 +157,9 @@ func testAccCheckCMCertificateExists(name string, certificate *certificatemanage
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := certificatemanagersdk.NewCertificateClient(config.SDK)
 
-		found, err := config.sdk.Certificates().Certificate().Get(context.Background(), &certificatemanager.GetCertificateRequest{
+		found, err := client.Get(context.Background(), &certificatemanager.GetCertificateRequest{
 			CertificateId: rs.Primary.ID,
 		})
 		if err != nil {

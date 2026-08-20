@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	backupsdk "github.com/yandex-cloud/go-sdk/services/backup/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -591,25 +592,18 @@ func resourceYandexBackupPolicyCreate(ctx context.Context, d *schema.ResourceDat
 
 	log.Printf("[INFO] starting to create Cloud Backup policy with request %s", request.String())
 
-	operation, err := config.sdk.WrapOperation(config.sdk.Backup().Policy().Create(ctx, request))
+	client := backupsdk.NewPolicyClient(config.SDK)
+
+	operation, err := client.Create(ctx, request)
 	if err != nil {
 		return diag.Errorf("requesting API to create Cloud Backup Policy: %s", err)
 	}
 
-	protoMetadata, err := operation.Metadata()
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	policyID := operation.Metadata().GetPolicyId()
+	d.SetId(policyID)
+	log.Printf("[INFO] Created Cloud Backup policy with id=%q", policyID)
 
-	pm, ok := protoMetadata.(*backuppb.CreatePolicyMetadata)
-	if !ok {
-		return diag.Errorf("unexpected policy metadata type %T", protoMetadata)
-	}
-
-	d.SetId(pm.PolicyId)
-	log.Printf("[INFO] Created Cloud Backup policy with id=%q", pm.PolicyId)
-
-	if err = operation.Wait(ctx); err != nil {
+	if _, err = operation.Wait(ctx); err != nil {
 		return diag.Errorf("waiting for operation completes: %s", err)
 	}
 
@@ -622,7 +616,9 @@ func resourceYandexBackupPolicyRead(ctx context.Context, d *schema.ResourceData,
 
 	log.Printf("[DEBUG] Starting to fetch Cloud Backup policy with id=%q", id)
 
-	policy, err := config.sdk.Backup().Policy().Get(ctx, &backuppb.GetPolicyRequest{
+	client := backupsdk.NewPolicyClient(config.SDK)
+
+	policy, err := client.Get(ctx, &backuppb.GetPolicyRequest{
 		PolicyId: id,
 	})
 	if err != nil {
@@ -653,12 +649,14 @@ func resourceYandexBackupPolicyUpdate(ctx context.Context, d *schema.ResourceDat
 
 	log.Printf("[INFO] Starting to update Cloud Backup policy with id=%q and request=%s", id, request.String())
 
-	operation, err := config.sdk.WrapOperation(config.sdk.Backup().Policy().Update(ctx, request))
+	client := backupsdk.NewPolicyClient(config.SDK)
+
+	operation, err := client.Update(ctx, request)
 	if err != nil {
 		return diag.Errorf("updating policy: %s", err)
 	}
 
-	err = operation.Wait(ctx)
+	_, err = operation.Wait(ctx)
 	if err != nil {
 		return diag.Errorf("waiting for operation completes: %s", err)
 	}
@@ -672,15 +670,17 @@ func resourceYandexBackupPolicyDelete(ctx context.Context, d *schema.ResourceDat
 
 	log.Printf("[INFO] Starting to delete Cloud Backup policy with id=%q", id)
 
-	operation, err := config.sdk.WrapOperation(config.sdk.Backup().Policy().Delete(ctx, &backuppb.DeletePolicyRequest{
+	client := backupsdk.NewPolicyClient(config.SDK)
+
+	operation, err := client.Delete(ctx, &backuppb.DeletePolicyRequest{
 		PolicyId: d.Id(),
-	}))
+	})
 	if err != nil {
 		err = handleNotFoundError(err, d, id)
 		return diag.FromErr(err)
 	}
 
-	err = operation.Wait(ctx)
+	_, err = operation.Wait(ctx)
 	if err != nil {
 		return diag.Errorf("waiting operation for completes: %s", err)
 	}

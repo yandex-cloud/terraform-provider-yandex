@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -96,6 +97,7 @@ var resourceYandexIAMServiceAccountKeySensitiveAttrs = []string{"private_key"}
 
 func resourceYandexIAMServiceAccountKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
@@ -110,7 +112,7 @@ func resourceYandexIAMServiceAccountKeyCreate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	resp, err := config.sdk.IAM().Key().Create(ctx, &iam.CreateKeyRequest{
+	resp, err := client.Create(ctx, &iam.CreateKeyRequest{
 		ServiceAccountId: d.Get("service_account_id").(string),
 		Description:      d.Get("description").(string),
 		Format:           format,
@@ -149,6 +151,7 @@ func resourceYandexIAMServiceAccountKeyCreate(d *schema.ResourceData, meta inter
 
 func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
@@ -158,7 +161,7 @@ func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	key, err := config.sdk.IAM().Key().Get(ctx, &iam.GetKeyRequest{
+	key, err := client.Get(ctx, &iam.GetKeyRequest{
 		KeyId:  d.Id(),
 		Format: format,
 	})
@@ -177,6 +180,7 @@ func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interfa
 
 func resourceYandexIAMServiceAccountKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -196,7 +200,7 @@ func resourceYandexIAMServiceAccountKeyUpdate(d *schema.ResourceData, meta inter
 
 	if len(updatedFields) != 0 {
 		req.UpdateMask = &field_mask.FieldMask{Paths: updatedFields}
-		_, err := config.sdk.IAM().Key().Update(ctx, req)
+		_, err := client.Update(ctx, req)
 		if err != nil {
 			return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id()))
 		}
@@ -212,11 +216,12 @@ func resourceYandexIAMServiceAccountKeyUpdate(d *schema.ResourceData, meta inter
 
 func resourceYandexIAMServiceAccountKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	_, err := config.sdk.IAM().Key().Delete(ctx, &iam.DeleteKeyRequest{
+	_, err := client.Delete(ctx, &iam.DeleteKeyRequest{
 		KeyId: d.Id(),
 	})
 	if err != nil {

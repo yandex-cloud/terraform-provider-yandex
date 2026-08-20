@@ -15,7 +15,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
@@ -234,9 +234,9 @@ func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta any) err
 		ClusterId: clusterID,
 		UserSpec:  userSpec,
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL user create request: %+v", redactPgUserCreateRequest(request))
-		return config.sdk.MDB().PostgreSQL().User().Create(ctx, request)
+		return postgresqlsdk.NewUserClient(config.SDK).Create(ctx, request)
 	})
 
 	userID := constructResourceId(clusterID, userSpec.Name)
@@ -246,11 +246,11 @@ func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta any) err
 		return fmt.Errorf("error while requesting API to create user for PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while creating user for PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("creating user for PostgreSQL Cluster %q failed: %s", clusterID, err)
 	}
 
@@ -354,7 +354,7 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta any) error
 		return err
 	}
 
-	apiUser, err := config.sdk.MDB().PostgreSQL().User().Get(ctx, &postgresql.GetUserRequest{
+	apiUser, err := postgresqlsdk.NewUserClient(config.SDK).Get(ctx, &postgresql.GetUserRequest{
 		ClusterId: clusterId,
 		UserName:  username,
 	})
@@ -494,20 +494,20 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta any) err
 		UpdateMask:             &fieldmaskpb.FieldMask{Paths: updatePath},
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL user update request: %+v", redactPgUserUpdateRequest(request))
-		return config.sdk.MDB().PostgreSQL().User().Update(ctx, request)
+		return postgresqlsdk.NewUserClient(config.SDK).Update(ctx, request)
 	})
 
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while updating user in PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("updating user for PostgreSQL Cluster %q failed: %s", clusterID, err)
 	}
 	return resourceYandexMDBPostgreSQLUserRead(d, meta)
@@ -542,20 +542,20 @@ func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta any) err
 		ClusterId: clusterID,
 		UserName:  username,
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL user delete request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().User().Delete(ctx, request)
+		return postgresqlsdk.NewUserClient(config.SDK).Delete(ctx, request)
 	})
 
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete user from PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while deleting user from PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("deleting user from PostgreSQL Cluster %q failed: %s", clusterID, err)
 	}
 

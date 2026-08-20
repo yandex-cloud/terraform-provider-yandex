@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
 )
@@ -77,6 +78,7 @@ var resourceYandexIAMOAuthClientSecretSensitiveAttrs = []string{"secret_value"}
 
 func resourceYandexIAMOAuthClientSecretCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewOAuthClientSecretClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
@@ -86,22 +88,16 @@ func resourceYandexIAMOAuthClientSecretCreate(d *schema.ResourceData, meta inter
 		Description:   d.Get("description").(string),
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.IAM().OAuthClientSecret().Create(ctx, req))
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error creating OAuth client secret: %s", err)
 	}
 
-	err = op.Wait(ctx)
+	createResponse, err := op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting operation to create OAuth client secret: %s", err)
 	}
 
-	resp, err := op.Response()
-	if err != nil {
-		return fmt.Errorf("OAuth client secret creation failed: %s", err)
-	}
-
-	createResponse := resp.(*iam.CreateOAuthClientSecretResponse)
 	oauthClientSecret := createResponse.OauthClientSecret
 	secretValue := createResponse.SecretValue
 
@@ -135,11 +131,12 @@ func resourceYandexIAMOAuthClientSecretCreate(d *schema.ResourceData, meta inter
 
 func resourceYandexIAMOAuthClientSecretRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewOAuthClientSecretClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	secret, err := config.sdk.IAM().OAuthClientSecret().Get(ctx, &iam.GetOAuthClientSecretRequest{
+	secret, err := client.Get(ctx, &iam.GetOAuthClientSecretRequest{
 		OauthClientSecretId: d.Id(),
 	})
 	if err != nil {
@@ -172,18 +169,19 @@ func resourceYandexIAMOAuthClientSecretUpdate(d *schema.ResourceData, meta inter
 
 func resourceYandexIAMOAuthClientSecretDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewOAuthClientSecretClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.IAM().OAuthClientSecret().Delete(ctx, &iam.DeleteOAuthClientSecretRequest{
+	op, err := client.Delete(ctx, &iam.DeleteOAuthClientSecretRequest{
 		OauthClientSecretId: d.Id(),
-	}))
+	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("OAuth Client Secret %q", d.Id()))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting operation to delete OAuth client secret: %s", err)
 	}

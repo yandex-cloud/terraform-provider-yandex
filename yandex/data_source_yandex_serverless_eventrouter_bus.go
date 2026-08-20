@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/eventrouter/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	eventroutersdk "github.com/yandex-cloud/go-sdk/services/serverless/eventrouter/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 )
 
 func dataSourceYandexServerlessEventrouterBus() *schema.Resource {
@@ -72,6 +73,7 @@ func dataSourceYandexServerlessEventrouterBus() *schema.Resource {
 
 func dataSourceYandexEventrouterBusRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := eventroutersdk.NewBusClient(config.SDK)
 
 	err := checkOneOf(d, "bus_id", "name")
 	if err != nil {
@@ -82,7 +84,9 @@ func dataSourceYandexEventrouterBusRead(ctx context.Context, d *schema.ResourceD
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		busID, err = resolveObjectID(ctx, config, d, sdkresolvers.EventrouterBusResolver)
+		busID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return eventroutersdk.BusResolver(name, client, opts...)
+		})
 		if err != nil {
 			return diag.Errorf("failed to resolve data source Event Router bus by name: %v", err)
 		}
@@ -92,7 +96,7 @@ func dataSourceYandexEventrouterBusRead(ctx context.Context, d *schema.ResourceD
 		BusId: busID,
 	}
 
-	bus, err := config.sdk.Serverless().Eventrouter().Bus().Get(ctx, &req)
+	bus, err := client.Get(ctx, &req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Event Router bus %q", d.Id())))
 	}

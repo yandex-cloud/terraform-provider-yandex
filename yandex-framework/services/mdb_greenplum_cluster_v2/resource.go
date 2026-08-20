@@ -18,7 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
-	greenplumv1sdk "github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1"
+	greenplumsdk "github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
@@ -102,7 +102,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *yande
 	defer cancel()
 
 	cid := state.ID.ValueString()
-	cluster, err := r.providerConfig.SDK.MDB().Greenplum().Cluster().Get(ctx, &greenplum.GetClusterRequest{
+	cluster, err := greenplumsdk.NewClusterClient(r.providerConfig.SDKv2).Get(ctx, &greenplum.GetClusterRequest{
 		ClusterId: cid,
 	})
 
@@ -242,7 +242,7 @@ func (r *clusterResource) createCluster(
 	resp *resource.CreateResponse,
 ) {
 	md := new(metadata.MD)
-	op, err := greenplumv1sdk.NewClusterClient(r.providerConfig.SDKv2).Create(ctx, createReq, grpc.Header(md))
+	op, err := greenplumsdk.NewClusterClient(r.providerConfig.SDKv2).Create(ctx, createReq, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Create cluster x-server-trace-id: %s", traceHeader[0]))
 	}
@@ -370,7 +370,7 @@ func (r *clusterResource) restoreCluster(
 	}
 
 	md := new(metadata.MD)
-	op, err := greenplumv1sdk.NewClusterClient(r.providerConfig.SDKv2).Restore(ctx, restoreReq, grpc.Header(md))
+	op, err := greenplumsdk.NewClusterClient(r.providerConfig.SDKv2).Restore(ctx, restoreReq, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("[DEBUG] Restore cluster x-server-trace-id: %s", traceHeader[0]))
 	}
@@ -427,7 +427,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	md := new(metadata.MD)
 
-	op, err := greenplumv1sdk.NewClusterClient(r.providerConfig.SDKv2).Delete(ctx, reqApi, grpc.Header(md))
+	op, err := greenplumsdk.NewClusterClient(r.providerConfig.SDKv2).Delete(ctx, reqApi, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Delete cluster x-server-trace-id: %s", traceHeader[0]))
 	}
@@ -991,7 +991,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		tflog.Debug(ctx, fmt.Sprintf("Update cluster request: %s", validate.ProtoDump(redactUpdateClusterRequest(updateReq))))
 
 		md := new(metadata.MD)
-		op, err := greenplumv1sdk.NewClusterClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
+		op, err := greenplumsdk.NewClusterClient(r.providerConfig.SDKv2).Update(ctx, updateReq, grpc.Header(md))
 		if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 			tflog.Debug(ctx, fmt.Sprintf("Update cluster x-server-trace-id: %s", traceHeader[0]))
 		}
@@ -1022,7 +1022,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		defer cancel()
 
 		md := new(metadata.MD)
-		op, err := greenplumv1sdk.NewClusterClient(r.providerConfig.SDKv2).Expand(ctx, expandReq, grpc.Header(md))
+		op, err := greenplumsdk.NewClusterClient(r.providerConfig.SDKv2).Expand(ctx, expandReq, grpc.Header(md))
 		if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 			tflog.Debug(ctx, fmt.Sprintf("Expand cluster x-server-trace-id: %s", traceHeader[0]))
 		}

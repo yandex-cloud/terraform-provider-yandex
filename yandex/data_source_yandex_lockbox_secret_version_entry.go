@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 )
 
 func dataSourceYandexLockboxSecretVersionEntry() *schema.Resource {
@@ -69,7 +70,9 @@ func dataSourceYandexLockboxSecretVersionEntryRead(ctx context.Context, d *schem
 		VersionId: versionID,
 	}
 
-	payload, err := config.sdk.LockboxPayload().Payload().Get(ctx, req)
+	client := lockboxsdk.NewPayloadClient(config.SDK)
+
+	payload, err := client.Get(ctx, req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("secret version payload %q", versionID)))
 	}

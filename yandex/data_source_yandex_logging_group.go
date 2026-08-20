@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	loggingsdk "github.com/yandex-cloud/go-sdk/services/logging/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -88,6 +88,7 @@ func dataSourceYandexLoggingGroup() *schema.Resource {
 
 func dataSourceYandexLoggingGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := loggingsdk.NewLogGroupClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
@@ -101,17 +102,30 @@ func dataSourceYandexLoggingGroupRead(d *schema.ResourceData, meta interface{}) 
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		groupID, err = resolveObjectID(ctx, config, d, sdkresolvers.LogGroupResolver)
+		folderID, folderErr := getFolderID(d, config)
+		if folderErr != nil {
+			return folderErr
+		}
+		response, listErr := client.List(ctx, &logging.ListLogGroupsRequest{
+			FolderId: folderID,
+			Filter:   fmt.Sprintf("name = \"%s\"", d.Get("name").(string)),
+			PageSize: 2,
+		})
+		if listErr == nil && len(response.Groups) != 1 {
+			listErr = fmt.Errorf("expected one log group, found %d", len(response.Groups))
+		}
+		err = listErr
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Yandex Cloud Logging group by name: %v", err)
 		}
+		groupID = response.Groups[0].Id
 	}
 
 	req := logging.GetLogGroupRequest{
 		LogGroupId: groupID,
 	}
 
-	group, err := config.sdk.Logging().LogGroup().Get(ctx, &req)
+	group, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Logging group %q", d.Id()))
 	}

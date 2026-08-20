@@ -7,8 +7,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	marketplace "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/marketplace/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	marketplacesdk "github.com/yandex-cloud/go-sdk/services/k8s/marketplace/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
+	sdkop "github.com/yandex-cloud/go-sdk/v2/pkg/operation"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
@@ -18,7 +21,7 @@ import (
 func installHelmRelease(ctx context.Context, sdk *ycsdk.SDK, req *marketplace.InstallHelmReleaseRequest) (string, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	op, err := sdk.WrapOperation(sdk.KubernetesMarketplace().HelmRelease().Install(ctx, req))
+	op, err := marketplacesdk.NewHelmReleaseClient(sdk).Install(ctx, req)
 	if err != nil {
 		diags = append(diags, diag.NewErrorDiagnostic(
 			"Failed to install Helm Release",
@@ -30,7 +33,7 @@ func installHelmRelease(ctx context.Context, sdk *ycsdk.SDK, req *marketplace.In
 		return "", diags
 	}
 
-	err = op.WaitInterval(ctx, 5*time.Second)
+	err = waitHelmReleaseOperation(ctx, sdk, op.ID())
 	if err != nil {
 		diags = append(diags, diag.NewErrorDiagnostic(
 			"Failed to install Helm Release",
@@ -38,28 +41,41 @@ func installHelmRelease(ctx context.Context, sdk *ycsdk.SDK, req *marketplace.In
 		))
 	}
 
-	protoMetadata, err := op.Metadata()
+	return op.Metadata().GetHelmReleaseId(), diags
+}
+
+func waitHelmReleaseOperation(ctx context.Context, sdk *ycsdk.SDK, operationID string) error {
+	conn, err := sdk.GetConnection(ctx, marketplacesdk.HelmReleaseOperationPoller)
 	if err != nil {
-		diags = append(diags, diag.NewErrorDiagnostic(
-			"Failed to install Helm Release",
-			"Failed to unmarshal metadata: "+err.Error(),
-		))
+		return err
 	}
 
-	meta, ok := protoMetadata.(*marketplace.InstallHelmReleaseMetadata)
-	if !ok {
-		diags = append(diags, diag.NewErrorDiagnostic(
-			"Failed to install Helm Release",
-			"Failed to convert response metadata to InstallHelmReleaseMetadata",
-		))
-		return "", diags
+	client := operation.NewOperationServiceClient(conn)
+	poll := func(ctx context.Context, operationID string, opts ...grpc.CallOption) (sdkop.YCOperation, error) {
+		return client.Get(ctx, &operation.GetOperationRequest{OperationId: operationID}, opts...)
 	}
 
-	return meta.GetHelmReleaseId(), diags
+	return waitOperationWithoutResponse(ctx, operationID, poll, func(int) time.Duration { return 5 * time.Second })
+}
+
+func waitOperationWithoutResponse(
+	ctx context.Context,
+	operationID string,
+	poll sdkop.PollFunc,
+	pollInterval sdkop.PollIntervalFunc,
+) error {
+	op, err := sdkop.PollUntilDone(ctx, operationID, poll, pollInterval)
+	if err != nil {
+		return err
+	}
+	if err := sdkop.Error(op); err != nil {
+		return fmt.Errorf("operation (id=%s) failed: %w", operationID, err)
+	}
+	return nil
 }
 
 func getHelmRelease(ctx context.Context, sdk *ycsdk.SDK, id string) (*marketplace.HelmRelease, diag.Diagnostic) {
-	helmRelease, err := sdk.KubernetesMarketplace().HelmRelease().Get(ctx, &marketplace.GetHelmReleaseRequest{
+	helmRelease, err := marketplacesdk.NewHelmReleaseClient(sdk).Get(ctx, &marketplace.GetHelmReleaseRequest{
 		Id: id,
 	})
 	if err != nil {
@@ -80,9 +96,16 @@ func updateHelmRelease(ctx context.Context, sdk *ycsdk.SDK, req *marketplace.Upd
 		return nil
 	}
 
-	return waitOperation(ctx, sdk, "update Helm release", func() (*operation.Operation, error) {
-		return sdk.KubernetesMarketplace().HelmRelease().Update(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*marketplacesdk.HelmReleaseUpdateOperation, error) {
+		return marketplacesdk.NewHelmReleaseClient(sdk).Update(ctx, req)
 	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		return diag.NewErrorDiagnostic("Failed to update Helm release", err.Error())
+	}
+	return nil
 }
 
 func uninstallHelmRelease(ctx context.Context, sdk *ycsdk.SDK, req *marketplace.UninstallHelmReleaseRequest) diag.Diagnostic {
@@ -90,21 +113,14 @@ func uninstallHelmRelease(ctx context.Context, sdk *ycsdk.SDK, req *marketplace.
 		return nil
 	}
 
-	return waitOperation(ctx, sdk, "delete Helm release", func() (*operation.Operation, error) {
-		return sdk.KubernetesMarketplace().HelmRelease().Uninstall(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*marketplacesdk.HelmReleaseUninstallOperation, error) {
+		return marketplacesdk.NewHelmReleaseClient(sdk).Uninstall(ctx, req)
 	})
-}
-
-func waitOperation(ctx context.Context, sdk *ycsdk.SDK, action string, callback func() (*operation.Operation, error)) diag.Diagnostic {
-	op, err := retry.ConflictingOperation(ctx, sdk, callback)
-
 	if err == nil {
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 	}
-
 	if err != nil {
-		return diag.NewErrorDiagnostic(fmt.Sprintf("Failed to %s", action), err.Error())
+		return diag.NewErrorDiagnostic("Failed to delete Helm release", err.Error())
 	}
-
 	return nil
 }

@@ -12,6 +12,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
+	dataprocsdk "github.com/yandex-cloud/go-sdk/services/dataproc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -406,30 +407,18 @@ func resourceYandexDataprocClusterCreate(d *schema.ResourceData, meta interface{
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Cluster().Create(ctx, req))
+	client := dataprocsdk.NewClusterClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Yandex Data Processing Cluster: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while getting Yandex Data Processing Cluster create operation metadata: %s", err)
-	}
+	d.SetId(op.Metadata().GetClusterId())
 
-	md, ok := protoMetadata.(*dataproc.CreateClusterMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Yandex Data Processing Cluster ID from create operation metadata")
-	}
-
-	d.SetId(md.ClusterId)
-
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting for operation to create Yandex Data Processing Cluster: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("failed to create Yandex Data Processing Cluster: %s", err)
 	}
 
 	return resourceYandexDataprocClusterRead(d, meta)
@@ -441,7 +430,9 @@ func resourceYandexDataprocClusterRead(d *schema.ResourceData, meta interface{})
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.Dataproc().Cluster().Get(ctx, &dataproc.GetClusterRequest{
+	client := dataprocsdk.NewClusterClient(config.SDK)
+
+	cluster, err := client.Get(ctx, &dataproc.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -624,10 +615,12 @@ func prepareDataprocCreateClusterRequest(d *schema.ResourceData, meta *Config) (
 }
 
 func listDataprocSubclusters(ctx context.Context, config *Config, id string) ([]*dataproc.Subcluster, error) {
+	client := dataprocsdk.NewSubclusterClient(config.SDK)
+
 	var subclusters []*dataproc.Subcluster
 	pageToken := ""
 	for {
-		resp, err := config.sdk.Dataproc().Subcluster().List(ctx, &dataproc.ListSubclustersRequest{
+		resp, err := client.List(ctx, &dataproc.ListSubclustersRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -656,17 +649,14 @@ func resourceYandexDataprocClusterDelete(d *schema.ResourceData, meta interface{
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Cluster().Delete(ctx, req))
+	client := dataprocsdk.NewClusterClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Data Processing Cluster %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -709,12 +699,14 @@ func updateDataprocClusterParams(d *schema.ResourceData, meta interface{}) error
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Cluster().Update(ctx, req))
+	client := dataprocsdk.NewClusterClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update Yandex Data Processing Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating Yandex Data Processing Cluster %q: %s", d.Id(), err)
 	}
@@ -947,12 +939,14 @@ func deleteDataprocSubcluster(deleteReq *dataproc.DeleteSubclusterRequest, confi
 	ctx, cancel := config.ContextWithTimeout(timeout)
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Subcluster().Delete(ctx, deleteReq))
+	client := dataprocsdk.NewSubclusterClient(config.SDK)
+
+	op, err := client.Delete(ctx, deleteReq)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete Yandex Data Processing Subcluster %q: %s", deleteReq.SubclusterId, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting Yandex Data Processing Subcluster %q: %s", deleteReq.SubclusterId, err)
 	}
@@ -967,12 +961,14 @@ func createDataprocSubcluster(createReq *dataproc.CreateSubclusterRequest, confi
 	ctx, cancel := config.ContextWithTimeout(timeout)
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Subcluster().Create(ctx, createReq))
+	client := dataprocsdk.NewSubclusterClient(config.SDK)
+
+	op, err := client.Create(ctx, createReq)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Yandex Data Processing Subcluster %q: %s", createReq.Name, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while creating Yandex Data Processing Subcluster %q: %s", createReq.Name, err)
 	}
@@ -987,12 +983,14 @@ func updateDataprocSubcluster(updateReq *dataproc.UpdateSubclusterRequest, confi
 	ctx, cancel := config.ContextWithTimeout(timeout)
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Dataproc().Subcluster().Update(ctx, updateReq))
+	client := dataprocsdk.NewSubclusterClient(config.SDK)
+
+	op, err := client.Update(ctx, updateReq)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update Yandex Data Processing Subcluster %q: %s", updateReq.SubclusterId, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating Yandex Data Processing Subcluster %q: %s", updateReq.SubclusterId, err)
 	}

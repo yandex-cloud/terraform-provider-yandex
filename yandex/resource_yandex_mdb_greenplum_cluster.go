@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
+	greenplumsdk "github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
@@ -775,25 +776,18 @@ func resourceYandexMDBGreenplumClusterCreate(d *schema.ResourceData, meta interf
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Create(ctx, req))
+	op, err := greenplumsdk.NewClusterClient(config.SDK).Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Greenplum Cluster: %s", err)
 	}
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while get Greenplum create operation metadata: %s", err)
-	}
-	md, ok := protoMetadata.(*greenplum.CreateClusterMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Greenplum Cluster ID from create operation metadata")
-	}
+	md := op.Metadata()
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting for operation to create Greenplum Cluster: %s", err)
 	}
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("failed to create Greenplum Cluster: %s", err)
 	}
 	return resourceYandexMDBGreenplumClusterRead(d, meta)
@@ -844,25 +838,18 @@ func resourceYandexMDBGreenplumClusterRestore(d *schema.ResourceData, meta inter
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Restore(ctx, req))
+	op, err := greenplumsdk.NewClusterClient(config.SDK).Restore(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Greenplum Cluster from backup %v: %s", backupID, err)
 	}
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while get Greenplum create from backup %v operation metadata: %s", backupID, err)
-	}
-	md, ok := protoMetadata.(*greenplum.RestoreClusterMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Greenplum Cluster ID from create from backup %v operation metadata", backupID)
-	}
+	md := op.Metadata()
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting for operation to create Greenplum Cluster from backup %v: %s", backupID, err)
 	}
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("failed to create Greenplum Cluster from backup %v: %s", backupID, err)
 	}
 	return resourceYandexMDBGreenplumClusterRead(d, meta)
@@ -956,7 +943,7 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.MDB().Greenplum().Cluster().Get(ctx, &greenplum.GetClusterRequest{
+	cluster, err := greenplumsdk.NewClusterClient(config.SDK).Get(ctx, &greenplum.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -1080,7 +1067,7 @@ func listGreenplumMasterHosts(ctx context.Context, config *Config, id string) ([
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.MDB().Greenplum().Cluster().ListMasterHosts(ctx, &greenplum.ListClusterHostsRequest{
+		resp, err := greenplumsdk.NewClusterClient(config.SDK).ListMasterHosts(ctx, &greenplum.ListClusterHostsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1105,7 +1092,7 @@ func listGreenplumSegmentHosts(ctx context.Context, config *Config, id string) (
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.MDB().Greenplum().Cluster().ListSegmentHosts(ctx, &greenplum.ListClusterHostsRequest{
+		resp, err := greenplumsdk.NewClusterClient(config.SDK).ListSegmentHosts(ctx, &greenplum.ListClusterHostsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1151,12 +1138,12 @@ func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interf
 		ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 		defer cancel()
 
-		op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Update(ctx, req))
+		op, err := greenplumsdk.NewClusterClient(config.SDK).Update(ctx, req)
 		if err != nil {
 			return fmt.Errorf("error while requesting API to update Greenplum Cluster %q: %s", d.Id(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error while updating Greenplum Cluster %q: %s", d.Id(), err)
 		}
@@ -1167,12 +1154,12 @@ func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interf
 		ctx, cancelExp := config.ContextWithTimeout(yandexMDBGreenplumClusterExpandTimeout)
 		defer cancelExp()
 
-		op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Expand(ctx, reqExpand))
+		op, err := greenplumsdk.NewClusterClient(config.SDK).Expand(ctx, reqExpand)
 		if err != nil {
 			return fmt.Errorf("error while requesting API to expand Greenplum Cluster %q: %s", d.Id(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error while expanding Greenplum Cluster %q: %s", d.Id(), err)
 		}
@@ -1290,17 +1277,17 @@ func resourceYandexMDBGreenplumClusterDelete(d *schema.ResourceData, meta interf
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Delete(ctx, req))
+	op, err := greenplumsdk.NewClusterClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Greenplum Cluster %q", d.Id()))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
 
-	_, err = op.Response()
+	err = op.Error()
 	if err != nil {
 		return err
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/metastore/v1"
+	metastoresdk "github.com/yandex-cloud/go-sdk/services/metastore/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -50,7 +51,7 @@ func TestAccMDBMetastoreClusterIamBinding_basic(t *testing.T) {
 					testAccCheckMetastoreExists(metastoreResourceType+".metastore_cluster", &cluster),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Metastore().Cluster()
+						return metastoresdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -85,12 +86,13 @@ func TestAccMDBMetastoreClusterIamBinding_multiple(t *testing.T) {
 					FolderID:       os.Getenv("YC_FOLDER_ID"),
 					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
 					ResourcePreset: "c2-m4",
+					Version:        newOptional("3.1"),
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists(metastoreResourceType+".metastore_cluster", &cluster),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Metastore().Cluster()
+						return metastoresdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -99,7 +101,7 @@ func TestAccMDBMetastoreClusterIamBinding_multiple(t *testing.T) {
 				Config: testAccMDBMetastoreClusterIamBindingConfig(t, roleFoo, userID, clusterName, description),
 				Check: iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 					cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-					return cfg.SDK.Metastore().Cluster()
+					return metastoresdk.NewClusterClient(cfg.SDKv2)
 				}, &cluster, roleFoo, []string{userID}),
 			},
 			iam.IAMBindingImportTestStep(metastoreIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
@@ -109,11 +111,11 @@ func TestAccMDBMetastoreClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Metastore().Cluster()
+						return metastoresdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Metastore().Cluster()
+						return metastoresdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -127,15 +129,16 @@ func TestAccMDBMetastoreClusterIamBinding_multiple(t *testing.T) {
 					FolderID:       os.Getenv("YC_FOLDER_ID"),
 					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
 					ResourcePreset: "c2-m4",
+					Version:        newOptional("3.1"),
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Metastore().Cluster()
+						return metastoresdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Metastore().Cluster()
+						return metastoresdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar),
 				),
 			},
@@ -150,6 +153,7 @@ func testAccMDBMetastoreClusterIamBindingConfig(t *testing.T, role, userID, name
 		RandSuffix:     nameSuffix,
 		ResourcePreset: "c2-m4",
 		SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+		Version:        newOptional("3.1"),
 	})
 
 	return fmt.Sprintf(`
@@ -168,6 +172,7 @@ func testAccMDBMetastoreClusterIamBindingMultipleConfig(t *testing.T, roleFoo, r
 		RandSuffix:     nameSuffix,
 		ResourcePreset: "c2-m4",
 		SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+		Version:        newOptional("3.1"),
 	})
 
 	return fmt.Sprintf(`

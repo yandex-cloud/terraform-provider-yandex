@@ -9,7 +9,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	storage "github.com/yandex-cloud/go-genproto/yandex/cloud/storage/v1"
+	storagesdk "github.com/yandex-cloud/go-sdk/services/storage/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	iam_binding "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/storage_bucket_iam_binding"
@@ -117,11 +118,14 @@ func testAccStorageBucketProjectIam(resourceName, role string, members []string)
 		}
 
 		bucketName := rs.Primary.Attributes["bucket"]
-		bucketResolver := sdkresolvers.BucketResolver(bucketName)
-		if err := config.SDK.Resolve(context.Background(), bucketResolver); err != nil {
-			return fmt.Errorf("Cannot get ResourceId for bucket %s", bucketName)
+		bucket, err := storagesdk.NewBucketClient(config.SDKv2).Get(context.Background(), &storage.GetBucketRequest{
+			Name: bucketName,
+			View: storage.GetBucketRequest_VIEW_BASIC,
+		})
+		if err != nil {
+			return fmt.Errorf("cannot get ResourceId for bucket %s: %w", bucketName, err)
 		}
-		resourceId := bucketResolver.ID()
+		resourceId := bucket.GetResourceId()
 
 		bucketUpdater := iam_binding.BucketIAMUpdater{
 			ResourceId:     resourceId,
@@ -177,11 +181,14 @@ func testAccStorageBucketProjectIamNotExists(resourceName, role string) resource
 		}
 
 		bucketName := rs.Primary.Attributes["bucket"]
-		bucketResolver := sdkresolvers.BucketResolver(bucketName)
-		if err := config.SDK.Resolve(context.Background(), bucketResolver); err != nil {
-			return fmt.Errorf("Cannot get ResourceId for bucket %s", bucketName)
+		bucket, err := storagesdk.NewBucketClient(config.SDKv2).Get(context.Background(), &storage.GetBucketRequest{
+			Name: bucketName,
+			View: storage.GetBucketRequest_VIEW_BASIC,
+		})
+		if err != nil {
+			return fmt.Errorf("cannot get ResourceId for bucket %s: %w", bucketName, err)
 		}
-		resourceId := bucketResolver.ID()
+		resourceId := bucket.GetResourceId()
 
 		bucketUpdater := iam_binding.BucketIAMUpdater{
 			ResourceId:     resourceId,

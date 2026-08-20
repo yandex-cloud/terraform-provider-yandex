@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -40,7 +41,7 @@ func testSweepClouds(string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.SDK.ResourceManager().Cloud().CloudIterator(
+	it := resourcemanagersdk.NewCloudClient(conf.SDKv2).Iterator(
 		context.Background(),
 		&resourcemanager.ListCloudsRequest{
 			OrganizationId: conf.ProviderState.OrganizationID.ValueString(),
@@ -73,10 +74,10 @@ func sweepCloudOnce(conf *provider_config.Config, id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), yandexResourceManagerCloudDeleteTimeout)
 	defer cancel()
 
-	op, err := conf.SDK.ResourceManager().Cloud().Delete(ctx, &resourcemanager.DeleteCloudRequest{
+	op, err := resourcemanagersdk.NewCloudClient(conf.SDKv2).Delete(ctx, &resourcemanager.DeleteCloudRequest{
 		CloudId:     id,
 		DeleteAfter: timestamppb.Now(),
 	})
 
-	return test.HandleSweepOperation(ctx, conf, op, err)
+	return test.HandleSweepOperation(ctx, op, err)
 }

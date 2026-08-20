@@ -29,11 +29,11 @@ func resourceYandexYDBTableChangefeed() *schema.Resource {
 func resourceYandexYDBTableChangefeedCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
 		config := meta.(*Config)
-		token, err := config.sdk.CreateIAMToken(ctx)
+		token, err := config.getIAMToken(ctx)
 		if err != nil {
 			return auth.YdbCredentials{}, err
 		}
-		return auth.YdbCredentials{Token: token.IamToken}, nil
+		return auth.YdbCredentials{Token: token}, nil
 	}
 	return changefeed.ResourceCreateFunc(cb)(ctx, d, meta)
 }
@@ -41,11 +41,11 @@ func resourceYandexYDBTableChangefeedCreate(ctx context.Context, d *schema.Resou
 func resourceYandexYDBTableChangefeedRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
 		config := meta.(*Config)
-		token, err := config.sdk.CreateIAMToken(ctx)
+		token, err := config.getIAMToken(ctx)
 		if err != nil {
 			return auth.YdbCredentials{}, err
 		}
-		return auth.YdbCredentials{Token: token.IamToken}, nil
+		return auth.YdbCredentials{Token: token}, nil
 	}
 	return changefeed.ResourceReadFunc(cb)(ctx, d, meta)
 }
@@ -53,11 +53,11 @@ func resourceYandexYDBTableChangefeedRead(ctx context.Context, d *schema.Resourc
 func resourceYandexYDBTableChangefeedUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
 		config := meta.(*Config)
-		token, err := config.sdk.CreateIAMToken(ctx)
+		token, err := config.getIAMToken(ctx)
 		if err != nil {
 			return auth.YdbCredentials{}, err
 		}
-		return auth.YdbCredentials{Token: token.IamToken}, nil
+		return auth.YdbCredentials{Token: token}, nil
 	}
 	return changefeed.ResourceUpdateFunc(cb)(ctx, d, meta)
 }
@@ -65,11 +65,11 @@ func resourceYandexYDBTableChangefeedUpdate(ctx context.Context, d *schema.Resou
 func resourceYandexYDBTableChangefeedDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
 		config := meta.(*Config)
-		token, err := config.sdk.CreateIAMToken(ctx)
+		token, err := config.getIAMToken(ctx)
 		if err != nil {
 			return auth.YdbCredentials{}, err
 		}
-		return auth.YdbCredentials{Token: token.IamToken}, nil
+		return auth.YdbCredentials{Token: token}, nil
 	}
 	return changefeed.ResourceDeleteFunc(cb)(ctx, d, meta)
 }

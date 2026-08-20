@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -222,9 +222,9 @@ func resourceYandexMDBMySQLUserCreate(d *schema.ResourceData, meta interface{}) 
 		ClusterId: clusterID,
 		UserSpec:  userSpec,
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL user create request: %+v", redactMySQLUserCreateRequest(request))
-		return config.sdk.MDB().MySQL().User().Create(ctx, request)
+		return mysqlsdk.NewUserClient(config.SDK).Create(ctx, request)
 	})
 
 	userID := constructResourceId(clusterID, userSpec.Name)
@@ -234,11 +234,11 @@ func resourceYandexMDBMySQLUserCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("error while requesting API to create user for MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while creating user for MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("creating user for MySQL Cluster %q failed: %s", clusterID, err)
 	}
 
@@ -307,7 +307,7 @@ func resourceYandexMDBMySQLUserRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	user, err := config.sdk.MDB().MySQL().User().Get(ctx, &mysql.GetUserRequest{
+	user, err := mysqlsdk.NewUserClient(config.SDK).Get(ctx, &mysql.GetUserRequest{
 		ClusterId: clusterID,
 		UserName:  username,
 	})
@@ -391,19 +391,19 @@ func resourceYandexMDBMySQLUserUpdate(d *schema.ResourceData, meta interface{}) 
 		GlobalPermissions:    user.GlobalPermissions,
 		UpdateMask:           &fieldmaskpb.FieldMask{Paths: updatePath},
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL user update request: %+v", redactMySQLUserUpdateRequest(request))
-		return config.sdk.MDB().MySQL().User().Update(ctx, request)
+		return mysqlsdk.NewUserClient(config.SDK).Update(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while updating user in MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("updating user for MySQL Cluster %q failed: %s", clusterID, err)
 	}
 	return nil
@@ -438,19 +438,19 @@ func resourceYandexMDBMySQLUserDelete(d *schema.ResourceData, meta interface{}) 
 		ClusterId: clusterID,
 		UserName:  username,
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL user delete request: %+v", request)
-		return config.sdk.MDB().MySQL().User().Delete(ctx, request)
+		return mysqlsdk.NewUserClient(config.SDK).Delete(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete user from MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while deleting user from MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("deleting user from MySQL Cluster %q failed: %s", clusterID, err)
 	}
 

@@ -6,7 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	apigatewaysdk "github.com/yandex-cloud/go-sdk/services/serverless/apigateway/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -198,7 +199,11 @@ func dataSourceYandexApiGatewayRead(d *schema.ResourceData, meta interface{}) er
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		apiGatewayID, err = resolveObjectID(ctx, config, d, sdkresolvers.APIGatewayResolver)
+		client := apigatewaysdk.NewApiGatewayClient(config.SDK)
+
+		apiGatewayID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return apigatewaysdk.ApiGatewayResolver(name, client, opts...)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Yandex Cloud API Gateway by name: %v", err)
 		}
@@ -208,7 +213,9 @@ func dataSourceYandexApiGatewayRead(d *schema.ResourceData, meta interface{}) er
 		ApiGatewayId: apiGatewayID,
 	}
 
-	apiGateway, err := config.sdk.Serverless().APIGateway().ApiGateway().Get(ctx, &req)
+	client := apigatewaysdk.NewApiGatewayClient(config.SDK)
+
+	apiGateway, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud API Gateway %q", d.Id()))
 	}

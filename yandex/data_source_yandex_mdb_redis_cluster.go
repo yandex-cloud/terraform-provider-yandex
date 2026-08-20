@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	redissdk "github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -382,13 +383,17 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.RedisClusterResolver)
+		clusterID, err = resolveObjectIDV2(ctx, config, d,
+			func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+				return redissdk.ClusterResolver(name, redissdk.NewClusterClient(config.SDK), opts...)
+			},
+		)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Redis Cluster by name: %v", err)
 		}
 	}
 
-	cluster, err := config.sdk.MDB().Redis().Cluster().Get(ctx, &redis.GetClusterRequest{
+	cluster, err := redissdk.NewClusterClient(config.SDK).Get(ctx, &redis.GetClusterRequest{
 		ClusterId: clusterID,
 	})
 	if err != nil {
@@ -398,7 +403,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	hosts := []*redis.Host{}
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Redis().Cluster().ListHosts(ctx, &redis.ListClusterHostsRequest{
+		resp, err := redissdk.NewClusterClient(config.SDK).ListHosts(ctx, &redis.ListClusterHostsRequest{
 			ClusterId: clusterID,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,

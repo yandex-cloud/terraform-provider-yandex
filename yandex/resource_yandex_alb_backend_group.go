@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -543,30 +544,19 @@ func resourceYandexALBBackendGroupCreate(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().BackendGroup().Create(ctx, req))
+	client := albsdk.NewBackendGroupClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Application Backend Group: %w", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get Application Backend Group create operation metadata: %w", err)
-	}
-
-	md, ok := protoMetadata.(*apploadbalancer.CreateBackendGroupMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Application Backend Group ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.BackendGroupId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create Application Backend Group: %w", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Application Backend Group creation failed: %w", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Application Backend Group %q", d.Id())
@@ -580,7 +570,9 @@ func resourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	bg, err := config.sdk.ApplicationLoadBalancer().BackendGroup().Get(ctx, &apploadbalancer.GetBackendGroupRequest{
+	client := albsdk.NewBackendGroupClient(config.SDK)
+
+	bg, err := client.Get(ctx, &apploadbalancer.GetBackendGroupRequest{
 		BackendGroupId: d.Id(),
 	})
 
@@ -699,12 +691,14 @@ func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().BackendGroup().Update(ctx, req))
+	client := albsdk.NewBackendGroupClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Application Backend Group %q: %w", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Application Backend Group %q: %w", d.Id(), err)
 	}
@@ -724,17 +718,14 @@ func resourceYandexALBBackendGroupDelete(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().BackendGroup().Delete(ctx, req))
+	client := albsdk.NewBackendGroupClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Application Backend Group %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

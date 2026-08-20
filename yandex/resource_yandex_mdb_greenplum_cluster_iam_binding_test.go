@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
+	greenplumsdk "github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 )
 
@@ -46,7 +47,7 @@ func TestAccMDBGreenplumClusterIamBinding_basic(t *testing.T) {
 					testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, &cluster, 2, 5),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Greenplum().Cluster()
+						return greenplumsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -79,7 +80,7 @@ func TestAccMDBGreenplumClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, &cluster, 2, 5),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Greenplum().Cluster()
+						return greenplumsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -89,7 +90,7 @@ func TestAccMDBGreenplumClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Greenplum().Cluster()
+						return greenplumsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 				),
 			},
@@ -100,11 +101,11 @@ func TestAccMDBGreenplumClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Greenplum().Cluster()
+						return greenplumsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Greenplum().Cluster()
+						return greenplumsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -116,11 +117,11 @@ func TestAccMDBGreenplumClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Greenplum().Cluster()
+						return greenplumsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Greenplum().Cluster()
+						return greenplumsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar),
 				),
 			},

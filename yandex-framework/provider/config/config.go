@@ -18,15 +18,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mitchellh/go-homedir"
-	ycsdk "github.com/yandex-cloud/go-sdk"
-	"github.com/yandex-cloud/go-sdk/iamkey"
-	"github.com/yandex-cloud/go-sdk/pkg/idempotency"
-	"github.com/yandex-cloud/go-sdk/pkg/requestid"
-	"github.com/yandex-cloud/go-sdk/pkg/retry/v1"
 	ycsdkv2 "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/go-sdk/v2/credentials"
 	iamkeyv2 "github.com/yandex-cloud/go-sdk/v2/pkg/iamkey"
 	"github.com/yandex-cloud/go-sdk/v2/pkg/options"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/options/retry"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/transport/middleware/idempotency"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/transport/middleware/requestid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/storage/s3"
 	"github.com/yandex-cloud/terraform-provider-yandex/version"
 	"google.golang.org/grpc"
@@ -90,7 +88,6 @@ type Config struct {
 	ProviderState State
 
 	UserAgent types.String
-	SDK       *ycsdk.SDK
 	SDKv2     *ycsdkv2.SDK
 	YqSdk     *yqsdk.SDK
 	iamToken  *iamToken
@@ -102,25 +99,10 @@ type Config struct {
 func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, sweeper bool, diags diag.Diagnostics) diag.Diagnostics {
 	ctx = requestid.ContextWithClientTraceID(ctx, uuid.New().String())
 
-	credentials, err := c.Credentials(ctx)
+	credentialsV2, err := c.Credentials(ctx)
 	if err != nil {
 		diags.AddError("Failed to configure", err.Error())
 		return diags
-	}
-
-	credentialsV2, err := c.CredentialsV2(ctx)
-	if err != nil {
-		diags.AddError("Failed to configure", err.Error())
-		return diags
-	}
-
-	yandexSDKConfig := &ycsdk.Config{
-		Credentials: credentials,
-		Endpoint:    c.ProviderState.Endpoint.ValueString(),
-		Plaintext:   c.ProviderState.Plaintext.ValueBool(),
-		TLSConfig: &tls.Config{
-			InsecureSkipVerify: c.ProviderState.Insecure.ValueBool(),
-		},
 	}
 
 	c.UserAgent = types.StringValue(config.BuildUserAgent(terraformVersion, sweeper))
@@ -154,12 +136,6 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)),
 		grpc.WithChainUnaryInterceptor(interceptors...),
 		retryOptions,
-	}
-
-	c.SDK, err = ycsdk.Build(ctx, *yandexSDKConfig, grpcOptions...)
-	if err != nil {
-		diags.AddError("Failed to configure", err.Error())
-		return diags
 	}
 
 	opts := []options.Option{
@@ -333,41 +309,7 @@ func (c *Config) GetS3Client(ctx context.Context, accessKey, secretKey string) (
 	return s3.NewClient(ctx, accessKey, secretKey, "", c.ProviderState.StorageEndpoint.ValueString())
 }
 
-func (c *Config) Credentials(ctx context.Context) (ycsdk.Credentials, error) {
-	if c.ProviderState.ServiceAccountKeyFileOrContent.ValueString() != "" {
-		contents, _, err := pathOrContents(c.ProviderState.ServiceAccountKeyFileOrContent.ValueString())
-		if err != nil {
-			return nil, fmt.Errorf("Error loading Credentials: %s", err)
-		}
-
-		key, err := iamKeyFromJSONContent(contents)
-		if err != nil {
-			return nil, err
-		}
-		return ycsdk.ServiceAccountKey(key)
-	}
-
-	if c.ProviderState.Token.ValueString() != "" {
-		if strings.HasPrefix(
-			c.ProviderState.Token.ValueString(), "t1.",
-		) && strings.Count(
-			c.ProviderState.Token.ValueString(), ".",
-		) == 2 {
-			return ycsdk.NewIAMTokenCredentials(c.ProviderState.Token.ValueString()), nil
-		}
-		return ycsdk.OAuthToken(c.ProviderState.Token.ValueString()), nil
-	}
-
-	if sa := ycsdk.InstanceServiceAccount(); checkServiceAccountAvailable(ctx, sa) {
-		return sa, nil
-	}
-
-	return nil, fmt.Errorf("one of 'token' or 'service_account_key_file' should be specified;" +
-		" if you are inside compute instance, you can attach service account to it in order to " +
-		"authenticate via instance service account")
-}
-
-func (c *Config) CredentialsV2(ctx context.Context) (credentials.Credentials, error) {
+func (c *Config) Credentials(ctx context.Context) (credentials.Credentials, error) {
 	if c.ProviderState.ServiceAccountKeyFileOrContent.ValueString() != "" {
 		contents, _, err := pathOrContents(c.ProviderState.ServiceAccountKeyFileOrContent.ValueString())
 		if err != nil {
@@ -392,7 +334,7 @@ func (c *Config) CredentialsV2(ctx context.Context) (credentials.Credentials, er
 		return credentials.OAuthToken(c.ProviderState.Token.ValueString()), nil
 	}
 
-	if sa := credentials.InstanceServiceAccount(); checkServiceAccountV2Available(ctx, sa) {
+	if sa := credentials.InstanceServiceAccount(); checkServiceAccountAvailable(ctx, sa) {
 		return sa, nil
 	}
 
@@ -406,28 +348,17 @@ func (c *Config) getIAMToken(ctx context.Context) (string, error) {
 		return c.iamToken.Token, nil
 	}
 
-	resp, err := c.SDK.CreateIAMToken(ctx)
+	resp, err := c.SDKv2.CreateIAMToken(ctx)
 	if err != nil {
 		return "", fmt.Errorf("failed to get IAM token: %w", err)
 	}
 
 	c.iamToken = &iamToken{
-		Token: resp.IamToken,
-	}
-	if resp.ExpiresAt != nil && resp.ExpiresAt.IsValid() {
-		c.iamToken.expiresAt = resp.ExpiresAt.AsTime()
+		Token:     resp.GetIamToken(),
+		expiresAt: resp.GetExpiresAt(),
 	}
 
 	return c.iamToken.Token, nil
-}
-
-func iamKeyFromJSONContent(content string) (*iamkey.Key, error) {
-	key := &iamkey.Key{}
-	err := json.Unmarshal([]byte(content), key)
-	if err != nil {
-		return nil, fmt.Errorf("key unmarshal fail: %s", err)
-	}
-	return key, nil
 }
 
 func iamKeyV2FromJSONContent(content string) (*iamkeyv2.Key, error) {
@@ -439,20 +370,9 @@ func iamKeyV2FromJSONContent(content string) (*iamkeyv2.Key, error) {
 	return key, nil
 }
 
-func checkServiceAccountAvailable(ctx context.Context, sa ycsdk.NonExchangeableCredentials) bool {
+func checkServiceAccountAvailable(ctx context.Context, sa credentials.NonExchangeableCredentials) bool {
 	dialer := net.Dialer{Timeout: 50 * time.Millisecond}
-	conn, err := dialer.Dial("tcp", net.JoinHostPort(ycsdk.InstanceMetadataAddr, "80"))
-	if err != nil {
-		return false
-	}
-	_ = conn.Close()
-	_, err = sa.IAMToken(ctx)
-	return err == nil
-}
-
-func checkServiceAccountV2Available(ctx context.Context, sa credentials.NonExchangeableCredentials) bool {
-	dialer := net.Dialer{Timeout: 50 * time.Millisecond}
-	conn, err := dialer.Dial("tcp", net.JoinHostPort(ycsdk.InstanceMetadataAddr, "80"))
+	conn, err := dialer.Dial("tcp", net.JoinHostPort(credentials.InstanceMetadataAddr, "80"))
 	if err != nil {
 		return false
 	}

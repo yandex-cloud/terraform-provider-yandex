@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -129,30 +130,17 @@ func resourceYandexComputePlacementGroupCreate(d *schema.ResourceData, meta inte
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().PlacementGroup().Create(ctx, &req))
+	op, err := computesdk.NewPlacementGroupClient(config.SDK).Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Placement Group: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get Placement Group create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*compute.CreatePlacementGroupMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Placement Group ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.GetPlacementGroupId())
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create Placement Group: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Placement Group creation failed: %s", err)
 	}
 
 	return resourceYandexComputePlacementGroupRead(d, meta)
@@ -161,7 +149,7 @@ func resourceYandexComputePlacementGroupCreate(d *schema.ResourceData, meta inte
 func resourceYandexComputePlacementGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	placementGroup, err := config.sdk.Compute().PlacementGroup().Get(context.Background(),
+	placementGroup, err := computesdk.NewPlacementGroupClient(config.SDK).Get(context.Background(),
 		&compute.GetPlacementGroupRequest{
 			PlacementGroupId: d.Id(),
 		})
@@ -228,17 +216,12 @@ func resourceYandexComputePlacementGroupDelete(d *schema.ResourceData, meta inte
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().PlacementGroup().Delete(ctx, req))
+	op, err := computesdk.NewPlacementGroupClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Placement Group %q", d.Id()))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -253,12 +236,12 @@ func makePlacementGroupUpdateRequest(req *compute.UpdatePlacementGroupRequest, d
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().PlacementGroup().Update(ctx, req))
+	op, err := computesdk.NewPlacementGroupClient(config.SDK).Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Placement Group %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Placement Group %q: %s", d.Id(), err)
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -132,12 +133,14 @@ func resourceYandexOrganizationManagerOsLoginSettingsUpdate(context context.Cont
 	}
 
 	config := meta.(*Config)
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().OsLogin().UpdateSettings(context, req))
+	client := organizationmanagersdk.NewOsLoginClient(config.SDK)
+
+	op, err := client.UpdateSettings(context, req)
 	if err != nil {
 		return diag.Errorf("Error while requesting API to update OsLoginSettings %q: %s", organizationID, err)
 	}
 
-	err = op.Wait(context)
+	_, err = op.Wait(context)
 	if err != nil {
 		return diag.Errorf("Error updating OsLoginSettings %q: %s", organizationID, err)
 	}

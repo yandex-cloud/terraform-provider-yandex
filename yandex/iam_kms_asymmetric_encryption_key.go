@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	kmsencryptionsdk "github.com/yandex-cloud/go-sdk/services/kms/v1/asymmetricencryption"
 )
 
 var IamKMSAsymmetricEncryptionKeySchema = map[string]*schema.Schema{
@@ -45,6 +46,8 @@ func (u *KMSAsymmetricEncryptionKeyIamUpdater) GetResourceIamPolicy(ctx context.
 }
 
 func (u *KMSAsymmetricEncryptionKeyIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
+	client := kmsencryptionsdk.NewAsymmetricEncryptionKeyClient(u.Config.SDK)
+
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.asymmetricEncryptionKeyID,
 		AccessBindings: policy.Bindings,
@@ -53,12 +56,12 @@ func (u *KMSAsymmetricEncryptionKeyIamUpdater) SetResourceIamPolicy(ctx context.
 	ctx, cancel := context.WithTimeout(ctx, yandexIAMKMSDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.KMSAsymmetricEncryption().AsymmetricEncryptionKey().SetAccessBindings(ctx, req))
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -67,6 +70,8 @@ func (u *KMSAsymmetricEncryptionKeyIamUpdater) SetResourceIamPolicy(ctx context.
 }
 
 func (u *KMSAsymmetricEncryptionKeyIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	client := kmsencryptionsdk.NewAsymmetricEncryptionKeyClient(u.Config.SDK)
+
 	bSize := yandexIAMKMSUpdateAccessBindingsBatchSize
 	deltas := policy.Deltas
 	dLen := len(deltas)
@@ -77,7 +82,7 @@ func (u *KMSAsymmetricEncryptionKeyIamUpdater) UpdateResourceIamPolicy(ctx conte
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.KMSAsymmetricEncryption().AsymmetricEncryptionKey().UpdateAccessBindings(ctx, req))
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -85,7 +90,7 @@ func (u *KMSAsymmetricEncryptionKeyIamUpdater) UpdateResourceIamPolicy(ctx conte
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -107,11 +112,13 @@ func (u *KMSAsymmetricEncryptionKeyIamUpdater) DescribeResource() string {
 }
 
 func getKMSAsymmetricEncryptionKeyAccessBindings(ctx context.Context, config *Config, asymmetricEncryptionKeyID string) ([]*access.AccessBinding, error) {
+	client := kmsencryptionsdk.NewAsymmetricEncryptionKeyClient(config.SDK)
+
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.KMSAsymmetricEncryption().AsymmetricEncryptionKey().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: asymmetricEncryptionKeyID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

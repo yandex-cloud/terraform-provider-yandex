@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -472,13 +472,15 @@ func dataSourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{
 	_, bgNameOk := d.GetOk("name")
 
 	if bgNameOk {
-		bgID, err = resolveObjectID(ctx, config, d, sdkresolvers.ALBBackendGroupResolver)
+		bgID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(albsdk.NewBackendGroupClient(config.SDK), albsdk.BackendGroupResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source ALB Backend Group by name: %v", err)
 		}
 	}
 
-	bg, err := config.sdk.ApplicationLoadBalancer().BackendGroup().Get(ctx, &apploadbalancer.GetBackendGroupRequest{
+	client := albsdk.NewBackendGroupClient(config.SDK)
+
+	bg, err := client.Get(ctx, &apploadbalancer.GetBackendGroupRequest{
 		BackendGroupId: bgID,
 	})
 

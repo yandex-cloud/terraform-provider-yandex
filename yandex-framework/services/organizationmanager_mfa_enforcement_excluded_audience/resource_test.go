@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	organizationmanager "github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
@@ -21,7 +22,8 @@ func TestMain(m *testing.M) {
 
 func TestAccOrganizationManagerMfaEnforcementExcludedAudienceCreate(t *testing.T) {
 	organizationId := test.GetExampleOrganizationID()
-	subjectId := test.GetExampleUserID1()
+	suffix := acctest.RandString(10)
+	subjectConfig := testAccMfaExcludedAudienceSubject(organizationId, suffix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -29,11 +31,11 @@ func TestAccOrganizationManagerMfaEnforcementExcludedAudienceCreate(t *testing.T
 		CheckDestroy:             testAccCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience(subjectId),
+				Config: subjectConfig + testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience("yandex_organizationmanager_idp_user.subject1"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_excluded_audience.bar"),
 					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement.foo", "organization_id", organizationId),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_excluded_audience.bar", "subject_id", subjectId),
+					resource.TestCheckResourceAttrPair("yandex_organizationmanager_mfa_enforcement_excluded_audience.bar", "subject_id", "yandex_organizationmanager_idp_user.subject1", "user_id"),
 				),
 			},
 		},
@@ -42,8 +44,8 @@ func TestAccOrganizationManagerMfaEnforcementExcludedAudienceCreate(t *testing.T
 
 func TestAccOrganizationManagerMfaEnforcementExcludedAudienceRecreateForNewSubjectId(t *testing.T) {
 	organizationId := test.GetExampleOrganizationID()
-	subjectId1 := test.GetExampleUserID1()
-	subjectId2 := test.GetExampleUserID2()
+	suffix := acctest.RandString(10)
+	subjectsConfig := testAccMfaExcludedAudienceSubject(organizationId, suffix) + testAccMfaExcludedAudienceSecondSubject(suffix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -51,17 +53,17 @@ func TestAccOrganizationManagerMfaEnforcementExcludedAudienceRecreateForNewSubje
 		CheckDestroy:             testAccCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience(subjectId1),
+				Config: subjectsConfig + testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience("yandex_organizationmanager_idp_user.subject1"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_excluded_audience.bar"),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_excluded_audience.bar", "subject_id", subjectId1),
+					resource.TestCheckResourceAttrPair("yandex_organizationmanager_mfa_enforcement_excluded_audience.bar", "subject_id", "yandex_organizationmanager_idp_user.subject1", "user_id"),
 				),
 			},
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience(subjectId2),
+				Config: subjectsConfig + testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience("yandex_organizationmanager_idp_user.subject2"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_excluded_audience.bar"),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_excluded_audience.bar", "subject_id", subjectId2),
+					resource.TestCheckResourceAttrPair("yandex_organizationmanager_mfa_enforcement_excluded_audience.bar", "subject_id", "yandex_organizationmanager_idp_user.subject2", "user_id"),
 				),
 			},
 		},
@@ -70,7 +72,8 @@ func TestAccOrganizationManagerMfaEnforcementExcludedAudienceRecreateForNewSubje
 
 func TestAccOrganizationManagerMfaEnforcementExcludedAudienceDelete(t *testing.T) {
 	organizationId := test.GetExampleOrganizationID()
-	subjectId := test.GetExampleUserID1()
+	suffix := acctest.RandString(10)
+	subjectConfig := testAccMfaExcludedAudienceSubject(organizationId, suffix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -78,11 +81,11 @@ func TestAccOrganizationManagerMfaEnforcementExcludedAudienceDelete(t *testing.T
 		CheckDestroy:             testAccCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience(subjectId),
+				Config: subjectConfig + testAccMfaEnforcement(organizationId) + testAccMfaEnforcementExcludedAudience("yandex_organizationmanager_idp_user.subject1"),
 				Check:  testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_excluded_audience.bar"),
 			},
 			{
-				Config: testAccMfaEnforcement(organizationId),
+				Config: subjectConfig + testAccMfaEnforcement(organizationId),
 				Check:  testAccCheckMfaEnforcementWithExcludedAudienceExists("yandex_organizationmanager_mfa_enforcement.foo"),
 			},
 		},
@@ -95,20 +98,56 @@ resource "yandex_organizationmanager_mfa_enforcement" "foo" {
 	name            = "test-mfa-enforcement-name"
 	organization_id = "%s"
 	acr_id 		    = "any-mfa"
-	ttl 		    = "5s"
+	ttl 		    = "5m0s"
 	status 		    = "MFA_ENFORCEMENT_STATUS_ACTIVE"
 	enroll_window   = "5h"
 }
 `, organizationId)
 }
 
-func testAccMfaEnforcementExcludedAudience(subjectId string) string {
+func testAccMfaEnforcementExcludedAudience(subjectResource string) string {
 	return fmt.Sprintf(`
 resource "yandex_organizationmanager_mfa_enforcement_excluded_audience" "bar" {
 	mfa_enforcement_id = yandex_organizationmanager_mfa_enforcement.foo.id
-	subject_id = "%s"
+	subject_id = %s.user_id
 }
-`, subjectId)
+`, subjectResource)
+}
+
+func testAccMfaExcludedAudienceSubject(organizationID, suffix string) string {
+	return fmt.Sprintf(`
+resource "yandex_organizationmanager_idp_userpool" "excluded_audience" {
+  name              = "tf-acc-test-userpool-mfa-excluded-%[1]s"
+  organization_id   = "%[2]s"
+  default_subdomain = "tf-acc-mfa-excluded-%[1]s"
+}
+
+resource "yandex_organizationmanager_idp_user" "subject1" {
+  userpool_id = yandex_organizationmanager_idp_userpool.excluded_audience.userpool_id
+  username    = "subject1@tf-acc-mfa-excluded-%[1]s.idp.yandexcloud.net"
+  full_name   = "MFA Excluded Subject One"
+  email       = "excluded-subject1-%[1]s@example.com"
+  is_active   = true
+  password_spec = {
+    password = "MfaTest195!-%[1]s"
+  }
+}
+`, suffix, organizationID)
+}
+
+func testAccMfaExcludedAudienceSecondSubject(suffix string) string {
+	return fmt.Sprintf(`
+resource "yandex_organizationmanager_idp_user" "subject2" {
+  userpool_id = yandex_organizationmanager_idp_userpool.excluded_audience.userpool_id
+  username    = "subject2@tf-acc-mfa-excluded-%[1]s.idp.yandexcloud.net"
+  full_name   = "MFA Excluded Subject Two"
+  email       = "excluded-subject2-%[1]s@example.com"
+  is_active   = true
+  password_spec = {
+    password = "MfaTest195!-%[1]s"
+  }
+}
+`, suffix)
 }
 
 func testAccCheckMfaEnforcementWithExcludedAudienceExists(mfaEnforcement string, audiences ...string) resource.TestCheckFunc {

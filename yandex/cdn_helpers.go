@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	cdnsdk "github.com/yandex-cloud/go-sdk/services/cdn/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -140,7 +140,9 @@ var (
 )
 
 func cdnCheckProviderMatching(ctx context.Context, req *cdn.CreateResourceRequest, config *Config) error {
-	originGroup, err := config.sdk.CDN().OriginGroup().Get(ctx, &cdn.GetOriginGroupRequest{
+	client := cdnsdk.NewOriginGroupClient(config.SDK)
+
+	originGroup, err := client.Get(ctx, &cdn.GetOriginGroupRequest{
 		FolderId:      req.FolderId,
 		OriginGroupId: req.Origin.GetOriginGroupId(),
 	})
@@ -920,8 +922,10 @@ func aclPolicyTypeToString(policyType cdn.PolicyType) string {
 	return cdnACLPolicyTypeAllow
 }
 
-func getShieldingLocation(ctx context.Context, resourceId string, sdk *ycsdk.SDK) (*int64, error) {
-	resp, err := sdk.CDN().Shielding().Get(ctx, &cdn.GetShieldingDetailsRequest{
+func getShieldingLocation(ctx context.Context, resourceId string, config *Config) (*int64, error) {
+	client := cdnsdk.NewShieldingClient(config.SDK)
+
+	resp, err := client.Get(ctx, &cdn.GetShieldingDetailsRequest{
 		ResourceId: resourceId,
 	})
 	if isStatusWithCode(err, codes.NotFound) {
@@ -946,26 +950,26 @@ func updateShielding(ctx context.Context, d *schema.ResourceData, config *Config
 }
 
 func cdnDisableShielding(ctx context.Context, config *Config, resourceId string) error {
-	res, err := config.sdk.WrapOperation(
-		config.sdk.CDN().Shielding().Deactivate(ctx, &cdn.DeactivateShieldingRequest{
-			ResourceId: resourceId,
-		}),
-	)
+	client := cdnsdk.NewShieldingClient(config.SDK)
+
+	res, err := client.Deactivate(ctx, &cdn.DeactivateShieldingRequest{ResourceId: resourceId})
 	if err != nil {
 		return err
 	}
-	return res.Wait(ctx)
+	_, err = res.Wait(ctx)
+	return err
 }
 
 func cdnEnableShielding(ctx context.Context, config *Config, resourceId string, locationId int64) error {
-	res, err := config.sdk.WrapOperation(
-		config.sdk.CDN().Shielding().Activate(ctx, &cdn.ActivateShieldingRequest{
-			ResourceId: resourceId,
-			LocationId: locationId,
-		}),
-	)
+	client := cdnsdk.NewShieldingClient(config.SDK)
+
+	res, err := client.Activate(ctx, &cdn.ActivateShieldingRequest{
+		ResourceId: resourceId,
+		LocationId: locationId,
+	})
 	if err != nil {
 		return err
 	}
-	return res.Wait(ctx)
+	_, err = res.Wait(ctx)
+	return err
 }

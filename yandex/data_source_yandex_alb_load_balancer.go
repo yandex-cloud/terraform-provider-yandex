@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -422,6 +422,16 @@ func dataSourceClientCertificatesVerification() *schema.Schema {
 					Computed:    true,
 					Description: "Trusted certificate authority certificates bundle (PEM text).",
 				},
+				"accept_untrusted": {
+					Type:        schema.TypeBool,
+					Computed:    true,
+					Description: "If true, ALB will not check certification chain and will allow expired client certificates.",
+				},
+				"allow_expired": {
+					Type:        schema.TypeBool,
+					Computed:    true,
+					Description: "If true, ALB will allow expired client certificates even if accept_untrusted is set to false.",
+				},
 			},
 		},
 	}
@@ -508,13 +518,15 @@ func dataSourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{
 	_, albNameOk := d.GetOk("name")
 
 	if albNameOk {
-		albID, err = resolveObjectID(ctx, config, d, sdkresolvers.ApplicationLoadBalancerResolver)
+		albID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(albsdk.NewLoadBalancerClient(config.SDK), albsdk.LoadBalancerResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Load Balancerby name: %v", err)
 		}
 	}
 
-	alb, err := config.sdk.ApplicationLoadBalancer().LoadBalancer().Get(ctx, &apploadbalancer.GetLoadBalancerRequest{
+	client := albsdk.NewLoadBalancerClient(config.SDK)
+
+	alb, err := client.Get(ctx, &apploadbalancer.GetLoadBalancerRequest{
 		LoadBalancerId: albID,
 	})
 

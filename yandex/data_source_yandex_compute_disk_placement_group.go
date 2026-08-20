@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -86,13 +86,13 @@ func dataSourceYandexComputeDiskPlacementGroupRead(d *schema.ResourceData, meta 
 	_, groupNameOk := d.GetOk("name")
 
 	if groupNameOk {
-		groupID, err = resolveObjectID(ctx, config, d, sdkresolvers.DiskPlacementGroupResolver)
+		groupID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(computesdk.NewDiskPlacementGroupClient(config.SDK), computesdk.DiskPlacementGroupResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Placement Group by name: %v", err)
 		}
 	}
 
-	group, err := config.sdk.Compute().DiskPlacementGroup().Get(ctx, &compute.GetDiskPlacementGroupRequest{
+	group, err := computesdk.NewDiskPlacementGroupClient(config.SDK).Get(ctx, &compute.GetDiskPlacementGroupRequest{
 		DiskPlacementGroupId: groupID,
 	})
 

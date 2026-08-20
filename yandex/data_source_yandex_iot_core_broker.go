@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/broker/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	brokersdk "github.com/yandex-cloud/go-sdk/services/iot/broker/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -108,7 +108,7 @@ func dataSourceYandexIotCoreBrokerRead(d *schema.ResourceData, meta interface{})
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		brkID, err = resolveObjectID(ctx, config, d, sdkresolvers.BrokerResolver)
+		brkID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(brokersdk.NewBrokerClient(config.SDK), brokersdk.BrokerResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source IoT Broker by name: %v", err)
 		}
@@ -117,13 +117,14 @@ func dataSourceYandexIotCoreBrokerRead(d *schema.ResourceData, meta interface{})
 	req := iot.GetBrokerRequest{
 		BrokerId: brkID,
 	}
+	client := brokersdk.NewBrokerClient(config.SDK)
 
-	broker, err := config.sdk.IoT().Broker().Broker().Get(ctx, &req)
+	broker, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Broker %q", d.Id()))
 	}
 
-	certsResp, err := config.sdk.IoT().Broker().Broker().ListCertificates(ctx, &iot.ListBrokerCertificatesRequest{BrokerId: brkID})
+	certsResp, err := client.ListCertificates(ctx, &iot.ListBrokerCertificatesRequest{BrokerId: brkID})
 	if err != nil {
 		return err
 	}
@@ -133,7 +134,7 @@ func dataSourceYandexIotCoreBrokerRead(d *schema.ResourceData, meta interface{})
 		certs = append(certs, cert.Fingerprint)
 	}
 
-	passResp, err := config.sdk.IoT().Broker().Broker().ListPasswords(ctx, &iot.ListBrokerPasswordsRequest{BrokerId: brkID})
+	passResp, err := client.ListPasswords(ctx, &iot.ListBrokerPasswordsRequest{BrokerId: brkID})
 	if err != nil {
 		return err
 	}

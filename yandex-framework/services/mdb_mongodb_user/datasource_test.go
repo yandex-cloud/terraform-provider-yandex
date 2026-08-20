@@ -3,6 +3,7 @@ package mdb_mongodb_user_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -185,7 +186,7 @@ func testAccCheckMDBMongoDBUserDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = config.SDK.MDB().MongoDB().User().Get(context.Background(), &mongodb.GetUserRequest{
+		_, err = mongodbsdk.NewUserClient(config.SDKv2).Get(context.Background(), &mongodb.GetUserRequest{
 			ClusterId: clusterId,
 			UserName:  userName,
 		})

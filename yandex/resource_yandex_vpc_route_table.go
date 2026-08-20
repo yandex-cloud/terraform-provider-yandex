@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 
@@ -142,30 +143,19 @@ func resourceYandexVPCRouteTableCreate(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().RouteTable().Create(ctx, &req))
+	client := vpcsdk.NewRouteTableClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create route table: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get route table create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*vpc.CreateRouteTableMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Route Table ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.RouteTableId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create route table: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("route table creation failed: %s", err)
 	}
 
 	return resourceYandexVPCRouteTableRead(d, meta)
@@ -174,7 +164,9 @@ func resourceYandexVPCRouteTableCreate(d *schema.ResourceData, meta interface{})
 func resourceYandexVPCRouteTableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	routeTable, err := config.sdk.VPC().RouteTable().Get(config.Context(), &vpc.GetRouteTableRequest{
+	client := vpcsdk.NewRouteTableClient(config.SDK)
+
+	routeTable, err := client.Get(config.Context(), &vpc.GetRouteTableRequest{
 		RouteTableId: d.Id(),
 	})
 
@@ -245,12 +237,14 @@ func resourceYandexVPCRouteTableUpdate(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().RouteTable().Update(ctx, req))
+	client := vpcsdk.NewRouteTableClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Route table %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Route table %q: %s", d.Id(), err)
 	}
@@ -272,17 +266,14 @@ func resourceYandexVPCRouteTableDelete(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().RouteTable().Delete(ctx, req))
+	client := vpcsdk.NewRouteTableClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Route table %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

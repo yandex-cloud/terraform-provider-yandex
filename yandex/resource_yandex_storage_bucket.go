@@ -14,8 +14,8 @@ import (
 
 	awspolicy "github.com/jen20/awspolicyequivalence"
 	storagepb "github.com/yandex-cloud/go-genproto/yandex/cloud/storage/v1"
+	storagesdk "github.com/yandex-cloud/go-sdk/services/storage/v1"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -785,19 +785,18 @@ func resourceYandexStorageBucketCreateBySDK(d *schema.ResourceData, meta interfa
 
 	log.Printf("[INFO] Creating Storage S3 bucket using sdk: %s", protojson.Format(request))
 
-	bucketAPI := config.sdk.StorageAPI().Bucket()
+	bucketAPI := storagesdk.NewBucketClient(config.SDK)
+
 	op, err := bucketAPI.Create(ctx, request)
-	err = waitOperation(ctx, config, op, err)
 	if err != nil {
 		log.Printf("[ERROR] Unable to create S3 bucket using sdk: %v", err)
 
 		return err
 	}
 
-	responseBucket := &storagepb.Bucket{}
-	err = op.GetResponse().UnmarshalTo(responseBucket)
+	responseBucket, err := op.Wait(ctx)
 	if err != nil {
-		log.Printf("[ERROR] Returned message is not a bucket: %v", err)
+		log.Printf("[ERROR] Unable to create S3 bucket using sdk: %v", err)
 
 		return err
 	}
@@ -991,7 +990,7 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	bucketAPI := config.sdk.StorageAPI().Bucket()
+	bucketAPI := storagesdk.NewBucketClient(config.SDK)
 
 	if len(paths) > 0 {
 		bucketUpdateRequest.UpdateMask, err = fieldmaskpb.New(bucketUpdateRequest, paths...)
@@ -1002,7 +1001,6 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 		log.Printf("[INFO] updating S3 bucket extended parameters: %s", protojson.Format(bucketUpdateRequest))
 
 		op, err := bucketAPI.Update(ctx, bucketUpdateRequest)
-		err = waitOperation(ctx, config, op, err)
 		if err != nil {
 			if handleBucketNotFoundError(d, err) {
 				return nil
@@ -1013,13 +1011,18 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 			return err
 		}
 
-		if opErr := op.GetError(); opErr != nil {
-			log.Printf("[WARN] Operation ended with error: %s", protojson.Format(opErr))
+		updatedBucket, err := op.Wait(ctx)
+		if err != nil {
+			if handleBucketNotFoundError(d, err) {
+				return nil
+			}
 
-			return status.Error(codes.Code(opErr.Code), opErr.Message)
+			log.Printf("[WARN] Storage api error updating S3 bucket extended parameters: %v", err)
+
+			return err
 		}
 
-		log.Printf("[INFO] updated S3 bucket extended parameters: %s", protojson.Format(op.GetResponse()))
+		log.Printf("[INFO] updated S3 bucket extended parameters: %s", protojson.Format(updatedBucket))
 	}
 
 	if !d.HasChange("https") {
@@ -1043,7 +1046,6 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 
 		log.Printf("[INFO] updating S3 bucket https config: %s", protojson.Format(httpsUpdateRequest))
 		op, err := bucketAPI.SetHTTPSConfig(ctx, httpsUpdateRequest)
-		err = waitOperation(ctx, config, op, err)
 		if err != nil {
 			if handleBucketNotFoundError(d, err) {
 				return nil
@@ -1054,13 +1056,18 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 			return err
 		}
 
-		if opErr := op.GetError(); opErr != nil {
-			log.Printf("[WARN] Operation ended with error: %s", protojson.Format(opErr))
+		httpsConfig, err := op.Wait(ctx)
+		if err != nil {
+			if handleBucketNotFoundError(d, err) {
+				return nil
+			}
 
-			return status.Error(codes.Code(opErr.Code), opErr.Message)
+			log.Printf("[WARN] Storage api updating S3 bucket https config: %v", err)
+
+			return err
 		}
 
-		log.Printf("[INFO] updated S3 bucket https config: %s", protojson.Format(op.GetResponse()))
+		log.Printf("[INFO] updated S3 bucket https config: %s", protojson.Format(httpsConfig))
 
 		return nil
 	}
@@ -1071,7 +1078,6 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 
 	log.Printf("[INFO] deleting S3 bucket https config: %s", protojson.Format(httpsDeleteRequest))
 	op, err := bucketAPI.DeleteHTTPSConfig(ctx, httpsDeleteRequest)
-	err = waitOperation(ctx, config, op, err)
 	if err != nil {
 		if handleBucketNotFoundError(d, err) {
 			return nil
@@ -1082,12 +1088,16 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	if opErr := op.GetError(); opErr != nil {
-		log.Printf("[WARN] Operation ended with error: %s", protojson.Format(opErr))
+	if _, err := op.Wait(ctx); err != nil {
+		if handleBucketNotFoundError(d, err) {
+			return nil
+		}
 
-		return status.Error(codes.Code(opErr.Code), opErr.Message)
+		log.Printf("[WARN] Storage api deleting S3 bucket https config: %v", err)
+
+		return err
 	}
-	log.Printf("[INFO] deleted S3 bucket https config: %s", protojson.Format(op.GetResponse()))
+	log.Printf("[INFO] deleted S3 bucket https config")
 
 	return nil
 }
@@ -1189,7 +1199,7 @@ func resourceYandexStorageBucketReadExtended(d *schema.ResourceData, meta interf
 	}
 
 	config := meta.(*Config)
-	bucketAPI := config.sdk.StorageAPI().Bucket()
+	bucketAPI := storagesdk.NewBucketClient(config.SDK)
 
 	name := d.Get("bucket").(string)
 

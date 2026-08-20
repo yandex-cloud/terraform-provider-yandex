@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
+	mongodbsdk "github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 )
 
@@ -49,7 +50,7 @@ func TestAccMDBMongoDBClusterIamBinding_basic(t *testing.T) {
 					testAccCheckMDBMongoDBClusterExists(mongodbResourceFoo, &cluster, 2),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MongoDB().Cluster()
+						return mongodbsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -85,7 +86,7 @@ func TestAccMDBMongoDBClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckMDBMongoDBClusterExists(mongodbResourceFoo, &cluster, 2),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MongoDB().Cluster()
+						return mongodbsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -95,7 +96,7 @@ func TestAccMDBMongoDBClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MongoDB().Cluster()
+						return mongodbsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 				),
 			},
@@ -106,11 +107,11 @@ func TestAccMDBMongoDBClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MongoDB().Cluster()
+						return mongodbsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MongoDB().Cluster()
+						return mongodbsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -122,11 +123,11 @@ func TestAccMDBMongoDBClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MongoDB().Cluster()
+						return mongodbsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MongoDB().Cluster()
+						return mongodbsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar),
 				),
 			},

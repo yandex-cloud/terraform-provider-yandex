@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 
@@ -90,7 +91,7 @@ func testAccDataSourceVPCSecurityGroupExists(n string, sg *vpc.SecurityGroup) re
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.VPC().SecurityGroup().Get(context.Background(), &vpc.GetSecurityGroupRequest{
+		found, err := vpcsdk.NewSecurityGroupClient(config.SDKv2).Get(context.Background(), &vpc.GetSecurityGroupRequest{
 			SecurityGroupId: ds.Primary.ID,
 		})
 

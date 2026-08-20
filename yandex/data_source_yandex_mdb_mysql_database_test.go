@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 )
 
 func TestAccDataSourceMDBMySQLDatabase_basic(t *testing.T) {
@@ -159,7 +160,7 @@ func testAccCheckMDBMySQLDatabaseDestroy(s *terraform.State) error {
 		if err != nil {
 			return err
 		}
-		_, err = config.sdk.MDB().MySQL().Database().Get(context.Background(), &mysql.GetDatabaseRequest{
+		_, err = mysqlsdk.NewDatabaseClient(config.SDK).Get(context.Background(), &mysql.GetDatabaseRequest{
 			ClusterId:    clusterId,
 			DatabaseName: dbname,
 		})

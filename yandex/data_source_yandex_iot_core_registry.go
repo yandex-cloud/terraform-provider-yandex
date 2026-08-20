@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	devicessdk "github.com/yandex-cloud/go-sdk/services/iot/devices/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -124,7 +124,7 @@ func dataSourceYandexIotCoreRegistryRead(d *schema.ResourceData, meta interface{
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		regID, err = resolveObjectID(ctx, config, d, sdkresolvers.DeviceRegistryResolver)
+		regID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(devicessdk.NewRegistryClient(config.SDK), devicessdk.RegistryResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source IoT Registry by name: %v", err)
 		}
@@ -133,13 +133,14 @@ func dataSourceYandexIotCoreRegistryRead(d *schema.ResourceData, meta interface{
 	req := iot.GetRegistryRequest{
 		RegistryId: regID,
 	}
+	client := devicessdk.NewRegistryClient(config.SDK)
 
-	registry, err := config.sdk.IoT().Devices().Registry().Get(ctx, &req)
+	registry, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Registry %q", d.Id()))
 	}
 
-	certsResp, err := config.sdk.IoT().Devices().Registry().ListCertificates(ctx, &iot.ListRegistryCertificatesRequest{RegistryId: regID})
+	certsResp, err := client.ListCertificates(ctx, &iot.ListRegistryCertificatesRequest{RegistryId: regID})
 	if err != nil {
 		return err
 	}
@@ -149,7 +150,7 @@ func dataSourceYandexIotCoreRegistryRead(d *schema.ResourceData, meta interface{
 		certs = append(certs, cert.Fingerprint)
 	}
 
-	passResp, err := config.sdk.IoT().Devices().Registry().ListPasswords(ctx, &iot.ListRegistryPasswordsRequest{RegistryId: regID})
+	passResp, err := client.ListPasswords(ctx, &iot.ListRegistryPasswordsRequest{RegistryId: regID})
 	if err != nil {
 		return err
 	}

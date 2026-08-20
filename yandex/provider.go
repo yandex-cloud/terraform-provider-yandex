@@ -317,6 +317,9 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_ydb_table":                                        resourceYandexYDBTable(),
 			"yandex_ydb_table_changefeed":                             resourceYandexYDBTableChangefeed(),
 			"yandex_ydb_table_index":                                  resourceYandexYDBTableIndex(),
+
+			"yandex_sws_security_profile_advanced_rate_limiter_profile_attachment": resourceYandexSWSSecurityProfileAdvancedRateLimiterProfileAttachment(),
+			"yandex_sws_security_profile_waf_profile_attachment":                   resourceYandexSWSSecurityProfileWAFProfileAttachment(),
 		},
 	}
 

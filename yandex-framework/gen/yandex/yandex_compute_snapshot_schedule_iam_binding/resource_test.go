@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -52,7 +53,7 @@ func TestAccComputeSnapshotSchedule_basicIamMember(t *testing.T) {
 					testAccCheckComputeSnapshotScheduleExists(snapshotScheduleResource, &schedule),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-						return cfg.SDK.Compute().SnapshotSchedule()
+						return computesdk.NewSnapshotScheduleClient(cfg.SDKv2)
 					}, &schedule, role, []string{"system:" + userID}),
 				),
 			},
@@ -68,7 +69,7 @@ func testAccCheckComputeSnapshotScheduleDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.Compute().SnapshotSchedule().Get(context.Background(), &compute.GetSnapshotScheduleRequest{
+		_, err := computesdk.NewSnapshotScheduleClient(config.SDKv2).Get(context.Background(), &compute.GetSnapshotScheduleRequest{
 			SnapshotScheduleId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -97,7 +98,7 @@ func testAccCheckComputeSnapshotScheduleExists(n string, schedule *compute.Snaps
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Compute().SnapshotSchedule().Get(context.Background(), &compute.GetSnapshotScheduleRequest{
+		found, err := computesdk.NewSnapshotScheduleClient(config.SDKv2).Get(context.Background(), &compute.GetSnapshotScheduleRequest{
 			SnapshotScheduleId: rs.Primary.ID,
 		})
 		if err != nil {

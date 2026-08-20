@@ -1,12 +1,14 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	devicessdk "github.com/yandex-cloud/go-sdk/services/iot/devices/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -99,7 +101,7 @@ func dataSourceYandexIotCoreDeviceRead(d *schema.ResourceData, meta interface{})
 	_, ok := d.GetOk("name")
 
 	if ok {
-		devID, err = resolveObjectID(ctx, config, d, sdkresolvers.DeviceResolver)
+		devID, err = resolveIoTDeviceIDByName(ctx, config, d)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source IoT Device by name: %v", err)
 		}
@@ -108,13 +110,14 @@ func dataSourceYandexIotCoreDeviceRead(d *schema.ResourceData, meta interface{})
 	req := iot.GetDeviceRequest{
 		DeviceId: devID,
 	}
+	client := devicessdk.NewDeviceClient(config.SDK)
 
-	device, err := config.sdk.IoT().Devices().Device().Get(ctx, &req)
+	device, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Device %q", d.Id()))
 	}
 
-	certsResp, err := config.sdk.IoT().Devices().Device().ListCertificates(ctx, &iot.ListDeviceCertificatesRequest{DeviceId: devID})
+	certsResp, err := client.ListCertificates(ctx, &iot.ListDeviceCertificatesRequest{DeviceId: devID})
 	if err != nil {
 		return err
 	}
@@ -124,7 +127,7 @@ func dataSourceYandexIotCoreDeviceRead(d *schema.ResourceData, meta interface{})
 		certs = append(certs, cert.Fingerprint)
 	}
 
-	passResp, err := config.sdk.IoT().Devices().Device().ListPasswords(ctx, &iot.ListDevicePasswordsRequest{DeviceId: devID})
+	passResp, err := client.ListPasswords(ctx, &iot.ListDevicePasswordsRequest{DeviceId: devID})
 	if err != nil {
 		return err
 	}
@@ -146,4 +149,23 @@ func dataSourceYandexIotCoreDeviceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	return d.Set("passwords", flattenIoTSet(passwords))
+}
+
+func resolveIoTDeviceIDByName(ctx context.Context, config *Config, d *schema.ResourceData) (string, error) {
+	name := d.Get("name").(string)
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return "", err
+	}
+	client := devicessdk.NewDeviceClient(config.SDK)
+
+	resolver := sdkresolversv2.NewBaseNameResolver(name, "Device", sdkresolversv2.FolderID(folderID))
+	items, listErr := client.Iterator(ctx, &iot.ListDevicesRequest{
+		Id:       &iot.ListDevicesRequest_FolderId{FolderId: folderID},
+		PageSize: sdkresolversv2.DefaultResolverPageSize,
+	}).TakeAll()
+	if err := resolver.FindName(items, listErr); err != nil {
+		return "", err
+	}
+	return resolver.ID(), nil
 }

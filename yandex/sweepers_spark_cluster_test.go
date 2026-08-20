@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/spark/v1"
+	sparksdk "github.com/yandex-cloud/go-sdk/services/spark/v1"
 )
 
 const (
@@ -29,7 +30,8 @@ func testSweepSparkCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.Spark().Cluster().List(context.Background(), &spark.ListClustersRequest{
+	client := sparksdk.NewClusterClient(conf.SDK)
+	resp, err := client.List(context.Background(), &spark.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: sparkClusterPageSize,
 	})
@@ -54,8 +56,9 @@ func sweepSparkCluster(conf *Config, id string) bool {
 func sweepSparkClusterOnce(conf *Config, id string) error {
 	ctxDel, cancelDel := context.WithTimeout(context.Background(), sparkClusterDeleteTimeout)
 	defer cancelDel()
-	op, err := conf.sdk.Spark().Cluster().Delete(ctxDel, &spark.DeleteClusterRequest{
+	client := sparksdk.NewClusterClient(conf.SDK)
+	op, err := client.Delete(ctxDel, &spark.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctxDel, conf, op, err)
+	return handleSweepOperationV2(ctxDel, op, err)
 }

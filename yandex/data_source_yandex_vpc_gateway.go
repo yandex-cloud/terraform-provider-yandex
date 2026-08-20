@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -76,7 +76,7 @@ func dataSourceYandexVPCGatewayRead(d *schema.ResourceData, meta interface{}) er
 	_, gatewayNameOk := d.GetOk("name")
 
 	if gatewayNameOk {
-		gatewayID, err = resolveObjectID(ctx, config, d, sdkresolvers.GatewayResolver)
+		gatewayID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(vpcsdk.NewGatewayClient(config.SDK), vpcsdk.GatewayResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source gateway by name: %v", err)
 		}

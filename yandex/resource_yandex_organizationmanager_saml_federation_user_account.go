@@ -12,6 +12,9 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/saml"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
+	samlsdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/saml"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 const yandexOrganizationManagerSamlFederationUserDefaultTimeout = 1 * time.Minute
@@ -62,7 +65,9 @@ func resourceYandexOrganizationManagerSamlFederationUserAccountImport(context co
 	req := &iam.GetUserAccountRequest{
 		UserAccountId: d.Id(),
 	}
-	userAccount, err := config.sdk.IAM().UserAccount().Get(context, req)
+	client := iamsdk.NewUserAccountClient(config.SDK)
+
+	userAccount, err := client.Get(context, req)
 	if err != nil {
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Saml user account with ID %q", d.Id()))
 	}
@@ -86,6 +91,7 @@ func resourceYandexOrganizationManagerSamlFederationUserAccountImport(context co
 
 func resourceYandexOrganizationManagerSamlFederationUserAccountCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := samlsdk.NewFederationClient(config.SDK)
 
 	federationID, nameID := d.Get("federation_id").(string), d.Get("name_id").(string)
 	req := &saml.AddFederatedUserAccountsRequest{
@@ -93,19 +99,14 @@ func resourceYandexOrganizationManagerSamlFederationUserAccountCreate(context co
 		NameIds:      []string{nameID},
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManagerSAML().Federation().AddUserAccounts(config.Context(), req))
+	op, err := client.AddUserAccounts(config.Context(), req)
 	if err != nil {
 		return diag.Errorf("error on add user '%s' operation creation  into federation '%s': %s", nameID, federationID, err)
 	}
 
-	err = op.Wait(context)
+	_, err = op.Wait(context)
 	if err != nil {
 		return diag.Errorf("error on add user '%s' operation wait into federation '%s': %s", nameID, federationID, err)
-	}
-
-	_, err = op.Response()
-	if err != nil {
-		return diag.Errorf("error on adding user '%s' into federation '%s': %s", nameID, federationID, err)
 	}
 
 	return resourceYandexOrganizationManagerSamlFederationUserAccountRead(context, d, meta)
@@ -128,6 +129,8 @@ func resourceYandexOrganizationManagerSamlFederationUserAccountRead(context cont
 
 func resourceYandexOrganizationManagerSamlFederationUserAccountDelete(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := organizationmanagersdk.NewUserClient(config.SDK)
+
 	federationID, nameID := d.Get("federation_id").(string), d.Get("name_id").(string)
 
 	federation, err := getSamlFederation(context, config, federationID)
@@ -141,19 +144,14 @@ func resourceYandexOrganizationManagerSamlFederationUserAccountDelete(context co
 		SubjectId:      d.Id(),
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().User().DeleteMembership(context, req))
+	op, err := client.DeleteMembership(context, req)
 	if err != nil {
 		return diag.Errorf("error on delete saml user '%s' operation creation: %s", nameID, err)
 	}
 
-	err = op.Wait(context)
+	_, err = op.Wait(context)
 	if err != nil {
 		return diag.Errorf("error on delete saml user '%s' operation wait: %s", nameID, err)
-	}
-
-	_, err = op.Response()
-	if err != nil {
-		return diag.Errorf("error deleting user '%s': %s", nameID, err)
 	}
 
 	d.SetId("")
@@ -166,7 +164,9 @@ func getSamlFederation(context context.Context, config *Config, federationID str
 		FederationId: federationID,
 	}
 
-	federation, err := config.sdk.OrganizationManagerSAML().Federation().Get(context, getFederationReq)
+	client := samlsdk.NewFederationClient(config.SDK)
+
+	federation, err := client.Get(context, getFederationReq)
 	if err != nil {
 		return nil, fmt.Errorf("error on reading federation '%s': %s", federationID, err)
 	}
@@ -175,6 +175,8 @@ func getSamlFederation(context context.Context, config *Config, federationID str
 }
 
 func getSamlUserAccount(context context.Context, config *Config, federationID, nameID string) (*organizationmanager.ListMembersResponse_OrganizationUser, error) {
+	client := organizationmanagersdk.NewUserClient(config.SDK)
+
 	federation, err := getSamlFederation(context, config, federationID)
 	if err != nil {
 		return nil, fmt.Errorf("error reading saml user '%s': %s", nameID, federationID)
@@ -189,7 +191,7 @@ func getSamlUserAccount(context context.Context, config *Config, federationID, n
 			PageToken:      nextPageToken,
 		}
 
-		listResp, err := config.sdk.OrganizationManager().User().ListMembers(context, req)
+		listResp, err := client.ListMembers(context, req)
 		if err != nil {
 			return nil, fmt.Errorf("error on listing members in organization '%s': %s", organizationID, err)
 		}

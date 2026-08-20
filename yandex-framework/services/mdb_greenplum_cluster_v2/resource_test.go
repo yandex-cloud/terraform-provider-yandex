@@ -8,7 +8,10 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	greenplumsdk "github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -47,7 +50,7 @@ func testSweepMDBPostgreSQLCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.SDK.MDB().Greenplum().Cluster().List(context.Background(), &greenplum.ListClustersRequest{
+	resp, err := greenplumsdk.NewClusterClient(conf.SDKv2).List(context.Background(), &greenplum.ListClustersRequest{
 		FolderId:  conf.ProviderState.FolderID.ValueString(),
 		PageSize:  defaultMDBPageSize,
 		PageToken: "",
@@ -72,21 +75,33 @@ func sweepMDBGreenplumCluster(conf *config.Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	client := greenplumsdk.NewClusterClient(conf.SDKv2)
+	clusterAbsent := func() bool {
+		_, getErr := client.Get(ctx, &greenplum.GetClusterRequest{ClusterId: id})
+		return status.Code(getErr) == codes.NotFound
+	}
 
-	op, err := conf.SDK.MDB().Greenplum().Cluster().Update(ctx, &greenplum.UpdateClusterRequest{
+	op, err := client.Update(ctx, &greenplum.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = testhelpers.HandleSweepOperation(ctx, conf, op, err)
+	err = testhelpers.HandleSweepOperation(ctx, op, err)
 	if err != nil && !strings.EqualFold(testhelpers.ErrorMessage(err), "no changes detected") {
+		if clusterAbsent() {
+			return nil
+		}
 		return err
 	}
 
-	op, err = conf.SDK.MDB().Greenplum().Cluster().Delete(ctx, &greenplum.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctx, &greenplum.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return testhelpers.HandleSweepOperation(ctx, conf, op, err)
+	err = testhelpers.HandleSweepOperation(ctx, deleteOp, err)
+	if err != nil && clusterAbsent() {
+		return nil
+	}
+	return err
 }
 
 // TestMain - add sweepers flag to the go test command
@@ -289,7 +304,7 @@ func testAccCheckYandexMdbGreenplumClusterV2Destroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.MDB().Greenplum().Cluster().Get(context.Background(), &greenplum.GetClusterRequest{
+		_, err := greenplumsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &greenplum.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -315,7 +330,7 @@ func testAccCheckYandexMdbGreenplumClusterV2Exists(n string, name string) resour
 		}
 
 		config := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-		cluster, err := config.SDK.MDB().Greenplum().Cluster().Get(context.Background(), &greenplum.GetClusterRequest{
+		cluster, err := greenplumsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &greenplum.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -345,7 +360,7 @@ func testAccCheckYandexMdbGreenplumClusterV2HasCloudStorage(n string, enabled bo
 		}
 
 		config := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-		cluster, err := config.SDK.MDB().Greenplum().Cluster().Get(context.Background(), &greenplum.GetClusterRequest{
+		cluster, err := greenplumsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &greenplum.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {

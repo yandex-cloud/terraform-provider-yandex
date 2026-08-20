@@ -450,7 +450,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	// Add Hosts to the request
 	request.HostSpecs = hostSpecsSlice
 
-	cid := shardedPostgreSQLAPI.CreateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
+	cid := shardedPostgreSQLAPI.CreateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, request)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -479,7 +479,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	defer cancel()
 
 	cid := state.Id.ValueString()
-	shardedPostgreSQLAPI.DeleteCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
+	shardedPostgreSQLAPI.DeleteCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid)
 }
 
 func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -509,7 +509,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	shardedPostgreSQLAPI.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateRequest)
+	shardedPostgreSQLAPI.UpdateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, updateRequest)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -519,7 +519,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	resp.Diagnostics.Append(diags...)
 	updateHosts(
 		ctx,
-		r.providerConfig.SDK,
+		r.providerConfig.SDKv2,
 		&resp.Diagnostics,
 		spqrHostService,
 		&shardedPostgreSQLAPI,
@@ -544,12 +544,12 @@ func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportSt
 
 func (r *clusterResource) refreshResourceState(ctx context.Context, state *Cluster, respDiagnostics *diag.Diagnostics) {
 	cid := state.Id.ValueString()
-	cluster := shardedPostgreSQLAPI.GetCluster(ctx, r.providerConfig.SDK, respDiagnostics, cid)
+	cluster := shardedPostgreSQLAPI.GetCluster(ctx, r.providerConfig.SDKv2, respDiagnostics, cid)
 	if respDiagnostics.HasError() {
 		return
 	}
 
-	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, r.providerConfig.SDK, respDiagnostics, spqrHostService, &shardedPostgreSQLAPI, state.HostSpecs, cid)
+	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, r.providerConfig.SDKv2, respDiagnostics, spqrHostService, &shardedPostgreSQLAPI, state.HostSpecs, cid)
 
 	var diags diag.Diagnostics
 	state.HostSpecs, diags = types.MapValueFrom(ctx, hostType, entityIdToApiHosts)

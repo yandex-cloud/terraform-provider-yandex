@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -145,7 +145,7 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 			folderID = f.(string)
 		}
 
-		image, err = config.sdk.Compute().Image().GetLatestByFamily(ctx, &compute.GetImageLatestByFamilyRequest{
+		image, err = computesdk.NewImageClient(config.SDK).GetLatestByFamily(ctx, &compute.GetImageLatestByFamilyRequest{
 			FolderId: folderID,
 			Family:   familyName,
 		})
@@ -158,13 +158,13 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		_, imageNameOk := d.GetOk("name")
 
 		if imageNameOk {
-			imageID, err = resolveObjectID(ctx, config, d, sdkresolvers.ImageResolver)
+			imageID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(computesdk.NewImageClient(config.SDK), computesdk.ImageResolver))
 			if err != nil {
 				return fmt.Errorf("failed to resolve data source image by name: %v", err)
 			}
 		}
 
-		image, err = config.sdk.Compute().Image().Get(ctx, &compute.GetImageRequest{
+		image, err = computesdk.NewImageClient(config.SDK).Get(ctx, &compute.GetImageRequest{
 			ImageId: imageID,
 		})
 

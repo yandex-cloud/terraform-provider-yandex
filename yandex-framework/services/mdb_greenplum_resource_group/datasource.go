@@ -99,7 +99,7 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	cid := state.ClusterID.ValueString()
 	rgName := state.Name.ValueString()
-	rg := readResourceGroup(ctx, d.providerConfig.SDK, &resp.Diagnostics, cid, rgName)
+	rg := readResourceGroup(ctx, d.providerConfig.SDKv2, &resp.Diagnostics, cid, rgName)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
+	apigatewaysdk "github.com/yandex-cloud/go-sdk/services/serverless/apigateway/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -227,25 +228,22 @@ func resourceYandexApiGatewayCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Serverless().APIGateway().ApiGateway().Create(ctx, req))
+	client := apigatewaysdk.NewApiGatewayClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Yandex Cloud API Gateway: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Yandex Cloud API Gateway: %s", err)
-	}
-
-	md, ok := protoMetadata.(*apigateway.CreateApiGatewayMetadata)
-	if !ok {
+	md := op.Metadata()
+	if md == nil {
 		return fmt.Errorf("Could not get Yandex Cloud API Gateway ID from create operation metadata")
 	}
 
 	d.SetId(md.ApiGatewayId)
 	d.Set("spec", d.Get("spec").(string))
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Yandex Cloud API Gateway: %s", err)
 	}
@@ -388,8 +386,12 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 			req.ExecutionTimeout = executionTimeout
 		}
 
-		op, err := config.sdk.Serverless().APIGateway().ApiGateway().Update(ctx, &req)
-		err = waitOperation(ctx, config, op, err)
+		client := apigatewaysdk.NewApiGatewayClient(config.SDK)
+
+		op, err := client.Update(ctx, &req)
+		if err == nil {
+			_, err = op.Wait(ctx)
+		}
 		if err != nil {
 			return fmt.Errorf("Error while requesting API to update Yandex Cloud API Gateway: %s", err)
 		}
@@ -452,7 +454,9 @@ func resourceYandexApiGatewayRead(d *schema.ResourceData, meta interface{}) erro
 		ApiGatewayId: d.Id(),
 	}
 
-	apiGateway, err := config.sdk.Serverless().APIGateway().ApiGateway().Get(ctx, &req)
+	client := apigatewaysdk.NewApiGatewayClient(config.SDK)
+
+	apiGateway, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud API Gateway %q", d.Id()))
 	}
@@ -470,8 +474,12 @@ func resourceYandexApiGatewayDelete(d *schema.ResourceData, meta interface{}) er
 		ApiGatewayId: d.Id(),
 	}
 
-	op, err := config.sdk.Serverless().APIGateway().ApiGateway().Delete(ctx, &req)
-	err = waitOperation(ctx, config, op, err)
+	client := apigatewaysdk.NewApiGatewayClient(config.SDK)
+
+	op, err := client.Delete(ctx, &req)
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud API Gateway %q", d.Id()))
 	}
@@ -519,12 +527,14 @@ func attachDomain(ctx context.Context, config *Config, apigwID string, domain st
 		CertificateId: certificateId,
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Serverless().APIGateway().ApiGateway().AddDomain(ctx, attachDomainRequest))
+	client := apigatewaysdk.NewApiGatewayClient(config.SDK)
+
+	op, err := client.AddDomain(ctx, attachDomainRequest)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to attach custom domain to Yandex Cloud API Gateway: %s", err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to attach custom domain to Yandex Cloud API Gateway: %s", err)
 	}
@@ -538,12 +548,14 @@ func removeDomain(ctx context.Context, config *Config, apigwID string, domainId 
 		DomainId:     domainId,
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Serverless().APIGateway().ApiGateway().RemoveDomain(ctx, removeDomainRequest))
+	client := apigatewaysdk.NewApiGatewayClient(config.SDK)
+
+	op, err := client.RemoveDomain(ctx, removeDomainRequest)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to remove custom domain from Yandex Cloud API Gateway: %s", err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to remove custom domain from Yandex Cloud API Gateway: %s", err)
 	}

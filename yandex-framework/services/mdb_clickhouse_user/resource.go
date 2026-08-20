@@ -72,7 +72,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
 
-	user := readUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userName)
+	user := readUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userName)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -128,7 +128,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	createUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userSpec)
+	createUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userSpec)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -152,7 +152,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 			return
 		}
 
-		updateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userSpec, []string{"permissions"})
+		updateUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userSpec, []string{"permissions"})
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -233,7 +233,7 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	userName := plan.Name.ValueString()
 	log.Printf("[DEBUG] Updating user %v with update_mask %v", userName, updatePaths)
 
-	updateUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userPlan, updatePaths)
+	updateUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userPlan, updatePaths)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -263,7 +263,7 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
-	deleteUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, userName)
+	deleteUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userName)
 }
 
 func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -275,7 +275,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		)
 		return
 	}
-	user := readUser(ctx, r.providerConfig.SDK, &resp.Diagnostics, clusterId, userName)
+	user := readUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, clusterId, userName)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -301,7 +301,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 func (r *bindingResource) refreshResourceState(ctx context.Context, state *ResourceUser, respDiagnostics *diag.Diagnostics) {
 	cid := state.ClusterID.ValueString()
 	userName := state.Name.ValueString()
-	user := readUser(ctx, r.providerConfig.SDK, respDiagnostics, cid, userName)
+	user := readUser(ctx, r.providerConfig.SDKv2, respDiagnostics, cid, userName)
 	if respDiagnostics.HasError() {
 		return
 	}

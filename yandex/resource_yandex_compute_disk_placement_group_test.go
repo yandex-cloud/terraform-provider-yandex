@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 )
 
 func init() {
@@ -23,10 +24,12 @@ func sweepComputeDiskPlacementGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(1 * time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.Compute().DiskPlacementGroup().Delete(ctx, &compute.DeleteDiskPlacementGroupRequest{
-		DiskPlacementGroupId: id,
-	})
-	return handleSweepOperation(ctx, conf, op, err)
+	op, err := computesdk.NewDiskPlacementGroupClient(conf.
+		SDK).
+		Delete(ctx, &compute.DeleteDiskPlacementGroupRequest{
+			DiskPlacementGroupId: id,
+		})
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func testSweepComputeDiskPlacementGroups(_ string) error {
@@ -36,10 +39,11 @@ func testSweepComputeDiskPlacementGroups(_ string) error {
 	}
 
 	req := &compute.ListDiskPlacementGroupsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Compute().DiskPlacementGroup().DiskPlacementGroupIterator(conf.Context(), req)
+	it := computesdk.NewDiskPlacementGroupClient(conf.SDK).Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
-		id := it.Value().GetId()
+		group := it.Value()
+		id := group.GetId()
 		if !sweepWithRetry(sweepComputeDiskPlacementGroupOnce, conf, "Placement group", id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep compute Placement Group %q", id))
 		}

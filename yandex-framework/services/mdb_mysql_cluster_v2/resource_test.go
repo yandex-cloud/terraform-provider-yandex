@@ -3,6 +3,7 @@ package mdb_mysql_cluster_v2_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"log"
 	"reflect"
 	"regexp"
@@ -24,6 +25,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
@@ -104,7 +107,7 @@ func testSweepMDBMySQLCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.SDK.MDB().MySQL().Cluster().List(context.Background(), &mysql.ListClustersRequest{
+	resp, err := mysqlsdk.NewClusterClient(conf.SDKv2).List(context.Background(), &mysql.ListClustersRequest{
 		FolderId: conf.ProviderState.FolderID.ValueString(),
 		PageSize: defaultMDBPageSize,
 	})
@@ -132,20 +135,32 @@ func sweepMDBMySQLClusterOnce(conf *config.Config, id string) error {
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
 
-	op, err := conf.SDK.MDB().MySQL().Cluster().Update(ctx, &mysql.UpdateClusterRequest{
+	client := mysqlsdk.NewClusterClient(conf.SDKv2)
+	clusterAbsent := func() bool {
+		_, getErr := client.Get(ctx, &mysql.GetClusterRequest{ClusterId: id})
+		return status.Code(getErr) == codes.NotFound
+	}
+	op, err := client.Update(ctx, &mysql.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = test.HandleSweepOperation(ctx, conf, op, err)
+	err = test.HandleSweepOperation(ctx, op, err)
 	if err != nil && !strings.EqualFold(test.ErrorMessage(err), "no changes detected") {
+		if clusterAbsent() {
+			return nil
+		}
 		return err
 	}
 
-	op, err = conf.SDK.MDB().MySQL().Cluster().Delete(ctx, &mysql.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctx, &mysql.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return test.HandleSweepOperation(ctx, conf, op, err)
+	err = test.HandleSweepOperation(ctx, deleteOp, err)
+	if err != nil && clusterAbsent() {
+		return nil
+	}
+	return err
 }
 
 func mdbMySQLClusterImportStep(name string) resource.TestStep {
@@ -1499,7 +1514,7 @@ func testAccCheckMDBMySQLClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.MDB().MySQL().Cluster().Get(context.Background(), &mysql.GetClusterRequest{
+		_, err := mysqlsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &mysql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -1524,7 +1539,7 @@ func testAccCheckExistsAndParseMDBMySQLCluster(n string, r *mysql.Cluster, hosts
 
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		found, err := config.SDK.MDB().MySQL().Cluster().Get(context.Background(), &mysql.GetClusterRequest{
+		found, err := mysqlsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &mysql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -1537,7 +1552,7 @@ func testAccCheckExistsAndParseMDBMySQLCluster(n string, r *mysql.Cluster, hosts
 
 		*r = *found
 
-		resp, err := config.SDK.MDB().MySQL().Cluster().ListHosts(context.Background(), &mysql.ListClusterHostsRequest{
+		resp, err := mysqlsdk.NewClusterClient(config.SDKv2).ListHosts(context.Background(), &mysql.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})

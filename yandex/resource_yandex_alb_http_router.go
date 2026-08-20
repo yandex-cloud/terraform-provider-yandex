@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -185,30 +186,19 @@ func resourceYandexALBHTTPRouterCreate(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().HttpRouter().Create(ctx, &req))
+	client := albsdk.NewHttpRouterClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Application Http Router: %w", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get Application Http Router create operation metadata: %w", err)
-	}
-
-	md, ok := protoMetadata.(*apploadbalancer.CreateHttpRouterMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Application Http Router ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.HttpRouterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create Application Http Router: %w", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Application Http Router creation failed: %w", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Application Http Router %q", d.Id())
@@ -222,7 +212,9 @@ func resourceYandexALBHTTPRouterRead(d *schema.ResourceData, meta interface{}) e
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	router, err := config.sdk.ApplicationLoadBalancer().HttpRouter().Get(ctx, &apploadbalancer.GetHttpRouterRequest{
+	client := albsdk.NewHttpRouterClient(config.SDK)
+
+	router, err := client.Get(ctx, &apploadbalancer.GetHttpRouterRequest{
 		HttpRouterId: d.Id(),
 	})
 
@@ -281,12 +273,14 @@ func resourceYandexALBHTTPRouterUpdate(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().HttpRouter().Update(ctx, req))
+	client := albsdk.NewHttpRouterClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Application Http Router %q: %w", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Application Http Router %q: %w", d.Id(), err)
 	}
@@ -307,17 +301,14 @@ func resourceYandexALBHTTPRouterDelete(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().HttpRouter().Delete(ctx, req))
+	client := albsdk.NewHttpRouterClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Application Http Router %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

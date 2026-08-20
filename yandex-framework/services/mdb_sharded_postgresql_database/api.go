@@ -3,11 +3,11 @@ package mdb_sharded_postgresql_database
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 )
 
@@ -16,7 +16,7 @@ var shardedPostgreSQLAPI = ShardedPostgreSQLAPI{}
 type ShardedPostgreSQLAPI struct{}
 
 func (r *ShardedPostgreSQLAPI) ReadDatabase(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid, dbname string) *spqr.Database {
-	dbs, err := sdk.MDB().SPQR().Database().List(ctx, &spqr.ListDatabasesRequest{
+	dbs, err := spqrsdk.NewDatabaseClient(sdk).List(ctx, &spqr.ListDatabasesRequest{
 		ClusterId: cid,
 	})
 	if err != nil {
@@ -41,8 +41,8 @@ func (r *ShardedPostgreSQLAPI) ReadDatabase(ctx context.Context, sdk *ycsdk.SDK,
 }
 
 func (r *ShardedPostgreSQLAPI) CreateDatabase(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, db *spqr.DatabaseSpec) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().SPQR().Database().Create(ctx, &spqr.CreateDatabaseRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*spqrsdk.DatabaseCreateOperation, error) {
+		return spqrsdk.NewDatabaseClient(sdk).Create(ctx, &spqr.CreateDatabaseRequest{
 			ClusterId:    cid,
 			DatabaseSpec: db,
 		})
@@ -54,7 +54,7 @@ func (r *ShardedPostgreSQLAPI) CreateDatabase(ctx context.Context, sdk *ycsdk.SD
 		)
 		return
 	}
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to Create resource",
 			fmt.Sprintf("Error while waiting for operation to create Sharded PostgreSQL database: %s", err.Error()),
@@ -67,8 +67,8 @@ func (r *ShardedPostgreSQLAPI) UpdateDatabase(ctx context.Context, sdk *ycsdk.SD
 }
 
 func (r *ShardedPostgreSQLAPI) DeleteDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, dbname string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().SPQR().Database().Delete(ctx, &spqr.DeleteDatabaseRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*spqrsdk.DatabaseDeleteOperation, error) {
+		return spqrsdk.NewDatabaseClient(sdk).Delete(ctx, &spqr.DeleteDatabaseRequest{
 			ClusterId:    cid,
 			DatabaseName: dbname,
 		})
@@ -82,7 +82,7 @@ func (r *ShardedPostgreSQLAPI) DeleteDatabase(ctx context.Context, sdk *ycsdk.SD
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
 			fmt.Sprintf("Error while waiting for operation to delete Sharded PostgreSQL database: %s", err.Error()),

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
+	ydbsdk "github.com/yandex-cloud/go-sdk/services/ydb/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -360,30 +361,23 @@ func performYandexYDBDatabaseCreate(d *schema.ResourceData, config *Config, req 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.YDB().Database().Create(ctx, req))
+	client := ydbsdk.NewDatabaseClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create database: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get database create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*ydb.CreateDatabaseMetadata)
-	if !ok {
+	md := op.Metadata()
+	if md == nil || md.DatabaseId == "" {
 		return fmt.Errorf("could not get database ID from create operation metadata")
 	}
 
 	d.SetId(md.DatabaseId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create database: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Database creation failed: %s", err)
 	}
 
 	if slp := d.Get("sleep_after").(int); slp > 0 {
@@ -495,12 +489,14 @@ func performYandexYDBDatabaseUpdate(d *schema.ResourceData, config *Config, req 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.YDB().Database().Update(ctx, req))
+	client := ydbsdk.NewDatabaseClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update database: %s", err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating database %q: %s", d.Id(), err)
 	}
@@ -516,8 +512,12 @@ func performYandexYDBDatabaseDelete(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.YDB().Database().Delete(ctx, &ydb.DeleteDatabaseRequest{DatabaseId: d.Id()})
-	err = waitOperation(ctx, config, op, err)
+	client := ydbsdk.NewDatabaseClient(config.SDK)
+
+	op, err := client.Delete(ctx, &ydb.DeleteDatabaseRequest{DatabaseId: d.Id()})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("YDB Database %q", d.Id()))
 	}
@@ -540,7 +540,9 @@ func performYandexYDBDatabaseRead(d *schema.ResourceData, config *Config) (*ydb.
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	database, err := config.sdk.YDB().Database().Get(ctx, &ydb.GetDatabaseRequest{
+	client := ydbsdk.NewDatabaseClient(config.SDK)
+
+	database, err := client.Get(ctx, &ydb.GetDatabaseRequest{
 		DatabaseId: d.Id(),
 	})
 	if err != nil {

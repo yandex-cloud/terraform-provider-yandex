@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -47,7 +48,7 @@ func TestAccComputeInstance_basic1IamMember(t *testing.T) {
 					testAccCheckComputeInstanceExists(instanceResource, &instance),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-						return cfg.SDK.Compute().Instance()
+						return computesdk.NewInstanceClient(cfg.SDKv2)
 					}, &instance, role, []string{"system:" + userID}),
 				),
 			},
@@ -126,7 +127,7 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.Compute().Instance().Get(context.Background(), &compute.GetInstanceRequest{
+		_, err := computesdk.NewInstanceClient(config.SDKv2).Get(context.Background(), &compute.GetInstanceRequest{
 			InstanceId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -150,7 +151,7 @@ func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) res
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Compute().Instance().Get(context.Background(), &compute.GetInstanceRequest{
+		found, err := computesdk.NewInstanceClient(config.SDKv2).Get(context.Background(), &compute.GetInstanceRequest{
 			InstanceId: rs.Primary.ID,
 			View:       compute.InstanceView_FULL,
 		})

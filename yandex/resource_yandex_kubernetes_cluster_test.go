@@ -16,6 +16,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	k8ssdk "github.com/yandex-cloud/go-sdk/services/k8s/v1"
 )
 
 const (
@@ -43,7 +44,9 @@ func testSweepKubernetesClusters(_ string) error {
 	var depsCreated bool
 
 	req := &k8s.ListClustersRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Kubernetes().Cluster().ClusterIterator(conf.Context(), req)
+	client := k8ssdk.NewClusterClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		if !depsCreated {
@@ -78,10 +81,12 @@ func sweepKubernetesClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexKubernetesClusterDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Kubernetes().Cluster().Delete(ctx, &k8s.DeleteClusterRequest{
+	client := k8ssdk.NewClusterClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &k8s.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func k8sClusterImportStep(clusterResourceFullName string, ignored ...string) resource.TestStep {
@@ -96,7 +101,8 @@ func k8sClusterImportStep(clusterResourceFullName string, ignored ...string) res
 func updateKubernetesClusterWithSweeperDeps(conf *Config, clusterID, serviceAccountID string) bool {
 	debugLog("started updating Kubernetes Cluster %q", clusterID)
 
-	client := conf.sdk.Kubernetes().Cluster()
+	client := k8ssdk.NewClusterClient(conf.SDK)
+
 	for i := 1; i <= conf.MaxRetries; i++ {
 		req := &k8s.UpdateClusterRequest{
 			ClusterId:        clusterID,
@@ -108,7 +114,7 @@ func updateKubernetesClusterWithSweeperDeps(conf *Config, clusterID, serviceAcco
 			},
 		}
 
-		_, err := conf.sdk.WrapOperation(client.Update(conf.Context(), req))
+		_, err := client.Update(conf.Context(), req)
 		if err != nil {
 			debugLog("[kubernetes cluster %q] update try #%d: %v", clusterID, i, err)
 		} else {
@@ -1813,7 +1819,9 @@ func testAccCheckKubernetesClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Kubernetes().Cluster().Get(context.Background(), &k8s.GetClusterRequest{
+		client := k8ssdk.NewClusterClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &k8s.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -1837,7 +1845,9 @@ func testAccCheckKubernetesClusterExists(n string, cluster *k8s.Cluster) resourc
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.Kubernetes().Cluster().Get(context.Background(), &k8s.GetClusterRequest{
+		client := k8ssdk.NewClusterClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &k8s.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {

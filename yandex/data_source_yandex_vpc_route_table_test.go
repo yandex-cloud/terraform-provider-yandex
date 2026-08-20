@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 )
 
 func TestAccDataSourceVPCRouteTable(t *testing.T) {
@@ -62,8 +63,9 @@ func testAccDataSourceVPCRouteTableExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := vpcsdk.NewRouteTableClient(config.SDK)
 
-		found, err := config.sdk.VPC().RouteTable().Get(context.Background(), &vpc.GetRouteTableRequest{
+		found, err := client.Get(context.Background(), &vpc.GetRouteTableRequest{
 			RouteTableId: ds.Primary.ID,
 		})
 

@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/broker/v1"
+	brokersdk "github.com/yandex-cloud/go-sdk/services/iot/broker/v1"
 )
 
 const iotBrokerResource = "yandex_iot_core_broker.test-broker"
@@ -31,7 +32,9 @@ func testSweepIoTCoreBroker(_ string) error {
 	}
 
 	req := &iot.ListBrokersRequest{FolderId: conf.FolderID}
-	it := conf.sdk.IoT().Broker().Broker().BrokerIterator(conf.Context(), req)
+	client := brokersdk.NewBrokerClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -51,10 +54,12 @@ func sweepIoTCoreBrokerOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexIoTDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.IoT().Broker().Broker().Delete(ctx, &iot.DeleteBrokerRequest{
+	client := brokersdk.NewBrokerClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &iot.DeleteBrokerRequest{
 		BrokerId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func TestAccYandexIoTCoreBroker_basic(t *testing.T) {
@@ -298,15 +303,19 @@ resource "yandex_logging_group" "logging-group" {
 }
 
 func testGetBrokerByID(config *Config, ID string) (*iot.Broker, error) {
+	client := brokersdk.NewBrokerClient(config.SDK)
+
 	req := iot.GetBrokerRequest{
 		BrokerId: ID,
 	}
 
-	return config.sdk.IoT().Broker().Broker().Get(context.Background(), &req)
+	return client.Get(context.Background(), &req)
 }
 
 func testGetBrokerCertificatesByID(config *Config, ID string) (map[string]interface{}, error) {
-	certs, err := config.sdk.IoT().Broker().Broker().ListCertificates(context.Background(), &iot.ListBrokerCertificatesRequest{BrokerId: ID})
+	client := brokersdk.NewBrokerClient(config.SDK)
+
+	certs, err := client.ListCertificates(context.Background(), &iot.ListBrokerCertificatesRequest{BrokerId: ID})
 	if err != nil {
 		return nil, err
 	}

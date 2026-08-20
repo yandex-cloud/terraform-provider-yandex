@@ -3,6 +3,7 @@ package mdb_mongodb_database_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -166,7 +167,7 @@ func testAccCheckMDBMongoDBDatabaseDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = config.SDK.MDB().MongoDB().Database().Get(context.Background(), &mongodb.GetDatabaseRequest{
+		_, err = mongodbsdk.NewDatabaseClient(config.SDKv2).Get(context.Background(), &mongodb.GetDatabaseRequest{
 			ClusterId:    clusterId,
 			DatabaseName: dbname,
 		})

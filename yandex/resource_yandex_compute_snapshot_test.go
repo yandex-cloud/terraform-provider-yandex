@@ -14,6 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 )
 
 //revive:disable:var-naming
@@ -85,7 +86,7 @@ func testAccCheckComputeSnapshotDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Compute().Snapshot().Get(context.Background(), &compute.GetSnapshotRequest{
+		_, err := computesdk.NewSnapshotClient(config.SDK).Get(context.Background(), &compute.GetSnapshotRequest{
 			SnapshotId: rs.Primary.ID,
 		})
 
@@ -115,7 +116,7 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.Compute().Snapshot().Get(context.Background(), &compute.GetSnapshotRequest{
+		found, err := computesdk.NewSnapshotClient(config.SDK).Get(context.Background(), &compute.GetSnapshotRequest{
 			SnapshotId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -132,7 +133,7 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 				n, attr, found.SourceDiskId)
 		}
 
-		foundDisk, errDisk := config.sdk.Compute().Disk().Get(context.Background(), &compute.GetDiskRequest{
+		foundDisk, errDisk := computesdk.NewDiskClient(config.SDK).Get(context.Background(), &compute.GetDiskRequest{
 			DiskId: rs.Primary.Attributes["source_disk_id"],
 		})
 		if errDisk != nil {

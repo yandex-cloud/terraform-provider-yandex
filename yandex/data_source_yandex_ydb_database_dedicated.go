@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	ydbsdk "github.com/yandex-cloud/go-sdk/services/ydb/v1"
 )
 
 func dataSourceYandexYDBDatabaseDedicated() *schema.Resource {
@@ -58,7 +58,27 @@ func dataSourceYandexYDBDatabaseRead(d *schema.ResourceData, meta interface{}) (
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		databaseID, err = resolveObjectID(ctx, config, d, sdkresolvers.YDBDatabaseResolver)
+		folderID, folderErr := getFolderID(d, config)
+		if folderErr != nil {
+			return nil, folderErr
+		}
+		client := ydbsdk.NewDatabaseClient(config.SDK)
+
+		response, listErr := client.List(ctx, &ydb.ListDatabasesRequest{FolderId: folderID, PageSize: 100})
+		if listErr == nil {
+			matches := make([]*ydb.Database, 0, 1)
+			for _, database := range response.Databases {
+				if database.Name == d.Get("name").(string) {
+					matches = append(matches, database)
+				}
+			}
+			if len(matches) != 1 {
+				listErr = fmt.Errorf("expected one database, found %d", len(matches))
+			} else {
+				databaseID = matches[0].Id
+			}
+		}
+		err = listErr
 		if err != nil {
 			return nil, fmt.Errorf("failed to resolve data source Yandex Database by name: %v", err)
 		}
@@ -68,7 +88,9 @@ func dataSourceYandexYDBDatabaseRead(d *schema.ResourceData, meta interface{}) (
 		DatabaseId: databaseID,
 	}
 
-	database, err := config.sdk.YDB().Database().Get(ctx, &req)
+	client := ydbsdk.NewDatabaseClient(config.SDK)
+
+	database, err := client.Get(ctx, &req)
 	if err != nil {
 		return nil, handleNotFoundError(err, d, fmt.Sprintf("Yandex Database %q", d.Id()))
 	}

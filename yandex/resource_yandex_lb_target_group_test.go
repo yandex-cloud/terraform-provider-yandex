@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
+	loadbalancersdk "github.com/yandex-cloud/go-sdk/services/loadbalancer/v1"
+	"google.golang.org/grpc/codes"
 )
 
 const tgResource = "yandex_lb_target_group.test-tg"
@@ -31,7 +33,11 @@ func testSweepLBTargetGroups(_ string) error {
 	}
 
 	req := &loadbalancer.ListNetworkLoadBalancersRequest{FolderId: conf.FolderID}
-	nlbIt := conf.sdk.LoadBalancer().NetworkLoadBalancer().NetworkLoadBalancerIterator(conf.Context(), req)
+	nlbClient := loadbalancersdk.NewNetworkLoadBalancerClient(conf.SDK)
+
+	targetGroupClient := loadbalancersdk.NewTargetGroupClient(conf.SDK)
+
+	nlbIt := nlbClient.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for nlbIt.Next() {
 		nlbId := nlbIt.Value().GetId()
@@ -44,18 +50,24 @@ func testSweepLBTargetGroups(_ string) error {
 			}
 		}
 	}
+	if err := nlbIt.Error(); err != nil {
+		result = multierror.Append(result, err)
+	}
 
 	if err := result.ErrorOrNil(); err != nil {
 		return err
 	}
 
 	reqTg := &loadbalancer.ListTargetGroupsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.LoadBalancer().TargetGroup().TargetGroupIterator(conf.Context(), reqTg)
+	it := targetGroupClient.Iterator(conf.Context(), reqTg)
 	for it.Next() {
 		id := it.Value().GetId()
 		if !sweepLBTargetGroup(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep LB Target Group %q", id))
 		}
+	}
+	if err := it.Error(); err != nil {
+		result = multierror.Append(result, err)
 	}
 
 	return result.ErrorOrNil()
@@ -74,14 +86,23 @@ func sweepLBNetworkLoadBalancerAttachmentsOnce(conf *Config, nlbId, tgId string)
 	ctx, cancel := conf.ContextWithTimeout(5 * time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.LoadBalancer().NetworkLoadBalancer().DetachTargetGroup(
+	client := loadbalancersdk.NewNetworkLoadBalancerClient(conf.SDK)
+
+	op, err := client.DetachTargetGroup(
 		ctx,
 		&loadbalancer.DetachNetworkLoadBalancerTargetGroupRequest{
 			NetworkLoadBalancerId: nlbId,
 			TargetGroupId:         tgId,
 		},
 	)
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		if isStatusWithCode(err, codes.NotFound) {
+			return nil
+		}
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func sweepLBTargetGroup(conf *Config, id string) bool {
@@ -92,10 +113,19 @@ func sweepLBTargetGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexIAMServiceAccountDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.LoadBalancer().TargetGroup().Delete(ctx, &loadbalancer.DeleteTargetGroupRequest{
+	client := loadbalancersdk.NewTargetGroupClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &loadbalancer.DeleteTargetGroupRequest{
 		TargetGroupId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		if isStatusWithCode(err, codes.NotFound) {
+			return nil
+		}
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func targetGroupImportStep() resource.TestStep {
@@ -258,13 +288,14 @@ func TestAccLBTargetGroup_update(t *testing.T) {
 
 func testAccCheckLBTargetGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := loadbalancersdk.NewTargetGroupClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_lb_target_group" {
 			continue
 		}
 
-		_, err := config.sdk.LoadBalancer().TargetGroup().Get(context.Background(), &loadbalancer.GetTargetGroupRequest{
+		_, err := client.Get(context.Background(), &loadbalancer.GetTargetGroupRequest{
 			TargetGroupId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -287,8 +318,9 @@ func testAccCheckLBTargetGroupExists(tgName string, tg *loadbalancer.TargetGroup
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := loadbalancersdk.NewTargetGroupClient(config.SDK)
 
-		found, err := config.sdk.LoadBalancer().TargetGroup().Get(context.Background(), &loadbalancer.GetTargetGroupRequest{
+		found, err := client.Get(context.Background(), &loadbalancer.GetTargetGroupRequest{
 			TargetGroupId: rs.Primary.ID,
 		})
 		if err != nil {
