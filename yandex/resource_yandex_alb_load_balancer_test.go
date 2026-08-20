@@ -1678,6 +1678,18 @@ func TestAccALBLoadBalancer_tlsListenerWithClientCertificatesVerification(t *tes
 					testExistsFirstElementWithAttr(
 						albLoadBalancerResource, "listener", "tls.0.default_handler.0.client_certificates_verification.0.bytes", &listenerPath,
 					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.client_certificates_verification.0.accept_untrusted", &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.client_certificates_verification.0.allow_expired", &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "tls.0.sni_handler.0.handler.0.client_certificates_verification.0.accept_untrusted", &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "tls.0.sni_handler.0.handler.0.client_certificates_verification.0.allow_expired", &listenerPath,
+					),
 				),
 			},
 			albLoadBalancerImportStep(),

@@ -1232,6 +1232,14 @@ func expandALBClientCertificatesVerification(d *schema.ResourceData, path string
 		}
 	}
 
+	if v, ok := d.GetOk(path + "accept_untrusted"); ok {
+		result.AcceptUntrusted = v.(bool)
+	}
+
+	if v, ok := d.GetOk(path + "allow_expired"); ok {
+		result.AllowExpired = v.(bool)
+	}
+
 	return result, nil
 }
 
@@ -2412,6 +2420,8 @@ func flattenALBClientCertificatesVerification(ccv *apploadbalancer.ClientCertifi
 	}
 	flCCV := map[string]interface{}{
 		"require_client_certificate": ccv.GetRequireClientCertificate(),
+		"accept_untrusted":           ccv.GetAcceptUntrusted(),
+		"allow_expired":              ccv.GetAllowExpired(),
 	}
 	if bytes := ccv.GetBytes(); bytes != "" {
 		flCCV["bytes"] = bytes

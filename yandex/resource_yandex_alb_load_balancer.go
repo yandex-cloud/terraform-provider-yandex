@@ -458,6 +458,16 @@ func clientCertificatesVerificationSchema() *schema.Schema {
 					Optional:    true,
 					Description: "Trusted certificate authority certificates bundle (PEM text).",
 				},
+				"accept_untrusted": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "If true, ALB will not check certification chain and will allow expired client certificates.",
+				},
+				"allow_expired": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "If true, ALB will allow expired client certificates even if accept_untrusted is set to false.",
+				},
 			},
 		},
 	}
