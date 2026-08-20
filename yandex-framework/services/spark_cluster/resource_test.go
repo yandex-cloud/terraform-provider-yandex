@@ -78,6 +78,7 @@ type sparkClusterConfigParams struct {
 	ExecutorSize              int64
 	ExecutorMinSize           int64
 	ExecutorMaxSize           int64
+	ExecutorPreemptible       bool
 	IncludeBlockDependencies  bool
 	PipPackage                string
 	DebPackage                string
@@ -132,6 +133,9 @@ resource "yandex_spark_cluster" "spark_cluster" {
         {{ else }}
         min_size = {{ .ExecutorMinSize }}
         max_size = {{ .ExecutorMaxSize }}
+        {{ end }}
+        {{ if .ExecutorPreemptible }}
+        preemptible = true
         {{ end }}
       }
     }
@@ -297,6 +301,7 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					ExecutorResourcePresetID:  "c4-m16",
 					ExecutorMinSize:           1,
 					ExecutorMaxSize:           2,
+					ExecutorPreemptible:       true,
 					IncludeBlockHistoryServer: true,
 					HistoryServerEnabled:      true,
 					LoggingFolderID:           folderID,
@@ -312,6 +317,7 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c4-m16"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.min_size", "1"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.max_size", "2"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.preemptible", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", ""),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
@@ -338,6 +344,7 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					ExecutorResourcePresetID:  "c8-m32",
 					ExecutorMinSize:           2,
 					ExecutorMaxSize:           4,
+					ExecutorPreemptible:       true,
 					IncludeBlockDependencies:  true,
 					PipPackage:                "numpy==2.2.2",
 					IncludeBlockHistoryServer: true,
@@ -367,6 +374,7 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c8-m32"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.min_size", "2"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.max_size", "4"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.preemptible", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.dependencies.pip_packages.0", "numpy==2.2.2"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", metastoreClusterID),
@@ -393,6 +401,7 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					ExecutorResourcePresetID:  "c4-m16",
 					ExecutorMinSize:           1,
 					ExecutorMaxSize:           2,
+					ExecutorPreemptible:       false,
 					IncludeBlockDependencies:  false,
 					IncludeBlockHistoryServer: true,
 					HistoryServerEnabled:      true,
@@ -414,6 +423,7 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c4-m16"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.min_size", "1"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.max_size", "2"),
+					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.preemptible", "false"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", ""),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.enabled", "true"),

@@ -102,7 +102,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 
 	var updDriver, updExecutor, updDependencies, updHistoryServer, updMetastore bool
 	var updDriverPoolPreset, updDriverPoolSize bool
-	var updExecutorPoolPreset, updExecutorPoolSize bool
+	var updExecutorPoolPreset, updExecutorPoolSize, updExecutorPoolPreemptible bool
 	var updPip, updDeb bool
 	var updSparkVersion bool
 
@@ -197,7 +197,8 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 			updExecutorPoolSize = !planExecutorPool.Size.Equal(stateExecutorPool.Size) ||
 				!planExecutorPool.MinSize.Equal(stateExecutorPool.MinSize) ||
 				!planExecutorPool.MaxSize.Equal(stateExecutorPool.MaxSize)
-			updExecutor = updExecutorPoolPreset && updExecutorPoolSize
+			updExecutorPoolPreemptible = !planExecutorPool.Preemptible.Equal(stateExecutorPool.Preemptible)
+			updExecutor = updExecutorPoolPreset && updExecutorPoolSize && updExecutorPoolPreemptible
 
 			var stateDependencies Dependencies
 			diags.Append(state.Config.Dependencies.As(ctx, &stateDependencies, datasize.DefaultOpts)...)
@@ -236,6 +237,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 				Executor: &spark.ResourcePool{
 					ResourcePresetId: planExecutorPool.ResourcePresetId.ValueString(),
 					ScalePolicy:      executorScalePolicy,
+					Preemptible:      planExecutorPool.Preemptible.ValueBool(),
 				},
 			},
 			HistoryServer: &spark.HistoryServerConfig{
@@ -276,6 +278,9 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 					}
 					if updExecutorPoolSize {
 						updateMaskPaths = append(updateMaskPaths, "config_spec.resource_pools.executor.scale_policy")
+					}
+					if updExecutorPoolPreemptible {
+						updateMaskPaths = append(updateMaskPaths, "config_spec.resource_pools.executor.preemptible")
 					}
 				}
 			}
@@ -384,23 +389,23 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 	return params, updateMaskPaths, diags
 }
 
-func extractPools(ctx context.Context, model *ClusterModel, diags *diag.Diagnostics) (ResourcePool, ResourcePool) {
+func extractPools(ctx context.Context, model *ClusterModel, diags *diag.Diagnostics) (DriverResourcePool, ResourcePool) {
 	var resourcePools ResourcePools
 	diags.Append(model.Config.ResourcePools.As(ctx, &resourcePools, datasize.DefaultOpts)...)
 	if diags.HasError() {
-		return ResourcePool{}, ResourcePool{}
+		return DriverResourcePool{}, ResourcePool{}
 	}
 
-	var driverPool ResourcePool
+	var driverPool DriverResourcePool
 	diags.Append(resourcePools.Driver.As(ctx, &driverPool, datasize.DefaultOpts)...)
 	if diags.HasError() {
-		return ResourcePool{}, ResourcePool{}
+		return DriverResourcePool{}, ResourcePool{}
 	}
 
 	var executorPool ResourcePool
 	diags.Append(resourcePools.Executor.As(ctx, &executorPool, datasize.DefaultOpts)...)
 	if diags.HasError() {
-		return ResourcePool{}, ResourcePool{}
+		return DriverResourcePool{}, ResourcePool{}
 	}
 
 	return driverPool, executorPool

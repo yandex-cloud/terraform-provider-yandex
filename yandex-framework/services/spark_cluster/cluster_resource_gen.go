@@ -143,6 +143,13 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 										Description:         "Minimum node count for the executor pool with autoscaling.",
 										MarkdownDescription: "Minimum node count for the executor pool with autoscaling.",
 									},
+									"preemptible": schema.BoolAttribute{
+										Optional:            true,
+										Computed:            true,
+										Description:         "Whether executor nodes use preemptible (interruptible) compute instances. Defaults to `false`. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).",
+										MarkdownDescription: "Whether executor nodes use preemptible (interruptible) compute instances. Defaults to `false`. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).",
+										Default:             booldefault.StaticBool(false),
+									},
 									"resource_preset_id": schema.StringAttribute{
 										Required:            true,
 										Description:         "Resource preset ID for the executor pool.",
@@ -3097,6 +3104,24 @@ func (t ExecutorType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`min_size expected to be basetypes.Int64Value, was: %T`, minSizeAttribute))
 	}
 
+	preemptibleAttribute, ok := attributes["preemptible"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preemptible is missing from object`)
+
+		return nil, diags
+	}
+
+	preemptibleVal, ok := preemptibleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preemptible expected to be basetypes.BoolValue, was: %T`, preemptibleAttribute))
+	}
+
 	resourcePresetIdAttribute, ok := attributes["resource_preset_id"]
 
 	if !ok {
@@ -3140,6 +3165,7 @@ func (t ExecutorType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 	return ExecutorValue{
 		MaxSize:          maxSizeVal,
 		MinSize:          minSizeVal,
+		Preemptible:      preemptibleVal,
 		ResourcePresetId: resourcePresetIdVal,
 		Size:             sizeVal,
 		state:            attr.ValueStateKnown,
@@ -3245,6 +3271,24 @@ func NewExecutorValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`min_size expected to be basetypes.Int64Value, was: %T`, minSizeAttribute))
 	}
 
+	preemptibleAttribute, ok := attributes["preemptible"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preemptible is missing from object`)
+
+		return NewExecutorValueUnknown(), diags
+	}
+
+	preemptibleVal, ok := preemptibleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preemptible expected to be basetypes.BoolValue, was: %T`, preemptibleAttribute))
+	}
+
 	resourcePresetIdAttribute, ok := attributes["resource_preset_id"]
 
 	if !ok {
@@ -3288,6 +3332,7 @@ func NewExecutorValue(attributeTypes map[string]attr.Type, attributes map[string
 	return ExecutorValue{
 		MaxSize:          maxSizeVal,
 		MinSize:          minSizeVal,
+		Preemptible:      preemptibleVal,
 		ResourcePresetId: resourcePresetIdVal,
 		Size:             sizeVal,
 		state:            attr.ValueStateKnown,
@@ -3364,19 +3409,21 @@ var _ basetypes.ObjectValuable = ExecutorValue{}
 type ExecutorValue struct {
 	MaxSize          basetypes.Int64Value  `tfsdk:"max_size"`
 	MinSize          basetypes.Int64Value  `tfsdk:"min_size"`
+	Preemptible      basetypes.BoolValue   `tfsdk:"preemptible"`
 	ResourcePresetId basetypes.StringValue `tfsdk:"resource_preset_id"`
 	Size             basetypes.Int64Value  `tfsdk:"size"`
 	state            attr.ValueState
 }
 
 func (v ExecutorValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["max_size"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["min_size"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["preemptible"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["resource_preset_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["size"] = basetypes.Int64Type{}.TerraformType(ctx)
 
@@ -3384,7 +3431,7 @@ func (v ExecutorValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.MaxSize.ToTerraformValue(ctx)
 
@@ -3401,6 +3448,14 @@ func (v ExecutorValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["min_size"] = val
+
+		val, err = v.Preemptible.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preemptible"] = val
 
 		val, err = v.ResourcePresetId.ToTerraformValue(ctx)
 
@@ -3450,6 +3505,7 @@ func (v ExecutorValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	attributeTypes := map[string]attr.Type{
 		"max_size":           basetypes.Int64Type{},
 		"min_size":           basetypes.Int64Type{},
+		"preemptible":        basetypes.BoolType{},
 		"resource_preset_id": basetypes.StringType{},
 		"size":               basetypes.Int64Type{},
 	}
@@ -3467,6 +3523,7 @@ func (v ExecutorValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		map[string]attr.Value{
 			"max_size":           v.MaxSize,
 			"min_size":           v.MinSize,
+			"preemptible":        v.Preemptible,
 			"resource_preset_id": v.ResourcePresetId,
 			"size":               v.Size,
 		})
@@ -3497,6 +3554,10 @@ func (v ExecutorValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Preemptible.Equal(other.Preemptible) {
+		return false
+	}
+
 	if !v.ResourcePresetId.Equal(other.ResourcePresetId) {
 		return false
 	}
@@ -3520,6 +3581,7 @@ func (v ExecutorValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	return map[string]attr.Type{
 		"max_size":           basetypes.Int64Type{},
 		"min_size":           basetypes.Int64Type{},
+		"preemptible":        basetypes.BoolType{},
 		"resource_preset_id": basetypes.StringType{},
 		"size":               basetypes.Int64Type{},
 	}

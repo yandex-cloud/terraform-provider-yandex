@@ -95,6 +95,7 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.resource_preset_id", "c4-m16"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.min_size", "1"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.max_size", "2"),
+		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.preemptible", "false"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.dependencies.pip_packages.0", "numpy==2.2.2"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.dependencies.deb_packages.0", "git"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),

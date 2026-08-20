@@ -4,6 +4,7 @@ package spark_cluster
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -118,6 +119,11 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "Minimum node count for the executor pool with autoscaling.",
 										MarkdownDescription: "Minimum node count for the executor pool with autoscaling.",
+									},
+									"preemptible": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Whether executor nodes use preemptible (interruptible) compute instances. Defaults to `false`. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).",
+										MarkdownDescription: "Whether executor nodes use preemptible (interruptible) compute instances. Defaults to `false`. For more information, see [Preemptible Virtual Machines](https://yandex.cloud/docs/compute/concepts/preemptible-vm).",
 									},
 									"resource_preset_id": schema.StringAttribute{
 										Computed:            true,

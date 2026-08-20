@@ -23,6 +23,7 @@ resource "yandex_spark_cluster" "my_spark_cluster" {
         resource_preset_id = "c4-m16"
         min_size           = 1
         max_size           = 2
+        preemptible        = true
       }
     }
     dependencies = {

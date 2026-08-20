@@ -18,6 +18,14 @@ type ResourcePool struct {
 	Size             types.Int64  `tfsdk:"size"`
 	MinSize          types.Int64  `tfsdk:"min_size"`
 	MaxSize          types.Int64  `tfsdk:"max_size"`
+	Preemptible      types.Bool   `tfsdk:"preemptible"` // set only for executor
+}
+
+type DriverResourcePool struct {
+	ResourcePresetId types.String `tfsdk:"resource_preset_id"`
+	Size             types.Int64  `tfsdk:"size"`
+	MinSize          types.Int64  `tfsdk:"min_size"`
+	MaxSize          types.Int64  `tfsdk:"max_size"`
 }
 
 type ResourcePools struct {
@@ -38,16 +46,24 @@ type Metastore struct {
 	ClusterId types.String `tfsdk:"cluster_id"`
 }
 
-var ResourcePoolAttrTypes = map[string]attr.Type{
+var DriverPoolAttrTypes = map[string]attr.Type{
 	"resource_preset_id": types.StringType,
 	"size":               types.Int64Type,
 	"min_size":           types.Int64Type,
 	"max_size":           types.Int64Type,
 }
 
+var ExecutorPoolAttrTypes = map[string]attr.Type{
+	"resource_preset_id": types.StringType,
+	"size":               types.Int64Type,
+	"min_size":           types.Int64Type,
+	"max_size":           types.Int64Type,
+	"preemptible":        types.BoolType,
+}
+
 var ResourcePoosAttrTypes = map[string]attr.Type{
-	"driver":   types.ObjectType{AttrTypes: ResourcePoolAttrTypes},
-	"executor": types.ObjectType{AttrTypes: ResourcePoolAttrTypes},
+	"driver":   types.ObjectType{AttrTypes: DriverPoolAttrTypes},
+	"executor": types.ObjectType{AttrTypes: ExecutorPoolAttrTypes},
 }
 
 var DependenciesAttrTypes = map[string]attr.Type{
