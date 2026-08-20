@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 func TestAccDataSourceYandexIAMServiceAccountById(t *testing.T) {
@@ -71,7 +72,9 @@ func testAccCheckIAMServiceAccountDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.IAM().ServiceAccount().Get(context.Background(), &iam.GetServiceAccountRequest{
+		client := iamsdk.NewServiceAccountClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &iam.GetServiceAccountRequest{
 			ServiceAccountId: rs.Primary.ID,
 		})
 		if err == nil {

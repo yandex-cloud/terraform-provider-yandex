@@ -40,8 +40,12 @@ require (
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
 	github.com/yandex-cloud/go-genproto v0.113.0
-	github.com/yandex-cloud/go-sdk v0.33.0
 	github.com/yandex-cloud/go-sdk/services/airflow v0.0.89
+	github.com/yandex-cloud/go-sdk/services/apploadbalancer v0.0.89
+	github.com/yandex-cloud/go-sdk/services/audittrails v0.0.89
+	github.com/yandex-cloud/go-sdk/services/backup v0.0.89
+	github.com/yandex-cloud/go-sdk/services/billing v0.0.89
+	github.com/yandex-cloud/go-sdk/services/cdn v0.0.89
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.89
 	github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.72
 	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.89
@@ -53,8 +57,11 @@ require (
 	github.com/yandex-cloud/go-sdk/services/datasphere v0.0.89
 	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.89
 	github.com/yandex-cloud/go-sdk/services/dns v0.0.89
+	github.com/yandex-cloud/go-sdk/services/gitlab v0.0.89
 	github.com/yandex-cloud/go-sdk/services/iam v0.0.2
+	github.com/yandex-cloud/go-sdk/services/iot v0.0.89
 	github.com/yandex-cloud/go-sdk/services/k8s v0.0.89
+	github.com/yandex-cloud/go-sdk/services/k8s/marketplace v0.0.79
 	github.com/yandex-cloud/go-sdk/services/kms v0.0.89
 	github.com/yandex-cloud/go-sdk/services/loadbalancer v0.0.89
 	github.com/yandex-cloud/go-sdk/services/lockbox v0.0.89
@@ -69,6 +76,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/mdb/redis v0.0.79
 	github.com/yandex-cloud/go-sdk/services/mdb/spqr v0.0.79
 	github.com/yandex-cloud/go-sdk/services/metastore v0.0.89
+	github.com/yandex-cloud/go-sdk/services/monitoring v0.0.89
 	github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.89
 	github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.89
 	github.com/yandex-cloud/go-sdk/services/serverless/apigateway v0.0.80
@@ -80,6 +88,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/smartcaptcha v0.0.88
 	github.com/yandex-cloud/go-sdk/services/smartwebsecurity v0.0.89
 	github.com/yandex-cloud/go-sdk/services/spark v0.0.89
+	github.com/yandex-cloud/go-sdk/services/storage v0.0.89
 	github.com/yandex-cloud/go-sdk/services/trino v0.0.89
 	github.com/yandex-cloud/go-sdk/services/vpc v0.0.89
 	github.com/yandex-cloud/go-sdk/services/ydb v0.0.89
@@ -87,6 +96,7 @@ require (
 	github.com/yandex-cloud/go-sdk/v2 v2.159.0
 	github.com/ydb-platform/terraform-provider-ydb v0.0.29
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
+	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.41.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
 	golang.org/x/net v0.43.0
@@ -317,7 +327,6 @@ require (
 	go.abhg.dev/goldmark/frontmatter v0.2.0 // indirect
 	go.tmz.dev/musttag v0.7.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230224173230-c95f2b4c22f2 // indirect
 	golang.org/x/mod v0.26.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect

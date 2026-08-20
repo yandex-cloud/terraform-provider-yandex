@@ -3,8 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
 	"testing"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -372,7 +375,9 @@ func testAccCheckServiceAccountKeyDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.IAM().Key().Get(context.Background(), &iam.GetKeyRequest{
+		client := iamsdk.NewKeyClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &iam.GetKeyRequest{
 			KeyId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -396,7 +401,9 @@ func testAccCheckServiceAccountKeyExists(r string) resource.TestCheckFunc {
 		}
 		config := testAccProvider.Meta().(*Config)
 
-		_, err := config.sdk.IAM().Key().Get(context.Background(), &iam.GetKeyRequest{
+		client := iamsdk.NewKeyClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &iam.GetKeyRequest{
 			KeyId: rs.Primary.ID,
 		})
 
@@ -410,7 +417,9 @@ func testAccCheckLockboxVersionDestroyed(s *terraform.State, secretResourceName,
 	if err != nil {
 		return err
 	}
-	versions, _ := config.sdk.LockboxSecret().Secret().ListVersions(context.Background(), &lockbox.ListVersionsRequest{SecretId: secretID})
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	versions, _ := client.ListVersions(context.Background(), &lockbox.ListVersionsRequest{SecretId: secretID})
 	for _, version := range versions.Versions {
 		if version.GetId() == versionID {
 			if version.GetStatus() == lockbox.Version_DESTROYED || version.GetStatus() == lockbox.Version_SCHEDULED_FOR_DESTRUCTION {

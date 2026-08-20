@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 )
 
 // Test that an IAM binding can be applied to an organization
@@ -297,9 +298,11 @@ resource "yandex_organizationmanager_organization_iam_binding" "acceptance" {
 
 func testAccOrganizationAddAccessBinding(organizationID, role, userID string) error {
 	config := testAccProvider.Meta().(*Config)
+	client := organizationmanagersdk.NewOrganizationClient(config.SDK)
+
 	ctx, cancel := context.WithTimeout(config.Context(), yandexOrganizationManagerOrganizationDefaultTimeout)
 	defer cancel()
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().Organization().UpdateAccessBindings(config.Context(), &access.UpdateAccessBindingsRequest{
+	op, err := client.UpdateAccessBindings(config.Context(), &access.UpdateAccessBindingsRequest{
 		ResourceId: organizationID,
 		AccessBindingDeltas: []*access.AccessBindingDelta{
 			{
@@ -313,12 +316,12 @@ func testAccOrganizationAddAccessBinding(organizationID, role, userID string) er
 				},
 			},
 		},
-	}))
+	})
 	if err != nil {
 		return err
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -327,9 +330,11 @@ func testAccOrganizationAddAccessBinding(organizationID, role, userID string) er
 
 func testAccOrganizationRemoveAccessBinding(organizationID, role, userID string) error {
 	config := testAccProvider.Meta().(*Config)
+	client := organizationmanagersdk.NewOrganizationClient(config.SDK)
+
 	ctx, cancel := context.WithTimeout(config.Context(), yandexOrganizationManagerOrganizationDefaultTimeout)
 	defer cancel()
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().Organization().UpdateAccessBindings(config.Context(), &access.UpdateAccessBindingsRequest{
+	op, err := client.UpdateAccessBindings(config.Context(), &access.UpdateAccessBindingsRequest{
 		ResourceId: organizationID,
 		AccessBindingDeltas: []*access.AccessBindingDelta{
 			{
@@ -343,12 +348,12 @@ func testAccOrganizationRemoveAccessBinding(organizationID, role, userID string)
 				},
 			},
 		},
-	}))
+	})
 	if err != nil {
 		return err
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

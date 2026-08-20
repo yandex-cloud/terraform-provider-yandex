@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1"
+	smartwebsecuritysdk "github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1"
 )
 
 func init() {
@@ -328,7 +329,8 @@ func testAccCheckSmartwebsecuritySecurityProfileASNMatchers(s *terraform.State) 
 		return fmt.Errorf("failed to create SWS client: %w", err)
 	}
 
-	profile, err := conf.sdk.SmartWebSecurity().SecurityProfile().Get(
+	client := smartwebsecuritysdk.NewSecurityProfileClient(conf.SDK)
+	profile, err := client.Get(
 		conf.Context(),
 		&smartwebsecurity.GetSecurityProfileRequest{SecurityProfileId: rs.Primary.ID},
 	)
@@ -551,7 +553,8 @@ func testSweepSecurityProfile(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.SmartWebSecurity().SecurityProfile().List(conf.Context(), &smartwebsecurity.ListSecurityProfilesRequest{
+	client := smartwebsecuritysdk.NewSecurityProfileClient(conf.SDK)
+	resp, err := client.List(conf.Context(), &smartwebsecurity.ListSecurityProfilesRequest{
 		FolderId: conf.FolderID,
 	})
 	if err != nil {
@@ -576,8 +579,9 @@ func sweepSecurityProfileOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.SmartWebSecurity().SecurityProfile().Delete(ctx, &smartwebsecurity.DeleteSecurityProfileRequest{
+	client := smartwebsecuritysdk.NewSecurityProfileClient(conf.SDK)
+	op, err := client.Delete(ctx, &smartwebsecurity.DeleteSecurityProfileRequest{
 		SecurityProfileId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/eventrouter/v1"
+	eventroutersdk "github.com/yandex-cloud/go-sdk/services/serverless/eventrouter/v1"
 )
 
 const eventrouterBusDataSource = "data.yandex_serverless_eventrouter_bus.test-bus"
@@ -118,7 +119,9 @@ func testGetEventrouterBusByID(config *Config, ID string) (*eventrouter.Bus, err
 		BusId: ID,
 	}
 
-	return config.sdk.Serverless().Eventrouter().Bus().Get(context.Background(), &req)
+	client := eventroutersdk.NewBusClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
 }
 
 func testYandexEventrouterBusByID(name string, desc string) string {

@@ -19,7 +19,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	iamsdk "github.com/yandex-cloud/go-sdk/services/iam/v1"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/options"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
@@ -185,12 +188,7 @@ func setTestIDs() error {
 		return err
 	}
 
-	config := &ycsdk.Config{
-		Credentials: credentials,
-		Endpoint:    envEndpoint,
-	}
-
-	sdk, err := ycsdk.Build(ctx, *config)
+	sdk, err := ycsdk.Build(ctx, options.WithCredentials(credentials), options.WithDiscoveryEndpoint(envEndpoint))
 	if err != nil {
 		return err
 	}
@@ -225,7 +223,7 @@ func setTestIDs() error {
 }
 
 func getCloudNameByID(sdk *ycsdk.SDK, cloudID string) string {
-	cloud, err := sdk.ResourceManager().Cloud().Get(context.Background(), &resourcemanager.GetCloudRequest{
+	cloud, err := resourcemanagersdk.NewCloudClient(sdk).Get(context.Background(), &resourcemanager.GetCloudRequest{
 		CloudId: cloudID,
 	})
 	if err != nil {
@@ -239,7 +237,7 @@ func getCloudNameByID(sdk *ycsdk.SDK, cloudID string) string {
 }
 
 func getFolderByID(sdk *ycsdk.SDK, folderID string) *resourcemanager.Folder {
-	folder, err := sdk.ResourceManager().Folder().Get(context.Background(), &resourcemanager.GetFolderRequest{
+	folder, err := resourcemanagersdk.NewFolderClient(sdk).Get(context.Background(), &resourcemanager.GetFolderRequest{
 		FolderId: folderID,
 	})
 	if err != nil {
@@ -253,7 +251,7 @@ func getFolderByID(sdk *ycsdk.SDK, folderID string) *resourcemanager.Folder {
 }
 
 func loginToUserID(sdk *ycsdk.SDK, loginName string) (userID string) {
-	account, err := sdk.IAM().YandexPassportUserAccount().GetByLogin(context.Background(), &iam.GetUserAccountByLoginRequest{
+	account, err := iamsdk.NewYandexPassportUserAccountClient(sdk).GetByLogin(context.Background(), &iam.GetUserAccountByLoginRequest{
 		Login: loginName,
 	})
 	if err != nil {

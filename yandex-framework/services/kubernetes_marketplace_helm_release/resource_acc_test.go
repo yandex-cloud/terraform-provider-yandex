@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	k8s_marketplace "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/marketplace/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	marketplacesdk "github.com/yandex-cloud/go-sdk/services/k8s/marketplace/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -62,7 +63,7 @@ func testAccCheckHelmReleaseExists(n string) resource.TestCheckFunc {
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.KubernetesMarketplace().HelmRelease().Get(context.Background(), &k8s_marketplace.GetHelmReleaseRequest{
+		found, err := marketplacesdk.NewHelmReleaseClient(config.SDKv2).Get(context.Background(), &k8s_marketplace.GetHelmReleaseRequest{
 			Id: rs.Primary.ID,
 		})
 		if err != nil {
@@ -96,7 +97,7 @@ func testAccCheckHelmReleaseDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.KubernetesMarketplace().HelmRelease().Get(context.Background(), &k8s_marketplace.GetHelmReleaseRequest{
+		_, err := marketplacesdk.NewHelmReleaseClient(config.SDKv2).Get(context.Background(), &k8s_marketplace.GetHelmReleaseRequest{
 			Id: rs.Primary.ID,
 		})
 

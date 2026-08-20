@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	organizationmanager "github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
@@ -21,7 +22,8 @@ func TestMain(m *testing.M) {
 
 func TestAccOrganizationManagerMfaEnforcementAudienceCreate(t *testing.T) {
 	organizationId := test.GetExampleOrganizationID()
-	subjectId := test.GetExampleUserID1()
+	suffix := acctest.RandString(10)
+	subjectConfig := testAccMfaAudienceSubject(organizationId, suffix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -29,11 +31,11 @@ func TestAccOrganizationManagerMfaEnforcementAudienceCreate(t *testing.T) {
 		CheckDestroy:             testAccCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience(subjectId),
+				Config: subjectConfig + testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience("yandex_organizationmanager_idp_user.subject1"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_audience.bar"),
 					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement.foo", "organization_id", organizationId),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_audience.bar", "subject_id", subjectId),
+					resource.TestCheckResourceAttrPair("yandex_organizationmanager_mfa_enforcement_audience.bar", "subject_id", "yandex_organizationmanager_idp_user.subject1", "user_id"),
 				),
 			},
 		},
@@ -42,8 +44,8 @@ func TestAccOrganizationManagerMfaEnforcementAudienceCreate(t *testing.T) {
 
 func TestAccOrganizationManagerMfaEnforcementAudienceRecreateForNewSubjectId(t *testing.T) {
 	organizationId := test.GetExampleOrganizationID()
-	subjectId1 := test.GetExampleUserID1()
-	subjectId2 := test.GetExampleUserID2()
+	suffix := acctest.RandString(10)
+	subjectsConfig := testAccMfaAudienceSubject(organizationId, suffix) + testAccMfaAudienceSecondSubject(suffix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -51,17 +53,17 @@ func TestAccOrganizationManagerMfaEnforcementAudienceRecreateForNewSubjectId(t *
 		CheckDestroy:             testAccCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience(subjectId1),
+				Config: subjectsConfig + testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience("yandex_organizationmanager_idp_user.subject1"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_audience.bar"),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_audience.bar", "subject_id", subjectId1),
+					resource.TestCheckResourceAttrPair("yandex_organizationmanager_mfa_enforcement_audience.bar", "subject_id", "yandex_organizationmanager_idp_user.subject1", "user_id"),
 				),
 			},
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience(subjectId2),
+				Config: subjectsConfig + testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience("yandex_organizationmanager_idp_user.subject2"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_audience.bar"),
-					resource.TestCheckResourceAttr("yandex_organizationmanager_mfa_enforcement_audience.bar", "subject_id", subjectId2),
+					resource.TestCheckResourceAttrPair("yandex_organizationmanager_mfa_enforcement_audience.bar", "subject_id", "yandex_organizationmanager_idp_user.subject2", "user_id"),
 				),
 			},
 		},
@@ -70,7 +72,8 @@ func TestAccOrganizationManagerMfaEnforcementAudienceRecreateForNewSubjectId(t *
 
 func TestAccOrganizationManagerMfaEnforcementAudienceDelete(t *testing.T) {
 	organizationId := test.GetExampleOrganizationID()
-	subjectId := test.GetExampleUserID1()
+	suffix := acctest.RandString(10)
+	subjectConfig := testAccMfaAudienceSubject(organizationId, suffix)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -78,11 +81,11 @@ func TestAccOrganizationManagerMfaEnforcementAudienceDelete(t *testing.T) {
 		CheckDestroy:             testAccCheckDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience(subjectId),
+				Config: subjectConfig + testAccMfaEnforcement(organizationId) + testAccMfaEnforcementAudience("yandex_organizationmanager_idp_user.subject1"),
 				Check:  testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo", "yandex_organizationmanager_mfa_enforcement_audience.bar"),
 			},
 			{
-				Config: testAccMfaEnforcement(organizationId),
+				Config: subjectConfig + testAccMfaEnforcement(organizationId),
 				Check:  testAccCheckMfaEnforcementWithAudienceExists("yandex_organizationmanager_mfa_enforcement.foo"),
 			},
 		},
@@ -95,20 +98,56 @@ resource "yandex_organizationmanager_mfa_enforcement" "foo" {
 	name            = "test-mfa-enforcement-name"
 	organization_id = "%s"
 	acr_id 		    = "any-mfa"
-	ttl 		    = "5m"
+	ttl 		    = "5m0s"
 	status 		    = "MFA_ENFORCEMENT_STATUS_ACTIVE"
 	enroll_window   = "5h0m0s"
 }
 `, organizationId)
 }
 
-func testAccMfaEnforcementAudience(subjectId string) string {
+func testAccMfaEnforcementAudience(subjectResource string) string {
 	return fmt.Sprintf(`
 resource "yandex_organizationmanager_mfa_enforcement_audience" "bar" {
 	mfa_enforcement_id = yandex_organizationmanager_mfa_enforcement.foo.id
-	subject_id = "%s"
+	subject_id = %s.user_id
 }
-`, subjectId)
+`, subjectResource)
+}
+
+func testAccMfaAudienceSubject(organizationID, suffix string) string {
+	return fmt.Sprintf(`
+resource "yandex_organizationmanager_idp_userpool" "audience" {
+  name              = "tf-acc-test-userpool-mfa-%[1]s"
+  organization_id   = "%[2]s"
+  default_subdomain = "tf-acc-mfa-%[1]s"
+}
+
+resource "yandex_organizationmanager_idp_user" "subject1" {
+  userpool_id = yandex_organizationmanager_idp_userpool.audience.userpool_id
+  username    = "subject1@tf-acc-mfa-%[1]s.idp.yandexcloud.net"
+  full_name   = "MFA Test Subject One"
+  email       = "subject1-%[1]s@example.com"
+  is_active   = true
+  password_spec = {
+    password = "MfaTest195!-%[1]s"
+  }
+}
+`, suffix, organizationID)
+}
+
+func testAccMfaAudienceSecondSubject(suffix string) string {
+	return fmt.Sprintf(`
+resource "yandex_organizationmanager_idp_user" "subject2" {
+  userpool_id = yandex_organizationmanager_idp_userpool.audience.userpool_id
+  username    = "subject2@tf-acc-mfa-%[1]s.idp.yandexcloud.net"
+  full_name   = "MFA Test Subject Two"
+  email       = "subject2-%[1]s@example.com"
+  is_active   = true
+  password_spec = {
+    password = "MfaTest195!-%[1]s"
+  }
+}
+`, suffix)
 }
 
 func testAccCheckMfaEnforcementWithAudienceExists(mfaEnforcement string, audiences ...string) resource.TestCheckFunc {

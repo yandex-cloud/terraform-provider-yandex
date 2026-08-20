@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	smartwebsecurity "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1"
+	smartwebsecuritysdk "github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
 )
@@ -53,7 +54,7 @@ func resourceYandexSWSSecurityProfileARLAttachmentCreate(d *schema.ResourceData,
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	profile, err := config.sdk.SmartWebSecurity().SecurityProfile().Get(ctx, &smartwebsecurity.GetSecurityProfileRequest{
+	profile, err := smartwebsecuritysdk.NewSecurityProfileClient(config.SDK).Get(ctx, &smartwebsecurity.GetSecurityProfileRequest{
 		SecurityProfileId: securityProfileID,
 	})
 	if err != nil {
@@ -83,7 +84,7 @@ func resourceYandexSWSSecurityProfileARLAttachmentRead(d *schema.ResourceData, m
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	profile, err := config.sdk.SmartWebSecurity().SecurityProfile().Get(ctx, &smartwebsecurity.GetSecurityProfileRequest{
+	profile, err := smartwebsecuritysdk.NewSecurityProfileClient(config.SDK).Get(ctx, &smartwebsecurity.GetSecurityProfileRequest{
 		SecurityProfileId: securityProfileID,
 	})
 	if err != nil {
@@ -114,7 +115,7 @@ func resourceYandexSWSSecurityProfileARLAttachmentDelete(d *schema.ResourceData,
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	profile, err := config.sdk.SmartWebSecurity().SecurityProfile().Get(ctx, &smartwebsecurity.GetSecurityProfileRequest{
+	profile, err := smartwebsecuritysdk.NewSecurityProfileClient(config.SDK).Get(ctx, &smartwebsecurity.GetSecurityProfileRequest{
 		SecurityProfileId: securityProfileID,
 	})
 	if err != nil {
@@ -135,17 +136,17 @@ func resourceYandexSWSSecurityProfileARLAttachmentDelete(d *schema.ResourceData,
 }
 
 func updateSWSSecurityProfileARLAttachment(ctx context.Context, config *Config, securityProfileID, arlProfileID string) error {
-	op, err := config.sdk.WrapOperation(config.sdk.SmartWebSecurity().SecurityProfile().Update(ctx, &smartwebsecurity.UpdateSecurityProfileRequest{
+	op, err := smartwebsecuritysdk.NewSecurityProfileClient(config.SDK).Update(ctx, &smartwebsecurity.UpdateSecurityProfileRequest{
 		SecurityProfileId:            securityProfileID,
 		AdvancedRateLimiterProfileId: arlProfileID,
 		UpdateMask: &field_mask.FieldMask{
 			Paths: []string{"advanced_rate_limiter_profile_id"},
 		},
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("updating Advanced Rate Limiter attachment for Smart Web Security profile %q: %w", securityProfileID, err)
 	}
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return fmt.Errorf("waiting for Advanced Rate Limiter attachment update for Smart Web Security profile %q: %w", securityProfileID, err)
 	}
 	return nil

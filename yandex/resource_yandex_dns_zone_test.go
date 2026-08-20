@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	dnssdk "github.com/yandex-cloud/go-sdk/services/dns/v1"
 )
 
 func TestAccDNSZone_basic(t *testing.T) {
@@ -234,8 +235,10 @@ func testAccCheckDNSZoneExists(name string, zone *dns.DnsZone) resource.TestChec
 			return fmt.Errorf("no ID is set")
 		}
 
-		sdk := getSDK(testAccProvider.Meta().(*Config))
-		found, err := sdk.DNS().DnsZone().Get(context.Background(), &dns.GetDnsZoneRequest{
+		client := dnssdk.NewDnsZoneClient(testAccProvider.
+			Meta().(*Config).SDK)
+
+		found, err := client.Get(context.Background(), &dns.GetDnsZoneRequest{
 			DnsZoneId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -486,14 +489,15 @@ resource "yandex_dns_zone" "zone1" {
 }
 
 func testAccCheckDnsZoneDestroy(s *terraform.State) error {
-	sdk := getSDK(testAccProvider.Meta().(*Config))
+	client := dnssdk.NewDnsZoneClient(testAccProvider.
+		Meta().(*Config).SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_dns_zone" {
 			continue
 		}
 
-		_, err := sdk.DNS().DnsZone().Get(context.Background(), &dns.GetDnsZoneRequest{
+		_, err := client.Get(context.Background(), &dns.GetDnsZoneRequest{
 			DnsZoneId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -516,8 +520,9 @@ func testAccCheckDnsZoneExists(name string, dnsZone *dns.DnsZone) resource.TestC
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := dnssdk.NewDnsZoneClient(config.SDK)
 
-		found, err := config.sdk.DNS().DnsZone().Get(context.Background(), &dns.GetDnsZoneRequest{
+		found, err := client.Get(context.Background(), &dns.GetDnsZoneRequest{
 			DnsZoneId: rs.Primary.ID,
 		})
 		if err != nil {

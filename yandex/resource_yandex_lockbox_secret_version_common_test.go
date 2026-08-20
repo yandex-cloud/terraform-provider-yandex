@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 )
 
 // Here we write tests that can be common both in the original resource, and in the hashed variant
@@ -342,7 +343,9 @@ func testAccCheckYandexLockboxSecretVersionStatusCounts(secretResource string, e
 		if !ok {
 			return fmt.Errorf("not found resource: %s", secretResource)
 		}
-		response, err := config.sdk.LockboxSecret().Secret().ListVersions(context.Background(), &lockbox.ListVersionsRequest{
+		client := lockboxsdk.NewSecretClient(config.SDK)
+
+		response, err := client.ListVersions(context.Background(), &lockbox.ListVersionsRequest{
 			SecretId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -373,7 +376,9 @@ func testAccCheckYandexLockboxVersionEntries(versionResource string, expectedEnt
 		if !ok {
 			return fmt.Errorf("not found resource: %s", versionResource)
 		}
-		payload, err := config.sdk.LockboxPayload().Payload().Get(context.Background(), &lockbox.GetPayloadRequest{
+		client := lockboxsdk.NewPayloadClient(config.SDK)
+
+		payload, err := client.Get(context.Background(), &lockbox.GetPayloadRequest{
 			SecretId:  rs.Primary.Attributes["secret_id"],
 			VersionId: rs.Primary.ID,
 		})

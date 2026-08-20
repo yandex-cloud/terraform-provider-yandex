@@ -3,9 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"testing"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -101,7 +103,7 @@ func testAccCheckComputeFilesystemDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Compute().Filesystem().Get(context.Background(), &compute.GetFilesystemRequest{
+		_, err := computesdk.NewFilesystemClient(config.SDK).Get(context.Background(), &compute.GetFilesystemRequest{
 			FilesystemId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -125,7 +127,7 @@ func testAccCheckComputeFilesystemExists(n string, fs *compute.Filesystem) resou
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.Compute().Filesystem().Get(context.Background(), &compute.GetFilesystemRequest{
+		found, err := computesdk.NewFilesystemClient(config.SDK).Get(context.Background(), &compute.GetFilesystemRequest{
 			FilesystemId: rs.Primary.ID,
 		})
 		if err != nil {

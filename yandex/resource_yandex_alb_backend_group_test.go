@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -580,8 +581,10 @@ func testSweepALBBackendGroups(_ string) error {
 
 	result := &multierror.Error{}
 
+	client := albsdk.NewBackendGroupClient(conf.SDK)
+
 	req := &apploadbalancer.ListBackendGroupsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.ApplicationLoadBalancer().BackendGroup().BackendGroupIterator(conf.Context(), req)
+	it := client.Iterator(conf.Context(), req)
 	for it.Next() {
 		id := it.Value().GetId()
 
@@ -601,10 +604,12 @@ func sweepALBBackendGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexIAMServiceAccountDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.ApplicationLoadBalancer().BackendGroup().Delete(ctx, &apploadbalancer.DeleteBackendGroupRequest{
+	client := albsdk.NewBackendGroupClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &apploadbalancer.DeleteBackendGroupRequest{
 		BackendGroupId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func albBackendGroupImportStep() resource.TestStep {
@@ -1991,13 +1996,14 @@ func Test_buildALBBackendGroupUpdateRequest(t *testing.T) {
 
 func testAccCheckALBBackendGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := albsdk.NewBackendGroupClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_alb_backend_group" {
 			continue
 		}
 
-		_, err := config.sdk.ApplicationLoadBalancer().BackendGroup().Get(context.Background(), &apploadbalancer.GetBackendGroupRequest{
+		_, err := client.Get(context.Background(), &apploadbalancer.GetBackendGroupRequest{
 			BackendGroupId: rs.Primary.ID,
 		})
 		if status.Code(err) != codes.NotFound {
@@ -2020,8 +2026,9 @@ func testAccCheckALBBackendGroupExists(bgName string, bg *apploadbalancer.Backen
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := albsdk.NewBackendGroupClient(config.SDK)
 
-		found, err := config.sdk.ApplicationLoadBalancer().BackendGroup().Get(context.Background(), &apploadbalancer.GetBackendGroupRequest{
+		found, err := client.Get(context.Background(), &apploadbalancer.GetBackendGroupRequest{
 			BackendGroupId: rs.Primary.ID,
 		})
 		if err != nil {

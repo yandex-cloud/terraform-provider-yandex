@@ -3,6 +3,7 @@ package mdb_clickhouse_database_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
 
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
@@ -98,7 +99,7 @@ func testAccCheckMDBClickHouseDatabaseDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = config.SDK.MDB().Clickhouse().Database().Get(context.Background(), &clickhouse.GetDatabaseRequest{
+		_, err = clickhousesdk.NewDatabaseClient(config.SDKv2).Get(context.Background(), &clickhouse.GetDatabaseRequest{
 			ClusterId:    clusterId,
 			DatabaseName: dbName,
 		})

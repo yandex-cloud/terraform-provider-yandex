@@ -11,6 +11,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	msv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/metastore/v1"
+	metastoresdk "github.com/yandex-cloud/go-sdk/services/metastore/v1"
 )
 
 const (
@@ -32,7 +33,8 @@ func testSweepMDBMetastoreCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.Metastore().Cluster().List(context.Background(), &msv1.ListClustersRequest{
+	client := metastoresdk.NewClusterClient(conf.SDK)
+	resp, err := client.List(context.Background(), &msv1.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: metastoreClusterPageSize,
 	})
@@ -57,20 +59,21 @@ func sweepMDBMetastoreCluster(conf *Config, id string) bool {
 func sweepMDBMetastoreClusterOnce(conf *Config, id string) error {
 	ctxUpd, cancelUpd := context.WithTimeout(context.Background(), metastoreClusterUpdateTimeout)
 	defer cancelUpd()
-	op, err := conf.sdk.Metastore().Cluster().Update(ctxUpd, &msv1.UpdateClusterRequest{
+	client := metastoresdk.NewClusterClient(conf.SDK)
+	updateOp, err := client.Update(ctxUpd, &msv1.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &field_mask.FieldMask{Paths: []string{"deletion_protection"}},
 	})
-	err = handleSweepOperation(ctxUpd, conf, op, err)
+	err = handleSweepOperationV2(ctxUpd, updateOp, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
 	ctxDel, cancelDel := context.WithTimeout(context.Background(), metastoreClusterDeleteTimeout)
 	defer cancelDel()
-	op, err = conf.sdk.Metastore().Cluster().Delete(ctxDel, &msv1.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctxDel, &msv1.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctxDel, conf, op, err)
+	return handleSweepOperationV2(ctxDel, deleteOp, err)
 }

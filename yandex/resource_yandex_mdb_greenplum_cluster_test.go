@@ -11,7 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	greenplumsdk "github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 )
@@ -44,7 +48,7 @@ func testSweepMDBGreenplumCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.MDB().Greenplum().Cluster().List(conf.Context(), &greenplum.ListClustersRequest{
+	resp, err := greenplumsdk.NewClusterClient(conf.SDK).List(conf.Context(), &greenplum.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
 	})
@@ -59,15 +63,17 @@ func testSweepMDBGreenplumCluster(_ string) error {
 		}
 	}
 
-	sas, err := conf.sdk.IAM().ServiceAccount().List(conf.Context(), &iam.ListServiceAccountsRequest{
+	iamClient := iamsdk.NewServiceAccountClient(conf.SDK)
+
+	sas, err := iamClient.Iterator(conf.Context(), &iam.ListServiceAccountsRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
-	})
+	}).TakeAll()
 	if err != nil {
 		return fmt.Errorf("error getting service account: %s", err)
 	}
 
-	for _, sa := range sas.ServiceAccounts {
+	for _, sa := range sas {
 		if strings.Contains(strings.ToLower(sa.Name), strings.ToLower(greenplumSANamePrefix)) {
 			if !sweepIAMServiceAccount(conf, sa.Id) {
 				result = multierror.Append(result, fmt.Errorf("failed to sweep service account %q", sa.Id))
@@ -87,20 +93,32 @@ func sweepMDBGreenplumClusterOnce(conf *Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.MDB().Greenplum().Cluster().Update(ctx, &greenplum.UpdateClusterRequest{
+	client := greenplumsdk.NewClusterClient(conf.SDK)
+	clusterAbsent := func() bool {
+		_, getErr := client.Get(ctx, &greenplum.GetClusterRequest{ClusterId: id})
+		return status.Code(getErr) == codes.NotFound
+	}
+	op, err := client.Update(ctx, &greenplum.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, op, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
+		if clusterAbsent() {
+			return nil
+		}
 		return err
 	}
 
-	op, err = conf.sdk.MDB().Greenplum().Cluster().Delete(ctx, &greenplum.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctx, &greenplum.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, deleteOp, err)
+	if err != nil && clusterAbsent() {
+		return nil
+	}
+	return err
 }
 
 func mdbGreenplumClusterImportStep(name string) resource.TestStep {
@@ -290,10 +308,11 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 // to allow the tester to test that the resource is truly gone.
 func testAccCheckMDBGreenplumClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	iamClient := iamsdk.NewServiceAccountClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == greenplumResourceType {
-			_, err := config.sdk.MDB().Greenplum().Cluster().Get(config.Context(), &greenplum.GetClusterRequest{
+			_, err := greenplumsdk.NewClusterClient(config.SDK).Get(config.Context(), &greenplum.GetClusterRequest{
 				ClusterId: rs.Primary.ID,
 			})
 			if err == nil {
@@ -302,7 +321,7 @@ func testAccCheckMDBGreenplumClusterDestroy(s *terraform.State) error {
 		}
 
 		if rs.Type == "yandex_iam_service_account" {
-			_, err := config.sdk.IAM().ServiceAccount().Get(config.Context(), &iam.GetServiceAccountRequest{
+			_, err := iamClient.Get(config.Context(), &iam.GetServiceAccountRequest{
 				ServiceAccountId: rs.Primary.ID,
 			})
 			if err == nil {
@@ -327,7 +346,7 @@ func testAccCheckMDBGreenplumClusterExists(resourceName string, resource *greenp
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().Greenplum().Cluster().Get(context.Background(), &greenplum.GetClusterRequest{
+		found, err := greenplumsdk.NewClusterClient(config.SDK).Get(context.Background(), &greenplum.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -342,7 +361,7 @@ func testAccCheckMDBGreenplumClusterExists(resourceName string, resource *greenp
 			*resource = *found
 		}
 
-		resp, err := config.sdk.MDB().Greenplum().Cluster().ListMasterHosts(context.Background(), &greenplum.ListClusterHostsRequest{
+		resp, err := greenplumsdk.NewClusterClient(config.SDK).ListMasterHosts(context.Background(), &greenplum.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -354,7 +373,7 @@ func testAccCheckMDBGreenplumClusterExists(resourceName string, resource *greenp
 			return fmt.Errorf("Expected %d hosts, got %d", masterHosts, len(resp.Hosts))
 		}
 
-		resp, err = config.sdk.MDB().Greenplum().Cluster().ListSegmentHosts(context.Background(), &greenplum.ListClusterHostsRequest{
+		resp, err = greenplumsdk.NewClusterClient(config.SDK).ListSegmentHosts(context.Background(), &greenplum.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})

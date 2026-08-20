@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
+	loadbalancersdk "github.com/yandex-cloud/go-sdk/services/loadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -280,6 +281,7 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 
 func resourceYandexLBNetworkLoadBalancerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := loadbalancersdk.NewNetworkLoadBalancerClient(config.SDK)
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
@@ -322,30 +324,15 @@ func resourceYandexLBNetworkLoadBalancerCreate(d *schema.ResourceData, meta inte
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.LoadBalancer().NetworkLoadBalancer().Create(ctx, &req))
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create network load balancer: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get network load balancer create operation metadata: %s", err)
-	}
+	d.SetId(op.Metadata().GetNetworkLoadBalancerId())
 
-	md, ok := protoMetadata.(*loadbalancer.CreateNetworkLoadBalancerMetadata)
-	if !ok {
-		return fmt.Errorf("could not get NetworkLoadBalancer ID from create operation metadata")
-	}
-
-	d.SetId(md.NetworkLoadBalancerId)
-
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("Error while waiting operation to create network load balancer: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Network creation failed: %s", err)
 	}
 
 	return resourceYandexLBNetworkLoadBalancerRead(d, meta)
@@ -353,11 +340,12 @@ func resourceYandexLBNetworkLoadBalancerCreate(d *schema.ResourceData, meta inte
 
 func resourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := loadbalancersdk.NewNetworkLoadBalancerClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	nlb, err := config.sdk.LoadBalancer().NetworkLoadBalancer().Get(ctx, &loadbalancer.GetNetworkLoadBalancerRequest{
+	nlb, err := client.Get(ctx, &loadbalancer.GetNetworkLoadBalancerRequest{
 		NetworkLoadBalancerId: d.Id(),
 	})
 
@@ -397,6 +385,7 @@ func resourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta interf
 
 func resourceYandexLBNetworkLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := loadbalancersdk.NewNetworkLoadBalancerClient(config.SDK)
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
@@ -427,13 +416,12 @@ func resourceYandexLBNetworkLoadBalancerUpdate(d *schema.ResourceData, meta inte
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.LoadBalancer().NetworkLoadBalancer().Update(ctx, req))
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update NetworkLoadBalancer %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("Error updating NetworkLoadBalancer %q: %s", d.Id(), err)
 	}
 
@@ -442,6 +430,7 @@ func resourceYandexLBNetworkLoadBalancerUpdate(d *schema.ResourceData, meta inte
 
 func resourceYandexLBNetworkLoadBalancerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := loadbalancersdk.NewNetworkLoadBalancerClient(config.SDK)
 
 	log.Printf("[DEBUG] Deleting NetworkLoadBalancer %q", d.Id())
 
@@ -452,18 +441,12 @@ func resourceYandexLBNetworkLoadBalancerDelete(d *schema.ResourceData, meta inte
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.LoadBalancer().NetworkLoadBalancer().Delete(ctx, req))
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("NetworkLoadBalancer %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return err
 	}
 

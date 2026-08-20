@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/eventrouter/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	eventroutersdk "github.com/yandex-cloud/go-sdk/services/serverless/eventrouter/v1"
 )
 
 func dataSourceYandexServerlessEventrouterConnector() *schema.Resource {
@@ -168,6 +168,7 @@ func dataSourceYandexServerlessEventrouterConnector() *schema.Resource {
 
 func dataSourceYandexEventrouterConnectorRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := eventroutersdk.NewConnectorClient(config.SDK)
 
 	err := checkOneOf(d, "connector_id", "name")
 	if err != nil {
@@ -178,17 +179,28 @@ func dataSourceYandexEventrouterConnectorRead(ctx context.Context, d *schema.Res
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		connectorID, err = resolveObjectID(ctx, config, d, sdkresolvers.EventrouterConnectorResolver)
-		if err != nil {
-			return diag.Errorf("failed to resolve data source Event Router connector by name: %v", err)
+		folderID, folderErr := getFolderID(d, config)
+		if folderErr != nil {
+			return diag.FromErr(folderErr)
 		}
+		resp, listErr := client.List(ctx, &eventrouter.ListConnectorsRequest{
+			ContainerId: &eventrouter.ListConnectorsRequest_FolderId{FolderId: folderID},
+			Filter:      fmt.Sprintf("name = %q", d.Get("name").(string)),
+		})
+		if listErr != nil {
+			return diag.FromErr(listErr)
+		}
+		if len(resp.Connectors) != 1 {
+			return diag.Errorf("failed to resolve data source Event Router connector by name: expected one connector, got %d", len(resp.Connectors))
+		}
+		connectorID = resp.Connectors[0].Id
 	}
 
 	req := eventrouter.GetConnectorRequest{
 		ConnectorId: connectorID,
 	}
 
-	connector, err := config.sdk.Serverless().Eventrouter().Connector().Get(ctx, &req)
+	connector, err := client.Get(ctx, &req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Event Router connector %q", d.Id())))
 	}

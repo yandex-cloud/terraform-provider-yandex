@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/require"
 	trinov1 "github.com/yandex-cloud/go-genproto/yandex/cloud/trino/v1"
+	trinosdk "github.com/yandex-cloud/go-sdk/services/trino/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_cluster"
@@ -286,14 +287,14 @@ EOT
 }
 
 func testAccCheckTrinoClusterDestroy(s *terraform.State) error {
-	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
+	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != trinoResourceType {
 			continue
 		}
 
-		_, err := sdk.Trino().Cluster().Get(context.Background(), &trinov1.GetClusterRequest{
+		_, err := trinosdk.NewClusterClient(sdk).Get(context.Background(), &trinov1.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -328,8 +329,8 @@ func testAccCheckTrinoExists(name string, cluster *trinov1.Cluster) resource.Tes
 			return fmt.Errorf("ID is not set")
 		}
 
-		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
-		found, err := sdk.Trino().Cluster().Get(context.Background(), &trinov1.GetClusterRequest{
+		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
+		found, err := trinosdk.NewClusterClient(sdk).Get(context.Background(), &trinov1.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {

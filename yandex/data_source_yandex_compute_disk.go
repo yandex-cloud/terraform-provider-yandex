@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -160,13 +160,13 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 	_, diskNameOk := d.GetOk("name")
 
 	if diskNameOk {
-		diskID, err = resolveObjectID(ctx, config, d, sdkresolvers.DiskResolver)
+		diskID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(computesdk.NewDiskClient(config.SDK), computesdk.DiskResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source disk by name: %v", err)
 		}
 	}
 
-	disk, err := config.sdk.Compute().Disk().Get(ctx, &compute.GetDiskRequest{
+	disk, err := computesdk.NewDiskClient(config.SDK).Get(ctx, &compute.GetDiskRequest{
 		DiskId: diskID,
 	})
 

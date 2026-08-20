@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	certificatemanagersdk "github.com/yandex-cloud/go-sdk/services/certificatemanager/v1"
 )
 
 const yandexIAMCMDefaultTimeout = 1 * time.Minute
@@ -51,6 +52,8 @@ func (u *CMCertificateIamUpdater) GetResourceIamPolicy(ctx context.Context) (*Po
 }
 
 func (u *CMCertificateIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
+	client := certificatemanagersdk.NewCertificateClient(u.Config.SDK)
+
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.certificateId,
 		AccessBindings: policy.Bindings,
@@ -59,13 +62,12 @@ func (u *CMCertificateIamUpdater) SetResourceIamPolicy(ctx context.Context, poli
 	ctx, cancel := context.WithTimeout(ctx, yandexIAMCMDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Certificates().Certificate().SetAccessBindings(ctx, req))
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
@@ -73,6 +75,8 @@ func (u *CMCertificateIamUpdater) SetResourceIamPolicy(ctx context.Context, poli
 }
 
 func (u *CMCertificateIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	client := certificatemanagersdk.NewCertificateClient(u.Config.SDK)
+
 	bSize := yandexIAMCMUpdateAccessBindingsBatchSize
 	deltas := policy.Deltas
 	dLen := len(deltas)
@@ -83,7 +87,7 @@ func (u *CMCertificateIamUpdater) UpdateResourceIamPolicy(ctx context.Context, p
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Certificates().Certificate().UpdateAccessBindings(ctx, req))
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -91,8 +95,7 @@ func (u *CMCertificateIamUpdater) UpdateResourceIamPolicy(ctx context.Context, p
 			return fmt.Errorf("error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
-		if err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			return fmt.Errorf("error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 	}
@@ -113,11 +116,13 @@ func (u *CMCertificateIamUpdater) DescribeResource() string {
 }
 
 func getCMCertificateAccessBindings(ctx context.Context, config *Config, certificateId string) ([]*access.AccessBinding, error) {
+	client := certificatemanagersdk.NewCertificateClient(config.SDK)
+
 	var bindings []*access.AccessBinding
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.Certificates().Certificate().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: certificateId,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

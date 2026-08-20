@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	containerregistrysdk "github.com/yandex-cloud/go-sdk/services/containerregistry/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -77,13 +78,14 @@ func TestAccDataSourceContainerRegistry_byName(t *testing.T) {
 
 func testAccCheckContainerRegistryDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := containerregistrysdk.NewRegistryClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_container_registry" {
 			continue
 		}
 
-		_, err := config.sdk.ContainerRegistry().Registry().Get(context.Background(), &containerregistry.GetRegistryRequest{
+		_, err := client.Get(context.Background(), &containerregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 
@@ -112,8 +114,9 @@ func testAccCheckContainerRegistryExists(n string, registry *containerregistry.R
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := containerregistrysdk.NewRegistryClient(config.SDK)
 
-		found, err := config.sdk.ContainerRegistry().Registry().Get(context.Background(), &containerregistry.GetRegistryRequest{
+		found, err := client.Get(context.Background(), &containerregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 		if err != nil {

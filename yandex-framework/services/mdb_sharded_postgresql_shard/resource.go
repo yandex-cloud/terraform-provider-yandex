@@ -66,7 +66,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 	cid := state.ClusterID.ValueString()
 	shardName := state.Name.ValueString()
 
-	shard := shardedPostgreSQLAPI.ReadShard(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, shardName)
+	shard := shardedPostgreSQLAPI.ReadShard(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, shardName)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -107,7 +107,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	shardedPostgreSQLAPI.CreateShard(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, shardspec, struct{}{})
+	shardedPostgreSQLAPI.CreateShard(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, shardspec, struct{}{})
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -154,7 +154,7 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	shardName := plan.Name.ValueString()
 
-	shardedPostgreSQLAPI.UpdateShard(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, shardPlan, updatePaths)
+	shardedPostgreSQLAPI.UpdateShard(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, shardPlan, updatePaths)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -178,7 +178,7 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	cid := state.ClusterID.ValueString()
 	shardname := state.Name.ValueString()
-	shardedPostgreSQLAPI.DeleteShard(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, shardname)
+	shardedPostgreSQLAPI.DeleteShard(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, shardname)
 }
 
 func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -190,7 +190,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		)
 		return
 	}
-	shard := shardedPostgreSQLAPI.ReadShard(ctx, r.providerConfig.SDK, &resp.Diagnostics, clusterId, shardName)
+	shard := shardedPostgreSQLAPI.ReadShard(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, clusterId, shardName)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -206,7 +206,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 func (r *bindingResource) refreshResourceState(ctx context.Context, state *Shard, respDiagnostics *diag.Diagnostics) {
 	cid := state.ClusterID.ValueString()
 	shardName := state.Name.ValueString()
-	shard := shardedPostgreSQLAPI.ReadShard(ctx, r.providerConfig.SDK, respDiagnostics, cid, shardName)
+	shard := shardedPostgreSQLAPI.ReadShard(ctx, r.providerConfig.SDKv2, respDiagnostics, cid, shardName)
 	if respDiagnostics.HasError() {
 		return
 	}

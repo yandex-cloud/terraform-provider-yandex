@@ -3,10 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
 	"strconv"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -104,8 +106,9 @@ func testAccDataSourceLockboxSecretVersionExists(name string) resource.TestCheck
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := lockboxsdk.NewPayloadClient(config.SDK)
 
-		found, err := config.sdk.LockboxPayload().Payload().Get(context.Background(), &lockbox.GetPayloadRequest{
+		found, err := client.Get(context.Background(), &lockbox.GetPayloadRequest{
 			SecretId:  ds.Primary.Attributes["secret_id"],
 			VersionId: ds.Primary.ID,
 		})

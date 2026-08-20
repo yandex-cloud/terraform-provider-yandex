@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	afv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/airflow/v1"
+	airflowsdk "github.com/yandex-cloud/go-sdk/services/airflow/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -50,7 +51,7 @@ func TestAccMDBAirflowClusterIamBinding_basic(t *testing.T) {
 					testAccCheckAirflowExists(airflowResourceFoo, &cluster),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Airflow().Cluster()
+						return airflowsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, role, []string{member}),
 				),
 			},
@@ -83,7 +84,7 @@ func TestAccMDBAirflowClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckAirflowExists(airflowResourceFoo, &cluster),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Airflow().Cluster()
+						return airflowsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -92,7 +93,7 @@ func TestAccMDBAirflowClusterIamBinding_multiple(t *testing.T) {
 				Config: testAccAirflowClusterIamBindingConfig(t, randSuffix, roleFoo, member),
 				Check: iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 					cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-					return cfg.SDK.Airflow().Cluster()
+					return airflowsdk.NewClusterClient(cfg.SDKv2)
 				}, &cluster, roleFoo, []string{member}),
 			},
 			iam.IAMBindingImportTestStep(airflowIAMBindingFoo, &cluster, roleFoo, "cluster_id"),
@@ -102,11 +103,11 @@ func TestAccMDBAirflowClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Airflow().Cluster()
+						return airflowsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo, []string{member}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Airflow().Cluster()
+						return airflowsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar, []string{member}),
 				),
 			},
@@ -118,11 +119,11 @@ func TestAccMDBAirflowClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Airflow().Cluster()
+						return airflowsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Airflow().Cluster()
+						return airflowsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar),
 				),
 			},
@@ -136,8 +137,10 @@ func testAccAirflowClusterConfigOnly(t *testing.T, randSuffix string) string {
 		FolderID:       os.Getenv("YC_FOLDER_ID"),
 		Webserver:      airflowComponentParams{Count: 1, ResourcePresetID: "c1-m4"},
 		Scheduler:      airflowComponentParams{Count: 1, ResourcePresetID: "c1-m4"},
+		DagProcessor:   &airflowComponentParams{Count: 1, ResourcePresetID: "c1-m4"},
 		Worker:         airflowWorkerParams{MinCount: 1, MaxCount: 1, ResourcePresetID: "c1-m4"},
-		AirflowVersion: "2.10",
+		AirflowVersion: "3.1",
+		PythonVersion:  "3.12",
 		ResourceName:   "foo",
 	})
 }

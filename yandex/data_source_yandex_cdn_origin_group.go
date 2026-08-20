@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	cdnsdk "github.com/yandex-cloud/go-sdk/services/cdn/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -120,7 +121,9 @@ func dataSourceYandexCDNOriginGroupRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	originGroup, err := config.sdk.CDN().OriginGroup().Get(ctx, request)
+	client := cdnsdk.NewOriginGroupClient(config.SDK)
+
+	originGroup, err := client.Get(ctx, request)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("origin group %q", d.Id()))
 	}
@@ -139,7 +142,9 @@ func resolveCDNOriginGroupID(ctx context.Context, config *Config, folderID, name
 		return 0, fmt.Errorf("empty name for origin group")
 	}
 
-	iterator := config.sdk.CDN().OriginGroup().OriginGroupIterator(ctx, &cdn.ListOriginGroupsRequest{
+	client := cdnsdk.NewOriginGroupClient(config.SDK)
+
+	iterator := client.Iterator(ctx, &cdn.ListOriginGroupsRequest{
 		FolderId: folderID,
 	})
 

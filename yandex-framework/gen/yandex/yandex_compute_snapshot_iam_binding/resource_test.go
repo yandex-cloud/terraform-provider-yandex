@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -50,7 +51,7 @@ func TestAccComputeSnapshot_basicIamMember(t *testing.T) {
 					testAccCheckComputeSnapshotExists("yandex_compute_snapshot.foobar", &snapshot),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-						return cfg.SDK.Compute().Snapshot()
+						return computesdk.NewSnapshotClient(cfg.SDKv2)
 					}, &snapshot, role, []string{"system:" + userID}),
 				),
 			},
@@ -66,7 +67,7 @@ func testAccCheckComputeSnapshotDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.Compute().Snapshot().Get(context.Background(), &compute.GetSnapshotRequest{
+		_, err := computesdk.NewSnapshotClient(config.SDKv2).Get(context.Background(), &compute.GetSnapshotRequest{
 			SnapshotId: rs.Primary.ID,
 		})
 
@@ -96,7 +97,7 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Compute().Snapshot().Get(context.Background(), &compute.GetSnapshotRequest{
+		found, err := computesdk.NewSnapshotClient(config.SDKv2).Get(context.Background(), &compute.GetSnapshotRequest{
 			SnapshotId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -113,7 +114,7 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 				n, attr, found.SourceDiskId)
 		}
 
-		foundDisk, errDisk := config.SDK.Compute().Disk().Get(context.Background(), &compute.GetDiskRequest{
+		foundDisk, errDisk := computesdk.NewDiskClient(config.SDKv2).Get(context.Background(), &compute.GetDiskRequest{
 			DiskId: rs.Primary.Attributes["source_disk_id"],
 		})
 		if errDisk != nil {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1/privatelink"
+	privatelinksdk "github.com/yandex-cloud/go-sdk/services/vpc/v1/privatelink"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -171,6 +172,7 @@ func resourceYandexVPCPrivateEndpoint() *schema.Resource {
 
 func resourceYandexVPCPrivateEndpointCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
@@ -217,30 +219,15 @@ func resourceYandexVPCPrivateEndpointCreate(d *schema.ResourceData, meta interfa
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPCPrivateLink().PrivateEndpoint().Create(ctx, &req))
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create private endpoint: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while get private endpoint create operation metadata: %s", err)
-	}
+	d.SetId(op.Metadata().GetPrivateEndpointId())
 
-	md, ok := protoMetadata.(*privatelink.CreatePrivateEndpointMetadata)
-	if !ok {
-		return fmt.Errorf("could not get PrivateEndpoint ID from create operation metadata")
-	}
-
-	d.SetId(md.PrivateEndpointId)
-
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while waiting operation to create private endpoint: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("private endpoint creation failed: %s", err)
 	}
 
 	return resourceYandexVPCPrivateEndpointRead(d, meta)
@@ -256,11 +243,12 @@ func handlePrivateEndpointNotFoundError(err error, d *schema.ResourceData, id st
 
 func yandexVPCPrivateEndpointRead(d *schema.ResourceData, meta interface{}, id string) error {
 	config := meta.(*Config)
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	privateEndpoint, err := config.sdk.VPCPrivateLink().PrivateEndpoint().Get(ctx, &privatelink.GetPrivateEndpointRequest{
+	privateEndpoint, err := client.Get(ctx, &privatelink.GetPrivateEndpointRequest{
 		PrivateEndpointId: id,
 	})
 
@@ -319,6 +307,7 @@ func yandexVPCPrivateEndpointRead(d *schema.ResourceData, meta interface{}, id s
 
 func resourceYandexVPCPrivateEndpointUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
 
 	d.Partial(true)
 
@@ -374,13 +363,12 @@ func resourceYandexVPCPrivateEndpointUpdate(d *schema.ResourceData, meta interfa
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPCPrivateLink().PrivateEndpoint().Update(ctx, req))
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Private Endpoint %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("Error updating Private Endpoint %q: %s", d.Id(), err)
 	}
 
@@ -391,6 +379,7 @@ func resourceYandexVPCPrivateEndpointUpdate(d *schema.ResourceData, meta interfa
 
 func resourceYandexVPCPrivateEndpointDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
 
 	req := &privatelink.DeletePrivateEndpointRequest{
 		PrivateEndpointId: d.Id(),
@@ -399,22 +388,13 @@ func resourceYandexVPCPrivateEndpointDelete(d *schema.ResourceData, meta interfa
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPCPrivateLink().PrivateEndpoint().Delete(ctx, req))
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handlePrivateEndpointNotFoundError(err, d, d.Id())
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func expandPrivateEndpointDnsOptions(d *schema.ResourceData) (*privatelink.PrivateEndpoint_DnsOptions, error) {

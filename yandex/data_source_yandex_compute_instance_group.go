@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	instancegroupsdk "github.com/yandex-cloud/go-sdk/services/compute/v1/instancegroup"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -1045,7 +1046,7 @@ func dataSourceYandexComputeInstanceGroupRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("instance_group_id should be provided")
 	}
 
-	instanceGroup, err := config.sdk.InstanceGroup().InstanceGroup().Get(ctx, &instancegroup.GetInstanceGroupRequest{
+	instanceGroup, err := instancegroupsdk.NewInstanceGroupClient(config.SDK).Get(ctx, &instancegroup.GetInstanceGroupRequest{
 		InstanceGroupId: instanceGroupID,
 		View:            instancegroup.InstanceGroupView_FULL,
 	})
@@ -1054,7 +1055,7 @@ func dataSourceYandexComputeInstanceGroupRead(d *schema.ResourceData, meta inter
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance group %q", d.Get("name").(string)))
 	}
 
-	instances, err := config.sdk.InstanceGroup().InstanceGroup().ListInstances(ctx, &instancegroup.ListInstanceGroupInstancesRequest{
+	instances, err := instancegroupsdk.NewInstanceGroupClient(config.SDK).ListInstances(ctx, &instancegroup.ListInstanceGroupInstancesRequest{
 		InstanceGroupId: instanceGroupID,
 	})
 

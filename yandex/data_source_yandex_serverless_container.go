@@ -8,7 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	containerssdk "github.com/yandex-cloud/go-sdk/services/serverless/containers/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -360,7 +361,11 @@ func dataSourceYandexServerlessContainerRead(ctx context.Context, d *schema.Reso
 	containerID := d.Get("container_id").(string)
 
 	if _, ok := d.GetOk("name"); ok {
-		containerID, err = resolveObjectID(ctx, config, d, sdkresolvers.ContainerResolver)
+		client := containerssdk.NewContainerClient(config.SDK)
+
+		containerID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return containerssdk.ContainerResolver(name, client, opts...)
+		})
 		if err != nil {
 			return diag.Errorf("failed to resolve data source Yandex Cloud Serverless Container by name: %v", err)
 		}
@@ -370,7 +375,9 @@ func dataSourceYandexServerlessContainerRead(ctx context.Context, d *schema.Reso
 		ContainerId: containerID,
 	}
 
-	container, err := config.sdk.Serverless().Containers().Container().Get(ctx, &req)
+	client := containerssdk.NewContainerClient(config.SDK)
+
+	container, err := client.Get(ctx, &req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Container %q", d.Id())))
 	}

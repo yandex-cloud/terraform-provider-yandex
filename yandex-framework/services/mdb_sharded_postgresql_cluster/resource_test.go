@@ -3,6 +3,7 @@ package mdb_sharded_postgresql_cluster_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1"
 	"reflect"
 	"regexp"
 	"testing"
@@ -531,7 +532,7 @@ func testAccCheckExistsAndParseMDBShardedPostgreSQLCluster(n string, r *spqr.Clu
 
 		config := testhelpers.AccProvider.(*provider.Provider).GetConfig()
 
-		found, err := config.SDK.MDB().SPQR().Cluster().Get(context.Background(), &spqr.GetClusterRequest{
+		found, err := spqrsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &spqr.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -544,7 +545,7 @@ func testAccCheckExistsAndParseMDBShardedPostgreSQLCluster(n string, r *spqr.Clu
 
 		*r = *found
 
-		resp, err := config.SDK.MDB().SPQR().Cluster().ListHosts(context.Background(), &spqr.ListClusterHostsRequest{
+		resp, err := spqrsdk.NewClusterClient(config.SDKv2).ListHosts(context.Background(), &spqr.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -692,7 +693,7 @@ func testAccCheckMDBShardedPostgreSQLClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.MDB().SPQR().Cluster().Get(context.Background(), &spqr.GetClusterRequest{
+		_, err := spqrsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &spqr.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 

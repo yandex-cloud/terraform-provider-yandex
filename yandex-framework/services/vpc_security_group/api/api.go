@@ -3,19 +3,30 @@ package api
 import (
 	"context"
 
+	"github.com/yandex-cloud/go-sdk/services/vpc/v1"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	operationpb "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/operationcompat"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"google.golang.org/grpc/codes"
 )
 
+func requestUpdateSecurityGroupRule(ctx context.Context, sdk *ycsdk.SDK, req *vpc.UpdateSecurityGroupRuleRequest) (*operationpb.Operation, error) {
+	conn, err := sdk.GetConnection(ctx, vpcsdk.SecurityGroupUpdateRule)
+	if err != nil {
+		return nil, err
+	}
+	return vpc.NewSecurityGroupServiceClient(conn).UpdateRule(ctx, req)
+}
+
 func ReadSecurityGroup(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, sgID string) *vpc.SecurityGroup {
 	tflog.Debug(ctx, "Reading VPC SecurityGroup", map[string]interface{}{"id": sgID})
-	sg, err := sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
+	sg, err := vpcsdk.NewSecurityGroupClient(sdk).Get(ctx, &vpc.GetSecurityGroupRequest{
 		SecurityGroupId: sgID,
 	})
 
@@ -35,8 +46,8 @@ func ReadSecurityGroup(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnosti
 
 func DeleteSecurityGroup(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, sgID string) {
 	tflog.Debug(ctx, "Deleting VPC SecurityGroup", map[string]interface{}{"id": sgID})
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.VPC().SecurityGroup().Delete(ctx, &vpc.DeleteSecurityGroupRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*vpcsdk.SecurityGroupDeleteOperation, error) {
+		return vpcsdk.NewSecurityGroupClient(sdk).Delete(ctx, &vpc.DeleteSecurityGroupRequest{
 			SecurityGroupId: sgID,
 		})
 	})
@@ -49,7 +60,7 @@ func DeleteSecurityGroup(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnos
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
 			"Error while waiting for operation to delete Security Group: "+err.Error(),
@@ -78,8 +89,8 @@ func FindSecurityGroupRule(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagn
 
 func UpdateSecurityGroupRuleMetadata(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *vpc.UpdateSecurityGroupRuleRequest) {
 	tflog.Debug(ctx, "Updating VPC SecurityGroupRule Metadata", map[string]interface{}{"security_group_binding": req.SecurityGroupId})
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.VPC().SecurityGroup().UpdateRule(ctx, req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*operationpb.Operation, error) {
+		return requestUpdateSecurityGroupRule(ctx, sdk, req)
 	})
 
 	if err != nil {
@@ -90,7 +101,7 @@ func UpdateSecurityGroupRuleMetadata(ctx context.Context, sdk *ycsdk.SDK, diag *
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if err = operationcompat.Wait(ctx, sdk, op.GetId()); err != nil {
 		diag.AddError(
 			"Failed to Update SecurityGroupRule Metadata",
 			"Error while waiting for operation to update SecurityGroup rule metadata: "+err.Error(),
@@ -116,8 +127,8 @@ func UpdateSecurityGroupRules(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Di
 	if deleteRuleID != "" {
 		req.DeletionRuleIds = []string{deleteRuleID}
 	}
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.VPC().SecurityGroup().UpdateRules(ctx, &req)
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*vpcsdk.SecurityGroupUpdateRulesOperation, error) {
+		return vpcsdk.NewSecurityGroupClient(sdk).UpdateRules(ctx, &req)
 	})
 
 	if err != nil {
@@ -128,7 +139,7 @@ func UpdateSecurityGroupRules(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Di
 		return nil
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Update SecurityGroup Rules",
 			"Error while waiting for operation to update SecurityGroup rules: "+err.Error(),
@@ -136,23 +147,7 @@ func UpdateSecurityGroupRules(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Di
 		return nil
 	}
 
-	metadata, err := op.Metadata()
-	if err != nil {
-		diag.AddError(
-			"Failed to get UpdateSecurityGroupRules operation metadata",
-			"Error while getting UpdateSecurityGroupRules operation metadata: "+err.Error(),
-		)
-		return nil
-	}
-
-	meta, ok := metadata.(*vpc.UpdateSecurityGroupMetadata)
-	if !ok {
-		diag.AddError(
-			"Failed to get UpdateSecurityGroupRules operation metadata",
-			"Error while getting UpdateSecurityGroupRules operation metadata: "+err.Error(),
-		)
-		return nil
-	}
+	meta := op.Metadata()
 
 	return meta
 }

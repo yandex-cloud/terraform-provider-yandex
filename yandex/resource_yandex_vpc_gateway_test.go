@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 )
 
 func init() {
@@ -30,7 +31,9 @@ func testSweepVPCGateways(_ string) error {
 	}
 
 	req := &vpc.ListGatewaysRequest{FolderId: conf.FolderID}
-	it := conf.sdk.VPC().Gateway().GatewayIterator(conf.Context(), req)
+	client := vpcsdk.NewGatewayClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -50,10 +53,12 @@ func sweepVPCGatewayOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexVPCGatewayDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.VPC().Gateway().Delete(ctx, &vpc.DeleteGatewayRequest{
+	client := vpcsdk.NewGatewayClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &vpc.DeleteGatewayRequest{
 		GatewayId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func TestAccVPCGateway_basic(t *testing.T) {
@@ -140,7 +145,9 @@ func testAccCheckVPCGatewayDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.VPC().Gateway().Get(context.Background(), &vpc.GetGatewayRequest{
+		client := vpcsdk.NewGatewayClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &vpc.GetGatewayRequest{
 			GatewayId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -164,7 +171,9 @@ func testAccCheckVPCGatewayExists(n string, gateway *vpc.Gateway) resource.TestC
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.VPC().Gateway().Get(context.Background(), &vpc.GetGatewayRequest{
+		client := vpcsdk.NewGatewayClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &vpc.GetGatewayRequest{
 			GatewayId: rs.Primary.ID,
 		})
 		if err != nil {

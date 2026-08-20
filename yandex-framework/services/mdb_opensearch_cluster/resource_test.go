@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	opensearchsdk "github.com/yandex-cloud/go-sdk/services/mdb/opensearch/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 
@@ -587,7 +588,7 @@ func testAccCheckMDBOpenSearchClusterExists(n string, r *opensearch.Cluster, hos
 
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		found, err := config.SDK.MDB().OpenSearch().Cluster().Get(context.Background(), &opensearch.GetClusterRequest{
+		found, err := opensearchsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &opensearch.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -601,7 +602,7 @@ func testAccCheckMDBOpenSearchClusterExists(n string, r *opensearch.Cluster, hos
 		//TODO: should we change it?
 		*r = *found
 
-		resp, err := config.SDK.MDB().OpenSearch().Cluster().ListHosts(context.Background(), &opensearch.ListClusterHostsRequest{
+		resp, err := opensearchsdk.NewClusterClient(config.SDKv2).ListHosts(context.Background(), &opensearch.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -656,7 +657,7 @@ func testAccCheckMDBOpenSearchClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.MDB().OpenSearch().Cluster().Get(context.Background(), &opensearch.GetClusterRequest{
+		_, err := opensearchsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &opensearch.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 

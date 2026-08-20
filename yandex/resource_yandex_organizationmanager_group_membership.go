@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -66,6 +67,7 @@ func updateGroupMembers(context context.Context, groupID string, members *schema
 	}
 
 	config := meta.(*Config)
+	client := organizationmanagersdk.NewGroupClient(config.SDK)
 
 	memberDeltas := make([]*organizationmanager.MemberDelta, 0, Min(int64(members.Len()), maximumUpdateDeltas))
 	for i, member := range members.List() {
@@ -80,30 +82,19 @@ func updateGroupMembers(context context.Context, groupID string, members *schema
 				MemberDeltas: memberDeltas,
 			}
 
-			op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().Group().UpdateMembers(context, &req))
+			op, err := client.UpdateMembers(context, &req)
 			if err != nil {
 				return fmt.Errorf("Error while requesting API to create GroupMembership: %s", err)
 			}
 
-			protoMetadata, err := op.Metadata()
-			if err != nil {
-				return fmt.Errorf("Error while get GroupMembership create operation metadata: %s", err)
-			}
-
 			// Nothing of value in UpdateGroupMembersMetadata.
-			_, ok := protoMetadata.(*organizationmanager.UpdateGroupMembersMetadata)
-			if !ok {
-				return fmt.Errorf("could not get GroupMembership from create operation metadata")
-			}
+			_ = op.Metadata()
 
-			err = op.Wait(context)
+			_, err = op.Wait(context)
 			if err != nil {
 				return fmt.Errorf("Error while waiting operation to create GroupMembership: %s", err)
 			}
 
-			if _, err := op.Response(); err != nil {
-				return fmt.Errorf("GroupMembership creation failed: %s", err)
-			}
 			memberDeltas = memberDeltas[:0]
 		}
 	}

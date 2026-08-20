@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/eventrouter/v1"
+	eventroutersdk "github.com/yandex-cloud/go-sdk/services/serverless/eventrouter/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -222,24 +223,16 @@ func resourceYandexEventrouterConnectorCreate(ctx context.Context, d *schema.Res
 		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Serverless().Eventrouter().Connector().Create(ctx, &req))
+	client := eventroutersdk.NewConnectorClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return diag.Errorf("Error while requesting API to create Event Router connector: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return diag.Errorf("Error while requesting API to create Event Router connector: %s", err)
-	}
+	d.SetId(op.Metadata().ConnectorId)
 
-	md, ok := protoMetadata.(*eventrouter.CreateConnectorMetadata)
-	if !ok {
-		return diag.Errorf("Could not get Event Router connector ID from create operation metadata")
-	}
-
-	d.SetId(md.ConnectorId)
-
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return diag.Errorf("Error while requesting API to create Event Router connector: %s", err)
 	}
@@ -249,12 +242,13 @@ func resourceYandexEventrouterConnectorCreate(ctx context.Context, d *schema.Res
 
 func resourceYandexEventrouterConnectorRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := eventroutersdk.NewConnectorClient(config.SDK)
 
 	req := eventrouter.GetConnectorRequest{
 		ConnectorId: d.Id(),
 	}
 
-	connector, err := config.sdk.Serverless().Eventrouter().Connector().Get(ctx, &req)
+	connector, err := client.Get(ctx, &req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Event Router connector %q", d.Id())))
 	}
@@ -265,6 +259,7 @@ func resourceYandexEventrouterConnectorRead(ctx context.Context, d *schema.Resou
 
 func resourceYandexEventrouterConnectorUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := eventroutersdk.NewConnectorClient(config.SDK)
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
@@ -298,8 +293,10 @@ func resourceYandexEventrouterConnectorUpdate(ctx context.Context, d *schema.Res
 			DeletionProtection: d.Get("deletion_protection").(bool),
 		}
 
-		op, err := config.sdk.Serverless().Eventrouter().Connector().Update(ctx, &req)
-		err = waitOperation(ctx, config, op, err)
+		op, err := client.Update(ctx, &req)
+		if err == nil {
+			_, err = op.Wait(ctx)
+		}
 		if err != nil {
 			return diag.Errorf("Error while requesting API to update Event Router connector: %s", err)
 		}
@@ -310,13 +307,16 @@ func resourceYandexEventrouterConnectorUpdate(ctx context.Context, d *schema.Res
 
 func resourceYandexEventrouterConnectorDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := eventroutersdk.NewConnectorClient(config.SDK)
 
 	req := eventrouter.DeleteConnectorRequest{
 		ConnectorId: d.Id(),
 	}
 
-	op, err := config.sdk.Serverless().Eventrouter().Connector().Delete(ctx, &req)
-	err = waitOperation(ctx, config, op, err)
+	op, err := client.Delete(ctx, &req)
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Event Router connector %q", d.Id())))
 	}

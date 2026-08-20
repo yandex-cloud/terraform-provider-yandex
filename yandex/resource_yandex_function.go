@@ -20,7 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	functionssdk "github.com/yandex-cloud/go-sdk/services/serverless/functions/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
@@ -510,24 +510,21 @@ func resourceYandexFunctionCreate(ctx context.Context, d *schema.ResourceData, m
 		Labels:      labels,
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Serverless().Functions().Function().Create(ctx, &req))
+	client := functionssdk.NewFunctionClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return diag.Errorf("Error while requesting API to create Yandex Cloud Function: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return diag.Errorf("Error while requesting API to create Yandex Cloud Function: %s", err)
-	}
-
-	md, ok := protoMetadata.(*functions.CreateFunctionMetadata)
-	if !ok {
+	md := op.Metadata()
+	if md == nil {
 		return diag.Errorf("Could not get Yandex Cloud Function ID from create operation metadata")
 	}
 
 	d.SetId(md.FunctionId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return diag.Errorf("Error while requesting API to create Yandex Cloud Function: %s", err)
 	}
@@ -536,7 +533,7 @@ func resourceYandexFunctionCreate(ctx context.Context, d *schema.ResourceData, m
 	if versionReq != nil {
 		versionReq.FunctionId = md.FunctionId
 		diags = resourceYandexFunctionDiagsFromCreateVersionError(
-			resourceYandexFunctionCreateVersion(ctx, config.sdk, versionReq),
+			resourceYandexFunctionCreateVersion(ctx, config, versionReq),
 		)
 	}
 
@@ -558,14 +555,17 @@ func resourceYandexFunctionDiagsFromCreateVersionError(err error) diag.Diagnosti
 
 func resourceYandexFunctionCreateVersion(
 	ctx context.Context,
-	sdk *ycsdk.SDK,
+	config *Config,
 	req *functions.CreateFunctionVersionRequest,
 ) error {
-	op, err := sdk.WrapOperation(sdk.Serverless().Functions().Function().CreateVersion(ctx, req))
+	client := functionssdk.NewFunctionClient(config.SDK)
+
+	op, err := client.CreateVersion(ctx, req)
 	if err != nil {
 		return err
 	}
-	return op.Wait(ctx)
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func resourceYandexFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -623,8 +623,12 @@ func resourceYandexFunctionUpdate(ctx context.Context, d *schema.ResourceData, m
 			UpdateMask:  &field_mask.FieldMask{Paths: updatePaths},
 		}
 
-		op, err := config.sdk.Serverless().Functions().Function().Update(ctx, &req)
-		err = waitOperation(ctx, config, op, err)
+		client := functionssdk.NewFunctionClient(config.SDK)
+
+		op, err := client.Update(ctx, &req)
+		if err == nil {
+			_, err = op.Wait(ctx)
+		}
 		if err != nil {
 			return diag.Errorf("Error while requesting API to update Yandex Cloud Function: %s", err)
 		}
@@ -635,7 +639,7 @@ func resourceYandexFunctionUpdate(ctx context.Context, d *schema.ResourceData, m
 	if versionReq != nil {
 		versionReq.FunctionId = d.Id()
 		diags = resourceYandexFunctionDiagsFromCreateVersionError(
-			resourceYandexFunctionCreateVersion(ctx, config.sdk, versionReq),
+			resourceYandexFunctionCreateVersion(ctx, config, versionReq),
 		)
 	}
 	d.Partial(false)
@@ -653,7 +657,9 @@ func resourceYandexFunctionRead(ctx context.Context, d *schema.ResourceData, met
 		FunctionId: d.Id(),
 	}
 
-	function, err := config.sdk.Serverless().Functions().Function().Get(ctx, &req)
+	client := functionssdk.NewFunctionClient(config.SDK)
+
+	function, err := client.Get(ctx, &req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Function %q", d.Id())))
 	}
@@ -671,7 +677,9 @@ func resolveFunctionLatestVersion(ctx context.Context, config *Config, functionI
 		FunctionId: functionID,
 		Tag:        "$latest",
 	}
-	version, err := config.sdk.Serverless().Functions().Function().GetVersionByTag(ctx, &versionReq)
+	client := functionssdk.NewFunctionClient(config.SDK)
+
+	version, err := client.GetVersionByTag(ctx, &versionReq)
 	if err != nil {
 		if !isStatusWithCode(err, codes.NotFound) {
 			return nil, err
@@ -691,8 +699,12 @@ func resourceYandexFunctionDelete(ctx context.Context, d *schema.ResourceData, m
 		FunctionId: d.Id(),
 	}
 
-	op, err := config.sdk.Serverless().Functions().Function().Delete(ctx, &req)
-	err = waitOperation(ctx, config, op, err)
+	client := functionssdk.NewFunctionClient(config.SDK)
+
+	op, err := client.Delete(ctx, &req)
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Function %q", d.Id())))
 	}

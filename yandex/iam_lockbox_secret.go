@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 )
 
 const yandexIAMLockboxDefaultTimeout = 1 * time.Minute
@@ -59,13 +60,14 @@ func (u *LockboxSecretIamUpdater) SetResourceIamPolicy(ctx context.Context, poli
 	ctx, cancel := context.WithTimeout(ctx, yandexIAMLockboxDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.LockboxSecret().Secret().SetAccessBindings(ctx, req))
+	client := lockboxsdk.NewSecretClient(u.Config.SDK)
+
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return fmt.Errorf("error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
@@ -76,6 +78,7 @@ func (u *LockboxSecretIamUpdater) UpdateResourceIamPolicy(ctx context.Context, p
 	bSize := yandexIAMLockboxUpdateAccessBindingsBatchSize
 	deltas := policy.Deltas
 	dLen := len(deltas)
+	client := lockboxsdk.NewSecretClient(u.Config.SDK)
 
 	for i := 0; i < countBatches(dLen, bSize); i++ {
 		req := &access.UpdateAccessBindingsRequest{
@@ -83,7 +86,7 @@ func (u *LockboxSecretIamUpdater) UpdateResourceIamPolicy(ctx context.Context, p
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.LockboxSecret().Secret().UpdateAccessBindings(ctx, req))
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -91,8 +94,7 @@ func (u *LockboxSecretIamUpdater) UpdateResourceIamPolicy(ctx context.Context, p
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
-		if err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 	}
@@ -115,9 +117,10 @@ func (u *LockboxSecretIamUpdater) DescribeResource() string {
 func getLockboxSecretAccessBindings(ctx context.Context, config *Config, secretId string) ([]*access.AccessBinding, error) {
 	var bindings []*access.AccessBinding
 	pageToken := ""
+	client := lockboxsdk.NewSecretClient(config.SDK)
 
 	for {
-		resp, err := config.sdk.LockboxSecret().Secret().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: secretId,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

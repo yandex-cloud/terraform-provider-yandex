@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
+	dataprocsdk "github.com/yandex-cloud/go-sdk/services/dataproc/v1"
 )
 
 const dataprocResourceType = "yandex_dataproc_cluster"
@@ -47,8 +48,9 @@ func testSweepDataprocCluster(_ string) error {
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)
 	}
+	client := dataprocsdk.NewClusterClient(conf.SDK)
 
-	resp, err := conf.sdk.Dataproc().Cluster().List(conf.Context(), &dataproc.ListClustersRequest{
+	resp, err := client.List(conf.Context(), &dataproc.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
 	})
@@ -75,20 +77,22 @@ func sweepDataprocClusterOnce(conf *Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.Dataproc().Cluster().Update(ctx, &dataproc.UpdateClusterRequest{
+	client := dataprocsdk.NewClusterClient(conf.SDK)
+
+	updateOp, err := client.Update(ctx, &dataproc.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, updateOp, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
-	op, err = conf.sdk.Dataproc().Cluster().Delete(ctx, &dataproc.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctx, &dataproc.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, deleteOp, err)
 }
 
 func TestIsVersionPrefix(t *testing.T) {
@@ -1041,7 +1045,9 @@ func testAccCheckDataprocClusterExists(resourceName string, cluster *dataproc.Cl
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		found, err := config.sdk.Dataproc().Cluster().Get(context.Background(), &dataproc.GetClusterRequest{
+		client := dataprocsdk.NewClusterClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &dataproc.GetClusterRequest{
 			ClusterId: clusterID,
 		})
 		if err != nil {
@@ -1066,7 +1072,9 @@ func testAccCheckDataprocSubclusters(resource string, expectedSubclusters map[st
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		resp, err := config.sdk.Dataproc().Subcluster().List(context.Background(), &dataproc.ListSubclustersRequest{
+		client := dataprocsdk.NewSubclusterClient(config.SDK)
+
+		resp, err := client.List(context.Background(), &dataproc.ListSubclustersRequest{
 			ClusterId: clusterID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1179,7 +1187,9 @@ func testAccCheckDataprocClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Dataproc().Cluster().Get(context.Background(), &dataproc.GetClusterRequest{
+		client := dataprocsdk.NewClusterClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &dataproc.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 

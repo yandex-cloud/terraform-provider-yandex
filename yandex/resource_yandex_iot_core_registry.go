@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	devicessdk "github.com/yandex-cloud/go-sdk/services/iot/devices/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
 
 const yandexIoTDefaultTimeout = 5 * time.Minute
@@ -129,6 +129,7 @@ func resourceYandexIoTCoreRegistry() *schema.Resource {
 
 func resourceYandexIoTCoreRegistryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := devicessdk.NewRegistryClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
@@ -163,24 +164,14 @@ func resourceYandexIoTCoreRegistryCreate(d *schema.ResourceData, meta interface{
 		LogOptions:   logOptions,
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.IoT().Devices().Registry().Create(ctx, &req))
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create IoT Registry: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while requesting API to create IoT Registry: %s", err)
-	}
+	d.SetId(op.Metadata().RegistryId)
 
-	md, ok := protoMetadata.(*iot.CreateRegistryMetadata)
-	if !ok {
-		return fmt.Errorf("Could not get IoT Registry ID from create operation metadata")
-	}
-
-	d.SetId(md.RegistryId)
-
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create IoT Registry: %s", err)
 	}
@@ -209,6 +200,7 @@ func flattenYandexIoTCoreRegistry(d *schema.ResourceData, registry *iot.Registry
 
 func resourceYandexIoTCoreRegistryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := devicessdk.NewRegistryClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
@@ -217,7 +209,7 @@ func resourceYandexIoTCoreRegistryRead(d *schema.ResourceData, meta interface{})
 		RegistryId: d.Id(),
 	}
 
-	registry, err := config.sdk.IoT().Devices().Registry().Get(ctx, &req)
+	registry, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Registry %q", d.Id()))
 	}
@@ -227,6 +219,7 @@ func resourceYandexIoTCoreRegistryRead(d *schema.ResourceData, meta interface{})
 
 func resourceYandexIoTCoreRegistryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := devicessdk.NewRegistryClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
@@ -235,8 +228,10 @@ func resourceYandexIoTCoreRegistryDelete(d *schema.ResourceData, meta interface{
 		RegistryId: d.Id(),
 	}
 
-	op, err := config.sdk.IoT().Devices().Registry().Delete(ctx, &req)
-	err = waitOperation(ctx, config, op, err)
+	op, err := client.Delete(ctx, &req)
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Registry %q", d.Id()))
 	}
@@ -246,6 +241,7 @@ func resourceYandexIoTCoreRegistryDelete(d *schema.ResourceData, meta interface{
 
 func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := devicessdk.NewRegistryClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -288,8 +284,10 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error expanding log options while updating IoT Registry: %s", err)
 		}
 
-		op, err := config.sdk.IoT().Devices().Registry().Update(ctx, &req)
-		err = waitOperation(ctx, config, op, err)
+		op, err := client.Update(ctx, &req)
+		if err == nil {
+			_, err = op.Wait(ctx)
+		}
 		if err != nil {
 			return fmt.Errorf("Error while requesting API to update IoT Registry: %s", err)
 		}
@@ -299,7 +297,7 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("certificates") {
 		certsSetInner := expandIoTCerts(d)
 
-		certsResp, err := config.sdk.IoT().Devices().Registry().ListCertificates(ctx, &iot.ListRegistryCertificatesRequest{RegistryId: d.Id()})
+		certsResp, err := client.ListCertificates(ctx, &iot.ListRegistryCertificatesRequest{RegistryId: d.Id()})
 		if err != nil {
 			return err
 		}
@@ -307,8 +305,10 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 		for _, cert := range certsResp.Certificates {
 			_, ok := certsSetInner[cert.CertificateData]
 			if !ok {
-				op, err := config.sdk.IoT().Devices().Registry().DeleteCertificate(ctx, &iot.DeleteRegistryCertificateRequest{RegistryId: d.Id(), Fingerprint: cert.Fingerprint})
-				err = waitOperation(ctx, config, op, err)
+				op, err := client.DeleteCertificate(ctx, &iot.DeleteRegistryCertificateRequest{RegistryId: d.Id(), Fingerprint: cert.Fingerprint})
+				if err == nil {
+					_, err = op.Wait(ctx)
+				}
 				if err != nil {
 					return fmt.Errorf("Failed to delete certificate: %s, fingerpring: %s", err, cert.Fingerprint)
 				}
@@ -318,8 +318,10 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		for cert := range certsSetInner {
-			op, err := config.sdk.IoT().Devices().Registry().AddCertificate(ctx, &iot.AddRegistryCertificateRequest{RegistryId: d.Id(), CertificateData: cert})
-			err = waitOperation(ctx, config, op, err)
+			op, err := client.AddCertificate(ctx, &iot.AddRegistryCertificateRequest{RegistryId: d.Id(), CertificateData: cert})
+			if err == nil {
+				_, err = op.Wait(ctx)
+			}
 			if err != nil {
 				return fmt.Errorf("Failed to add certificate: %s", err)
 			}
@@ -328,7 +330,7 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	if d.HasChange("passwords") {
-		passResp, err := config.sdk.IoT().Devices().Registry().ListPasswords(ctx, &iot.ListRegistryPasswordsRequest{RegistryId: d.Id()})
+		passResp, err := client.ListPasswords(ctx, &iot.ListRegistryPasswordsRequest{RegistryId: d.Id()})
 		if err != nil {
 			return err
 		}
@@ -341,8 +343,10 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 			}
 		} else {
 			for _, pass := range passResp.Passwords {
-				op, err := config.sdk.IoT().Devices().Registry().DeletePassword(ctx, &iot.DeleteRegistryPasswordRequest{RegistryId: d.Id(), PasswordId: pass.Id})
-				err = waitOperation(ctx, config, op, err)
+				op, err := client.DeletePassword(ctx, &iot.DeleteRegistryPasswordRequest{RegistryId: d.Id(), PasswordId: pass.Id})
+				if err == nil {
+					_, err = op.Wait(ctx)
+				}
 				if err != nil {
 					return fmt.Errorf("Failed to delete password: %s", err)
 				}
@@ -362,6 +366,8 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 }
 
 func addRegistryPasswords(ctx context.Context, config *Config, d *schema.ResourceData) error {
+	client := devicessdk.NewRegistryClient(config.SDK)
+
 	passwordsSet := expandIoTPasswords(d)
 	for pass := range passwordsSet {
 		req := iot.AddRegistryPasswordRequest{
@@ -369,8 +375,10 @@ func addRegistryPasswords(ctx context.Context, config *Config, d *schema.Resourc
 			Password:   pass,
 		}
 
-		op, err := config.sdk.IoT().Devices().Registry().AddPassword(ctx, &req)
-		err = waitOperation(ctx, config, op, err)
+		op, err := client.AddPassword(ctx, &req)
+		if err == nil {
+			_, err = op.Wait(ctx)
+		}
 		if err != nil {
 			return err
 		}
@@ -441,13 +449,4 @@ func flattenRegistryLogOptions(logOptions *iot.LogOptions) []interface{} {
 		}
 	}
 	return []interface{}{res}
-}
-
-func waitOperation(ctx context.Context, config *Config, opInput *operation.Operation, err error) error {
-	op, err := config.sdk.WrapOperation(opInput, err)
-	if err != nil {
-		return err
-	}
-
-	return op.Wait(ctx)
 }

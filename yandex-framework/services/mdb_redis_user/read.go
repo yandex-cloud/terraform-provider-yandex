@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	redis "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 )
 
 func userRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnostics, state *User) {

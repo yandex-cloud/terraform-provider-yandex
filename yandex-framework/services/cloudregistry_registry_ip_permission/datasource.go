@@ -7,7 +7,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cloudregistry/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	cloudregistrysdk "github.com/yandex-cloud/go-sdk/services/cloudregistry/v1"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/objectid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -75,7 +76,9 @@ func (r *yandexCloudregistryIPPermissionDataSource) Read(ctx context.Context, re
 
 	id := state.RegistryId.ValueString()
 	if state.RegistryId.IsUnknown() || state.RegistryId.IsNull() {
-		registryId, d := objectid.ResolveByNameAndFolderID(ctx, r.providerConfig.SDK, r.providerConfig.ProviderState.FolderID.ValueString(), state.RegistryName.ValueString(), sdkresolvers.CloudRegistryResolver)
+		registryId, d := objectid.ResolveByNameAndFolderID(ctx, r.providerConfig.ProviderState.FolderID.ValueString(), state.RegistryName.ValueString(), func(name string, opts ...sdkresolvers.ResolveOption) sdkresolvers.Resolver {
+			return cloudregistrysdk.RegistryResolver(name, cloudregistrysdk.NewRegistryClient(r.providerConfig.SDKv2), opts...)
+		})
 		resp.Diagnostics.Append(d)
 		if resp.Diagnostics.HasError() {
 			return
@@ -90,7 +93,7 @@ func (r *yandexCloudregistryIPPermissionDataSource) Read(ctx context.Context, re
 	tflog.Debug(ctx, fmt.Sprintf("Read IP permission request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
-	res, err := r.providerConfig.SDK.CloudRegistry().Registry().ListIpPermissions(ctx, reqApi, grpc.Header(md))
+	res, err := cloudregistrysdk.NewRegistryClient(r.providerConfig.SDKv2).ListIpPermissions(ctx, reqApi, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Read IP permission x-server-trace-id: %s", traceHeader[0]))
 	}

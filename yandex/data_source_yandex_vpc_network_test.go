@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 )
 
 func TestAccDataSourceVPCNetwork_byID(t *testing.T) {
@@ -119,8 +120,9 @@ func testAccDataSourceVPCNetworkExists(n string, network *vpc.Network) resource.
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := vpcsdk.NewNetworkClient(config.SDK)
 
-		found, err := config.sdk.VPC().Network().Get(context.Background(), &vpc.GetNetworkRequest{
+		found, err := client.Get(context.Background(), &vpc.GetNetworkRequest{
 			NetworkId: ds.Primary.ID,
 		})
 

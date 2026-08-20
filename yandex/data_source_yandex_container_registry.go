@@ -8,7 +8,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	containerregistrysdk "github.com/yandex-cloud/go-sdk/services/containerregistry/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -65,6 +66,7 @@ func dataSourceYandexContainerRegistry() *schema.Resource {
 func dataSourceYandexContainerRegistryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := config.Context()
+	client := containerregistrysdk.NewRegistryClient(config.SDK)
 
 	err := checkOneOf(d, "registry_id", "name")
 	if err != nil {
@@ -75,13 +77,15 @@ func dataSourceYandexContainerRegistryRead(d *schema.ResourceData, meta interfac
 	_, registryNameOk := d.GetOk("name")
 
 	if registryNameOk {
-		registryID, err = resolveObjectID(ctx, config, d, sdkresolvers.RegistryResolver)
+		registryID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return containerregistrysdk.RegistryResolver(name, client, opts...)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Container Registry by name: %v", err)
 		}
 	}
 
-	registry, err := config.sdk.ContainerRegistry().Registry().Get(ctx,
+	registry, err := client.Get(ctx,
 		&containerregistry.GetRegistryRequest{
 			RegistryId: registryID,
 		})

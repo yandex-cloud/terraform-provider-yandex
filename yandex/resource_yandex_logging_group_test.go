@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	loggingsdk "github.com/yandex-cloud/go-sdk/services/logging/v1"
 )
 
 func init() {
@@ -22,7 +23,8 @@ func testSweepYandexLoggingGroup(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.Logging().LogGroup().List(conf.Context(), &logging.ListLogGroupsRequest{
+	client := loggingsdk.NewLogGroupClient(conf.SDK)
+	resp, err := client.List(conf.Context(), &logging.ListLogGroupsRequest{
 		FolderId: conf.FolderID,
 		PageSize: 1000,
 	})
@@ -48,8 +50,9 @@ func sweepYandexLoggingGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(30 * time.Second)
 	defer cancel()
 
-	op, err := conf.sdk.Logging().LogGroup().Delete(ctx, &logging.DeleteLogGroupRequest{
+	client := loggingsdk.NewLogGroupClient(conf.SDK)
+	op, err := client.Delete(ctx, &logging.DeleteLogGroupRequest{
 		LogGroupId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }

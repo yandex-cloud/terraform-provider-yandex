@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
+	datatransfersdk "github.com/yandex-cloud/go-sdk/services/datatransfer/v1"
 	"google.golang.org/grpc/codes"
 )
 
@@ -41,7 +42,11 @@ func testSweepDataTransfer(_ string) error {
 	if err != nil {
 		return fmt.Errorf("error getting config: %s", err)
 	}
-	listTransfersResponse, err := config.sdk.DataTransfer().Transfer().List(config.Context(), &datatransfer.ListTransfersRequest{FolderId: config.FolderID})
+	transferClient := datatransfersdk.NewTransferClient(config.SDK)
+
+	endpointClient := datatransfersdk.NewEndpointClient(config.SDK)
+
+	listTransfersResponse, err := transferClient.List(config.Context(), &datatransfer.ListTransfersRequest{FolderId: config.FolderID})
 	if err != nil {
 		return fmt.Errorf("error getting DataTransfer transfers: %s", err)
 	}
@@ -56,7 +61,7 @@ func testSweepDataTransfer(_ string) error {
 		return resultError
 	}
 
-	listEndpointsResponse, err := config.sdk.DataTransfer().Endpoint().List(config.Context(), &datatransfer.ListEndpointsRequest{FolderId: config.FolderID})
+	listEndpointsResponse, err := endpointClient.List(config.Context(), &datatransfer.ListEndpointsRequest{FolderId: config.FolderID})
 	if err != nil {
 		return fmt.Errorf("error getting DataTransfer transfers: %s", err)
 	}
@@ -76,8 +81,14 @@ func sweepDataTransferTransferOnce(config *Config, transferID string) error {
 	ctx, cancel := config.ContextWithTimeout(yandexDataTransferTransferDeleteTimeout)
 	defer cancel()
 
-	deleteOperation, err := config.sdk.DataTransfer().Transfer().Delete(ctx, &datatransfer.DeleteTransferRequest{TransferId: transferID})
-	return handleSweepOperation(ctx, config, deleteOperation, err)
+	client := datatransfersdk.NewTransferClient(config.SDK)
+
+	deleteOperation, err := client.Delete(ctx, &datatransfer.DeleteTransferRequest{TransferId: transferID})
+	if err != nil {
+		return err
+	}
+	_, err = deleteOperation.Wait(ctx)
+	return err
 }
 
 func sweepDataTransferEndpoint(config *Config, transferID string) bool {
@@ -88,8 +99,14 @@ func sweepDataTransferEndpointOnce(config *Config, endpointID string) error {
 	ctx, cancel := config.ContextWithTimeout(yandexDataTransferTransferDeleteTimeout)
 	defer cancel()
 
-	deleteOperation, err := config.sdk.DataTransfer().Endpoint().Delete(ctx, &datatransfer.DeleteEndpointRequest{EndpointId: endpointID})
-	return handleSweepOperation(ctx, config, deleteOperation, err)
+	client := datatransfersdk.NewEndpointClient(config.SDK)
+
+	deleteOperation, err := client.Delete(ctx, &datatransfer.DeleteEndpointRequest{EndpointId: endpointID})
+	if err != nil {
+		return err
+	}
+	_, err = deleteOperation.Wait(ctx)
+	return err
 }
 
 func dataTransferSourceEndpointImportStep() resource.TestStep {
@@ -218,7 +235,9 @@ func testAccCheckDataTransferDestroy(s *terraform.State) error {
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == "yandex_datatransfer_transfer" {
-			_, err := config.sdk.DataTransfer().Transfer().Get(context.Background(), &datatransfer.GetTransferRequest{TransferId: rs.Primary.ID})
+			client := datatransfersdk.NewTransferClient(config.SDK)
+
+			_, err := client.Get(context.Background(), &datatransfer.GetTransferRequest{TransferId: rs.Primary.ID})
 			if err == nil {
 				return fmt.Errorf("DataTransfer Transfer %s still exists", rs.Primary.ID)
 			}

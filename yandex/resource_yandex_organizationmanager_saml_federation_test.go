@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/saml"
+	samlsdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/saml"
 )
 
 func init() {
@@ -27,11 +28,17 @@ func testSweepSamlFederationOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexOrganizationManagerSamlFederationDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.OrganizationManagerSAML().Federation().Delete(ctx, &saml.DeleteFederationRequest{
+	client := samlsdk.NewFederationClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &saml.DeleteFederationRequest{
 		FederationId: id,
 	})
 
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func testSweepSamlFederations(_ string) error {
@@ -43,7 +50,9 @@ func testSweepSamlFederations(_ string) error {
 	req := &saml.ListFederationsRequest{
 		OrganizationId: getExampleOrganizationID(),
 	}
-	it := conf.sdk.OrganizationManagerSAML().Federation().FederationIterator(conf.Context(), req)
+	client := samlsdk.NewFederationClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -151,7 +160,9 @@ func testAccCheckSamlFederationExists(n string, federation *saml.Federation) res
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.OrganizationManagerSAML().Federation().Get(context.Background(), &saml.GetFederationRequest{
+		client := samlsdk.NewFederationClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &saml.GetFederationRequest{
 			FederationId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -210,7 +221,9 @@ func testAccCheckSamlFederationDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.OrganizationManagerSAML().Federation().Get(context.Background(), &saml.GetFederationRequest{
+		client := samlsdk.NewFederationClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &saml.GetFederationRequest{
 			FederationId: rs.Primary.ID,
 		})
 		if err == nil {

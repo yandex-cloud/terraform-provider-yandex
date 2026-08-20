@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -121,13 +121,15 @@ func dataSourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) err
 	_, subnetNameOk := d.GetOk("name")
 
 	if subnetNameOk {
-		subnetID, err = resolveObjectID(ctx, config, d, sdkresolvers.SubnetResolver)
+		subnetID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(vpcsdk.NewSubnetClient(config.SDK), vpcsdk.SubnetResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source subnet by name: %v", err)
 		}
 	}
 
-	subnet, err := config.sdk.VPC().Subnet().Get(ctx, &vpc.GetSubnetRequest{
+	client := vpcsdk.NewSubnetClient(config.SDK)
+
+	subnet, err := client.Get(ctx, &vpc.GetSubnetRequest{
 		SubnetId: subnetID,
 	})
 

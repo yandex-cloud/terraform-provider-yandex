@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -563,13 +563,13 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	_, instanceNameOk := d.GetOk("name")
 
 	if instanceNameOk {
-		instanceID, err = resolveObjectID(ctx, config, d, sdkresolvers.InstanceResolver)
+		instanceID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(computesdk.NewInstanceClient(config.SDK), computesdk.InstanceResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source instance by name: %v", err)
 		}
 	}
 
-	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
+	instance, err := computesdk.NewInstanceClient(config.SDK).Get(ctx, &compute.GetInstanceRequest{
 		InstanceId: instanceID,
 		View:       compute.InstanceView_FULL,
 	})
@@ -583,7 +583,7 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	bootDisk, err := flattenInstanceBootDisk(ctx, instance, config.sdk.Compute().Disk())
+	bootDisk, err := flattenInstanceBootDisk(ctx, instance, computesdk.NewDiskClient(config.SDK))
 	if err != nil {
 		return err
 	}

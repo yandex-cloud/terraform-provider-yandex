@@ -3,6 +3,7 @@ package mdb_sharded_postgresql_cluster
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1"
 	"log"
 	"math"
 	"time"
@@ -10,8 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 )
 
@@ -26,7 +26,7 @@ const defaultMDBPageSize = 1000
 // ==============================================================================
 
 func (r *ShardedPostgreSQLAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) *spqr.Cluster {
-	db, err := sdk.MDB().SPQR().Cluster().Get(ctx, &spqr.GetClusterRequest{
+	db, err := spqrsdk.NewClusterClient(sdk).Get(ctx, &spqr.GetClusterRequest{
 		ClusterId: cid,
 	})
 
@@ -41,7 +41,7 @@ func (r *ShardedPostgreSQLAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, d
 }
 
 func (p *ShardedPostgreSQLAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *spqr.CreateClusterRequest) string {
-	op, err := sdk.WrapOperation(sdk.MDB().SPQR().Cluster().Create(ctx, req))
+	op, err := spqrsdk.NewClusterClient(sdk).Create(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to create resource",
@@ -50,30 +50,14 @@ func (p *ShardedPostgreSQLAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK
 		return ""
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
-		)
-		return ""
-	}
-
-	md, ok := protoMetadata.(*spqr.CreateClusterMetadata)
-	if !ok {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
-		)
-		return ""
-	}
+	md := op.Metadata()
 
 	log.Printf("[DEBUG] Creating Sharded Postgresql Cluster %q", md.ClusterId)
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
-			fmt.Sprintf("Error while waiting for operation %q to create ShardedPostgresql cluster: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create ShardedPostgresql cluster: %s", op.ID(), err.Error()),
 		)
 		return ""
 	}
@@ -86,7 +70,7 @@ func (p *ShardedPostgreSQLAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK
 		return
 	}
 
-	op, err := sdk.WrapOperation(sdk.MDB().SPQR().Cluster().Update(ctx, req))
+	op, err := spqrsdk.NewClusterClient(sdk).Update(ctx, req)
 	if err != nil {
 		diag.AddError(
 			"Failed to update resource",
@@ -95,19 +79,19 @@ func (p *ShardedPostgreSQLAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to update resource",
-			fmt.Sprintf("Error while waiting for operation %q to update ShardedPostgresql cluster: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to update ShardedPostgresql cluster: %s", op.ID(), err.Error()),
 		)
 		return
 	}
 }
 
 func (p *ShardedPostgreSQLAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) {
-	op, err := sdk.WrapOperation(sdk.MDB().SPQR().Cluster().Delete(ctx, &spqr.DeleteClusterRequest{
+	op, err := spqrsdk.NewClusterClient(sdk).Delete(ctx, &spqr.DeleteClusterRequest{
 		ClusterId: cid,
-	}))
+	})
 
 	if err != nil {
 		diags.AddError(
@@ -117,10 +101,10 @@ func (p *ShardedPostgreSQLAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete resource",
-			fmt.Sprintf("Error while waiting for operation %q to delete ShardedPostgresql cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete ShardedPostgresql cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 	}
 }
@@ -132,7 +116,7 @@ func (p *ShardedPostgreSQLAPI) CreateHostsWithSubclusterCheck(
 	cid string, specs []*spqr.HostSpec,
 	resources map[spqr.Host_Type]*spqr.Resources,
 ) {
-	hosts, err := sdk.MDB().SPQR().Cluster().ListHosts(ctx, &spqr.ListClusterHostsRequest{ClusterId: cid})
+	hosts, err := spqrsdk.NewClusterClient(sdk).ListHosts(ctx, &spqr.ListClusterHostsRequest{ClusterId: cid})
 	if err != nil {
 		diag.AddError(
 			"Failed to list cluster hosts",
@@ -167,13 +151,12 @@ func (p *ShardedPostgreSQLAPI) CreateHostsWithSubclusterCheck(
 			}
 
 			tflog.Debug(ctx, fmt.Sprintf("Creating subcluster for %v", t))
-			op, err := sdk.WrapOperation(
-				sdk.MDB().SPQR().Cluster().AddSubcluster(ctx, &spqr.AddSubclusterRequest{
+			op, err :=
+				spqrsdk.NewClusterClient(sdk).AddSubcluster(ctx, &spqr.AddSubclusterRequest{
 					ClusterId: cid,
 					HostSpecs: specs,
 					Resources: res,
-				}),
-			)
+				})
 			if err != nil {
 				diag.AddError(
 					"Failed to create hosts",
@@ -182,10 +165,10 @@ func (p *ShardedPostgreSQLAPI) CreateHostsWithSubclusterCheck(
 				return
 			}
 
-			if err = op.Wait(ctx); err != nil {
+			if _, err = op.Wait(ctx); err != nil {
 				diag.AddError(
 					"Failed to create hosts",
-					fmt.Sprintf("Error while waiting for operation %q to create host ShardedPostgresql cluster %q: %s", op.Id(), cid, err.Error()),
+					fmt.Sprintf("Error while waiting for operation %q to create host ShardedPostgresql cluster %q: %s", op.ID(), cid, err.Error()),
 				)
 				return
 			}
@@ -194,12 +177,11 @@ func (p *ShardedPostgreSQLAPI) CreateHostsWithSubclusterCheck(
 
 	// Add new hosts to existing subclusters
 	for _, spec := range addClusterHosts {
-		op, err := sdk.WrapOperation(
-			sdk.MDB().SPQR().Cluster().AddHosts(ctx, &spqr.AddClusterHostsRequest{
+		op, err :=
+			spqrsdk.NewClusterClient(sdk).AddHosts(ctx, &spqr.AddClusterHostsRequest{
 				ClusterId: cid,
 				HostSpecs: []*spqr.HostSpec{spec},
-			}),
-		)
+			})
 		if err != nil {
 			diag.AddError(
 				"Failed to create hosts",
@@ -208,10 +190,10 @@ func (p *ShardedPostgreSQLAPI) CreateHostsWithSubclusterCheck(
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diag.AddError(
 				"Failed to create hosts",
-				fmt.Sprintf("Error while waiting for operation %q to create host ShardedPostgresql cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to create host ShardedPostgresql cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}
@@ -230,9 +212,9 @@ func (p *ShardedPostgreSQLAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, 
 				spec,
 			},
 		}
-		op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
+		op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*spqrsdk.ClusterUpdateHostsOperation, error) {
 			log.Printf("[DEBUG] Sending ShardedPostgresql cluster update hosts request: %+v", request)
-			return sdk.MDB().SPQR().Cluster().UpdateHosts(ctx, request)
+			return spqrsdk.NewClusterClient(sdk).UpdateHosts(ctx, request)
 		})
 		if err != nil {
 			diag.AddError(
@@ -242,10 +224,10 @@ func (p *ShardedPostgreSQLAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, 
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diag.AddError(
 				"Failed to update hosts",
-				fmt.Sprintf("Error while waiting for operation %q to update host ShardedPostgresql cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to update host ShardedPostgresql cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}
@@ -254,12 +236,11 @@ func (p *ShardedPostgreSQLAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, 
 
 func (p *ShardedPostgreSQLAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, fqdns []string) {
 	for _, fqdn := range fqdns {
-		op, err := sdk.WrapOperation(
-			sdk.MDB().SPQR().Cluster().DeleteHosts(ctx, &spqr.DeleteClusterHostsRequest{
+		op, err :=
+			spqrsdk.NewClusterClient(sdk).DeleteHosts(ctx, &spqr.DeleteClusterHostsRequest{
 				ClusterId: cid,
 				HostNames: []string{fqdn},
-			}),
-		)
+			})
 		if err != nil {
 			diag.AddError(
 				"Failed to delete hosts",
@@ -268,10 +249,10 @@ func (p *ShardedPostgreSQLAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, 
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diag.AddError(
 				"Failed to delete hosts",
-				fmt.Sprintf("Error while waiting for operation %q to delete host ShardedPostgresql cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to delete host ShardedPostgresql cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}
@@ -309,7 +290,7 @@ func (p *ShardedPostgreSQLAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().SPQR().Cluster().ListHosts(ctx, &spqr.ListClusterHostsRequest{
+		resp, err := spqrsdk.NewClusterClient(sdk).ListHosts(ctx, &spqr.ListClusterHostsRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,

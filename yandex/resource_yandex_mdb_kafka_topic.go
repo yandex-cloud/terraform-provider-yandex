@@ -10,7 +10,7 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -100,9 +100,9 @@ func resourceYandexMDBKafkaTopicCreate(d *schema.ResourceData, meta interface{})
 		TopicSpec: topicSpec,
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Creating Kafka topic: %+v", req)
-		return config.sdk.MDB().Kafka().Topic().Create(ctx, req)
+		return kafkasdk.NewTopicClient(config.SDK).Create(ctx, req)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Kafka topic: %s", err)
@@ -111,12 +111,12 @@ func resourceYandexMDBKafkaTopicCreate(d *schema.ResourceData, meta interface{})
 	topicID := constructResourceId(req.ClusterId, req.TopicSpec.Name)
 	d.SetId(topicID)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting for Kafka topic create operation: %s", err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("kafka topic creation failed: %s", err)
 	}
 	log.Printf("[DEBUG] Finished creating Kafka topic %q", req.TopicSpec.Name)
@@ -127,7 +127,7 @@ func resourceYandexMDBKafkaTopicCreate(d *schema.ResourceData, meta interface{})
 func getKafkaVersion(ctx context.Context, d *schema.ResourceData, config *Config) (string, error) {
 	clusterID := d.Get("cluster_id").(string)
 	req := &kafka.GetClusterRequest{ClusterId: clusterID}
-	cluster, err := config.sdk.MDB().Kafka().Cluster().Get(ctx, req)
+	cluster, err := kafkasdk.NewClusterClient(config.SDK).Get(ctx, req)
 	if err != nil {
 		return "", err
 	}
@@ -189,7 +189,7 @@ func resourceYandexMDBKafkaTopicRead(d *schema.ResourceData, meta interface{}) e
 
 	clusterID := parts[0]
 	topicName := parts[1]
-	topic, err := config.sdk.MDB().Kafka().Topic().Get(ctx, &kafka.GetTopicRequest{
+	topic, err := kafkasdk.NewTopicClient(config.SDK).Get(ctx, &kafka.GetTopicRequest{
 		ClusterId: clusterID,
 		TopicName: topicName,
 	})
@@ -267,16 +267,16 @@ func resourceYandexMDBKafkaTopicUpdate(d *schema.ResourceData, meta interface{})
 		return nil
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending topic update request: %+v", request)
-		return config.sdk.MDB().Kafka().Topic().Update(ctx, request)
+		return kafkasdk.NewTopicClient(config.SDK).Update(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update topic %q in Kafka Cluster %q: %s",
 			topicName, clusterID, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating topic in Kafka Cluster %q: %s", d.Id(), err)
 	}
@@ -312,15 +312,15 @@ func resourceYandexMDBKafkaTopicDelete(d *schema.ResourceData, meta interface{})
 		TopicName: topicName,
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Deleting Kafka topic %q", topicName)
-		return config.sdk.MDB().Kafka().Topic().Delete(ctx, request)
+		return kafkasdk.NewTopicClient(config.SDK).Delete(ctx, request)
 	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Kafka topic %q", topicName))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting topic %q from Kafka Cluster %q: %s", topicName, clusterID, err)
 	}

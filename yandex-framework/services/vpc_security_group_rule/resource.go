@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/globallock"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
@@ -293,7 +293,7 @@ func (r *securityGroupRuleResource) Create(ctx context.Context, req resource.Cre
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	meta := sg_api.UpdateSecurityGroupRules(ctx, r.providerConfig.SDK, &resp.Diagnostics, sgID, ruleSpec, "")
+	meta := sg_api.UpdateSecurityGroupRules(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, sgID, ruleSpec, "")
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -308,7 +308,7 @@ func (r *securityGroupRuleResource) Create(ctx context.Context, req resource.Cre
 	}
 	plan.ID = types.StringValue(meta.AddedRuleIds[0])
 
-	if readRuleToState(ctx, r.providerConfig.SDK, &plan, &resp.Diagnostics) {
+	if readRuleToState(ctx, r.providerConfig.SDKv2, &plan, &resp.Diagnostics) {
 		resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 	} else {
 		resp.Diagnostics.AddError(
@@ -325,7 +325,7 @@ func (r *securityGroupRuleResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	if readRuleToState(ctx, r.providerConfig.SDK, &state, &resp.Diagnostics) {
+	if readRuleToState(ctx, r.providerConfig.SDKv2, &state, &resp.Diagnostics) {
 		resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 	} else {
 		resp.State.RemoveResource(ctx)
@@ -392,7 +392,7 @@ func (r *securityGroupRuleResource) Update(ctx context.Context, req resource.Upd
 		if resp.Diagnostics.HasError() {
 			return
 		}
-		meta := sg_api.UpdateSecurityGroupRules(ctx, r.providerConfig.SDK, &resp.Diagnostics, sgID, ruleSpec, state.ID.ValueString())
+		meta := sg_api.UpdateSecurityGroupRules(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, sgID, ruleSpec, state.ID.ValueString())
 		if meta.GetAddedRuleIds() == nil || len(meta.GetAddedRuleIds()) != 1 {
 			resp.Diagnostics.AddError(
 				"Error replacing rule",
@@ -404,14 +404,14 @@ func (r *securityGroupRuleResource) Update(ctx context.Context, req resource.Upd
 		}
 		plan.ID = types.StringValue(meta.AddedRuleIds[0])
 	} else if len(updateRuleReq.UpdateMask.Paths) > 0 {
-		sg_api.UpdateSecurityGroupRuleMetadata(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateRuleReq)
+		sg_api.UpdateSecurityGroupRuleMetadata(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, updateRuleReq)
 		if resp.Diagnostics.HasError() {
 			return
 		}
 		plan.ID = state.ID
 	}
 
-	if readRuleToState(ctx, r.providerConfig.SDK, &plan, &resp.Diagnostics) {
+	if readRuleToState(ctx, r.providerConfig.SDKv2, &plan, &resp.Diagnostics) {
 		resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 	} else {
 		resp.Diagnostics.AddError(
@@ -441,7 +441,7 @@ func (r *securityGroupRuleResource) Delete(ctx context.Context, req resource.Del
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	sg_api.UpdateSecurityGroupRules(ctx, r.providerConfig.SDK, &resp.Diagnostics, sgID, nil, state.ID.ValueString())
+	sg_api.UpdateSecurityGroupRules(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, sgID, nil, state.ID.ValueString())
 }
 
 // ValidateConfig implements resource.ResourceWithValidateConfig.

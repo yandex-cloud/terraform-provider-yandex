@@ -6,7 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	k8ssdk "github.com/yandex-cloud/go-sdk/services/k8s/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -557,13 +558,19 @@ func dataSourceYandexKubernetesNodeGroupRead(d *schema.ResourceData, meta interf
 	_, nodeGroupNameOk := d.GetOk("name")
 
 	if nodeGroupNameOk {
-		nodeGroupID, err = resolveObjectID(ctx, config, d, sdkresolvers.KubernetesNodeGroupResolver)
+		client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+		nodeGroupID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return k8ssdk.NodeGroupResolver(name, client, opts...)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source node-group by name: %v", err)
 		}
 	}
 
-	ng, err := config.sdk.Kubernetes().NodeGroup().Get(ctx, &k8s.GetNodeGroupRequest{
+	client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+	ng, err := client.Get(ctx, &k8s.GetNodeGroupRequest{
 		NodeGroupId: nodeGroupID,
 	})
 

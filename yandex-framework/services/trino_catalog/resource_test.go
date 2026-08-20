@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/trino/v1"
 	"os"
 	"testing"
 	"text/template"
@@ -457,7 +458,7 @@ resource "yandex_trino_catalog" "trino_catalog" {
 }
 
 func testAccCheckTrinoCatalogDestroy(s *terraform.State) error {
-	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
+	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_trino_catalog" {
@@ -465,7 +466,7 @@ func testAccCheckTrinoCatalogDestroy(s *terraform.State) error {
 		}
 
 		clusterID := rs.Primary.Attributes["cluster_id"]
-		_, err := sdk.Trino().Catalog().Get(context.Background(), &trinov1.GetCatalogRequest{
+		_, err := trinosdk.NewCatalogClient(sdk).Get(context.Background(), &trinov1.GetCatalogRequest{
 			ClusterId: clusterID,
 			CatalogId: rs.Primary.ID,
 		})
@@ -523,9 +524,9 @@ func testAccCheckTrinoCatalogExists(name string, catalog *trinov1.Catalog) resou
 			return fmt.Errorf("ID is not set")
 		}
 
-		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
+		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
 		clusterID := rs.Primary.Attributes["cluster_id"]
-		found, err := sdk.Trino().Catalog().Get(context.Background(), &trinov1.GetCatalogRequest{
+		found, err := trinosdk.NewCatalogClient(sdk).Get(context.Background(), &trinov1.GetCatalogRequest{
 			ClusterId: clusterID,
 			CatalogId: rs.Primary.ID,
 		})

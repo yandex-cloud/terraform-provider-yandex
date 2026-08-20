@@ -24,10 +24,15 @@ import (
 
 func (c *Client) CreateBucket(ctx context.Context, bucket string, acl BucketACL) error {
 	_, err := RetryLongTermOperations[*s3.CreateBucketOutput](ctx, func() (*s3.CreateBucketOutput, error) {
-		output, err := c.s3.CreateBucketWithContext(ctx, &s3.CreateBucketInput{
+		request, output := c.s3.CreateBucketRequest(&s3.CreateBucketInput{
 			Bucket: aws.String(bucket),
 			ACL:    aws.String(string(acl)),
 		})
+		request.SetContext(ctx)
+		err := request.Send()
+		if isSuccessfulCreateRetry(err, request.RetryCount) {
+			return output, nil
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -43,6 +48,10 @@ func (c *Client) CreateBucket(ctx context.Context, bucket string, acl BucketACL)
 	}
 
 	return nil
+}
+
+func isSuccessfulCreateRetry(err error, retryCount int) bool {
+	return retryCount > 0 && IsErr(err, BucketAlreadyOwnedByYou)
 }
 
 func (c *Client) UpdateBucketPolicy(ctx context.Context, bucket, policy string) error {

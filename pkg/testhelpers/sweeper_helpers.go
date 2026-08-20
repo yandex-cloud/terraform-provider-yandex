@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/codes"
 )
@@ -110,8 +110,11 @@ func SweepWithRetryByFunc(conf *provider_config.Config, message string, sf func(
 	return false
 }
 
-func HandleSweepOperation(ctx context.Context, conf *provider_config.Config, op *operation.Operation, err error) error {
-	sdkop, err := conf.SDK.WrapOperation(op, err)
+type sweepOperation interface {
+	Abstract() operation.AbstractOperation
+}
+
+func HandleSweepOperation(ctx context.Context, op sweepOperation, err error) error {
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
 			return nil
@@ -119,12 +122,7 @@ func HandleSweepOperation(ctx context.Context, conf *provider_config.Config, op 
 		return err
 	}
 
-	err = sdkop.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = sdkop.Response()
+	_, err = op.Abstract().Wait(ctx)
 	return err
 }
 

@@ -10,6 +10,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 )
 
 func init() {
@@ -25,7 +26,7 @@ func testSweepMDBPostgreSQLClusterV2(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.MDB().PostgreSQL().Cluster().List(context.Background(), &postgresql.ListClustersRequest{
+	resp, err := postgresqlsdk.NewClusterClient(conf.SDK).List(context.Background(), &postgresql.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
 	})
@@ -53,18 +54,18 @@ func sweepMDBPostgreSQLClusterV2Once(conf *Config, id string) error {
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
 
-	op, err := conf.sdk.MDB().PostgreSQL().Cluster().Update(ctx, &postgresql.UpdateClusterRequest{
+	op, err := postgresqlsdk.NewClusterClient(conf.SDK).Update(ctx, &postgresql.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, op, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
-	op, err = conf.sdk.MDB().PostgreSQL().Cluster().Delete(ctx, &postgresql.DeleteClusterRequest{
+	deleteOp, err := postgresqlsdk.NewClusterClient(conf.SDK).Delete(ctx, &postgresql.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, deleteOp, err)
 }

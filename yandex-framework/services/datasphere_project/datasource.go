@@ -3,6 +3,7 @@ package datasphere_project
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/datasphere/v2"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -89,7 +90,7 @@ func (d *projectDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		fmt.Sprintf("Making API call to fetch project data for project %s", projectModel.Id.ValueString()),
 	)
 
-	existingProject, err := d.providerConfig.SDK.Datasphere().Project().Get(
+	existingProject, err := dataspheresdk.NewProjectClient(d.providerConfig.SDKv2).Get(
 		ctx,
 		&datasphere.GetProjectRequest{ProjectId: projectModel.Id.ValueString()},
 	)
@@ -104,7 +105,7 @@ func (d *projectDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	existingUnitBalance, err := d.providerConfig.SDK.Datasphere().Project().GetUnitBalance(
+	existingUnitBalance, err := dataspheresdk.NewProjectClient(d.providerConfig.SDKv2).GetUnitBalance(
 		ctx,
 		&datasphere.GetUnitBalanceRequest{ProjectId: projectModel.Id.ValueString()},
 	)

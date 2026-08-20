@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	containerssdk "github.com/yandex-cloud/go-sdk/services/serverless/containers/v1"
 )
 
 const yandexIAMServerlessContainerDefaultTimeout = 1 * time.Minute
@@ -57,12 +58,14 @@ func (u *ServerlessContainerIamUpdater) SetResourceIamPolicy(ctx context.Context
 	ctx, cancel := context.WithTimeout(ctx, yandexIAMServerlessContainerDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Serverless().Containers().Container().SetAccessBindings(ctx, req))
+	client := containerssdk.NewContainerClient(u.Config.SDK)
+
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -81,7 +84,9 @@ func (u *ServerlessContainerIamUpdater) UpdateResourceIamPolicy(ctx context.Cont
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Serverless().Containers().Container().UpdateAccessBindings(ctx, req))
+		client := containerssdk.NewContainerClient(u.Config.SDK)
+
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -89,7 +94,7 @@ func (u *ServerlessContainerIamUpdater) UpdateResourceIamPolicy(ctx context.Cont
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -113,9 +118,10 @@ func (u *ServerlessContainerIamUpdater) DescribeResource() string {
 func getServerlessContainerAccessBindings(ctx context.Context, config *Config, containerID string) ([]*access.AccessBinding, error) {
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
+	client := containerssdk.NewContainerClient(config.SDK)
 
 	for {
-		resp, err := config.sdk.Serverless().Containers().Container().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: containerID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

@@ -141,7 +141,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	cid := plan.ClusterID.ValueString()
 	var dbSpec clickhouse.DatabaseSpec
 	stateToSpec(&plan, &dbSpec)
-	createDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, &dbSpec)
+	createDatabase(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, &dbSpec)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -177,7 +177,7 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
-	deleteDatabase(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
+	deleteDatabase(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, dbName)
 }
 
 func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -208,7 +208,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 }
 
 func (r *bindingResource) refreshState(ctx context.Context, diag *diag.Diagnostics, state *Database, clusterId, dbName string) {
-	dbSpec := readDatabase(ctx, r.providerConfig.SDK, diag, clusterId, dbName)
+	dbSpec := readDatabase(ctx, r.providerConfig.SDKv2, diag, clusterId, dbName)
 	if diag.HasError() {
 		return
 	}

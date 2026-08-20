@@ -11,6 +11,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	trinov1 "github.com/yandex-cloud/go-genproto/yandex/cloud/trino/v1"
+	trinosdk "github.com/yandex-cloud/go-sdk/services/trino/v1"
 )
 
 const (
@@ -32,7 +33,8 @@ func testSweepMDBTrinoCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.Trino().Cluster().List(context.Background(), &trinov1.ListClustersRequest{
+	client := trinosdk.NewClusterClient(conf.SDK)
+	resp, err := client.List(context.Background(), &trinov1.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: trinoClusterPageSize,
 	})
@@ -59,20 +61,21 @@ func sweepMDBTrinoClusterOnce(conf *Config, id string) error {
 
 	ctxUpd, cancelUpd := context.WithTimeout(context.Background(), trinoClusterUpdateTimeout)
 	defer cancelUpd()
-	op, err := conf.sdk.Trino().Cluster().Update(ctxUpd, &trinov1.UpdateClusterRequest{
+	client := trinosdk.NewClusterClient(conf.SDK)
+	updateOp, err := client.Update(ctxUpd, &trinov1.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctxUpd, conf, op, err)
+	err = handleSweepOperationV2(ctxUpd, updateOp, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
 	ctxDel, cancelDel := context.WithTimeout(context.Background(), trinoClusterDeleteTimeout)
 	defer cancelDel()
-	op, err = conf.sdk.Trino().Cluster().Delete(ctxDel, &trinov1.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctxDel, &trinov1.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctxDel, conf, op, err)
+	return handleSweepOperationV2(ctxDel, deleteOp, err)
 }

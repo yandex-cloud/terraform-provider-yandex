@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 func dataSourceYandexIamServiceAgent() *schema.Resource {
@@ -37,11 +38,13 @@ func dataSourceYandexIamServiceAgent() *schema.Resource {
 
 func dataSourceYandexIamServiceAgentRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := iamsdk.NewServiceControlClient(config.SDK)
+
 	cloudID := d.Get("cloud_id").(string)
 	serviceID := d.Get("service_id").(string)
 	microserviceID := d.Get("microservice_id").(string)
 
-	serviceAgent, err := config.sdk.IAM().ServiceControl().ResolveAgent(context,
+	serviceAgent, err := client.ResolveAgent(context,
 		&iam.ResolveServiceAgentRequest{
 			ServiceId:      serviceID,
 			MicroserviceId: microserviceID,

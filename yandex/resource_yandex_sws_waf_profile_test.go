@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	waf "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1/waf"
+	wafsdk "github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1/waf"
 )
 
 func init() {
@@ -264,7 +265,8 @@ func testSweepWafProfile(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.SmartWebSecurityWaf().WafProfile().List(conf.Context(), &waf.ListWafProfilesRequest{
+	client := wafsdk.NewWafProfileClient(conf.SDK)
+	resp, err := client.List(conf.Context(), &waf.ListWafProfilesRequest{
 		FolderId: conf.FolderID,
 	})
 	if err != nil {
@@ -289,8 +291,9 @@ func sweepWafProfileOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.SmartWebSecurityWaf().WafProfile().Delete(ctx, &waf.DeleteWafProfileRequest{
+	client := wafsdk.NewWafProfileClient(conf.SDK)
+	op, err := client.Delete(ctx, &waf.DeleteWafProfileRequest{
 		WafProfileId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }

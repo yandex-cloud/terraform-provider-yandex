@@ -3,6 +3,7 @@ package mdb_postgresql_cluster_v2_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 	"log"
 	"math/rand"
 	"reflect"
@@ -1491,7 +1492,7 @@ func testAccCheckMDBPGClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+		_, err := postgresqlsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &postgresql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -1516,7 +1517,7 @@ func testAccCheckExistsAndParseMDBPostgreSQLCluster(n string, r *postgresql.Clus
 
 		config := test.AccProvider.(*provider.Provider).GetConfig()
 
-		found, err := config.SDK.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+		found, err := postgresqlsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &postgresql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -1529,7 +1530,7 @@ func testAccCheckExistsAndParseMDBPostgreSQLCluster(n string, r *postgresql.Clus
 
 		*r = *found
 
-		resp, err := config.SDK.MDB().PostgreSQL().Cluster().ListHosts(context.Background(), &postgresql.ListClusterHostsRequest{
+		resp, err := postgresqlsdk.NewClusterClient(config.SDKv2).ListHosts(context.Background(), &postgresql.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1753,7 +1754,7 @@ func TestAccMDBPostgreSQLCluster_failedCreateIsCleanedUp(t *testing.T) {
 func testAccCheckMDBPGClusterAbsentByName(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*provider.Provider).GetConfig()
-		resp, err := config.SDK.MDB().PostgreSQL().Cluster().List(context.Background(), &postgresql.ListClustersRequest{
+		resp, err := postgresqlsdk.NewClusterClient(config.SDKv2).List(context.Background(), &postgresql.ListClustersRequest{
 			FolderId: test.GetExampleFolderID(),
 			PageSize: defaultMDBPageSize,
 		})

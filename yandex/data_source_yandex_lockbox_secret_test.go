@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 )
 
 func TestAccDataSourceLockboxSecret_byID(t *testing.T) {
@@ -108,8 +109,9 @@ func testAccDataSourceLockboxSecretExists(name string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := lockboxsdk.NewSecretClient(config.SDK)
 
-		found, err := config.sdk.LockboxSecret().Secret().Get(context.Background(), &lockbox.GetSecretRequest{
+		found, err := client.Get(context.Background(), &lockbox.GetSecretRequest{
 			SecretId: ds.Primary.ID,
 		})
 

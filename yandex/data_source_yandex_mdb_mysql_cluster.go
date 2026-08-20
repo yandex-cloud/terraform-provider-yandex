@@ -8,7 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -449,12 +450,16 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.MySQLClusterResolver)
+		clusterID, err = resolveObjectIDV2(ctx, config, d,
+			func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+				return mysqlsdk.ClusterResolver(name, mysqlsdk.NewClusterClient(config.SDK), opts...)
+			},
+		)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source MySQL Cluster by name: %v", err)
 		}
 	}
-	cluster, err := config.sdk.MDB().MySQL().Cluster().Get(ctx, &mysql.GetClusterRequest{
+	cluster, err := mysqlsdk.NewClusterClient(config.SDK).Get(ctx, &mysql.GetClusterRequest{
 		ClusterId: clusterID,
 	})
 	if err != nil {

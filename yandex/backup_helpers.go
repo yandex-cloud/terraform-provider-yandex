@@ -12,7 +12,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
-	sdkoperation "github.com/yandex-cloud/go-sdk/operation"
+	backupsdk "github.com/yandex-cloud/go-sdk/services/backup/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -841,16 +841,15 @@ func asStringSlice[T fmt.Stringer](values ...T) []string {
 }
 
 func checkBackupProviderActivated(ctx context.Context, config *Config) error {
-	iterator := config.sdk.Backup().Provider().ProviderActivatedIterator(
+	providers, err := backupsdk.NewProviderClient(config.SDK).ListActivated(
 		ctx,
 		&backuppb.ListActivatedProvidersRequest{FolderId: config.FolderID},
 	)
-	providerNames, err := iterator.TakeAll()
 	if err != nil {
 		return err
 	}
 
-	if len(providerNames) == 0 {
+	if len(providers.GetNames()) == 0 {
 		return fmt.Errorf("the specified folder has no activated backup providers, please, activate provider and try again")
 	}
 	return nil
@@ -858,7 +857,9 @@ func checkBackupProviderActivated(ctx context.Context, config *Config) error {
 
 func getPolicyByName(ctx context.Context, config *Config, name string) (*backuppb.Policy, error) {
 	var res *backuppb.Policy
-	iterator := config.sdk.Backup().Policy().PolicyIterator(ctx, &backuppb.ListPoliciesRequest{
+	client := backupsdk.NewPolicyClient(config.SDK)
+
+	iterator := client.Iterator(ctx, &backuppb.ListPoliciesRequest{
 		FolderId: config.FolderID,
 	})
 	for iterator.Next() {
@@ -881,7 +882,9 @@ func getPolicyByName(ctx context.Context, config *Config, name string) (*backupp
 }
 
 func getBackupPolicyApplication(ctx context.Context, config *Config, policyID, instanceID string) (*backuppb.PolicyApplication, error) {
-	iterator := config.sdk.Backup().Policy().PolicyApplicationsIterator(ctx, &backuppb.ListApplicationsRequest{
+	client := backupsdk.NewPolicyClient(config.SDK)
+
+	iterator := client.ApplicationsIterator(ctx, &backuppb.ListApplicationsRequest{
 		Id: &backuppb.ListApplicationsRequest_ComputeInstanceId{
 			ComputeInstanceId: instanceID,
 		},
@@ -897,19 +900,19 @@ func getBackupPolicyApplication(ctx context.Context, config *Config, policyID, i
 	return nil, errBackupPolicyBindingsNotFound
 }
 
-func createBackupPolicyBindingsWithRetry(ctx context.Context, config *Config, policyID, instanceID string) (op *sdkoperation.Operation, err error) {
+func createBackupPolicyBindingsWithRetry(ctx context.Context, config *Config, policyID, instanceID string) (op *backupsdk.PolicyApplyOperation, err error) {
 	const (
 		firstRetryInterval = 100 * time.Second
 		retryInterval      = 20 * time.Second
 	)
 
-	isRetryableError := func(op *sdkoperation.Operation, err error) bool {
+	isRetryableError := func(op *backupsdk.PolicyApplyOperation, err error) bool {
 		if err != nil {
 			s, _ := status.FromError(err)
 			if s.Code() == codes.NotFound {
 				return true
 			}
-		} else if op.Failed() {
+		} else if op.Done() && op.Error() != nil {
 			return true
 		}
 		return false
@@ -919,11 +922,12 @@ func createBackupPolicyBindingsWithRetry(ctx context.Context, config *Config, po
 		PolicyId:          policyID,
 		ComputeInstanceId: instanceID,
 	}
+	client := backupsdk.NewPolicyClient(config.SDK)
 
 	firstRetry := true
 	for i := 0; i < config.MaxRetries; i++ {
 		log.Printf("[INFO]: Try to bind policy_id=%q with instance_id=%q, attempt=%v", policyID, instanceID, i+1)
-		op, err = config.sdk.WrapOperation(config.sdk.Backup().Policy().Apply(ctx, request))
+		op, err = client.Apply(ctx, request)
 		if isRetryableError(op, err) {
 			log.Printf("[INFO]: Unable to bind policy_id=%q with instance_id=%q: %s", policyID, instanceID, err)
 			if firstRetry {

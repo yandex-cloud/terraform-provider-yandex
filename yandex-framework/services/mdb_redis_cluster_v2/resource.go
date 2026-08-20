@@ -574,7 +574,7 @@ func (r *redisClusterResource) Read(ctx context.Context, req resource.ReadReques
 	var state Cluster
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 
-	clusterRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &state)
+	clusterRead(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, &state)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -629,14 +629,14 @@ func (r *redisClusterResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	cid := redisAPI.CreateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
+	cid := redisAPI.CreateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, request)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	plan.ID = types.StringValue(cid)
 
-	clusterRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan)
+	clusterRead(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, &plan)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -667,7 +667,7 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 	defer cancel()
 
 	if !plan.FolderID.Equal(state.FolderID) {
-		redisAPI.MoveCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, plan.ID.ValueString(), plan.FolderID.ValueString())
+		redisAPI.MoveCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, plan.ID.ValueString(), plan.FolderID.ValueString())
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -682,20 +682,20 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 			)
 			return
 		}
-		redisAPI.EnableShardingRedis(ctx, r.providerConfig.SDK, &resp.Diagnostics, state.ID.ValueString())
+		redisAPI.EnableShardingRedis(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, state.ID.ValueString())
 		if resp.Diagnostics.HasError() {
 			return
 		}
 	}
 
-	updateRedisClusterParams(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan, &state, passwordWo)
+	updateRedisClusterParams(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, &plan, &state, passwordWo)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	mdbcommon.UpdateClusterHostsWithShards[Host, *redis.Host, *redis.HostSpec, redis.UpdateHostSpec, struct{}](
 		ctx,
-		r.providerConfig.SDK,
+		r.providerConfig.SDKv2,
 		&resp.Diagnostics,
 		redisHostService,
 		&redisAPI,
@@ -708,7 +708,7 @@ func (r *redisClusterResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	clusterRead(ctx, r.providerConfig.SDK, &resp.Diagnostics, &plan)
+	clusterRead(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, &plan)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -731,7 +731,7 @@ func (r *redisClusterResource) Delete(ctx context.Context, req resource.DeleteRe
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	redisAPI.DeleteCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, state.ID.ValueString())
+	redisAPI.DeleteCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, state.ID.ValueString())
 	if resp.Diagnostics.HasError() {
 		return
 	}

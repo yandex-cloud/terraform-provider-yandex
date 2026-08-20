@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
@@ -92,14 +92,14 @@ func (r *gitlabInstanceResource) Create(ctx context.Context, req resource.Create
 	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
-	instanceID, d := CreateInstance(ctx, r.providerConfig.SDK, &resp.Diagnostics, createInstanceRequest)
+	instanceID, d := CreateInstance(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, createInstanceRequest)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	plan.Id = types.StringValue(instanceID)
-	diags = updateState(ctx, r.providerConfig.SDK, &plan)
+	diags = updateState(ctx, r.providerConfig.SDKv2, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -121,7 +121,7 @@ func (r *gitlabInstanceResource) Read(ctx context.Context, req resource.ReadRequ
 
 	instanceID := state.Id.ValueString()
 	tflog.Debug(ctx, "Reading Gitlab instance", instanceIDLogField(instanceID))
-	instance, d := GetInstanceByID(ctx, r.providerConfig.SDK, instanceID)
+	instance, d := GetInstanceByID(ctx, r.providerConfig.SDKv2, instanceID)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
@@ -172,13 +172,13 @@ func (r *gitlabInstanceResource) Update(ctx context.Context, req resource.Update
 	}
 	tflog.Debug(ctx, fmt.Sprintf("Update Gitlab instance request: %+v", updateReq))
 
-	d := UpdateInstance(ctx, r.providerConfig.SDK, updateReq)
+	d := UpdateInstance(ctx, r.providerConfig.SDKv2, updateReq)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	diags = updateState(ctx, r.providerConfig.SDK, &plan)
+	diags = updateState(ctx, r.providerConfig.SDKv2, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -207,7 +207,7 @@ func (r *gitlabInstanceResource) Delete(ctx context.Context, req resource.Delete
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	d := DeleteInstance(ctx, r.providerConfig.SDK, instanceID)
+	d := DeleteInstance(ctx, r.providerConfig.SDKv2, instanceID)
 	resp.Diagnostics.Append(d)
 
 	tflog.Debug(ctx, "Finished deleting Gitlab instance", instanceIDLogField(instanceID))

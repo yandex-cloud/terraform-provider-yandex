@@ -6,7 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	mongodbsdk "github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 )
 
 func dataSourceYandexMDBMongodbCluster() *schema.Resource {
@@ -32,7 +33,11 @@ func dataSourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.Resour
 	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.MongoDBClusterResolver)
+		clusterID, err = resolveObjectIDV2(ctx, config, d,
+			func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+				return mongodbsdk.ClusterResolver(name, mongodbsdk.NewClusterClient(config.SDK), opts...)
+			},
+		)
 		if err != nil {
 			return diag.Errorf("failed to resolve data source Mongodb Cluster by name: %v", err)
 		}

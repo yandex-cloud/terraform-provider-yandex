@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -1179,6 +1180,7 @@ func TestAccALBVirtualHost_DisableSecurityProfile(t *testing.T) {
 
 func testAccCheckALBVirtualHostDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := albsdk.NewVirtualHostClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_alb_virtual_host" {
@@ -1190,7 +1192,7 @@ func testAccCheckALBVirtualHostDestroy(s *terraform.State) error {
 			httpRouterID, virtualHostName = retrieveDataFromVirtualHostID(rs.Primary.ID)
 		}
 
-		_, err := config.sdk.ApplicationLoadBalancer().VirtualHost().Get(context.Background(), &apploadbalancer.GetVirtualHostRequest{
+		_, err := client.Get(context.Background(), &apploadbalancer.GetVirtualHostRequest{
 			HttpRouterId:    httpRouterID,
 			VirtualHostName: virtualHostName,
 		})
@@ -1214,8 +1216,9 @@ func testAccCheckALBVirtualHostExists(virtualHostName string, virtualHost *applo
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := albsdk.NewVirtualHostClient(config.SDK)
 
-		found, err := config.sdk.ApplicationLoadBalancer().VirtualHost().Get(context.Background(), &apploadbalancer.GetVirtualHostRequest{
+		found, err := client.Get(context.Background(), &apploadbalancer.GetVirtualHostRequest{
 			HttpRouterId:    rs.Primary.Attributes["http_router_id"],
 			VirtualHostName: rs.Primary.Attributes["name"],
 		})

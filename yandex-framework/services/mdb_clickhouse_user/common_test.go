@@ -3,6 +3,7 @@ package mdb_clickhouse_user_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -110,7 +111,7 @@ func testAccCheckMDBClickHouseUserDestroy(s *terraform.State) error {
 			return err
 		}
 
-		_, err = config.SDK.MDB().Clickhouse().User().Get(context.Background(), &clickhouse.GetUserRequest{
+		_, err = clickhousesdk.NewUserClient(config.SDKv2).Get(context.Background(), &clickhouse.GetUserRequest{
 			ClusterId: clusterId,
 			UserName:  userName,
 		})

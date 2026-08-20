@@ -1,10 +1,13 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	privatelink "github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1/privatelink"
+	privatelinksdk "github.com/yandex-cloud/go-sdk/services/vpc/v1/privatelink"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -132,7 +135,7 @@ func dataSourceYandexVPCPrivateEndpointRead(d *schema.ResourceData, meta interfa
 	_, peNameOk := d.GetOk("name")
 
 	if peNameOk {
-		peID, err = resolveObjectID(ctx, config, d, sdkresolvers.PrivateEndpointResolver)
+		peID, err = resolvePrivateEndpointIDByName(ctx, config, d)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source private endpoint by name: %v", err)
 		}
@@ -145,4 +148,23 @@ func dataSourceYandexVPCPrivateEndpointRead(d *schema.ResourceData, meta interfa
 	}
 
 	return yandexVPCPrivateEndpointRead(d, meta, peID)
+}
+
+func resolvePrivateEndpointIDByName(ctx context.Context, config *Config, d *schema.ResourceData) (string, error) {
+	name := d.Get("name").(string)
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return "", err
+	}
+	resolver := sdkresolversv2.NewBaseNameResolver(name, "PrivateEndpoint", sdkresolversv2.FolderID(folderID))
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
+	items, listErr := client.Iterator(ctx, &privatelink.ListPrivateEndpointsRequest{
+		Container: &privatelink.ListPrivateEndpointsRequest_FolderId{FolderId: folderID},
+		Filter:    sdkresolversv2.CreateResolverFilter("name", name),
+		PageSize:  sdkresolversv2.DefaultResolverPageSize,
+	}).TakeAll()
+	if err := resolver.FindName(items, listErr); err != nil {
+		return "", err
+	}
+	return resolver.ID(), nil
 }

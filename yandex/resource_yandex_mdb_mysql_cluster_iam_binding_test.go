@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 )
 
@@ -48,7 +49,7 @@ func TestAccMDBMySQLClusterIamBinding_basic(t *testing.T) {
 					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MySQL().Cluster()
+						return mysqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -83,7 +84,7 @@ func TestAccMDBMySQLClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckMDBMySQLClusterExists(mysqlResourceFoo, &cluster),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MySQL().Cluster()
+						return mysqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -93,7 +94,7 @@ func TestAccMDBMySQLClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MySQL().Cluster()
+						return mysqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 				),
 			},
@@ -104,11 +105,11 @@ func TestAccMDBMySQLClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MySQL().Cluster()
+						return mysqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MySQL().Cluster()
+						return mysqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -120,11 +121,11 @@ func TestAccMDBMySQLClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MySQL().Cluster()
+						return mysqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().MySQL().Cluster()
+						return mysqlsdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar),
 				),
 			},

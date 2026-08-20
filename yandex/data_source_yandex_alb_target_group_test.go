@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 )
 
 const albTgDataSourceResource = "data.yandex_alb_target_group.test-tg-ds"
@@ -186,8 +187,9 @@ func testAccDataSourceALBTargetGroupExists(n string, tg *apploadbalancer.TargetG
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := albsdk.NewTargetGroupClient(config.SDK)
 
-		found, err := config.sdk.ApplicationLoadBalancer().TargetGroup().Get(context.Background(), &apploadbalancer.GetTargetGroupRequest{
+		found, err := client.Get(context.Background(), &apploadbalancer.GetTargetGroupRequest{
 			TargetGroupId: ds.Primary.ID,
 		})
 

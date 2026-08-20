@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	smartwebsecurity "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1"
+	smartwebsecuritysdk "github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
 )
@@ -133,17 +134,17 @@ func resourceYandexSWSSecurityProfileWAFAttachmentDelete(d *schema.ResourceData,
 		rules = append(rules, rule)
 	}
 	if removed {
-		op, err := config.sdk.WrapOperation(config.sdk.SmartWebSecurity().SecurityProfile().Update(ctx, &smartwebsecurity.UpdateSecurityProfileRequest{
+		op, err := smartwebsecuritysdk.NewSecurityProfileClient(config.SDK).Update(ctx, &smartwebsecurity.UpdateSecurityProfileRequest{
 			SecurityProfileId: securityProfileID,
 			SecurityRules:     rules,
 			UpdateMask: &field_mask.FieldMask{
 				Paths: []string{"security_rules"},
 			},
-		}))
+		})
 		if err != nil {
 			return fmt.Errorf("detaching WAF rule %q from Smart Web Security profile %q: %w", securityRuleName, securityProfileID, err)
 		}
-		if err := op.Wait(ctx); err != nil {
+		if _, err := op.Wait(ctx); err != nil {
 			return fmt.Errorf("waiting for WAF rule %q detachment from Smart Web Security profile %q: %w", securityRuleName, securityProfileID, err)
 		}
 	}
@@ -153,7 +154,7 @@ func resourceYandexSWSSecurityProfileWAFAttachmentDelete(d *schema.ResourceData,
 }
 
 func getSWSSecurityProfile(ctx context.Context, config *Config, securityProfileID string) (*smartwebsecurity.SecurityProfile, error) {
-	profile, err := config.sdk.SmartWebSecurity().SecurityProfile().Get(ctx, &smartwebsecurity.GetSecurityProfileRequest{
+	profile, err := smartwebsecuritysdk.NewSecurityProfileClient(config.SDK).Get(ctx, &smartwebsecurity.GetSecurityProfileRequest{
 		SecurityProfileId: securityProfileID,
 	})
 	if err != nil {

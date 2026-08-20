@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"slices"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -97,6 +99,7 @@ var resourceYandexIAMServiceAccountAPIKeySensitiveAttrs = []string{"secret_key"}
 
 func resourceYandexIAMServiceAccountAPIKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewApiKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
@@ -123,7 +126,7 @@ func resourceYandexIAMServiceAccountAPIKeyCreate(d *schema.ResourceData, meta in
 		req.SetExpiresAt(expiresAt)
 	}
 
-	resp, err := config.sdk.IAM().ApiKey().Create(ctx, &req)
+	resp, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("error creating api key: %s", err)
 	}
@@ -157,11 +160,12 @@ func resourceYandexIAMServiceAccountAPIKeyCreate(d *schema.ResourceData, meta in
 
 func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewApiKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	ak, err := config.sdk.IAM().ApiKey().Get(ctx, &iam.GetApiKeyRequest{
+	ak, err := client.Get(ctx, &iam.GetApiKeyRequest{
 		ApiKeyId: d.Id(),
 	})
 	if err != nil {
@@ -173,7 +177,11 @@ func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta inte
 	d.Set("description", ak.Description)
 
 	if ak.Scopes != nil {
-		d.Set("scopes", ak.Scopes)
+		scopes := ak.Scopes
+		if configuredScopes, ok := d.GetOk("scopes"); ok {
+			scopes = preserveStringSliceOrder(expandStringSlice(configuredScopes.([]interface{})), scopes)
+		}
+		d.Set("scopes", scopes)
 	}
 
 	if ak.Scope != "" {
@@ -187,10 +195,30 @@ func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta inte
 	return nil
 }
 
+// preserveStringSliceOrder keeps the order already stored by Terraform when the
+// API returns the same values in a different order. API key scopes are a set in
+// the IAM API, while the provider's existing schema exposes them as a list.
+func preserveStringSliceOrder(preferred, actual []string) []string {
+	if len(preferred) != len(actual) {
+		return actual
+	}
+
+	preferredSorted := slices.Clone(preferred)
+	actualSorted := slices.Clone(actual)
+	slices.Sort(preferredSorted)
+	slices.Sort(actualSorted)
+	if !slices.Equal(preferredSorted, actualSorted) {
+		return actual
+	}
+
+	return preferred
+}
+
 // The update method was added because ExtendWithOutputToLockbox adds a new attribute output_to_lockbox that can change.
 // Changes in output_to_lockbox are handled in ManageOutputToLockbox.
 func resourceYandexIAMServiceAccountAPIKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewApiKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -226,20 +254,17 @@ func resourceYandexIAMServiceAccountAPIKeyUpdate(d *schema.ResourceData, meta in
 	}
 
 	if len(req.UpdateMask.Paths) > 0 {
-		op, err := config.sdk.WrapOperation(config.sdk.IAM().ApiKey().Update(ctx, req))
+		op, err := client.Update(ctx, req)
 		if err != nil {
 			return fmt.Errorf("error while requesting API to update API Key %s: %s", apiKeyId, err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error while waiting operation to update API key %s: %s", apiKeyId, err)
 
 		}
 
-		if _, err := op.Response(); err != nil {
-			return fmt.Errorf("API Key %s update failed: %s", apiKeyId, err)
-		}
 	}
 
 	d.Partial(false)
@@ -254,14 +279,18 @@ func resourceYandexIAMServiceAccountAPIKeyUpdate(d *schema.ResourceData, meta in
 
 func resourceYandexIAMServiceAccountAPIKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := iamsdk.NewApiKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	_, err := config.sdk.IAM().ApiKey().Delete(ctx, &iam.DeleteApiKeyRequest{
+	op, err := client.Delete(ctx, &iam.DeleteApiKeyRequest{
 		ApiKeyId: d.Id(),
 	})
 	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Api Key %q", d.Id()))
+	}
+	if _, err = op.Wait(ctx); err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Api Key %q", d.Id()))
 	}
 

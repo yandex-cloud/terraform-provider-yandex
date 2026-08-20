@@ -5,7 +5,8 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	samlsdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/saml"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -132,13 +133,14 @@ func dataSourceYandexOrganizationManagerSamlFederationRead(d *schema.ResourceDat
 }
 
 func resolveFederationIDByName(ctx context.Context, config *Config, federationName, organizationID string) (string, error) {
-	var objectID string
-	resolver := sdkresolvers.OrganizationSamlFederationResolver(federationName, sdkresolvers.OrganizationID(organizationID), sdkresolvers.Out(&objectID))
+	client := samlsdk.NewFederationClient(config.SDK)
 
-	err := config.sdk.Resolve(ctx, resolver)
-	if err != nil {
+	resolver := samlsdk.FederationResolver(federationName, client, sdkresolversv2.OrganizationID(organizationID))
+	if err := resolver.Run(ctx); err != nil {
 		return "", err
 	}
-
-	return objectID, nil
+	if err := resolver.Err(); err != nil {
+		return "", err
+	}
+	return resolver.ID(), nil
 }

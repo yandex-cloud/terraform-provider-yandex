@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 )
 
 func init() {
@@ -26,10 +27,13 @@ func sweepComputePlacementGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexComputePlacementGroupDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Compute().PlacementGroup().Delete(ctx, &compute.DeletePlacementGroupRequest{
-		PlacementGroupId: id,
-	})
-	return handleSweepOperation(ctx, conf, op, err)
+	op, err := computesdk.NewPlacementGroupClient(conf.
+		SDK,
+	).
+		Delete(ctx, &compute.DeletePlacementGroupRequest{
+			PlacementGroupId: id,
+		})
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func testSweepComputePlacementGroups(_ string) error {
@@ -39,10 +43,11 @@ func testSweepComputePlacementGroups(_ string) error {
 	}
 
 	req := &compute.ListPlacementGroupsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Compute().PlacementGroup().PlacementGroupIterator(conf.Context(), req)
+	it := computesdk.NewPlacementGroupClient(conf.SDK).Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
-		id := it.Value().GetId()
+		group := it.Value()
+		id := group.GetId()
 		if !sweepWithRetry(sweepComputePlacementGroupOnce, conf, "Placement group", id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep compute Placement Group %q", id))
 		}

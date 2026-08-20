@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	loadbalancersdk "github.com/yandex-cloud/go-sdk/services/loadbalancer/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -214,6 +215,7 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 func dataSourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := config.Context()
+	client := loadbalancersdk.NewNetworkLoadBalancerClient(config.SDK)
 
 	err := checkOneOf(d, "network_load_balancer_id", "name")
 	if err != nil {
@@ -224,13 +226,15 @@ func dataSourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta inte
 	_, nlbNameOk := d.GetOk("name")
 
 	if nlbNameOk {
-		nlbID, err = resolveObjectID(ctx, config, d, sdkresolvers.NetworkLoadBalancerResolver)
+		nlbID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return loadbalancersdk.NetworkLoadBalancerResolver(name, client, opts...)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source network load balancer by name: %v", err)
 		}
 	}
 
-	nlb, err := config.sdk.LoadBalancer().NetworkLoadBalancer().Get(ctx, &loadbalancer.GetNetworkLoadBalancerRequest{
+	nlb, err := client.Get(ctx, &loadbalancer.GetNetworkLoadBalancerRequest{
 		NetworkLoadBalancerId: nlbID,
 	})
 

@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -41,8 +42,10 @@ func testSweepALBLoadBalancers(_ string) error {
 
 	result := &multierror.Error{}
 
+	client := albsdk.NewLoadBalancerClient(conf.SDK)
+
 	req := &apploadbalancer.ListLoadBalancersRequest{FolderId: conf.FolderID}
-	it := conf.sdk.ApplicationLoadBalancer().LoadBalancer().LoadBalancerIterator(conf.Context(), req)
+	it := client.Iterator(conf.Context(), req)
 	for it.Next() {
 		id := it.Value().GetId()
 
@@ -62,10 +65,12 @@ func sweepALBLoadBalancerOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexALBLoadBalancerDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.ApplicationLoadBalancer().LoadBalancer().Delete(ctx, &apploadbalancer.DeleteLoadBalancerRequest{
+	client := albsdk.NewLoadBalancerClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &apploadbalancer.DeleteLoadBalancerRequest{
 		LoadBalancerId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func albLoadBalancerImportStep() resource.TestStep {
@@ -562,13 +567,14 @@ func TestAccALBLoadBalancer_logOptions(t *testing.T) {
 
 func testAccCheckALBLoadBalancerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := albsdk.NewLoadBalancerClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_alb_load_balancer" {
 			continue
 		}
 
-		_, err := config.sdk.ApplicationLoadBalancer().LoadBalancer().Get(context.Background(), &apploadbalancer.GetLoadBalancerRequest{
+		_, err := client.Get(context.Background(), &apploadbalancer.GetLoadBalancerRequest{
 			LoadBalancerId: rs.Primary.ID,
 		})
 		if status.Code(err) != codes.NotFound {
@@ -591,8 +597,9 @@ func testAccCheckALBLoadBalancerExists(balancerName string, balancer *apploadbal
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := albsdk.NewLoadBalancerClient(config.SDK)
 
-		found, err := config.sdk.ApplicationLoadBalancer().LoadBalancer().Get(context.Background(), &apploadbalancer.GetLoadBalancerRequest{
+		found, err := client.Get(context.Background(), &apploadbalancer.GetLoadBalancerRequest{
 			LoadBalancerId: rs.Primary.ID,
 		})
 		if err != nil {

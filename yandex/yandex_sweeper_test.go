@@ -14,8 +14,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"google.golang.org/grpc/codes"
-
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
 
 const (
@@ -97,21 +95,14 @@ func sweepWithRetryByFunc(conf *Config, message string, sf func(conf *Config) er
 	return false
 }
 
-func handleSweepOperation(ctx context.Context, conf *Config, op *operation.Operation, err error) error {
-	sdkop, err := conf.sdk.WrapOperation(op, err)
+func handleSweepOperationV2(ctx context.Context, op sdkV2Operation, err error) error {
 	if err != nil {
 		if isStatusWithCode(err, codes.NotFound) {
 			return nil
 		}
 		return err
 	}
-
-	err = sdkop.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = sdkop.Response()
+	_, err = op.Abstract().Wait(ctx)
 	return err
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	loggingsdk "github.com/yandex-cloud/go-sdk/services/logging/v1"
 )
 
 const (
@@ -164,7 +165,9 @@ func testGetYandexLoggingGroupByID(config *Config, ID string) (*logging.LogGroup
 		LogGroupId: ID,
 	}
 
-	return config.sdk.Logging().LogGroup().Get(context.Background(), &req)
+	client := loggingsdk.NewLogGroupClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
 }
 
 func testYandexLoggingGroupContainsLabel(group *logging.LogGroup, key string, value string) resource.TestCheckFunc {

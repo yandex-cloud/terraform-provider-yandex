@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/timestamp"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -100,7 +100,7 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	// Update Resource State
 	prevState := state
-	refreshState(ctx, &prevState, &state, r.providerConfig.SDK, &resp.Diagnostics)
+	refreshState(ctx, &prevState, &state, r.providerConfig.SDKv2, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -182,11 +182,11 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 
 	if isRestore {
 		cid := plan.Id.ValueString()
-		existingFormatSchemas = clickhouseApi.ListFormatSchemas(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
-		existingMlModels = clickhouseApi.ListMlModels(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
-		existingShardGroups = clickhouseApi.ListShardGroups(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
-		existingExtensions = clickhouseApi.ListExtensions(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
-		existingDicts = clickhouseApi.ListExternalDictionaries(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
+		existingFormatSchemas = clickhouseApi.ListFormatSchemas(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid)
+		existingMlModels = clickhouseApi.ListMlModels(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid)
+		existingShardGroups = clickhouseApi.ListShardGroups(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid)
+		existingExtensions = clickhouseApi.ListExtensions(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid)
+		existingDicts = clickhouseApi.ListExternalDictionaries(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -224,7 +224,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 
 	// Update state
 	prevState := plan
-	refreshState(ctx, &prevState, &plan, r.providerConfig.SDK, &resp.Diagnostics)
+	refreshState(ctx, &prevState, &plan, r.providerConfig.SDKv2, &resp.Diagnostics)
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -284,7 +284,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		tflog.Debug(ctx, "Updating ClickHouse folder id")
 		updateFolderIdRequest := prepareFolderIdUpdateRequest(&state, &plan)
 
-		clickhouseApi.MoveCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateFolderIdRequest)
+		clickhouseApi.MoveCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, updateFolderIdRequest)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -295,7 +295,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		tflog.Debug(ctx, "Updating ClickHouse version")
 		updateVersionRequest := prepareVersionUpdateRequest(&state, &plan)
 
-		clickhouseApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateVersionRequest)
+		clickhouseApi.UpdateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, updateVersionRequest)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -314,7 +314,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	clickhouseApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateRequest)
+	clickhouseApi.UpdateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, updateRequest)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -375,7 +375,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		tflog.Debug(ctx, "Updating ZooKeeper/Keeper hosts")
 		mdbcommon.UpdateClusterHosts(
 			ctx,
-			r.providerConfig.SDK,
+			r.providerConfig.SDKv2,
 			&resp.Diagnostics,
 			clickhouseHostService,
 			&clickhouseApi,
@@ -393,7 +393,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	tflog.Debug(ctx, "Updating ClickHouse hosts and shards")
 	mdbcommon.UpdateClusterHostsWithShards(
 		ctx,
-		r.providerConfig.SDK,
+		r.providerConfig.SDKv2,
 		&resp.Diagnostics,
 		clickhouseHostService,
 		&clickhouseApi,
@@ -409,7 +409,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !state.Shards.Equal(plan.Shards) {
 		// Update shards
 		tflog.Debug(ctx, "Updating Clickhouse shards")
-		updateShards(ctx, plan, r.providerConfig.SDK, &resp.Diagnostics)
+		updateShards(ctx, plan, r.providerConfig.SDKv2, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -418,7 +418,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !state.FormatSchema.Equal(plan.FormatSchema) {
 		// Update format schemas
 		tflog.Debug(ctx, "Updating Clickhouse format schemas")
-		updateFormatSchemas(ctx, plan, r.providerConfig.SDK, &resp.Diagnostics)
+		updateFormatSchemas(ctx, plan, r.providerConfig.SDKv2, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -427,7 +427,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !state.MLModel.Equal(plan.MLModel) {
 		// Update ml models
 		tflog.Debug(ctx, "Updating Clickhouse ml models")
-		updateMlModels(ctx, plan, r.providerConfig.SDK, &resp.Diagnostics)
+		updateMlModels(ctx, plan, r.providerConfig.SDKv2, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -436,7 +436,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !state.ShardGroup.Equal(plan.ShardGroup) {
 		// Update shard groups
 		tflog.Debug(ctx, "Updating Clickhouse shard groups")
-		updateShardGroups(ctx, state, plan, r.providerConfig.SDK, &resp.Diagnostics)
+		updateShardGroups(ctx, state, plan, r.providerConfig.SDKv2, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -445,7 +445,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !state.Extension.Equal(plan.Extension) {
 		// Update extensions
 		tflog.Debug(ctx, "Updating Clickhouse extensions")
-		updateExtensions(ctx, plan, r.providerConfig.SDK, &resp.Diagnostics)
+		updateExtensions(ctx, plan, r.providerConfig.SDKv2, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -454,7 +454,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !state.ExternalDictionary.Equal(plan.ExternalDictionary) {
 		// Update external dictionaries
 		tflog.Debug(ctx, "Updating Clickhouse external dictionaries")
-		updateExternalDictionaries(ctx, state, plan, r.providerConfig.SDK, &resp.Diagnostics)
+		updateExternalDictionaries(ctx, state, plan, r.providerConfig.SDKv2, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -462,7 +462,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	// Update state
 	prevState := plan
-	refreshState(ctx, &prevState, &plan, r.providerConfig.SDK, &resp.Diagnostics)
+	refreshState(ctx, &prevState, &plan, r.providerConfig.SDKv2, &resp.Diagnostics)
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -484,7 +484,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	defer cancel()
 
 	cid := state.Id.ValueString()
-	clickhouseApi.DeleteCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
+	clickhouseApi.DeleteCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid)
 	if resp.Diagnostics.HasError() {
 		return
 	}

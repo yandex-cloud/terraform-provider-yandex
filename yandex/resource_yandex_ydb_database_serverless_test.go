@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
+	ydbsdk "github.com/yandex-cloud/go-sdk/services/ydb/v1"
 )
 
 func init() {
@@ -26,7 +27,9 @@ func testSweepYDBDatabaseServerless(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.YDB().Database().List(conf.Context(), &ydb.ListDatabasesRequest{
+	client := ydbsdk.NewDatabaseClient(conf.SDK)
+
+	resp, err := client.List(conf.Context(), &ydb.ListDatabasesRequest{
 		FolderId: conf.FolderID,
 		PageSize: 1000,
 	})
@@ -60,10 +63,16 @@ func sweepYDBServerlessDatabaseOnce(conf *Config, id string) error {
 		return err
 	}
 
-	op, err := conf.sdk.YDB().Database().Delete(ctx, &ydb.DeleteDatabaseRequest{
+	client := ydbsdk.NewDatabaseClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &ydb.DeleteDatabaseRequest{
 		DatabaseId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func TestAccYandexYDBDatabaseServerless_basic(t *testing.T) {
@@ -243,7 +252,9 @@ func testGetYDBDatabaseServerlessByID(config *Config, ID string) (*ydb.Database,
 		DatabaseId: ID,
 	}
 
-	return config.sdk.YDB().Database().Get(context.Background(), &req)
+	client := ydbsdk.NewDatabaseClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
 }
 
 func testYandexYDBDatabaseServerlessContainsLabel(database *ydb.Database, key string, value string) resource.TestCheckFunc {

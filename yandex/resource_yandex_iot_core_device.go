@@ -8,6 +8,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
+	devicessdk "github.com/yandex-cloud/go-sdk/services/iot/devices/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -94,6 +95,7 @@ func resourceYandexIoTCoreDevice() *schema.Resource {
 
 func resourceYandexIoTCoreDeviceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := devicessdk.NewDeviceClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
@@ -123,24 +125,14 @@ func resourceYandexIoTCoreDeviceCreate(d *schema.ResourceData, meta interface{})
 		TopicAliases: aliases,
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.IoT().Devices().Device().Create(ctx, &req))
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create IoT Device: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while requesting API to create IoT Device: %s", err)
-	}
+	d.SetId(op.Metadata().DeviceId)
 
-	md, ok := protoMetadata.(*iot.CreateDeviceMetadata)
-	if !ok {
-		return fmt.Errorf("Could not get IoT Device ID from create operation metadata")
-	}
-
-	d.SetId(md.DeviceId)
-
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create IoT Device: %s", err)
 	}
@@ -167,6 +159,7 @@ func flattenYandexIoTCoreDevice(d *schema.ResourceData, device *iot.Device) erro
 
 func resourceYandexIoTCoreDeviceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := devicessdk.NewDeviceClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
@@ -175,7 +168,7 @@ func resourceYandexIoTCoreDeviceRead(d *schema.ResourceData, meta interface{}) e
 		DeviceId: d.Id(),
 	}
 
-	device, err := config.sdk.IoT().Devices().Device().Get(ctx, &req)
+	device, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Device %q", d.Id()))
 	}
@@ -185,6 +178,7 @@ func resourceYandexIoTCoreDeviceRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceYandexIoTCoreDeviceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := devicessdk.NewDeviceClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
@@ -193,8 +187,10 @@ func resourceYandexIoTCoreDeviceDelete(d *schema.ResourceData, meta interface{})
 		DeviceId: d.Id(),
 	}
 
-	op, err := config.sdk.IoT().Devices().Device().Delete(ctx, &req)
-	err = waitOperation(ctx, config, op, err)
+	op, err := client.Delete(ctx, &req)
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Device %q", d.Id()))
 	}
@@ -204,6 +200,7 @@ func resourceYandexIoTCoreDeviceDelete(d *schema.ResourceData, meta interface{})
 
 func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := devicessdk.NewDeviceClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -247,8 +244,10 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 			UpdateMask:   &field_mask.FieldMask{Paths: updatePaths},
 		}
 
-		op, err := config.sdk.IoT().Devices().Device().Update(ctx, &req)
-		err = waitOperation(ctx, config, op, err)
+		op, err := client.Update(ctx, &req)
+		if err == nil {
+			_, err = op.Wait(ctx)
+		}
 		if err != nil {
 			return fmt.Errorf("Error while requesting API to update IoT Device: %s", err)
 		}
@@ -257,7 +256,7 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 	if d.HasChange("certificates") {
 		certsSetInner := expandIoTCerts(d)
 
-		certsResp, err := config.sdk.IoT().Devices().Device().ListCertificates(ctx, &iot.ListDeviceCertificatesRequest{DeviceId: d.Id()})
+		certsResp, err := client.ListCertificates(ctx, &iot.ListDeviceCertificatesRequest{DeviceId: d.Id()})
 		if err != nil {
 			return err
 		}
@@ -265,8 +264,10 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 		for _, cert := range certsResp.Certificates {
 			_, ok := certsSetInner[cert.CertificateData]
 			if !ok {
-				op, err := config.sdk.IoT().Devices().Device().DeleteCertificate(ctx, &iot.DeleteDeviceCertificateRequest{DeviceId: d.Id(), Fingerprint: cert.Fingerprint})
-				err = waitOperation(ctx, config, op, err)
+				op, err := client.DeleteCertificate(ctx, &iot.DeleteDeviceCertificateRequest{DeviceId: d.Id(), Fingerprint: cert.Fingerprint})
+				if err == nil {
+					_, err = op.Wait(ctx)
+				}
 				if err != nil {
 					return fmt.Errorf("Failed to remove certificate: %s, fingerpring: %s", err, cert.Fingerprint)
 				}
@@ -276,8 +277,10 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		for cert := range certsSetInner {
-			op, err := config.sdk.IoT().Devices().Device().AddCertificate(ctx, &iot.AddDeviceCertificateRequest{DeviceId: d.Id(), CertificateData: cert})
-			err = waitOperation(ctx, config, op, err)
+			op, err := client.AddCertificate(ctx, &iot.AddDeviceCertificateRequest{DeviceId: d.Id(), CertificateData: cert})
+			if err == nil {
+				_, err = op.Wait(ctx)
+			}
 			if err != nil {
 				return fmt.Errorf("Failed to add certificate: %s", err)
 			}
@@ -286,14 +289,16 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	if d.HasChange("passwords") {
-		passResp, err := config.sdk.IoT().Devices().Device().ListPasswords(ctx, &iot.ListDevicePasswordsRequest{DeviceId: d.Id()})
+		passResp, err := client.ListPasswords(ctx, &iot.ListDevicePasswordsRequest{DeviceId: d.Id()})
 		if err != nil {
 			return err
 		}
 
 		for _, pass := range passResp.Passwords {
-			op, err := config.sdk.IoT().Devices().Device().DeletePassword(ctx, &iot.DeleteDevicePasswordRequest{DeviceId: d.Id(), PasswordId: pass.Id})
-			err = waitOperation(ctx, config, op, err)
+			op, err := client.DeletePassword(ctx, &iot.DeleteDevicePasswordRequest{DeviceId: d.Id(), PasswordId: pass.Id})
+			if err == nil {
+				_, err = op.Wait(ctx)
+			}
 			if err != nil {
 				return fmt.Errorf("Failed to delete password: %s", err)
 			}
@@ -312,6 +317,8 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func addDevicePasswords(ctx context.Context, config *Config, d *schema.ResourceData) error {
+	client := devicessdk.NewDeviceClient(config.SDK)
+
 	passwordsSet := expandIoTPasswords(d)
 	for pass := range passwordsSet {
 		req := iot.AddDevicePasswordRequest{
@@ -319,8 +326,10 @@ func addDevicePasswords(ctx context.Context, config *Config, d *schema.ResourceD
 			Password: pass,
 		}
 
-		op, err := config.sdk.IoT().Devices().Device().AddPassword(ctx, &req)
-		err = waitOperation(ctx, config, op, err)
+		op, err := client.AddPassword(ctx, &req)
+		if err == nil {
+			_, err = op.Wait(ctx)
+		}
 		if err != nil {
 			return err
 		}

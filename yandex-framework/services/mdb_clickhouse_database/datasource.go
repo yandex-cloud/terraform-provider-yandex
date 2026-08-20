@@ -79,7 +79,7 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
-	db := readDatabase(ctx, d.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
+	db := readDatabase(ctx, d.providerConfig.SDKv2, &resp.Diagnostics, cid, dbName)
 	if resp.Diagnostics.HasError() {
 		return
 	}

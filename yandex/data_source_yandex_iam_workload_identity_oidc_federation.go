@@ -9,7 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload/oidc"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
+	oidcsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/workload/oidc"
 )
 
 func dataSourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
@@ -107,7 +108,7 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederationRead(ctx context.Context, 
 	_, federationNameOk := d.GetOk("name")
 
 	if federationNameOk {
-		federationID, err = resolveObjectID(ctx, config, d, sdkresolvers.WliFederationResolver)
+		federationID, err = resolveWorkloadIdentityOidcFederationID(ctx, config, d)
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("failed to resolve workload identity federation by name: %v", err))
 		}
@@ -117,7 +118,9 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederationRead(ctx context.Context, 
 		FederationId: federationID,
 	}
 
-	resp, err := config.sdk.WorkloadOidc().Federation().Get(ctx, req)
+	client := oidcsdk.NewFederationClient(config.SDK)
+
+	resp, err := client.Get(ctx, req)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -166,4 +169,37 @@ func dataSourceYandexIAMWorkloadIdentityOidcFederationRead(ctx context.Context, 
 	}
 
 	return nil
+}
+
+func resolveWorkloadIdentityOidcFederationID(ctx context.Context, config *Config, d *schema.ResourceData) (string, error) {
+	name := d.Get("name").(string)
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return "", err
+	}
+	client := oidcsdk.NewFederationClient(config.SDK)
+
+	var federations []*oidc.Federation
+	pageToken := ""
+	for {
+		resp, err := client.List(ctx, &oidc.ListFederationsRequest{
+			FolderId:  folderID,
+			PageSize:  defaultListSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return "", err
+		}
+		federations = append(federations, resp.Federations...)
+		pageToken = resp.NextPageToken
+		if pageToken == "" {
+			break
+		}
+	}
+
+	resolver := sdkresolversv2.NewBaseNameResolver(name, "workload identity OIDC federation")
+	if err := resolver.FindName(federations, nil); err != nil {
+		return "", err
+	}
+	return resolver.ID(), nil
 }

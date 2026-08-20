@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 )
 
 // Logic to store sensitive values of resources into Lockbox, to avoid leaking those values to the Terraform state
@@ -199,7 +200,9 @@ func getLockboxVersion(ctx context.Context, config *Config, secretID, versionID 
 	}
 	log.Printf("[DEBUG] GetPayloadRequest: %s", protoDump(req))
 
-	return config.sdk.LockboxPayload().Payload().Get(ctx, req)
+	client := lockboxsdk.NewPayloadClient(config.SDK)
+
+	return client.Get(ctx, req)
 }
 
 func findEntryForKey(key string, payload *lockbox.Payload) *lockbox.Payload_Entry {
@@ -217,19 +220,13 @@ func addLockboxVersion(ctx context.Context, config *Config, secretID string, ent
 		PayloadEntries: entries,
 	}
 	log.Printf("[DEBUG] AddVersionRequest on secret %s", secretID)
-	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().AddVersion(ctx, req))
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	op, err := client.AddVersion(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	err = op.Wait(ctx)
-	if err != nil {
-		return nil, err
-	}
-	version, err := op.Response()
-	if err != nil {
-		return nil, err
-	}
-	return version.(*lockbox.Version), nil
+	return op.Wait(ctx)
 }
 
 func destroyLockboxVersion(ctx context.Context, config *Config, secretID string, versionID string) error {
@@ -238,11 +235,14 @@ func destroyLockboxVersion(ctx context.Context, config *Config, secretID string,
 		VersionId: versionID,
 	}
 	log.Printf("[DEBUG] ScheduleVersionDestructionRequest: %s", protoDump(req))
-	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().ScheduleVersionDestruction(ctx, req))
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	op, err := client.ScheduleVersionDestruction(ctx, req)
 	if err != nil {
 		return err
 	}
-	return op.Wait(ctx)
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func getChangeAsString(d *schema.ResourceData, key string) (string, string) {

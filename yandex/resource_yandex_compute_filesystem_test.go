@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 )
 
 func init() {
@@ -26,10 +27,11 @@ func testSweepComputeFilesystem(_ string) error {
 	}
 
 	req := &compute.ListFilesystemsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Compute().Filesystem().FilesystemIterator(conf.Context(), req)
+	it := computesdk.NewFilesystemClient(conf.SDK).Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
-		id := it.Value().GetId()
+		filesystem := it.Value()
+		id := filesystem.GetId()
 		if !sweepComputeFilesystem(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Compute Filesystem %q", id))
 		}
@@ -46,8 +48,11 @@ func sweepComputeFilesystemOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(5 * time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.Compute().Filesystem().Delete(ctx, &compute.DeleteFilesystemRequest{
-		FilesystemId: id,
-	})
-	return handleSweepOperation(ctx, conf, op, err)
+	op, err := computesdk.NewFilesystemClient(conf.
+		SDK,
+	).
+		Delete(ctx, &compute.DeleteFilesystemRequest{
+			FilesystemId: id,
+		})
+	return handleSweepOperationV2(ctx, op, err)
 }

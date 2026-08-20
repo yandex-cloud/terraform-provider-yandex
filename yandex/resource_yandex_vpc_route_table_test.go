@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 )
 
 func init() {
@@ -27,7 +28,9 @@ func testSweepVPCRouteTables(_ string) error {
 	}
 
 	req := &vpc.ListRouteTablesRequest{FolderId: conf.FolderID}
-	it := conf.sdk.VPC().RouteTable().RouteTableIterator(conf.Context(), req)
+	client := vpcsdk.NewRouteTableClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -47,10 +50,12 @@ func sweepVPCRouteTableOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexVPCRouteTableDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.VPC().RouteTable().Delete(ctx, &vpc.DeleteRouteTableRequest{
+	client := vpcsdk.NewRouteTableClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &vpc.DeleteRouteTableRequest{
 		RouteTableId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func TestAccVPCRouteTable_basic(t *testing.T) {
@@ -302,8 +307,9 @@ func testAccCheckVPCRouteTableExists(name string, routeTable *vpc.RouteTable) re
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := vpcsdk.NewRouteTableClient(config.SDK)
 
-		found, err := config.sdk.VPC().RouteTable().Get(context.Background(), &vpc.GetRouteTableRequest{
+		found, err := client.Get(context.Background(), &vpc.GetRouteTableRequest{
 			RouteTableId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -486,13 +492,14 @@ resource "yandex_vpc_route_table" "rt-b" {
 
 func testAccCheckVPCRouteTableDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := vpcsdk.NewRouteTableClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_vpc_route_table" {
 			continue
 		}
 
-		_, err := config.sdk.VPC().RouteTable().Get(context.Background(), &vpc.GetRouteTableRequest{
+		_, err := client.Get(context.Background(), &vpc.GetRouteTableRequest{
 			RouteTableId: rs.Primary.ID,
 		})
 		if err == nil {

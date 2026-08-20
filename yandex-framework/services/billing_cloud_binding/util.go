@@ -10,7 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/billing/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	billingsdk "github.com/yandex-cloud/go-sdk/services/billing/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 )
 
 type InstanceID struct {
@@ -51,7 +52,7 @@ func isObjectExist(ctx context.Context, sdk *ycsdk.SDK, resourceType,
 		BillingAccountId: billingAccountId,
 	}
 
-	for it := sdk.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(
+	for it := billingsdk.NewBillingAccountClient(sdk).BillableObjectBindingsIterator(
 		ctx, &bindingsRequest); it.Next(); {
 		billableObject := it.Value().BillableObject
 		if billableObject.Type == resourceType && billableObject.Id == serviceInstanceId {

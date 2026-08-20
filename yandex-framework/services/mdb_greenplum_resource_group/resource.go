@@ -129,7 +129,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 	cid := state.ClusterID.ValueString()
 	rgName := state.Name.ValueString()
-	rg := readResourceGroup(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, rgName)
+	rg := readResourceGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, rgName)
 	if resp.Diagnostics.HasError() || rg == nil {
 		return
 	}
@@ -160,10 +160,15 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	cid := plan.ClusterID.ValueString()
 	rgPlan := resourceGroupFromState(ctx, &plan)
 
-	createResourceGroup(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, rgPlan)
+	createResourceGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, rgPlan)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	created := readResourceGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, rgPlan.Name)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resourceGroupToState(created, &plan)
 
 	plan.Id = types.StringValue(resourceid.Construct(cid, rgPlan.Name))
 	diags = resp.State.Set(ctx, plan)
@@ -228,13 +233,18 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	updatePaths, diags := getUpdatePaths(rgPlan, rgState)
 
 	if len(updatePaths) > 0 {
-		updateResourceGroup(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, rgPlan, updatePaths)
+		updateResourceGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, rgPlan, updatePaths)
 	}
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	updated := readResourceGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, rgPlan.Name)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resourceGroupToState(updated, &plan)
 
-	state.Id = types.StringValue(resourceid.Construct(cid, rgPlan.Name))
+	plan.Id = types.StringValue(resourceid.Construct(cid, rgPlan.Name))
 	diags.Append(resp.State.Set(ctx, plan)...)
 	resp.Diagnostics.Append(diags...)
 }
@@ -257,7 +267,7 @@ func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	cid := state.ClusterID.ValueString()
 	dbName := state.Name.ValueString()
-	deleteResourceGroup(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid, dbName)
+	deleteResourceGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, dbName)
 }
 
 func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -269,7 +279,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		)
 		return
 	}
-	rg := readResourceGroup(ctx, r.providerConfig.SDK, &resp.Diagnostics, clusterId, rgName)
+	rg := readResourceGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, clusterId, rgName)
 	if resp.Diagnostics.HasError() || rg == nil {
 		return
 	}

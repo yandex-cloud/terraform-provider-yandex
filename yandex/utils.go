@@ -34,9 +34,14 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
-	sdkoperation "github.com/yandex-cloud/go-sdk/operation"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
+	sdkoperationv2 "github.com/yandex-cloud/go-sdk/v2/pkg/operation"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
+	awscompatibilitysdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/awscompatibility"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 type instanceAction int
@@ -138,7 +143,9 @@ func getFolderID(d *schema.ResourceData, config *Config) (string, error) {
 }
 
 func cloudIDOfFolderID(config *Config, folderID string) (string, error) {
-	folder, err := config.sdk.ResourceManager().Folder().Get(config.Context(), &resourcemanager.GetFolderRequest{
+	client := resourcemanagersdk.NewFolderClient(config.SDK)
+
+	folder, err := client.Get(config.Context(), &resourcemanager.GetFolderRequest{
 		FolderId: folderID,
 	})
 	if err != nil {
@@ -161,28 +168,21 @@ func lockCloudByFolderID(config *Config, folderID string) (func(), error) {
 }
 
 func createTemporaryStaticAccessKey(roleID string, config *Config) (accessKey, secretKey string, cleanup func(), err error) {
-	op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Create(context.Background(), &iam.CreateServiceAccountRequest{
+	serviceAccountClient := iamsdk.NewServiceAccountClient(config.SDK)
+
+	accessKeyClient := awscompatibilitysdk.NewAccessKeyClient(config.SDK)
+
+	op, err := serviceAccountClient.Create(context.Background(), &iam.CreateServiceAccountRequest{
 		FolderId: config.FolderID,
 		Name:     acctest.RandomWithPrefix("tmp-sa-"),
-	}))
+	})
 	if err != nil {
 		return
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return
-	}
+	saID := op.Metadata().ServiceAccountId
 
-	md, ok := protoMetadata.(*iam.CreateServiceAccountMetadata)
-	if !ok {
-		err = fmt.Errorf("could not get temporary service account ID from create operation metadata")
-		return
-	}
-
-	saID := md.ServiceAccountId
-
-	err = op.Wait(context.Background())
+	_, err = op.Wait(context.Background())
 	if err != nil {
 		return
 	}
@@ -200,22 +200,24 @@ func createTemporaryStaticAccessKey(roleID string, config *Config) (accessKey, s
 		mutexKV.Lock(mutexKey)
 		defer mutexKV.Unlock(mutexKey)
 
-		op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Delete(context.Background(), &iam.DeleteServiceAccountRequest{
+		op, err := serviceAccountClient.Delete(context.Background(), &iam.DeleteServiceAccountRequest{
 			ServiceAccountId: saID,
-		}))
+		})
 		if err != nil {
 			log.Printf("[WARN] error deleting temporary service account: %s", err)
 			return
 		}
 
-		err = op.Wait(context.Background())
+		_, err = op.Wait(context.Background())
 		if err != nil {
 			log.Printf("[WARN] error deleting temporary service account: %s", err)
 		}
 	}
 
 	createKey := func() (*awscompatibility.CreateAccessKeyResponse, error) {
-		op, err = config.sdk.WrapOperation(config.sdk.ResourceManager().Folder().UpdateAccessBindings(context.Background(), &access.UpdateAccessBindingsRequest{
+		client := resourcemanagersdk.NewFolderClient(config.SDK)
+
+		updateOp, updateErr := client.UpdateAccessBindings(context.Background(), &access.UpdateAccessBindingsRequest{
 			ResourceId: config.FolderID,
 			AccessBindingDeltas: []*access.AccessBindingDelta{
 				{
@@ -229,17 +231,17 @@ func createTemporaryStaticAccessKey(roleID string, config *Config) (accessKey, s
 					},
 				},
 			},
-		}))
-		if err != nil {
-			return nil, err
+		})
+		if updateErr != nil {
+			return nil, updateErr
 		}
 
-		err = op.Wait(context.Background())
-		if err != nil {
-			return nil, err
+		_, updateErr = updateOp.Wait(context.Background())
+		if updateErr != nil {
+			return nil, updateErr
 		}
 
-		sak, err := config.sdk.IAM().AWSCompatibility().AccessKey().Create(context.Background(), &awscompatibility.CreateAccessKeyRequest{
+		sak, err := accessKeyClient.Create(context.Background(), &awscompatibility.CreateAccessKeyRequest{
 			ServiceAccountId: saID,
 		})
 		if err != nil {
@@ -258,7 +260,7 @@ func createTemporaryStaticAccessKey(roleID string, config *Config) (accessKey, s
 	accessKey = sak.AccessKey.KeyId
 	secretKey = sak.Secret
 	cleanup = func() {
-		_, err := config.sdk.IAM().AWSCompatibility().AccessKey().Delete(context.Background(), &awscompatibility.DeleteAccessKeyRequest{
+		_, err := accessKeyClient.Delete(context.Background(), &awscompatibility.DeleteAccessKeyRequest{
 			AccessKeyId: sak.AccessKey.Id,
 		})
 		if err != nil {
@@ -270,11 +272,15 @@ func createTemporaryStaticAccessKey(roleID string, config *Config) (accessKey, s
 	return
 }
 
-func retryConflictingOperation(ctx context.Context, config *Config, action func() (*operation.Operation, error)) (*sdkoperation.Operation, error) {
+type sdkV2Operation interface {
+	Abstract() sdkoperationv2.AbstractOperation
+}
+
+func retryConflictingOperationV2(ctx context.Context, config *Config, action func() (sdkV2Operation, error)) (sdkoperationv2.AbstractOperation, error) {
 	for {
-		op, err := config.sdk.WrapOperation(action())
+		typedOperation, err := action()
 		if err == nil {
-			return op, nil
+			return typedOperation.Abstract(), nil
 		}
 
 		operationID := ""
@@ -286,19 +292,41 @@ func retryConflictingOperation(ctx context.Context, config *Config, action func(
 		} else if len(submatchPyApi) > 0 {
 			operationID = submatchPyApi[1]
 		} else {
-			return op, err
-		}
-
-		log.Printf("[DEBUG] Waiting for conflicting operation %q to complete", operationID)
-		req := &operation.GetOperationRequest{OperationId: operationID}
-		op, err = config.sdk.WrapOperation(config.sdk.Operation().Get(ctx, req))
-		if err != nil {
 			return nil, err
 		}
 
-		_ = op.Wait(ctx)
+		log.Printf("[DEBUG] Waiting for conflicting operation %q to complete", operationID)
+		if err := waitOperationByIDV2(ctx, config, operationID); err != nil {
+			return nil, err
+		}
 		log.Printf("[DEBUG] Conflicting operation %q has completed. Going to retry initial action.", operationID)
 	}
+}
+
+func waitOperationByIDV2(ctx context.Context, config *Config, operationID string) error {
+	connection, err := config.SDK.GetConnection(ctx, protoreflect.FullName("yandex.cloud.operation.OperationService.Get"))
+	if err != nil {
+		return err
+	}
+	client := operation.NewOperationServiceClient(connection)
+	return waitConflictingOperationV2(ctx, operationID, func(ctx context.Context, operationID string, opts ...grpc.CallOption) (sdkoperationv2.YCOperation, error) {
+		return client.Get(ctx, &operation.GetOperationRequest{OperationId: operationID}, opts...)
+	}, func(int) time.Duration { return time.Second })
+}
+
+func waitConflictingOperationV2(ctx context.Context, operationID string, poll sdkoperationv2.PollFunc, pollInterval sdkoperationv2.PollIntervalFunc) error {
+	initial, err := poll(ctx, operationID)
+	if err != nil {
+		return err
+	}
+	if initial.GetDone() {
+		return nil
+	}
+
+	// SDK v1 propagated the initial Get error, but ignored the result of Wait.
+	// Preserve both parts of that contract while using SDK v2 polling semantics.
+	_, _ = sdkoperationv2.PollUntilDone(ctx, operationID, poll, pollInterval)
+	return nil
 }
 
 func handleNotFoundError(err error, d *schema.ResourceData, resourceName string) error {
@@ -686,13 +714,32 @@ func checkEveryOf(d *schema.ResourceData, keys ...string) error {
 	return nil
 }
 
-type objectResolverFunc func(name string, opts ...sdkresolvers.ResolveOption) ycsdk.Resolver
+type objectResolverFuncV2 func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver
+
+func resolverWithClient[C any](client C, resolver func(string, C, ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver) objectResolverFuncV2 {
+	return func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+		return resolver(name, client, opts...)
+	}
+}
 
 // this function can be only used to resolve objects that belong to some folder (have folder_id attribute)
 // do not use this function to resolve cloud (or similar objects) ID by name.
-func resolveObjectID(ctx context.Context, config *Config, d *schema.ResourceData, resolverFunc objectResolverFunc) (string, error) {
-	name, ok := d.GetOk("name")
+func resolveObjectIDByNameAndFolderIDV2(ctx context.Context, name, folderID string, resolverFunc objectResolverFuncV2) (string, error) {
+	if name == "" {
+		return "", fmt.Errorf("non empty name should be provided")
+	}
+	resolver := resolverFunc(name, sdkresolversv2.FolderID(folderID))
+	if err := resolver.Run(ctx); err != nil {
+		return "", err
+	}
+	if err := resolver.Err(); err != nil {
+		return "", err
+	}
+	return resolver.ID(), nil
+}
 
+func resolveObjectIDV2(ctx context.Context, config *Config, d *schema.ResourceData, resolverFunc objectResolverFuncV2) (string, error) {
+	name, ok := d.GetOk("name")
 	if !ok {
 		return "", fmt.Errorf("non empty name should be provided")
 	}
@@ -702,30 +749,13 @@ func resolveObjectID(ctx context.Context, config *Config, d *schema.ResourceData
 		return "", err
 	}
 
-	return resolveObjectIDByNameAndFolderID(ctx, config, name.(string), folderID, resolverFunc)
-}
-
-func resolveObjectIDByNameAndFolderID(ctx context.Context, config *Config, name, folderID string, resolverFunc objectResolverFunc) (string, error) {
-	if name == "" {
-		return "", fmt.Errorf("non empty name should be provided")
-	}
-
-	var objectID string
-	resolver := resolverFunc(name, sdkresolvers.Out(&objectID), sdkresolvers.FolderID(folderID))
-
-	err := config.sdk.Resolve(ctx, resolver)
-
-	if err != nil {
-		return "", err
-	}
-
-	return objectID, nil
+	return resolveObjectIDByNameAndFolderIDV2(ctx, name.(string), folderID, resolverFunc)
 }
 
 func getSnapshotMinStorageSize(snapshotID string, config *Config) (size int64, err error) {
 	ctx := config.Context()
 
-	snapshot, err := config.sdk.Compute().Snapshot().Get(ctx, &compute.GetSnapshotRequest{
+	snapshot, err := computesdk.NewSnapshotClient(config.SDK).Get(ctx, &compute.GetSnapshotRequest{
 		SnapshotId: snapshotID,
 	})
 
@@ -739,7 +769,7 @@ func getSnapshotMinStorageSize(snapshotID string, config *Config) (size int64, e
 func getImageMinStorageSize(imageID string, config *Config) (size int64, err error) {
 	ctx := config.Context()
 
-	image, err := config.sdk.Compute().Image().Get(ctx, &compute.GetImageRequest{
+	image, err := computesdk.NewImageClient(config.SDK).Get(ctx, &compute.GetImageRequest{
 		ImageId: imageID,
 	})
 
@@ -949,10 +979,6 @@ func useResourceInstead(deprecatedFieldName string, newResource string) string {
 	return fmt.Sprintf("to manage %ss, please switch to using a separate resource type %s", deprecatedFieldName, newResource)
 }
 
-func getSDK(config *Config) *ycsdk.SDK {
-	return config.sdk
-}
-
 func generateFieldMasks(d *schema.ResourceData, fieldsMap map[string]string) []string {
 	changedPaths := make(map[string]bool)
 
@@ -1125,39 +1151,46 @@ type OperationRetryConfig struct {
 	pollInterval   time.Duration
 }
 
-func waitOperationWithRetry(ctx context.Context, config *Config, retryConfig *OperationRetryConfig, action func() (*operation.Operation, error)) error {
+func waitOperationWithRetryV2(ctx context.Context, config *Config, retryConfig *OperationRetryConfig, action func() (sdkV2Operation, error)) error {
 	var err error
 	for step := 0; step < retryConfig.retryCount; step++ {
-		var op *sdkoperation.Operation
-		op, err = retryConflictingOperation(ctx, config, action)
-
+		var op sdkoperationv2.AbstractOperation
+		op, err = retryConflictingOperationV2(ctx, config, action)
 		if err != nil {
 			return err
 		}
 
-		err = op.WaitInterval(ctx, retryConfig.pollInterval)
-		if shouldRetryOperationByCode(op, retryConfig.retriableCodes, err) {
+		err = waitOperationV2(ctx, op, retryConfig.pollInterval)
+		if shouldRetryOperationV2(op, retryConfig.retriableCodes, err) {
 			time.Sleep(retryConfig.retryInterval)
 			continue
 		}
 		break
 	}
-
 	return err
 }
 
-func shouldRetryOperationByCode(op *sdkoperation.Operation, retriableCodes []codes.Code, err error) bool {
-	if err != nil {
-		status, ok := status.FromError(err)
-		if ok {
-			for _, code := range retriableCodes {
-				if status.Code() == code {
-					return true
-				}
-			}
-		}
+func waitOperationV2(ctx context.Context, op sdkoperationv2.AbstractOperation, pollInterval time.Duration) error {
+	concrete, ok := op.(*sdkoperationv2.Operation)
+	if !ok {
+		return fmt.Errorf("unsupported SDK v2 operation type %T", op)
+	}
+	_, err := concrete.WaitInterval(ctx, func(int) time.Duration { return pollInterval })
+	return err
+}
+
+func shouldRetryOperationV2(op sdkoperationv2.AbstractOperation, retriableCodes []codes.Code, err error) bool {
+	if err == nil {
+		return op.Done() && op.Error() != nil
+	}
+	grpcStatus, ok := status.FromError(err)
+	if !ok {
 		return false
 	}
-
-	return op.Failed()
+	for _, code := range retriableCodes {
+		if grpcStatus.Code() == code {
+			return true
+		}
+	}
+	return false
 }

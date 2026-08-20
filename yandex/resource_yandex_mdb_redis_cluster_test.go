@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
+	redissdk "github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 )
 
 const (
@@ -36,7 +37,7 @@ func testSweepMDBRedisCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.MDB().Redis().Cluster().List(conf.Context(), &redis.ListClustersRequest{
+	resp, err := redissdk.NewClusterClient(conf.SDK).List(conf.Context(), &redis.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
 	})
@@ -63,20 +64,20 @@ func sweepMDBRedisClusterOnce(conf *Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.MDB().Redis().Cluster().Update(ctx, &redis.UpdateClusterRequest{
+	op, err := redissdk.NewClusterClient(conf.SDK).Update(ctx, &redis.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, op, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
-	op, err = conf.sdk.MDB().Redis().Cluster().Delete(ctx, &redis.DeleteClusterRequest{
+	deleteOp, err := redissdk.NewClusterClient(conf.SDK).Delete(ctx, &redis.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, deleteOp, err)
 }
 
 func mdbRedisClusterImportStep(name string) resource.TestStep {
@@ -600,7 +601,7 @@ func testAccCheckMDBRedisClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.MDB().Redis().Cluster().Get(context.Background(), &redis.GetClusterRequest{
+		_, err := redissdk.NewClusterClient(config.SDK).Get(context.Background(), &redis.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -626,7 +627,7 @@ func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tl
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().Redis().Cluster().Get(context.Background(), &redis.GetClusterRequest{
+		found, err := redissdk.NewClusterClient(config.SDK).Get(context.Background(), &redis.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -655,7 +656,7 @@ func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tl
 
 		*r = *found
 
-		resp, err := config.sdk.MDB().Redis().Cluster().ListHosts(context.Background(), &redis.ListClusterHostsRequest{
+		resp, err := redissdk.NewClusterClient(config.SDK).ListHosts(context.Background(), &redis.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -675,7 +676,7 @@ func testAccCheckMDBRedisClusterHasShards(r *redis.Cluster, shards []string) res
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Redis().Cluster().ListShards(context.Background(), &redis.ListClusterShardsRequest{
+		resp, err := redissdk.NewClusterClient(config.SDK).ListShards(context.Background(), &redis.ListClusterShardsRequest{
 			ClusterId: r.Id,
 			PageSize:  defaultMDBPageSize,
 		})

@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"google.golang.org/grpc/codes"
 )
 
@@ -251,7 +252,7 @@ func testAccLoadKafkaUser(s *terraform.State, userName string) (*kafka.User, err
 	}
 
 	config := testAccProvider.Meta().(*Config)
-	return config.sdk.MDB().Kafka().User().Get(context.Background(), &kafka.GetUserRequest{
+	return kafkasdk.NewUserClient(config.SDK).Get(context.Background(), &kafka.GetUserRequest{
 		ClusterId: rs.Primary.ID,
 		UserName:  userName,
 	})

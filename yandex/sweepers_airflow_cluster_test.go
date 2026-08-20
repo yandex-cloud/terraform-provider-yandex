@@ -11,6 +11,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	afv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/airflow/v1"
+	airflowsdk "github.com/yandex-cloud/go-sdk/services/airflow/v1"
 )
 
 const (
@@ -32,7 +33,8 @@ func testSweepMDBAirflowCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.Airflow().Cluster().List(context.Background(), &afv1.ListClustersRequest{
+	client := airflowsdk.NewClusterClient(conf.SDK)
+	resp, err := client.List(context.Background(), &afv1.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: airflowClusterPageSize,
 	})
@@ -59,20 +61,21 @@ func sweepMDBAirflowClusterOnce(conf *Config, id string) error {
 
 	ctxUpd, cancelUpd := context.WithTimeout(context.Background(), airflowClusterUpdateTimeout)
 	defer cancelUpd()
-	op, err := conf.sdk.Airflow().Cluster().Update(ctxUpd, &afv1.UpdateClusterRequest{
+	client := airflowsdk.NewClusterClient(conf.SDK)
+	updateOp, err := client.Update(ctxUpd, &afv1.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctxUpd, conf, op, err)
+	err = handleSweepOperationV2(ctxUpd, updateOp, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
 	ctxDel, cancelDel := context.WithTimeout(context.Background(), airflowClusterDeleteTimeout)
 	defer cancelDel()
-	op, err = conf.sdk.Airflow().Cluster().Delete(ctxDel, &afv1.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctxDel, &afv1.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctxDel, conf, op, err)
+	return handleSweepOperationV2(ctxDel, deleteOp, err)
 }

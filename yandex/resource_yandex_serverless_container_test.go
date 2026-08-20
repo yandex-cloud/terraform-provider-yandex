@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
+	containerssdk "github.com/yandex-cloud/go-sdk/services/serverless/containers/v1"
 )
 
 const serverlessContainerResource = "yandex_serverless_container.test-container"
@@ -44,7 +45,9 @@ func testSweepServerlessContainer(_ string) error {
 	}
 
 	req := &containers.ListContainersRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Serverless().Containers().Container().ContainerIterator(conf.Context(), req)
+	client := containerssdk.NewContainerClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -64,10 +67,12 @@ func sweepServerlessContainerOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexServerlessContainerDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Serverless().Containers().Container().Delete(ctx, &containers.DeleteContainerRequest{
+	client := containerssdk.NewContainerClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &containers.DeleteContainerRequest{
 		ContainerId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func TestAccYandexServerlessContainer_basic(t *testing.T) {
@@ -770,7 +775,9 @@ func testListContainerRevisionsByContainerID(config *Config, containerID string)
 	req := containers.ListContainersRevisionsRequest{
 		Id: &containers.ListContainersRevisionsRequest_ContainerId{ContainerId: containerID},
 	}
-	resp, err := config.sdk.Serverless().Containers().Container().ListRevisions(context.Background(), &req)
+	client := containerssdk.NewContainerClient(config.SDK)
+
+	resp, err := client.ListRevisions(context.Background(), &req)
 	if err != nil {
 		return nil, err
 	}
@@ -782,7 +789,9 @@ func testGetServerlessContainerByID(config *Config, ID string) (*containers.Cont
 		ContainerId: ID,
 	}
 
-	return config.sdk.Serverless().Containers().Container().Get(context.Background(), &req)
+	client := containerssdk.NewContainerClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
 }
 
 func testGetServerlessContainerRevisionByID(config *Config, ID string) (*containers.Revision, error) {
@@ -790,7 +799,9 @@ func testGetServerlessContainerRevisionByID(config *Config, ID string) (*contain
 		ContainerRevisionId: ID,
 	}
 
-	return config.sdk.Serverless().Containers().Container().GetRevision(context.Background(), &req)
+	client := containerssdk.NewContainerClient(config.SDK)
+
+	return client.GetRevision(context.Background(), &req)
 }
 
 func testYandexServerlessContainerName(container *containers.Container, name string) resource.TestCheckFunc {

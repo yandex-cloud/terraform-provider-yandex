@@ -37,10 +37,8 @@ func TestAccDataSourceOrganizationManagerIdpApplicationOauthApplication_byID(t *
 					resource.TestCheckResourceAttr("data.yandex_organizationmanager_idp_application_oauth_application.source", "labels.env", "test"),
 					resource.TestCheckResourceAttr("data.yandex_organizationmanager_idp_application_oauth_application.source", "labels.app", "test-app"),
 					resource.TestCheckResourceAttrSet("data.yandex_organizationmanager_idp_application_oauth_application.source", "client_grant.client_id"),
-					resource.TestCheckResourceAttr("data.yandex_organizationmanager_idp_application_oauth_application.source", "client_grant.authorized_scopes.#", "3"),
+					resource.TestCheckResourceAttr("data.yandex_organizationmanager_idp_application_oauth_application.source", "client_grant.authorized_scopes.#", "1"),
 					resource.TestCheckTypeSetElemAttr("data.yandex_organizationmanager_idp_application_oauth_application.source", "client_grant.authorized_scopes.*", "openid"),
-					resource.TestCheckTypeSetElemAttr("data.yandex_organizationmanager_idp_application_oauth_application.source", "client_grant.authorized_scopes.*", "profile"),
-					resource.TestCheckTypeSetElemAttr("data.yandex_organizationmanager_idp_application_oauth_application.source", "client_grant.authorized_scopes.*", "email"),
 					resource.TestCheckResourceAttrSet("data.yandex_organizationmanager_idp_application_oauth_application.source", "group_claims_settings.group_distribution_type"),
 					resource.TestCheckResourceAttrSet("data.yandex_organizationmanager_idp_application_oauth_application.source", "status"),
 					test.AccCheckCreatedAtAttr("data.yandex_organizationmanager_idp_application_oauth_application.source"),
@@ -63,7 +61,7 @@ func testAccDataSourceIdpApplicationOauthApplicationResourceConfig(appName, orga
 resource "yandex_iam_oauth_client" "test_client" {
   name       = "%s"
   folder_id  = "%s"
-  scopes     = ["iam"]
+  scopes     = ["openid"]
 }
 
 resource "yandex_organizationmanager_idp_application_oauth_application" "foobar" {
@@ -73,7 +71,7 @@ resource "yandex_organizationmanager_idp_application_oauth_application" "foobar"
 
   client_grant = {
     client_id         = yandex_iam_oauth_client.test_client.id
-    authorized_scopes = ["openid", "profile", "email"]
+    authorized_scopes = ["openid"]
   }
 
   group_claims_settings = {

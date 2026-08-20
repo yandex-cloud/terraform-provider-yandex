@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 //revive:disable:var-naming
@@ -43,8 +44,9 @@ func testAccDataSourceIAMRoleExists(n string, role *iam.Role) resource.TestCheck
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := iamsdk.NewRoleClient(config.SDK)
 
-		found, err := config.sdk.IAM().Role().Get(context.Background(), &iam.GetRoleRequest{
+		found, err := client.Get(context.Background(), &iam.GetRoleRequest{
 			RoleId: rs.Primary.ID,
 		})
 		if err != nil {

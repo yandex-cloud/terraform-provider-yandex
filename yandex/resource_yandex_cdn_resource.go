@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	cdnsdk "github.com/yandex-cloud/go-sdk/services/cdn/v1"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
@@ -518,33 +519,17 @@ func (c *cdnResource) Create(ctx context.Context, d *schema.ResourceData, meta a
 		return diag.FromErr(err)
 	}
 
-	operation, err := config.sdk.WrapOperation(
-		config.sdk.CDN().Resource().Create(ctx, request),
-	)
+	client := cdnsdk.NewResourceClient(config.SDK)
 
+	operation, err := client.Create(ctx, request)
 	if err != nil {
 		return diag.Errorf("error while requesting API to create CDN Resource: %s", err)
 	}
+	d.SetId(operation.Metadata().GetResourceId())
 
-	protoMetadata, err := operation.Metadata()
-	if err != nil {
-		return diag.Errorf("error while obtaining response metadata for create CDN Resource operation: %s", err)
-	}
-
-	pm, ok := protoMetadata.(*cdn.CreateResourceMetadata)
-	if !ok {
-		return diag.Errorf("resource metadata type mismatch")
-	}
-
-	d.SetId(pm.ResourceId)
-
-	err = operation.Wait(ctx)
+	_, err = operation.Wait(ctx)
 	if err != nil {
 		return diag.Errorf("error while requesting API to create CDN Resource: %s", err)
-	}
-
-	if _, err = operation.Response(); err != nil {
-		return diag.FromErr(err)
 	}
 
 	if err := updateShielding(ctx, d, config); err != nil {
@@ -559,7 +544,9 @@ func (*cdnResource) Read(ctx context.Context, d *schema.ResourceData, meta any) 
 
 	log.Printf("[DEBUG] Reading CDN Resource: %q", d.Id())
 
-	resource, err := config.sdk.CDN().Resource().Get(ctx, &cdn.GetResourceRequest{
+	client := cdnsdk.NewResourceClient(config.SDK)
+
+	resource, err := client.Get(ctx, &cdn.GetResourceRequest{
 		ResourceId: d.Id(),
 	})
 	if err != nil {
@@ -568,7 +555,7 @@ func (*cdnResource) Read(ctx context.Context, d *schema.ResourceData, meta any) 
 
 	log.Printf("[DEBUG] Completed Reading CDN Resource %q", d.Id())
 
-	shielding, err := getShieldingLocation(ctx, d.Id(), config.sdk)
+	shielding, err := getShieldingLocation(ctx, d.Id(), config)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("reading shielding: %w", err))
 	}
@@ -604,34 +591,22 @@ func (c *cdnResource) Update(ctx context.Context, d *schema.ResourceData, meta a
 		return diag.FromErr(err)
 	}
 
-	operation, err := config.sdk.WrapOperation(config.sdk.CDN().Resource().Update(ctx, request))
+	client := cdnsdk.NewResourceClient(config.SDK)
+
+	operation, err := client.Update(ctx, request)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	protoMetadata, err := operation.Metadata()
-	if err != nil {
-		return diag.Errorf("error while obtaining response metadate for CDN Resource update: %s", err)
-	}
-
-	pm, ok := protoMetadata.(*cdn.UpdateResourceMetadata)
-	if !ok {
-		return diag.Errorf("cdn resource metadata type mismatch")
-	}
-
-	if err = operation.Wait(ctx); err != nil {
+	if _, err = operation.Wait(ctx); err != nil {
 		return diag.Errorf("error while requesting API to update CDN Resource: %s", err)
-	}
-
-	if _, err := operation.Response(); err != nil {
-		return diag.FromErr(err)
 	}
 
 	if err := updateShielding(ctx, d, config); err != nil {
 		return diag.FromErr(fmt.Errorf("updating shielding: %w", err))
 	}
 
-	d.SetId(pm.ResourceId)
+	d.SetId(operation.Metadata().GetResourceId())
 
 	log.Printf("[DEBUG] Completed updating CDN Resource %q", d.Id())
 	return c.Read(ctx, d, meta)
@@ -642,36 +617,19 @@ func (c *cdnResource) Delete(ctx context.Context, d *schema.ResourceData, meta a
 
 	log.Printf("[DEBUG] Deleting CDN Resource %q", d.Id())
 
-	operation, err := config.sdk.WrapOperation(
-		config.sdk.CDN().Resource().Delete(ctx, &cdn.DeleteResourceRequest{
-			ResourceId: d.Id(),
-		}),
-	)
+	client := cdnsdk.NewResourceClient(config.SDK)
 
+	operation, err := client.Delete(ctx, &cdn.DeleteResourceRequest{ResourceId: d.Id()})
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("CDN Resource ID: %q", d.Id())))
 	}
 
-	protoMetadata, err := operation.Metadata()
-	if err != nil {
-		return diag.Errorf("error while obtaining response metadata for CDN Resource: %s", err)
-	}
-
-	pm, ok := protoMetadata.(*cdn.DeleteResourceMetadata)
-	if !ok {
-		return diag.Errorf("resource metadata type mismatch")
-	}
-
 	log.Printf("[DEBUG] Waiting Deleting of CDN Resource operation completion %q", d.Id())
 
-	if err = operation.Wait(ctx); err != nil {
+	if _, err = operation.Wait(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if _, err := operation.Response(); err != nil {
-		return diag.FromErr(err)
-	}
-
-	log.Printf("[DEBUG] Finished deleting of CDN Resource %q: %#v", d.Id(), pm.ResourceId)
+	log.Printf("[DEBUG] Finished deleting of CDN Resource %q", d.Id())
 	return nil
 }

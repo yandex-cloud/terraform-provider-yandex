@@ -8,7 +8,7 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -449,9 +449,9 @@ func resourceYandexMDBKafkaConnectorCreate(d *schema.ResourceData, meta interfac
 		ClusterId:     d.Get("cluster_id").(string),
 		ConnectorSpec: connectorSpec,
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Creating Kafka connector: %+v", req)
-		return config.sdk.MDB().Kafka().Connector().Create(ctx, req)
+		return kafkasdk.NewConnectorClient(config.SDK).Create(ctx, req)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Kafka connector: %s", err)
@@ -460,12 +460,12 @@ func resourceYandexMDBKafkaConnectorCreate(d *schema.ResourceData, meta interfac
 	conectorName := constructResourceId(req.ClusterId, req.ConnectorSpec.Name)
 	d.SetId(conectorName)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting for Kafka conector create operation: %s", err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("kafka conector creation failed: %s", err)
 	}
 	log.Printf("[DEBUG] Finished creating Kafka conector %q", conectorName)
@@ -486,7 +486,7 @@ func resourceYandexMDBKafkaConnectorRead(d *schema.ResourceData, meta interface{
 
 	clusterID := parts[0]
 	connectorName := parts[1]
-	conn, err := config.sdk.MDB().Kafka().Connector().Get(ctx, &kafka.GetConnectorRequest{
+	conn, err := kafkasdk.NewConnectorClient(config.SDK).Get(ctx, &kafka.GetConnectorRequest{
 		ClusterId:     clusterID,
 		ConnectorName: connectorName,
 	})
@@ -568,16 +568,16 @@ func resourceYandexMDBKafkaConnectorUpdate(d *schema.ResourceData, meta interfac
 		UpdateMask:    &field_mask.FieldMask{Paths: updatePath},
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending connector update request: %+v", request)
-		return config.sdk.MDB().Kafka().Connector().Update(ctx, request)
+		return kafkasdk.NewConnectorClient(config.SDK).Update(ctx, request)
 	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update connector %q in Kafka Cluster %q: %s",
 			connName, clusterID, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating connector in Kafka Cluster %q: %s", d.Id(), err)
 	}
@@ -600,15 +600,15 @@ func resourceYandexMDBKafkaConnectorDelete(d *schema.ResourceData, meta interfac
 		ConnectorName: connName,
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Deleting Kafka connector %q", connName)
-		return config.sdk.MDB().Kafka().Connector().Delete(ctx, request)
+		return kafkasdk.NewConnectorClient(config.SDK).Delete(ctx, request)
 	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Kafka connector %q", connName))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting connector %q from Kafka Cluster %q: %s", connName, clusterID, err)
 	}

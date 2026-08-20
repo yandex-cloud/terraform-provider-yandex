@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	mongodbsdk "github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 
@@ -1436,29 +1436,21 @@ func resourceYandexMDBMongodbClusterCreate(ctx context.Context, d *schema.Resour
 		return resourceYandexMDBMongodbClusterRestore(d, meta, req, backupID.(string))
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().Create(ctx, req))
+	op, err := mongodbsdk.NewClusterClient(config.SDK).Create(ctx, req)
 	if err != nil {
 		return diag.Errorf("error while requesting API to create Mongodb Cluster: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return diag.Errorf("error while get Mongodb create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*mongodb.CreateClusterMetadata)
-	if !ok {
-		return diag.Errorf("could not get Cluster ID from create operation metadata")
-	}
+	md := op.Metadata()
 
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return diag.Errorf("error while waiting for operation to create Mongodb Cluster: %s", err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return diag.Errorf("Mongodb Cluster creation failed: %s", err)
 	}
 
@@ -1504,16 +1496,16 @@ func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interfa
 		request.DiskEncryptionKeyId = &wrapperspb.StringValue{Value: ""}
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MongoDB cluste restore request: %+v", request)
-		return config.sdk.MDB().MongoDB().Cluster().Restore(ctx, request)
+		return mongodbsdk.NewClusterClient(config.SDK).Restore(ctx, request)
 	})
 
 	if err != nil {
 		return diag.Errorf("Error while requesting API to create MongoDB Cluster from backup %v: %s", backupID, err)
 	}
 
-	protoMetadata, err := op.Metadata()
+	protoMetadata := op.Metadata()
 	if err != nil {
 		return diag.Errorf("Error while get MongoDB Cluster create from backup %v operation metadata: %s", backupID, err)
 	}
@@ -1525,12 +1517,12 @@ func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interfa
 
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return diag.Errorf("Error while waiting for operation to create MongoDB Cluster from backup %v: %s", backupID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return diag.Errorf("MongoDB Cluster creationg from backup %v failed: %s", backupID, err)
 	}
 
@@ -1539,17 +1531,17 @@ func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interfa
 
 //nolint:unused
 func updateMongoDBMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *mongodb.MaintenanceWindow) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().Cluster().Update(ctx, &mongodb.UpdateClusterRequest{
+	op, err :=
+		mongodbsdk.NewClusterClient(config.SDK).Update(ctx, &mongodb.UpdateClusterRequest{
 			ClusterId:         d.Id(),
 			MaintenanceWindow: mw,
 			UpdateMask:        &field_mask.FieldMask{Paths: []string{"maintenance_window"}},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update maintenance window in MongoDB Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating maintenance window in MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -1560,7 +1552,7 @@ func listMongodbHosts(ctx context.Context, config *Config, d *schema.ResourceDat
 	var hosts []*mongodb.Host
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().MongoDB().Cluster().ListHosts(ctx, &mongodb.ListClusterHostsRequest{
+		resp, err := mongodbsdk.NewClusterClient(config.SDK).ListHosts(ctx, &mongodb.ListClusterHostsRequest{
 			ClusterId: d.Id(),
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1581,7 +1573,7 @@ func listMongodbShards(ctx context.Context, config *Config, d *schema.ResourceDa
 	var shards []*mongodb.Shard
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().MongoDB().Cluster().ListShards(ctx, &mongodb.ListClusterShardsRequest{
+		resp, err := mongodbsdk.NewClusterClient(config.SDK).ListShards(ctx, &mongodb.ListClusterShardsRequest{
 			ClusterId: d.Id(),
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1600,7 +1592,7 @@ func listMongodbShards(ctx context.Context, config *Config, d *schema.ResourceDa
 
 func resourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	cluster, err := config.sdk.MDB().MongoDB().Cluster().Get(ctx, &mongodb.GetClusterRequest{
+	cluster, err := mongodbsdk.NewClusterClient(config.SDK).Get(ctx, &mongodb.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -1870,17 +1862,17 @@ func resourceYandexMDBMongodbClusterDelete(ctx context.Context, d *schema.Resour
 		ClusterId: d.Id(),
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().Delete(ctx, req))
+	op, err := mongodbsdk.NewClusterClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Mongodb Cluster %q", d.Get("name").(string))))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	_, err = op.Response()
+	err = op.Error()
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -1893,7 +1885,7 @@ func listMongodbUsers(ctx context.Context, config *Config, id string) ([]*mongod
 	var users []*mongodb.User
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().MongoDB().User().List(ctx, &mongodb.ListUsersRequest{
+		resp, err := mongodbsdk.NewUserClient(config.SDK).List(ctx, &mongodb.ListUsersRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1914,7 +1906,7 @@ func listMongodbDatabases(ctx context.Context, config *Config, id string) ([]*mo
 	var dbs []*mongodb.Database
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().MongoDB().Database().List(ctx, &mongodb.ListDatabasesRequest{
+		resp, err := mongodbsdk.NewDatabaseClient(config.SDK).List(ctx, &mongodb.ListDatabasesRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -2092,12 +2084,12 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 		return nil
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().Update(ctx, req))
+	op, err := mongodbsdk.NewClusterClient(config.SDK).Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update MongoDB Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2267,19 +2259,19 @@ func updateMongoDBClusterShards(ctx context.Context, d *schema.ResourceData, met
 }
 
 func createMongoDBDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().Database().Create(ctx, &mongodb.CreateDatabaseRequest{
+	op, err :=
+		mongodbsdk.NewDatabaseClient(config.SDK).Create(ctx, &mongodb.CreateDatabaseRequest{
 			ClusterId: d.Id(),
 			DatabaseSpec: &mongodb.DatabaseSpec{
 				Name: dbName,
 			},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create database in MongoDB Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding database to MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2287,17 +2279,17 @@ func createMongoDBDatabase(ctx context.Context, config *Config, d *schema.Resour
 }
 
 func deleteMongoDBDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().Database().Delete(ctx, &mongodb.DeleteDatabaseRequest{
+	op, err :=
+		mongodbsdk.NewDatabaseClient(config.SDK).Delete(ctx, &mongodb.DeleteDatabaseRequest{
 			ClusterId:    d.Id(),
 			DatabaseName: dbName,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete database from MongoDB Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting database from MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2305,17 +2297,17 @@ func deleteMongoDBDatabase(ctx context.Context, config *Config, d *schema.Resour
 }
 
 func createMongoDBUser(ctx context.Context, config *Config, d *schema.ResourceData, user *mongodb.UserSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().User().Create(ctx, &mongodb.CreateUserRequest{
+	op, err :=
+		mongodbsdk.NewUserClient(config.SDK).Create(ctx, &mongodb.CreateUserRequest{
 			ClusterId: d.Id(),
 			UserSpec:  user,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create user for MongoDB Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while creating user for MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2323,17 +2315,17 @@ func createMongoDBUser(ctx context.Context, config *Config, d *schema.ResourceDa
 }
 
 func deleteMongoDBUser(ctx context.Context, config *Config, d *schema.ResourceData, userName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().User().Delete(ctx, &mongodb.DeleteUserRequest{
+	op, err :=
+		mongodbsdk.NewUserClient(config.SDK).Delete(ctx, &mongodb.DeleteUserRequest{
 			ClusterId: d.Id(),
 			UserName:  userName,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete user from MongoDB Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting user from MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2341,14 +2333,14 @@ func deleteMongoDBUser(ctx context.Context, config *Config, d *schema.ResourceDa
 }
 
 func updateMongoDBUser(ctx context.Context, config *Config, req *mongodb.UpdateUserRequest, cid string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().User().Update(ctx, req),
-	)
+	op, err :=
+		mongodbsdk.NewUserClient(config.SDK).Update(ctx, req)
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in MongoDB Cluster %q: %s", cid, err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating user in MongoDB Cluster %q: %s", cid, err)
 	}
@@ -2356,16 +2348,16 @@ func updateMongoDBUser(ctx context.Context, config *Config, req *mongodb.UpdateU
 }
 
 func createMongoDBHost(ctx context.Context, config *Config, d *schema.ResourceData, spec *mongodb.HostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().Cluster().AddHosts(ctx, &mongodb.AddClusterHostsRequest{
+	op, err :=
+		mongodbsdk.NewClusterClient(config.SDK).AddHosts(ctx, &mongodb.AddClusterHostsRequest{
 			ClusterId: d.Id(),
 			HostSpecs: []*mongodb.HostSpec{spec},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to add host to MongoDB Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding host to MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2373,16 +2365,16 @@ func createMongoDBHost(ctx context.Context, config *Config, d *schema.ResourceDa
 }
 
 func deleteMongoDBHost(ctx context.Context, config *Config, d *schema.ResourceData, fqdn string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().Cluster().DeleteHosts(ctx, &mongodb.DeleteClusterHostsRequest{
+	op, err :=
+		mongodbsdk.NewClusterClient(config.SDK).DeleteHosts(ctx, &mongodb.DeleteClusterHostsRequest{
 			ClusterId: d.Id(),
 			HostNames: []string{fqdn},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete host from MongoDB Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting host from MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2390,16 +2382,16 @@ func deleteMongoDBHost(ctx context.Context, config *Config, d *schema.ResourceDa
 }
 
 func updateMongoDBHost(ctx context.Context, config *Config, d *schema.ResourceData, spec *mongodb.UpdateHostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().Cluster().UpdateHosts(ctx, &mongodb.UpdateClusterHostsRequest{
+	op, err :=
+		mongodbsdk.NewClusterClient(config.SDK).UpdateHosts(ctx, &mongodb.UpdateClusterHostsRequest{
 			ClusterId:       d.Id(),
 			UpdateHostSpecs: []*mongodb.UpdateHostSpec{spec},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update host in MongoDB Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating host to MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2407,17 +2399,17 @@ func updateMongoDBHost(ctx context.Context, config *Config, d *schema.ResourceDa
 }
 
 func createMongoDBShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string, hosts []*mongodb.HostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().Cluster().AddShard(ctx, &mongodb.AddClusterShardRequest{
+	op, err :=
+		mongodbsdk.NewClusterClient(config.SDK).AddShard(ctx, &mongodb.AddClusterShardRequest{
 			ClusterId: d.Id(),
 			ShardName: shardName,
 			HostSpecs: hosts,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to add shard to MongoDB Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding shard to MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2425,16 +2417,16 @@ func createMongoDBShard(ctx context.Context, config *Config, d *schema.ResourceD
 }
 
 func deleteMongoDBShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().Cluster().DeleteShard(ctx, &mongodb.DeleteClusterShardRequest{
+	op, err :=
+		mongodbsdk.NewClusterClient(config.SDK).DeleteShard(ctx, &mongodb.DeleteClusterShardRequest{
 			ClusterId: d.Id(),
 			ShardName: shardName,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete shard from MongoDB Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting shard from MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2471,18 +2463,18 @@ func enableShardingMongoDB(ctx context.Context, config *Config, d *schema.Resour
 			Resources: resourcesMongoCfg,
 		}
 	}
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().EnableSharding(ctx, &mongodb.EnableClusterShardingRequest{
+	op, err := mongodbsdk.NewClusterClient(config.SDK).EnableSharding(ctx, &mongodb.EnableClusterShardingRequest{
 		ClusterId:  d.Id(),
 		Mongoinfra: mongoinfra,
 		Mongos:     mongos,
 		Mongocfg:   mongocfg,
 		HostSpecs:  hostsWithoutD,
-	}),
-	)
+	})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to enable sharding MongoDB Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while enabling sharding MongoDB Cluster %q: %s", d.Id(), err)
 	}
@@ -2698,7 +2690,7 @@ func compareResources(d *schema.ResourceData, cfg1, cfg2 string) bool {
 func setMongoDBFolderID(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	cluster, err := config.sdk.MDB().MongoDB().Cluster().Get(ctx, &mongodb.GetClusterRequest{
+	cluster, err := mongodbsdk.NewClusterClient(config.SDK).Get(ctx, &mongodb.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -2718,20 +2710,20 @@ func setMongoDBFolderID(ctx context.Context, d *schema.ResourceData, meta interf
 			ClusterId:           d.Id(),
 			DestinationFolderId: folderID.(string),
 		}
-		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 			log.Printf("[DEBUG] Sending MongoDB cluster move request: %+v", request)
-			return config.sdk.MDB().MongoDB().Cluster().Move(ctx, request)
+			return mongodbsdk.NewClusterClient(config.SDK).Move(ctx, request)
 		})
 		if err != nil {
 			return fmt.Errorf("error while requesting API to move MongoDB Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error while moving MongoDB Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		if _, err := op.Response(); err != nil {
+		if err := op.Error(); err != nil {
 			return fmt.Errorf("moving MongoDB Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
 		}
 

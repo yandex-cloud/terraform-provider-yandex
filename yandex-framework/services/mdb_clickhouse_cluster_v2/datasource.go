@@ -8,8 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	clickhousesdk "github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
+	ycsdkv2 "github.com/yandex-cloud/go-sdk/v2"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/objectid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/timestamp"
@@ -87,10 +88,11 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 		resolvedID, diags := objectid.ResolveByNameAndFolderID(
 			ctx,
-			d.providerConfig.SDK,
 			folderID,
 			name,
-			sdkresolvers.ClickhouseClusterResolver,
+			func(name string, opts ...sdkresolvers.ResolveOption) sdkresolvers.Resolver {
+				return clickhousesdk.ClusterResolver(name, clickhousesdk.NewClusterClient(d.providerConfig.SDKv2), opts...)
+			},
 		)
 		resp.Diagnostics.Append(diags)
 		if resp.Diagnostics.HasError() {
@@ -104,7 +106,7 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	state.Id = types.StringValue(clusterID)
 	prevState := state
 
-	refreshDataSourceState(ctx, &prevState, &state, d.providerConfig.SDK, &resp.Diagnostics)
+	refreshDataSourceState(ctx, &prevState, &state, d.providerConfig.SDKv2, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -112,7 +114,7 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
-func refreshDataSourceState(ctx context.Context, prevState, state *models.ClusterDataSource, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+func refreshDataSourceState(ctx context.Context, prevState, state *models.ClusterDataSource, sdk *ycsdkv2.SDK, diags *diag.Diagnostics) {
 	cid := state.Id.ValueString()
 	cluster := clickhouseApi.GetCluster(ctx, sdk, diags, cid)
 	if diags.HasError() {

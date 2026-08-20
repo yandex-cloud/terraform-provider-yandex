@@ -8,8 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
-	sdkoperation "github.com/yandex-cloud/go-sdk/operation"
 	ycsdkv2 "github.com/yandex-cloud/go-sdk/v2"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -38,35 +36,7 @@ func conflictingOperationID(err error) string {
 	return ""
 }
 
-// ConflictingOperation runs action and, when the API rejects it because another operation is
-// already running on the same resource, waits for that operation to finish and retries.
-func ConflictingOperation(ctx context.Context, sdk *ycsdk.SDK, action func() (*operation.Operation, error)) (*sdkoperation.Operation, error) {
-	for {
-		op, err := sdk.WrapOperation(action())
-		if err == nil {
-			return op, nil
-		}
-
-		operationID := conflictingOperationID(err)
-		if operationID == "" {
-			return op, err
-		}
-
-		tflog.Debug(ctx, fmt.Sprintf("Waiting for conflicting operation %q to complete", operationID))
-		req := &operation.GetOperationRequest{OperationId: operationID}
-		op, err = sdk.WrapOperation(sdk.Operation().Get(ctx, req))
-		if err != nil {
-			return nil, err
-		}
-
-		_ = op.Wait(ctx)
-		tflog.Debug(ctx, fmt.Sprintf("Conflicting operation %q has completed. Going to retry initial action.", operationID))
-	}
-}
-
-// ConflictingOperationV2 is the modular SDK (SDKv2) counterpart of ConflictingOperation. Its
-// typed clients return their own operation wrappers, so it is generic over the returned
-// operation type and only retries action after waiting for the conflicting operation.
+// ConflictingOperationV2 retries action after waiting for a conflicting operation to finish.
 func ConflictingOperationV2[O any](ctx context.Context, sdk *ycsdkv2.SDK, action func() (O, error)) (O, error) {
 	for {
 		op, err := action()

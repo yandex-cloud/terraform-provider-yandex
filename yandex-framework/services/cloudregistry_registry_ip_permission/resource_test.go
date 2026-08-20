@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cloudregistry/v1"
+	cloudregistrysdk "github.com/yandex-cloud/go-sdk/services/cloudregistry/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"google.golang.org/grpc/codes"
@@ -305,7 +306,7 @@ func testAccCheckCloudRegistryIPPermissionDestroy(s *terraform.State) error {
 			continue
 		}
 
-		CloudRegistryService := config.SDK.CloudRegistry().Registry()
+		CloudRegistryService := cloudregistrysdk.NewRegistryClient(config.SDKv2)
 		listIPPermissionRequest := &cloudregistry.ListIpPermissionsRequest{
 			RegistryId: strings.TrimRight(rs.Primary.ID, cloudRegistryIPPermissionIDSuffix),
 		}
@@ -332,7 +333,7 @@ func testAccCheckCloudRegistryDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.CloudRegistry().Registry().Get(context.Background(), &cloudregistry.GetRegistryRequest{
+		_, err := cloudregistrysdk.NewRegistryClient(config.SDKv2).Get(context.Background(), &cloudregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 

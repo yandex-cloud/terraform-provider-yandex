@@ -68,7 +68,7 @@ func (t *trinoAccessControlResource) Create(ctx context.Context, req resource.Cr
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 
-	resp.Diagnostics.Append(UpdateClusterAccessControl(ctx, t.providerConfig.SDK, clusterID, accessControl)...)
+	resp.Diagnostics.Append(UpdateClusterAccessControl(ctx, t.providerConfig.SDKv2, clusterID, accessControl)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -95,7 +95,7 @@ func (t *trinoAccessControlResource) Delete(ctx context.Context, req resource.De
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 
-	resp.Diagnostics.Append(DeleteClusterAccessControl(ctx, t.providerConfig.SDK, clusterID)...)
+	resp.Diagnostics.Append(DeleteClusterAccessControl(ctx, t.providerConfig.SDKv2, clusterID)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -120,7 +120,7 @@ func (t *trinoAccessControlResource) Read(ctx context.Context, req resource.Read
 
 	clusterID := state.ClusterId.ValueString()
 	tflog.Debug(ctx, "Reading Trino access control", clusterIDLogField(clusterID))
-	accessControl, diags := GetClusterAccessControl(ctx, t.providerConfig.SDK, clusterID)
+	accessControl, diags := GetClusterAccessControl(ctx, t.providerConfig.SDKv2, clusterID)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -204,7 +204,7 @@ func (t *trinoAccessControlResource) update(ctx context.Context, plan models.Acc
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 
-	diags.Append(UpdateClusterAccessControl(ctx, t.providerConfig.SDK, plan.ClusterId.ValueString(), accessControl)...)
+	diags.Append(UpdateClusterAccessControl(ctx, t.providerConfig.SDKv2, plan.ClusterId.ValueString(), accessControl)...)
 	return diags
 }
 

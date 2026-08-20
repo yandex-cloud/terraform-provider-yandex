@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 )
 
 const albBgDataSourceResource = "data.yandex_alb_backend_group.test-bg-ds"
@@ -413,8 +414,9 @@ func testAccDataSourceALBBackendGroupExists(bgName string, bg *apploadbalancer.B
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := albsdk.NewBackendGroupClient(config.SDK)
 
-		found, err := config.sdk.ApplicationLoadBalancer().BackendGroup().Get(context.Background(), &apploadbalancer.GetBackendGroupRequest{
+		found, err := client.Get(context.Background(), &apploadbalancer.GetBackendGroupRequest{
 			BackendGroupId: rs.Primary.ID,
 		})
 		if err != nil {

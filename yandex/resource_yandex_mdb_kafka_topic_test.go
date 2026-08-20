@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"google.golang.org/grpc/codes"
 )
 
@@ -414,7 +415,7 @@ func testAccLoadKafkaTopic(s *terraform.State, topicName string) (*kafka.Topic, 
 	}
 
 	config := testAccProvider.Meta().(*Config)
-	return config.sdk.MDB().Kafka().Topic().Get(context.Background(), &kafka.GetTopicRequest{
+	return kafkasdk.NewTopicClient(config.SDK).Get(context.Background(), &kafka.GetTopicRequest{
 		ClusterId: rs.Primary.ID,
 		TopicName: topicName,
 	})

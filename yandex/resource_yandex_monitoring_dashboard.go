@@ -9,7 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/monitoring/v3"
+	monitoringsdk "github.com/yandex-cloud/go-sdk/services/monitoring/v3"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -755,29 +757,27 @@ func resourceMonitoringDashboardCreate(ctx context.Context, d *schema.ResourceDa
 	log.Printf("[DEBUG] Creating Monitoring dashboard %+v", req)
 
 	ctx = wrapMonitoringGrpcContext(ctx)
-	op, err := config.sdk.WrapOperation(config.sdk.Monitoring().Dashboard().Create(ctx, req))
+	client := monitoringsdk.NewDashboardClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Error while creating dashboard %s: %s", req.Name, err))
 	}
 	ID := ""
-	if op.Error() != nil {
-		identifier, success, err := tryHandleConflictError(ctx, config.sdk.Monitoring().Dashboard(), req, op.ErrorStatus())
+	if operationErr := op.Error(); operationErr != nil {
+		identifier, success, err := tryHandleConflictError(ctx, client, req, status.Convert(operationErr))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		if !success {
-			return diag.FromErr(fmt.Errorf("Error while handle creating dashboard conflict %s: %s", req.Name, op.Error()))
+			return diag.FromErr(fmt.Errorf("Error while handle creating dashboard conflict %s: %s", req.Name, operationErr))
 		}
 		ID = identifier
 	} else {
-		if err = op.Wait(ctx); err != nil {
+		dashboard, err := op.Wait(ctx)
+		if err != nil {
 			return diag.FromErr(fmt.Errorf("Error while waiting create dashboard %s: %s", req.Name, err))
 		}
-		res, err := op.Response()
-		if err != nil {
-			return diag.FromErr(fmt.Errorf("Error while unmarshal response of created dashboard %s: %s", req.Name, err))
-		}
-		dashboard, _ := res.(*monitoring.Dashboard)
 		ID = dashboard.Id
 	}
 	d.Set("dashboard_id", ID)
@@ -785,24 +785,33 @@ func resourceMonitoringDashboardCreate(ctx context.Context, d *schema.ResourceDa
 	return resourceMonitoringDashboardRead(ctx, d, meta)
 }
 
-func tryHandleConflictError(ctx context.Context, client monitoring.DashboardServiceClient, getReq *monitoring.CreateDashboardRequest, error *status.Status) (string, bool, error) {
+type monitoringDashboardLister interface {
+	List(context.Context, *monitoring.ListDashboardsRequest, ...grpc.CallOption) (*monitoring.ListDashboardsResponse, error)
+}
+
+func findMonitoringDashboardByName(ctx context.Context, client monitoringDashboardLister, name, folderID string) (*monitoring.Dashboard, error) {
+	req := &monitoring.ListDashboardsRequest{
+		Container: &monitoring.ListDashboardsRequest_FolderId{FolderId: folderID},
+		Filter:    fmt.Sprintf("name=\"%s\"", name),
+		PageSize:  2,
+	}
+	response, err := client.List(wrapMonitoringGrpcContext(ctx), req)
+	if err != nil {
+		return nil, err
+	}
+	if len(response.Dashboards) != 1 {
+		return nil, fmt.Errorf("Failed to find dashboard: %+v, %+v", req, response)
+	}
+	return response.Dashboards[0], nil
+}
+
+func tryHandleConflictError(ctx context.Context, client monitoringDashboardLister, getReq *monitoring.CreateDashboardRequest, error *status.Status) (string, bool, error) {
 	if error.Code() == codes.AlreadyExists {
-		req := &monitoring.ListDashboardsRequest{
-			Container: &monitoring.ListDashboardsRequest_FolderId{
-				FolderId: getReq.GetFolderId(),
-			},
-			Filter:   fmt.Sprintf("name=\"%s\"", getReq.Name),
-			PageSize: 2,
-		}
-		ctx = wrapMonitoringGrpcContext(ctx)
-		response, err := client.List(ctx, req)
+		dashboard, err := findMonitoringDashboardByName(ctx, client, getReq.Name, getReq.GetFolderId())
 		if err != nil {
 			return "", false, err
 		}
-		if len(response.Dashboards) != 1 {
-			return "", false, fmt.Errorf("Failed to find dashboard: %+v, %+v", req, response)
-		}
-		return response.Dashboards[0].Id, true, nil
+		return dashboard.Id, true, nil
 	}
 	return "", false, nil
 }
@@ -817,7 +826,9 @@ func resourceMonitoringDashboardRead(ctxParent context.Context, d *schema.Resour
 	}
 
 	log.Printf("[DEBUG] Reading Monitoring dashboard %+v", req)
-	dashboard, err := config.sdk.Monitoring().Dashboard().Get(ctx, req)
+	client := monitoringsdk.NewDashboardClient(config.SDK)
+
+	dashboard, err := client.Get(ctx, req)
 
 	if err != nil {
 		if isStatusWithCode(err, codes.NotFound) {
@@ -864,15 +875,14 @@ func resourceMonitoringDashboardUpdate(ctx context.Context, d *schema.ResourceDa
 	log.Printf("[DEBUG] Updating Monitoring dashboard %+v", req)
 
 	ctx = wrapMonitoringGrpcContext(ctx)
-	op, err := config.sdk.WrapOperation(config.sdk.Monitoring().Dashboard().Update(ctx, req))
+	client := monitoringsdk.NewDashboardClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Error while updating dashboard %s: %s", req.Name, err))
 	}
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.FromErr(fmt.Errorf("Error while waiting updating dashboard %s: %s", req.Name, err))
-	}
-	if op.Error() != nil {
-		return diag.FromErr(fmt.Errorf("Error while updating updating %s: %s", req.Name, op.Error()))
 	}
 	return resourceMonitoringDashboardRead(ctx, d, meta)
 }
@@ -888,7 +898,9 @@ func resourceMonitoringDashboardDelete(ctx context.Context, d *schema.ResourceDa
 	log.Printf("[DEBUG] Deleting Monitoring dashboard %+v", req)
 
 	ctx = wrapMonitoringGrpcContext(ctx)
-	op, err := config.sdk.WrapOperation(config.sdk.Monitoring().Dashboard().Delete(ctx, req))
+	client := monitoringsdk.NewDashboardClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		if isStatusWithCode(err, codes.NotFound) {
 			log.Printf("[WARN] Removing %s because resource doesn't exist anymore", name)
@@ -897,11 +909,8 @@ func resourceMonitoringDashboardDelete(ctx context.Context, d *schema.ResourceDa
 		}
 		return diag.FromErr(err)
 	}
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.FromErr(fmt.Errorf("Error while waiting deleting dashboard %s: %s", d.Id(), err))
-	}
-	if op.Error() != nil {
-		return diag.FromErr(fmt.Errorf("Error while deleting updating %s: %s", name, op.Error()))
 	}
 	return nil
 }

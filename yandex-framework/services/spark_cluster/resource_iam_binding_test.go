@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	sparkv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/spark/v1"
+	sparksdk "github.com/yandex-cloud/go-sdk/services/spark/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -48,7 +49,7 @@ func TestAccSparkClusterIamBinding_basic(t *testing.T) {
 					testAccCheckSparkExists(sparkResourceType+".spark_cluster", &cluster),
 					iam.TestAccCheckIamBindingContainsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Spark().Cluster()
+						return sparksdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -90,7 +91,7 @@ func TestAccSparkClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckSparkExists(sparkResourceType+".spark_cluster", &cluster),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Spark().Cluster()
+						return sparksdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -100,7 +101,7 @@ func TestAccSparkClusterIamBinding_multiple(t *testing.T) {
 				Config: testAccSparkClusterIamBindingConfig(t, roleFoo, userID, clusterName, clusterDesc),
 				Check: iam.TestAccCheckIamBindingContainsMembers(ctx, func() iam.BindingsGetter {
 					cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-					return cfg.SDK.Spark().Cluster()
+					return sparksdk.NewClusterClient(cfg.SDKv2)
 				}, &cluster, roleFoo, []string{userID}),
 			},
 			iam.IAMBindingImportTestStep(sparkIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
@@ -110,11 +111,11 @@ func TestAccSparkClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingContainsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Spark().Cluster()
+						return sparksdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingContainsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Spark().Cluster()
+						return sparksdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -134,11 +135,11 @@ func TestAccSparkClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Spark().Cluster()
+						return sparksdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.Spark().Cluster()
+						return sparksdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar),
 				),
 			},

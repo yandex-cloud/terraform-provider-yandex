@@ -149,7 +149,7 @@ func testAccCheckCloudRegistryDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.CloudRegistry().Registry().Get(context.Background(), &cloudregistry.GetRegistryRequest{
+		_, err := cloudregistryv1sdk.NewRegistryClient(config.SDKv2).Get(context.Background(), &cloudregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 

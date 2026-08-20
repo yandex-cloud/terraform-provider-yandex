@@ -5,7 +5,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	k8ssdk "github.com/yandex-cloud/go-sdk/services/k8s/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -441,13 +442,19 @@ func dataSourceYandexKubernetesClusterRead(d *schema.ResourceData, meta interfac
 	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.KubernetesClusterResolver)
+		client := k8ssdk.NewClusterClient(config.SDK)
+
+		clusterID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return k8ssdk.ClusterResolver(name, client, opts...)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to resolve Kubernetes cluster by name: %v", err)
 		}
 	}
 
-	cluster, err := config.sdk.Kubernetes().Cluster().Get(ctx, &k8s.GetClusterRequest{
+	client := k8ssdk.NewClusterClient(config.SDK)
+
+	cluster, err := client.Get(ctx, &k8s.GetClusterRequest{
 		ClusterId: clusterID,
 	})
 

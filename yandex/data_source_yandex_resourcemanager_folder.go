@@ -3,11 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -85,7 +86,9 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 		}
 	}
 
-	folder, err := config.sdk.ResourceManager().Folder().Get(ctx, &resourcemanager.GetFolderRequest{
+	client := resourcemanagersdk.NewFolderClient(config.SDK)
+
+	folder, err := client.Get(ctx, &resourcemanager.GetFolderRequest{
 		FolderId: folderID,
 	})
 
@@ -110,13 +113,15 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 }
 
 func resolveFolderIDByName(ctx context.Context, config *Config, folderName, cloudID string) (string, error) {
-	var objectID string
-	resolver := sdkresolvers.FolderResolver(folderName, sdkresolvers.CloudID(cloudID), sdkresolvers.Out(&objectID))
+	client := resourcemanagersdk.NewFolderClient(config.SDK)
 
-	err := config.sdk.Resolve(ctx, resolver)
-	if err != nil {
+	resolver := resourcemanagersdk.FolderResolver(folderName, client, sdkresolversv2.CloudID(cloudID))
+	if err := resolver.Run(ctx); err != nil {
+		return "", err
+	}
+	if err := resolver.Err(); err != nil {
 		return "", err
 	}
 
-	return objectID, nil
+	return resolver.ID(), nil
 }

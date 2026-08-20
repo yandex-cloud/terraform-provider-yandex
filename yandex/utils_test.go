@@ -23,6 +23,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	operationpb "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	sdkoperationv2 "github.com/yandex-cloud/go-sdk/v2/pkg/operation"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func CreateResourceData(t *testing.T, schemaObject map[string]*schema.Schema, rawInitialState map[string]interface{},
@@ -924,4 +931,69 @@ func TestRemoveWriteOnlyFields(t *testing.T) {
 	nestedSchema := resourceSchema["config"].Elem.(*schema.Resource).Schema
 	require.NotContains(t, nestedSchema, "token_wo")
 	require.NotContains(t, nestedSchema, "token_wo_version")
+}
+
+func TestWaitOperationV2PreservesSDKWaitSemantics(t *testing.T) {
+	response, err := anypb.New(&emptypb.Empty{})
+	require.NoError(t, err)
+
+	polls := 0
+	op, err := sdkoperationv2.NewOperation(
+		&operationpb.Operation{Id: "test-operation"},
+		&sdkoperationv2.Concretization{
+			Poll: func(context.Context, string, ...grpc.CallOption) (sdkoperationv2.YCOperation, error) {
+				polls++
+				if polls <= 3 {
+					return nil, status.Error(codes.NotFound, "operation is not visible yet")
+				}
+				return &operationpb.Operation{
+					Id:   "test-operation",
+					Done: true,
+					Result: &operationpb.Operation_Response{
+						Response: response,
+					},
+				}, nil
+			},
+			ResponseType: &emptypb.Empty{},
+		},
+	)
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	require.NoError(t, waitOperationV2(ctx, op, 0))
+	require.Equal(t, 4, polls)
+}
+
+func TestWaitConflictingOperationV2PreservesSDKV1ErrorContract(t *testing.T) {
+	t.Run("initial get error is returned", func(t *testing.T) {
+		wantErr := status.Error(codes.PermissionDenied, "cannot get operation")
+		err := waitConflictingOperationV2(context.Background(), "test-operation", func(context.Context, string, ...grpc.CallOption) (sdkoperationv2.YCOperation, error) {
+			return nil, wantErr
+		}, func(int) time.Duration { return 0 })
+		require.ErrorIs(t, err, wantErr)
+	})
+
+	t.Run("wait errors are ignored after initial get", func(t *testing.T) {
+		polls := 0
+		err := waitConflictingOperationV2(context.Background(), "test-operation", func(context.Context, string, ...grpc.CallOption) (sdkoperationv2.YCOperation, error) {
+			polls++
+			switch {
+			case polls == 1:
+				return &operationpb.Operation{Id: "test-operation"}, nil
+			case polls <= 4:
+				return nil, status.Error(codes.NotFound, "operation is not visible yet")
+			default:
+				return &operationpb.Operation{
+					Id:   "test-operation",
+					Done: true,
+					Result: &operationpb.Operation_Error{
+						Error: status.New(codes.Internal, "conflicting operation failed").Proto(),
+					},
+				}, nil
+			}
+		}, func(int) time.Duration { return 0 })
+		require.NoError(t, err)
+		require.Equal(t, 5, polls)
+	})
 }

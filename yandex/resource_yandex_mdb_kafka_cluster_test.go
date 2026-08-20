@@ -23,6 +23,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/mocks"
 )
 
@@ -205,7 +206,7 @@ func testSweepMDBKafkaCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.MDB().Kafka().Cluster().List(conf.Context(), &kafka.ListClustersRequest{
+	resp, err := kafkasdk.NewClusterClient(conf.SDK).List(conf.Context(), &kafka.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
 	})
@@ -232,20 +233,20 @@ func sweepMDBKafkaClusterOnce(conf *Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.MDB().Kafka().Cluster().Update(ctx, &kafka.UpdateClusterRequest{
+	op, err := kafkasdk.NewClusterClient(conf.SDK).Update(ctx, &kafka.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, op, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
-	op, err = conf.sdk.MDB().Kafka().Cluster().Delete(ctx, &kafka.DeleteClusterRequest{
+	deleteOp, err := kafkasdk.NewClusterClient(conf.SDK).Delete(ctx, &kafka.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, deleteOp, err)
 }
 
 func mdbKafkaClusterImportStep(name string) resource.TestStep {
@@ -1596,7 +1597,7 @@ func testAccCheckMDBKafkaClusterExists(n string, r *kafka.Cluster, hosts int) re
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().Kafka().Cluster().Get(context.Background(), &kafka.GetClusterRequest{
+		found, err := kafkasdk.NewClusterClient(config.SDK).Get(context.Background(), &kafka.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -1620,7 +1621,7 @@ func testAccCheckMDBKafkaClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.MDB().Kafka().Cluster().Get(context.Background(), &kafka.GetClusterRequest{
+		_, err := kafkasdk.NewClusterClient(config.SDK).Get(context.Background(), &kafka.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -1933,7 +1934,7 @@ func testAccCheckMDBKafkaClusterHasTopics(r string, topics []string) resource.Te
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Kafka().Topic().List(context.Background(), &kafka.ListTopicsRequest{
+		resp, err := kafkasdk.NewTopicClient(config.SDK).List(context.Background(), &kafka.ListTopicsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -1972,7 +1973,7 @@ func testAccCheckMDBKafkaTopicMaxMessageBytes(r string, topic string, value int6
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Kafka().Topic().Get(context.Background(), &kafka.GetTopicRequest{
+		resp, err := kafkasdk.NewTopicClient(config.SDK).Get(context.Background(), &kafka.GetTopicRequest{
 			ClusterId: rs.Primary.ID,
 			TopicName: topic,
 		})
@@ -2000,7 +2001,7 @@ func testAccCheckMDBKafkaTopicConfig(r string, topicName string, topicConfig *ka
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Kafka().Topic().Get(context.Background(), &kafka.GetTopicRequest{
+		resp, err := kafkasdk.NewTopicClient(config.SDK).Get(context.Background(), &kafka.GetTopicRequest{
 			ClusterId: rs.Primary.ID,
 			TopicName: topicName,
 		})
@@ -2028,7 +2029,7 @@ func testAccCheckMDBKafkaClusterHasUsers(r string, perms map[string][]string) re
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().Kafka().User().List(context.Background(), &kafka.ListUsersRequest{
+		resp, err := kafkasdk.NewUserClient(config.SDK).List(context.Background(), &kafka.ListUsersRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})

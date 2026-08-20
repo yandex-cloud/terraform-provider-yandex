@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 func dataSourceYandexIAMRole() *schema.Resource {
@@ -30,6 +31,7 @@ func dataSourceYandexIAMRole() *schema.Resource {
 func dataSourceYandexIAMRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := config.Context()
+	client := iamsdk.NewRoleClient(config.SDK)
 
 	var role *iam.Role
 
@@ -38,7 +40,7 @@ func dataSourceYandexIAMRoleRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("'role_id' must be set")
 	}
 
-	resp, err := config.sdk.IAM().Role().Get(ctx, &iam.GetRoleRequest{
+	resp, err := client.Get(ctx, &iam.GetRoleRequest{
 		RoleId: v.(string),
 	})
 

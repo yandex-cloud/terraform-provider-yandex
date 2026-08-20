@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	cdnsdk "github.com/yandex-cloud/go-sdk/services/cdn/v1"
 )
 
 func init() {
@@ -1250,7 +1251,9 @@ func testSweepCDNResource(_ string) error {
 		FolderId: conf.FolderID,
 	}
 
-	it := conf.sdk.CDN().Resource().ResourceIterator(conf.Context(), req)
+	client := cdnsdk.NewResourceClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 
 	for it.Next() {
@@ -1268,11 +1271,13 @@ func sweepCDNResource(conf *Config, id string) bool {
 		ctx, cancel := conf.ContextWithTimeout(yandexCDNOriginGroupDefaultTimeout)
 		defer cancel()
 
-		op, err := conf.sdk.CDN().Resource().Delete(ctx, &cdn.DeleteResourceRequest{
+		client := cdnsdk.NewResourceClient(conf.SDK)
+
+		op, err := client.Delete(ctx, &cdn.DeleteResourceRequest{
 			ResourceId: id,
 		})
 
-		return handleSweepOperation(ctx, conf, op, err)
+		return handleSweepOperationV2(ctx, op, err)
 	})
 }
 
@@ -1284,7 +1289,9 @@ func testAccCheckCDNResourceDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.CDN().Resource().Get(context.Background(), &cdn.GetResourceRequest{
+		client := cdnsdk.NewResourceClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &cdn.GetResourceRequest{
 			ResourceId: rs.Primary.ID,
 		})
 
@@ -1309,7 +1316,9 @@ func testCDNResourceExists(resourceName string, cdnResource *cdn.Resource) resou
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.CDN().Resource().Get(context.Background(), &cdn.GetResourceRequest{
+		client := cdnsdk.NewResourceClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &cdn.GetResourceRequest{
 			ResourceId: rs.Primary.ID,
 		})
 

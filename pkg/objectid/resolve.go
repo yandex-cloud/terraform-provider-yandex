@@ -4,15 +4,14 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	ycsdk "github.com/yandex-cloud/go-sdk"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 )
 
-type objectResolverFunc func(name string, opts ...sdkresolvers.ResolveOption) ycsdk.Resolver
+type ObjectResolverFunc func(name string, opts ...sdkresolvers.ResolveOption) sdkresolvers.Resolver
 
 // this function can be only used to resolve objects that belong to some folder (have folder_id attribute)
 // do not use this function to resolve cloud (or similar objects) ID by name.
-func ResolveByNameAndFolderID(ctx context.Context, sdk *ycsdk.SDK, folderID, name string, resolverFunc objectResolverFunc) (string, diag.Diagnostic) {
+func ResolveByNameAndFolderID(ctx context.Context, folderID, name string, resolverFunc ObjectResolverFunc) (string, diag.Diagnostic) {
 	if folderID == "" {
 		return "", diag.NewErrorDiagnostic(
 			"Failed to resolve object ID",
@@ -25,10 +24,8 @@ func ResolveByNameAndFolderID(ctx context.Context, sdk *ycsdk.SDK, folderID, nam
 			"Non empty name should be provided")
 	}
 
-	var objectID string
-	resolver := resolverFunc(name, sdkresolvers.Out(&objectID), sdkresolvers.FolderID(folderID))
-
-	err := sdk.Resolve(ctx, resolver)
+	resolver := resolverFunc(name, sdkresolvers.FolderID(folderID))
+	err := resolver.Run(ctx)
 
 	if err != nil {
 		return "", diag.NewErrorDiagnostic(
@@ -36,5 +33,5 @@ func ResolveByNameAndFolderID(ctx context.Context, sdk *ycsdk.SDK, folderID, nam
 			"Error while resolve object id: "+err.Error())
 	}
 
-	return objectID, nil
+	return resolver.ID(), nil
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
-	"github.com/yandex-cloud/go-sdk/operation"
+	containerregistrysdk "github.com/yandex-cloud/go-sdk/services/containerregistry/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -195,20 +195,18 @@ func resourceYandexContainerRepositoryLifecyclePolicyCreate(ctx context.Context,
 	}
 
 	config := meta.(*Config)
-	lifecyclePolicyService := config.sdk.ContainerRegistry().LifecyclePolicy()
-	operation, err := config.sdk.WrapOperation(lifecyclePolicyService.Create(ctx, createLifecyclePolicyRequest))
+	client := containerregistrysdk.NewLifecyclePolicyClient(config.SDK)
+
+	op, err := client.Create(ctx, createLifecyclePolicyRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	lifecyclePolicyId, err := unwrapContainerRepositoryLifecyclePolicyID(operation)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	lifecyclePolicyId := op.Metadata().GetLifecyclePolicyId()
 
 	d.SetId(lifecyclePolicyId)
 
-	if err := waitContainerRepositoryLifecyclePolicyOperation(ctx, operation); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -282,13 +280,14 @@ func resourceYandexContainerRepositoryLifycyclePolicyUpdate(ctx context.Context,
 	}
 
 	config := meta.(*Config)
-	lifecyclePolicyService := config.sdk.ContainerRegistry().LifecyclePolicy()
-	operation, err := config.sdk.WrapOperation(lifecyclePolicyService.Update(ctx, lifecyclePolicyUpdateRequest))
+	client := containerregistrysdk.NewLifecyclePolicyClient(config.SDK)
+
+	op, err := client.Update(ctx, lifecyclePolicyUpdateRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err := waitContainerRepositoryLifecyclePolicyOperation(ctx, operation); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -303,43 +302,18 @@ func resourceYandexContainerRepositoryLifycyclePolicyDelete(ctx context.Context,
 	lifecyclePolicyDeleteRequest := &containerregistry.DeleteLifecyclePolicyRequest{LifecyclePolicyId: lifecyclePolicyId}
 
 	config := meta.(*Config)
-	lifecyclePolicyService := config.sdk.ContainerRegistry().LifecyclePolicy()
-	operation, err := config.sdk.WrapOperation(lifecyclePolicyService.Delete(ctx, lifecyclePolicyDeleteRequest))
+	client := containerregistrysdk.NewLifecyclePolicyClient(config.SDK)
+
+	op, err := client.Delete(ctx, lifecyclePolicyDeleteRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err := waitContainerRepositoryLifecyclePolicyOperation(ctx, operation); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
 	log.Printf("[DEBUG] Finished deleting Container Repository Lifecycle Policy (id: %v)", lifecyclePolicyId)
-
-	return nil
-}
-
-func unwrapContainerRepositoryLifecyclePolicyID(operation *operation.Operation) (string, error) {
-	protoMetadata, err := operation.Metadata()
-	if err != nil {
-		return "", fmt.Errorf("failed to get Lifecycle Policy create operation metadata: %v", err)
-	}
-
-	createLifecyclePolicyMetadata, ok := protoMetadata.(*containerregistry.CreateLifecyclePolicyMetadata)
-	if !ok {
-		return "", fmt.Errorf("failed to get Lifecycle Policy ID from create operation metadata")
-	}
-
-	return createLifecyclePolicyMetadata.LifecyclePolicyId, nil
-}
-
-func waitContainerRepositoryLifecyclePolicyOperation(ctx context.Context, operation *operation.Operation) error {
-	if err := operation.Wait(ctx); err != nil {
-		return fmt.Errorf("error while waiting operation to create Lifecycle Policy: %s", err)
-	}
-
-	if _, err := operation.Response(); err != nil {
-		return fmt.Errorf("failed to create Lifecycle Policy: %s", err)
-	}
 
 	return nil
 }

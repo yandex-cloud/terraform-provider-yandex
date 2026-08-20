@@ -10,6 +10,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -191,30 +192,19 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Subnet().Create(ctx, &req))
+	client := vpcsdk.NewSubnetClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create subnet: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get subnet create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*vpc.CreateSubnetMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Subnet ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.SubnetId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create subnet: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Subnet creation failed: %s", err)
 	}
 
 	return resourceYandexVPCSubnetRead(d, meta)
@@ -223,7 +213,9 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	subnet, err := config.sdk.VPC().Subnet().Get(config.Context(), &vpc.GetSubnetRequest{
+	client := vpcsdk.NewSubnetClient(config.SDK)
+
+	subnet, err := client.Get(config.Context(), &vpc.GetSubnetRequest{
 		SubnetId: d.Id(),
 	})
 
@@ -315,12 +307,14 @@ func resourceYandexVPCSubnetUpdate(d *schema.ResourceData, meta interface{}) err
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Subnet().Update(ctx, req))
+	client := vpcsdk.NewSubnetClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Subnet %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Subnet %q: %s", d.Id(), err)
 	}
@@ -342,17 +336,14 @@ func resourceYandexVPCSubnetDelete(d *schema.ResourceData, meta interface{}) err
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Subnet().Delete(ctx, req))
+	client := vpcsdk.NewSubnetClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Subnet %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

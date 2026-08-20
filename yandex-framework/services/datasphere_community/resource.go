@@ -17,7 +17,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/datasphere/v2"
+	dataspheresdk "github.com/yandex-cloud/go-sdk/services/datasphere/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/operationcompat"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -75,9 +77,7 @@ func (r *communityResource) Create(ctx context.Context, req resource.CreateReque
 	tflog.Info(ctx,
 		fmt.Sprintf("Making API call to create new community with parameters %+v", createCommunityRequestData),
 	)
-	op, err := r.providerConfig.SDK.WrapOperation(
-		r.providerConfig.SDK.Datasphere().Community().Create(ctx, createCommunityRequestData),
-	)
+	op, err := requestCreateCommunity(ctx, r.providerConfig.SDKv2, createCommunityRequestData)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create Resource",
@@ -87,34 +87,14 @@ func (r *communityResource) Create(ctx context.Context, req resource.CreateReque
 		)
 		return
 	}
-	err = op.Wait(ctx)
+	createdCommunity := &datasphere.Community{}
+	err = operationcompat.WaitResponse(ctx, r.providerConfig.SDKv2, op.GetId(), createdCommunity)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create Resource",
 			fmt.Sprintf("An unexpected error occurred while attempting to create the resource."+
 				"Please retry the operation or report this issue to the provider developers.\n\n"+
 				"Error: %s", err),
-		)
-		return
-	}
-
-	protoResponse, err := op.Response()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Create Resource",
-			fmt.Sprintf("An unexpected error occurred while parsing API create response. "+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err),
-		)
-		return
-	}
-
-	createdCommunity, ok := protoResponse.(*datasphere.Community)
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unable to Create Resource",
-			fmt.Sprintf("Expected *datasphere.Community, got: %T. "+
-				"Please report this issue to the provider developers.", createdCommunity),
 		)
 		return
 	}
@@ -141,7 +121,7 @@ func (r *communityResource) Read(ctx context.Context, req resource.ReadRequest, 
 		fmt.Sprintf("Making API call to retrieve community with id %s", stateCommunity.Id.ValueString()),
 	)
 
-	existingCommunity, err := r.providerConfig.SDK.Datasphere().Community().Get(ctx,
+	existingCommunity, err := dataspheresdk.NewCommunityClient(r.providerConfig.SDKv2).Get(ctx,
 		&datasphere.GetCommunityRequest{CommunityId: stateCommunity.Id.ValueString()},
 	)
 
@@ -212,10 +192,8 @@ func (r *communityResource) Update(ctx context.Context, req resource.UpdateReque
 		fmt.Sprintf("Make API call to update community with following parameters: %+v", updateCommunityRequest),
 	)
 
-	op, err := r.providerConfig.SDK.WrapOperation(
-		r.providerConfig.SDK.Datasphere().Community().Update(ctx, updateCommunityRequest),
-	)
-
+	op, err :=
+		dataspheresdk.NewCommunityClient(r.providerConfig.SDKv2).Update(ctx, updateCommunityRequest)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Update Resource",
@@ -225,7 +203,7 @@ func (r *communityResource) Update(ctx context.Context, req resource.UpdateReque
 		)
 		return
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -238,26 +216,7 @@ func (r *communityResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	protoResponse, err := op.Response()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Update Resource",
-			fmt.Sprintf("An unexpected error occurred while parsing update response API. "+
-				"Please retry the operation or report this issue to the provider developers.\n\n"+
-				"Error: %s", err),
-		)
-
-		return
-	}
-	updatedCommunity, ok := protoResponse.(*datasphere.Community)
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unable to Update Resource",
-			fmt.Sprintf("Expected *datasphere.Community, got: %T. "+
-				"Please report this issue to the provider developers.", updatedCommunity),
-		)
-		return
-	}
+	updatedCommunity := op.Response()
 
 	tflog.Debug(ctx, fmt.Sprintf("Community was update with following parameters %+v", updatedCommunity))
 	convertToTerraformModel(ctx, &plannedCommunity, updatedCommunity, &resp.Diagnostics)
@@ -288,13 +247,11 @@ func (r *communityResource) Delete(ctx context.Context, req resource.DeleteReque
 	tflog.Info(ctx,
 		fmt.Sprintf("Make API call to delete community with following id: %s", stateCommunity.Id.ValueString()),
 	)
-	op, err := r.providerConfig.SDK.WrapOperation(
-		r.providerConfig.SDK.Datasphere().Community().Delete(
+	op, err :=
+		dataspheresdk.NewCommunityClient(r.providerConfig.SDKv2).Delete(
 			ctx,
 			&datasphere.DeleteCommunityRequest{CommunityId: stateCommunity.Id.ValueString()},
-		),
-	)
-
+		)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Delete Resource",
@@ -305,7 +262,7 @@ func (r *communityResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Delete Resource",

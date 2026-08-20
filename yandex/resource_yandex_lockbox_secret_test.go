@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
+	lockboxsdk "github.com/yandex-cloud/go-sdk/services/lockbox/v1"
 	"google.golang.org/grpc/codes"
 )
 
@@ -310,7 +311,9 @@ func testAccCheckYandexLockboxSecretAllDestroyed(s *terraform.State) error {
 
 func testAccCheckYandexLockboxSecretDestroyed(id string) error {
 	config := testAccProvider.Meta().(*Config)
-	_, err := config.sdk.LockboxSecret().Secret().Get(context.Background(), &lockbox.GetSecretRequest{
+	client := lockboxsdk.NewSecretClient(config.SDK)
+
+	_, err := client.Get(context.Background(), &lockbox.GetSecretRequest{
 		SecretId: id,
 	})
 	if err == nil {
@@ -324,15 +327,19 @@ func testSweepLockboxSecret(_ string) error {
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)
 	}
+	client := lockboxsdk.NewSecretClient(conf.SDK)
 
 	req := &lockbox.ListSecretsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.LockboxSecret().Secret().SecretIterator(conf.Context(), req)
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
 		if !sweepLockboxSecret(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep lockbox secret %q", id))
 		}
+	}
+	if err := it.Error(); err != nil {
+		return err
 	}
 
 	return result.ErrorOrNil()
@@ -346,10 +353,17 @@ func sweepLockboxSecretOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexLockboxSecretDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.LockboxSecret().Secret().Delete(ctx, &lockbox.DeleteSecretRequest{
+	client := lockboxsdk.NewSecretClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &lockbox.DeleteSecretRequest{
 		SecretId: id,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if isStatusWithCode(err, codes.NotFound) {
+		return nil
+	}
 	if isStatusWithCode(err, codes.FailedPrecondition) &&
 		strings.Contains(errorMessage(err), "management is only allowed to") {
 		return nil

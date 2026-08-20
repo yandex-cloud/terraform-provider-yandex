@@ -50,6 +50,7 @@ func metastoreDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool
 		SGIDsSpecified:     newOptional(true),
 		SubnetIDVar:        "yandex_vpc_subnet.metastore-a.id",
 		ResourcePreset:     "c2-m4",
+		Version:            newOptional("3.1"),
 	})
 
 	var datasource string

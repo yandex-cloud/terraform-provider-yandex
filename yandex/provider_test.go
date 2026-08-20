@@ -20,7 +20,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
@@ -335,23 +336,12 @@ func setTestIDs() error {
 	}
 
 	providerConfig := &Config{
+		Endpoint:                       envEndpoint,
 		Token:                          os.Getenv("YC_TOKEN"),
 		ServiceAccountKeyFileOrContent: os.Getenv("YC_SERVICE_ACCOUNT_KEY_FILE"),
 	}
-	credentials, err := providerConfig.credentials()
-	if err != nil {
-		return err
-	}
-
-	config := &ycsdk.Config{
-		Credentials: credentials,
-		Endpoint:    envEndpoint,
-	}
-
 	ctx := context.Background()
-
-	sdk, err := ycsdk.Build(ctx, *config)
-	if err != nil {
+	if err := providerConfig.initAndValidate(ctx, "acceptance-tests", false); err != nil {
 		return err
 	}
 
@@ -360,7 +350,7 @@ func setTestIDs() error {
 	testOrganizationID = os.Getenv("YC_ORGANIZATION_ID")
 
 	testFolderID = os.Getenv("YC_FOLDER_ID")
-	folder := getFolderByID(sdk, testFolderID)
+	folder := getFolderByID(providerConfig, testFolderID)
 	if folder != nil {
 		testFolderName = folder.Name
 		if testCloudID == "" {
@@ -371,21 +361,22 @@ func setTestIDs() error {
 	} else {
 		testFolderName = "no folder name detected"
 	}
-	testCloudName = getCloudNameByID(sdk, testCloudID)
+	testCloudName = getCloudNameByID(providerConfig, testCloudID)
 
 	testUserLogin1 = os.Getenv("YC_LOGIN")
 	testUserLogin2 = os.Getenv("YC_LOGIN_2")
 
-	testUserID1 = loginToUserID(sdk, testUserLogin1)
-	testUserID2 = loginToUserID(sdk, testUserLogin2)
+	testUserID1 = loginToUserID(providerConfig, testUserLogin1)
+	testUserID2 = loginToUserID(providerConfig, testUserLogin2)
 
 	testStorageEndpoint = os.Getenv("YC_STORAGE_ENDPOINT_URL")
 
 	return nil
 }
 
-func getCloudNameByID(sdk *ycsdk.SDK, cloudID string) string {
-	cloud, err := sdk.ResourceManager().Cloud().Get(context.Background(), &resourcemanager.GetCloudRequest{
+func getCloudNameByID(config *Config, cloudID string) string {
+	client := resourcemanagersdk.NewCloudClient(config.SDK)
+	cloud, err := client.Get(context.Background(), &resourcemanager.GetCloudRequest{
 		CloudId: cloudID,
 	})
 	if err != nil {
@@ -398,8 +389,9 @@ func getCloudNameByID(sdk *ycsdk.SDK, cloudID string) string {
 	return cloud.Name
 }
 
-func getFolderByID(sdk *ycsdk.SDK, folderID string) *resourcemanager.Folder {
-	folder, err := sdk.ResourceManager().Folder().Get(context.Background(), &resourcemanager.GetFolderRequest{
+func getFolderByID(config *Config, folderID string) *resourcemanager.Folder {
+	client := resourcemanagersdk.NewFolderClient(config.SDK)
+	folder, err := client.Get(context.Background(), &resourcemanager.GetFolderRequest{
 		FolderId: folderID,
 	})
 	if err != nil {
@@ -412,12 +404,11 @@ func getFolderByID(sdk *ycsdk.SDK, folderID string) *resourcemanager.Folder {
 	return folder
 }
 
-func loginToUserID(sdk *ycsdk.SDK, loginName string) (userID string) {
-	account, err := sdk.IAM().
-		YandexPassportUserAccount().
-		GetByLogin(context.Background(), &iam.GetUserAccountByLoginRequest{
-			Login: loginName,
-		})
+func loginToUserID(config *Config, loginName string) (userID string) {
+	client := iamsdk.NewYandexPassportUserAccountClient(config.SDK)
+	account, err := client.GetByLogin(context.Background(), &iam.GetUserAccountByLoginRequest{
+		Login: loginName,
+	})
 	if err != nil {
 		log.Printf("could not get user Id for %s: %s", loginName, err)
 		if reqID, ok := isRequestIDPresent(err); ok {

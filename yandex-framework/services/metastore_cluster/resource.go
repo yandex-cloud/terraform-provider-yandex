@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
@@ -81,14 +81,14 @@ func (r *metastoreClusterResource) Create(ctx context.Context, req resource.Crea
 	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
-	clusterID, d := CreateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, createClusterRequest)
+	clusterID, d := CreateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, createClusterRequest)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	plan.Id = types.StringValue(clusterID)
-	refreshState(ctx, r.providerConfig.SDK, &plan, &resp.Diagnostics)
+	refreshState(ctx, r.providerConfig.SDKv2, &plan, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -119,7 +119,7 @@ func (r *metastoreClusterResource) Delete(ctx context.Context, req resource.Dele
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	d := DeleteCluster(ctx, r.providerConfig.SDK, clusterID)
+	d := DeleteCluster(ctx, r.providerConfig.SDKv2, clusterID)
 	resp.Diagnostics.Append(d)
 
 	tflog.Debug(ctx, "Finished deleting Metastore cluster", clusterIDLogField(clusterID))
@@ -136,7 +136,7 @@ func (r *metastoreClusterResource) Read(ctx context.Context, req resource.ReadRe
 
 	clusterID := state.Id.ValueString()
 	tflog.Debug(ctx, "Reading Metastore cluster", clusterIDLogField(clusterID))
-	cluster, d := GetClusterByID(ctx, r.providerConfig.SDK, clusterID)
+	cluster, d := GetClusterByID(ctx, r.providerConfig.SDKv2, clusterID)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
@@ -147,7 +147,7 @@ func (r *metastoreClusterResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
-	refreshState(ctx, r.providerConfig.SDK, &state, &resp.Diagnostics)
+	refreshState(ctx, r.providerConfig.SDKv2, &state, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -187,13 +187,13 @@ func (r *metastoreClusterResource) Update(ctx context.Context, req resource.Upda
 	}
 	tflog.Debug(ctx, fmt.Sprintf("Update Metastore cluster request: %+v", updateReq))
 
-	d := UpdateCluster(ctx, r.providerConfig.SDK, updateReq)
+	d := UpdateCluster(ctx, r.providerConfig.SDKv2, updateReq)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	refreshState(ctx, r.providerConfig.SDK, &plan, &resp.Diagnostics)
+	refreshState(ctx, r.providerConfig.SDKv2, &plan, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

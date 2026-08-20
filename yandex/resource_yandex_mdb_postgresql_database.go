@@ -11,8 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	operationpb "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/operationcompat"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 )
 
 const (
@@ -122,9 +125,9 @@ func resourceYandexMDBPostgreSQLDatabaseCreate(d *schema.ResourceData, meta inte
 		DatabaseSpec: databaseSpec,
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL database create request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Database().Create(ctx, request)
+		return postgresqlsdk.NewDatabaseClient(config.SDK).Create(ctx, request)
 	})
 
 	databaseID := constructResourceId(request.ClusterId, request.DatabaseSpec.Name)
@@ -134,11 +137,11 @@ func resourceYandexMDBPostgreSQLDatabaseCreate(d *schema.ResourceData, meta inte
 		return fmt.Errorf("error while requesting API to create database in PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while adding database to PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("creating database for PostgreSQL Cluster %q failed: %s", clusterID, err)
 	}
 
@@ -191,7 +194,7 @@ func resourceYandexMDBPostgreSQLDatabaseRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	db, err := config.sdk.MDB().PostgreSQL().Database().Get(ctx, &postgresql.GetDatabaseRequest{
+	db, err := postgresqlsdk.NewDatabaseClient(config.SDK).Get(ctx, &postgresql.GetDatabaseRequest{
 		ClusterId:    clusterID,
 		DatabaseName: dbname,
 	})
@@ -246,21 +249,17 @@ func resourceYandexMDBPostgreSQLDatabaseUpdate(d *schema.ResourceData, meta inte
 		request.NewDatabaseName = newName.(string)
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retry.ConflictingOperationV2(ctx, config.SDK, func() (*operationpb.Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL database update request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Database().Update(ctx, request)
+		return requestPostgreSQLDatabaseUpdate(ctx, config.SDK, request)
 	})
 
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update database in PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if err := operationcompat.Wait(ctx, config.SDK, op.GetId()); err != nil {
 		return fmt.Errorf("error while updating database in PostgreSQL Cluster %q: %s", clusterID, err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("updating database for PostgreSQL Cluster %q failed: %s", clusterID, err)
 	}
 
 	databaseID := constructResourceId(clusterID, newName.(string))
@@ -281,20 +280,20 @@ func resourceYandexMDBPostgreSQLDatabaseDelete(d *schema.ResourceData, meta inte
 		ClusterId:    clusterID,
 		DatabaseName: dbName,
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL database delete request: %+v", request)
-		return config.sdk.MDB().PostgreSQL().Database().Delete(ctx, request)
+		return postgresqlsdk.NewDatabaseClient(config.SDK).Delete(ctx, request)
 	})
 
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete database from PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while deleting database from PostgreSQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("deleting database from PostgreSQL Cluster %q failed: %s", clusterID, err)
 	}
 

@@ -3,6 +3,7 @@ package mdb_sharded_postgresql_cluster_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -61,7 +62,7 @@ func TestAccMDBShardedPostgreSQLClusterIamBinding_basic(t *testing.T) {
 					testAccCheckExistsAndParseMDBShardedPostgreSQLCluster(yandexMDBShardedPostgreSQLClusterResourceType+".foo", &cluster, 1),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().SPQR().Cluster()
+						return spqrsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -96,7 +97,7 @@ func TestAccMDBShardedPostgreSQLClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckExistsAndParseMDBShardedPostgreSQLCluster(yandexMDBShardedPostgreSQLClusterResourceType+".foo", &cluster, 1),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().SPQR().Cluster()
+						return spqrsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -105,7 +106,7 @@ func TestAccMDBShardedPostgreSQLClusterIamBinding_multiple(t *testing.T) {
 				Config: testAccMDBShardedPostgreSQLClusterIamBindingConfig(roleFoo, userID, "foo", clusterName, description, environment),
 				Check: iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 					cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-					return cfg.SDK.MDB().SPQR().Cluster()
+					return spqrsdk.NewClusterClient(cfg.SDKv2)
 				}, &cluster, roleFoo, []string{userID}),
 			},
 			iam.IAMBindingImportTestStep(spqrIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
@@ -115,11 +116,11 @@ func TestAccMDBShardedPostgreSQLClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().SPQR().Cluster()
+						return spqrsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().SPQR().Cluster()
+						return spqrsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -131,11 +132,11 @@ func TestAccMDBShardedPostgreSQLClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().SPQR().Cluster()
+						return spqrsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().SPQR().Cluster()
+						return spqrsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar),
 				),
 			},

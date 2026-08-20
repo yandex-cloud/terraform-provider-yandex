@@ -60,7 +60,7 @@ func (d *trinoCatalogDatasource) Read(ctx context.Context, req datasource.ReadRe
 		}
 
 		var diag diag.Diagnostic
-		catalogId, diag = GetCatalogByName(ctx, d.providerConfig.SDK, clusterId, catalogName)
+		catalogId, diag = GetCatalogByName(ctx, d.providerConfig.SDKv2, clusterId, catalogName)
 		resp.Diagnostics.Append(diag)
 		if resp.Diagnostics.HasError() {
 			return
@@ -68,7 +68,7 @@ func (d *trinoCatalogDatasource) Read(ctx context.Context, req datasource.ReadRe
 		state.Id = types.StringValue(catalogId)
 	}
 
-	catalog, diag := GetCatalogByID(ctx, d.providerConfig.SDK, catalogId, clusterId)
+	catalog, diag := GetCatalogByID(ctx, d.providerConfig.SDKv2, catalogId, clusterId)
 	resp.Diagnostics.Append(diag)
 	if resp.Diagnostics.HasError() {
 		return
@@ -82,7 +82,7 @@ func (d *trinoCatalogDatasource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	resp.Diagnostics.Append(updateState(ctx, d.providerConfig.SDK, &state)...)
+	resp.Diagnostics.Append(updateState(ctx, d.providerConfig.SDKv2, &state)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 

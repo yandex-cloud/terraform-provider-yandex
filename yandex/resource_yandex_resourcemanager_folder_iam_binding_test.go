@@ -10,6 +10,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
 )
 
 // Test that an IAM binding can be applied to a folder
@@ -323,7 +324,9 @@ func testAccCheckYandexResourceManagerFolderExists(n string, folder *resourceman
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.ResourceManager().Folder().Get(context.Background(), &resourcemanager.GetFolderRequest{
+		client := resourcemanagersdk.NewFolderClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &resourcemanager.GetFolderRequest{
 			FolderId: rs.Primary.ID,
 		})
 		if err != nil {

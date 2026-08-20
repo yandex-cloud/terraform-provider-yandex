@@ -11,6 +11,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	opensearchsdk "github.com/yandex-cloud/go-sdk/services/mdb/opensearch/v1"
 )
 
 const (
@@ -30,7 +31,7 @@ func testSweepMDBOpenSearchCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.MDB().OpenSearch().Cluster().List(
+	resp, err := opensearchsdk.NewClusterClient(conf.SDK).List(
 		context.Background(),
 		&opensearch.ListClustersRequest{
 			FolderId: conf.FolderID,
@@ -60,18 +61,18 @@ func sweepMDBOpenSearchClusterOnce(conf *Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.MDB().OpenSearch().Cluster().Update(ctx, &opensearch.UpdateClusterRequest{
+	op, err := opensearchsdk.NewClusterClient(conf.SDK).Update(ctx, &opensearch.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, op, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
-	op, err = conf.sdk.MDB().OpenSearch().Cluster().Delete(ctx, &opensearch.DeleteClusterRequest{
+	deleteOp, err := opensearchsdk.NewClusterClient(conf.SDK).Delete(ctx, &opensearch.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, deleteOp, err)
 }

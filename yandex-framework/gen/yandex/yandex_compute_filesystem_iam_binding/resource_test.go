@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -46,7 +47,7 @@ func TestAccComputeFilesystem_basicIamMember(t *testing.T) {
 					testAccCheckComputeFilesystemExists("yandex_compute_filesystem.foobar", &fs),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-						return cfg.SDK.Compute().Filesystem()
+						return computesdk.NewFilesystemClient(cfg.SDKv2)
 					}, &fs, role, []string{"system:" + userID}),
 				),
 			},
@@ -67,7 +68,7 @@ func testAccCheckComputeFilesystemExists(n string, fs *compute.Filesystem) resou
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Compute().Filesystem().Get(context.Background(), &compute.GetFilesystemRequest{
+		found, err := computesdk.NewFilesystemClient(config.SDKv2).Get(context.Background(), &compute.GetFilesystemRequest{
 			FilesystemId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -113,7 +114,7 @@ func testAccCheckComputeFilesystemDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.Compute().Filesystem().Get(context.Background(), &compute.GetFilesystemRequest{
+		_, err := computesdk.NewFilesystemClient(config.SDKv2).Get(context.Background(), &compute.GetFilesystemRequest{
 			FilesystemId: rs.Primary.ID,
 		})
 		if err == nil {

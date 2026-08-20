@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 )
 
 const (
@@ -67,9 +67,9 @@ func resourceYandexMDBMySQLDatabaseCreate(d *schema.ResourceData, meta interface
 		},
 	}
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL database create request: %+v", request)
-		return config.sdk.MDB().MySQL().Database().Create(ctx, request)
+		return mysqlsdk.NewDatabaseClient(config.SDK).Create(ctx, request)
 	})
 
 	databaseID := constructResourceId(request.ClusterId, request.DatabaseSpec.Name)
@@ -79,11 +79,11 @@ func resourceYandexMDBMySQLDatabaseCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("error while requesting API to create database in MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while adding database to MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("creating database for MySQL Cluster %q failed: %s", clusterID, err)
 	}
 
@@ -101,7 +101,7 @@ func resourceYandexMDBMySQLDatabaseRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	db, err := config.sdk.MDB().MySQL().Database().Get(ctx, &mysql.GetDatabaseRequest{
+	db, err := mysqlsdk.NewDatabaseClient(config.SDK).Get(ctx, &mysql.GetDatabaseRequest{
 		ClusterId:    clusterID,
 		DatabaseName: dbname,
 	})
@@ -131,20 +131,20 @@ func resourceYandexMDBMySQLDatabaseDelete(d *schema.ResourceData, meta interface
 		ClusterId:    clusterID,
 		DatabaseName: dbname,
 	}
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL database delete request: %+v", request)
-		return config.sdk.MDB().MySQL().Database().Delete(ctx, request)
+		return mysqlsdk.NewDatabaseClient(config.SDK).Delete(ctx, request)
 	})
 
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete database from MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while deleting database from MySQL Cluster %q: %s", clusterID, err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("deleting database from MySQL Cluster %q failed: %s", clusterID, err)
 	}
 

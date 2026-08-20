@@ -1,10 +1,11 @@
 package yandex
 
 import (
+	"testing"
+
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
-	"testing"
 
 	"github.com/stretchr/testify/require"
 )

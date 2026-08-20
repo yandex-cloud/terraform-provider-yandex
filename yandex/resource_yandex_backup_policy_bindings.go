@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	backupsdk "github.com/yandex-cloud/go-sdk/services/backup/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/codes"
 )
@@ -91,7 +92,7 @@ func resourceYandexBackupPolicyBindingsCreate(ctx context.Context, d *schema.Res
 	}
 
 	d.SetId(id)
-	log.Printf("[INFO]: Created Cloud Backup Bindings with id=%q, operation_id=%q", d.Id(), operation.Id())
+	log.Printf("[INFO]: Created Cloud Backup Bindings with id=%q, operation_id=%q", d.Id(), operation.ID())
 
 	return resourceYandexBackupPolicyBindingsRead(ctx, d, meta)
 }
@@ -135,16 +136,18 @@ func resourceYandexBackupPolicyBindingsDelete(ctx context.Context, d *schema.Res
 		return diag.FromErr(err)
 	}
 
-	operation, err := config.sdk.WrapOperation(config.sdk.Backup().Policy().Revoke(ctx, &backuppb.RevokeRequest{
+	client := backupsdk.NewPolicyClient(config.SDK)
+
+	operation, err := client.Revoke(ctx, &backuppb.RevokeRequest{
 		PolicyId:          policyID,
 		ComputeInstanceId: instanceID,
-	}))
+	})
 	if err != nil {
 		err = handleNotFoundError(err, d, d.Id())
 		return diag.FromErr(err)
 	}
 
-	err = operation.Wait(ctx)
+	_, err = operation.Wait(ctx)
 	if err != nil {
 		return diag.Errorf("waiting operation for completes: %s", err)
 	}

@@ -17,7 +17,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	clickhousesdk "github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
@@ -1188,29 +1188,21 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Clickhouse().Cluster().Create(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(config.SDK).Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create ClickHouse Cluster: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while getting ClickHouse create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*clickhouse.CreateClusterMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Cluster ID from create operation metadata")
-	}
+	md := op.Metadata()
 
 	d.SetId(md.ClusterId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while waiting for operation to create ClickHouse Cluster: %s", err)
 	}
 
-	if _, err := op.Response(); err != nil {
+	if err := op.Error(); err != nil {
 		return fmt.Errorf("ClickHouse Cluster creation failed: %s", err)
 	}
 
@@ -1426,7 +1418,7 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.MDB().Clickhouse().Cluster().Get(ctx, &clickhouse.GetClusterRequest{
+	cluster, err := clickhousesdk.NewClusterClient(config.SDK).Get(ctx, &clickhouse.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -1814,12 +1806,12 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 		ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 		defer cancel()
 
-		op, err := config.sdk.WrapOperation(config.sdk.MDB().Clickhouse().Cluster().Update(ctx, req))
+		op, err := clickhousesdk.NewClusterClient(config.SDK).Update(ctx, req)
 		if err != nil {
 			return fmt.Errorf("error while requesting API to update ClickHouse Cluster version %q: %s", d.Id(), err)
 		}
 
-		err = op.WaitInterval(ctx, yandexMDBClickHouseClusterPollInterval)
+		_, err = op.WaitInterval(ctx, func(int) time.Duration { return yandexMDBClickHouseClusterPollInterval })
 		if err != nil {
 			return fmt.Errorf("error while updating ClickHouse Cluster version %q: %s", d.Id(), err)
 		}
@@ -1903,12 +1895,12 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Clickhouse().Cluster().Update(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(config.SDK).Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2405,9 +2397,9 @@ func updateClickHouseMlModels(d *schema.ResourceData, meta interface{}) error {
 }
 
 func createClickHouseDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().Database().Create(ctx, &clickhouse.CreateDatabaseRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewDatabaseClient(config.SDK).Create(ctx, &clickhouse.CreateDatabaseRequest{
 				ClusterId: d.Id(),
 				DatabaseSpec: &clickhouse.DatabaseSpec{
 					Name: dbName,
@@ -2422,9 +2414,9 @@ func createClickHouseDatabase(ctx context.Context, config *Config, d *schema.Res
 }
 
 func deleteClickHouseDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().Database().Delete(ctx, &clickhouse.DeleteDatabaseRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewDatabaseClient(config.SDK).Delete(ctx, &clickhouse.DeleteDatabaseRequest{
 				ClusterId:    d.Id(),
 				DatabaseName: dbName,
 			})
@@ -2437,9 +2429,9 @@ func deleteClickHouseDatabase(ctx context.Context, config *Config, d *schema.Res
 }
 
 func createClickHouseUser(ctx context.Context, config *Config, d *schema.ResourceData, user *clickhouse.UserSpec) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().User().Create(ctx, &clickhouse.CreateUserRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewUserClient(config.SDK).Create(ctx, &clickhouse.CreateUserRequest{
 				ClusterId: d.Id(),
 				UserSpec:  user,
 			})
@@ -2452,9 +2444,9 @@ func createClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 }
 
 func deleteClickHouseUser(ctx context.Context, config *Config, d *schema.ResourceData, userName string) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().User().Delete(ctx, &clickhouse.DeleteUserRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewUserClient(config.SDK).Delete(ctx, &clickhouse.DeleteUserRequest{
 				ClusterId: d.Id(),
 				UserName:  userName,
 			})
@@ -2468,8 +2460,8 @@ func deleteClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 
 func updateClickHouseUser(ctx context.Context, config *Config, d *schema.ResourceData, user *clickhouse.UserSpec, changedFields []string) error {
 
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig, func() (*operation.Operation, error) {
-		return config.sdk.MDB().Clickhouse().User().Update(ctx, &clickhouse.UpdateUserRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig, func() (sdkV2Operation, error) {
+		return clickhousesdk.NewUserClient(config.SDK).Update(ctx, &clickhouse.UpdateUserRequest{
 			ClusterId:   d.Id(),
 			UserName:    user.Name,
 			Password:    user.Password,
@@ -2487,17 +2479,17 @@ func updateClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 }
 
 func createClickHouseHosts(ctx context.Context, config *Config, d *schema.ResourceData, spec []*clickhouse.HostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().AddHosts(ctx, &clickhouse.AddClusterHostsRequest{
+	op, err :=
+		clickhousesdk.NewClusterClient(config.SDK).AddHosts(ctx, &clickhouse.AddClusterHostsRequest{
 			ClusterId:  d.Id(),
 			HostSpecs:  spec,
 			CopySchema: &wrappers.BoolValue{Value: d.Get("copy_schema_on_new_hosts").(bool)},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to add hosts to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding hosts to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2505,16 +2497,16 @@ func createClickHouseHosts(ctx context.Context, config *Config, d *schema.Resour
 }
 
 func updateClickHouseHost(ctx context.Context, config *Config, d *schema.ResourceData, spec *clickhouse.UpdateHostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().UpdateHosts(ctx, &clickhouse.UpdateClusterHostsRequest{
+	op, err :=
+		clickhousesdk.NewClusterClient(config.SDK).UpdateHosts(ctx, &clickhouse.UpdateClusterHostsRequest{
 			ClusterId:       d.Id(),
 			UpdateHostSpecs: []*clickhouse.UpdateHostSpec{spec},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update host of ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.WaitInterval(ctx, yandexMDBClickHouseClusterPollInterval)
+	_, err = op.WaitInterval(ctx, func(int) time.Duration { return yandexMDBClickHouseClusterPollInterval })
 	if err != nil {
 		return fmt.Errorf("error while updating host of ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2522,16 +2514,16 @@ func updateClickHouseHost(ctx context.Context, config *Config, d *schema.Resourc
 }
 
 func deleteClickHouseHosts(ctx context.Context, config *Config, d *schema.ResourceData, fqdns []string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().DeleteHosts(ctx, &clickhouse.DeleteClusterHostsRequest{
+	op, err :=
+		clickhousesdk.NewClusterClient(config.SDK).DeleteHosts(ctx, &clickhouse.DeleteClusterHostsRequest{
 			ClusterId: d.Id(),
 			HostNames: fqdns,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete hosts from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting hosts from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2539,9 +2531,9 @@ func deleteClickHouseHosts(ctx context.Context, config *Config, d *schema.Resour
 }
 
 func createClickHouseShards(ctx context.Context, config *Config, d *schema.ResourceData, hostSpecs []*clickhouse.HostSpec, shardSpecs []*clickhouse.ShardSpec) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().Cluster().AddShards(ctx, &clickhouse.AddClusterShardsRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewClusterClient(config.SDK).AddShards(ctx, &clickhouse.AddClusterShardsRequest{
 				ClusterId:  d.Id(),
 				ShardSpecs: shardSpecs,
 				HostSpecs:  hostSpecs,
@@ -2556,7 +2548,7 @@ func createClickHouseShards(ctx context.Context, config *Config, d *schema.Resou
 }
 
 func updateClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string, shardSpec *clickhouse.ShardConfigSpec) error {
-	resp, err := config.sdk.MDB().Clickhouse().Cluster().GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
+	resp, err := clickhousesdk.NewClusterClient(config.SDK).GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
 		ClusterId: d.Id(),
 		ShardName: shardName,
 	})
@@ -2596,14 +2588,14 @@ func updateClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 		return nil
 	}
 
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().UpdateShard(ctx, &clickhouse.UpdateClusterShardRequest{
+	op, err :=
+		clickhousesdk.NewClusterClient(config.SDK).UpdateShard(ctx, &clickhouse.UpdateClusterShardRequest{
 			ClusterId:  d.Id(),
 			ShardName:  shardName,
 			ConfigSpec: shardSpec,
 			UpdateMask: &field_mask.FieldMask{Paths: updatePath},
-		}),
-	)
+		})
+
 	if err != nil {
 		// It can happen on resources update and it easier to ignore this error rather than fix shard state
 		// In the end we get shard in desirable state
@@ -2613,7 +2605,7 @@ func updateClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 		}
 		return fmt.Errorf("error while requesting API to update shard %s to ClickHouse Cluster %q: %s", shardName, d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating shard %s to ClickHouse Cluster %q: %s", shardName, d.Id(), err)
 	}
@@ -2622,9 +2614,9 @@ func updateClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 }
 
 func deleteClickHouseShards(ctx context.Context, config *Config, d *schema.ResourceData, names []string) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().Cluster().DeleteShards(ctx, &clickhouse.DeleteClusterShardsRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewClusterClient(config.SDK).DeleteShards(ctx, &clickhouse.DeleteClusterShardsRequest{
 				ClusterId:  d.Id(),
 				ShardNames: names,
 			})
@@ -2679,9 +2671,9 @@ func addClickHouseShards(ctx context.Context, config *Config, d *schema.Resource
 }
 
 func createClickHouseShardGroup(ctx context.Context, config *Config, d *schema.ResourceData, group *clickhouse.ShardGroup) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().Cluster().CreateShardGroup(ctx, &clickhouse.CreateClusterShardGroupRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewClusterClient(config.SDK).CreateShardGroup(ctx, &clickhouse.CreateClusterShardGroupRequest{
 				ClusterId:      d.Id(),
 				ShardGroupName: group.Name,
 				Description:    group.Description,
@@ -2696,19 +2688,19 @@ func createClickHouseShardGroup(ctx context.Context, config *Config, d *schema.R
 }
 
 func updateClickHouseShardGroup(ctx context.Context, config *Config, d *schema.ResourceData, group *clickhouse.ShardGroup) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().UpdateShardGroup(ctx, &clickhouse.UpdateClusterShardGroupRequest{
+	op, err :=
+		clickhousesdk.NewClusterClient(config.SDK).UpdateShardGroup(ctx, &clickhouse.UpdateClusterShardGroupRequest{
 			ClusterId:      d.Id(),
 			ShardGroupName: group.Name,
 			Description:    group.Description,
 			ShardNames:     group.ShardNames,
 			UpdateMask:     &field_mask.FieldMask{Paths: []string{"description", "shard_names"}},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update shard group to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating shard group to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2716,9 +2708,9 @@ func updateClickHouseShardGroup(ctx context.Context, config *Config, d *schema.R
 }
 
 func deleteClickHouseShardGroup(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().Cluster().DeleteShardGroup(ctx, &clickhouse.DeleteClusterShardGroupRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewClusterClient(config.SDK).DeleteShardGroup(ctx, &clickhouse.DeleteClusterShardGroupRequest{
 				ClusterId:      d.Id(),
 				ShardGroupName: name,
 			})
@@ -2730,9 +2722,9 @@ func deleteClickHouseShardGroup(ctx context.Context, config *Config, d *schema.R
 }
 
 func createClickHouseFormatSchema(ctx context.Context, config *Config, d *schema.ResourceData, schema *clickhouse.FormatSchema) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().FormatSchema().Create(ctx, &clickhouse.CreateFormatSchemaRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewFormatSchemaClient(config.SDK).Create(ctx, &clickhouse.CreateFormatSchemaRequest{
 				ClusterId:        d.Id(),
 				FormatSchemaName: schema.Name,
 				Type:             schema.Type,
@@ -2746,18 +2738,18 @@ func createClickHouseFormatSchema(ctx context.Context, config *Config, d *schema
 }
 
 func updateClickHouseFormatSchema(ctx context.Context, config *Config, d *schema.ResourceData, schema *clickhouse.FormatSchema) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().FormatSchema().Update(ctx, &clickhouse.UpdateFormatSchemaRequest{
+	op, err :=
+		clickhousesdk.NewFormatSchemaClient(config.SDK).Update(ctx, &clickhouse.UpdateFormatSchemaRequest{
 			ClusterId:        d.Id(),
 			FormatSchemaName: schema.Name,
 			Uri:              schema.Uri,
 			UpdateMask:       &field_mask.FieldMask{Paths: []string{"uri"}},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update format schema in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating format schema in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2765,9 +2757,9 @@ func updateClickHouseFormatSchema(ctx context.Context, config *Config, d *schema
 }
 
 func deleteClickHouseFormatSchema(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
-	err := waitOperationWithRetry(ctx, config, yandexMDBClickhouseRetryOperationConfig,
-		func() (*operation.Operation, error) {
-			return config.sdk.MDB().Clickhouse().FormatSchema().Delete(ctx, &clickhouse.DeleteFormatSchemaRequest{
+	err := waitOperationWithRetryV2(ctx, config, yandexMDBClickhouseRetryOperationConfig,
+		func() (sdkV2Operation, error) {
+			return clickhousesdk.NewFormatSchemaClient(config.SDK).Delete(ctx, &clickhouse.DeleteFormatSchemaRequest{
 				ClusterId:        d.Id(),
 				FormatSchemaName: name,
 			})
@@ -2779,18 +2771,18 @@ func deleteClickHouseFormatSchema(ctx context.Context, config *Config, d *schema
 }
 
 func createClickHouseMlModel(ctx context.Context, config *Config, d *schema.ResourceData, model *clickhouse.MlModel) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().MlModel().Create(ctx, &clickhouse.CreateMlModelRequest{
+	op, err :=
+		clickhousesdk.NewMlModelClient(config.SDK).Create(ctx, &clickhouse.CreateMlModelRequest{
 			ClusterId:   d.Id(),
 			MlModelName: model.Name,
 			Type:        model.Type,
 			Uri:         model.Uri,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to add ml model to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while adding ml model to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2798,18 +2790,18 @@ func createClickHouseMlModel(ctx context.Context, config *Config, d *schema.Reso
 }
 
 func updateClickHouseMlModel(ctx context.Context, config *Config, d *schema.ResourceData, model *clickhouse.MlModel) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().MlModel().Update(ctx, &clickhouse.UpdateMlModelRequest{
+	op, err :=
+		clickhousesdk.NewMlModelClient(config.SDK).Update(ctx, &clickhouse.UpdateMlModelRequest{
 			ClusterId:   d.Id(),
 			MlModelName: model.Name,
 			Uri:         model.Uri,
 			UpdateMask:  &field_mask.FieldMask{Paths: []string{"uri"}},
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update ml model in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating ml model in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2817,16 +2809,16 @@ func updateClickHouseMlModel(ctx context.Context, config *Config, d *schema.Reso
 }
 
 func deleteClickHouseMlModel(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().MlModel().Delete(ctx, &clickhouse.DeleteMlModelRequest{
+	op, err :=
+		clickhousesdk.NewMlModelClient(config.SDK).Delete(ctx, &clickhouse.DeleteMlModelRequest{
 			ClusterId:   d.Id(),
 			MlModelName: name,
-		}),
-	)
+		})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete shard group from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting ml model from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2834,8 +2826,8 @@ func deleteClickHouseMlModel(ctx context.Context, config *Config, d *schema.Reso
 }
 
 func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.ResourceData, resources *clickhouse.Resources, specs []*clickhouse.HostSpec) error {
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
-		return config.sdk.MDB().Clickhouse().Cluster().AddZookeeper(ctx, &clickhouse.AddClusterZookeeperRequest{
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
+		return clickhousesdk.NewClusterClient(config.SDK).AddZookeeper(ctx, &clickhouse.AddClusterZookeeperRequest{
 			ClusterId: d.Id(),
 			Resources: resources,
 			HostSpecs: specs,
@@ -2844,7 +2836,7 @@ func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.Re
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create ZooKeeper subcluster in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while creating ZooKeeper subcluster in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
@@ -2853,8 +2845,7 @@ func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.Re
 
 // TODO: deadcode
 //func updateClickHouseMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *clickhouse.MaintenanceWindow) error {
-//	op, err := config.sdk.WrapOperation(
-//		config.sdk.MDB().Clickhouse().Cluster().Update(ctx, &clickhouse.UpdateClusterRequest{
+//		clickhouseClusterClient(config).Update(ctx, &clickhouse.UpdateClusterRequest{
 //			ClusterId:         d.Id(),
 //			MaintenanceWindow: mw,
 //			UpdateMask:        &field_mask.FieldMask{Paths: []string{"maintenance_window"}},
@@ -2863,7 +2854,7 @@ func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.Re
 //	if err != nil {
 //		return fmt.Errorf("error while requesting API to update maintenance window in ClickHouse Cluster %q: %s", d.Id(), err)
 //	}
-//	err = op.Wait(ctx)
+//	_, err = op.Wait(ctx)
 //	if err != nil {
 //		return fmt.Errorf("error while updating maintenance window in ClickHouse Cluster %q: %s", d.Id(), err)
 //	}
@@ -2874,7 +2865,7 @@ func listClickHouseHosts(ctx context.Context, config *Config, id string) ([]*cli
 	hosts := []*clickhouse.Host{}
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListHosts(ctx, &clickhouse.ListClusterHostsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDK).ListHosts(ctx, &clickhouse.ListClusterHostsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -2895,7 +2886,7 @@ func listClickHouseUsers(ctx context.Context, config *Config, id string) ([]*cli
 	users := []*clickhouse.User{}
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Clickhouse().User().List(ctx, &clickhouse.ListUsersRequest{
+		resp, err := clickhousesdk.NewUserClient(config.SDK).List(ctx, &clickhouse.ListUsersRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -2916,7 +2907,7 @@ func listClickHouseDatabases(ctx context.Context, config *Config, id string) ([]
 	dbs := []*clickhouse.Database{}
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Clickhouse().Database().List(ctx, &clickhouse.ListDatabasesRequest{
+		resp, err := clickhousesdk.NewDatabaseClient(config.SDK).List(ctx, &clickhouse.ListDatabasesRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -2937,7 +2928,7 @@ func listClickHouseShards(ctx context.Context, config *Config, id string) ([]*cl
 	shards := []*clickhouse.Shard{}
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListShards(ctx, &clickhouse.ListClusterShardsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDK).ListShards(ctx, &clickhouse.ListClusterShardsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -2964,21 +2955,21 @@ func resourceYandexMDBClickHouseClusterDelete(d *schema.ResourceData, meta inter
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Deleting ClickHouse Cluster %q", d.Id())
-		return config.sdk.MDB().Clickhouse().Cluster().Delete(ctx, req)
+		return clickhousesdk.NewClusterClient(config.SDK).Delete(ctx, req)
 	})
 
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ClickHouse Cluster %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while deleting Clickhouse cluster %q: %s", d.Id(), err)
 	}
 
-	_, err = op.Response()
+	err = op.Error()
 	if err != nil {
 		return fmt.Errorf("error while deleting Clickhouse cluster %q: %s", d.Id(), err)
 	}
@@ -2991,7 +2982,7 @@ func listClickHouseShardGroups(ctx context.Context, config *Config, id string) (
 	var groups []*clickhouse.ShardGroup
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListShardGroups(ctx, &clickhouse.ListClusterShardGroupsRequest{
+		resp, err := clickhousesdk.NewClusterClient(config.SDK).ListShardGroups(ctx, &clickhouse.ListClusterShardGroupsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -3013,7 +3004,7 @@ func listClickHouseFormatSchemas(ctx context.Context, config *Config, id string)
 	var formatSchema []*clickhouse.FormatSchema
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Clickhouse().FormatSchema().List(ctx, &clickhouse.ListFormatSchemasRequest{
+		resp, err := clickhousesdk.NewFormatSchemaClient(config.SDK).List(ctx, &clickhouse.ListFormatSchemasRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -3035,7 +3026,7 @@ func listClickHouseMlModels(ctx context.Context, config *Config, id string) ([]*
 	var groups []*clickhouse.MlModel
 	pageToken := ""
 	for {
-		resp, err := config.sdk.MDB().Clickhouse().MlModel().List(ctx, &clickhouse.ListMlModelsRequest{
+		resp, err := clickhousesdk.NewMlModelClient(config.SDK).List(ctx, &clickhouse.ListMlModelsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -3183,7 +3174,7 @@ func setClickHouseFolderID(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	cluster, err := config.sdk.MDB().Clickhouse().Cluster().Get(ctx, &clickhouse.GetClusterRequest{
+	cluster, err := clickhousesdk.NewClusterClient(config.SDK).Get(ctx, &clickhouse.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
@@ -3203,20 +3194,20 @@ func setClickHouseFolderID(d *schema.ResourceData, meta interface{}) error {
 			ClusterId:           d.Id(),
 			DestinationFolderId: folderID.(string),
 		}
-		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 			log.Printf("[DEBUG] Sending ClickHouse cluster move request: %+v", request)
-			return config.sdk.MDB().Clickhouse().Cluster().Move(ctx, request)
+			return clickhousesdk.NewClusterClient(config.SDK).Move(ctx, request)
 		})
 		if err != nil {
 			return fmt.Errorf("error while requesting API to move ClickHouse Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error while moving ClickHouse Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}
 
-		if _, err := op.Response(); err != nil {
+		if err := op.Error(); err != nil {
 			return fmt.Errorf("moving ClickHouse Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
 		}
 

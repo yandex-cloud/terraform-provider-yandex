@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 )
 
 const yandexIAMServiceAccountUpdateAccessBindingsBatchSize = 1000
@@ -47,6 +48,8 @@ func (u *ServiceAccountIamUpdater) GetResourceIamPolicy(ctx context.Context) (*P
 }
 
 func (u *ServiceAccountIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
+	client := iamsdk.NewServiceAccountClient(u.Config.SDK)
+
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.serviceAccountID,
 		AccessBindings: policy.Bindings,
@@ -55,12 +58,12 @@ func (u *ServiceAccountIamUpdater) SetResourceIamPolicy(ctx context.Context, pol
 	ctx, cancel := context.WithTimeout(u.Config.Context(), yandexIAMServiceAccountDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.IAM().ServiceAccount().SetAccessBindings(ctx, req))
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -69,6 +72,8 @@ func (u *ServiceAccountIamUpdater) SetResourceIamPolicy(ctx context.Context, pol
 }
 
 func (u *ServiceAccountIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	client := iamsdk.NewServiceAccountClient(u.Config.SDK)
+
 	bSize := yandexIAMServiceAccountUpdateAccessBindingsBatchSize
 	deltas := policy.Deltas
 	dLen := len(deltas)
@@ -79,7 +84,7 @@ func (u *ServiceAccountIamUpdater) UpdateResourceIamPolicy(ctx context.Context, 
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.IAM().ServiceAccount().UpdateAccessBindings(ctx, req))
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -87,7 +92,7 @@ func (u *ServiceAccountIamUpdater) UpdateResourceIamPolicy(ctx context.Context, 
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -109,11 +114,13 @@ func (u *ServiceAccountIamUpdater) DescribeResource() string {
 }
 
 func getServiceAccountAccessBindings(ctx context.Context, config *Config, serviceAccountID string) ([]*access.AccessBinding, error) {
+	client := iamsdk.NewServiceAccountClient(config.SDK)
+
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.IAM().ServiceAccount().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: serviceAccountID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

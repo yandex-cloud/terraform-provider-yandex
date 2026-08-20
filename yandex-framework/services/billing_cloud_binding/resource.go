@@ -11,9 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/billing/v1"
+	billingsdk "github.com/yandex-cloud/go-sdk/services/billing/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type bindingResource struct {
@@ -65,19 +65,17 @@ func (r *bindingResource) bindAccountToServiceInstance(ctx context.Context, bill
 		BillableObject:   &billableObject,
 	}
 
-	op, err := r.providerConfig.SDK.Billing().BillingAccount().BindBillableObject(
+	op, err := billingsdk.NewBillingAccountClient(r.providerConfig.SDKv2).BindBillableObject(
 		ctx,
 		&bindRequest,
 	)
-
-	if opErr := op.GetError(); opErr != nil {
-		log.Printf("[WARN] Operation ended with error: %s", protojson.Format(opErr))
-		diagnostics.AddError("Failed to bind billing object", fmt.Sprintf("%v [%v]", opErr.Message, opErr.Code))
-		return
-	}
-
 	if err != nil {
 		diagnostics.AddError(fmt.Sprintf("Error while requesting API binding %s to billing account", r.serviceInstanceType), err.Error())
+		return
+	}
+	if _, err = op.Wait(ctx); err != nil {
+		log.Printf("[WARN] Operation ended with error: %s", err)
+		diagnostics.AddError("Failed to bind billing object", err.Error())
 		return
 	}
 
@@ -111,7 +109,7 @@ func (r *bindingResource) Read(ctx context.Context,
 
 	getAllRequestAttributes(ctx, &state, r.serviceInstanceIdFieldName, req.State, &resp.Diagnostics)
 
-	if !isObjectExist(ctx, r.providerConfig.SDK, r.serviceInstanceType, state.billingAccountID.ValueString(), state.serviceInstanceID.ValueString()) {
+	if !isObjectExist(ctx, r.providerConfig.SDKv2, r.serviceInstanceType, state.billingAccountID.ValueString(), state.serviceInstanceID.ValueString()) {
 		resp.Diagnostics.AddError("Failed to read resource",
 			fmt.Sprintf("Bound %s to billing account not found", r.serviceInstanceType))
 		resp.State.RemoveResource(ctx)

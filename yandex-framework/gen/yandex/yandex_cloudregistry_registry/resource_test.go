@@ -16,6 +16,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cloudregistry/v1"
+	cloudregistrysdk "github.com/yandex-cloud/go-sdk/services/cloudregistry/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -41,7 +42,7 @@ func testSweepCloudRegistry(_ string) error {
 	}
 
 	req := &cloudregistry.ListRegistriesRequest{FolderId: test.GetExampleFolderID()}
-	it := conf.SDK.CloudRegistry().Registry().RegistryIterator(context.Background(), req)
+	it := cloudregistrysdk.NewRegistryClient(conf.SDKv2).Iterator(context.Background(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -61,10 +62,10 @@ func sweepcloudRegistryOnce(conf *provider_config.Config, id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), yandexCloudRegistryDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.SDK.CloudRegistry().Registry().Delete(ctx, &cloudregistry.DeleteRegistryRequest{
+	op, err := cloudregistrysdk.NewRegistryClient(conf.SDKv2).Delete(ctx, &cloudregistry.DeleteRegistryRequest{
 		RegistryId: id,
 	})
-	return test.HandleSweepOperation(ctx, conf, op, err)
+	return test.HandleSweepOperation(ctx, op, err)
 }
 
 //revive:disable:var-naming
@@ -316,7 +317,7 @@ func testAccCheckCloudRegistryDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.CloudRegistry().Registry().Get(context.Background(), &cloudregistry.GetRegistryRequest{
+		_, err := cloudregistrysdk.NewRegistryClient(config.SDKv2).Get(context.Background(), &cloudregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 
@@ -346,7 +347,7 @@ func testAccCheckCloudRegistryExists(n string, registry *cloudregistry.Registry)
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.CloudRegistry().Registry().Get(context.Background(), &cloudregistry.GetRegistryRequest{
+		found, err := cloudregistrysdk.NewRegistryClient(config.SDKv2).Get(context.Background(), &cloudregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 		if err != nil {

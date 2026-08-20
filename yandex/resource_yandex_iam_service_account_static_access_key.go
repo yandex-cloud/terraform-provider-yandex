@@ -9,6 +9,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
+	awscompatibilitysdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/awscompatibility"
 )
 
 func resourceYandexIAMServiceAccountStaticAccessKey() *schema.Resource {
@@ -82,11 +83,12 @@ var resourceYandexIAMServiceAccountStaticAccessKeySensitiveAttrs = []string{"sec
 
 func resourceYandexIAMServiceAccountStaticAccessKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := awscompatibilitysdk.NewAccessKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	resp, err := config.sdk.IAM().AWSCompatibility().AccessKey().Create(ctx, &awscompatibility.CreateAccessKeyRequest{
+	resp, err := client.Create(ctx, &awscompatibility.CreateAccessKeyRequest{
 		ServiceAccountId: d.Get("service_account_id").(string),
 		Description:      d.Get("description").(string),
 	})
@@ -123,11 +125,12 @@ func resourceYandexIAMServiceAccountStaticAccessKeyCreate(d *schema.ResourceData
 
 func resourceYandexIAMServiceAccountStaticAccessKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := awscompatibilitysdk.NewAccessKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	sak, err := config.sdk.IAM().AWSCompatibility().AccessKey().Get(ctx, &awscompatibility.GetAccessKeyRequest{
+	sak, err := client.Get(ctx, &awscompatibility.GetAccessKeyRequest{
 		AccessKeyId: d.Id(),
 	})
 	if err != nil {
@@ -160,11 +163,12 @@ func resourceYandexIAMServiceAccountStaticAccessKeyUpdate(d *schema.ResourceData
 
 func resourceYandexIAMServiceAccountStaticAccessKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := awscompatibilitysdk.NewAccessKeyClient(config.SDK)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	_, err := config.sdk.IAM().AWSCompatibility().AccessKey().Delete(ctx, &awscompatibility.DeleteAccessKeyRequest{
+	_, err := client.Delete(ctx, &awscompatibility.DeleteAccessKeyRequest{
 		AccessKeyId: d.Id(),
 	})
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/monitoring/v3"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	monitoringsdk "github.com/yandex-cloud/go-sdk/services/monitoring/v3"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -692,15 +692,21 @@ func dataSourceYandexMonitoringDashboardRead(ctxParent context.Context, d *schem
 	config := meta.(*Config)
 
 	ctx := wrapMonitoringGrpcContext(ctxParent)
+	client := monitoringsdk.NewDashboardClient(config.SDK)
+
 	dashboardID := d.Get("dashboard_id").(string)
 	_, dashboardNameOk := d.GetOk("name")
 
 	if dashboardNameOk {
-		dashboardIDInner, err := resolveObjectID(ctx, config, d, sdkresolvers.MonitoringDashboardResolver)
+		folderID, err := getFolderID(d, config)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		dashboard, err := findMonitoringDashboardByName(ctx, client, d.Get("name").(string), folderID)
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("failed to resolve data source Dashboard by name: %v", err))
 		}
-		dashboardID = dashboardIDInner
+		dashboardID = dashboard.Id
 	}
 
 	req := &monitoring.GetDashboardRequest{
@@ -708,7 +714,7 @@ func dataSourceYandexMonitoringDashboardRead(ctxParent context.Context, d *schem
 	}
 
 	log.Printf("[DEBUG] Reading dashboard %+v", req)
-	dashboard, err := config.sdk.Monitoring().Dashboard().Get(ctx, req)
+	dashboard, err := client.Get(ctx, req)
 
 	if err != nil {
 		if isStatusWithCode(err, codes.NotFound) {

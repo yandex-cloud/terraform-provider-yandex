@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 )
 
 // All federations in example organization get delete by federation sweeper
@@ -58,9 +59,11 @@ func testAccOrganizationManagerGroupMapping(federationName, enabled string) stri
 func testAccCheckOrganizationManagerGroupMappingExists(federationName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
+		client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
+
 		federationId := s.RootModule().Resources[federationName].Primary.ID
 
-		_, err := config.sdk.OrganizationManager().GroupMapping().Get(context.Background(), &organizationmanager.GetGroupMappingRequest{
+		_, err := client.Get(context.Background(), &organizationmanager.GetGroupMappingRequest{
 			FederationId: federationId,
 		})
 
@@ -71,9 +74,11 @@ func testAccCheckOrganizationManagerGroupMappingExists(federationName string) re
 func testAccOrganizationManagerGroupMappingCheckDestroy(federationName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
+		client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
+
 		federationId := s.RootModule().Resources[federationName].Primary.ID
 
-		_, err := config.sdk.OrganizationManager().GroupMapping().Get(context.Background(), &organizationmanager.GetGroupMappingRequest{
+		_, err := client.Get(context.Background(), &organizationmanager.GetGroupMappingRequest{
 			FederationId: federationId,
 		})
 

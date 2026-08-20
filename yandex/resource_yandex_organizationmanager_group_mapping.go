@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -56,6 +57,7 @@ func resourceYandexOrganizationManagerGroupMapping() *schema.Resource {
 
 func resourceYandexOrganizationManagerGroupMappingCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
 
 	federationID := d.Get("federation_id").(string)
 
@@ -64,14 +66,14 @@ func resourceYandexOrganizationManagerGroupMappingCreate(context context.Context
 		Enabled:      d.Get("enabled").(bool),
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().GroupMapping().Create(context, req))
+	op, err := client.Create(context, req)
 	if err != nil {
 		return diag.Errorf("Error while requesting API to create group mapping: %s", err)
 	}
 
 	d.SetId(federationID)
 
-	err = op.Wait(context)
+	_, err = op.Wait(context)
 	if err != nil {
 		return diag.Errorf("Error while waiting operation to create group mapping: %s", err)
 	}
@@ -81,12 +83,13 @@ func resourceYandexOrganizationManagerGroupMappingCreate(context context.Context
 
 func resourceYandexOrganizationManagerGroupMappingRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
 
 	req := &organizationmanager.GetGroupMappingRequest{
 		FederationId: d.Get("federation_id").(string),
 	}
 
-	resp, err := config.sdk.OrganizationManager().GroupMapping().Get(context, req)
+	resp, err := client.Get(context, req)
 
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("group_mapping %q", d.Id())))
@@ -100,6 +103,7 @@ func resourceYandexOrganizationManagerGroupMappingRead(context context.Context, 
 
 func resourceYandexOrganizationManagerGroupMappingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
 
 	req := &organizationmanager.UpdateGroupMappingRequest{
 		UpdateMask:   &field_mask.FieldMask{},
@@ -113,20 +117,17 @@ func resourceYandexOrganizationManagerGroupMappingUpdate(ctx context.Context, d 
 	}
 
 	if len(req.UpdateMask.Paths) > 0 {
-		op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().GroupMapping().Update(ctx, req))
+		op, err := client.Update(ctx, req)
 		if err != nil {
 			return diag.Errorf("Error while requesting API to update group mapping: %s", err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return diag.Errorf("Error while waiting operation to update group mapping: %s", err)
 
 		}
 
-		if _, err := op.Response(); err != nil {
-			return diag.Errorf("Group mapping update failed: %s", err)
-		}
 	}
 
 	return resourceYandexOrganizationManagerGroupMappingRead(ctx, d, meta)
@@ -134,6 +135,7 @@ func resourceYandexOrganizationManagerGroupMappingUpdate(ctx context.Context, d 
 
 func resourceYandexOrganizationManagerGroupMappingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
 
 	req := &organizationmanager.DeleteGroupMappingRequest{
 		FederationId: d.Get("federation_id").(string),
@@ -141,18 +143,13 @@ func resourceYandexOrganizationManagerGroupMappingDelete(ctx context.Context, d 
 
 	log.Printf("[DEBUG] Delete GroupMapping request: %s", protoDump(req))
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManager().GroupMapping().Delete(ctx, req))
+	op, err := client.Delete(ctx, req)
 
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("group_mapping %q", d.Id())))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}

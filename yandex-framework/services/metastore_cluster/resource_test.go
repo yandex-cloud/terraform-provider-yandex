@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/metastore/v1"
+	metastoresdk "github.com/yandex-cloud/go-sdk/services/metastore/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
@@ -234,14 +235,14 @@ resource "yandex_metastore_cluster" "metastore_cluster" {
 }
 
 func testAccCheckMetastoreClusterDestroy(s *terraform.State) error {
-	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
+	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != metastoreResourceType {
 			continue
 		}
 
-		_, err := sdk.Metastore().Cluster().Get(context.Background(), &metastore.GetClusterRequest{
+		_, err := metastoresdk.NewClusterClient(sdk).Get(context.Background(), &metastore.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -272,8 +273,8 @@ func testAccCheckMetastoreExists(name string, cluster *metastore.Cluster) resour
 			return fmt.Errorf("ID is not set")
 		}
 
-		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
-		found, err := sdk.Metastore().Cluster().Get(context.Background(), &metastore.GetClusterRequest{
+		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
+		found, err := metastoresdk.NewClusterClient(sdk).Get(context.Background(), &metastore.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -311,6 +312,7 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					FolderID:       folderID,
 					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
 					ResourcePreset: "c2-m4",
+					Version:        newOptional("3.1"),
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
@@ -484,6 +486,7 @@ func TestAccMDBMetastoreCluster_recreate(t *testing.T) {
 					FolderID:       folderID,
 					ResourcePreset: "c2-m4",
 					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+					Version:        newOptional("3.1"),
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
@@ -508,6 +511,7 @@ func TestAccMDBMetastoreCluster_recreate(t *testing.T) {
 					FolderID:       folderID,
 					SubnetIDVar:    "yandex_vpc_subnet.metastore-b.id",
 					ResourcePreset: "c2-m4",
+					Version:        newOptional("3.1"),
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),

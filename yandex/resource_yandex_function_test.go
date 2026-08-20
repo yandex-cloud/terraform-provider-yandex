@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
+	functionssdk "github.com/yandex-cloud/go-sdk/services/serverless/functions/v1"
 )
 
 const functionResource = "yandex_function.test-function"
@@ -37,7 +38,9 @@ func testSweepFunction(_ string) error {
 	}
 
 	req := &functions.ListFunctionsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Serverless().Functions().Function().FunctionIterator(conf.Context(), req)
+	client := functionssdk.NewFunctionClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -57,10 +60,12 @@ func sweepFunctionOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexFunctionDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Serverless().Functions().Function().Delete(ctx, &functions.DeleteFunctionRequest{
+	client := functionssdk.NewFunctionClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &functions.DeleteFunctionRequest{
 		FunctionId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func TestAccYandexFunction_basic(t *testing.T) {
@@ -711,7 +716,9 @@ func testGetFunctionByID(config *Config, ID string) (*functions.Function, error)
 		FunctionId: ID,
 	}
 
-	return config.sdk.Serverless().Functions().Function().Get(context.Background(), &req)
+	client := functionssdk.NewFunctionClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
 }
 
 func testYandexFunctionVersionExists(name string, versionPtr **functions.Version) resource.TestCheckFunc {
@@ -751,7 +758,9 @@ func testGetFunctionVersionByID(config *Config, ID string) (*functions.Version, 
 	req := functions.GetFunctionVersionRequest{
 		FunctionVersionId: ID,
 	}
-	return config.sdk.Serverless().Functions().Function().GetVersion(context.Background(), &req)
+	client := functionssdk.NewFunctionClient(config.SDK)
+
+	return client.GetVersion(context.Background(), &req)
 }
 
 func testYandexFunctionNoVersionsExists(resourcePath string) resource.TestCheckFunc {
@@ -794,7 +803,9 @@ func testListFunctionVersionsByFunctionID(config *Config, functionID string) ([]
 	req := functions.ListFunctionsVersionsRequest{
 		Id: &functions.ListFunctionsVersionsRequest_FunctionId{FunctionId: functionID},
 	}
-	resp, err := config.sdk.Serverless().Functions().Function().ListVersions(context.Background(), &req)
+	client := functionssdk.NewFunctionClient(config.SDK)
+
+	resp, err := client.ListVersions(context.Background(), &req)
 	if err != nil {
 		return nil, err
 	}

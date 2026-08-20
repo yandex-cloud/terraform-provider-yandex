@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
@@ -44,7 +45,7 @@ func TestAccComputeInstance_createPlacementGroupIamMember(t *testing.T) {
 					testAccCheckComputeInstanceExists("yandex_compute_placement_group.pg", &placementGroup),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-						return cfg.SDK.Compute().PlacementGroup()
+						return computesdk.NewPlacementGroupClient(cfg.SDKv2)
 					}, &placementGroup, role, []string{"system:" + userID}),
 				),
 			},
@@ -60,7 +61,7 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.SDK.Compute().Instance().Get(context.Background(), &compute.GetInstanceRequest{
+		_, err := computesdk.NewInstanceClient(config.SDKv2).Get(context.Background(), &compute.GetInstanceRequest{
 			InstanceId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -84,7 +85,7 @@ func testAccCheckComputeInstanceExists(n string, instance *compute.PlacementGrou
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Compute().PlacementGroup().Get(context.Background(), &compute.GetPlacementGroupRequest{
+		found, err := computesdk.NewPlacementGroupClient(config.SDKv2).Get(context.Background(), &compute.GetPlacementGroupRequest{
 			PlacementGroupId: rs.Primary.ID,
 		})
 		if err != nil {

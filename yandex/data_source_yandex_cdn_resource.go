@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	cdnsdk "github.com/yandex-cloud/go-sdk/services/cdn/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -163,7 +164,9 @@ func resolveCDNResourceID(ctx context.Context, config *Config, d *schema.Resourc
 		return "", err
 	}
 
-	iterator := config.sdk.CDN().Resource().ResourceIterator(ctx, &cdn.ListResourcesRequest{
+	client := cdnsdk.NewResourceClient(config.SDK)
+
+	iterator := client.Iterator(ctx, &cdn.ListResourcesRequest{
 		FolderId: folderID,
 	})
 
@@ -196,7 +199,9 @@ func dataSourceYandexCDNResourceRead(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	resource, err := config.sdk.CDN().Resource().Get(ctx, &cdn.GetResourceRequest{
+	client := cdnsdk.NewResourceClient(config.SDK)
+
+	resource, err := client.Get(ctx, &cdn.GetResourceRequest{
 		ResourceId: resourceID,
 	})
 
@@ -204,7 +209,7 @@ func dataSourceYandexCDNResourceRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("cdn resource with ID %q", resourceID))
 	}
 
-	shielding, err := getShieldingLocation(ctx, resourceID, config.sdk)
+	shielding, err := getShieldingLocation(ctx, resourceID, config)
 	if err != nil {
 		return fmt.Errorf("reading shielding: %w", err)
 	}

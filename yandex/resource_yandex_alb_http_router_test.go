@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -37,7 +38,9 @@ func testSweepALBHTTPRouters(_ string) error {
 	result := &multierror.Error{}
 
 	req := &apploadbalancer.ListHttpRoutersRequest{FolderId: conf.FolderID}
-	it := conf.sdk.ApplicationLoadBalancer().HttpRouter().HttpRouterIterator(conf.Context(), req)
+	client := albsdk.NewHttpRouterClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	for it.Next() {
 		id := it.Value().GetId()
 
@@ -57,10 +60,12 @@ func sweepALBHTTPRouterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexIAMServiceAccountDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.ApplicationLoadBalancer().HttpRouter().Delete(ctx, &apploadbalancer.DeleteHttpRouterRequest{
+	client := albsdk.NewHttpRouterClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &apploadbalancer.DeleteHttpRouterRequest{
 		HttpRouterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func albHTTPRouterImportStep() resource.TestStep {
@@ -183,13 +188,14 @@ func TestAccALBHTTPRouter_update(t *testing.T) {
 
 func testAccCheckALBHTTPRouterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := albsdk.NewHttpRouterClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_alb_http_router" {
 			continue
 		}
 
-		_, err := config.sdk.ApplicationLoadBalancer().HttpRouter().Get(context.Background(), &apploadbalancer.GetHttpRouterRequest{
+		_, err := client.Get(context.Background(), &apploadbalancer.GetHttpRouterRequest{
 			HttpRouterId: rs.Primary.ID,
 		})
 		if status.Code(err) != codes.NotFound {
@@ -212,8 +218,9 @@ func testAccCheckALBHTTPRouterExists(routerName string, router *apploadbalancer.
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := albsdk.NewHttpRouterClient(config.SDK)
 
-		found, err := config.sdk.ApplicationLoadBalancer().HttpRouter().Get(context.Background(), &apploadbalancer.GetHttpRouterRequest{
+		found, err := client.Get(context.Background(), &apploadbalancer.GetHttpRouterRequest{
 			HttpRouterId: rs.Primary.ID,
 		})
 		if err != nil {

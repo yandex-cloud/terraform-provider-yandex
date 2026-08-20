@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	sg "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group"
 	sg_api "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group/api"
@@ -72,7 +72,7 @@ func (r securityGroupRuleDataSource) Read(ctx context.Context, req datasource.Re
 	}
 
 	state.ID = state.RuleID
-	updateRuleDatasourceState(ctx, r.providerConfig.SDK, &state, &resp.Diagnostics, false)
+	updateRuleDatasourceState(ctx, r.providerConfig.SDKv2, &state, &resp.Diagnostics, false)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

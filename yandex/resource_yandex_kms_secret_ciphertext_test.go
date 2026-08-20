@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
+	kmssdk "github.com/yandex-cloud/go-sdk/services/kms/v1"
 )
 
 func TestAccKMSSecretCiphertext_basic(t *testing.T) {
@@ -48,6 +49,7 @@ func testAccCheckKMSSecretCiphertextDecryptable(name string) resource.TestCheckF
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := kmssdk.NewSymmetricCryptoClient(config.SDK)
 
 		plaintext := rs.Primary.Attributes["plaintext"]
 		ciphertext, err := base64.StdEncoding.DecodeString(rs.Primary.Attributes["ciphertext"])
@@ -61,7 +63,7 @@ func testAccCheckKMSSecretCiphertextDecryptable(name string) resource.TestCheckF
 			Ciphertext: ciphertext,
 		}
 
-		resp, err := config.sdk.KMSCrypto().SymmetricCrypto().Decrypt(context.Background(), req)
+		resp, err := client.Decrypt(context.Background(), req)
 		if err != nil {
 			return fmt.Errorf("Error while requesting API to decrypt data with KMS symmetric key: %s", err)
 		}

@@ -8,6 +8,7 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	validation "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
+	datatransfersdk "github.com/yandex-cloud/go-sdk/services/datatransfer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	errdetails "google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
@@ -670,8 +671,10 @@ func createTransfer(config *Config, d *schema.ResourceData) (*datatransfer.Trans
 		Transformation: transformation,
 	}
 
+	client := datatransfersdk.NewTransferClient(config.SDK)
+
 	createTransferMetadata := new(metadata.MD)
-	createOp, err := config.sdk.WrapOperation(config.sdk.DataTransfer().Transfer().Create(ctx, req, grpc.Header(createTransferMetadata)))
+	createOp, err := client.Create(ctx, req, grpc.Header(createTransferMetadata))
 	if traceHeader := createTransferMetadata.Get(traceIDMetadataKey); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Create Transfer %s: %s", traceIDMetadataKey, traceHeader[0])
 	}
@@ -682,27 +685,11 @@ func createTransfer(config *Config, d *schema.ResourceData) (*datatransfer.Trans
 		return nil, err
 	}
 
-	protoMetadata, err := createOp.Metadata()
-	if err != nil {
-		return nil, fmt.Errorf("error while getting TransferService.Create operation metadata: %s", err)
-	}
-	createOpMetadata, ok := protoMetadata.(*datatransfer.CreateTransferMetadata)
-	if !ok {
-		return nil, fmt.Errorf("expected TransferService.Create response metadata to have type CreateTransferMetadata but got %T", protoMetadata)
-	}
-	d.SetId(createOpMetadata.TransferId)
+	d.SetId(createOp.Metadata().TransferId)
 
-	if err := createOp.Wait(ctx); err != nil {
+	transfer, err := createOp.Wait(ctx)
+	if err != nil {
 		return nil, fmt.Errorf("error while waiting operation to complete: %s", err)
-	}
-
-	response, err := createOp.Response()
-	if err != nil {
-		return nil, fmt.Errorf("cannot get result of the operation: %s", err)
-	}
-	transfer, ok := response.(*datatransfer.Transfer)
-	if !ok {
-		return nil, fmt.Errorf("expected TransferService.Create operation response to have type Transfer but got %T", response)
 	}
 	return transfer, nil
 }
@@ -712,8 +699,10 @@ func activateTransfer(config *Config, transferID string, waitActivating bool) er
 
 	req := &datatransfer.ActivateTransferRequest{TransferId: transferID}
 
+	client := datatransfersdk.NewTransferClient(config.SDK)
+
 	activateTransferMetadata := new(metadata.MD)
-	activateOp, err := config.sdk.WrapOperation(config.sdk.DataTransfer().Transfer().Activate(ctx, req, grpc.Header(activateTransferMetadata)))
+	activateOp, err := client.Activate(ctx, req, grpc.Header(activateTransferMetadata))
 	if traceHeader := activateTransferMetadata.Get(traceIDMetadataKey); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Activate Transfer %s: %s", traceIDMetadataKey, traceHeader[0])
 	}
@@ -724,7 +713,7 @@ func activateTransfer(config *Config, transferID string, waitActivating bool) er
 		return err
 	}
 	if waitActivating {
-		if err := activateOp.Wait(ctx); err != nil {
+		if _, err := activateOp.Wait(ctx); err != nil {
 			return fmt.Errorf("error while waiting operation to complete: %s", err)
 		}
 	}
@@ -736,8 +725,10 @@ func deactivateTransfer(config *Config, transferID string) error {
 
 	req := &datatransfer.DeactivateTransferRequest{TransferId: transferID}
 
+	client := datatransfersdk.NewTransferClient(config.SDK)
+
 	deactivateTransferMetadata := new(metadata.MD)
-	deactivateOp, err := config.sdk.WrapOperation(config.sdk.DataTransfer().Transfer().Deactivate(ctx, req, grpc.Header(deactivateTransferMetadata)))
+	deactivateOp, err := client.Deactivate(ctx, req, grpc.Header(deactivateTransferMetadata))
 	if traceHeader := deactivateTransferMetadata.Get(traceIDMetadataKey); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Deactivate Transfer %s: %s", traceIDMetadataKey, traceHeader[0])
 	}
@@ -762,7 +753,7 @@ func deactivateTransfer(config *Config, transferID string) error {
 		}
 		return err
 	}
-	if err := deactivateOp.Wait(ctx); err != nil {
+	if _, err := deactivateOp.Wait(ctx); err != nil {
 		return fmt.Errorf("error while waiting operation to complete: %s", err)
 	}
 
@@ -774,8 +765,10 @@ func deleteTransfer(config *Config, transferID string) error {
 
 	req := &datatransfer.DeleteTransferRequest{TransferId: transferID}
 
+	client := datatransfersdk.NewTransferClient(config.SDK)
+
 	md := new(metadata.MD)
-	op, err := config.sdk.WrapOperation(config.sdk.DataTransfer().Transfer().Delete(ctx, req, grpc.Header(md)))
+	op, err := client.Delete(ctx, req, grpc.Header(md))
 	if traceHeader := md.Get(traceIDMetadataKey); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Delete Transfer %s: %s", traceIDMetadataKey, traceHeader[0])
 	}
@@ -786,7 +779,7 @@ func deleteTransfer(config *Config, transferID string) error {
 		return err
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while waiting operation to complete: %s", err)
 	}
 
@@ -851,8 +844,10 @@ func resourceYandexDatatransferTransferRead(d *schema.ResourceData, meta interfa
 		TransferId: d.Id(),
 	}
 
+	client := datatransfersdk.NewTransferClient(config.SDK)
+
 	md := new(metadata.MD)
-	resp, err := config.sdk.DataTransfer().Transfer().Get(ctx, req, grpc.Header(md))
+	resp, err := client.Get(ctx, req, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Read Transfer x-server-trace-id: %s", traceHeader[0])
 	}
@@ -953,8 +948,10 @@ func resourceYandexDatatransferTransferUpdate(d *schema.ResourceData, meta inter
 	updatePath := generateDatatransferFieldMasks(d, datatransferUpdateTransferRequestFieldsRoot)
 	req.UpdateMask = &fieldmaskpb.FieldMask{Paths: updatePath}
 
+	client := datatransfersdk.NewTransferClient(config.SDK)
+
 	md := new(metadata.MD)
-	op, err := config.sdk.WrapOperation(config.sdk.DataTransfer().Transfer().Update(ctx, req, grpc.Header(md)))
+	op, err := client.Update(ctx, req, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Update Transfer x-server-trace-id: %s", traceHeader[0])
 	}
@@ -965,7 +962,7 @@ func resourceYandexDatatransferTransferUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while waiting operation to complete: %s", err)
 	}
 

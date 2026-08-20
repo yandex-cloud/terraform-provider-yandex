@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
 
@@ -27,7 +28,7 @@ func TestAccCheckComputeDiskExists(n string, disk *compute.Disk, timeout time.Du
 
 		config := AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Compute().Disk().Get(ctx, &compute.GetDiskRequest{
+		found, err := computesdk.NewDiskClient(config.SDKv2).Get(ctx, &compute.GetDiskRequest{
 			DiskId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -60,7 +61,7 @@ func TestAccCheckComputeDiskPlacementGroupExists(n string, placement *compute.Di
 
 		config := AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.Compute().DiskPlacementGroup().Get(ctx, &compute.GetDiskPlacementGroupRequest{
+		found, err := computesdk.NewDiskPlacementGroupClient(config.SDKv2).Get(ctx, &compute.GetDiskPlacementGroupRequest{
 			DiskPlacementGroupId: rs.Primary.ID,
 		})
 		if err != nil {

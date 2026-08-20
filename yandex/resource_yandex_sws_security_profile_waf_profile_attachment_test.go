@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	smartwebsecurity "github.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1"
+	smartwebsecuritysdk "github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1"
 )
 
 func TestAccSmartwebsecuritySecurityProfileWAFAttachment_deleteBeforeProfiles(t *testing.T) {
@@ -42,7 +43,7 @@ func testAccCheckSmartwebsecuritySecurityProfileWAFAttachment(attached bool) res
 		if err != nil {
 			return fmt.Errorf("creating SWS client: %w", err)
 		}
-		profile, err := conf.sdk.SmartWebSecurity().SecurityProfile().Get(conf.Context(), &smartwebsecurity.GetSecurityProfileRequest{
+		profile, err := smartwebsecuritysdk.NewSecurityProfileClient(conf.SDK).Get(conf.Context(), &smartwebsecurity.GetSecurityProfileRequest{
 			SecurityProfileId: rs.Primary.ID,
 		})
 		if err != nil {

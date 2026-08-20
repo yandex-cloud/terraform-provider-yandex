@@ -3,10 +3,13 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/monitoring/v3"
-	"testing"
+	monitoringsdk "github.com/yandex-cloud/go-sdk/services/monitoring/v3"
+	"google.golang.org/grpc/codes"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
@@ -33,7 +36,7 @@ func testSweepMonitoringDashboard(_ string) error {
 			FolderId: conf.FolderID,
 		},
 	}
-	resp, err := conf.sdk.Monitoring().Dashboard().List(ctx, req)
+	resp, err := monitoringsdk.NewDashboardClient(conf.SDK).List(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error getting monitoring dashboards: %s", err)
 	}
@@ -55,10 +58,17 @@ func sweepMonitoringDashboard(conf *Config, id string) bool {
 func sweepMonitoringDashboardOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexMonitoringDashboardDefaultTimeout)
 	defer cancel()
-	op, err := conf.sdk.Monitoring().Dashboard().Delete(ctx, &monitoring.DeleteDashboardRequest{
+	op, err := monitoringsdk.NewDashboardClient(conf.SDK).Delete(ctx, &monitoring.DeleteDashboardRequest{
 		DashboardId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		if isStatusWithCode(err, codes.NotFound) {
+			return nil
+		}
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func TestAccResourceMonitoringDashboard(t *testing.T) {
@@ -337,7 +347,9 @@ func testAccResourceMonitoringDashboardExists() resource.TestCheckFunc {
 		req := &monitoring.GetDashboardRequest{
 			DashboardId: rs.Primary.Attributes["dashboard_id"],
 		}
-		dashboard, err := config.sdk.Monitoring().Dashboard().Get(ctx, req)
+		client := monitoringsdk.NewDashboardClient(config.SDK)
+
+		dashboard, err := client.Get(ctx, req)
 		if err != nil {
 			return fmt.Errorf("dashboard %s doesnt exists", rs.Primary.Attributes["dashboard_id"])
 		}

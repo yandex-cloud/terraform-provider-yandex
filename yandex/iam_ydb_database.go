@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	ydbsdk "github.com/yandex-cloud/go-sdk/services/ydb/v1"
 )
 
 const yandexIAMYDBDefaultTimeout = 1 * time.Minute
@@ -57,12 +58,14 @@ func (u *YDBDatabaseIamUpdater) SetResourceIamPolicy(ctx context.Context, policy
 	ctx, cancel := context.WithTimeout(ctx, yandexIAMYDBDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.YDB().Database().SetAccessBindings(ctx, req))
+	client := ydbsdk.NewDatabaseClient(u.Config.SDK)
+
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -81,7 +84,9 @@ func (u *YDBDatabaseIamUpdater) UpdateResourceIamPolicy(ctx context.Context, pol
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.YDB().Database().UpdateAccessBindings(ctx, req))
+		client := ydbsdk.NewDatabaseClient(u.Config.SDK)
+
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -89,7 +94,7 @@ func (u *YDBDatabaseIamUpdater) UpdateResourceIamPolicy(ctx context.Context, pol
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -115,7 +120,9 @@ func getYDBDatabaseAccessBindings(ctx context.Context, config *Config, databaseI
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.YDB().Database().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		client := ydbsdk.NewDatabaseClient(config.SDK)
+
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: databaseID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

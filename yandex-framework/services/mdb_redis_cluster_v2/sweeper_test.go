@@ -3,6 +3,7 @@ package mdb_redis_cluster_v2_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 
@@ -23,7 +24,7 @@ func testSweepMDBRedisCluster(_ string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
-	resp, err := conf.SDK.MDB().Redis().Cluster().List(ctx, &redis.ListClustersRequest{
+	resp, err := redissdk.NewClusterClient(conf.SDKv2).List(ctx, &redis.ListClustersRequest{
 		FolderId: conf.ProviderState.FolderID.ValueString(),
 		PageSize: 1000,
 	})
@@ -50,18 +51,18 @@ func sweepMDBRedisClusterOnce(conf *provider_config.Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.SDK.MDB().Redis().Cluster().Update(ctx, &redis.UpdateClusterRequest{
+	op, err := redissdk.NewClusterClient(conf.SDKv2).Update(ctx, &redis.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = test.HandleSweepOperation(ctx, conf, op, err)
+	err = test.HandleSweepOperation(ctx, op, err)
 	if err != nil && !strings.EqualFold(err.Error(), "no changes detected") {
 		return err
 	}
 
-	op, err = conf.SDK.MDB().Redis().Cluster().Delete(ctx, &redis.DeleteClusterRequest{
+	deleteOp, err := redissdk.NewClusterClient(conf.SDKv2).Delete(ctx, &redis.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return test.HandleSweepOperation(ctx, conf, op, err)
+	return test.HandleSweepOperation(ctx, deleteOp, err)
 }

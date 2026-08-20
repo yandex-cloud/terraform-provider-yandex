@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
 )
 
 const yandexOrganizationManagerIAMGroupDefaultTimeout = time.Second * 60
@@ -49,6 +50,8 @@ func (u *GroupIamUpdater) GetResourceIamPolicy(ctx context.Context) (*Policy, er
 }
 
 func (u *GroupIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
+	client := organizationmanagersdk.NewGroupClient(u.Config.SDK)
+
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.groupID,
 		AccessBindings: policy.Bindings,
@@ -57,7 +60,7 @@ func (u *GroupIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Poli
 	ctx, cancel := context.WithTimeout(ctx, yandexOrganizationManagerIAMGroupDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.OrganizationManager().Group().SetAccessBindings(ctx, req))
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		if reqID, ok := isRequestIDPresent(err); ok {
 			log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -65,7 +68,7 @@ func (u *GroupIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Poli
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -74,6 +77,8 @@ func (u *GroupIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Poli
 }
 
 func (u *GroupIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	client := organizationmanagersdk.NewGroupClient(u.Config.SDK)
+
 	bSize := yandexOrganizationManagerIAMGroupUpdateAccessBindingsBatchSize
 	deltas := policy.Deltas
 	dLen := len(deltas)
@@ -84,7 +89,7 @@ func (u *GroupIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *P
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.OrganizationManager().Group().UpdateAccessBindings(ctx, req))
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -92,7 +97,7 @@ func (u *GroupIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *P
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -114,11 +119,13 @@ func (u *GroupIamUpdater) DescribeResource() string {
 }
 
 func getGroupAccessBindings(ctx context.Context, config *Config, groupID string) ([]*access.AccessBinding, error) {
+	client := organizationmanagersdk.NewGroupClient(config.SDK)
+
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.OrganizationManager().Group().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: groupID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

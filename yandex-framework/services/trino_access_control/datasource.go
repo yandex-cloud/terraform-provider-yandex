@@ -65,7 +65,7 @@ func (t *trinoAccessControlDatasource) Read(ctx context.Context, req datasource.
 	}
 
 	tflog.Debug(ctx, "Reading Trino access control", clusterIDLogField(clusterID))
-	accessControl, diags := GetClusterAccessControl(ctx, t.providerConfig.SDK, clusterID)
+	accessControl, diags := GetClusterAccessControl(ctx, t.providerConfig.SDKv2, clusterID)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

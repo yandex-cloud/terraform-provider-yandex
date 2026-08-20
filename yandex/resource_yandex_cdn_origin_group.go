@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1"
+	cdnsdk "github.com/yandex-cloud/go-sdk/services/cdn/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -178,28 +179,17 @@ func resourceYandexCDNOriginGroupCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	operation, err := config.sdk.WrapOperation(config.sdk.CDN().OriginGroup().Create(ctx, request))
+	client := cdnsdk.NewOriginGroupClient(config.SDK)
+
+	operation, err := client.Create(ctx, request)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create CDN Origin Group: %s", err)
 	}
-	protoMetadata, err := operation.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while obtaining response metadata for CDN Origin Group: %s", err)
-	}
-
-	pm, ok := protoMetadata.(*cdn.CreateOriginGroupMetadata)
-	if !ok {
-		return fmt.Errorf("origin group metadata type mismatch on create")
-	}
-
-	err = operation.Wait(ctx)
+	_, err = operation.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create origin group: %s", err)
 	}
-	if _, err := operation.Response(); err != nil {
-		return fmt.Errorf("bad API response: %w", err)
-	}
-	d.SetId(fmt.Sprint(pm.OriginGroupId))
+	d.SetId(fmt.Sprint(operation.Metadata().GetOriginGroupId()))
 
 	return resourceYandexCDNOriginGroupRead(d, meta)
 }
@@ -265,7 +255,9 @@ func resourceYandexCDNOriginGroupRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	originGroup, err := config.sdk.CDN().OriginGroup().Get(ctx, request)
+	client := cdnsdk.NewOriginGroupClient(config.SDK)
+
+	originGroup, err := client.Get(ctx, request)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("origin group %q", d.Id()))
 	}
@@ -324,24 +316,16 @@ func resourceYandexCDNOriginGroupUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	operation, err := config.sdk.WrapOperation(config.sdk.CDN().OriginGroup().Update(ctx, request))
+	client := cdnsdk.NewOriginGroupClient(config.SDK)
+
+	operation, err := client.Update(ctx, request)
 	if err != nil {
 		return err
 	}
 
-	protoMetadata, err := operation.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while obtaining response metadate for CDN Origin Group update: %s", err)
-	}
+	d.SetId(strconv.FormatInt(operation.Metadata().GetOriginGroupId(), 10))
 
-	pm, ok := protoMetadata.(*cdn.UpdateOriginGroupMetadata)
-	if !ok {
-		return fmt.Errorf("origin group metadata type mismatch on update")
-	}
-
-	d.SetId(strconv.FormatInt(pm.OriginGroupId, 10))
-
-	err = operation.Wait(ctx)
+	_, err = operation.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update CDN Origin Group: %s", err)
 	}
@@ -383,28 +367,20 @@ func resourceYandexCDNOriginGroupDelete(d *schema.ResourceData, meta interface{}
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	operation, err := config.sdk.WrapOperation(config.sdk.CDN().OriginGroup().Delete(ctx, request))
+	client := cdnsdk.NewOriginGroupClient(config.SDK)
+
+	operation, err := client.Delete(ctx, request)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Origin Group ID: %d", request.OriginGroupId))
 	}
 
-	protoMetadata, err := operation.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while obtaining response metadata for CDN Origin Group: %s", err)
-	}
-
-	pm, ok := protoMetadata.(*cdn.DeleteOriginGroupMetadata)
-	if !ok {
-		return fmt.Errorf("origin group metadata type mismatch on delete")
-	}
-
 	log.Printf("[DEBUG] Waiting Deleting CDN Origin Group operation completion %q", d.Id())
 
-	if err = operation.Wait(ctx); err != nil {
+	if _, err = operation.Wait(ctx); err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Finished deleting Origin Group %q: %#v", d.Id(), pm.OriginGroupId)
+	log.Printf("[DEBUG] Finished deleting Origin Group %q", d.Id())
 
 	return nil
 }

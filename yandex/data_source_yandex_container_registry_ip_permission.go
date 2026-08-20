@@ -9,7 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	containerregistrysdk "github.com/yandex-cloud/go-sdk/services/containerregistry/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 )
 
 func dataSourceYandexContainerRegistryIPPermission() *schema.Resource {
@@ -71,12 +72,12 @@ func dataSourceYandexContainerRegistryIPPermissionRead(ctx context.Context, d *s
 	}
 
 	config := meta.(*Config)
+	client := containerregistrysdk.NewRegistryClient(config.SDK)
 
-	containerRegistryService := config.sdk.ContainerRegistry().Registry()
 	listIPPermissionRequest := containerregistry.ListIpPermissionRequest{
 		RegistryId: registryId,
 	}
-	listIPPermissionResponse, err := containerRegistryService.ListIpPermission(ctx, &listIPPermissionRequest)
+	listIPPermissionResponse, err := client.ListIpPermission(ctx, &listIPPermissionRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -111,6 +112,7 @@ func resolveRegistryID(ctx context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	config := meta.(*Config)
+	client := containerregistrysdk.NewRegistryClient(config.SDK)
 
 	var registryID string
 	rid, ok := d.GetOk("registry_id")
@@ -127,10 +129,14 @@ func resolveRegistryID(ctx context.Context, d *schema.ResourceData, meta interfa
 			return "", err
 		}
 
-		registryID, err = resolveObjectIDByNameAndFolderID(ctx, config, name.(string), folderID, sdkresolvers.RegistryResolver)
-		if err != nil {
+		resolver := containerregistrysdk.RegistryResolver(name.(string), client, sdkresolversv2.FolderID(folderID))
+		if err = resolver.Run(ctx); err != nil {
+			return "", err
+		}
+		if err = resolver.Err(); err != nil {
 			return "", fmt.Errorf("failed to resolve data source Container Registry by name: %v", err)
 		}
+		registryID = resolver.ID()
 	}
 
 	return registryID, nil

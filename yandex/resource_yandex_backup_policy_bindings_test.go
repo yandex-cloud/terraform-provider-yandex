@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	backupsdk "github.com/yandex-cloud/go-sdk/services/backup/v1"
+	"google.golang.org/grpc/codes"
 )
 
 func init() {
@@ -190,12 +192,20 @@ func sweepBackupPolicyBindings(conf *Config, id string) bool {
 			return err
 		}
 
-		op, err := conf.sdk.Backup().Policy().Revoke(ctx, &backuppb.RevokeRequest{
+		client := backupsdk.NewPolicyClient(conf.SDK)
+
+		op, err := client.Revoke(ctx, &backuppb.RevokeRequest{
 			PolicyId:          policyID,
 			ComputeInstanceId: instanceID,
 		})
-
-		return handleSweepOperation(ctx, conf, op, err)
+		if err != nil {
+			if isStatusWithCode(err, codes.NotFound) {
+				return nil
+			}
+			return err
+		}
+		_, err = op.Wait(ctx)
+		return err
 	})
 }
 
@@ -210,7 +220,9 @@ func testSweepBackupPolicyBindings(_ string) error {
 			FolderId: conf.FolderID,
 		},
 	}
-	it := conf.sdk.Backup().Policy().PolicyApplicationsIterator(conf.Context(), req)
+	client := backupsdk.NewPolicyClient(conf.SDK)
+
+	it := client.ApplicationsIterator(conf.Context(), req)
 	result := &multierror.Error{}
 
 	for it.Next() {

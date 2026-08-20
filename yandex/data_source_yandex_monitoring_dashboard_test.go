@@ -3,10 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/monitoring/v3"
-	"testing"
+	monitoringsdk "github.com/yandex-cloud/go-sdk/services/monitoring/v3"
 )
 
 const (
@@ -276,7 +278,9 @@ func testAccCheckMonitoringDashboardDestroy(s *terraform.State) error {
 		req := &monitoring.GetDashboardRequest{
 			DashboardId: rs.Primary.ID,
 		}
-		_, err := config.sdk.Monitoring().Dashboard().Get(ctx, req)
+		client := monitoringsdk.NewDashboardClient(config.SDK)
+
+		_, err := client.Get(ctx, req)
 		if err == nil {
 			return fmt.Errorf("Dashboard still exists")
 		}

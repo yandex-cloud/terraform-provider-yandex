@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 )
 
 func TestAccDataSourceComputeGpuCluster_byID(t *testing.T) {
@@ -93,7 +94,7 @@ func testAccCheckComputeGpuClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Compute().GpuCluster().Get(context.Background(), &compute.GetGpuClusterRequest{
+		_, err := computesdk.NewGpuClusterClient(config.SDK).Get(context.Background(), &compute.GetGpuClusterRequest{
 			GpuClusterId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -117,7 +118,7 @@ func testAccCheckComputeGpuClusterExists(n string, gpuCluster *compute.GpuCluste
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.Compute().GpuCluster().Get(context.Background(), &compute.GetGpuClusterRequest{
+		found, err := computesdk.NewGpuClusterClient(config.SDK).Get(context.Background(), &compute.GetGpuClusterRequest{
 			GpuClusterId: rs.Primary.ID,
 		})
 		if err != nil {

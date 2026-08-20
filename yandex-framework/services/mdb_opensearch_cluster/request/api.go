@@ -2,13 +2,12 @@ package request
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	opensearchsdk "github.com/yandex-cloud/go-sdk/services/mdb/opensearch/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"google.golang.org/grpc/codes"
@@ -19,7 +18,7 @@ const (
 )
 
 func GetCusterByID(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) *opensearch.Cluster {
-	cluster, err := sdk.MDB().OpenSearch().Cluster().Get(ctx, &opensearch.GetClusterRequest{
+	cluster, err := opensearchsdk.NewClusterClient(sdk).Get(ctx, &opensearch.GetClusterRequest{
 		ClusterId: cid,
 	})
 	if err != nil {
@@ -41,7 +40,7 @@ func GetHostsList(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, c
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().OpenSearch().Cluster().ListHosts(ctx, &opensearch.ListClusterHostsRequest{
+		resp, err := opensearchsdk.NewClusterClient(sdk).ListHosts(ctx, &opensearch.ListClusterHostsRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -64,7 +63,7 @@ func GetHostsList(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, c
 }
 
 func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *opensearch.CreateClusterRequest) string {
-	op, err := sdk.WrapOperation(sdk.MDB().OpenSearch().Cluster().Create(ctx, req))
+	op, err := opensearchsdk.NewClusterClient(sdk).Create(ctx, req)
 	if err != nil {
 		// if validate.IsStatusWithCode(err, codes.AlreadyExists) {
 		// 	TODO: maybe get list clusters, and find cid by name
@@ -78,7 +77,7 @@ func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, 
 	}
 
 	//Notice: in old version we didn't wait for result, but in new one we have to wait for result. Otherwise we will miss some data in Get request
-	err = op.WaitInterval(ctx, 5*time.Second)
+	_, err = op.WaitInterval(ctx, func(int) time.Duration { return 5 * time.Second })
 	if err != nil {
 		diag.AddError(
 			"Failed to Create resource",
@@ -87,43 +86,30 @@ func CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, 
 		return ""
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		diag.AddError(
-			"Failed to Create resource",
-			"Error while requesting API to create OpenSearch cluster. Failed to unmarshal metadata: "+err.Error(),
-		)
-		return ""
-	}
-
-	md, ok := protoMetadata.(*opensearch.CreateClusterMetadata)
-	if !ok {
-		diag.AddError(
-			"Failed to Create resource",
-			"Error while requesting API to create OpenSearch cluster. Failed to cast proto metadata",
-		)
-		return ""
-	}
+	md := op.Metadata()
 
 	return md.ClusterId
 }
 
 func DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) {
-	diags.Append(waitOperation(ctx, sdk, "Cluster Delete", func() (*operation.Operation, error) {
-		op, err := sdk.MDB().OpenSearch().Cluster().Delete(ctx, &opensearch.DeleteClusterRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*opensearchsdk.ClusterDeleteOperation, error) {
+		op, err := opensearchsdk.NewClusterClient(sdk).Delete(ctx, &opensearch.DeleteClusterRequest{
 			ClusterId: cid,
 		})
 		if err != nil {
 			if validate.IsStatusWithCode(err, codes.NotFound) {
-				// to prevent panic on underlying levels
-				return &operation.Operation{Done: true}, nil
+				return nil, nil
 			}
-
 			return nil, err
 		}
-
 		return op, nil
-	}))
+	})
+	if err == nil && op != nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		diags.AddError("Failed to Cluster Delete", err.Error())
+	}
 }
 
 func UpdateClusterSpec(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.UpdateClusterRequest) {
@@ -131,49 +117,91 @@ func UpdateClusterSpec(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnost
 		return
 	}
 
-	diags.Append(waitOperation(ctx, sdk, "Cluster Update", func() (*operation.Operation, error) {
-		return sdk.MDB().OpenSearch().Cluster().Update(ctx, req)
-	}))
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*opensearchsdk.ClusterUpdateOperation, error) {
+		return opensearchsdk.NewClusterClient(sdk).Update(ctx, req)
+	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		diags.AddError("Failed to Cluster Update", err.Error())
+	}
 }
 
 func AddOpenSearchNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.AddOpenSearchNodeGroupRequest) {
-	diags.Append(waitOperation(ctx, sdk, "Add OpenSearch nodegroup", func() (*operation.Operation, error) {
-		return sdk.MDB().OpenSearch().Cluster().AddOpenSearchNodeGroup(ctx, req)
-	}))
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*opensearchsdk.ClusterAddOpenSearchNodeGroupOperation, error) {
+		return opensearchsdk.NewClusterClient(sdk).AddOpenSearchNodeGroup(ctx, req)
+	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		diags.AddError("Failed to Add OpenSearch nodegroup", err.Error())
+	}
 }
 
 func UpdateOpenSearchNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.UpdateOpenSearchNodeGroupRequest) {
-	diags.Append(waitOperation(ctx, sdk, "Update OpenSearch nodegroup", func() (*operation.Operation, error) {
-		return sdk.MDB().OpenSearch().Cluster().UpdateOpenSearchNodeGroup(ctx, req)
-	}))
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*opensearchsdk.ClusterUpdateOpenSearchNodeGroupOperation, error) {
+		return opensearchsdk.NewClusterClient(sdk).UpdateOpenSearchNodeGroup(ctx, req)
+	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		diags.AddError("Failed to Update OpenSearch nodegroup", err.Error())
+	}
 }
 
 func DeleteOpenSearchNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.DeleteOpenSearchNodeGroupRequest) {
-	diags.Append(waitOperation(ctx, sdk, "Delete OpenSearch nodegroup", func() (*operation.Operation, error) {
-		return sdk.MDB().OpenSearch().Cluster().DeleteOpenSearchNodeGroup(ctx, req)
-	}))
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*opensearchsdk.ClusterDeleteOpenSearchNodeGroupOperation, error) {
+		return opensearchsdk.NewClusterClient(sdk).DeleteOpenSearchNodeGroup(ctx, req)
+	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		diags.AddError("Failed to Delete OpenSearch nodegroup", err.Error())
+	}
 }
 
 func AddDashboardsNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.AddDashboardsNodeGroupRequest) {
-	diags.Append(waitOperation(ctx, sdk, "Add Dashboards nodegroup", func() (*operation.Operation, error) {
-		return sdk.MDB().OpenSearch().Cluster().AddDashboardsNodeGroup(ctx, req)
-	}))
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*opensearchsdk.ClusterAddDashboardsNodeGroupOperation, error) {
+		return opensearchsdk.NewClusterClient(sdk).AddDashboardsNodeGroup(ctx, req)
+	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		diags.AddError("Failed to Add Dashboards nodegroup", err.Error())
+	}
 }
 
 func UpdateDashboardsNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.UpdateDashboardsNodeGroupRequest) {
-	diags.Append(waitOperation(ctx, sdk, "Update Dashboards nodegroup", func() (*operation.Operation, error) {
-		return sdk.MDB().OpenSearch().Cluster().UpdateDashboardsNodeGroup(ctx, req)
-	}))
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*opensearchsdk.ClusterUpdateDashboardsNodeGroupOperation, error) {
+		return opensearchsdk.NewClusterClient(sdk).UpdateDashboardsNodeGroup(ctx, req)
+	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		diags.AddError("Failed to Update Dashboards nodegroup", err.Error())
+	}
 }
 
 func DeleteDashboardsNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.DeleteDashboardsNodeGroupRequest) {
-	diags.Append(waitOperation(ctx, sdk, "Delete Dashboards nodegroup", func() (*operation.Operation, error) {
-		return sdk.MDB().OpenSearch().Cluster().DeleteDashboardsNodeGroup(ctx, req)
-	}))
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*opensearchsdk.ClusterDeleteDashboardsNodeGroupOperation, error) {
+		return opensearchsdk.NewClusterClient(sdk).DeleteDashboardsNodeGroup(ctx, req)
+	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		diags.AddError("Failed to Delete Dashboards nodegroup", err.Error())
+	}
 }
 
 func GetAuthSettings(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) *opensearch.AuthSettings {
-	resp, err := sdk.MDB().OpenSearch().Cluster().GetAuthSettings(ctx, &opensearch.GetAuthSettingsRequest{
+	resp, err := opensearchsdk.NewClusterClient(sdk).GetAuthSettings(ctx, &opensearch.GetAuthSettingsRequest{
 		ClusterId: cid,
 	})
 	if err != nil {
@@ -188,9 +216,15 @@ func GetAuthSettings(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostic
 }
 
 func UpdateAuthSettings(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.UpdateAuthSettingsRequest) {
-	diags.Append(waitOperation(ctx, sdk, "Update Auth Settings", func() (*operation.Operation, error) {
-		return sdk.MDB().OpenSearch().Cluster().UpdateAuthSettings(ctx, req)
-	}))
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*opensearchsdk.ClusterUpdateAuthSettingsOperation, error) {
+		return opensearchsdk.NewClusterClient(sdk).UpdateAuthSettings(ctx, req)
+	})
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
+	if err != nil {
+		diags.AddError("Failed to Update Auth Settings", err.Error())
+	}
 }
 
 func PrepareAndExecute[T any, V any](
@@ -213,18 +247,4 @@ func PrepareAndExecute[T any, V any](
 	}
 
 	return diag.Diagnostics{}
-}
-
-func waitOperation(ctx context.Context, sdk *ycsdk.SDK, caller string, action func() (*operation.Operation, error)) diag.Diagnostic {
-	op, err := retry.ConflictingOperation(ctx, sdk, action)
-
-	if err == nil {
-		err = op.Wait(ctx)
-	}
-
-	if err != nil {
-		return diag.NewErrorDiagnostic(fmt.Sprintf("Failed to %s", caller), err.Error())
-	}
-
-	return nil
 }

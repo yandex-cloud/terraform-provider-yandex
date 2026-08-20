@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/billing/v1"
+	billingsdk "github.com/yandex-cloud/go-sdk/services/billing/v1"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -61,7 +62,7 @@ func testSweepBillingCloudBinding(_ string) error {
 	req := &billing.ListBillableObjectBindingsRequest{
 		BillingAccountId: billingInstanceTestFirstBillingAccountId(),
 	}
-	it := conf.SDK.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(context.Background(), req)
+	it := billingsdk.NewBillingAccountClient(conf.SDKv2).BillableObjectBindingsIterator(context.Background(), req)
 	result := &multierror.Error{}
 
 	for it.Next() {
@@ -104,8 +105,8 @@ func sweepBillingCloudBindingOnce(conf *provider_config.Config, instanceId strin
 		BillingAccountId: billingInstanceTestSecondBillingAccountId(),
 		BillableObject:   billableObject,
 	}
-	op, err := conf.SDK.Billing().BillingAccount().BindBillableObject(ctx, req)
-	return test.HandleSweepOperation(ctx, conf, op, err)
+	op, err := billingsdk.NewBillingAccountClient(conf.SDKv2).BindBillableObject(ctx, req)
+	return test.HandleSweepOperation(ctx, op, err)
 }
 
 func TestAccResourceBillingCloudBinding_BindExistingCloudToExistingBillingAccount(t *testing.T) {
@@ -251,7 +252,7 @@ func testAccCheckBillingCloudBindingDestroy(s *terraform.State) error {
 			return err
 		}
 
-		it := config.SDK.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(
+		it := billingsdk.NewBillingAccountClient(config.SDKv2).BillableObjectBindingsIterator(
 			context.Background(),
 			&billing.ListBillableObjectBindingsRequest{
 				BillingAccountId: billingInstanceTestFirstBillingAccountId(),
@@ -288,7 +289,7 @@ func testAccCheckBillingCloudBindingExists(name string) resource.TestCheckFunc {
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		it := config.SDK.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(
+		it := billingsdk.NewBillingAccountClient(config.SDKv2).BillableObjectBindingsIterator(
 			context.Background(),
 			&billing.ListBillableObjectBindingsRequest{
 				BillingAccountId: id.BillingAccountId,

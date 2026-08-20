@@ -94,7 +94,7 @@ func oauthClientBaseTestStep(clientName, folderID string) resource.TestStep {
 		Check: resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(oauthClientResourceName, "name", clientName),
 			resource.TestCheckTypeSetElemAttr(oauthClientResourceName, "redirect_uris.*", "https://localhost"),
-			resource.TestCheckTypeSetElemAttr(oauthClientResourceName, "scopes.*", "iam"),
+			resource.TestCheckTypeSetElemAttr(oauthClientResourceName, "scopes.*", "openid"),
 			resource.TestCheckResourceAttr(oauthClientResourceName, "folder_id", folderID),
 		),
 	}
@@ -114,6 +114,6 @@ resource "yandex_iam_oauth_client" "test-oauth-client" {
   name          = "%s"
   folder_id 	= "%s"
   redirect_uris = ["https://localhost"]
-  scopes        = ["iam"]
+  scopes        = ["openid"]
 }`, clientName, folderID)
 }

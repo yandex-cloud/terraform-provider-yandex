@@ -11,7 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	opensearchsdk "github.com/yandex-cloud/go-sdk/services/mdb/opensearch/v1"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/objectid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
@@ -78,7 +79,9 @@ func (o *openSearchClusterDataSource) Read(ctx context.Context, req datasource.R
 			return
 		}
 
-		clusterID, d = objectid.ResolveByNameAndFolderID(ctx, o.providerConfig.SDK, folderID, config.Name.ValueString(), sdkresolvers.OpenSearchClusterResolver)
+		clusterID, d = objectid.ResolveByNameAndFolderID(ctx, folderID, config.Name.ValueString(), func(name string, opts ...sdkresolvers.ResolveOption) sdkresolvers.Resolver {
+			return opensearchsdk.ClusterResolver(name, opensearchsdk.NewClusterClient(o.providerConfig.SDKv2), opts...)
+		})
 		resp.Diagnostics.Append(d)
 		if resp.Diagnostics.HasError() {
 			return
@@ -88,7 +91,7 @@ func (o *openSearchClusterDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	config.ID = types.StringValue(clusterID)
-	updateState(ctx, o.providerConfig.SDK, &config, &resp.Diagnostics, false)
+	updateState(ctx, o.providerConfig.SDKv2, &config, &resp.Diagnostics, false)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &config)...)
 }

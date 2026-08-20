@@ -13,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
+	certificatemanagersdk "github.com/yandex-cloud/go-sdk/services/certificatemanager/v1"
+	"google.golang.org/grpc/codes"
 )
 
 func init() {
@@ -323,7 +325,9 @@ func testAccCheckYandexCMCertificateAllDestroyed(s *terraform.State) error {
 
 func testAccCheckYandexCMCertificateDestroyed(id string) error {
 	config := testAccProvider.Meta().(*Config)
-	_, err := config.sdk.Certificates().Certificate().Get(context.Background(), &certificatemanager.GetCertificateRequest{
+	client := certificatemanagersdk.NewCertificateClient(config.SDK)
+
+	_, err := client.Get(context.Background(), &certificatemanager.GetCertificateRequest{
 		CertificateId: id,
 	})
 	if err == nil {
@@ -339,7 +343,9 @@ func testSweepCMCertificate(_ string) error {
 	}
 
 	req := &certificatemanager.ListCertificatesRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Certificates().Certificate().CertificateIterator(conf.Context(), req)
+	client := certificatemanagersdk.NewCertificateClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		certificate := it.Value()
@@ -355,6 +361,9 @@ func testSweepCMCertificate(_ string) error {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep certificate %q", id))
 		}
 	}
+	if err := it.Error(); err != nil {
+		result = multierror.Append(result, err)
+	}
 
 	return result.ErrorOrNil()
 }
@@ -367,8 +376,17 @@ func sweepCMCertificateOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexCMCertificateDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Certificates().Certificate().Delete(ctx, &certificatemanager.DeleteCertificateRequest{
+	client := certificatemanagersdk.NewCertificateClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &certificatemanager.DeleteCertificateRequest{
 		CertificateId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		if isStatusWithCode(err, codes.NotFound) {
+			return nil
+		}
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }

@@ -25,7 +25,7 @@ func (r *clusterResource) createCluster(
 ) {
 	tflog.Debug(ctx, "Creating ClickHouse cluster")
 
-	cid := clickhouseApi.CreateCluster(ctx, r.providerConfig.SDK, diags, request)
+	cid := clickhouseApi.CreateCluster(ctx, r.providerConfig.SDKv2, diags, request)
 	if diags.HasError() {
 		return
 	}
@@ -97,7 +97,7 @@ func (r *clusterResource) createFormatSchemas(ctx context.Context, plan models.C
 	}
 
 	for _, request := range requests {
-		clickhouseApi.CreateFormatSchema(ctx, r.providerConfig.SDK, diags, request)
+		clickhouseApi.CreateFormatSchema(ctx, r.providerConfig.SDKv2, diags, request)
 		if diags.HasError() {
 			return
 		}
@@ -150,7 +150,7 @@ func (r *clusterResource) createMlModels(ctx context.Context, plan models.Cluste
 	}
 
 	for _, request := range requests {
-		clickhouseApi.CreateMlModel(ctx, r.providerConfig.SDK, diags, request)
+		clickhouseApi.CreateMlModel(ctx, r.providerConfig.SDKv2, diags, request)
 		if diags.HasError() {
 			return
 		}
@@ -203,7 +203,7 @@ func (r *clusterResource) createShardGroups(ctx context.Context, plan models.Clu
 	}
 
 	for _, request := range requests {
-		clickhouseApi.CreateShardGroup(ctx, r.providerConfig.SDK, diags, request)
+		clickhouseApi.CreateShardGroup(ctx, r.providerConfig.SDKv2, diags, request)
 		if diags.HasError() {
 			return
 		}
@@ -252,7 +252,7 @@ func (r *clusterResource) createExtensions(ctx context.Context, plan models.Clus
 	}
 
 	for _, request := range requests {
-		clickhouseApi.CreateExtension(ctx, r.providerConfig.SDK, diags, request)
+		clickhouseApi.CreateExtension(ctx, r.providerConfig.SDKv2, diags, request)
 		if diags.HasError() {
 			return
 		}
@@ -297,7 +297,7 @@ func (r *clusterResource) createClusterFromBackup(
 ) {
 	tflog.Debug(ctx, "Restoring ClickHouse cluster from backup")
 
-	cid := clickhouseApi.RestoreCluster(ctx, r.providerConfig.SDK, diags, request)
+	cid := clickhouseApi.RestoreCluster(ctx, r.providerConfig.SDKv2, diags, request)
 	if diags.HasError() {
 		return
 	}
@@ -377,7 +377,7 @@ func (r *clusterResource) createExternalDictionaries(ctx context.Context, plan m
 	}
 
 	for _, req := range requests {
-		clickhouseApi.CreateExternalDictionary(ctx, r.providerConfig.SDK, diags, req)
+		clickhouseApi.CreateExternalDictionary(ctx, r.providerConfig.SDKv2, diags, req)
 		if diags.HasError() {
 			return
 		}

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	functionssdk "github.com/yandex-cloud/go-sdk/services/serverless/functions/v1"
 )
 
 const yandexIAMFunctionDefaultTimeout = 1 * time.Minute
@@ -58,12 +59,14 @@ func (u *FunctionIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *P
 	ctx, cancel := context.WithTimeout(ctx, yandexIAMFunctionDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Serverless().Functions().Function().SetAccessBindings(ctx, req))
+	client := functionssdk.NewFunctionClient(u.Config.SDK)
+
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -82,7 +85,9 @@ func (u *FunctionIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Serverless().Functions().Function().UpdateAccessBindings(ctx, req))
+		client := functionssdk.NewFunctionClient(u.Config.SDK)
+
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -90,7 +95,7 @@ func (u *FunctionIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -115,9 +120,10 @@ func getFunctionAccessBindings(config *Config, functionID string) ([]*access.Acc
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
 	ctx := config.Context()
+	client := functionssdk.NewFunctionClient(config.SDK)
 
 	for {
-		resp, err := config.sdk.Serverless().Functions().Function().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: functionID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

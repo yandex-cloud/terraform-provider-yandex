@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
+	redissdk "github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
 )
 
@@ -48,7 +49,7 @@ func TestAccMDBRedisClusterIamBinding_basic(t *testing.T) {
 					testAccCheckMDBRedisClusterExists(redisResourceFoo, &cluster, 1, true, true, true, "ON"),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Redis().Cluster()
+						return redissdk.NewClusterClient(cfg.SDK)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -93,7 +94,7 @@ func TestAccMDBRedisClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckMDBRedisClusterExists(redisResourceFoo, &cluster, 1, true, true, true, "ON"),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Redis().Cluster()
+						return redissdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -104,7 +105,7 @@ func TestAccMDBRedisClusterIamBinding_multiple(t *testing.T) {
 				),
 				Check: iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 					cfg := testAccProvider.Meta().(*Config)
-					return cfg.sdk.MDB().Redis().Cluster()
+					return redissdk.NewClusterClient(cfg.SDK)
 				}, &cluster, roleFoo, []string{userID}),
 			},
 			iam.IAMBindingImportTestStep(redisIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
@@ -116,11 +117,11 @@ func TestAccMDBRedisClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Redis().Cluster()
+						return redissdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Redis().Cluster()
+						return redissdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -138,11 +139,11 @@ func TestAccMDBRedisClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Redis().Cluster()
+						return redissdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testAccProvider.Meta().(*Config)
-						return cfg.sdk.MDB().Redis().Cluster()
+						return redissdk.NewClusterClient(cfg.SDK)
 					}, &cluster, roleBar),
 				),
 			},

@@ -63,7 +63,7 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	var state yandexBillingBindingState
 	getAllRequestAttributes(ctx, &state, d.serviceInstanceIdFieldName, req.Config, &resp.Diagnostics)
 
-	if !isObjectExist(ctx, d.providerConfig.SDK, d.serviceInstanceType, state.billingAccountID.ValueString(), state.serviceInstanceID.ValueString()) {
+	if !isObjectExist(ctx, d.providerConfig.SDKv2, d.serviceInstanceType, state.billingAccountID.ValueString(), state.serviceInstanceID.ValueString()) {
 		resp.Diagnostics.AddError("Failed to read datasource",
 			fmt.Sprintf("Bound %s to billing account not found", d.serviceInstanceType))
 		return

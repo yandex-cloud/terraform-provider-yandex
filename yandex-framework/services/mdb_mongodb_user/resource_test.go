@@ -3,6 +3,7 @@ package mdb_mongodb_user_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1"
 	"regexp"
 	"testing"
 
@@ -164,7 +165,7 @@ func testAccLoadMongoDBUser(s *terraform.State, username string) (*mongodb.User,
 	}
 
 	config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
-	return config.SDK.MDB().MongoDB().User().Get(context.Background(), &mongodb.GetUserRequest{
+	return mongodbsdk.NewUserClient(config.SDKv2).Get(context.Background(), &mongodb.GetUserRequest{
 		ClusterId: rs.Primary.ID,
 		UserName:  username,
 	})

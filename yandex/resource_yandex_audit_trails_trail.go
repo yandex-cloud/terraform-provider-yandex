@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/audittrails/v1"
+	audittrailssdk "github.com/yandex-cloud/go-sdk/services/audittrails/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -415,17 +416,14 @@ func deleteTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		TrailId: id,
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.AuditTrails().Trail().Delete(ctx, req))
+	client := audittrailssdk.NewTrailClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return diag.FromErr(handleNotFoundError(err, data, fmt.Sprintf("Trail %q", id)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -436,6 +434,7 @@ func deleteTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 
 func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := audittrailssdk.NewTrailClient(config.SDK)
 
 	ctx = tflog.SetField(ctx, "trail_id", data.Id())
 
@@ -465,27 +464,17 @@ func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 	}
 
 	err = retry.RetryContext(ctx, data.Timeout(schema.TimeoutRead), func() *retry.RetryError {
-		operation, err := config.sdk.WrapOperation(config.sdk.AuditTrails().Trail().Update(ctx, req))
+		operation, err := client.Update(ctx, req)
 		if err != nil {
 			return retryErrorForCode(err)
 		}
 
-		metadata, err := operation.Metadata()
-		if err != nil {
-			return retry.NonRetryableError(err)
-		}
-
-		trailMetadata := metadata.(*audittrails.UpdateTrailMetadata)
+		trailMetadata := operation.Metadata()
 		data.SetId(trailMetadata.TrailId)
 
-		err = operation.Wait(ctx)
+		_, err = operation.Wait(ctx)
 		if err != nil {
 			return retry.NonRetryableError(err)
-		}
-
-		_, err = operation.Response()
-		if err != nil {
-			return nil
 		}
 
 		return nil // do not return any error in case if network call completed correctly
@@ -502,6 +491,7 @@ func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 
 func createTrailResource(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := audittrailssdk.NewTrailClient(config.SDK)
 
 	ctx = tflog.SetField(ctx, "trail_name", data.Get("name"))
 
@@ -533,27 +523,17 @@ func createTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 	}
 
 	err = retry.RetryContext(ctx, data.Timeout(schema.TimeoutRead), func() *retry.RetryError {
-		operation, err := config.sdk.WrapOperation(config.sdk.AuditTrails().Trail().Create(ctx, req))
+		operation, err := client.Create(ctx, req)
 		if err != nil {
 			return retryErrorForCode(err)
 		}
 
-		metadata, err := operation.Metadata()
-		if err != nil {
-			return retry.NonRetryableError(err)
-		}
-
-		trailMetadata := metadata.(*audittrails.CreateTrailMetadata)
+		trailMetadata := operation.Metadata()
 		data.SetId(trailMetadata.TrailId)
 
-		err = operation.Wait(ctx)
+		_, err = operation.Wait(ctx)
 		if err != nil {
 			return retry.NonRetryableError(err)
-		}
-
-		_, err = operation.Response()
-		if err != nil {
-			return nil
 		}
 
 		return nil // do not return any error in case if network call completed correctly
@@ -805,6 +785,7 @@ func packResourceDataIntoDestination(data *schema.ResourceData) *audittrails.Tra
 
 func readTrailResource(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	client := audittrailssdk.NewTrailClient(config.SDK)
 
 	id := data.Id()
 	ctx = tflog.SetField(ctx, "trail_id", id)
@@ -814,7 +795,7 @@ func readTrailResource(ctx context.Context, data *schema.ResourceData, meta inte
 	var unpackingErrors diag.Diagnostics
 
 	err := retry.RetryContext(ctx, data.Timeout(schema.TimeoutRead), func() *retry.RetryError {
-		trail, err := config.sdk.AuditTrails().Trail().Get(ctx, &audittrails.GetTrailRequest{
+		trail, err := client.Get(ctx, &audittrails.GetTrailRequest{
 			TrailId: id,
 		})
 		if err != nil {

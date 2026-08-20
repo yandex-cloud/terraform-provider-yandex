@@ -181,7 +181,7 @@ func testAccCheckCloudRegistryExists(n string, registry *cloudregistry.Registry)
 
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		found, err := config.SDK.CloudRegistry().Registry().Get(context.Background(), &cloudregistry.GetRegistryRequest{
+		found, err := cloudregistryv1sdk.NewRegistryClient(config.SDKv2).Get(context.Background(), &cloudregistry.GetRegistryRequest{
 			RegistryId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -202,7 +202,7 @@ func getCloudRegistryAccessBindings(ctx context.Context, config provider_config.
 	pageToken := ""
 
 	for {
-		resp, err := config.SDK.CloudRegistry().Registry().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := cloudregistryv1sdk.NewRegistryClient(config.SDKv2).ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: registryID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

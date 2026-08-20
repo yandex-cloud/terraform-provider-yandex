@@ -2,19 +2,19 @@ package mdb_clickhouse_database
 
 import (
 	"context"
+	"github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"google.golang.org/grpc/codes"
 )
 
 func readDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, dbName string) *clickhouse.Database {
-	db, err := sdk.MDB().Clickhouse().Database().Get(ctx, &clickhouse.GetDatabaseRequest{
+	db, err := clickhousesdk.NewDatabaseClient(sdk).Get(ctx, &clickhouse.GetDatabaseRequest{
 		ClusterId:    cid,
 		DatabaseName: dbName,
 	})
@@ -39,8 +39,8 @@ func readDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, c
 }
 
 func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, dbSpec *clickhouse.DatabaseSpec) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().Clickhouse().Database().Create(ctx, &clickhouse.CreateDatabaseRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*clickhousesdk.DatabaseCreateOperation, error) {
+		return clickhousesdk.NewDatabaseClient(sdk).Create(ctx, &clickhouse.CreateDatabaseRequest{
 			ClusterId:    cid,
 			DatabaseSpec: dbSpec,
 		})
@@ -62,7 +62,7 @@ func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics,
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Create resource",
 			"Error while waiting for operation to create ClickHouse database:"+err.Error(),
@@ -71,8 +71,8 @@ func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics,
 }
 
 func deleteDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, dbName string) {
-	op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
-		return sdk.MDB().Clickhouse().Database().Delete(ctx, &clickhouse.DeleteDatabaseRequest{
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*clickhousesdk.DatabaseDeleteOperation, error) {
+		return clickhousesdk.NewDatabaseClient(sdk).Delete(ctx, &clickhouse.DeleteDatabaseRequest{
 			ClusterId:    cid,
 			DatabaseName: dbName,
 		})
@@ -86,7 +86,7 @@ func deleteDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics,
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
 			"Error while waiting for operation to delete ClickHouse database: "+err.Error(),

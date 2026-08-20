@@ -6,7 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	dataprocsdk "github.com/yandex-cloud/go-sdk/services/dataproc/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 )
 
 func dataSourceYandexDataprocCluster() *schema.Resource {
@@ -38,13 +39,19 @@ func dataSourceYandexDataprocClusterRead(d *schema.ResourceData, meta interface{
 	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.DataprocClusterResolver)
+		client := dataprocsdk.NewClusterClient(config.SDK)
+
+		clusterID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return dataprocsdk.ClusterResolver(name, client, opts...)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Yandex Data Processing Cluster by name: %v", err)
 		}
 	}
 
-	cluster, err := config.sdk.Dataproc().Cluster().Get(ctx, &dataproc.GetClusterRequest{
+	client := dataprocsdk.NewClusterClient(config.SDK)
+
+	cluster, err := client.Get(ctx, &dataproc.GetClusterRequest{
 		ClusterId: clusterID,
 	})
 	if err != nil {

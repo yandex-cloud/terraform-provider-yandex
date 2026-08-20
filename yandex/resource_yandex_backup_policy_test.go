@@ -9,8 +9,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"google.golang.org/grpc/codes"
 
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	backupsdk "github.com/yandex-cloud/go-sdk/services/backup/v1"
 )
 
 func init() {
@@ -252,11 +254,19 @@ func sweepBackupPolicy(conf *Config, id string) bool {
 		ctx, cancel := conf.ContextWithTimeout(yandexBackupDefaultTimeout)
 		defer cancel()
 
-		op, err := conf.sdk.Backup().Policy().Delete(ctx, &backuppb.DeletePolicyRequest{
+		client := backupsdk.NewPolicyClient(conf.SDK)
+
+		op, err := client.Delete(ctx, &backuppb.DeletePolicyRequest{
 			PolicyId: id,
 		})
-
-		return handleSweepOperation(ctx, conf, op, err)
+		if err != nil {
+			if isStatusWithCode(err, codes.NotFound) {
+				return nil
+			}
+			return err
+		}
+		_, err = op.Wait(ctx)
+		return err
 	})
 }
 
@@ -267,7 +277,9 @@ func testSweepBackupPolicy(_ string) error {
 	}
 
 	req := &backuppb.ListPoliciesRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Backup().Policy().PolicyIterator(conf.Context(), req)
+	client := backupsdk.NewPolicyClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 
 	for it.Next() {
@@ -289,7 +301,9 @@ func testAccCheckBackupPolicyDestroy(s *terraform.State) error {
 		}
 
 		id := rs.Primary.ID
-		_, err := config.sdk.Backup().Policy().Get(config.Context(), &backuppb.GetPolicyRequest{
+		client := backupsdk.NewPolicyClient(config.SDK)
+
+		_, err := client.Get(config.Context(), &backuppb.GetPolicyRequest{
 			PolicyId: id,
 		})
 
@@ -315,7 +329,9 @@ func testBackupPolicyExists(resourceName string, policy *backuppb.Policy) resour
 		config := testAccProvider.Meta().(*Config)
 		id := rs.Primary.ID
 
-		found, err := config.sdk.Backup().Policy().Get(context.Background(), &backuppb.GetPolicyRequest{
+		client := backupsdk.NewPolicyClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &backuppb.GetPolicyRequest{
 			PolicyId: id,
 		})
 

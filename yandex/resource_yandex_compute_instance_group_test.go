@@ -14,6 +14,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	instancegroupsdk "github.com/yandex-cloud/go-sdk/services/compute/v1/instancegroup"
 )
 
 func init() {
@@ -36,9 +37,10 @@ func testSweepComputeInstanceGroups(_ string) error {
 	var depsCreated bool
 
 	req := &instancegroup.ListInstanceGroupsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.InstanceGroup().InstanceGroup().InstanceGroupIterator(conf.Context(), req)
+	it := instancegroupsdk.NewInstanceGroupClient(conf.SDK).Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
+		instanceGroup := it.Value()
 		if !depsCreated {
 			depsCreated = true
 			serviceAccountID, err = createIAMServiceAccountForSweeper(conf)
@@ -58,8 +60,8 @@ func testSweepComputeInstanceGroups(_ string) error {
 			}
 		}
 
-		id := it.Value().GetId()
-		status := it.Value().GetStatus()
+		id := instanceGroup.GetId()
+		status := instanceGroup.GetStatus()
 		if !updateComputeInstanceGroupWithSweeperDeps(conf, status, id, serviceAccountID, networkID, subnetID) {
 			result = multierror.Append(result,
 				fmt.Errorf("failed to sweep (update with dependencies) compute instance group %q", id))
@@ -99,10 +101,12 @@ func sweepComputeInstanceGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.InstanceGroup().InstanceGroup().Delete(ctx, &instancegroup.DeleteInstanceGroupRequest{
-		InstanceGroupId: id,
-	})
-	return handleSweepOperation(ctx, conf, op, err)
+	op, err := instancegroupsdk.NewInstanceGroupClient(conf.
+		SDK).
+		Delete(ctx, &instancegroup.DeleteInstanceGroupRequest{
+			InstanceGroupId: id,
+		})
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func updateComputeInstanceGroupWithSweeperDeps(conf *Config, status instancegroup.InstanceGroup_Status, instanceGroupID, serviceAccountID, networkID, subnetID string) bool {
@@ -117,7 +121,9 @@ func updateComputeInstanceGroupWithSweeperDeps(conf *Config, status instancegrou
 		updateMaskPath = []string{"service_account_id"}
 	}
 
-	client := conf.sdk.InstanceGroup().InstanceGroup()
+	client := instancegroupsdk.NewInstanceGroupClient(conf.
+		SDK)
+
 	for i := 1; i <= conf.MaxRetries; i++ {
 		req := &instancegroup.UpdateInstanceGroupRequest{
 			InstanceGroupId:    instanceGroupID,
@@ -142,7 +148,7 @@ func updateComputeInstanceGroupWithSweeperDeps(conf *Config, status instancegrou
 			},
 		}
 
-		_, err := conf.sdk.WrapOperation(client.Update(conf.Context(), req))
+		_, err := client.Update(conf.Context(), req)
 		if err != nil {
 			debugLog("[instance group %q] update try #%d: %v", instanceGroupID, i, err)
 		} else {
@@ -712,7 +718,7 @@ func testAccCheckComputeInstanceGroupDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.InstanceGroup().InstanceGroup().Get(context.Background(), &instancegroup.GetInstanceGroupRequest{
+		_, err := instancegroupsdk.NewInstanceGroupClient(config.SDK).Get(context.Background(), &instancegroup.GetInstanceGroupRequest{
 			InstanceGroupId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -2732,7 +2738,7 @@ func testAccCheckComputeInstanceGroupExists(n string, instance *instancegroup.In
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.InstanceGroup().InstanceGroup().Get(context.Background(), &instancegroup.GetInstanceGroupRequest{
+		found, err := instancegroupsdk.NewInstanceGroupClient(config.SDK).Get(context.Background(), &instancegroup.GetInstanceGroupRequest{
 			InstanceGroupId: rs.Primary.ID,
 			View:            instancegroup.InstanceGroupView_FULL,
 		})

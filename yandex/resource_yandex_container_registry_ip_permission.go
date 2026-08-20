@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
-	"github.com/yandex-cloud/go-sdk/operation"
+	containerregistrysdk "github.com/yandex-cloud/go-sdk/services/containerregistry/v1"
 )
 
 const yandexContainerRegistryIPPermissionDefaultTimeout = 5 * time.Minute
@@ -83,12 +83,13 @@ func resourceYandexContainerRegistryIPPermissionCreate(ctx context.Context, d *s
 	log.Printf("[DEBUG] IP Permission to set: %v", stringifyContainerRegistryIPPermission(ipPermissions))
 
 	config := meta.(*Config)
-	containerRegistryService := config.sdk.ContainerRegistry().Registry()
+	client := containerregistrysdk.NewRegistryClient(config.SDK)
+
 	setIPPermissionRequest := containerregistry.SetIpPermissionRequest{
 		RegistryId:   registryId,
 		IpPermission: ipPermissions,
 	}
-	_, err := containerRegistryService.SetIpPermission(ctx, &setIPPermissionRequest)
+	_, err := client.SetIpPermission(ctx, &setIPPermissionRequest)
 	if err != nil {
 		log.Printf("[DEBUG] IP Permissions were not set for Container Registry: %v (err: %s)", registryId, err.Error())
 	}
@@ -106,13 +107,13 @@ func resourceYandexContainerRegistryIPPermissionRead(ctx context.Context, d *sch
 	log.Print("[DEBUG] Read IP Permissions")
 
 	config := meta.(*Config)
+	client := containerregistrysdk.NewRegistryClient(config.SDK)
 
 	registryId := d.Get("registry_id").(string)
-	containerRegistryService := config.sdk.ContainerRegistry().Registry()
 	listIPPermissionRequest := containerregistry.ListIpPermissionRequest{
 		RegistryId: registryId,
 	}
-	listIPPermissionResponse, err := containerRegistryService.ListIpPermission(ctx, &listIPPermissionRequest)
+	listIPPermissionResponse, err := client.ListIpPermission(ctx, &listIPPermissionRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -150,17 +151,18 @@ func resourceYandexContainerRegistryIPPermissionUpdate(ctx context.Context, d *s
 		log.Printf("[DEBUG] IP Permission to set: %v", stringifyContainerRegistryIPPermission(ipPermissions))
 
 		config := meta.(*Config)
-		containerRegistryService := config.sdk.ContainerRegistry().Registry()
+		client := containerregistrysdk.NewRegistryClient(config.SDK)
+
 		ipPermissionUpdateRequest := containerregistry.SetIpPermissionRequest{
 			RegistryId:   registryId,
 			IpPermission: ipPermissions,
 		}
-		operation, err := config.sdk.WrapOperation(containerRegistryService.SetIpPermission(ctx, &ipPermissionUpdateRequest))
+		op, err := client.SetIpPermission(ctx, &ipPermissionUpdateRequest)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		if err := waitContainerRegistryIPPermissionOperation(ctx, operation); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -174,17 +176,18 @@ func resourceYandexContainerRegistryIPPermissionDelete(ctx context.Context, d *s
 	log.Print("[DEBUG] Deleting Container Registry IP Permissions")
 
 	config := meta.(*Config)
-	containerRegistryService := config.sdk.ContainerRegistry().Registry()
+	client := containerregistrysdk.NewRegistryClient(config.SDK)
+
 	ipPermissionDeleteRequest := containerregistry.SetIpPermissionRequest{
 		RegistryId:   d.Get("registry_id").(string),
 		IpPermission: []*containerregistry.IpPermission{}, // empty list assumes deletion
 	}
-	operation, err := config.sdk.WrapOperation(containerRegistryService.SetIpPermission(ctx, &ipPermissionDeleteRequest))
+	op, err := client.SetIpPermission(ctx, &ipPermissionDeleteRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err := waitContainerRegistryIPPermissionOperation(ctx, operation); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -223,18 +226,6 @@ func resourceYandexContainerRegistryIPPermissionImporterFunc(d *schema.ResourceD
 	d.SetId(registryId + containerRegistryIPPermissionIDSuffix)
 
 	return []*schema.ResourceData{d}, nil
-}
-
-func waitContainerRegistryIPPermissionOperation(ctx context.Context, operation *operation.Operation) error {
-	if err := operation.Wait(ctx); err != nil {
-		return fmt.Errorf("error while waiting operation to set ip permission: %s", err)
-	}
-
-	if _, err := operation.Response(); err != nil {
-		return fmt.Errorf("failed to set ip permission: %s", err)
-	}
-
-	return nil
 }
 
 func getContainerRegistryIPPermission(d *schema.ResourceData, action containerregistry.IpPermission_Action) []*containerregistry.IpPermission {

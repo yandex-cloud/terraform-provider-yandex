@@ -3,6 +3,7 @@ package datasphere_project_test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/datasphere/v2"
 	"testing"
 	"time"
 
@@ -47,7 +48,7 @@ func testSweepProject(_ string) error {
 	result := &multierror.Error{}
 
 	for _, communityID := range communities {
-		it := conf.SDK.Datasphere().Project().ProjectIterator(
+		it := dataspheresdk.NewProjectClient(conf.SDKv2).Iterator(
 			context.Background(),
 			&datasphere.ListProjectsRequest{
 				CommunityId: communityID,
@@ -81,7 +82,7 @@ func testSweepProject(_ string) error {
 
 func getAllCommunityIDs(conf *provider_config.Config) ([]string, error) {
 	var (
-		it = conf.SDK.Datasphere().Community().CommunityIterator(
+		it = dataspheresdk.NewCommunityClient(conf.SDKv2).Iterator(
 			context.Background(),
 			&datasphere.ListCommunitiesRequest{OrganizationId: test.GetExampleOrganizationID()},
 		)
@@ -114,10 +115,10 @@ func sweepProjectOnce(conf *provider_config.Config, id string) error {
 
 	defer cancel()
 
-	op, err := conf.SDK.Datasphere().Project().Delete(ctx, &datasphere.DeleteProjectRequest{
+	op, err := dataspheresdk.NewProjectClient(conf.SDKv2).Delete(ctx, &datasphere.DeleteProjectRequest{
 		ProjectId: id,
 	})
-	return test.HandleSweepOperation(ctx, conf, op, err)
+	return test.HandleSweepOperation(ctx, op, err)
 }
 
 func TestAccDatasphereProjectResource_basic(t *testing.T) {

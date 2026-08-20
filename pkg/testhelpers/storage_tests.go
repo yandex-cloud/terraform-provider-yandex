@@ -3,6 +3,7 @@ package testhelpers
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-sdk/services/storage/v1"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -14,7 +15,7 @@ func BucketExists(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		_, err := config.SDK.StorageAPI().Bucket().Get(context.Background(), &storage.GetBucketRequest{
+		_, err := storagesdk.NewBucketClient(config.SDKv2).Get(context.Background(), &storage.GetBucketRequest{
 			Name: name,
 			View: storage.GetBucketRequest_VIEW_BASIC,
 		})
@@ -31,7 +32,7 @@ func AccCheckBucketDestroy(name string) func(*terraform.State) error {
 
 		config := AccProvider.(*yandex_framework.Provider).GetConfig()
 
-		_, err := config.SDK.StorageAPI().Bucket().Get(context.Background(), &storage.GetBucketRequest{
+		_, err := storagesdk.NewBucketClient(config.SDKv2).Get(context.Background(), &storage.GetBucketRequest{
 			Name: name,
 			View: storage.GetBucketRequest_VIEW_BASIC,
 		})

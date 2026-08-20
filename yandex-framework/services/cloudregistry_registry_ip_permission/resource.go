@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/cloudregistry/v1"
-	"github.com/yandex-cloud/go-sdk/operation"
+	cloudregistrysdk "github.com/yandex-cloud/go-sdk/services/cloudregistry/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"google.golang.org/grpc"
@@ -82,7 +82,7 @@ func (r *yandexCloudregistryIPPermissionResource) Read(ctx context.Context, req 
 	tflog.Debug(ctx, fmt.Sprintf("Read IP permission request: %s", validate.ProtoDump(reqApi)))
 
 	md := new(metadata.MD)
-	res, err := r.providerConfig.SDK.CloudRegistry().Registry().ListIpPermissions(ctx, reqApi, grpc.Header(md))
+	res, err := cloudregistrysdk.NewRegistryClient(r.providerConfig.SDKv2).ListIpPermissions(ctx, reqApi, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Read IP permission x-server-trace-id: %s", traceHeader[0]))
 	}
@@ -154,7 +154,7 @@ func (r *yandexCloudregistryIPPermissionResource) Create(ctx context.Context, re
 
 	md := new(metadata.MD)
 
-	op, err := r.providerConfig.SDK.WrapOperation(r.providerConfig.SDK.CloudRegistry().Registry().SetIpPermissions(ctx, createReq, grpc.Header(md)))
+	op, err := cloudregistrysdk.NewRegistryClient(r.providerConfig.SDKv2).SetIpPermissions(ctx, createReq, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Create IP permission x-server-trace-id: %s", traceHeader[0]))
 	}
@@ -190,7 +190,7 @@ func (r *yandexCloudregistryIPPermissionResource) Create(ctx context.Context, re
 	tflog.Debug(ctx, fmt.Sprintf("Read IP permission request: %s", validate.ProtoDump(readReq)))
 
 	md = new(metadata.MD)
-	res, err := r.providerConfig.SDK.CloudRegistry().Registry().ListIpPermissions(ctx, readReq, grpc.Header(md))
+	res, err := cloudregistrysdk.NewRegistryClient(r.providerConfig.SDKv2).ListIpPermissions(ctx, readReq, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Read IP permission x-server-trace-id: %s", traceHeader[0]))
 	}
@@ -243,7 +243,7 @@ func (r *yandexCloudregistryIPPermissionResource) Delete(ctx context.Context, re
 	tflog.Debug(ctx, fmt.Sprintf("Delete IP permission request: %s", validate.ProtoDump(deleteReq)))
 
 	md := new(metadata.MD)
-	op, err := r.providerConfig.SDK.WrapOperation(r.providerConfig.SDK.CloudRegistry().Registry().SetIpPermissions(ctx, deleteReq, grpc.Header(md)))
+	op, err := cloudregistrysdk.NewRegistryClient(r.providerConfig.SDKv2).SetIpPermissions(ctx, deleteReq, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Delete IP permission x-server-trace-id: %s", traceHeader[0]))
 	}
@@ -308,7 +308,7 @@ func (r *yandexCloudregistryIPPermissionResource) Update(ctx context.Context, re
 	tflog.Debug(ctx, fmt.Sprintf("Update IP permission request: %s", validate.ProtoDump(updateReq)))
 
 	md := new(metadata.MD)
-	op, err := r.providerConfig.SDK.WrapOperation(r.providerConfig.SDK.CloudRegistry().Registry().SetIpPermissions(ctx, updateReq, grpc.Header(md)))
+	op, err := cloudregistrysdk.NewRegistryClient(r.providerConfig.SDKv2).SetIpPermissions(ctx, updateReq, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Update IP permission x-server-trace-id: %s", traceHeader[0]))
 	}
@@ -344,7 +344,7 @@ func (r *yandexCloudregistryIPPermissionResource) Update(ctx context.Context, re
 	tflog.Debug(ctx, fmt.Sprintf("Read IP permission request: %s", validate.ProtoDump(readReq)))
 
 	md = new(metadata.MD)
-	res, err := r.providerConfig.SDK.CloudRegistry().Registry().ListIpPermissions(ctx, readReq, grpc.Header(md))
+	res, err := cloudregistrysdk.NewRegistryClient(r.providerConfig.SDKv2).ListIpPermissions(ctx, readReq, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("Read IP permission x-server-trace-id: %s", traceHeader[0]))
 	}
@@ -414,14 +414,9 @@ func expandCloudRegistryIPPermission(ctx context.Context, tfSet types.Set, actio
 	return permissions, diags
 }
 
-func waitCloudRegistryIPPermissionOperation(ctx context.Context, operation *operation.Operation) error {
-	if err := operation.Wait(ctx); err != nil {
+func waitCloudRegistryIPPermissionOperation(ctx context.Context, operation *cloudregistrysdk.RegistrySetIpPermissionsOperation) error {
+	if _, err := operation.Wait(ctx); err != nil {
 		return fmt.Errorf("error while waiting operation to set ip permission: %s", err)
 	}
-
-	if _, err := operation.Response(); err != nil {
-		return fmt.Errorf("failed to set ip permission: %s", err)
-	}
-
 	return nil
 }

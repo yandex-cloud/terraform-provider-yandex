@@ -10,10 +10,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	storage "github.com/yandex-cloud/go-genproto/yandex/cloud/storage/v1"
+	storagesdk "github.com/yandex-cloud/go-sdk/services/storage/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/accessbinding"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"google.golang.org/grpc"
 )
+
+type bucketGetter interface {
+	Get(context.Context, *storage.GetBucketRequest, ...grpc.CallOption) (*storage.Bucket, error)
+}
 
 type BucketIAMUpdater struct {
 	Bucket         string
@@ -81,13 +87,24 @@ func (u *BucketIAMUpdater) resourceID(ctx context.Context) (string, error) {
 		return u.ResourceId, nil
 	}
 
-	bucketResolver := sdkresolvers.BucketResolver(u.Bucket)
-	if err := u.ProviderConfig.SDK.Resolve(ctx, bucketResolver); err != nil {
+	resourceID, err := resolveBucketResourceID(ctx, storagesdk.NewBucketClient(u.ProviderConfig.SDKv2), u.Bucket)
+	if err != nil {
 		return "", err
 	}
-	u.ResourceId = bucketResolver.ID()
+	u.ResourceId = resourceID
 
 	return u.ResourceId, nil
+}
+
+func resolveBucketResourceID(ctx context.Context, client bucketGetter, bucketName string) (string, error) {
+	bucket, err := client.Get(ctx, &storage.GetBucketRequest{
+		Name: bucketName,
+		View: storage.GetBucketRequest_VIEW_BASIC,
+	})
+	if err != nil {
+		return "", err
+	}
+	return bucket.GetResourceId(), nil
 }
 
 func (u *BucketIAMUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbinding.Policy, error) {
@@ -117,12 +134,12 @@ func (u *BucketIAMUpdater) SetResourceIamPolicy(ctx context.Context, policy *acc
 	ctx, cancel := context.WithTimeout(ctx, provider_config.DefaultTimeout)
 	defer cancel()
 
-	op, err := u.ProviderConfig.SDK.WrapOperation(u.ProviderConfig.SDK.StorageAPI().Bucket().SetAccessBindings(ctx, req))
+	op, err := storagesdk.NewBucketClient(u.ProviderConfig.SDKv2).SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -145,12 +162,12 @@ func (u *BucketIAMUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *
 			ResourceId:          id,
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
-		op, err := u.ProviderConfig.SDK.WrapOperation(u.ProviderConfig.SDK.StorageAPI().Bucket().UpdateAccessBindings(ctx, req))
+		op, err := storagesdk.NewBucketClient(u.ProviderConfig.SDKv2).UpdateAccessBindings(ctx, req)
 		if err != nil {
 			return fmt.Errorf("error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -172,7 +189,7 @@ func (u *BucketIAMUpdater) GetAccessBindings(ctx context.Context, id string) ([]
 	pageToken := ""
 
 	for {
-		resp, err := u.ProviderConfig.SDK.StorageAPI().Bucket().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := storagesdk.NewBucketClient(u.ProviderConfig.SDKv2).ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: id,
 			PageSize:   accessbinding.DefaultPageSize,
 			PageToken:  pageToken,

@@ -11,6 +11,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -267,30 +268,17 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Image().Create(ctx, &req))
+	op, err := computesdk.NewImageClient(config.SDK).Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create image: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get image create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*compute.CreateImageMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Image ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.ImageId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create image: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Image creation failed: %s", err)
 	}
 
 	return resourceYandexComputeImageRead(d, meta)
@@ -299,7 +287,7 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 func resourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	image, err := config.sdk.Compute().Image().Get(config.Context(), &compute.GetImageRequest{
+	image, err := computesdk.NewImageClient(config.SDK).Get(config.Context(), &compute.GetImageRequest{
 		ImageId: d.Id(),
 	})
 
@@ -430,17 +418,12 @@ func resourceYandexComputeImageDelete(d *schema.ResourceData, meta interface{}) 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Image().Delete(ctx, req))
+	op, err := computesdk.NewImageClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Image %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -471,7 +454,7 @@ func prepareSourceForImage(req *compute.CreateImageRequest, d *schema.ResourceDa
 		config := meta.(*Config)
 		ctx := config.Context()
 		familyName := d.Get("source_family").(string)
-		img, err := config.sdk.Compute().Image().GetLatestByFamily(ctx, &compute.GetImageLatestByFamilyRequest{
+		img, err := computesdk.NewImageClient(config.SDK).GetLatestByFamily(ctx, &compute.GetImageLatestByFamilyRequest{
 			FolderId: StandardImagesFolderID,
 			Family:   familyName,
 		})
@@ -511,12 +494,12 @@ func makeImageUpdateRequest(req *compute.UpdateImageRequest, d *schema.ResourceD
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Image().Update(ctx, req))
+	op, err := computesdk.NewImageClient(config.SDK).Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Image %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Image %q: %s", d.Id(), err)
 	}

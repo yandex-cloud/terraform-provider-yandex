@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/smartcaptcha/v1"
+	smartcaptchasdk "github.com/yandex-cloud/go-sdk/services/smartcaptcha/v1"
 )
 
 func init() {
@@ -205,7 +206,8 @@ func testSweepCaptcha(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.SmartCaptcha().Captcha().List(conf.Context(), &smartcaptcha.ListCaptchasRequest{
+	client := smartcaptchasdk.NewCaptchaClient(conf.SDK)
+	resp, err := client.List(conf.Context(), &smartcaptcha.ListCaptchasRequest{
 		FolderId: conf.FolderID,
 	})
 	if err != nil {
@@ -230,8 +232,12 @@ func sweepCaptchaOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.SmartCaptcha().Captcha().Delete(ctx, &smartcaptcha.DeleteCaptchaRequest{
+	op, err := smartcaptchasdk.NewCaptchaClient(conf.SDK).Delete(ctx, &smartcaptcha.DeleteCaptchaRequest{
 		CaptchaId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }

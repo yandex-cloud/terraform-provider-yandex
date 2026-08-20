@@ -6,7 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -64,13 +65,19 @@ func dataSourceYandexIAMServiceAccountRead(d *schema.ResourceData, meta interfac
 	_, serviceAccountNameOk := d.GetOk("name")
 
 	if serviceAccountNameOk {
-		serviceAccountID, err = resolveObjectID(ctx, config, d, sdkresolvers.ServiceAccountResolver)
+		client := iamsdk.NewServiceAccountClient(config.SDK)
+
+		serviceAccountID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return iamsdk.ServiceAccountResolver(name, client, opts...)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to resolve service account by name: %v", err)
 		}
 	}
 
-	sa, err = config.sdk.IAM().ServiceAccount().Get(ctx, &iam.GetServiceAccountRequest{
+	client := iamsdk.NewServiceAccountClient(config.SDK)
+
+	sa, err = client.Get(ctx, &iam.GetServiceAccountRequest{
 		ServiceAccountId: serviceAccountID,
 	})
 

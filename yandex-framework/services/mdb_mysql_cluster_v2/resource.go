@@ -591,7 +591,7 @@ func (r *clusterResource) createCluster(
 		return
 	}
 
-	cid := mysqlApi.CreateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
+	cid := mysqlApi.CreateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, request)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -614,7 +614,7 @@ func (r *clusterResource) createCluster(
 	}
 	mdbcommon.UpdateClusterHosts(
 		ctx,
-		r.providerConfig.SDK,
+		r.providerConfig.SDKv2,
 		&resp.Diagnostics,
 		mysqlHostService,
 		&mysqlApi,
@@ -645,7 +645,7 @@ func (r *clusterResource) restoreCluster(
 		return
 	}
 
-	cid := mysqlApi.RestoreCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, request)
+	cid := mysqlApi.RestoreCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, request)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -687,7 +687,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	if updateVersionRequest != nil && len(updateVersionRequest.UpdateMask.GetPaths()) > 0 {
-		mysqlApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateVersionRequest)
+		mysqlApi.UpdateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, updateVersionRequest)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -700,7 +700,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	if updateRequest != nil && len(updateRequest.UpdateMask.GetPaths()) > 0 {
-		mysqlApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateRequest)
+		mysqlApi.UpdateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, updateRequest)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -714,7 +714,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	mdbcommon.UpdateClusterHosts(
 		ctx,
-		r.providerConfig.SDK,
+		r.providerConfig.SDKv2,
 		&resp.Diagnostics,
 		mysqlHostService,
 		&mysqlApi,
@@ -745,7 +745,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	defer cancel()
 
 	cid := state.Id.ValueString()
-	mysqlApi.DeleteCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, cid)
+	mysqlApi.DeleteCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid)
 }
 
 func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -754,12 +754,12 @@ func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportSt
 
 func (r *clusterResource) refreshResourceState(ctx context.Context, state *Cluster, respDiagnostics *diag.Diagnostics) {
 	cid := state.Id.ValueString()
-	cluster := mysqlApi.GetCluster(ctx, r.providerConfig.SDK, respDiagnostics, cid)
+	cluster := mysqlApi.GetCluster(ctx, r.providerConfig.SDKv2, respDiagnostics, cid)
 	if respDiagnostics.HasError() {
 		return
 	}
 
-	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, r.providerConfig.SDK, respDiagnostics, mysqlHostService, &mysqlApi, state.HostSpecs, cid)
+	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, r.providerConfig.SDKv2, respDiagnostics, mysqlHostService, &mysqlApi, state.HostSpecs, cid)
 
 	// replication_source_name is user-configured and not returned by the API.
 	// Preserve it from the incoming state so it survives refreshes.

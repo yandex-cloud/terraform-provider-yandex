@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload/oidc"
+	oidcsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/workload/oidc"
 )
 
 func importFederationIDFunc(federation *oidc.Federation, role string) func(*terraform.State) (string, error) {
@@ -82,7 +83,9 @@ func testAccCheckWorkloadIdentityOidcFederationExistsWithID(n string, f *oidc.Fe
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.WorkloadOidc().Federation().Get(context.Background(), &oidc.GetFederationRequest{
+		client := oidcsdk.NewFederationClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &oidc.GetFederationRequest{
 			FederationId: rs.Primary.ID,
 		})
 		if err != nil {

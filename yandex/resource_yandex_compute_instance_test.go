@@ -17,7 +17,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
+	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 )
 
 const (
@@ -43,10 +44,11 @@ func testSweepComputeInstances(_ string) error {
 	}
 
 	req := &compute.ListInstancesRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Compute().Instance().InstanceIterator(conf.Context(), req)
+	it := computesdk.NewInstanceClient(conf.SDK).Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
-		id := it.Value().GetId()
+		instance := it.Value()
+		id := instance.GetId()
 		if !sweepComputeInstance(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Compute Instance %q", id))
 		}
@@ -63,10 +65,12 @@ func sweepComputeInstanceOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexComputeInstanceDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Compute().Instance().Delete(ctx, &compute.DeleteInstanceRequest{
-		InstanceId: id,
-	})
-	return handleSweepOperation(ctx, conf, op, err)
+	op, err := computesdk.NewInstanceClient(conf.
+		SDK).
+		Delete(ctx, &compute.DeleteInstanceRequest{
+			InstanceId: id,
+		})
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func computeInstanceImportStep() resource.TestStep {
@@ -1612,7 +1616,7 @@ func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Compute().Instance().Get(context.Background(), &compute.GetInstanceRequest{
+		_, err := computesdk.NewInstanceClient(config.SDK).Get(context.Background(), &compute.GetInstanceRequest{
 			InstanceId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -1636,7 +1640,7 @@ func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) res
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.Compute().Instance().Get(context.Background(), &compute.GetInstanceRequest{
+		found, err := computesdk.NewInstanceClient(config.SDK).Get(context.Background(), &compute.GetInstanceRequest{
 			InstanceId: rs.Primary.ID,
 			View:       compute.InstanceView_FULL,
 		})
@@ -1694,8 +1698,8 @@ func testAccCheckComputeInstanceDisk(instance *compute.Instance, diskName string
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		diskResolver := sdkresolvers.DiskResolver(diskName, sdkresolvers.FolderID(config.FolderID))
-		if err := config.sdk.Resolve(context.Background(), diskResolver); err != nil {
+		diskResolver := computesdk.DiskResolver(diskName, computesdk.NewDiskClient(config.SDK), sdkresolvers.FolderID(config.FolderID))
+		if err := diskResolver.Run(context.Background()); err != nil {
 			return fmt.Errorf("Error while resolve disk name to ID: %s", err)
 		}
 
@@ -1731,8 +1735,8 @@ func testAccCheckComputeInstanceAttachedDisks(instance *compute.Instance, diskNa
 		}
 
 		for i := 0; i < len(diskNames); i++ {
-			diskResolver := sdkresolvers.DiskResolver(diskNames[i], sdkresolvers.FolderID(config.FolderID))
-			if err := config.sdk.Resolve(context.Background(), diskResolver); err != nil {
+			diskResolver := computesdk.DiskResolver(diskNames[i], computesdk.NewDiskClient(config.SDK), sdkresolvers.FolderID(config.FolderID))
+			if err := diskResolver.Run(context.Background()); err != nil {
 				return fmt.Errorf("Error while resolve disk name to ID: %s", err)
 			}
 
@@ -1783,8 +1787,8 @@ func testAccCheckComputeInstanceBootDisk(instance *compute.Instance, source stri
 
 		config := testAccProvider.Meta().(*Config)
 
-		diskResolver := sdkresolvers.DiskResolver(source, sdkresolvers.FolderID(config.FolderID))
-		if err := config.sdk.Resolve(context.Background(), diskResolver); err != nil {
+		diskResolver := computesdk.DiskResolver(source, computesdk.NewDiskClient(config.SDK), sdkresolvers.FolderID(config.FolderID))
+		if err := diskResolver.Run(context.Background()); err != nil {
 			return fmt.Errorf("Error while resolve disk name to ID: %s", err)
 		}
 
@@ -1802,12 +1806,12 @@ func testAccCheckComputeInstanceBootDiskType(instanceName string, diskType strin
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		instanceResolver := sdkresolvers.InstanceResolver(instanceName, sdkresolvers.FolderID(config.FolderID))
-		if err := config.sdk.Resolve(context.Background(), instanceResolver); err != nil {
+		instanceResolver := computesdk.InstanceResolver(instanceName, computesdk.NewInstanceClient(config.SDK), sdkresolvers.FolderID(config.FolderID))
+		if err := instanceResolver.Run(context.Background()); err != nil {
 			log.Printf("error while resolve instance: %s", err)
 		}
 
-		instance, err := config.sdk.Compute().Instance().Get(context.Background(), &compute.GetInstanceRequest{
+		instance, err := computesdk.NewInstanceClient(config.SDK).Get(context.Background(), &compute.GetInstanceRequest{
 			InstanceId: instanceResolver.ID(),
 		})
 		if err != nil {
@@ -1815,7 +1819,7 @@ func testAccCheckComputeInstanceBootDiskType(instanceName string, diskType strin
 			return err
 		}
 
-		disk, err := config.sdk.Compute().Disk().Get(context.Background(), &compute.GetDiskRequest{
+		disk, err := computesdk.NewDiskClient(config.SDK).Get(context.Background(), &compute.GetDiskRequest{
 			DiskId: instance.BootDisk.DiskId,
 		})
 
@@ -2150,8 +2154,8 @@ func testAccCheckComputeInstanceFilesystem(instance *compute.Instance, fsNames [
 		}
 
 		for _, fsName := range fsNames {
-			fsResolver := sdkresolvers.FilesystemResolver(fsName, sdkresolvers.FolderID(config.FolderID))
-			if err := config.sdk.Resolve(context.Background(), fsResolver); err != nil {
+			fsResolver := computesdk.FilesystemResolver(fsName, computesdk.NewFilesystemClient(config.SDK), sdkresolvers.FolderID(config.FolderID))
+			if err := fsResolver.Run(context.Background()); err != nil {
 				return fmt.Errorf("Error while resolve filesystem name to ID: %s", err)
 			}
 

@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
+	loadbalancersdk "github.com/yandex-cloud/go-sdk/services/loadbalancer/v1"
+	"google.golang.org/grpc/codes"
 )
 
 const nlbResource = "yandex_lb_network_load_balancer.test-nlb"
@@ -32,13 +34,18 @@ func testSweepLBNetworkLoadBalancers(_ string) error {
 	}
 
 	req := &loadbalancer.ListNetworkLoadBalancersRequest{FolderId: conf.FolderID}
-	it := conf.sdk.LoadBalancer().NetworkLoadBalancer().NetworkLoadBalancerIterator(conf.Context(), req)
+	client := loadbalancersdk.NewNetworkLoadBalancerClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
 		if !sweepLBNetworkLoadBalancer(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Network Load Balancer %q", id))
 		}
+	}
+	if err := it.Error(); err != nil {
+		result = multierror.Append(result, err)
 	}
 
 	return result.ErrorOrNil()
@@ -52,10 +59,19 @@ func sweepLBNetworkLoadBalancerOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexLBNetworkLoadBalancerDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.LoadBalancer().NetworkLoadBalancer().Delete(ctx, &loadbalancer.DeleteNetworkLoadBalancerRequest{
+	client := loadbalancersdk.NewNetworkLoadBalancerClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &loadbalancer.DeleteNetworkLoadBalancerRequest{
 		NetworkLoadBalancerId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		if isStatusWithCode(err, codes.NotFound) {
+			return nil
+		}
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 func networkLoadBalancerImportStep() resource.TestStep {
@@ -538,13 +554,14 @@ func copyNlbSettings(settings map[string]interface{}) map[string]interface{} {
 
 func testAccCheckLBNetworkLoadBalancerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := loadbalancersdk.NewNetworkLoadBalancerClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_lb_network_load_balancer" {
 			continue
 		}
 
-		_, err := config.sdk.LoadBalancer().NetworkLoadBalancer().Get(context.Background(), &loadbalancer.GetNetworkLoadBalancerRequest{
+		_, err := client.Get(context.Background(), &loadbalancer.GetNetworkLoadBalancerRequest{
 			NetworkLoadBalancerId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -567,8 +584,9 @@ func testAccCheckLBNetworkLoadBalancerExists(n string, nlb *loadbalancer.Network
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := loadbalancersdk.NewNetworkLoadBalancerClient(config.SDK)
 
-		found, err := config.sdk.LoadBalancer().NetworkLoadBalancer().Get(context.Background(), &loadbalancer.GetNetworkLoadBalancerRequest{
+		found, err := client.Get(context.Background(), &loadbalancer.GetNetworkLoadBalancerRequest{
 			NetworkLoadBalancerId: rs.Primary.ID,
 		})
 		if err != nil {

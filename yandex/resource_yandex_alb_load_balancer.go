@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -613,30 +614,19 @@ func resourceYandexALBLoadBalancerCreate(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().LoadBalancer().Create(ctx, req))
+	client := albsdk.NewLoadBalancerClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create ALB Load Balancer: %w", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get ALB Load Balancer create operation metadata: %w", err)
-	}
-
-	md, ok := protoMetadata.(*apploadbalancer.CreateLoadBalancerMetadata)
-	if !ok {
-		return fmt.Errorf("could not get ALB Load Balancer ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.LoadBalancerId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create ALB Load Balancer: %w", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("ALB Load Balancer creation failed: %w", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating ALB Load Balancer %q", d.Id())
@@ -651,7 +641,9 @@ func resourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	alb, err := config.sdk.ApplicationLoadBalancer().LoadBalancer().Get(ctx, &apploadbalancer.GetLoadBalancerRequest{
+	client := albsdk.NewLoadBalancerClient(config.SDK)
+
+	alb, err := client.Get(ctx, &apploadbalancer.GetLoadBalancerRequest{
 		LoadBalancerId: d.Id(),
 	})
 
@@ -751,12 +743,14 @@ func resourceYandexALBLoadBalancerUpdate(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().LoadBalancer().Update(ctx, req))
+	client := albsdk.NewLoadBalancerClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update ALB Load Balancer %q: %w", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating ALB Load Balancer %q: %w", d.Id(), err)
 	}
@@ -776,17 +770,14 @@ func resourceYandexALBLoadBalancerDelete(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().LoadBalancer().Delete(ctx, req))
+	client := albsdk.NewLoadBalancerClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ALB Load Balancer %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

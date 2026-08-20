@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -120,7 +121,7 @@ func resourceYandexMDBKafkaUserRead(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	user, err := config.sdk.MDB().Kafka().User().Get(ctx, &kafka.GetUserRequest{
+	user, err := kafkasdk.NewUserClient(config.SDK).Get(ctx, &kafka.GetUserRequest{
 		ClusterId: clusterID,
 		UserName:  userName,
 	})

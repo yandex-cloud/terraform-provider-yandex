@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/require"
 	sparkv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/spark/v1"
+	sparksdk "github.com/yandex-cloud/go-sdk/services/spark/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
@@ -221,14 +222,14 @@ resource "yandex_spark_cluster" "spark_cluster" {
 }
 
 func testAccCheckSparkClusterDestroy(s *terraform.State) error {
-	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
+	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != sparkResourceType {
 			continue
 		}
 
-		_, err := sdk.Spark().Cluster().Get(context.Background(), &sparkv1.GetClusterRequest{
+		_, err := sparksdk.NewClusterClient(sdk).Get(context.Background(), &sparkv1.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -259,8 +260,8 @@ func testAccCheckSparkExists(name string, cluster *sparkv1.Cluster) resource.Tes
 			return fmt.Errorf("ID is not set")
 		}
 
-		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
-		found, err := sdk.Spark().Cluster().Get(context.Background(), &sparkv1.GetClusterRequest{
+		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
+		found, err := sparksdk.NewClusterClient(sdk).Get(context.Background(), &sparkv1.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {

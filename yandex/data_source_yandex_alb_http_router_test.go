@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 )
 
 const albRouterDataSourceResource = "data.yandex_alb_http_router.test-router-ds"
@@ -83,8 +84,9 @@ func testAccDataSourceALBHTTPRouterExists(n string, httpRouter *apploadbalancer.
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := albsdk.NewHttpRouterClient(config.SDK)
 
-		found, err := config.sdk.ApplicationLoadBalancer().HttpRouter().Get(context.Background(), &apploadbalancer.GetHttpRouterRequest{
+		found, err := client.Get(context.Background(), &apploadbalancer.GetHttpRouterRequest{
 			HttpRouterId: ds.Primary.ID,
 		})
 

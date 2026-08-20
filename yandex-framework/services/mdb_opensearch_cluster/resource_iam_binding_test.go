@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+	opensearchsdk "github.com/yandex-cloud/go-sdk/services/mdb/opensearch/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
@@ -51,7 +52,7 @@ func TestAccMDBOpenSearchClusterIamBinding_basic(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterExists(openSearchResourcePrefix+clusterName, &cluster, 1),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().OpenSearch().Cluster()
+						return opensearchsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, role, []string{userID}),
 				),
 			},
@@ -87,7 +88,7 @@ func TestAccMDBOpenSearchClusterIamBinding_multiple(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterExists(openSearchResourcePrefix+clusterName, &cluster, 1),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().OpenSearch().Cluster()
+						return opensearchsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 				),
 			},
@@ -97,7 +98,7 @@ func TestAccMDBOpenSearchClusterIamBinding_multiple(t *testing.T) {
 				Config: testAccMDBOpenSearchClusterIamBindingConfig(roleFoo, userID, clusterName, clusterDesc, environment, randInt),
 				Check: iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 					cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-					return cfg.SDK.MDB().OpenSearch().Cluster()
+					return opensearchsdk.NewClusterClient(cfg.SDKv2)
 				}, &cluster, roleFoo, []string{userID}),
 			},
 			iam.IAMBindingImportTestStep(openSearchIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
@@ -107,11 +108,11 @@ func TestAccMDBOpenSearchClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().OpenSearch().Cluster()
+						return opensearchsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo, []string{userID}),
 					iam.TestAccCheckIamBindingEqualsMembers(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().OpenSearch().Cluster()
+						return opensearchsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar, []string{userID}),
 				),
 			},
@@ -123,11 +124,11 @@ func TestAccMDBOpenSearchClusterIamBinding_multiple(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().OpenSearch().Cluster()
+						return opensearchsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleFoo),
 					iam.TestAccCheckIamBindingEmpty(ctx, func() iam.BindingsGetter {
 						cfg := testhelpers.AccProvider.(*provider.Provider).GetConfig()
-						return cfg.SDK.MDB().OpenSearch().Cluster()
+						return opensearchsdk.NewClusterClient(cfg.SDKv2)
 					}, &cluster, roleBar),
 				),
 			},

@@ -15,6 +15,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/audittrails/v1"
+	audittrailssdk "github.com/yandex-cloud/go-sdk/services/audittrails/v1"
+	"google.golang.org/grpc/codes"
 )
 
 func init() {
@@ -35,13 +37,18 @@ func testSweepAuditTrails(_ string) error {
 	result := &multierror.Error{}
 
 	req := &audittrails.ListTrailsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.AuditTrails().Trail().TrailIterator(conf.Context(), req)
+	client := audittrailssdk.NewTrailClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	for it.Next() {
 		id := it.Value().GetId()
 
 		if !sweepAuditTrailsTrail(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Audit Trails Trail %q", id))
 		}
+	}
+	if err := it.Error(); err != nil {
+		result = multierror.Append(result, err)
 	}
 
 	return result.ErrorOrNil()
@@ -55,10 +62,19 @@ func sweepAuditTrailsTrailOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(5 * time.Minute)
 	defer cancel()
 
-	op, err := conf.sdk.AuditTrails().Trail().Delete(ctx, &audittrails.DeleteTrailRequest{
+	client := audittrailssdk.NewTrailClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &audittrails.DeleteTrailRequest{
 		TrailId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	if err != nil {
+		if isStatusWithCode(err, codes.NotFound) {
+			return nil
+		}
+		return err
+	}
+	_, err = op.Wait(ctx)
+	return err
 }
 
 // Tests for Storage with Any/Some filters trail create/update/import/delete operations
@@ -589,7 +605,9 @@ func testAccCheckYandexAuditTrailsTrailAllDestroyed(s *terraform.State) error {
 
 func testAccCheckYandexAuditTrailsTrailDestroyed(id string) error {
 	config := testAccProvider.Meta().(*Config)
-	_, err := config.sdk.AuditTrails().Trail().Get(context.Background(), &audittrails.GetTrailRequest{
+	client := audittrailssdk.NewTrailClient(config.SDK)
+
+	_, err := client.Get(context.Background(), &audittrails.GetTrailRequest{
 		TrailId: id,
 	})
 	if err == nil {

@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -95,13 +95,15 @@ func dataSourceYandexVPCRouteTableRead(d *schema.ResourceData, meta interface{})
 	_, routeTableNameOk := d.GetOk("name")
 
 	if routeTableNameOk {
-		routeTableID, err = resolveObjectID(ctx, config, d, sdkresolvers.RouteTableResolver)
+		routeTableID, err = resolveObjectIDV2(ctx, config, d, resolverWithClient(vpcsdk.NewRouteTableClient(config.SDK), vpcsdk.RouteTableResolver))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source route table by name: %v", err)
 		}
 	}
 
-	routeTable, err := config.sdk.VPC().RouteTable().Get(ctx, &vpc.GetRouteTableRequest{
+	client := vpcsdk.NewRouteTableClient(config.SDK)
+
+	routeTable, err := client.Get(ctx, &vpc.GetRouteTableRequest{
 		RouteTableId: routeTableID,
 	})
 

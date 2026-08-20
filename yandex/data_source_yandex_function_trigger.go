@@ -6,7 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	triggerssdk "github.com/yandex-cloud/go-sdk/services/serverless/triggers/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -591,7 +592,11 @@ func dataSourceYandexFunctionTriggerRead(d *schema.ResourceData, meta interface{
 	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		triggerID, err = resolveObjectID(ctx, config, d, sdkresolvers.TriggerResolver)
+		client := triggerssdk.NewTriggerClient(config.SDK)
+
+		triggerID, err = resolveObjectIDV2(ctx, config, d, func(name string, opts ...sdkresolversv2.ResolveOption) sdkresolversv2.Resolver {
+			return triggerssdk.TriggerResolver(name, client, opts...)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Yandex Cloud Functions Trigger by name: %v", err)
 		}
@@ -601,7 +606,9 @@ func dataSourceYandexFunctionTriggerRead(d *schema.ResourceData, meta interface{
 		TriggerId: triggerID,
 	}
 
-	trig, err := config.sdk.Serverless().Triggers().Trigger().Get(ctx, &req)
+	client := triggerssdk.NewTriggerClient(config.SDK)
+
+	trig, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Functions Trigger %q", d.Id()))
 	}

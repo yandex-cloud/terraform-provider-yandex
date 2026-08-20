@@ -7,6 +7,7 @@ import (
 
 	schema "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
+	datatransfersdk "github.com/yandex-cloud/go-sdk/services/datatransfer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	grpc "google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
@@ -3015,7 +3016,9 @@ func resourceYandexDatatransferEndpointCreate(d *schema.ResourceData, meta inter
 	}
 
 	md := new(metadata.MD)
-	op, err := config.sdk.WrapOperation(config.sdk.DataTransfer().Endpoint().Create(ctx, req, grpc.Header(md)))
+	client := datatransfersdk.NewEndpointClient(config.SDK)
+
+	op, err := client.Create(ctx, req, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Create Endpoint x-server-trace-id: %s", traceHeader[0])
 	}
@@ -3026,18 +3029,9 @@ func resourceYandexDatatransferEndpointCreate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("error while getting EndpointService.Create operation metadata: %s", err)
-	}
-	createEndpointMetadata, ok := protoMetadata.(*datatransfer.CreateEndpointMetadata)
-	if !ok {
-		return fmt.Errorf("expected EndpointService.Create response metadata to have type CreateEndpointMetadata but got %T", protoMetadata)
-	}
+	d.SetId(op.Metadata().EndpointId)
 
-	d.SetId(createEndpointMetadata.EndpointId)
-
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -3054,8 +3048,10 @@ func resourceYandexDatatransferEndpointRead(d *schema.ResourceData, meta interfa
 		EndpointId: d.Id(),
 	}
 
+	client := datatransfersdk.NewEndpointClient(config.SDK)
+
 	md := new(metadata.MD)
-	resp, err := config.sdk.DataTransfer().Endpoint().Get(ctx, req, grpc.Header(md))
+	resp, err := client.Get(ctx, req, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Read Endpoint x-server-trace-id: %s", traceHeader[0])
 	}
@@ -3121,8 +3117,10 @@ func resourceYandexDatatransferEndpointUpdate(d *schema.ResourceData, meta inter
 	updatePath := generateDatatransferFieldMasks(d, datatransferUpdateEndpointRequestFieldsRoot)
 	req.UpdateMask = &fieldmaskpb.FieldMask{Paths: updatePath}
 
+	client := datatransfersdk.NewEndpointClient(config.SDK)
+
 	md := new(metadata.MD)
-	op, err := config.sdk.WrapOperation(config.sdk.DataTransfer().Endpoint().Update(ctx, req, grpc.Header(md)))
+	op, err := client.Update(ctx, req, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Update Endpoint x-server-trace-id: %s", traceHeader[0])
 	}
@@ -3133,7 +3131,7 @@ func resourceYandexDatatransferEndpointUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return err
 	}
 
@@ -3149,8 +3147,10 @@ func resourceYandexDatatransferEndpointDelete(d *schema.ResourceData, meta inter
 		EndpointId: d.Id(),
 	}
 
+	client := datatransfersdk.NewEndpointClient(config.SDK)
+
 	md := new(metadata.MD)
-	op, err := config.sdk.WrapOperation(config.sdk.DataTransfer().Endpoint().Delete(ctx, req, grpc.Header(md)))
+	op, err := client.Delete(ctx, req, grpc.Header(md))
 	if traceHeader := md.Get("x-server-trace-id"); len(traceHeader) > 0 {
 		log.Printf("[DEBUG] Delete Endpoint x-server-trace-id: %s", traceHeader[0])
 	}
@@ -3161,7 +3161,7 @@ func resourceYandexDatatransferEndpointDelete(d *schema.ResourceData, meta inter
 		return handleNotFoundError(err, d, fmt.Sprintf("endpoint %q", d.Id()))
 	}
 
-	if err := op.Wait(ctx); err != nil {
+	if _, err := op.Wait(ctx); err != nil {
 		return err
 	}
 

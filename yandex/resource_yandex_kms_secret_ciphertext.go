@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
+	kmssdk "github.com/yandex-cloud/go-sdk/services/kms/v1"
 )
 
 const (
@@ -66,6 +67,7 @@ func resourceYandexKMSSecretCiphertext() *schema.Resource {
 
 func resourceYandexKMSSecretCiphertextCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := kmssdk.NewSymmetricCryptoClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
@@ -76,7 +78,7 @@ func resourceYandexKMSSecretCiphertextCreate(d *schema.ResourceData, meta interf
 		AadContext: []byte(d.Get("aad_context").(string)),
 	}
 
-	resp, err := config.sdk.KMSCrypto().SymmetricCrypto().Encrypt(ctx, req)
+	resp, err := client.Encrypt(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to encrypt data with KMS symmetric key: %s", err)
 	}
@@ -100,11 +102,12 @@ func resourceYandexKMSSecretCiphertextCreate(d *schema.ResourceData, meta interf
 
 func resourceYandexKMSSecretCiphertextRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := kmssdk.NewSymmetricKeyClient(config.SDK)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	resp, err := config.sdk.KMS().SymmetricKey().Get(ctx, &kms.GetSymmetricKeyRequest{
+	resp, err := client.Get(ctx, &kms.GetSymmetricKeyRequest{
 		KeyId: d.Get("key_id").(string),
 	})
 	if err != nil {

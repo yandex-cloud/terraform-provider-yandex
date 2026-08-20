@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 )
 
 const albTGResource = "yandex_alb_target_group.test-tg"
@@ -39,7 +40,9 @@ func testSweepALBTargetGroups(_ string) error {
 	result := &multierror.Error{}
 
 	req := &apploadbalancer.ListTargetGroupsRequest{FolderId: conf.FolderID}
-	it := conf.sdk.ApplicationLoadBalancer().TargetGroup().TargetGroupIterator(conf.Context(), req)
+	client := albsdk.NewTargetGroupClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	for it.Next() {
 		id := it.Value().GetId()
 
@@ -59,10 +62,12 @@ func sweepALBTargetGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexIAMServiceAccountDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.ApplicationLoadBalancer().TargetGroup().Delete(ctx, &apploadbalancer.DeleteTargetGroupRequest{
+	client := albsdk.NewTargetGroupClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &apploadbalancer.DeleteTargetGroupRequest{
 		TargetGroupId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func albTargetGroupImportStep() resource.TestStep {
@@ -223,13 +228,14 @@ func TestAccALBTargetGroup_update(t *testing.T) {
 
 func testAccCheckALBTargetGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := albsdk.NewTargetGroupClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_alb_target_group" {
 			continue
 		}
 
-		_, err := config.sdk.ApplicationLoadBalancer().TargetGroup().Get(context.Background(), &apploadbalancer.GetTargetGroupRequest{
+		_, err := client.Get(context.Background(), &apploadbalancer.GetTargetGroupRequest{
 			TargetGroupId: rs.Primary.ID,
 		})
 		if status.Code(err) != codes.NotFound {
@@ -252,8 +258,9 @@ func testAccCheckALBTargetGroupExists(tgName string, tg *apploadbalancer.TargetG
 		}
 
 		config := testAccProvider.Meta().(*Config)
+		client := albsdk.NewTargetGroupClient(config.SDK)
 
-		found, err := config.sdk.ApplicationLoadBalancer().TargetGroup().Get(context.Background(), &apploadbalancer.GetTargetGroupRequest{
+		found, err := client.Get(context.Background(), &apploadbalancer.GetTargetGroupRequest{
 			TargetGroupId: rs.Primary.ID,
 		})
 		if err != nil {

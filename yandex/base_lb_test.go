@@ -12,7 +12,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 )
 
 const lbDefaultNLBDescription = "nlb-descriprion"
@@ -99,11 +99,11 @@ func getSubnetIPMap(instanceNames []string) (map[string][]string, error) {
 	ctx := context.Background()
 
 	for _, instanceName := range instanceNames {
-		instanceID, err := resolveObjectIDByNameAndFolderID(ctx, config, instanceName, config.FolderID, sdkresolvers.InstanceResolver)
+		instanceID, err := resolveObjectIDByNameAndFolderIDV2(ctx, instanceName, config.FolderID, resolverWithClient(computesdk.NewInstanceClient(config.SDK), computesdk.InstanceResolver))
 		if err != nil {
 			return nil, fmt.Errorf("failed to resolve data source instance by name: %v", err)
 		}
-		instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
+		instance, err := computesdk.NewInstanceClient(config.SDK).Get(ctx, &compute.GetInstanceRequest{
 			InstanceId: instanceID,
 			View:       compute.InstanceView_FULL,
 		})

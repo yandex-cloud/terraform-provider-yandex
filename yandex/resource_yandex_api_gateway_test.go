@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
+	apigatewaysdk "github.com/yandex-cloud/go-sdk/services/serverless/apigateway/v1"
 )
 
 const apiGatewayResource = "yandex_api_gateway.test-api-gateway"
@@ -48,7 +49,9 @@ func testSweepAPIGateway(_ string) error {
 	}
 
 	req := &apigateway.ListApiGatewayRequest{FolderId: conf.FolderID}
-	it := conf.sdk.Serverless().APIGateway().ApiGateway().ApiGatewayIterator(conf.Context(), req)
+	client := apigatewaysdk.NewApiGatewayClient(conf.SDK)
+
+	it := client.Iterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -68,10 +71,12 @@ func sweepAPIGatewayOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexApiGatewayDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Serverless().APIGateway().ApiGateway().Delete(ctx, &apigateway.DeleteApiGatewayRequest{
+	client := apigatewaysdk.NewApiGatewayClient(conf.SDK)
+
+	op, err := client.Delete(ctx, &apigateway.DeleteApiGatewayRequest{
 		ApiGatewayId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	return handleSweepOperationV2(ctx, op, err)
 }
 
 func TestAccYandexAPIGateway_basic(t *testing.T) {
@@ -165,9 +170,9 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testYandexAPIGatewayDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexAPIGatewayDestroy,
 		Steps: []resource.TestStep{
 			testConfigFunc(params),
 			testConfigFunc(paramsUpdated),
@@ -595,9 +600,9 @@ func TestAccYandexAPIGateway_logOptions(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testYandexAPIGatewayDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testYandexAPIGatewayDestroy,
 		Steps: []resource.TestStep{
 			applyAPIGatewayNoLogOptions,
 			applyAPIGatewayLogOptionsDisabled,
@@ -675,7 +680,9 @@ func testGetAPIGatewayByID(config *Config, ID string) (*apigateway.ApiGateway, e
 		ApiGatewayId: ID,
 	}
 
-	return config.sdk.Serverless().APIGateway().ApiGateway().Get(context.Background(), &req)
+	client := apigatewaysdk.NewApiGatewayClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
 }
 
 func testYandexAPIGatewayContainsLabel(apiGateway *apigateway.ApiGateway, key string, value string) resource.TestCheckFunc {

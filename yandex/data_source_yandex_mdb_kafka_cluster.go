@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -173,13 +174,24 @@ func dataSourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{
 	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.KafkaClusterResolver)
+		folderID, err := getFolderID(d, config)
 		if err != nil {
+			return err
+		}
+		name := d.Get("name").(string)
+		resolver := sdkresolversv2.NewBaseNameResolver(name, "cluster", sdkresolversv2.FolderID(folderID))
+		resp, err := kafkasdk.NewClusterClient(config.SDK).List(ctx, &kafka.ListClustersRequest{
+			FolderId: folderID,
+			Filter:   sdkresolversv2.CreateResolverFilter("name", name),
+			PageSize: sdkresolversv2.DefaultResolverPageSize,
+		})
+		if err := resolver.FindName(resp.GetClusters(), err); err != nil {
 			return fmt.Errorf("failed to resolve data source Kafka Cluster by name: %v", err)
 		}
+		clusterID = resolver.ID()
 	}
 
-	cluster, err := config.sdk.MDB().Kafka().Cluster().Get(ctx, &kafka.GetClusterRequest{
+	cluster, err := kafkasdk.NewClusterClient(config.SDK).Get(ctx, &kafka.GetClusterRequest{
 		ClusterId: clusterID,
 	})
 	if err != nil {

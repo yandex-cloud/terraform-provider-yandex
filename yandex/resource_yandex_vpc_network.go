@@ -10,6 +10,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -114,30 +115,19 @@ func resourceYandexVPCNetworkCreate(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Network().Create(ctx, &req))
+	client := vpcsdk.NewNetworkClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create network: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get network create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*vpc.CreateNetworkMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Network ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.NetworkId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create network: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Network creation failed: %s", err)
 	}
 
 	return resourceYandexVPCNetworkRead(d, meta)
@@ -153,7 +143,9 @@ func yandexVPCNetworkRead(d *schema.ResourceData, meta interface{}, id string) e
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	network, err := config.sdk.VPC().Network().Get(ctx, &vpc.GetNetworkRequest{
+	client := vpcsdk.NewNetworkClient(config.SDK)
+
+	network, err := client.Get(ctx, &vpc.GetNetworkRequest{
 		NetworkId: id,
 	})
 
@@ -161,7 +153,7 @@ func yandexVPCNetworkRead(d *schema.ResourceData, meta interface{}, id string) e
 		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", d.Get("name").(string)))
 	}
 
-	subnets, err := config.sdk.VPC().Network().ListSubnets(ctx, &vpc.ListNetworkSubnetsRequest{
+	subnets, err := client.ListSubnets(ctx, &vpc.ListNetworkSubnetsRequest{
 		NetworkId: id,
 	})
 
@@ -219,12 +211,14 @@ func resourceYandexVPCNetworkUpdate(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Network().Update(ctx, req))
+	client := vpcsdk.NewNetworkClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Network %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Network %q: %s", d.Id(), err)
 	}
@@ -246,17 +240,14 @@ func resourceYandexVPCNetworkDelete(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.VPC().Network().Delete(ctx, req))
+	client := vpcsdk.NewNetworkClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

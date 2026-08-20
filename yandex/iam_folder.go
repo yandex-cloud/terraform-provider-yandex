@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
 )
 
 const yandexResourceManagerFolderUpdateAccessBindingsBatchSize = 1000
@@ -59,12 +60,14 @@ func (u *FolderIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Pol
 	ctx, cancel := context.WithTimeout(ctx, yandexResourceManagerFolderDefaultTimeout)
 	defer cancel()
 
-	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Folder().SetAccessBindings(ctx, req))
+	client := resourcemanagersdk.NewFolderClient(u.Config.SDK)
+
+	op, err := client.SetAccessBindings(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
@@ -83,7 +86,9 @@ func (u *FolderIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *
 			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
-		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Folder().UpdateAccessBindings(ctx, req))
+		client := resourcemanagersdk.NewFolderClient(u.Config.SDK)
+
+		op, err := client.UpdateAccessBindings(ctx, req)
 		if err != nil {
 			if reqID, ok := isRequestIDPresent(err); ok {
 				log.Printf("[DEBUG] request ID is %s\n", reqID)
@@ -91,7 +96,7 @@ func (u *FolderIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
 
-		err = op.Wait(ctx)
+		_, err = op.Wait(ctx)
 		if err != nil {
 			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
 		}
@@ -113,11 +118,13 @@ func (u *FolderIamUpdater) DescribeResource() string {
 }
 
 func getFolderAccessBindings(ctx context.Context, config *Config, folderID string) ([]*access.AccessBinding, error) {
+	client := resourcemanagersdk.NewFolderClient(config.SDK)
+
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.ResourceManager().Folder().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+		resp, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: folderID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

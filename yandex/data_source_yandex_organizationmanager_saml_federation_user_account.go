@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/saml"
+	samlsdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/saml"
 )
 
 func dataSourceYandexOrganizationManagerSamlFederationUserAccount() *schema.Resource {
@@ -31,6 +32,7 @@ func dataSourceYandexOrganizationManagerSamlFederationUserAccount() *schema.Reso
 
 func dataSourceYandexOrganizationManagerSamlFederationUserAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	client := samlsdk.NewFederationClient(config.SDK)
 
 	federationID := d.Get("federation_id").(string)
 	nameID := d.Get("name_id").(string)
@@ -39,7 +41,7 @@ func dataSourceYandexOrganizationManagerSamlFederationUserAccountRead(d *schema.
 		Filter:       fmt.Sprintf("name_id=%q", nameID),
 	}
 
-	listResp, err := config.sdk.OrganizationManagerSAML().Federation().ListUserAccounts(
+	listResp, err := client.ListUserAccounts(
 		config.Context(),
 		req,
 	)

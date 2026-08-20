@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -133,30 +134,19 @@ func resourceYandexALBTargetGroupCreate(d *schema.ResourceData, meta interface{}
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().TargetGroup().Create(ctx, &req))
+	client := albsdk.NewTargetGroupClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Application Target Group: %w", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get Application Target Group create operation metadata: %w", err)
-	}
-
-	md, ok := protoMetadata.(*apploadbalancer.CreateTargetGroupMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Application Target Group ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.TargetGroupId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create Application Target Group: %w", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Application Target Group creation failed: %w", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Application Target Group %q", d.Id())
@@ -171,7 +161,9 @@ func resourceYandexALBTargetGroupRead(d *schema.ResourceData, meta interface{}) 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	tg, err := config.sdk.ApplicationLoadBalancer().TargetGroup().Get(ctx, &apploadbalancer.GetTargetGroupRequest{
+	client := albsdk.NewTargetGroupClient(config.SDK)
+
+	tg, err := client.Get(ctx, &apploadbalancer.GetTargetGroupRequest{
 		TargetGroupId: d.Id(),
 	})
 
@@ -220,12 +212,14 @@ func resourceYandexALBTargetGroupUpdate(d *schema.ResourceData, meta interface{}
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().TargetGroup().Update(ctx, req))
+	client := albsdk.NewTargetGroupClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Application Target Group %q: %w", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Application Target Group %q: %w", d.Id(), err)
 	}
@@ -246,17 +240,14 @@ func resourceYandexALBTargetGroupDelete(d *schema.ResourceData, meta interface{}
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().TargetGroup().Delete(ctx, req))
+	client := albsdk.NewTargetGroupClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Application Target Group %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	backupsdk "github.com/yandex-cloud/go-sdk/services/backup/v1"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
@@ -381,7 +382,9 @@ func dataSourceYandexBackupPolicyRead(ctx context.Context, d *schema.ResourceDat
 		policy, err = getPolicyByName(ctx, config, resourceName)
 	} else {
 		resourceName = d.Get("policy_id").(string)
-		policy, err = config.sdk.Backup().Policy().Get(ctx, &backuppb.GetPolicyRequest{
+		client := backupsdk.NewPolicyClient(config.SDK)
+
+		policy, err = client.Get(ctx, &backuppb.GetPolicyRequest{
 			PolicyId: policyID,
 		})
 	}

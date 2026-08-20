@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	containerregistrysdk "github.com/yandex-cloud/go-sdk/services/containerregistry/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -44,14 +45,14 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 						resource.TestCheckResourceAttrSet(ipPermissionResourceName, "id"),
 						resource.TestCheckTypeSetElemAttr(ipPermissionResourceName, "push.*", push[0]),
 						resource.TestCheckResourceAttr(ipPermissionResourceName, "push.#", fmt.Sprint(len(push))),
-						resource.TestCheckNoResourceAttr(ipPermissionResourceName, "pull"),
+						resource.TestCheckResourceAttr(ipPermissionResourceName, "pull.#", "0"),
 					),
 				},
 				{
 					Config: getAccResourceContainerRegistryIPPermissionConfig(registryName, nil, pull),
 					Check: resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttrSet(ipPermissionResourceName, "id"),
-						resource.TestCheckNoResourceAttr(ipPermissionResourceName, "push"),
+						resource.TestCheckResourceAttr(ipPermissionResourceName, "push.#", "0"),
 						resource.TestCheckTypeSetElemAttr(ipPermissionResourceName, "pull.*", pull[0]),
 						resource.TestCheckResourceAttr(ipPermissionResourceName, "pull.#", fmt.Sprint(len(pull))),
 					),
@@ -80,7 +81,7 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 					Config: getAccResourceContainerRegistryIPPermissionConfig(registryName, nil, pull),
 					Check: resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttrSet(ipPermissionResourceName, "id"),
-						resource.TestCheckNoResourceAttr(ipPermissionResourceName, "push"),
+						resource.TestCheckResourceAttr(ipPermissionResourceName, "push.#", "0"),
 						resource.TestCheckTypeSetElemAttr(ipPermissionResourceName, "pull.*", pull[0]),
 						resource.TestCheckResourceAttr(ipPermissionResourceName, "pull.#", fmt.Sprint(len(pull))),
 					),
@@ -91,7 +92,7 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 						resource.TestCheckResourceAttrSet(ipPermissionResourceName, "id"),
 						resource.TestCheckTypeSetElemAttr(ipPermissionResourceName, "push.*", push[0]),
 						resource.TestCheckResourceAttr(ipPermissionResourceName, "push.#", fmt.Sprint(len(push))),
-						resource.TestCheckNoResourceAttr(ipPermissionResourceName, "pull"),
+						resource.TestCheckResourceAttr(ipPermissionResourceName, "pull.#", "0"),
 					),
 				},
 			},
@@ -120,7 +121,7 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 						resource.TestCheckResourceAttrSet(ipPermissionResourceName, "id"),
 						resource.TestCheckTypeSetElemAttr(ipPermissionResourceName, "push.*", push[0]),
 						resource.TestCheckResourceAttr(ipPermissionResourceName, "push.#", fmt.Sprint(len(push))),
-						resource.TestCheckNoResourceAttr(ipPermissionResourceName, "pull"),
+						resource.TestCheckResourceAttr(ipPermissionResourceName, "pull.#", "0"),
 					),
 				},
 				{
@@ -157,7 +158,7 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 					Config: getAccResourceContainerRegistryIPPermissionConfig(registryName, nil, pull),
 					Check: resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttrSet(ipPermissionResourceName, "id"),
-						resource.TestCheckNoResourceAttr(ipPermissionResourceName, "push"),
+						resource.TestCheckResourceAttr(ipPermissionResourceName, "push.#", "0"),
 						resource.TestCheckTypeSetElemAttr(ipPermissionResourceName, "pull.*", pull[0]),
 						resource.TestCheckResourceAttr(ipPermissionResourceName, "pull.#", fmt.Sprint(len(pull))),
 					),
@@ -208,7 +209,7 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 						resource.TestCheckResourceAttrSet(ipPermissionResourceName, "id"),
 						resource.TestCheckTypeSetElemAttr(ipPermissionResourceName, "push.*", push[0]),
 						resource.TestCheckResourceAttr(ipPermissionResourceName, "push.#", fmt.Sprint(len(push))),
-						resource.TestCheckNoResourceAttr(ipPermissionResourceName, "pull"),
+						resource.TestCheckResourceAttr(ipPermissionResourceName, "pull.#", "0"),
 					),
 				},
 			},
@@ -245,7 +246,7 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 					Config: getAccResourceContainerRegistryIPPermissionConfig(registryName, nil, pull),
 					Check: resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttrSet(ipPermissionResourceName, "id"),
-						resource.TestCheckNoResourceAttr(ipPermissionResourceName, "push"),
+						resource.TestCheckResourceAttr(ipPermissionResourceName, "push.#", "0"),
 						resource.TestCheckTypeSetElemAttr(ipPermissionResourceName, "pull.*", pull[0]),
 						resource.TestCheckResourceAttr(ipPermissionResourceName, "pull.#", fmt.Sprint(len(pull))),
 					),
@@ -306,18 +307,18 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 
 func testAccCheckContainerRegistryIPPermissionDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	client := containerregistrysdk.NewRegistryClient(config.SDK)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_container_registry_ip_permission" {
 			continue
 		}
 
-		containerRegistryService := config.sdk.ContainerRegistry().Registry()
 		listIPPermissionRequest := &containerregistry.ListIpPermissionRequest{
 			// TODO: SA1024: cutset contains duplicate characters (staticcheck)
 			RegistryId: strings.TrimRight(rs.Primary.ID, containerRegistryIPPermissionIDSuffix),
 		}
-		_, err := containerRegistryService.ListIpPermission(context.Background(), listIPPermissionRequest)
+		_, err := client.ListIpPermission(context.Background(), listIPPermissionRequest)
 		if err != nil {
 			if grpcStatus, ok := status.FromError(err); ok && grpcStatus != nil && grpcStatus.Code() == codes.NotFound {
 				return nil

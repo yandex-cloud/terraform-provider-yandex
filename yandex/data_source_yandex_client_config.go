@@ -41,12 +41,11 @@ func dataSourceYandexClientConfigRead(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 	ctx := config.Context()
 
-	response, err := config.sdk.CreateIAMToken(ctx)
+	iamToken, err := config.getIAMToken(ctx)
 	if err != nil {
 		return err
 	}
 
-	iamToken := response.GetIamToken()
 	d.Set("cloud_id", config.CloudID)
 	d.Set("folder_id", config.FolderID)
 	d.Set("zone", config.Zone)

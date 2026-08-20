@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	ycsdk "github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
@@ -85,14 +85,14 @@ func (a *airflowClusterResource) Create(ctx context.Context, req resource.Create
 	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
-	clusterID, d := CreateCluster(ctx, a.providerConfig.SDK, &resp.Diagnostics, createClusterRequest)
+	clusterID, d := CreateCluster(ctx, a.providerConfig.SDKv2, &resp.Diagnostics, createClusterRequest)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	plan.Id = types.StringValue(clusterID)
-	diags = updateState(ctx, a.providerConfig.SDK, &plan)
+	diags = updateState(ctx, a.providerConfig.SDKv2, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -124,7 +124,7 @@ func (a *airflowClusterResource) Delete(ctx context.Context, req resource.Delete
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
-	d := DeleteCluster(ctx, a.providerConfig.SDK, clusterID)
+	d := DeleteCluster(ctx, a.providerConfig.SDKv2, clusterID)
 	resp.Diagnostics.Append(d)
 
 	tflog.Debug(ctx, "Finished deleting Airflow cluster", clusterIDLogField(clusterID))
@@ -141,7 +141,7 @@ func (a *airflowClusterResource) Read(ctx context.Context, req resource.ReadRequ
 
 	clusterID := state.Id.ValueString()
 	tflog.Debug(ctx, "Reading Airflow cluster", clusterIDLogField(clusterID))
-	cluster, d := GetClusterByID(ctx, a.providerConfig.SDK, clusterID)
+	cluster, d := GetClusterByID(ctx, a.providerConfig.SDKv2, clusterID)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
@@ -193,13 +193,13 @@ func (a *airflowClusterResource) Update(ctx context.Context, req resource.Update
 	}
 	tflog.Debug(ctx, fmt.Sprintf("Update Airflow cluster request: %+v", updateReq))
 
-	d := UpdateCluster(ctx, a.providerConfig.SDK, updateReq)
+	d := UpdateCluster(ctx, a.providerConfig.SDKv2, updateReq)
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	diags = updateState(ctx, a.providerConfig.SDK, &plan)
+	diags = updateState(ctx, a.providerConfig.SDKv2, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

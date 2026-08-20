@@ -2,7 +2,7 @@ package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -155,7 +155,7 @@ func dataSourceYandexVPCAddressRead(d *schema.ResourceData, meta interface{}) er
 	_, nameOk := d.GetOk("name")
 
 	if nameOk {
-		addressID, err = resolveObjectID(config.Context(), config, d, sdkresolvers.AddressResolver)
+		addressID, err = resolveObjectIDV2(config.Context(), config, d, resolverWithClient(vpcsdk.NewAddressClient(config.SDK), vpcsdk.AddressResolver))
 		if err != nil {
 			return addressError("failed to resolve data source address by name: %v", err)
 		}

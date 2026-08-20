@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/require"
 	afv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/airflow/v1"
+	airflowsdk "github.com/yandex-cloud/go-sdk/services/airflow/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
@@ -93,6 +94,7 @@ type airflowClusterConfigParams struct {
 	DeletionProtection bool
 	AdditionalParams   bool
 	AirflowVersion     string
+	PythonVersion      string
 	ResourceName       string
 }
 
@@ -205,6 +207,9 @@ resource "yandex_airflow_cluster" {{ .ResourceName }} {
   {{ if .AirflowVersion }}
   airflow_version = "{{ .AirflowVersion }}"
   {{ end }}
+  {{ if .PythonVersion }}
+  python_version = "{{ .PythonVersion }}"
+  {{ end }}
   depends_on = [
     yandex_resourcemanager_folder_iam_member.airflow-sa-bindings-{{ .RandSuffix }}
   ]
@@ -217,14 +222,14 @@ resource "yandex_airflow_cluster" {{ .ResourceName }} {
 }
 
 func testAccCheckAirflowClusterDestroy(s *terraform.State) error {
-	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
+	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != airflowResourceType {
 			continue
 		}
 
-		_, err := sdk.Airflow().Cluster().Get(context.Background(), &afv1.GetClusterRequest{
+		_, err := airflowsdk.NewClusterClient(sdk).Get(context.Background(), &afv1.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -256,8 +261,8 @@ func testAccCheckAirflowExists(name string, cluster *afv1.Cluster) resource.Test
 			return fmt.Errorf("ID is not set")
 		}
 
-		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
-		found, err := sdk.Airflow().Cluster().Get(context.Background(), &afv1.GetClusterRequest{
+		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
+		found, err := airflowsdk.NewClusterClient(sdk).Get(context.Background(), &afv1.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -310,6 +315,7 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 						ResourcePresetID: "c1-m4",
 					},
 					AirflowVersion: "3.1",
+					PythonVersion:  "3.12",
 					ResourceName:   "airflow_cluster3",
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -374,6 +380,7 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 					DeletionProtection: true,
 					AdditionalParams:   true,
 					AirflowVersion:     "3.1",
+					PythonVersion:      "3.12",
 					ResourceName:       "airflow_cluster3",
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -448,6 +455,7 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 					},
 					DeletionProtection: false,
 					AirflowVersion:     "3.1",
+					PythonVersion:      "3.12",
 					ResourceName:       "airflow_cluster3",
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -480,7 +488,7 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 	})
 }
 
-func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
+func TestAccMDBAirflowCluster_basic(t *testing.T) {
 	t.Parallel()
 
 	randSuffix := fmt.Sprintf("%d", acctest.RandInt())
@@ -504,12 +512,17 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 						Count:            1,
 						ResourcePresetID: "c1-m4",
 					},
+					DagProcessor: &airflowComponentParams{
+						Count:            1,
+						ResourcePresetID: "c1-m4",
+					},
 					Worker: airflowWorkerParams{
 						MinCount:         1,
 						MaxCount:         1,
 						ResourcePresetID: "c1-m4",
 					},
-					AirflowVersion: "2.10",
+					AirflowVersion: "3.1",
+					PythonVersion:  "3.12",
 					ResourceName:   "airflow_cluster2",
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -528,7 +541,8 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "webserver.resource_preset_id", "c1-m4"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "scheduler.count", "1"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "scheduler.resource_preset_id", "c1-m4"),
-					resource.TestCheckNoResourceAttr("yandex_airflow_cluster.airflow_cluster2", "dag_processor"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "dag_processor.count", "1"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "dag_processor.resource_preset_id", "c1-m4"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "worker.min_count", "1"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "worker.max_count", "1"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "worker.resource_preset_id", "c1-m4"),
@@ -546,6 +560,10 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 						ResourcePresetID: "c1-m2",
 					},
 					Scheduler: airflowComponentParams{
+						Count:            2,
+						ResourcePresetID: "c1-m2",
+					},
+					DagProcessor: &airflowComponentParams{
 						Count:            2,
 						ResourcePresetID: "c1-m2",
 					},
@@ -568,7 +586,8 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 					},
 					DeletionProtection: true,
 					AdditionalParams:   true,
-					AirflowVersion:     "2.10",
+					AirflowVersion:     "3.1",
+					PythonVersion:      "3.12",
 					ResourceName:       "airflow_cluster2",
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -587,7 +606,8 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "webserver.resource_preset_id", "c1-m2"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "scheduler.count", "2"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "scheduler.resource_preset_id", "c1-m2"),
-					resource.TestCheckNoResourceAttr("yandex_airflow_cluster.airflow_cluster2", "dag_processor"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "dag_processor.count", "2"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "dag_processor.resource_preset_id", "c1-m2"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "worker.min_count", "2"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "worker.max_count", "2"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "worker.resource_preset_id", "c1-m2"),
@@ -628,6 +648,10 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 						Count:            1,
 						ResourcePresetID: "c1-m4",
 					},
+					DagProcessor: &airflowComponentParams{
+						Count:            1,
+						ResourcePresetID: "c1-m4",
+					},
 					Worker: airflowWorkerParams{
 						MinCount:         1,
 						MaxCount:         1,
@@ -637,7 +661,8 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 						Type: "ANYTIME",
 					},
 					DeletionProtection: false,
-					AirflowVersion:     "2.10",
+					AirflowVersion:     "3.1",
+					PythonVersion:      "3.12",
 					ResourceName:       "airflow_cluster2",
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -656,7 +681,8 @@ func TestAccMDBAirflow2Cluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "webserver.resource_preset_id", "c1-m4"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "scheduler.count", "1"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "scheduler.resource_preset_id", "c1-m4"),
-					resource.TestCheckNoResourceAttr("yandex_airflow_cluster.airflow_cluster2", "dag_processor"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "dag_processor.count", "1"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "dag_processor.resource_preset_id", "c1-m4"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "worker.min_count", "1"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "worker.max_count", "1"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "worker.resource_preset_id", "c1-m4"),

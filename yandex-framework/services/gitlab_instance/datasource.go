@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/gitlab/v1"
+	gitlabsdk "github.com/yandex-cloud/go-sdk/services/gitlab/v1"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
@@ -174,7 +175,7 @@ func (d *gitlabInstanceDatasource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	instance, err := d.providerConfig.SDK.Gitlab().Instance().Get(
+	instance, err := gitlabsdk.NewInstanceClient(d.providerConfig.SDKv2).Get(
 		ctx,
 		&gitlab.GetInstanceRequest{
 			InstanceId: state.Id.ValueString(),
@@ -192,7 +193,7 @@ func (d *gitlabInstanceDatasource) Read(ctx context.Context, req datasource.Read
 	}
 
 	state.Id = types.StringValue(instance.Id)
-	updateState(ctx, d.providerConfig.SDK, &state)
+	updateState(ctx, d.providerConfig.SDKv2, &state)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

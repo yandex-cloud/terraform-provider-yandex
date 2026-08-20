@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 )
 
 // ==============================================================================
@@ -16,7 +17,7 @@ func listPGDatabases(ctx context.Context, config *Config, clusterId string) ([]*
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.MDB().PostgreSQL().Database().List(ctx, &postgresql.ListDatabasesRequest{
+		resp, err := postgresqlsdk.NewDatabaseClient(config.SDK).List(ctx, &postgresql.ListDatabasesRequest{
 			ClusterId: clusterId,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,

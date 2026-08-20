@@ -15,7 +15,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk/operation"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -774,30 +774,17 @@ func resourceYandexComputeInstanceCreate(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Create(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).Create(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create instance: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get instance create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*compute.CreateInstanceMetadata)
-	if !ok {
-		return fmt.Errorf("could not get Instance ID from create operation metadata")
-	}
-
+	md := op.Metadata()
 	d.SetId(md.InstanceId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create instance: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Instance creation failed: %s", err)
 	}
 
 	return resourceYandexComputeInstanceRead(d, meta)
@@ -809,7 +796,7 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
+	instance, err := computesdk.NewInstanceClient(config.SDK).Get(ctx, &compute.GetInstanceRequest{
 		InstanceId: d.Id(),
 		View:       compute.InstanceView_FULL,
 	})
@@ -823,7 +810,7 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	bootDisk, err := flattenInstanceBootDisk(ctx, instance, config.sdk.Compute().Disk())
+	bootDisk, err := flattenInstanceBootDisk(ctx, instance, computesdk.NewDiskClient(config.SDK))
 	if err != nil {
 		return err
 	}
@@ -962,7 +949,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 	ctx := config.Context()
 
-	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
+	instance, err := computesdk.NewInstanceClient(config.SDK).Get(ctx, &compute.GetInstanceRequest{
 		InstanceId: d.Id(),
 	})
 
@@ -1529,17 +1516,12 @@ func resourceYandexComputeInstanceDelete(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Delete(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).Delete(ctx, req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance %q", d.Get("name").(string)))
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = op.Response()
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
@@ -1772,12 +1754,12 @@ func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.Res
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Update(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).Update(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Instance %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
 	}
@@ -1791,12 +1773,12 @@ func makeInstanceUpdateNetworkInterfaceRequest(req *compute.UpdateInstanceNetwor
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().UpdateNetworkInterface(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).UpdateNetworkInterface(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update network interface for Instance %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
 	}
@@ -1810,12 +1792,12 @@ func makeInstanceAddOneToOneNatRequest(req *compute.AddInstanceOneToOneNatReques
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().AddOneToOneNat(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).AddOneToOneNat(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to add one-to-one nat for Instance %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
 	}
@@ -1829,12 +1811,12 @@ func makeInstanceRemoveOneToOneNatRequest(req *compute.RemoveInstanceOneToOneNat
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().RemoveOneToOneNat(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).RemoveOneToOneNat(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to remove one-to-one nat for Instance %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
 	}
@@ -1848,12 +1830,12 @@ func makeInstanceAttachNetworkInterfaceRequest(req *compute.AttachInstanceNetwor
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().AttachNetworkInterface(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).AttachNetworkInterface(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to attach network interface to the Instance %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
 	}
@@ -1867,12 +1849,12 @@ func makeInstanceDetachNetworkInterfaceRequest(req *compute.DetachInstanceNetwor
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().DetachNetworkInterface(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).DetachNetworkInterface(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to detach network interface from the Instance %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
 	}
@@ -1887,25 +1869,23 @@ func makeInstanceActionRequest(action instanceAction, d *schema.ResourceData, me
 	defer cancel()
 
 	instanceID := d.Id()
-	var err error
-	var op *operation.Operation
-
 	log.Printf("[DEBUG] Prepare to run %s action on instance %s", action, instanceID)
 
+	var err error
 	switch action {
 	case instanceActionStop:
-		{
-			op, err = config.sdk.WrapOperation(config.sdk.Compute().Instance().
-				Stop(ctx, &compute.StopInstanceRequest{
-					InstanceId: instanceID,
-				}))
+		op, requestErr := computesdk.NewInstanceClient(config.SDK).Stop(ctx, &compute.StopInstanceRequest{InstanceId: instanceID})
+		if requestErr == nil {
+			_, err = op.Wait(ctx)
+		} else {
+			err = requestErr
 		}
 	case instanceActionStart:
-		{
-			op, err = config.sdk.WrapOperation(config.sdk.Compute().Instance().
-				Start(ctx, &compute.StartInstanceRequest{
-					InstanceId: instanceID,
-				}))
+		op, requestErr := computesdk.NewInstanceClient(config.SDK).Start(ctx, &compute.StartInstanceRequest{InstanceId: instanceID})
+		if requestErr == nil {
+			_, err = op.Wait(ctx)
+		} else {
+			err = requestErr
 		}
 	default:
 		return fmt.Errorf("Action %s not supported", action)
@@ -1914,12 +1894,6 @@ func makeInstanceActionRequest(action instanceAction, d *schema.ResourceData, me
 	if err != nil {
 		log.Printf("[DEBUG] Error while run %s action on instance %s: %s", action, instanceID, err)
 		return fmt.Errorf("Error while run %s action on Instance %s: %s", action, instanceID, err)
-	}
-
-	err = op.Wait(ctx)
-	if err != nil {
-		log.Printf("[DEBUG] Error while wait %s action on instance %s: %s", action, instanceID, err)
-		return fmt.Errorf("Error while wait %s action on Instance %s: %s", action, instanceID, err)
 	}
 
 	return nil
@@ -1931,12 +1905,12 @@ func makeDetachDiskRequest(req *compute.DetachInstanceDiskRequest, meta interfac
 	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeInstanceDiskOperationTimeout)
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().DetachDisk(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).DetachDisk(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to detach Disk %s from Instance %q: %s", req.GetDiskId(), req.GetInstanceId(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error detach Disk %s from Instance %q: %s", req.GetDiskId(), req.GetInstanceId(), err)
 	}
@@ -1950,12 +1924,12 @@ func makeAttachDiskRequest(req *compute.AttachInstanceDiskRequest, meta interfac
 	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeInstanceDiskOperationTimeout)
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().AttachDisk(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).AttachDisk(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to attach Disk %s to Instance %q: %s", req.AttachedDiskSpec.GetDiskId(), req.GetInstanceId(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error attach Disk %s to Instance %q: %s", req.AttachedDiskSpec.GetDiskId(), req.GetInstanceId(), err)
 	}
@@ -1969,13 +1943,13 @@ func makeDetachFilesystemRequest(req *compute.DetachInstanceFilesystemRequest, m
 	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeInstanceDefaultTimeout)
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().DetachFilesystem(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).DetachFilesystem(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to detach Filesystem %s from Instance %q: %s",
 			req.GetFilesystemId(), req.GetInstanceId(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error detach Filesystem %s from Instance %q: %s",
 			req.GetFilesystemId(), req.GetInstanceId(), err)
@@ -1990,13 +1964,13 @@ func makeAttachFilesystemRequest(req *compute.AttachInstanceFilesystemRequest, m
 	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeInstanceDefaultTimeout)
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().AttachFilesystem(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).AttachFilesystem(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to attach Filesystem %s to Instance %q: %s",
 			req.AttachedFilesystemSpec.GetFilesystemId(), req.GetInstanceId(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error attach Filesystem %s to Instance %q: %s",
 			req.AttachedFilesystemSpec.GetFilesystemId(), req.GetInstanceId(), err)
@@ -2011,12 +1985,12 @@ func makeInstanceMoveRequest(req *compute.MoveInstanceRequest, d *schema.Resourc
 	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeInstanceMoveTimeout)
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Move(ctx, req))
+	op, err := computesdk.NewInstanceClient(config.SDK).Move(ctx, req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to move Instance %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error moving Instance %q: %s", d.Id(), err)
 	}

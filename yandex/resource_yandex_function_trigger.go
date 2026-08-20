@@ -12,6 +12,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
+	triggerssdk "github.com/yandex-cloud/go-sdk/services/serverless/triggers/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
@@ -1087,24 +1088,21 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		Rule:        rule,
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Serverless().Triggers().Trigger().Create(ctx, &req))
+	client := triggerssdk.NewTriggerClient(config.SDK)
+
+	op, err := client.Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Yandex Cloud Functions Trigger: %s", err)
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Yandex Cloud Function Trigger: %s", err)
-	}
-
-	md, ok := protoMetadata.(*triggers.CreateTriggerMetadata)
-	if !ok {
+	md := op.Metadata()
+	if md == nil {
 		return fmt.Errorf("Could not get Yandex Cloud Functions Trigger ID from create operation metadata")
 	}
 
 	d.SetId(md.TriggerId)
 
-	err = op.Wait(ctx)
+	_, err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Yandex Cloud Functions Trigger: %s", err)
 	}
@@ -1137,8 +1135,12 @@ func resourceYandexFunctionTriggerUpdate(d *schema.ResourceData, meta interface{
 		Rule:        rule,
 	}
 
-	op, err := config.sdk.Serverless().Triggers().Trigger().Update(ctx, &req)
-	err = waitOperation(ctx, config, op, err)
+	client := triggerssdk.NewTriggerClient(config.SDK)
+
+	op, err := client.Update(ctx, &req)
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Yandex Cloud Functions Trigger: %s", err)
 	}
@@ -1626,7 +1628,9 @@ func resourceYandexFunctionTriggerRead(d *schema.ResourceData, meta interface{})
 		TriggerId: d.Id(),
 	}
 
-	trig, err := config.sdk.Serverless().Triggers().Trigger().Get(ctx, &req)
+	client := triggerssdk.NewTriggerClient(config.SDK)
+
+	trig, err := client.Get(ctx, &req)
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Functions Trigger %q", d.Id()))
 	}
@@ -1644,8 +1648,12 @@ func resourceYandexFunctionTriggerDelete(d *schema.ResourceData, meta interface{
 		TriggerId: d.Id(),
 	}
 
-	op, err := config.sdk.Serverless().Triggers().Trigger().Delete(ctx, &req)
-	err = waitOperation(ctx, config, op, err)
+	client := triggerssdk.NewTriggerClient(config.SDK)
+
+	op, err := client.Delete(ctx, &req)
+	if err == nil {
+		_, err = op.Wait(ctx)
+	}
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Functions Trigger %q", d.Id()))
 	}

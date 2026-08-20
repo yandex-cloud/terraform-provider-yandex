@@ -9,10 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	ycsdk "github.com/yandex-cloud/go-sdk"
 	clickhousesdk "github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
-	ycsdkv2 "github.com/yandex-cloud/go-sdk/v2"
+	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -97,7 +95,7 @@ func redactClickHouseConfigSpecPasswords(configSpec *clickhouse.ConfigSpec) {
 func (c *ClickHouseAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string) *clickhouse.Cluster {
 	tflog.Debug(ctx, "Reading ClickHouse Cluster", map[string]any{"cluster_id": cid})
 
-	cluster, err := sdk.MDB().Clickhouse().Cluster().Get(ctx, &clickhouse.GetClusterRequest{
+	cluster, err := clickhousesdk.NewClusterClient(sdk).Get(ctx, &clickhouse.GetClusterRequest{
 		ClusterId: cid,
 	})
 
@@ -115,9 +113,9 @@ func (c *ClickHouseAPI) GetCluster(ctx context.Context, sdk *ycsdk.SDK, diag *di
 func (c *ClickHouseAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) {
 	tflog.Debug(ctx, "Deleting ClickHouse Cluster", map[string]any{"cluster_id": cid})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Delete(ctx, &clickhouse.DeleteClusterRequest{
+	op, err := clickhousesdk.NewClusterClient(sdk).Delete(ctx, &clickhouse.DeleteClusterRequest{
 		ClusterId: cid,
-	}))
+	})
 
 	if err != nil {
 		diags.AddError(
@@ -127,10 +125,10 @@ func (c *ClickHouseAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete resource",
-			fmt.Sprintf("Error while waiting for operation %q to delete ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete ClickHouse cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 	}
 }
@@ -138,7 +136,7 @@ func (c *ClickHouseAPI) DeleteCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 func (c *ClickHouseAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateClusterRequest) string {
 	tflog.Debug(ctx, "Creating ClickHouse Cluster", map[string]any{"request": redactClickHouseCreateClusterRequest(req)})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Create(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(sdk).Create(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to create resource",
@@ -147,28 +145,12 @@ func (c *ClickHouseAPI) CreateCluster(ctx context.Context, sdk *ycsdk.SDK, diags
 		return ""
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
-		)
-		return ""
-	}
+	md := op.Metadata()
 
-	md, ok := protoMetadata.(*clickhouse.CreateClusterMetadata)
-	if !ok {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
-		)
-		return ""
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse cluster: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse cluster: %s", op.ID(), err.Error()),
 		)
 		return ""
 	}
@@ -183,7 +165,7 @@ func (c *ClickHouseAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag 
 		return
 	}
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Update(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(sdk).Update(ctx, req)
 	if err != nil {
 		diag.AddError(
 			"Failed to update resource",
@@ -192,10 +174,10 @@ func (c *ClickHouseAPI) UpdateCluster(ctx context.Context, sdk *ycsdk.SDK, diag 
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to update resource",
-			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse cluster: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse cluster: %s", op.ID(), err.Error()),
 		)
 		return
 	}
@@ -208,7 +190,7 @@ func (c *ClickHouseAPI) MoveCluster(ctx context.Context, sdk *ycsdk.SDK, diag *d
 		return
 	}
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Move(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(sdk).Move(ctx, req)
 	if err != nil {
 		diag.AddError(
 			"Failed to move cluster",
@@ -217,10 +199,10 @@ func (c *ClickHouseAPI) MoveCluster(ctx context.Context, sdk *ycsdk.SDK, diag *d
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to move cluster",
-			fmt.Sprintf("Error while waiting for operation %q to move ClickHouse cluster: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to move ClickHouse cluster: %s", op.ID(), err.Error()),
 		)
 		return
 	}
@@ -233,7 +215,7 @@ func (c *ClickHouseAPI) ListHosts(ctx context.Context, sdk *ycsdk.SDK, diags *di
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().Clickhouse().Cluster().ListHosts(ctx, &clickhouse.ListClusterHostsRequest{
+		resp, err := clickhousesdk.NewClusterClient(sdk).ListHosts(ctx, &clickhouse.ListClusterHostsRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -281,7 +263,7 @@ func addCoordinator(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics
 
 	tflog.Debug(ctx, "Creating ClickHouse coordinator", map[string]any{"request": request})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().AddZookeeper(ctx, request))
+	op, err := clickhousesdk.NewClusterClient(sdk).AddZookeeper(ctx, request)
 	if err != nil {
 		diags.AddError(
 			"Failed to create resource",
@@ -290,10 +272,10 @@ func addCoordinator(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
-			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse coordinator: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse coordinator: %s", op.ID(), err.Error()),
 		)
 		return
 	}
@@ -301,7 +283,7 @@ func addCoordinator(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics
 
 func (c *ClickHouseAPI) MigrateToKeeper(
 	ctx context.Context,
-	sdk *ycsdkv2.SDK,
+	sdk *ycsdk.SDK,
 	diags *diag.Diagnostics,
 	request *clickhouse.MigrateClusterToKeeperRequest,
 ) {
@@ -364,7 +346,7 @@ func createHosts(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, c
 
 	tflog.Debug(ctx, "Creating ClickHouse hosts", map[string]any{"request": request})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().AddHosts(ctx, request))
+	op, err := clickhousesdk.NewClusterClient(sdk).AddHosts(ctx, request)
 	if err != nil {
 		diags.AddError(
 			"Failed to create hosts",
@@ -373,10 +355,10 @@ func createHosts(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, c
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create hosts",
-			fmt.Sprintf("Error while waiting for operation %q to create host ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create host ClickHouse cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 		return
 	}
@@ -390,9 +372,9 @@ func (c *ClickHouseAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diags *
 				spec,
 			},
 		}
-		op, err := retry.ConflictingOperation(ctx, sdk, func() (*operation.Operation, error) {
+		op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*clickhousesdk.ClusterUpdateHostsOperation, error) {
 			tflog.Debug(ctx, "Sending ClickHouse cluster update host request", map[string]any{"request": request})
-			return sdk.MDB().Clickhouse().Cluster().UpdateHosts(ctx, request)
+			return clickhousesdk.NewClusterClient(sdk).UpdateHosts(ctx, request)
 		})
 		if err != nil {
 			diags.AddError(
@@ -402,10 +384,10 @@ func (c *ClickHouseAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diags *
 			return
 		}
 
-		if err = op.Wait(ctx); err != nil {
+		if _, err = op.Wait(ctx); err != nil {
 			diags.AddError(
 				"Failed to update hosts",
-				fmt.Sprintf("Error while waiting for operation %q to update host ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+				fmt.Sprintf("Error while waiting for operation %q to update host ClickHouse cluster %q: %s", op.ID(), cid, err.Error()),
 			)
 			return
 		}
@@ -417,12 +399,11 @@ func (c *ClickHouseAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diags *
 		return
 	}
 
-	op, err := sdk.WrapOperation(
-		sdk.MDB().Clickhouse().Cluster().DeleteHosts(ctx, &clickhouse.DeleteClusterHostsRequest{
+	op, err :=
+		clickhousesdk.NewClusterClient(sdk).DeleteHosts(ctx, &clickhouse.DeleteClusterHostsRequest{
 			ClusterId: cid,
 			HostNames: fqdns,
-		}),
-	)
+		})
 	if err != nil {
 		diags.AddError(
 			"Failed to delete hosts",
@@ -431,10 +412,10 @@ func (c *ClickHouseAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diags *
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete hosts",
-			fmt.Sprintf("Error while waiting for operation %q to delete hosts ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete hosts ClickHouse cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 		return
 	}
@@ -445,7 +426,7 @@ func (c *ClickHouseAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, diags *
 func (c *ClickHouseAPI) GetShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid, shardName string) *clickhouse.Shard {
 	tflog.Debug(ctx, "Reading ClickHouse shard", map[string]any{"cluster_id": cid, "shard_name": shardName})
 
-	cluster, err := sdk.MDB().Clickhouse().Cluster().GetShard(ctx, &clickhouse.GetClusterShardRequest{
+	cluster, err := clickhousesdk.NewClusterClient(sdk).GetShard(ctx, &clickhouse.GetClusterShardRequest{
 		ClusterId: cid,
 		ShardName: shardName,
 	})
@@ -477,9 +458,8 @@ func (c *ClickHouseAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diags *
 		request.ConfigSpec = shardSpec
 	}
 
-	op, err := sdk.WrapOperation(
-		sdk.MDB().Clickhouse().Cluster().AddShard(ctx, request),
-	)
+	op, err :=
+		clickhousesdk.NewClusterClient(sdk).AddShard(ctx, request)
 	if err != nil {
 		diags.AddError(
 			"Failed to create shard",
@@ -488,10 +468,10 @@ func (c *ClickHouseAPI) CreateShard(ctx context.Context, sdk *ycsdk.SDK, diags *
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create shard",
-			fmt.Sprintf("Error while waiting for operation %q to create shard ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create shard ClickHouse cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 		return
 	}
@@ -523,9 +503,8 @@ func (c *ClickHouseAPI) CreateShards(ctx context.Context, sdk *ycsdk.SDK, diags 
 		CopySchema: &wrappers.BoolValue{Value: opts.CopySchema},
 	}
 
-	op, err := sdk.WrapOperation(
-		sdk.MDB().Clickhouse().Cluster().AddShards(ctx, request),
-	)
+	op, err :=
+		clickhousesdk.NewClusterClient(sdk).AddShards(ctx, request)
 	if err != nil {
 		diags.AddError(
 			"Failed to create shards",
@@ -534,10 +513,10 @@ func (c *ClickHouseAPI) CreateShards(ctx context.Context, sdk *ycsdk.SDK, diags 
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create shards",
-			fmt.Sprintf("Error while waiting for operation %q to create shards ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create shards ClickHouse cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 		return
 	}
@@ -546,7 +525,7 @@ func (c *ClickHouseAPI) CreateShards(ctx context.Context, sdk *ycsdk.SDK, diags 
 func (c *ClickHouseAPI) UpdateShard(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *clickhouse.UpdateClusterShardRequest) {
 	tflog.Debug(ctx, "Updating ClickHouse shard", map[string]any{"request": req})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().UpdateShard(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(sdk).UpdateShard(ctx, req)
 	if err != nil {
 		diag.AddError(
 			"Failed to update resource",
@@ -555,22 +534,21 @@ func (c *ClickHouseAPI) UpdateShard(ctx context.Context, sdk *ycsdk.SDK, diag *d
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to update resource",
-			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse shard: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse shard: %s", op.ID(), err.Error()),
 		)
 		return
 	}
 }
 
 func (c *ClickHouseAPI) DeleteShard(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, shardName string) {
-	op, err := sdk.WrapOperation(
-		sdk.MDB().Clickhouse().Cluster().DeleteShard(ctx, &clickhouse.DeleteClusterShardRequest{
+	op, err :=
+		clickhousesdk.NewClusterClient(sdk).DeleteShard(ctx, &clickhouse.DeleteClusterShardRequest{
 			ClusterId: cid,
 			ShardName: shardName,
-		}),
-	)
+		})
 	if err != nil {
 		diags.AddError(
 			"Failed to delete shard",
@@ -579,22 +557,21 @@ func (c *ClickHouseAPI) DeleteShard(ctx context.Context, sdk *ycsdk.SDK, diags *
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete shard",
-			fmt.Sprintf("Error while waiting for operation %q to delete shard ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete shard ClickHouse cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 		return
 	}
 }
 
 func (c *ClickHouseAPI) DeleteShards(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, shardNames []string) {
-	op, err := sdk.WrapOperation(
-		sdk.MDB().Clickhouse().Cluster().DeleteShards(ctx, &clickhouse.DeleteClusterShardsRequest{
+	op, err :=
+		clickhousesdk.NewClusterClient(sdk).DeleteShards(ctx, &clickhouse.DeleteClusterShardsRequest{
 			ClusterId:  cid,
 			ShardNames: shardNames,
-		}),
-	)
+		})
 	if err != nil {
 		diags.AddError(
 			"Failed to delete shards",
@@ -603,10 +580,10 @@ func (c *ClickHouseAPI) DeleteShards(ctx context.Context, sdk *ycsdk.SDK, diags 
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete shards",
-			fmt.Sprintf("Error while waiting for operation %q to delete shards ClickHouse cluster %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete shards ClickHouse cluster %q: %s", op.ID(), cid, err.Error()),
 		)
 		return
 	}
@@ -617,7 +594,7 @@ func (c *ClickHouseAPI) ListShards(ctx context.Context, sdk *ycsdk.SDK, diags *d
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().Clickhouse().Cluster().ListShards(ctx, &clickhouse.ListClusterShardsRequest{
+		resp, err := clickhousesdk.NewClusterClient(sdk).ListShards(ctx, &clickhouse.ListClusterShardsRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -646,7 +623,7 @@ func (c *ClickHouseAPI) ListShards(ctx context.Context, sdk *ycsdk.SDK, diags *d
 func (c *ClickHouseAPI) CreateFormatSchema(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateFormatSchemaRequest) {
 	tflog.Debug(ctx, "Creating ClickHouse format schema", map[string]any{"request": req})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().FormatSchema().Create(ctx, req))
+	op, err := clickhousesdk.NewFormatSchemaClient(sdk).Create(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to create resource",
@@ -655,60 +632,41 @@ func (c *ClickHouseAPI) CreateFormatSchema(ctx context.Context, sdk *ycsdk.SDK, 
 		return
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
-		)
-		return
-	}
-
-	_, ok := protoMetadata.(*clickhouse.CreateFormatSchemaMetadata)
-	if !ok {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
-		)
-		return
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse format schema: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse format schema: %s", op.ID(), err.Error()),
 		)
 		return
 	}
 }
 
-func (c *ClickHouseAPI) UpdateFormatSchema(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *clickhouse.UpdateFormatSchemaRequest) {
+func (c *ClickHouseAPI) UpdateFormatSchema(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.UpdateFormatSchemaRequest) {
 	tflog.Debug(ctx, "Updating ClickHouse format schema", map[string]any{"request": req})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().FormatSchema().Update(ctx, req))
+	op, err := clickhousesdk.NewFormatSchemaClient(sdk).Update(ctx, req)
 	if err != nil {
-		diag.AddError(
+		diags.AddError(
 			"Failed to update resource",
 			fmt.Sprintf("Error while requesting API to update ClickHouse format schema: %s", err.Error()),
 		)
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
+	if _, err = op.Wait(ctx); err != nil {
+		diags.AddError(
 			"Failed to update resource",
-			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse format schema: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse format schema: %s", op.ID(), err.Error()),
 		)
-		return
 	}
 }
 
 func (c *ClickHouseAPI) ListFormatSchemas(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*clickhouse.FormatSchema {
-	schemas := []*clickhouse.FormatSchema{}
+	var schemas []*clickhouse.FormatSchema
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().Clickhouse().FormatSchema().List(ctx, &clickhouse.ListFormatSchemasRequest{
+		resp, err := clickhousesdk.NewFormatSchemaClient(sdk).List(ctx, &clickhouse.ListFormatSchemasRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -722,24 +680,20 @@ func (c *ClickHouseAPI) ListFormatSchemas(ctx context.Context, sdk *ycsdk.SDK, d
 		}
 
 		schemas = append(schemas, resp.FormatSchemas...)
-
 		if resp.NextPageToken == "" {
-			break
+			return schemas
 		}
-
 		pageToken = resp.NextPageToken
 	}
-	return schemas
 }
 
 func (c *ClickHouseAPI) DeleteFormatSchema(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid, name string) {
 	tflog.Debug(ctx, "Deleting ClickHouse format schema", map[string]any{"name": name})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().FormatSchema().Delete(ctx, &clickhouse.DeleteFormatSchemaRequest{
+	op, err := clickhousesdk.NewFormatSchemaClient(sdk).Delete(ctx, &clickhouse.DeleteFormatSchemaRequest{
 		ClusterId:        cid,
 		FormatSchemaName: name,
-	}))
-
+	})
 	if err != nil {
 		diags.AddError(
 			"Failed to delete resource",
@@ -748,12 +702,11 @@ func (c *ClickHouseAPI) DeleteFormatSchema(ctx context.Context, sdk *ycsdk.SDK, 
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete resource",
-			fmt.Sprintf("Error while waiting for operation %q to delete ClickHouse format schema %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete ClickHouse format schema %q: %s", op.ID(), cid, err.Error()),
 		)
-		return
 	}
 }
 
@@ -762,7 +715,7 @@ func (c *ClickHouseAPI) DeleteFormatSchema(ctx context.Context, sdk *ycsdk.SDK, 
 func (c *ClickHouseAPI) CreateMlModel(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateMlModelRequest) {
 	tflog.Debug(ctx, "Creating ClickHouse ML model", map[string]any{"request": req})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().MlModel().Create(ctx, req))
+	op, err := clickhousesdk.NewMlModelClient(sdk).Create(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to create resource",
@@ -771,60 +724,40 @@ func (c *ClickHouseAPI) CreateMlModel(ctx context.Context, sdk *ycsdk.SDK, diags
 		return
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse ML model: %s", op.ID(), err.Error()),
 		)
-		return
-	}
-
-	_, ok := protoMetadata.(*clickhouse.CreateMlModelMetadata)
-	if !ok {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
-		)
-		return
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse ML model: %s", op.Id(), err.Error()),
-		)
-		return
 	}
 }
 
-func (c *ClickHouseAPI) UpdateMlModel(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *clickhouse.UpdateMlModelRequest) {
+func (c *ClickHouseAPI) UpdateMlModel(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.UpdateMlModelRequest) {
 	tflog.Debug(ctx, "Updating ClickHouse ML model", map[string]any{"request": req})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().MlModel().Update(ctx, req))
+	op, err := clickhousesdk.NewMlModelClient(sdk).Update(ctx, req)
 	if err != nil {
-		diag.AddError(
+		diags.AddError(
 			"Failed to update resource",
 			fmt.Sprintf("Error while requesting API to update ClickHouse ML model: %s", err.Error()),
 		)
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
+	if _, err = op.Wait(ctx); err != nil {
+		diags.AddError(
 			"Failed to update resource",
-			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse ML model: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse ML model: %s", op.ID(), err.Error()),
 		)
-		return
 	}
 }
 
 func (c *ClickHouseAPI) ListMlModels(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*clickhouse.MlModel {
-	models := []*clickhouse.MlModel{}
+	var models []*clickhouse.MlModel
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().Clickhouse().MlModel().List(ctx, &clickhouse.ListMlModelsRequest{
+		resp, err := clickhousesdk.NewMlModelClient(sdk).List(ctx, &clickhouse.ListMlModelsRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -838,24 +771,20 @@ func (c *ClickHouseAPI) ListMlModels(ctx context.Context, sdk *ycsdk.SDK, diags 
 		}
 
 		models = append(models, resp.MlModels...)
-
 		if resp.NextPageToken == "" {
-			break
+			return models
 		}
-
 		pageToken = resp.NextPageToken
 	}
-	return models
 }
 
 func (c *ClickHouseAPI) DeleteMlModel(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid, name string) {
 	tflog.Debug(ctx, "Deleting ClickHouse ML model", map[string]any{"name": name})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().MlModel().Delete(ctx, &clickhouse.DeleteMlModelRequest{
+	op, err := clickhousesdk.NewMlModelClient(sdk).Delete(ctx, &clickhouse.DeleteMlModelRequest{
 		ClusterId:   cid,
 		MlModelName: name,
-	}))
-
+	})
 	if err != nil {
 		diags.AddError(
 			"Failed to delete resource",
@@ -864,12 +793,11 @@ func (c *ClickHouseAPI) DeleteMlModel(ctx context.Context, sdk *ycsdk.SDK, diags
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete resource",
-			fmt.Sprintf("Error while waiting for operation %q to delete ClickHouse ML model %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete ClickHouse ML model %q: %s", op.ID(), cid, err.Error()),
 		)
-		return
 	}
 }
 
@@ -878,7 +806,7 @@ func (c *ClickHouseAPI) DeleteMlModel(ctx context.Context, sdk *ycsdk.SDK, diags
 func (c *ClickHouseAPI) CreateShardGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateClusterShardGroupRequest) {
 	tflog.Debug(ctx, "Creating ClickHouse shard group", map[string]any{"request": req})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().CreateShardGroup(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(sdk).CreateShardGroup(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to create resource",
@@ -887,60 +815,40 @@ func (c *ClickHouseAPI) CreateShardGroup(ctx context.Context, sdk *ycsdk.SDK, di
 		return
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse shard group: %s", op.ID(), err.Error()),
 		)
-		return
-	}
-
-	_, ok := protoMetadata.(*clickhouse.CreateClusterShardGroupMetadata)
-	if !ok {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
-		)
-		return
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diags.AddError(
-			"Failed to create resource",
-			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse shard group: %s", op.Id(), err.Error()),
-		)
-		return
 	}
 }
 
-func (c *ClickHouseAPI) UpdateShardGroup(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *clickhouse.UpdateClusterShardGroupRequest) {
+func (c *ClickHouseAPI) UpdateShardGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.UpdateClusterShardGroupRequest) {
 	tflog.Debug(ctx, "Updating ClickHouse shard group", map[string]any{"request": req})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().UpdateShardGroup(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(sdk).UpdateShardGroup(ctx, req)
 	if err != nil {
-		diag.AddError(
+		diags.AddError(
 			"Failed to update resource",
 			fmt.Sprintf("Error while requesting API to update ClickHouse shard group: %s", err.Error()),
 		)
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
-		diag.AddError(
+	if _, err = op.Wait(ctx); err != nil {
+		diags.AddError(
 			"Failed to update resource",
-			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse shard group: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to update ClickHouse shard group: %s", op.ID(), err.Error()),
 		)
-		return
 	}
 }
 
 func (c *ClickHouseAPI) ListShardGroups(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*clickhouse.ShardGroup {
-	groups := []*clickhouse.ShardGroup{}
+	var groups []*clickhouse.ShardGroup
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().Clickhouse().Cluster().ListShardGroups(ctx, &clickhouse.ListClusterShardGroupsRequest{
+		resp, err := clickhousesdk.NewClusterClient(sdk).ListShardGroups(ctx, &clickhouse.ListClusterShardGroupsRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -954,24 +862,20 @@ func (c *ClickHouseAPI) ListShardGroups(ctx context.Context, sdk *ycsdk.SDK, dia
 		}
 
 		groups = append(groups, resp.ShardGroups...)
-
 		if resp.NextPageToken == "" {
-			break
+			return groups
 		}
-
 		pageToken = resp.NextPageToken
 	}
-	return groups
 }
 
 func (c *ClickHouseAPI) DeleteShardGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid, name string) {
 	tflog.Debug(ctx, "Deleting ClickHouse shard group", map[string]any{"name": name})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().DeleteShardGroup(ctx, &clickhouse.DeleteClusterShardGroupRequest{
+	op, err := clickhousesdk.NewClusterClient(sdk).DeleteShardGroup(ctx, &clickhouse.DeleteClusterShardGroupRequest{
 		ClusterId:      cid,
 		ShardGroupName: name,
-	}))
-
+	})
 	if err != nil {
 		diags.AddError(
 			"Failed to delete resource",
@@ -980,28 +884,26 @@ func (c *ClickHouseAPI) DeleteShardGroup(ctx context.Context, sdk *ycsdk.SDK, di
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete resource",
-			fmt.Sprintf("Error while waiting for operation %q to delete ClickHouse shard group %q: %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete ClickHouse shard group %q: %s", op.ID(), cid, err.Error()),
 		)
-		return
 	}
 }
 
 // Extensions
 
 func (c *ClickHouseAPI) ListExtensions(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*clickhouse.ClusterExtension {
-	extensions := []*clickhouse.ClusterExtension{}
+	var extensions []*clickhouse.ClusterExtension
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().Clickhouse().ClusterExtension().List(ctx, &clickhouse.ListClusterExtensionsRequest{
+		resp, err := clickhousesdk.NewClusterExtensionClient(sdk).List(ctx, &clickhouse.ListClusterExtensionsRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
 		})
-
 		if err != nil {
 			diags.AddError(
 				"Failed to read resource",
@@ -1011,20 +913,17 @@ func (c *ClickHouseAPI) ListExtensions(ctx context.Context, sdk *ycsdk.SDK, diag
 		}
 
 		extensions = append(extensions, resp.Extensions...)
-
 		if resp.NextPageToken == "" {
-			break
+			return extensions
 		}
-
 		pageToken = resp.NextPageToken
 	}
-	return extensions
 }
 
 func (c *ClickHouseAPI) CreateExtension(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateClusterExtensionRequest) {
 	tflog.Debug(ctx, "Creating ClickHouse cluster extension", map[string]any{"cluster_id": req.ClusterId, "extension": req.ExtensionSpec.GetName()})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().ClusterExtension().Create(ctx, req))
+	op, err := clickhousesdk.NewClusterExtensionClient(sdk).Create(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to create resource",
@@ -1033,10 +932,10 @@ func (c *ClickHouseAPI) CreateExtension(ctx context.Context, sdk *ycsdk.SDK, dia
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
-			fmt.Sprintf("Error while waiting for operation %q to create extension %q of ClickHouse cluster '%s': %s", op.Id(), req.ExtensionSpec.GetName(), req.ClusterId, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create extension %q of ClickHouse cluster '%s': %s", op.ID(), req.ExtensionSpec.GetName(), req.ClusterId, err.Error()),
 		)
 	}
 }
@@ -1044,11 +943,10 @@ func (c *ClickHouseAPI) CreateExtension(ctx context.Context, sdk *ycsdk.SDK, dia
 func (c *ClickHouseAPI) SetExtensions(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, specs []*clickhouse.ExtensionSpec) {
 	tflog.Debug(ctx, "Setting ClickHouse cluster extensions", map[string]any{"cluster_id": cid})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().ClusterExtension().SetExtensions(ctx, &clickhouse.SetClusterExtensionsRequest{
+	op, err := clickhousesdk.NewClusterExtensionClient(sdk).SetExtensions(ctx, &clickhouse.SetClusterExtensionsRequest{
 		ClusterId:      cid,
 		ExtensionSpecs: specs,
-	}))
-
+	})
 	if err != nil {
 		diags.AddError(
 			"Failed to update resource",
@@ -1057,10 +955,10 @@ func (c *ClickHouseAPI) SetExtensions(ctx context.Context, sdk *ycsdk.SDK, diags
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to update resource",
-			fmt.Sprintf("Error while waiting for operation %q to set extensions of ClickHouse cluster '%s': %s", op.Id(), cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to set extensions of ClickHouse cluster '%s': %s", op.ID(), cid, err.Error()),
 		)
 	}
 }
@@ -1070,7 +968,7 @@ func (c *ClickHouseAPI) SetExtensions(ctx context.Context, sdk *ycsdk.SDK, diags
 func (c *ClickHouseAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.RestoreClusterRequest) string {
 	tflog.Debug(ctx, "Restoring ClickHouse Cluster from backup", map[string]any{"request": redactClickHouseRestoreClusterRequest(req)})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().Restore(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(sdk).Restore(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to restore resource",
@@ -1079,28 +977,11 @@ func (c *ClickHouseAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diag
 		return ""
 	}
 
-	protoMetadata, err := op.Metadata()
-	if err != nil {
+	md := op.Metadata()
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to restore resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata: %s", op.Id(), err.Error()),
-		)
-		return ""
-	}
-
-	md, ok := protoMetadata.(*clickhouse.RestoreClusterMetadata)
-	if !ok {
-		diags.AddError(
-			"Failed to restore resource",
-			fmt.Sprintf("Error while unmarshaling for operation %q API response metadata", op.Id()),
-		)
-		return ""
-	}
-
-	if err = op.Wait(ctx); err != nil {
-		diags.AddError(
-			"Failed to restore resource",
-			fmt.Sprintf("Error while waiting for operation %q to restore ClickHouse cluster from backup: %s", op.Id(), err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to restore ClickHouse cluster from backup: %s", op.ID(), err.Error()),
 		)
 		return ""
 	}
@@ -1114,7 +995,7 @@ func (c *ClickHouseAPI) ListExternalDictionaries(ctx context.Context, sdk *ycsdk
 	pageToken := ""
 
 	for {
-		resp, err := sdk.MDB().Clickhouse().Cluster().ListExternalDictionaries(ctx, &clickhouse.ListClusterExternalDictionariesRequest{
+		resp, err := clickhousesdk.NewClusterClient(sdk).ListExternalDictionaries(ctx, &clickhouse.ListClusterExternalDictionariesRequest{
 			ClusterId: cid,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
@@ -1141,7 +1022,7 @@ func (c *ClickHouseAPI) ListExternalDictionaries(ctx context.Context, sdk *ycsdk
 func (c *ClickHouseAPI) CreateExternalDictionary(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateClusterExternalDictionaryRequest) {
 	tflog.Debug(ctx, "Creating ClickHouse external dictionary", map[string]any{"cluster_id": req.ClusterId, "name": req.ExternalDictionary.GetName()})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().CreateExternalDictionary(ctx, req))
+	op, err := clickhousesdk.NewClusterClient(sdk).CreateExternalDictionary(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to create resource",
@@ -1150,10 +1031,10 @@ func (c *ClickHouseAPI) CreateExternalDictionary(ctx context.Context, sdk *ycsdk
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to create resource",
-			fmt.Sprintf("Error while waiting for operation %q to create external dictionary %q in ClickHouse cluster '%s': %s", op.Id(), req.ExternalDictionary.GetName(), req.ClusterId, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to create external dictionary %q in ClickHouse cluster '%s': %s", op.ID(), req.ExternalDictionary.GetName(), req.ClusterId, err.Error()),
 		)
 	}
 }
@@ -1161,10 +1042,10 @@ func (c *ClickHouseAPI) CreateExternalDictionary(ctx context.Context, sdk *ycsdk
 func (c *ClickHouseAPI) DeleteExternalDictionary(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid, name string) {
 	tflog.Debug(ctx, "Deleting ClickHouse external dictionary", map[string]any{"cluster_id": cid, "name": name})
 
-	op, err := sdk.WrapOperation(sdk.MDB().Clickhouse().Cluster().DeleteExternalDictionary(ctx, &clickhouse.DeleteClusterExternalDictionaryRequest{
+	op, err := clickhousesdk.NewClusterClient(sdk).DeleteExternalDictionary(ctx, &clickhouse.DeleteClusterExternalDictionaryRequest{
 		ClusterId:              cid,
 		ExternalDictionaryName: name,
-	}))
+	})
 	if err != nil {
 		diags.AddError(
 			"Failed to delete resource",
@@ -1173,10 +1054,10 @@ func (c *ClickHouseAPI) DeleteExternalDictionary(ctx context.Context, sdk *ycsdk
 		return
 	}
 
-	if err = op.Wait(ctx); err != nil {
+	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
 			"Failed to delete resource",
-			fmt.Sprintf("Error while waiting for operation %q to delete external dictionary %q from ClickHouse cluster '%s': %s", op.Id(), name, cid, err.Error()),
+			fmt.Sprintf("Error while waiting for operation %q to delete external dictionary %q from ClickHouse cluster '%s': %s", op.ID(), name, cid, err.Error()),
 		)
 	}
 }

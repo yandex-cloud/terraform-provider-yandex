@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/gitlab/v1"
+	gitlabsdk "github.com/yandex-cloud/go-sdk/services/gitlab/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
@@ -115,14 +116,14 @@ resource "yandex_gitlab_instance" "gitlab_instance" {
 }
 
 func testAccCheckGitlabInstanceDestroy(s *terraform.State) error {
-	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
+	sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_gitlab_instance" {
 			continue
 		}
 
-		_, err := sdk.Gitlab().Instance().Get(context.Background(), &gitlab.GetInstanceRequest{
+		_, err := gitlabsdk.NewInstanceClient(sdk).Get(context.Background(), &gitlab.GetInstanceRequest{
 			InstanceId: rs.Primary.ID,
 		})
 
@@ -145,8 +146,8 @@ func testAccCheckGitlabInstanceExists(name string, instance *gitlab.Instance) re
 			return fmt.Errorf("ID is not set")
 		}
 
-		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDK
-		found, err := sdk.Gitlab().Instance().Get(context.Background(), &gitlab.GetInstanceRequest{
+		sdk := testhelpers.AccProvider.(*provider.Provider).GetConfig().SDKv2
+		found, err := gitlabsdk.NewInstanceClient(sdk).Get(context.Background(), &gitlab.GetInstanceRequest{
 			InstanceId: rs.Primary.ID,
 		})
 		if err != nil {

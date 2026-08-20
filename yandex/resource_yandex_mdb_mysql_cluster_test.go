@@ -16,6 +16,10 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
+	vpcsdk "github.com/yandex-cloud/go-sdk/services/vpc/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -38,7 +42,7 @@ func testSweepMDBMySQLCluster(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	resp, err := conf.sdk.MDB().MySQL().Cluster().List(conf.Context(), &mysql.ListClustersRequest{
+	resp, err := mysqlsdk.NewClusterClient(conf.SDK).List(conf.Context(), &mysql.ListClustersRequest{
 		FolderId: conf.FolderID,
 		PageSize: defaultMDBPageSize,
 	})
@@ -65,20 +69,32 @@ func sweepMDBMysqlClusterOnce(conf *Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.MDB().MySQL().Cluster().Update(ctx, &mysql.UpdateClusterRequest{
+	client := mysqlsdk.NewClusterClient(conf.SDK)
+	clusterAbsent := func() bool {
+		_, getErr := client.Get(ctx, &mysql.GetClusterRequest{ClusterId: id})
+		return status.Code(getErr) == codes.NotFound
+	}
+	op, err := client.Update(ctx, &mysql.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
 		UpdateMask:         &mask,
 	})
-	err = handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, op, err)
 	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
+		if clusterAbsent() {
+			return nil
+		}
 		return err
 	}
 
-	op, err = conf.sdk.MDB().MySQL().Cluster().Delete(ctx, &mysql.DeleteClusterRequest{
+	deleteOp, err := client.Delete(ctx, &mysql.DeleteClusterRequest{
 		ClusterId: id,
 	})
-	return handleSweepOperation(ctx, conf, op, err)
+	err = handleSweepOperationV2(ctx, deleteOp, err)
+	if err != nil && clusterAbsent() {
+		return nil
+	}
+	return err
 }
 
 func mdbMysqlClusterImportStep(name string) resource.TestStep {
@@ -477,13 +493,14 @@ func TestAccMDBMySQLCluster_addDiskEncryption(t *testing.T) {
 
 func testAccCheckMDBMysqlClusterDestroy(state *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
+	networkClient := vpcsdk.NewNetworkClient(config.SDK)
 
 	for _, rs := range state.RootModule().Resources {
 		if rs.Type != mysqlResourceType {
 			continue
 		}
 
-		_, err := config.sdk.MDB().MySQL().Cluster().Get(context.Background(), &mysql.GetClusterRequest{
+		_, err := mysqlsdk.NewClusterClient(config.SDK).Get(context.Background(), &mysql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 
@@ -497,7 +514,7 @@ func testAccCheckMDBMysqlClusterDestroy(state *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.VPC().Network().Get(context.Background(), &vpc.GetNetworkRequest{
+		_, err := networkClient.Get(context.Background(), &vpc.GetNetworkRequest{
 			NetworkId: rs.Primary.ID,
 		})
 		if err == nil {
@@ -521,7 +538,7 @@ func testAccCheckMDBMySQLClusterExists(resource string, cluster *mysql.Cluster) 
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().MySQL().Cluster().Get(context.Background(), &mysql.GetClusterRequest{
+		found, err := mysqlsdk.NewClusterClient(config.SDK).Get(context.Background(), &mysql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -551,7 +568,7 @@ func testAccCheckMDBMySQLClusterHasDatabases(resource string, databases []string
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().MySQL().Database().List(context.Background(), &mysql.ListDatabasesRequest{
+		resp, err := mysqlsdk.NewDatabaseClient(config.SDK).List(context.Background(), &mysql.ListDatabasesRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -590,7 +607,7 @@ func testAccCheckMDBMysqlClusterHasHosts(resource string, expectedHostCount int)
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().MySQL().Cluster().ListHosts(context.Background(), &mysql.ListClusterHostsRequest{
+		resp, err := mysqlsdk.NewClusterClient(config.SDK).ListHosts(context.Background(), &mysql.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -619,7 +636,7 @@ func testAccCheckMDBMysqlClusterHasUsers(resource string, perms map[string][]Moc
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.MDB().MySQL().User().List(context.Background(), &mysql.ListUsersRequest{
+		resp, err := mysqlsdk.NewUserClient(config.SDK).List(context.Background(), &mysql.ListUsersRequest{
 			ClusterId: rs.Primary.ID,
 			PageSize:  defaultMDBPageSize,
 		})
@@ -738,7 +755,7 @@ func testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(r string, enabled
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().MySQL().Cluster().Get(context.Background(), &mysql.GetClusterRequest{
+		found, err := mysqlsdk.NewClusterClient(config.SDK).Get(context.Background(), &mysql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
@@ -777,7 +794,7 @@ func testAccCheckMDBMysqlClusterSettingsDiskSizeAutoscaling(r string, diskSizeLi
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.sdk.MDB().MySQL().Cluster().Get(context.Background(), &mysql.GetClusterRequest{
+		found, err := mysqlsdk.NewClusterClient(config.SDK).Get(context.Background(), &mysql.GetClusterRequest{
 			ClusterId: rs.Primary.ID,
 		})
 		if err != nil {
