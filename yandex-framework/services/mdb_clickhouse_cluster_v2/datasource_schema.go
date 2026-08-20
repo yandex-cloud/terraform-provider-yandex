@@ -163,7 +163,7 @@ func DataSourceHostsSchema() schema.MapNestedAttribute {
 					Computed:            true,
 				},
 				"type": schema.StringAttribute{
-					MarkdownDescription: "The type of the host to be deployed. Can be either `CLICKHOUSE` or `ZOOKEEPER`.",
+					MarkdownDescription: "The type of the host to be deployed. Can be `CLICKHOUSE`, `ZOOKEEPER`, or `KEEPER`.",
 					Computed:            true,
 				},
 				"subnet_id": schema.StringAttribute{

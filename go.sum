@@ -781,8 +781,8 @@ github.com/xen0n/gosmopolitan v1.2.1 h1:3pttnTuFumELBRSh+KQs1zcz4fN6Zy7aB0xlnQSn
 github.com/xen0n/gosmopolitan v1.2.1/go.mod h1:JsHq/Brs1o050OOdmzHeOr0N7OtlnKRAGAsElF8xBQA=
 github.com/yagipy/maintidx v1.0.0 h1:h5NvIsCz+nRDapQ0exNv4aJ0yXSI0420omVANTv3GJM=
 github.com/yagipy/maintidx v1.0.0/go.mod h1:0qNf/I/CCZXSMhsRsrEPDZ+DkekpKLXAJfsTACwgXLk=
-github.com/yandex-cloud/go-genproto v0.112.0 h1:wbhIUMX6lgBNXktBXrtGpAofOiwFW8/ghqeQfsV1eac=
-github.com/yandex-cloud/go-genproto v0.112.0/go.mod h1:0LDD/IZLIUIV4iPH+YcF+jysO3jkSvADFGm4dCAuwQo=
+github.com/yandex-cloud/go-genproto v0.113.0 h1:yzBf38keQhu2K7x+4XE+HUkuZRoTirkH9cHrRTMCpZg=
+github.com/yandex-cloud/go-genproto v0.113.0/go.mod h1:0LDD/IZLIUIV4iPH+YcF+jysO3jkSvADFGm4dCAuwQo=
 github.com/yandex-cloud/go-sdk v0.33.0 h1:RZDmZsBxcGVc6oBuMM4cgSDytBtABUF0XZ8FUt8fe0s=
 github.com/yandex-cloud/go-sdk v0.33.0/go.mod h1:ZQeWGgdOTFt4uHFQVIKejTcKq1/cXORxvyYQ9Ati2nU=
 github.com/yandex-cloud/go-sdk/services/airflow v0.0.89 h1:GGtvDUpEmiZvVuRV/6vWyOhEiu5I7CTigl8DzvUPwEo=
@@ -821,8 +821,8 @@ github.com/yandex-cloud/go-sdk/services/lockbox v0.0.89 h1:o5c7xpV4YesmGUO8E3YhE
 github.com/yandex-cloud/go-sdk/services/lockbox v0.0.89/go.mod h1:MZ1A2KRoHuLFVccBn7s3PBJoWB+wlkh9xnlo4lYaQ78=
 github.com/yandex-cloud/go-sdk/services/logging v0.0.89 h1:iXPztwx2C64jRfEdVZ3dyVqBV4F5N4CIKQTG+/eLi4I=
 github.com/yandex-cloud/go-sdk/services/logging v0.0.89/go.mod h1:SN3Ys9bwQILl57gckUZsYsa94R3Pd/E9erV4H+lDcr8=
-github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.79 h1:XfY/8jy8cm2rfJ0nY3tKra7sn/fxytMFVjpa8LJb3Rs=
-github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.79/go.mod h1:2vm0Apw9WNZFx0utzfpdAqzvICSn30AnrKd1pBDh44w=
+github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.80 h1:IXr8Gz81jtffdTK8omFygnenQetUECRWiuByOznOfHc=
+github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.80/go.mod h1:qy95TH32lS3KT4B6H0+YJjxFJMCrHFdHs+USXKa4YTM=
 github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.79 h1:QcaUlVuhsO0jOE0QIWpwjpV5ZLAkdLKOBCG1S6MUk9s=
 github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.79/go.mod h1:wZH5gPGAsDRHDEuZCDe224PLW6f8pUy0k8+GMu+LOt0=
 github.com/yandex-cloud/go-sdk/services/mdb/kafka v0.0.79 h1:vK72qrKv98ux75UDaUzSLAtDUZ/B8s5FRlUCEvCaLDs=

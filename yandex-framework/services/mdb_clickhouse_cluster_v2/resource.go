@@ -255,6 +255,30 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	migrateToKeeper := detectKeeperMigration(ctx, state.HostSpecs, plan.HostSpecs, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if migrateToKeeper && (plan.AllowDegradationToReadOnly.IsNull() ||
+		plan.AllowDegradationToReadOnly.IsUnknown() ||
+		!plan.AllowDegradationToReadOnly.ValueBool()) {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("allow_degradation_to_read_only"),
+			"Migration to Keeper requires read-only degradation allowance",
+			"Set allow_degradation_to_read_only to true when changing coordinator hosts from ZOOKEEPER to KEEPER.",
+		)
+		return
+	}
+
+	planChHostSpecs, planKeeperHostSpecs := splitHostSpecsByType(ctx, plan.HostSpecs, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	stateChHostSpecs, stateKeeperHostSpecs := splitHostSpecsByType(ctx, state.HostSpecs, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	if !state.FolderId.Equal(plan.FolderId) {
 		// Update folder id
 		tflog.Debug(ctx, "Updating ClickHouse folder id")
@@ -279,22 +303,18 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	// Update cluster settings
 	tflog.Debug(ctx, "Updating ClickHouse cluster settings")
-	updateRequest := prepareClusterUpdateRequest(ctx, &state, &plan, adminPassword, adminPasswordChanged, &resp.Diagnostics)
+	clusterSettingsPlan := plan
+	if migrateToKeeper {
+		// Coordinator resources are applied by MigrateToKeeper. Updating them here would resize
+		// the old ZooKeeper hosts immediately before replacing them with Keeper hosts.
+		clusterSettingsPlan.ZooKeeper = state.ZooKeeper
+	}
+	updateRequest := prepareClusterUpdateRequest(ctx, &state, &clusterSettingsPlan, adminPassword, adminPasswordChanged, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	clickhouseApi.UpdateCluster(ctx, r.providerConfig.SDK, &resp.Diagnostics, updateRequest)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Update hosts
-	planChHostSpecs, planKeeperHostSpecs := splitHostSpecsByType(ctx, plan.HostSpecs, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	stateChHostSpecs, stateKeeperHostSpecs := splitHostSpecsByType(ctx, state.HostSpecs, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -335,19 +355,36 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		PlanShardSpecByShardName: mapShardNameShardSpec,
 	}
 
-	// Update ZooKeeper/Keeper hosts
-	tflog.Debug(ctx, "Updating ZooKeeper/Keeper hosts")
-	mdbcommon.UpdateClusterHosts(
-		ctx,
-		r.providerConfig.SDK,
-		&resp.Diagnostics,
-		clickhouseHostService,
-		&clickhouseApi,
-		plan.Id.ValueString(),
-		opts,
-		planKeeperHostSpecs,
-		stateKeeperHostSpecs,
-	)
+	if migrateToKeeper {
+		migrationRequest := prepareMigrateToKeeperRequest(
+			ctx,
+			plan.Id.ValueString(),
+			planKeeperHostSpecs,
+			planZooKeeperResources,
+			plan.AllowDegradationToReadOnly.ValueBool(),
+			&resp.Diagnostics,
+		)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		clickhouseApi.MigrateToKeeper(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, migrationRequest)
+	} else {
+		// Migration creates Keeper hosts and removes ZooKeeper hosts atomically, so the generic
+		// host reconciler must not manage coordinator hosts in the same apply.
+		tflog.Debug(ctx, "Updating ZooKeeper/Keeper hosts")
+		mdbcommon.UpdateClusterHosts(
+			ctx,
+			r.providerConfig.SDK,
+			&resp.Diagnostics,
+			clickhouseHostService,
+			&clickhouseApi,
+			plan.Id.ValueString(),
+			opts,
+			planKeeperHostSpecs,
+			stateKeeperHostSpecs,
+		)
+	}
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -455,6 +492,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 // Plan modify logic:
 // - add coordinator hosts without zookeeper.resources	  => zookeeper.resources 						  = Unknown
+// - migrate ZooKeeper hosts to Keeper                    => hosts[*].fqdn                                  = Unknown
 // - clickhouse.<resources|disk_size_autoscaling> changed => shards[*].<resources|disk_size_autoscaling>  = Unknown
 // - shards[*].<resources|disk_size_autoscaling> changed  => clickhouse.<resources|disk_size_autoscaling> = Unknown
 func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
@@ -479,6 +517,33 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 	_, stateKeeperHosts := splitHostSpecsByType(ctx, state.HostSpecs, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	migrateToKeeper := detectKeeperMigration(ctx, state.HostSpecs, plan.HostSpecs, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if migrateToKeeper {
+		if plan.AllowDegradationToReadOnly.IsNull() ||
+			(!plan.AllowDegradationToReadOnly.IsUnknown() && !plan.AllowDegradationToReadOnly.ValueBool()) {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("allow_degradation_to_read_only"),
+				"Migration to Keeper requires read-only degradation allowance",
+				"Set allow_degradation_to_read_only to true when changing coordinator hosts from ZOOKEEPER to KEEPER.",
+			)
+			return
+		}
+
+		planHosts := markKeeperFQDNsUnknown(ctx, plan.HostSpecs, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("hosts"), planHosts)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	if len(planKeeperHosts.Elements()) > 0 && len(stateKeeperHosts.Elements()) == 0 {

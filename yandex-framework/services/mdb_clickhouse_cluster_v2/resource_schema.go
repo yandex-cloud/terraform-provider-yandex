@@ -170,6 +170,10 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				Description: "Allows or denies re-creation of hosts during cluster configuration changes that require it, such as a disk type change. Note: only data of replicated tables is preserved during host re-creation; data of non-replicated tables is lost.",
 				Optional:    true,
 			},
+			"allow_degradation_to_read_only": schema.BoolAttribute{
+				Description: "Allows the cluster to become read-only during migration from ZooKeeper to ClickHouse Keeper. Must be enabled when changing coordinator host types from `ZOOKEEPER` to `KEEPER`.",
+				Optional:    true,
+			},
 			"clickhouse":              ClickHouseSchema(),
 			"zookeeper":               ZooKeeperSchema(),
 			"cloud_storage":           CloudStorageSchema(),
@@ -235,8 +239,11 @@ func HostsSchema() schema.MapNestedAttribute {
 					},
 				},
 				"type": schema.StringAttribute{
-					Description: "The type of the host to be deployed. Can be either `CLICKHOUSE` or `ZOOKEEPER`.",
+					Description: "The type of the host to be deployed. Can be `CLICKHOUSE`, `ZOOKEEPER`, or `KEEPER`.",
 					Required:    true,
+					Validators: []validator.String{
+						stringvalidator.OneOf("CLICKHOUSE", "ZOOKEEPER", "KEEPER"),
+					},
 				},
 				"subnet_id": schema.StringAttribute{
 					Description: "ID of the subnet where the host is located.",

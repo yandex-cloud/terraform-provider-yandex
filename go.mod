@@ -39,7 +39,7 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
-	github.com/yandex-cloud/go-genproto v0.112.0
+	github.com/yandex-cloud/go-genproto v0.113.0
 	github.com/yandex-cloud/go-sdk v0.33.0
 	github.com/yandex-cloud/go-sdk/services/airflow v0.0.89
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.89
@@ -59,7 +59,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/loadbalancer v0.0.89
 	github.com/yandex-cloud/go-sdk/services/lockbox v0.0.89
 	github.com/yandex-cloud/go-sdk/services/logging v0.0.89
-	github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.79
+	github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.80
 	github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.79
 	github.com/yandex-cloud/go-sdk/services/mdb/kafka v0.0.79
 	github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.79

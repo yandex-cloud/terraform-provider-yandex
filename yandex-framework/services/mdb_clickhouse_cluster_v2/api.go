@@ -11,6 +11,8 @@ import (
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	clickhousesdk "github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1"
+	ycsdkv2 "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -294,6 +296,62 @@ func addCoordinator(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics
 			fmt.Sprintf("Error while waiting for operation %q to create ClickHouse coordinator: %s", op.Id(), err.Error()),
 		)
 		return
+	}
+}
+
+func (c *ClickHouseAPI) MigrateToKeeper(
+	ctx context.Context,
+	sdk *ycsdkv2.SDK,
+	diags *diag.Diagnostics,
+	request *clickhouse.MigrateClusterToKeeperRequest,
+) {
+	hosts, err := clickhousesdk.NewClusterClient(sdk).ListHosts(ctx, &clickhouse.ListClusterHostsRequest{
+		ClusterId: request.GetClusterId(),
+		PageSize:  defaultMDBPageSize,
+	})
+	if err != nil {
+		diags.AddError(
+			"Failed to inspect ClickHouse coordinator hosts",
+			fmt.Sprintf("Error while requesting API to list hosts of ClickHouse cluster %q before migration to Keeper: %s", request.GetClusterId(), err.Error()),
+		)
+		return
+	}
+
+	liveCoordinatorTypes := getAPICoordinatorHostTypes(hosts.GetHosts())
+	if liveCoordinatorTypes.hasKeeper && !liveCoordinatorTypes.hasZooKeeper {
+		tflog.Debug(ctx, "ClickHouse cluster is already migrated to Keeper", map[string]any{"cluster_id": request.GetClusterId()})
+		return
+	}
+	if liveCoordinatorTypes.hasKeeper && liveCoordinatorTypes.hasZooKeeper {
+		diags.AddError(
+			"Unable to migrate ClickHouse cluster to Keeper",
+			fmt.Sprintf("ClickHouse cluster %q currently contains both ZooKeeper and Keeper hosts. Wait for the active migration to finish and retry Terraform apply.", request.GetClusterId()),
+		)
+		return
+	}
+	if !liveCoordinatorTypes.hasZooKeeper {
+		diags.AddError(
+			"Unable to migrate ClickHouse cluster to Keeper",
+			fmt.Sprintf("ClickHouse cluster %q has no dedicated ZooKeeper hosts to migrate.", request.GetClusterId()),
+		)
+		return
+	}
+
+	tflog.Debug(ctx, "Migrating ClickHouse cluster to Keeper", map[string]any{"request": request})
+	op, err := clickhousesdk.NewClusterClient(sdk).MigrateToKeeper(ctx, request)
+	if err != nil {
+		diags.AddError(
+			"Failed to migrate ClickHouse cluster to Keeper",
+			fmt.Sprintf("Error while requesting API to migrate ClickHouse cluster %q to Keeper: %s", request.GetClusterId(), err.Error()),
+		)
+		return
+	}
+
+	if _, err = op.Wait(ctx); err != nil {
+		diags.AddError(
+			"Failed to migrate ClickHouse cluster to Keeper",
+			fmt.Sprintf("Error while waiting for operation to migrate ClickHouse cluster %q to Keeper: %s", request.GetClusterId(), err.Error()),
+		)
 	}
 }
 
