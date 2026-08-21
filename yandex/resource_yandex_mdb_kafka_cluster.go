@@ -270,7 +270,7 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"disk_size_limit": {
 							Type:        schema.TypeInt,
-							Description: "Maximum possible size of disk in bytes.",
+							Description: "The overall maximum for disk size (GB) that limits all autoscaling iterations.",
 							Required:    true,
 						},
 						"planned_usage_threshold": {
