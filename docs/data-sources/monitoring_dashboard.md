@@ -118,6 +118,14 @@ data "yandex_monitoring_dashboard" "my_dashboard" {
           - `title` (String). Title or empty
           - `type` (String). Type
           - `unit_format` (String). Unit format
+  - `group` [Block]. Group widget settings. Groups other widgets into a collapsible dashboard section. Group widgets cannot be nested.
+    - `collapsed` (Bool). Whether the group is collapsed by default.
+    - `group_id` (String). Group ID.
+    - `repeat_settings` [Block]. Settings for repeating the group.
+      - `repeat_by` (List Of String). Labels to repeat the group by.
+    - `title` (String). Group title.
+    - `widgets` [Block]. Widgets inside the group. Same as the top-level `widgets` block, except nested `group` widgets are not allowed. Position is relative to the group.
+      - `widget_id` (String). Widget ID.
   - `position` [Block]. Widget layout position.
     - `h` (Number). Height.
     - `w` (Number). Weight.

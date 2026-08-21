@@ -145,4 +145,35 @@ resource "yandex_monitoring_dashboard" "my-dashboard" {
       y = 1
     }
   }
+  widgets {
+    group {
+      group_id  = "my-group"
+      title     = "My group"
+      collapsed = false
+      widgets {
+        widget_id = "my-widget"
+        chart {
+          chart_id = "chart2id"
+          title    = "group chart"
+          queries {
+            target {
+              query = "{service=monitoring}"
+            }
+          }
+        }
+        position {
+          h = 2
+          w = 2
+          x = 0
+          y = 0
+        }
+      }
+    }
+    position {
+      h = 10
+      w = 10
+      x = 0
+      y = 10
+    }
+  }
 }
