@@ -410,7 +410,18 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
-			// 14. Check it is possible to drop users and dbs
+			// 14. Drop a database and change the owner of the one following it in the list.
+			// Ownership transfer moves the permission on fornewuserdb from bob to alice, so the config follows it.
+			{
+				Config: testAccMDBPGClusterConfigDropDatabaseAndChangeOwner(clusterName, pgDesc2, version, 18),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					testAccCheckMDBPGClusterHasDatabases(clusterResource, []string{"testdb", "fornewuserdb"}),
+					testAccCheckMDBPostgreSQLDatabaseHasOwner(t, "fornewuserdb", "alice"),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			// 16. Check it is possible to drop users and dbs
 			{
 				Config: testAccMDBPGClusterConfigCheckUsersAndDBsDropping(clusterName, pgDesc2, version, 18),
 				Check: resource.ComposeTestCheckFunc(
@@ -423,7 +434,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
-			// 16. Check if description can be set to null
+			// 18. Check if description can be set to null
 			{
 				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 18, true, true),
 				Check: resource.ComposeTestCheckFunc(
@@ -432,7 +443,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
-			// 18. Decrease disk size (nothing changes)
+			// 20. Decrease disk size (nothing changes)
 			{
 				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16, true, true),
 				Check: resource.ComposeTestCheckFunc(
@@ -441,7 +452,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
-			// 20. Disable performanse diagnostic and managed repack
+			// 22. Disable performanse diagnostic and managed repack
 			{
 				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version, 16, false, false),
 				Check: resource.ComposeTestCheckFunc(
@@ -1798,6 +1809,116 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   database {
     owner = "bob"
+    name  = "fornewuserdb"
+  }
+
+  security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
+}
+`, name, desc, version, diskSize)
+}
+
+func testAccMDBPGClusterConfigDropDatabaseAndChangeOwner(name, desc, version string, diskSize int32) string {
+
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  labels = {
+    new_key = "new_value"
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "WED"
+    hour = 22
+  }
+
+  config {
+    version = "%s"
+
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = %d
+      disk_type_id       = "network-ssd"
+    }
+    access {
+      web_sql       = true
+      serverless    = false
+      data_lens     = false
+	  data_transfer = false
+	  yandex_query  = false
+    }
+    performance_diagnostics {
+	  enabled                      = true
+      sessions_sampling_interval   = 9
+      statements_sampling_interval = 60
+    }
+
+    disk_size_autoscaling {
+      disk_size_limit           = 40
+      planned_usage_threshold   = 70
+      emergency_usage_threshold = 90
+    }
+
+    backup_retain_period_days = 12
+
+    postgresql_config = {
+      max_connections                   = 395
+      enable_parallel_hash              = true
+      autovacuum_vacuum_scale_factor    = 0.34
+      default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
+	  shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+	  synchronous_commit        		= "SYNCHRONOUS_COMMIT_REMOTE_APPLY"
+    }
+  }
+
+  user {
+    name       = "alice"
+    password   = "mysecurepassword"
+    conn_limit = 42
+
+    permission {
+      database_name = "testdb"
+    }
+
+    permission {
+      database_name = "fornewuserdb"
+    }
+
+    settings = {
+      default_transaction_isolation = "read uncommitted"
+      log_min_duration_statement    = 5000
+    }
+  }
+
+  user {
+    name     = "bob"
+    password = "anothersecurepassword"
+
+    settings = {
+      default_transaction_isolation = "read committed"
+      log_min_duration_statement    = 5000
+    }
+  }
+
+  host {
+    zone             = "ru-central1-a"
+    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    assign_public_ip = true
+  }
+
+  database {
+    owner      = "alice"
+    name       = "testdb"
+    lc_collate = "en_US.UTF-8"
+    lc_type    = "en_US.UTF-8"
+  }
+
+  database {
+    owner = "alice"
     name  = "fornewuserdb"
   }
 

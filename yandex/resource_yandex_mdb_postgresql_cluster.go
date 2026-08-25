@@ -427,7 +427,7 @@ func resourceYandexMDBPostgreSQLClusterDatabaseBlock() *schema.Resource {
 			},
 			"owner": {
 				Type:        schema.TypeString,
-				Description: "Name of the user assigned as the owner of the database. Forbidden to change in an existing database.",
+				Description: "Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.",
 				Required:    true,
 			},
 			"lc_collate": {
@@ -1191,14 +1191,8 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) ([]strin
 		return []string{}, err
 	}
 
-	dDatabase := make(map[string]string)
-	cnt := d.Get("database.#").(int)
-	for i := 0; i < cnt; i++ {
-		dDatabase[d.Get(fmt.Sprintf("database.%v.name", i)).(string)] = fmt.Sprintf("database.%v.", i)
-	}
-
 	for _, u := range changedDatabases {
-		err := updatePGDatabase(ctx, config, d, u, dDatabase[u.Name])
+		err := updatePGDatabase(ctx, config, d, u)
 		if err != nil {
 			return []string{}, err
 		}
@@ -1694,21 +1688,8 @@ func createPGDatabase(ctx context.Context, config *Config, d *schema.ResourceDat
 	return nil
 }
 
-func updatePGDatabase(ctx context.Context, config *Config, d *schema.ResourceData, db *postgresql.DatabaseSpec, path string) error {
-	changeMask := map[string]string{
-		"extension": "extensions",
-	}
-
-	updatePath := []string{}
-	for field, mask := range changeMask {
-		if d.HasChange(path + field) {
-			updatePath = append(updatePath, mask)
-		}
-	}
-
-	if len(updatePath) == 0 {
-		return nil
-	}
+func updatePGDatabase(ctx context.Context, config *Config, d *schema.ResourceData, change pgDatabaseChange) error {
+	db := change.Spec
 
 	// Deletion protection and dbname changing is not supported on purpose
 	// User should use separate resources for that
@@ -1716,11 +1697,11 @@ func updatePGDatabase(ctx context.Context, config *Config, d *schema.ResourceDat
 		return requestPostgreSQLDatabaseUpdate(ctx, config.SDK, &postgresql.UpdateDatabaseRequest{
 			ClusterId:    d.Id(),
 			DatabaseName: db.Name,
+			Owner:        db.Owner,
 			Extensions:   db.Extensions,
-			UpdateMask:   &field_mask.FieldMask{Paths: updatePath},
+			UpdateMask:   &field_mask.FieldMask{Paths: change.UpdatePath},
 		})
 	})
-
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update database in PostgreSQL Cluster %q: %s", d.Id(), err)
 	}

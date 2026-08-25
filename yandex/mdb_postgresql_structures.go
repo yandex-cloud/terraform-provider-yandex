@@ -1758,8 +1758,25 @@ func pgDatabasesDiff(currDBs []*postgresql.Database, targetDBs []*postgresql.Dat
 	return toDel, toAdd
 }
 
-func pgChangedDatabases(oldSpecs []interface{}, newSpecs []interface{}) ([]*postgresql.DatabaseSpec, error) {
-	out := []*postgresql.DatabaseSpec{}
+type pgDatabaseChange struct {
+	Spec       *postgresql.DatabaseSpec
+	UpdatePath []string
+}
+
+func pgDatabaseUpdatePaths(oldDB, newDB *postgresql.DatabaseSpec) []string {
+	updatePath := []string{}
+	if oldDB.Owner != newDB.Owner {
+		updatePath = append(updatePath, "owner")
+	}
+	if !reflect.DeepEqual(oldDB.Extensions, newDB.Extensions) {
+		updatePath = append(updatePath, "extensions")
+	}
+
+	return updatePath
+}
+
+func pgChangedDatabases(oldSpecs []interface{}, newSpecs []interface{}) ([]pgDatabaseChange, error) {
+	out := []pgDatabaseChange{}
 
 	m := map[string]*postgresql.DatabaseSpec{}
 	for _, spec := range oldSpecs {
@@ -1775,10 +1792,12 @@ func pgChangedDatabases(oldSpecs []interface{}, newSpecs []interface{}) ([]*post
 		if err != nil {
 			return nil, err
 		}
-		if oldDB, ok := m[db.Name]; ok {
-			if !reflect.DeepEqual(db, oldDB) {
-				out = append(out, db)
-			}
+		oldDB, ok := m[db.Name]
+		if !ok {
+			continue
+		}
+		if updatePath := pgDatabaseUpdatePaths(oldDB, db); len(updatePath) > 0 {
+			out = append(out, pgDatabaseChange{Spec: db, UpdatePath: updatePath})
 		}
 	}
 

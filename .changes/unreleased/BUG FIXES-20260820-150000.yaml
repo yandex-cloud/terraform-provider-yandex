@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: changes of `owner` and `extension` in `database` block of `yandex_mdb_postgresql_cluster` are no longer lost when other databases are added, removed or reordered'
+time: 2026-08-20T15:00:00.000000000+03:00

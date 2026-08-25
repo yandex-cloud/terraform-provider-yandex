@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -160,6 +161,74 @@ func TestComparePGNamedHostInfo(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if result := comparePGNamedHostInfo(tt.existedHost, tt.newHost, map[string]string{}); result != tt.expected {
 				t.Errorf("comparePGNamedHostInfo() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestPGChangedDatabases(t *testing.T) {
+	database := func(name, owner string) map[string]interface{} {
+		return map[string]interface{}{"name": name, "owner": owner}
+	}
+
+	tests := []struct {
+		name     string
+		oldSpecs []interface{}
+		newSpecs []interface{}
+		expected []pgDatabaseChange
+	}{
+		{
+			name:     "owner changed",
+			oldSpecs: []interface{}{database("alice", "u1")},
+			newSpecs: []interface{}{database("alice", "u2")},
+			expected: []pgDatabaseChange{
+				{Spec: &postgresql.DatabaseSpec{Name: "alice", Owner: "u2"}, UpdatePath: []string{"owner"}},
+			},
+		},
+		{
+			name:     "nothing changed",
+			oldSpecs: []interface{}{database("alice", "u1")},
+			newSpecs: []interface{}{database("alice", "u1")},
+			expected: []pgDatabaseChange{},
+		},
+		{
+			name:     "owner changed for the database shifted by a deleted one",
+			oldSpecs: []interface{}{database("alice", "u1"), database("bob", "u2")},
+			newSpecs: []interface{}{database("bob", "u1")},
+			expected: []pgDatabaseChange{
+				{Spec: &postgresql.DatabaseSpec{Name: "bob", Owner: "u1"}, UpdatePath: []string{"owner"}},
+			},
+		},
+		{
+			name:     "databases reordered without changes",
+			oldSpecs: []interface{}{database("alice", "u1"), database("bob", "u2")},
+			newSpecs: []interface{}{database("bob", "u2"), database("alice", "u1")},
+			expected: []pgDatabaseChange{},
+		},
+		{
+			name:     "added database is not an update",
+			oldSpecs: []interface{}{database("alice", "u1")},
+			newSpecs: []interface{}{database("alice", "u1"), database("bob", "u2")},
+			expected: []pgDatabaseChange{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := pgChangedDatabases(tt.oldSpecs, tt.newSpecs)
+			if err != nil {
+				t.Fatalf("pgChangedDatabases() returned error: %v", err)
+			}
+			if len(result) != len(tt.expected) {
+				t.Fatalf("pgChangedDatabases() returned %d changes, want %d", len(result), len(tt.expected))
+			}
+			for i, change := range result {
+				if change.Spec.Name != tt.expected[i].Spec.Name || change.Spec.Owner != tt.expected[i].Spec.Owner {
+					t.Errorf("pgChangedDatabases()[%d].Spec = %v, want %v", i, change.Spec, tt.expected[i].Spec)
+				}
+				if !reflect.DeepEqual(change.UpdatePath, tt.expected[i].UpdatePath) {
+					t.Errorf("pgChangedDatabases()[%d].UpdatePath = %v, want %v", i, change.UpdatePath, tt.expected[i].UpdatePath)
+				}
 			}
 		})
 	}
