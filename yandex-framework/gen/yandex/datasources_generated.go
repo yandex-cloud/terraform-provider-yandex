@@ -35,6 +35,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha_keys"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_advanced_rate_limiter_profile"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_domain"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_load_balancer"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_match_list"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_security_profile"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_waf_profile"
@@ -75,6 +77,8 @@ func init() {
 		yandex_smartcaptcha_captcha.NewDataSource,
 		yandex_smartcaptcha_captcha_keys.NewDataSource,
 		yandex_sws_advanced_rate_limiter_profile.NewDataSource,
+		yandex_sws_domain.NewDataSource,
+		yandex_sws_load_balancer.NewDataSource,
 		yandex_sws_match_list.NewDataSource,
 		yandex_sws_waf_rule_set_descriptor.NewDataSource,
 		yandex_sws_waf_profile.NewDataSource,

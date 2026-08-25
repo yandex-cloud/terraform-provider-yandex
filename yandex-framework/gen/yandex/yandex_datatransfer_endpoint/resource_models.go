@@ -16238,6 +16238,7 @@ func expandYandexDatatransferEndpointSettingsPostgresTargetSecurityGroups(ctx co
 }
 
 type yandexDatatransferEndpointSettingsYdbSourceModel struct {
+	Authentication               types.List   `tfsdk:"authentication"`
 	ChangefeedCustomConsumerName types.String `tfsdk:"changefeed_custom_consumer_name"`
 	ChangefeedCustomName         types.String `tfsdk:"changefeed_custom_name"`
 	Database                     types.String `tfsdk:"database"`
@@ -16247,8 +16248,12 @@ type yandexDatatransferEndpointSettingsYdbSourceModel struct {
 	SecurityGroups               types.List   `tfsdk:"security_groups"`
 	ServiceAccountId             types.String `tfsdk:"service_account_id"`
 	SubnetId                     types.String `tfsdk:"subnet_id"`
+	YdbConnection                types.List   `tfsdk:"ydb_connection"`
 }
 
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) GetAuthentication() types.List {
+	return m.Authentication
+}
 func (m *yandexDatatransferEndpointSettingsYdbSourceModel) GetChangefeedCustomConsumerName() types.String {
 	return m.ChangefeedCustomConsumerName
 }
@@ -16276,7 +16281,13 @@ func (m *yandexDatatransferEndpointSettingsYdbSourceModel) GetServiceAccountId()
 func (m *yandexDatatransferEndpointSettingsYdbSourceModel) GetSubnetId() types.String {
 	return m.SubnetId
 }
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) GetYdbConnection() types.List {
+	return m.YdbConnection
+}
 
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetAuthentication(target types.List) {
+	m.Authentication = target
+}
 func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetChangefeedCustomConsumerName(target types.String) {
 	m.ChangefeedCustomConsumerName = target
 }
@@ -16304,9 +16315,13 @@ func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetServiceAccountId(t
 func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetSubnetId(target types.String) {
 	m.SubnetId = target
 }
+func (m *yandexDatatransferEndpointSettingsYdbSourceModel) SetYdbConnection(target types.List) {
+	m.YdbConnection = target
+}
 
 func NewYandexDatatransferEndpointSettingsYdbSourceModel() yandexDatatransferEndpointSettingsYdbSourceModel {
 	return yandexDatatransferEndpointSettingsYdbSourceModel{
+		Authentication:               types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType),
 		ChangefeedCustomConsumerName: types.StringNull(),
 		ChangefeedCustomName:         types.StringNull(),
 		Database:                     types.StringNull(),
@@ -16316,10 +16331,14 @@ func NewYandexDatatransferEndpointSettingsYdbSourceModel() yandexDatatransferEnd
 		SecurityGroups:               types.ListNull(types.StringType),
 		ServiceAccountId:             types.StringNull(),
 		SubnetId:                     types.StringNull(),
+		YdbConnection:                types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType),
 	}
 }
 
 func yandexDatatransferEndpointSettingsYdbSourceModelFillUnknown(target yandexDatatransferEndpointSettingsYdbSourceModel) yandexDatatransferEndpointSettingsYdbSourceModel {
+	if target.Authentication.IsUnknown() || target.Authentication.IsNull() {
+		target.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType)
+	}
 	if target.ChangefeedCustomConsumerName.IsUnknown() || target.ChangefeedCustomConsumerName.IsNull() {
 		target.ChangefeedCustomConsumerName = types.StringNull()
 	}
@@ -16347,11 +16366,15 @@ func yandexDatatransferEndpointSettingsYdbSourceModelFillUnknown(target yandexDa
 	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
 		target.SubnetId = types.StringNull()
 	}
+	if target.YdbConnection.IsUnknown() || target.YdbConnection.IsNull() {
+		target.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType)
+	}
 	return target
 }
 
 var yandexDatatransferEndpointSettingsYdbSourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"authentication":                  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType},
 		"changefeed_custom_consumer_name": types.StringType,
 		"changefeed_custom_name":          types.StringType,
 		"database":                        types.StringType,
@@ -16361,6 +16384,7 @@ var yandexDatatransferEndpointSettingsYdbSourceModelType = types.ObjectType{
 		"security_groups":                 types.ListType{ElemType: types.StringType},
 		"service_account_id":              types.StringType,
 		"subnet_id":                       types.StringType,
+		"ydb_connection":                  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType},
 	},
 }
 
@@ -16395,6 +16419,7 @@ func flattenYandexDatatransferEndpointSettingsYdbSource(ctx context.Context,
 		state = yandexDatatransferEndpointSettingsYdbSourceType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceModel{
+		Authentication:               flattenYandexDatatransferEndpointSettingsYdbSourceAuthentication(ctx, yandexDatatransferEndpointSettingsYdbSource.GetAuthentication(), state.Authentication, diags),
 		ChangefeedCustomConsumerName: types.StringValue(yandexDatatransferEndpointSettingsYdbSource.GetChangefeedCustomConsumerName()),
 		ChangefeedCustomName:         types.StringValue(yandexDatatransferEndpointSettingsYdbSource.GetChangefeedCustomName()),
 		Database:                     types.StringValue(yandexDatatransferEndpointSettingsYdbSource.GetDatabase()),
@@ -16404,6 +16429,7 @@ func flattenYandexDatatransferEndpointSettingsYdbSource(ctx context.Context,
 		SecurityGroups:               flattenYandexDatatransferEndpointSettingsYdbSourceSecurityGroups(ctx, yandexDatatransferEndpointSettingsYdbSource.GetSecurityGroups(), state.SecurityGroups, diags),
 		ServiceAccountId:             types.StringValue(yandexDatatransferEndpointSettingsYdbSource.GetServiceAccountId()),
 		SubnetId:                     types.StringValue(yandexDatatransferEndpointSettingsYdbSource.GetSubnetId()),
+		YdbConnection:                flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnection(ctx, yandexDatatransferEndpointSettingsYdbSource.GetYdbConnection(), state.YdbConnection, diags),
 	})
 	diags.Append(diag...)
 	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbSourceModelType, []attr.Value{value})
@@ -16428,6 +16454,7 @@ func expandYandexDatatransferEndpointSettingsYdbSource(ctx context.Context, yand
 
 func expandYandexDatatransferEndpointSettingsYdbSourceModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceState yandexDatatransferEndpointSettingsYdbSourceModel, diags *diag.Diagnostics) *endpoint.YdbSource {
 	value := &endpoint.YdbSource{}
+	value.SetAuthentication(expandYandexDatatransferEndpointSettingsYdbSourceAuthentication(ctx, yandexDatatransferEndpointSettingsYdbSourceState.Authentication, diags))
 	value.SetChangefeedCustomConsumerName(yandexDatatransferEndpointSettingsYdbSourceState.ChangefeedCustomConsumerName.ValueString())
 	value.SetChangefeedCustomName(yandexDatatransferEndpointSettingsYdbSourceState.ChangefeedCustomName.ValueString())
 	value.SetDatabase(yandexDatatransferEndpointSettingsYdbSourceState.Database.ValueString())
@@ -16437,6 +16464,188 @@ func expandYandexDatatransferEndpointSettingsYdbSourceModel(ctx context.Context,
 	value.SetSecurityGroups(expandYandexDatatransferEndpointSettingsYdbSourceSecurityGroups(ctx, yandexDatatransferEndpointSettingsYdbSourceState.SecurityGroups, diags))
 	value.SetServiceAccountId(yandexDatatransferEndpointSettingsYdbSourceState.ServiceAccountId.ValueString())
 	value.SetSubnetId(yandexDatatransferEndpointSettingsYdbSourceState.SubnetId.ValueString())
+	value.SetYdbConnection(expandYandexDatatransferEndpointSettingsYdbSourceYdbConnection(ctx, yandexDatatransferEndpointSettingsYdbSourceState.YdbConnection, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel struct {
+	ServiceAccount types.List `tfsdk:"service_account"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel) GetServiceAccount() types.List {
+	return m.ServiceAccount
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel) SetServiceAccount(target types.List) {
+	m.ServiceAccount = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbSourceAuthenticationModel() yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel {
+	return yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel{
+		ServiceAccount: types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelFillUnknown(target yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel) yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel {
+	if target.ServiceAccount.IsUnknown() || target.ServiceAccount.IsNull() {
+		target.ServiceAccount = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"service_account": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbSourceAuthentication(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbSourceAuthentication *endpoint.AuthenticationMethod,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbSourceAuthentication == nil || (yandexDatatransferEndpointSettingsYdbSourceAuthentication.String() == (&endpoint.AuthenticationMethod{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbSourceAuthenticationType := make([]yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceAuthenticationType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbSourceAuthenticationType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdbSourceAuthenticationType := make([]yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceAuthenticationType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdbSourceAuthenticationType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel{
+		ServiceAccount: flattenYandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccount(ctx, yandexDatatransferEndpointSettingsYdbSourceAuthentication.GetServiceAccount(), state.ServiceAccount, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceAuthentication(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceAuthenticationState types.List, diags *diag.Diagnostics) *endpoint.AuthenticationMethod {
+	if yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.IsNull() || yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbSourceAuthenticationType := make([]yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceAuthenticationType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbSourceAuthenticationModel(ctx, yandexDatatransferEndpointSettingsYdbSourceAuthenticationType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceAuthenticationModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceAuthenticationState yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel, diags *diag.Diagnostics) *endpoint.AuthenticationMethod {
+	value := &endpoint.AuthenticationMethod{}
+	if !(yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount.IsNull() || yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount.IsUnknown() || len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount.Elements()) == 0) {
+		value.SetServiceAccount(expandYandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccount(ctx, yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel struct {
+	ServiceAccountId types.String `tfsdk:"service_account_id"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel) GetServiceAccountId() types.String {
+	return m.ServiceAccountId
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel() yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel {
+	return yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel{
+		ServiceAccountId: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelFillUnknown(target yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel) yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel {
+	if target.ServiceAccountId.IsUnknown() || target.ServiceAccountId.IsNull() {
+		target.ServiceAccountId = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"service_account_id": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccount(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccount *endpoint.AuthenticationMethod_ServiceAccount,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccount == nil || (yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccount.String() == (&endpoint.AuthenticationMethod_ServiceAccount{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountType := make([]yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel{
+		ServiceAccountId: types.StringValue(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccount.GetServiceAccountId()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccount(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState types.List, diags *diag.Diagnostics) *endpoint.AuthenticationMethod_ServiceAccount {
+	if yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState.IsNull() || yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountType := make([]yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel(ctx, yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel, diags *diag.Diagnostics) *endpoint.AuthenticationMethod_ServiceAccount {
+	value := &endpoint.AuthenticationMethod_ServiceAccount{}
+	value.SetServiceAccountId(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState.ServiceAccountId.ValueString())
 	if diags.HasError() {
 		return nil
 	}
@@ -16517,7 +16726,519 @@ func expandYandexDatatransferEndpointSettingsYdbSourceSecurityGroups(ctx context
 	return yandexDatatransferEndpointSettingsYdbSourceSecurityGroupsRes
 }
 
+type yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel struct {
+	DatabaseId types.String `tfsdk:"database_id"`
+	OnPremise  types.List   `tfsdk:"on_premise"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel) GetDatabaseId() types.String {
+	return m.DatabaseId
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel) GetOnPremise() types.List {
+	return m.OnPremise
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel) SetDatabaseId(target types.String) {
+	m.DatabaseId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel() yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel {
+	return yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel{
+		DatabaseId: types.StringNull(),
+		OnPremise:  types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelFillUnknown(target yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel) yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel {
+	if target.DatabaseId.IsUnknown() || target.DatabaseId.IsNull() {
+		target.DatabaseId = types.StringNull()
+	}
+	if target.OnPremise.IsUnknown() || target.OnPremise.IsNull() {
+		target.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"database_id": types.StringType,
+		"on_premise":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnection(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnection *endpoint.YDBConnection,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnection == nil || (yandexDatatransferEndpointSettingsYdbSourceYdbConnection.String() == (&endpoint.YDBConnection{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbSourceYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdbSourceYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel{
+		DatabaseId: types.StringValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnection.GetDatabaseId()),
+		OnPremise:  flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnection.GetOnPremise(), state.OnPremise, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnection(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState types.List, diags *diag.Diagnostics) *endpoint.YDBConnection {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel, diags *diag.Diagnostics) *endpoint.YDBConnection {
+	value := &endpoint.YDBConnection{}
+	if !(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.DatabaseId.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.DatabaseId.IsUnknown() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.DatabaseId.Equal(types.StringValue(""))) {
+		value.SetDatabaseId(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.DatabaseId.ValueString())
+	}
+	if !(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise.IsUnknown() || len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise.Elements()) == 0) {
+		value.SetOnPremise(expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel struct {
+	Database types.String `tfsdk:"database"`
+	Instance types.String `tfsdk:"instance"`
+	SubnetId types.String `tfsdk:"subnet_id"`
+	TlsMode  types.List   `tfsdk:"tls_mode"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel) GetDatabase() types.String {
+	return m.Database
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel) GetInstance() types.String {
+	return m.Instance
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel) GetSubnetId() types.String {
+	return m.SubnetId
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel) GetTlsMode() types.List {
+	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel) SetInstance(target types.String) {
+	m.Instance = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel() yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel {
+	return yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel{
+		Database: types.StringNull(),
+		Instance: types.StringNull(),
+		SubnetId: types.StringNull(),
+		TlsMode:  types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelFillUnknown(target yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel) yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel {
+	if target.Database.IsUnknown() || target.Database.IsNull() {
+		target.Database = types.StringNull()
+	}
+	if target.Instance.IsUnknown() || target.Instance.IsNull() {
+		target.Instance = types.StringNull()
+	}
+	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
+		target.SubnetId = types.StringNull()
+	}
+	if target.TlsMode.IsUnknown() || target.TlsMode.IsNull() {
+		target.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"database":  types.StringType,
+		"instance":  types.StringType,
+		"subnet_id": types.StringType,
+		"tls_mode":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise *endpoint.OnPremiseYDB,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise == nil || (yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise.String() == (&endpoint.OnPremiseYDB{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel{
+		Database: types.StringValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise.GetDatabase()),
+		Instance: types.StringValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise.GetInstance()),
+		SubnetId: types.StringValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise.GetSubnetId()),
+		TlsMode:  flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsMode(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise.GetTlsMode(), state.TlsMode, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremise(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState types.List, diags *diag.Diagnostics) *endpoint.OnPremiseYDB {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel, diags *diag.Diagnostics) *endpoint.OnPremiseYDB {
+	value := &endpoint.OnPremiseYDB{}
+	value.SetDatabase(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.Database.ValueString())
+	value.SetInstance(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.Instance.ValueString())
+	value.SetSubnetId(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.SubnetId.ValueString())
+	value.SetTlsMode(expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsMode(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.TlsMode, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel struct {
+	Disabled types.List `tfsdk:"disabled"`
+	Enabled  types.List `tfsdk:"enabled"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel) GetDisabled() types.List {
+	return m.Disabled
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
+	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel {
+	return yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel{
+		Disabled: types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType),
+		Enabled:  types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelFillUnknown(target yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel) yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType)
+	}
+	if target.Enabled.IsUnknown() || target.Enabled.IsNull() {
+		target.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"disabled": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType},
+		"enabled":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsMode(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsMode *endpoint.TLSMode,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsMode == nil || (yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsMode.String() == (&endpoint.TLSMode{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel{
+		Disabled: flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsMode.GetDisabled(), state.Disabled, diags),
+		Enabled:  flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsMode.GetEnabled(), state.Enabled, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsMode(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState types.List, diags *diag.Diagnostics) *endpoint.TLSMode {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel, diags *diag.Diagnostics) *endpoint.TLSMode {
+	value := &endpoint.TLSMode{}
+	if !(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Disabled.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Disabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Disabled.Elements()) == 0) {
+		value.SetDisabled(expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Disabled, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled.Elements()) == 0) {
+		value.SetEnabled(expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel struct {
+}
+
+func NewYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel() yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel {
+	return yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel{}
+}
+
+func yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel) yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel {
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabled *emptypb.Empty,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabled == nil || (yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabled.String() == (&emptypb.Empty{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel{})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabled(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledState types.List, diags *diag.Diagnostics) *emptypb.Empty {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledState.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledState yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeDisabledModel, diags *diag.Diagnostics) *emptypb.Empty {
+	value := &emptypb.Empty{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel struct {
+	CaCertificate types.String `tfsdk:"ca_certificate"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel {
+	return yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel{
+		CaCertificate: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel) yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"ca_certificate": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabled *endpoint.TLSConfig,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabled == nil || (yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabled.String() == (&endpoint.TLSConfig{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel{
+		CaCertificate: types.StringValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabled.GetCaCertificate()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabled(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState types.List, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel(ctx, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	value := &endpoint.TLSConfig{}
+	value.SetCaCertificate(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState.CaCertificate.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
 type yandexDatatransferEndpointSettingsYdbTargetModel struct {
+	Authentication            types.List   `tfsdk:"authentication"`
 	CleanupPolicy             types.String `tfsdk:"cleanup_policy"`
 	Database                  types.String `tfsdk:"database"`
 	DefaultCompression        types.String `tfsdk:"default_compression"`
@@ -16529,8 +17250,12 @@ type yandexDatatransferEndpointSettingsYdbTargetModel struct {
 	SecurityGroups            types.List   `tfsdk:"security_groups"`
 	ServiceAccountId          types.String `tfsdk:"service_account_id"`
 	SubnetId                  types.String `tfsdk:"subnet_id"`
+	YdbConnection             types.List   `tfsdk:"ydb_connection"`
 }
 
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) GetAuthentication() types.List {
+	return m.Authentication
+}
 func (m *yandexDatatransferEndpointSettingsYdbTargetModel) GetCleanupPolicy() types.String {
 	return m.CleanupPolicy
 }
@@ -16564,7 +17289,13 @@ func (m *yandexDatatransferEndpointSettingsYdbTargetModel) GetServiceAccountId()
 func (m *yandexDatatransferEndpointSettingsYdbTargetModel) GetSubnetId() types.String {
 	return m.SubnetId
 }
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) GetYdbConnection() types.List {
+	return m.YdbConnection
+}
 
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetAuthentication(target types.List) {
+	m.Authentication = target
+}
 func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetCleanupPolicy(target types.String) {
 	m.CleanupPolicy = target
 }
@@ -16598,9 +17329,13 @@ func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetServiceAccountId(t
 func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetSubnetId(target types.String) {
 	m.SubnetId = target
 }
+func (m *yandexDatatransferEndpointSettingsYdbTargetModel) SetYdbConnection(target types.List) {
+	m.YdbConnection = target
+}
 
 func NewYandexDatatransferEndpointSettingsYdbTargetModel() yandexDatatransferEndpointSettingsYdbTargetModel {
 	return yandexDatatransferEndpointSettingsYdbTargetModel{
+		Authentication:            types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType),
 		CleanupPolicy:             types.StringNull(),
 		Database:                  types.StringNull(),
 		DefaultCompression:        types.StringNull(),
@@ -16612,10 +17347,14 @@ func NewYandexDatatransferEndpointSettingsYdbTargetModel() yandexDatatransferEnd
 		SecurityGroups:            types.ListNull(types.StringType),
 		ServiceAccountId:          types.StringNull(),
 		SubnetId:                  types.StringNull(),
+		YdbConnection:             types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType),
 	}
 }
 
 func yandexDatatransferEndpointSettingsYdbTargetModelFillUnknown(target yandexDatatransferEndpointSettingsYdbTargetModel) yandexDatatransferEndpointSettingsYdbTargetModel {
+	if target.Authentication.IsUnknown() || target.Authentication.IsNull() {
+		target.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType)
+	}
 	if target.CleanupPolicy.IsUnknown() || target.CleanupPolicy.IsNull() {
 		target.CleanupPolicy = types.StringNull()
 	}
@@ -16649,11 +17388,15 @@ func yandexDatatransferEndpointSettingsYdbTargetModelFillUnknown(target yandexDa
 	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
 		target.SubnetId = types.StringNull()
 	}
+	if target.YdbConnection.IsUnknown() || target.YdbConnection.IsNull() {
+		target.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType)
+	}
 	return target
 }
 
 var yandexDatatransferEndpointSettingsYdbTargetModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"authentication":               types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType},
 		"cleanup_policy":               types.StringType,
 		"database":                     types.StringType,
 		"default_compression":          types.StringType,
@@ -16665,6 +17408,7 @@ var yandexDatatransferEndpointSettingsYdbTargetModelType = types.ObjectType{
 		"security_groups":              types.ListType{ElemType: types.StringType},
 		"service_account_id":           types.StringType,
 		"subnet_id":                    types.StringType,
+		"ydb_connection":               types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType},
 	},
 }
 
@@ -16699,6 +17443,7 @@ func flattenYandexDatatransferEndpointSettingsYdbTarget(ctx context.Context,
 		state = yandexDatatransferEndpointSettingsYdbTargetType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetModel{
+		Authentication:            flattenYandexDatatransferEndpointSettingsYdbTargetAuthentication(ctx, yandexDatatransferEndpointSettingsYdbTarget.GetAuthentication(), state.Authentication, diags),
 		CleanupPolicy:             types.StringValue(yandexDatatransferEndpointSettingsYdbTarget.GetCleanupPolicy().String()),
 		Database:                  types.StringValue(yandexDatatransferEndpointSettingsYdbTarget.GetDatabase()),
 		DefaultCompression:        types.StringValue(yandexDatatransferEndpointSettingsYdbTarget.GetDefaultCompression().String()),
@@ -16710,6 +17455,7 @@ func flattenYandexDatatransferEndpointSettingsYdbTarget(ctx context.Context,
 		SecurityGroups:            flattenYandexDatatransferEndpointSettingsYdbTargetSecurityGroups(ctx, yandexDatatransferEndpointSettingsYdbTarget.GetSecurityGroups(), state.SecurityGroups, diags),
 		ServiceAccountId:          types.StringValue(yandexDatatransferEndpointSettingsYdbTarget.GetServiceAccountId()),
 		SubnetId:                  types.StringValue(yandexDatatransferEndpointSettingsYdbTarget.GetSubnetId()),
+		YdbConnection:             flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnection(ctx, yandexDatatransferEndpointSettingsYdbTarget.GetYdbConnection(), state.YdbConnection, diags),
 	})
 	diags.Append(diag...)
 	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbTargetModelType, []attr.Value{value})
@@ -16734,6 +17480,7 @@ func expandYandexDatatransferEndpointSettingsYdbTarget(ctx context.Context, yand
 
 func expandYandexDatatransferEndpointSettingsYdbTargetModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetState yandexDatatransferEndpointSettingsYdbTargetModel, diags *diag.Diagnostics) *endpoint.YdbTarget {
 	value := &endpoint.YdbTarget{}
+	value.SetAuthentication(expandYandexDatatransferEndpointSettingsYdbTargetAuthentication(ctx, yandexDatatransferEndpointSettingsYdbTargetState.Authentication, diags))
 	value.SetCleanupPolicy(endpoint.YdbCleanupPolicy(endpoint.YdbCleanupPolicy_value[yandexDatatransferEndpointSettingsYdbTargetState.CleanupPolicy.ValueString()]))
 	value.SetDatabase(yandexDatatransferEndpointSettingsYdbTargetState.Database.ValueString())
 	value.SetDefaultCompression(endpoint.YdbDefaultCompression(endpoint.YdbDefaultCompression_value[yandexDatatransferEndpointSettingsYdbTargetState.DefaultCompression.ValueString()]))
@@ -16745,6 +17492,188 @@ func expandYandexDatatransferEndpointSettingsYdbTargetModel(ctx context.Context,
 	value.SetSecurityGroups(expandYandexDatatransferEndpointSettingsYdbTargetSecurityGroups(ctx, yandexDatatransferEndpointSettingsYdbTargetState.SecurityGroups, diags))
 	value.SetServiceAccountId(yandexDatatransferEndpointSettingsYdbTargetState.ServiceAccountId.ValueString())
 	value.SetSubnetId(yandexDatatransferEndpointSettingsYdbTargetState.SubnetId.ValueString())
+	value.SetYdbConnection(expandYandexDatatransferEndpointSettingsYdbTargetYdbConnection(ctx, yandexDatatransferEndpointSettingsYdbTargetState.YdbConnection, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel struct {
+	ServiceAccount types.List `tfsdk:"service_account"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel) GetServiceAccount() types.List {
+	return m.ServiceAccount
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel) SetServiceAccount(target types.List) {
+	m.ServiceAccount = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbTargetAuthenticationModel() yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel {
+	return yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel{
+		ServiceAccount: types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelFillUnknown(target yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel) yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel {
+	if target.ServiceAccount.IsUnknown() || target.ServiceAccount.IsNull() {
+		target.ServiceAccount = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"service_account": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbTargetAuthentication(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbTargetAuthentication *endpoint.AuthenticationMethod,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbTargetAuthentication == nil || (yandexDatatransferEndpointSettingsYdbTargetAuthentication.String() == (&endpoint.AuthenticationMethod{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbTargetAuthenticationType := make([]yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetAuthenticationType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbTargetAuthenticationType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdbTargetAuthenticationType := make([]yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetAuthenticationType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdbTargetAuthenticationType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel{
+		ServiceAccount: flattenYandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccount(ctx, yandexDatatransferEndpointSettingsYdbTargetAuthentication.GetServiceAccount(), state.ServiceAccount, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetAuthentication(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetAuthenticationState types.List, diags *diag.Diagnostics) *endpoint.AuthenticationMethod {
+	if yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.IsNull() || yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbTargetAuthenticationType := make([]yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetAuthenticationType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbTargetAuthenticationModel(ctx, yandexDatatransferEndpointSettingsYdbTargetAuthenticationType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetAuthenticationModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetAuthenticationState yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel, diags *diag.Diagnostics) *endpoint.AuthenticationMethod {
+	value := &endpoint.AuthenticationMethod{}
+	if !(yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount.IsNull() || yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount.IsUnknown() || len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount.Elements()) == 0) {
+		value.SetServiceAccount(expandYandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccount(ctx, yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel struct {
+	ServiceAccountId types.String `tfsdk:"service_account_id"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel) GetServiceAccountId() types.String {
+	return m.ServiceAccountId
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel() yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel {
+	return yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel{
+		ServiceAccountId: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelFillUnknown(target yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel) yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel {
+	if target.ServiceAccountId.IsUnknown() || target.ServiceAccountId.IsNull() {
+		target.ServiceAccountId = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"service_account_id": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccount(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccount *endpoint.AuthenticationMethod_ServiceAccount,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccount == nil || (yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccount.String() == (&endpoint.AuthenticationMethod_ServiceAccount{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountType := make([]yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel{
+		ServiceAccountId: types.StringValue(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccount.GetServiceAccountId()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccount(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState types.List, diags *diag.Diagnostics) *endpoint.AuthenticationMethod_ServiceAccount {
+	if yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState.IsNull() || yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountType := make([]yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel(ctx, yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel, diags *diag.Diagnostics) *endpoint.AuthenticationMethod_ServiceAccount {
+	value := &endpoint.AuthenticationMethod_ServiceAccount{}
+	value.SetServiceAccountId(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState.ServiceAccountId.ValueString())
 	if diags.HasError() {
 		return nil
 	}
@@ -16788,8 +17717,520 @@ func expandYandexDatatransferEndpointSettingsYdbTargetSecurityGroups(ctx context
 	return yandexDatatransferEndpointSettingsYdbTargetSecurityGroupsRes
 }
 
+type yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel struct {
+	DatabaseId types.String `tfsdk:"database_id"`
+	OnPremise  types.List   `tfsdk:"on_premise"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel) GetDatabaseId() types.String {
+	return m.DatabaseId
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel) GetOnPremise() types.List {
+	return m.OnPremise
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel) SetDatabaseId(target types.String) {
+	m.DatabaseId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel() yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel {
+	return yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel{
+		DatabaseId: types.StringNull(),
+		OnPremise:  types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelFillUnknown(target yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel) yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel {
+	if target.DatabaseId.IsUnknown() || target.DatabaseId.IsNull() {
+		target.DatabaseId = types.StringNull()
+	}
+	if target.OnPremise.IsUnknown() || target.OnPremise.IsNull() {
+		target.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"database_id": types.StringType,
+		"on_premise":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnection(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnection *endpoint.YDBConnection,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnection == nil || (yandexDatatransferEndpointSettingsYdbTargetYdbConnection.String() == (&endpoint.YDBConnection{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbTargetYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdbTargetYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel{
+		DatabaseId: types.StringValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnection.GetDatabaseId()),
+		OnPremise:  flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnection.GetOnPremise(), state.OnPremise, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnection(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState types.List, diags *diag.Diagnostics) *endpoint.YDBConnection {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel, diags *diag.Diagnostics) *endpoint.YDBConnection {
+	value := &endpoint.YDBConnection{}
+	if !(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.DatabaseId.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.DatabaseId.IsUnknown() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.DatabaseId.Equal(types.StringValue(""))) {
+		value.SetDatabaseId(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.DatabaseId.ValueString())
+	}
+	if !(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise.IsUnknown() || len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise.Elements()) == 0) {
+		value.SetOnPremise(expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel struct {
+	Database types.String `tfsdk:"database"`
+	Instance types.String `tfsdk:"instance"`
+	SubnetId types.String `tfsdk:"subnet_id"`
+	TlsMode  types.List   `tfsdk:"tls_mode"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel) GetDatabase() types.String {
+	return m.Database
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel) GetInstance() types.String {
+	return m.Instance
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel) GetSubnetId() types.String {
+	return m.SubnetId
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel) GetTlsMode() types.List {
+	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel) SetInstance(target types.String) {
+	m.Instance = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel() yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel {
+	return yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel{
+		Database: types.StringNull(),
+		Instance: types.StringNull(),
+		SubnetId: types.StringNull(),
+		TlsMode:  types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelFillUnknown(target yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel) yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel {
+	if target.Database.IsUnknown() || target.Database.IsNull() {
+		target.Database = types.StringNull()
+	}
+	if target.Instance.IsUnknown() || target.Instance.IsNull() {
+		target.Instance = types.StringNull()
+	}
+	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
+		target.SubnetId = types.StringNull()
+	}
+	if target.TlsMode.IsUnknown() || target.TlsMode.IsNull() {
+		target.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"database":  types.StringType,
+		"instance":  types.StringType,
+		"subnet_id": types.StringType,
+		"tls_mode":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise *endpoint.OnPremiseYDB,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise == nil || (yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise.String() == (&endpoint.OnPremiseYDB{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel{
+		Database: types.StringValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise.GetDatabase()),
+		Instance: types.StringValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise.GetInstance()),
+		SubnetId: types.StringValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise.GetSubnetId()),
+		TlsMode:  flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsMode(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise.GetTlsMode(), state.TlsMode, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremise(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState types.List, diags *diag.Diagnostics) *endpoint.OnPremiseYDB {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel, diags *diag.Diagnostics) *endpoint.OnPremiseYDB {
+	value := &endpoint.OnPremiseYDB{}
+	value.SetDatabase(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.Database.ValueString())
+	value.SetInstance(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.Instance.ValueString())
+	value.SetSubnetId(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.SubnetId.ValueString())
+	value.SetTlsMode(expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsMode(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.TlsMode, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel struct {
+	Disabled types.List `tfsdk:"disabled"`
+	Enabled  types.List `tfsdk:"enabled"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel) GetDisabled() types.List {
+	return m.Disabled
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
+	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel {
+	return yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel{
+		Disabled: types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType),
+		Enabled:  types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelFillUnknown(target yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel) yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType)
+	}
+	if target.Enabled.IsUnknown() || target.Enabled.IsNull() {
+		target.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"disabled": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType},
+		"enabled":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsMode(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsMode *endpoint.TLSMode,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsMode == nil || (yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsMode.String() == (&endpoint.TLSMode{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel{
+		Disabled: flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsMode.GetDisabled(), state.Disabled, diags),
+		Enabled:  flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsMode.GetEnabled(), state.Enabled, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsMode(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState types.List, diags *diag.Diagnostics) *endpoint.TLSMode {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel, diags *diag.Diagnostics) *endpoint.TLSMode {
+	value := &endpoint.TLSMode{}
+	if !(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Disabled.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Disabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Disabled.Elements()) == 0) {
+		value.SetDisabled(expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Disabled, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled.Elements()) == 0) {
+		value.SetEnabled(expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel struct {
+}
+
+func NewYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel() yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel {
+	return yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel{}
+}
+
+func yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel) yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel {
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabled *emptypb.Empty,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabled == nil || (yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabled.String() == (&emptypb.Empty{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel{})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabled(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledState types.List, diags *diag.Diagnostics) *emptypb.Empty {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledState.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledState yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeDisabledModel, diags *diag.Diagnostics) *emptypb.Empty {
+	value := &emptypb.Empty{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel struct {
+	CaCertificate types.String `tfsdk:"ca_certificate"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
+func (m *yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel {
+	return yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel{
+		CaCertificate: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel) yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"ca_certificate": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabled *endpoint.TLSConfig,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabled == nil || (yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabled.String() == (&endpoint.TLSConfig{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel{
+		CaCertificate: types.StringValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabled.GetCaCertificate()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabled(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState types.List, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel(ctx, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	value := &endpoint.TLSConfig{}
+	value.SetCaCertificate(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState.CaCertificate.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
 type yandexDatatransferEndpointSettingsYdsSourceModel struct {
 	AllowTtlRewind   types.Bool   `tfsdk:"allow_ttl_rewind"`
+	Authentication   types.List   `tfsdk:"authentication"`
 	Consumer         types.String `tfsdk:"consumer"`
 	Database         types.String `tfsdk:"database"`
 	Endpoint         types.String `tfsdk:"endpoint"`
@@ -16799,10 +18240,14 @@ type yandexDatatransferEndpointSettingsYdsSourceModel struct {
 	Stream           types.String `tfsdk:"stream"`
 	SubnetId         types.String `tfsdk:"subnet_id"`
 	SupportedCodecs  types.List   `tfsdk:"supported_codecs"`
+	YdbConnection    types.List   `tfsdk:"ydb_connection"`
 }
 
 func (m *yandexDatatransferEndpointSettingsYdsSourceModel) GetAllowTtlRewind() types.Bool {
 	return m.AllowTtlRewind
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) GetAuthentication() types.List {
+	return m.Authentication
 }
 func (m *yandexDatatransferEndpointSettingsYdsSourceModel) GetConsumer() types.String {
 	return m.Consumer
@@ -16831,9 +18276,15 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceModel) GetSubnetId() types.S
 func (m *yandexDatatransferEndpointSettingsYdsSourceModel) GetSupportedCodecs() types.List {
 	return m.SupportedCodecs
 }
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) GetYdbConnection() types.List {
+	return m.YdbConnection
+}
 
 func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetAllowTtlRewind(target types.Bool) {
 	m.AllowTtlRewind = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetAuthentication(target types.List) {
+	m.Authentication = target
 }
 func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetConsumer(target types.String) {
 	m.Consumer = target
@@ -16862,10 +18313,14 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetSubnetId(target ty
 func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetSupportedCodecs(target types.List) {
 	m.SupportedCodecs = target
 }
+func (m *yandexDatatransferEndpointSettingsYdsSourceModel) SetYdbConnection(target types.List) {
+	m.YdbConnection = target
+}
 
 func NewYandexDatatransferEndpointSettingsYdsSourceModel() yandexDatatransferEndpointSettingsYdsSourceModel {
 	return yandexDatatransferEndpointSettingsYdsSourceModel{
 		AllowTtlRewind:   types.BoolNull(),
+		Authentication:   types.ListNull(yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType),
 		Consumer:         types.StringNull(),
 		Database:         types.StringNull(),
 		Endpoint:         types.StringNull(),
@@ -16875,12 +18330,16 @@ func NewYandexDatatransferEndpointSettingsYdsSourceModel() yandexDatatransferEnd
 		Stream:           types.StringNull(),
 		SubnetId:         types.StringNull(),
 		SupportedCodecs:  types.ListNull(types.StringType),
+		YdbConnection:    types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType),
 	}
 }
 
 func yandexDatatransferEndpointSettingsYdsSourceModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceModel) yandexDatatransferEndpointSettingsYdsSourceModel {
 	if target.AllowTtlRewind.IsUnknown() || target.AllowTtlRewind.IsNull() {
 		target.AllowTtlRewind = types.BoolNull()
+	}
+	if target.Authentication.IsUnknown() || target.Authentication.IsNull() {
+		target.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType)
 	}
 	if target.Consumer.IsUnknown() || target.Consumer.IsNull() {
 		target.Consumer = types.StringNull()
@@ -16909,12 +18368,16 @@ func yandexDatatransferEndpointSettingsYdsSourceModelFillUnknown(target yandexDa
 	if target.SupportedCodecs.IsUnknown() || target.SupportedCodecs.IsNull() {
 		target.SupportedCodecs = types.ListNull(types.StringType)
 	}
+	if target.YdbConnection.IsUnknown() || target.YdbConnection.IsNull() {
+		target.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType)
+	}
 	return target
 }
 
 var yandexDatatransferEndpointSettingsYdsSourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"allow_ttl_rewind":   types.BoolType,
+		"authentication":     types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType},
 		"consumer":           types.StringType,
 		"database":           types.StringType,
 		"endpoint":           types.StringType,
@@ -16924,6 +18387,7 @@ var yandexDatatransferEndpointSettingsYdsSourceModelType = types.ObjectType{
 		"stream":             types.StringType,
 		"subnet_id":          types.StringType,
 		"supported_codecs":   types.ListType{ElemType: types.StringType},
+		"ydb_connection":     types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType},
 	},
 }
 
@@ -16959,6 +18423,7 @@ func flattenYandexDatatransferEndpointSettingsYdsSource(ctx context.Context,
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceModel{
 		AllowTtlRewind:   types.BoolValue(yandexDatatransferEndpointSettingsYdsSource.GetAllowTtlRewind()),
+		Authentication:   flattenYandexDatatransferEndpointSettingsYdsSourceAuthentication(ctx, yandexDatatransferEndpointSettingsYdsSource.GetAuthentication(), state.Authentication, diags),
 		Consumer:         types.StringValue(yandexDatatransferEndpointSettingsYdsSource.GetConsumer()),
 		Database:         types.StringValue(yandexDatatransferEndpointSettingsYdsSource.GetDatabase()),
 		Endpoint:         types.StringValue(yandexDatatransferEndpointSettingsYdsSource.GetEndpoint()),
@@ -16968,6 +18433,7 @@ func flattenYandexDatatransferEndpointSettingsYdsSource(ctx context.Context,
 		Stream:           types.StringValue(yandexDatatransferEndpointSettingsYdsSource.GetStream()),
 		SubnetId:         types.StringValue(yandexDatatransferEndpointSettingsYdsSource.GetSubnetId()),
 		SupportedCodecs:  flattenYandexDatatransferEndpointSettingsYdsSourceSupportedCodecs(ctx, converter.EnumSliceToStrSlice(yandexDatatransferEndpointSettingsYdsSource.GetSupportedCodecs()), state.SupportedCodecs, diags),
+		YdbConnection:    flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnection(ctx, yandexDatatransferEndpointSettingsYdsSource.GetYdbConnection(), state.YdbConnection, diags),
 	})
 	diags.Append(diag...)
 	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceModelType, []attr.Value{value})
@@ -16993,6 +18459,7 @@ func expandYandexDatatransferEndpointSettingsYdsSource(ctx context.Context, yand
 func expandYandexDatatransferEndpointSettingsYdsSourceModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceState yandexDatatransferEndpointSettingsYdsSourceModel, diags *diag.Diagnostics) *endpoint.YDSSource {
 	value := &endpoint.YDSSource{}
 	value.SetAllowTtlRewind(yandexDatatransferEndpointSettingsYdsSourceState.AllowTtlRewind.ValueBool())
+	value.SetAuthentication(expandYandexDatatransferEndpointSettingsYdsSourceAuthentication(ctx, yandexDatatransferEndpointSettingsYdsSourceState.Authentication, diags))
 	value.SetConsumer(yandexDatatransferEndpointSettingsYdsSourceState.Consumer.ValueString())
 	value.SetDatabase(yandexDatatransferEndpointSettingsYdsSourceState.Database.ValueString())
 	value.SetEndpoint(yandexDatatransferEndpointSettingsYdsSourceState.Endpoint.ValueString())
@@ -17002,6 +18469,94 @@ func expandYandexDatatransferEndpointSettingsYdsSourceModel(ctx context.Context,
 	value.SetStream(yandexDatatransferEndpointSettingsYdsSourceState.Stream.ValueString())
 	value.SetSubnetId(yandexDatatransferEndpointSettingsYdsSourceState.SubnetId.ValueString())
 	value.SetSupportedCodecs(converter.StrSliceToEnumSlice[endpoint.YdsCompressionCodec](endpoint.YdsCompressionCodec_value, expandYandexDatatransferEndpointSettingsYdsSourceSupportedCodecs(ctx, yandexDatatransferEndpointSettingsYdsSourceState.SupportedCodecs, diags)))
+	value.SetYdbConnection(expandYandexDatatransferEndpointSettingsYdsSourceYdbConnection(ctx, yandexDatatransferEndpointSettingsYdsSourceState.YdbConnection, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel struct {
+	ServiceAccountId types.String `tfsdk:"service_account_id"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel) GetServiceAccountId() types.String {
+	return m.ServiceAccountId
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceAuthenticationModel() yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel {
+	return yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel{
+		ServiceAccountId: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel) yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel {
+	if target.ServiceAccountId.IsUnknown() || target.ServiceAccountId.IsNull() {
+		target.ServiceAccountId = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"service_account_id": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceAuthentication(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceAuthentication *endpoint.YDSAuthenticationMethod,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceAuthentication == nil || (yandexDatatransferEndpointSettingsYdsSourceAuthentication.String() == (&endpoint.YDSAuthenticationMethod{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceAuthenticationType := make([]yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceAuthenticationType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceAuthenticationType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel{
+		ServiceAccountId: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceAuthentication.GetServiceAccountId()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceAuthentication(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceAuthenticationState types.List, diags *diag.Diagnostics) *endpoint.YDSAuthenticationMethod {
+	if yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceAuthenticationType := make([]yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceAuthenticationType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceAuthenticationModel(ctx, yandexDatatransferEndpointSettingsYdsSourceAuthenticationType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceAuthenticationModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceAuthenticationState yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel, diags *diag.Diagnostics) *endpoint.YDSAuthenticationMethod {
+	value := &endpoint.YDSAuthenticationMethod{}
+	if !(yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.ServiceAccountId.IsNull() || yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.ServiceAccountId.IsUnknown() || yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.ServiceAccountId.Equal(types.StringValue(""))) {
+		value.SetServiceAccountId(yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.ServiceAccountId.ValueString())
+	}
 	if diags.HasError() {
 		return nil
 	}
@@ -18116,7 +19671,632 @@ func expandYandexDatatransferEndpointSettingsYdsSourceSupportedCodecs(ctx contex
 	return yandexDatatransferEndpointSettingsYdsSourceSupportedCodecsRes
 }
 
+type yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel struct {
+	ManagedYds types.List `tfsdk:"managed_yds"`
+	OnPremise  types.List `tfsdk:"on_premise"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel) GetManagedYds() types.List {
+	return m.ManagedYds
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel) GetOnPremise() types.List {
+	return m.OnPremise
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel) SetManagedYds(target types.List) {
+	m.ManagedYds = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel() yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel {
+	return yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel{
+		ManagedYds: types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType),
+		OnPremise:  types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel) yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel {
+	if target.ManagedYds.IsUnknown() || target.ManagedYds.IsNull() {
+		target.ManagedYds = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType)
+	}
+	if target.OnPremise.IsUnknown() || target.OnPremise.IsNull() {
+		target.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"managed_yds": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType},
+		"on_premise":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnection(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnection *endpoint.YDSConnection,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnection == nil || (yandexDatatransferEndpointSettingsYdsSourceYdbConnection.String() == (&endpoint.YDSConnection{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel{
+		ManagedYds: flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYds(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnection.GetManagedYds(), state.ManagedYds, diags),
+		OnPremise:  flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnection.GetOnPremise(), state.OnPremise, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnection(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState types.List, diags *diag.Diagnostics) *endpoint.YDSConnection {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel, diags *diag.Diagnostics) *endpoint.YDSConnection {
+	value := &endpoint.YDSConnection{}
+	if !(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds.Elements()) == 0) {
+		value.SetManagedYds(expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYds(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise.Elements()) == 0) {
+		value.SetOnPremise(expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel struct {
+	DatabaseId types.String `tfsdk:"database_id"`
+	Stream     types.String `tfsdk:"stream"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel) GetDatabaseId() types.String {
+	return m.DatabaseId
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel) GetStream() types.String {
+	return m.Stream
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel) SetDatabaseId(target types.String) {
+	m.DatabaseId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel) SetStream(target types.String) {
+	m.Stream = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel() yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel {
+	return yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel{
+		DatabaseId: types.StringNull(),
+		Stream:     types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel) yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel {
+	if target.DatabaseId.IsUnknown() || target.DatabaseId.IsNull() {
+		target.DatabaseId = types.StringNull()
+	}
+	if target.Stream.IsUnknown() || target.Stream.IsNull() {
+		target.Stream = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"database_id": types.StringType,
+		"stream":      types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYds(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYds *endpoint.ManagedYDS,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYds == nil || (yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYds.String() == (&endpoint.ManagedYDS{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel{
+		DatabaseId: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYds.GetDatabaseId()),
+		Stream:     types.StringValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYds.GetStream()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYds(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState types.List, diags *diag.Diagnostics) *endpoint.ManagedYDS {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel, diags *diag.Diagnostics) *endpoint.ManagedYDS {
+	value := &endpoint.ManagedYDS{}
+	value.SetDatabaseId(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState.DatabaseId.ValueString())
+	value.SetStream(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState.Stream.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel struct {
+	Database types.String `tfsdk:"database"`
+	Instance types.String `tfsdk:"instance"`
+	Stream   types.String `tfsdk:"stream"`
+	SubnetId types.String `tfsdk:"subnet_id"`
+	TlsMode  types.List   `tfsdk:"tls_mode"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) GetDatabase() types.String {
+	return m.Database
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) GetInstance() types.String {
+	return m.Instance
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) GetStream() types.String {
+	return m.Stream
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) GetSubnetId() types.String {
+	return m.SubnetId
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) GetTlsMode() types.List {
+	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) SetInstance(target types.String) {
+	m.Instance = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) SetStream(target types.String) {
+	m.Stream = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel() yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel {
+	return yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel{
+		Database: types.StringNull(),
+		Instance: types.StringNull(),
+		Stream:   types.StringNull(),
+		SubnetId: types.StringNull(),
+		TlsMode:  types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel) yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel {
+	if target.Database.IsUnknown() || target.Database.IsNull() {
+		target.Database = types.StringNull()
+	}
+	if target.Instance.IsUnknown() || target.Instance.IsNull() {
+		target.Instance = types.StringNull()
+	}
+	if target.Stream.IsUnknown() || target.Stream.IsNull() {
+		target.Stream = types.StringNull()
+	}
+	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
+		target.SubnetId = types.StringNull()
+	}
+	if target.TlsMode.IsUnknown() || target.TlsMode.IsNull() {
+		target.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"database":  types.StringType,
+		"instance":  types.StringType,
+		"stream":    types.StringType,
+		"subnet_id": types.StringType,
+		"tls_mode":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise *endpoint.OnPremiseYDS,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise == nil || (yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise.String() == (&endpoint.OnPremiseYDS{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel{
+		Database: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise.GetDatabase()),
+		Instance: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise.GetInstance()),
+		Stream:   types.StringValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise.GetStream()),
+		SubnetId: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise.GetSubnetId()),
+		TlsMode:  flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsMode(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise.GetTlsMode(), state.TlsMode, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremise(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState types.List, diags *diag.Diagnostics) *endpoint.OnPremiseYDS {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel, diags *diag.Diagnostics) *endpoint.OnPremiseYDS {
+	value := &endpoint.OnPremiseYDS{}
+	value.SetDatabase(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.Database.ValueString())
+	value.SetInstance(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.Instance.ValueString())
+	value.SetStream(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.Stream.ValueString())
+	value.SetSubnetId(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.SubnetId.ValueString())
+	value.SetTlsMode(expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsMode(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.TlsMode, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel struct {
+	Disabled types.List `tfsdk:"disabled"`
+	Enabled  types.List `tfsdk:"enabled"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel) GetDisabled() types.List {
+	return m.Disabled
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
+	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel {
+	return yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel{
+		Disabled: types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType),
+		Enabled:  types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel) yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType)
+	}
+	if target.Enabled.IsUnknown() || target.Enabled.IsNull() {
+		target.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"disabled": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType},
+		"enabled":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsMode(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsMode *endpoint.TLSMode,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsMode == nil || (yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsMode.String() == (&endpoint.TLSMode{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel{
+		Disabled: flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsMode.GetDisabled(), state.Disabled, diags),
+		Enabled:  flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsMode.GetEnabled(), state.Enabled, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsMode(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState types.List, diags *diag.Diagnostics) *endpoint.TLSMode {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel, diags *diag.Diagnostics) *endpoint.TLSMode {
+	value := &endpoint.TLSMode{}
+	if !(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Disabled.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Disabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Disabled.Elements()) == 0) {
+		value.SetDisabled(expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Disabled, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled.Elements()) == 0) {
+		value.SetEnabled(expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel struct {
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel() yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel {
+	return yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel{}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel) yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel {
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabled *emptypb.Empty,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabled == nil || (yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabled.String() == (&emptypb.Empty{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel{})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabled(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledState types.List, diags *diag.Diagnostics) *emptypb.Empty {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledState yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeDisabledModel, diags *diag.Diagnostics) *emptypb.Empty {
+	value := &emptypb.Empty{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel struct {
+	CaCertificate types.String `tfsdk:"ca_certificate"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel {
+	return yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel{
+		CaCertificate: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel) yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"ca_certificate": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabled *endpoint.TLSConfig,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabled == nil || (yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabled.String() == (&endpoint.TLSConfig{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel{
+		CaCertificate: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabled.GetCaCertificate()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabled(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState types.List, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel(ctx, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	value := &endpoint.TLSConfig{}
+	value.SetCaCertificate(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState.CaCertificate.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
 type yandexDatatransferEndpointSettingsYdsTargetModel struct {
+	Authentication   types.List   `tfsdk:"authentication"`
 	CompressionCodec types.String `tfsdk:"compression_codec"`
 	Database         types.String `tfsdk:"database"`
 	Endpoint         types.String `tfsdk:"endpoint"`
@@ -18126,8 +20306,12 @@ type yandexDatatransferEndpointSettingsYdsTargetModel struct {
 	ServiceAccountId types.String `tfsdk:"service_account_id"`
 	Stream           types.String `tfsdk:"stream"`
 	SubnetId         types.String `tfsdk:"subnet_id"`
+	YdbConnection    types.List   `tfsdk:"ydb_connection"`
 }
 
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) GetAuthentication() types.List {
+	return m.Authentication
+}
 func (m *yandexDatatransferEndpointSettingsYdsTargetModel) GetCompressionCodec() types.String {
 	return m.CompressionCodec
 }
@@ -18155,7 +20339,13 @@ func (m *yandexDatatransferEndpointSettingsYdsTargetModel) GetStream() types.Str
 func (m *yandexDatatransferEndpointSettingsYdsTargetModel) GetSubnetId() types.String {
 	return m.SubnetId
 }
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) GetYdbConnection() types.List {
+	return m.YdbConnection
+}
 
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetAuthentication(target types.List) {
+	m.Authentication = target
+}
 func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetCompressionCodec(target types.String) {
 	m.CompressionCodec = target
 }
@@ -18183,9 +20373,13 @@ func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetStream(target type
 func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetSubnetId(target types.String) {
 	m.SubnetId = target
 }
+func (m *yandexDatatransferEndpointSettingsYdsTargetModel) SetYdbConnection(target types.List) {
+	m.YdbConnection = target
+}
 
 func NewYandexDatatransferEndpointSettingsYdsTargetModel() yandexDatatransferEndpointSettingsYdsTargetModel {
 	return yandexDatatransferEndpointSettingsYdsTargetModel{
+		Authentication:   types.ListNull(yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType),
 		CompressionCodec: types.StringNull(),
 		Database:         types.StringNull(),
 		Endpoint:         types.StringNull(),
@@ -18195,10 +20389,14 @@ func NewYandexDatatransferEndpointSettingsYdsTargetModel() yandexDatatransferEnd
 		ServiceAccountId: types.StringNull(),
 		Stream:           types.StringNull(),
 		SubnetId:         types.StringNull(),
+		YdbConnection:    types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType),
 	}
 }
 
 func yandexDatatransferEndpointSettingsYdsTargetModelFillUnknown(target yandexDatatransferEndpointSettingsYdsTargetModel) yandexDatatransferEndpointSettingsYdsTargetModel {
+	if target.Authentication.IsUnknown() || target.Authentication.IsNull() {
+		target.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType)
+	}
 	if target.CompressionCodec.IsUnknown() || target.CompressionCodec.IsNull() {
 		target.CompressionCodec = types.StringNull()
 	}
@@ -18226,11 +20424,15 @@ func yandexDatatransferEndpointSettingsYdsTargetModelFillUnknown(target yandexDa
 	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
 		target.SubnetId = types.StringNull()
 	}
+	if target.YdbConnection.IsUnknown() || target.YdbConnection.IsNull() {
+		target.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType)
+	}
 	return target
 }
 
 var yandexDatatransferEndpointSettingsYdsTargetModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"authentication":     types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType},
 		"compression_codec":  types.StringType,
 		"database":           types.StringType,
 		"endpoint":           types.StringType,
@@ -18240,6 +20442,7 @@ var yandexDatatransferEndpointSettingsYdsTargetModelType = types.ObjectType{
 		"service_account_id": types.StringType,
 		"stream":             types.StringType,
 		"subnet_id":          types.StringType,
+		"ydb_connection":     types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType},
 	},
 }
 
@@ -18274,6 +20477,7 @@ func flattenYandexDatatransferEndpointSettingsYdsTarget(ctx context.Context,
 		state = yandexDatatransferEndpointSettingsYdsTargetType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetModel{
+		Authentication:   flattenYandexDatatransferEndpointSettingsYdsTargetAuthentication(ctx, yandexDatatransferEndpointSettingsYdsTarget.GetAuthentication(), state.Authentication, diags),
 		CompressionCodec: types.StringValue(yandexDatatransferEndpointSettingsYdsTarget.GetCompressionCodec().String()),
 		Database:         types.StringValue(yandexDatatransferEndpointSettingsYdsTarget.GetDatabase()),
 		Endpoint:         types.StringValue(yandexDatatransferEndpointSettingsYdsTarget.GetEndpoint()),
@@ -18283,6 +20487,7 @@ func flattenYandexDatatransferEndpointSettingsYdsTarget(ctx context.Context,
 		ServiceAccountId: types.StringValue(yandexDatatransferEndpointSettingsYdsTarget.GetServiceAccountId()),
 		Stream:           types.StringValue(yandexDatatransferEndpointSettingsYdsTarget.GetStream()),
 		SubnetId:         types.StringValue(yandexDatatransferEndpointSettingsYdsTarget.GetSubnetId()),
+		YdbConnection:    flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnection(ctx, yandexDatatransferEndpointSettingsYdsTarget.GetYdbConnection(), state.YdbConnection, diags),
 	})
 	diags.Append(diag...)
 	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsTargetModelType, []attr.Value{value})
@@ -18307,6 +20512,7 @@ func expandYandexDatatransferEndpointSettingsYdsTarget(ctx context.Context, yand
 
 func expandYandexDatatransferEndpointSettingsYdsTargetModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetState yandexDatatransferEndpointSettingsYdsTargetModel, diags *diag.Diagnostics) *endpoint.YDSTarget {
 	value := &endpoint.YDSTarget{}
+	value.SetAuthentication(expandYandexDatatransferEndpointSettingsYdsTargetAuthentication(ctx, yandexDatatransferEndpointSettingsYdsTargetState.Authentication, diags))
 	value.SetCompressionCodec(endpoint.YdsCompressionCodec(endpoint.YdsCompressionCodec_value[yandexDatatransferEndpointSettingsYdsTargetState.CompressionCodec.ValueString()]))
 	value.SetDatabase(yandexDatatransferEndpointSettingsYdsTargetState.Database.ValueString())
 	value.SetEndpoint(yandexDatatransferEndpointSettingsYdsTargetState.Endpoint.ValueString())
@@ -18316,6 +20522,94 @@ func expandYandexDatatransferEndpointSettingsYdsTargetModel(ctx context.Context,
 	value.SetServiceAccountId(yandexDatatransferEndpointSettingsYdsTargetState.ServiceAccountId.ValueString())
 	value.SetStream(yandexDatatransferEndpointSettingsYdsTargetState.Stream.ValueString())
 	value.SetSubnetId(yandexDatatransferEndpointSettingsYdsTargetState.SubnetId.ValueString())
+	value.SetYdbConnection(expandYandexDatatransferEndpointSettingsYdsTargetYdbConnection(ctx, yandexDatatransferEndpointSettingsYdsTargetState.YdbConnection, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel struct {
+	ServiceAccountId types.String `tfsdk:"service_account_id"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel) GetServiceAccountId() types.String {
+	return m.ServiceAccountId
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel) SetServiceAccountId(target types.String) {
+	m.ServiceAccountId = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsTargetAuthenticationModel() yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel {
+	return yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel{
+		ServiceAccountId: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelFillUnknown(target yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel) yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel {
+	if target.ServiceAccountId.IsUnknown() || target.ServiceAccountId.IsNull() {
+		target.ServiceAccountId = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"service_account_id": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsTargetAuthentication(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsTargetAuthentication *endpoint.YDSAuthenticationMethod,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsTargetAuthentication == nil || (yandexDatatransferEndpointSettingsYdsTargetAuthentication.String() == (&endpoint.YDSAuthenticationMethod{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsTargetAuthenticationType := make([]yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetAuthenticationType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsTargetAuthenticationType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel{
+		ServiceAccountId: types.StringValue(yandexDatatransferEndpointSettingsYdsTargetAuthentication.GetServiceAccountId()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetAuthentication(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetAuthenticationState types.List, diags *diag.Diagnostics) *endpoint.YDSAuthenticationMethod {
+	if yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.IsNull() || yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsTargetAuthenticationType := make([]yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetAuthenticationType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsTargetAuthenticationModel(ctx, yandexDatatransferEndpointSettingsYdsTargetAuthenticationType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetAuthenticationModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetAuthenticationState yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel, diags *diag.Diagnostics) *endpoint.YDSAuthenticationMethod {
+	value := &endpoint.YDSAuthenticationMethod{}
+	if !(yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.ServiceAccountId.IsNull() || yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.ServiceAccountId.IsUnknown() || yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.ServiceAccountId.Equal(types.StringValue(""))) {
+		value.SetServiceAccountId(yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.ServiceAccountId.ValueString())
+	}
 	if diags.HasError() {
 		return nil
 	}
@@ -18744,6 +21038,630 @@ func expandYandexDatatransferEndpointSettingsYdsTargetSerializerSerializerJson(c
 
 func expandYandexDatatransferEndpointSettingsYdsTargetSerializerSerializerJsonModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerJsonState yandexDatatransferEndpointSettingsYdsTargetSerializerSerializerJsonModel, diags *diag.Diagnostics) *endpoint.SerializerJSON {
 	value := &endpoint.SerializerJSON{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel struct {
+	ManagedYds types.List `tfsdk:"managed_yds"`
+	OnPremise  types.List `tfsdk:"on_premise"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel) GetManagedYds() types.List {
+	return m.ManagedYds
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel) GetOnPremise() types.List {
+	return m.OnPremise
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel) SetManagedYds(target types.List) {
+	m.ManagedYds = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel) SetOnPremise(target types.List) {
+	m.OnPremise = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel() yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel {
+	return yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel{
+		ManagedYds: types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType),
+		OnPremise:  types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelFillUnknown(target yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel) yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel {
+	if target.ManagedYds.IsUnknown() || target.ManagedYds.IsNull() {
+		target.ManagedYds = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType)
+	}
+	if target.OnPremise.IsUnknown() || target.OnPremise.IsNull() {
+		target.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"managed_yds": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType},
+		"on_premise":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnection(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnection *endpoint.YDSConnection,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnection == nil || (yandexDatatransferEndpointSettingsYdsTargetYdbConnection.String() == (&endpoint.YDSConnection{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsTargetYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsTargetYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel{
+		ManagedYds: flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYds(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnection.GetManagedYds(), state.ManagedYds, diags),
+		OnPremise:  flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnection.GetOnPremise(), state.OnPremise, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnection(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState types.List, diags *diag.Diagnostics) *endpoint.YDSConnection {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel, diags *diag.Diagnostics) *endpoint.YDSConnection {
+	value := &endpoint.YDSConnection{}
+	if !(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds.Elements()) == 0) {
+		value.SetManagedYds(expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYds(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise.Elements()) == 0) {
+		value.SetOnPremise(expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel struct {
+	DatabaseId types.String `tfsdk:"database_id"`
+	Stream     types.String `tfsdk:"stream"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel) GetDatabaseId() types.String {
+	return m.DatabaseId
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel) GetStream() types.String {
+	return m.Stream
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel) SetDatabaseId(target types.String) {
+	m.DatabaseId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel) SetStream(target types.String) {
+	m.Stream = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel() yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel {
+	return yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel{
+		DatabaseId: types.StringNull(),
+		Stream:     types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelFillUnknown(target yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel) yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel {
+	if target.DatabaseId.IsUnknown() || target.DatabaseId.IsNull() {
+		target.DatabaseId = types.StringNull()
+	}
+	if target.Stream.IsUnknown() || target.Stream.IsNull() {
+		target.Stream = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"database_id": types.StringType,
+		"stream":      types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYds(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYds *endpoint.ManagedYDS,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYds == nil || (yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYds.String() == (&endpoint.ManagedYDS{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel{
+		DatabaseId: types.StringValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYds.GetDatabaseId()),
+		Stream:     types.StringValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYds.GetStream()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYds(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState types.List, diags *diag.Diagnostics) *endpoint.ManagedYDS {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel, diags *diag.Diagnostics) *endpoint.ManagedYDS {
+	value := &endpoint.ManagedYDS{}
+	value.SetDatabaseId(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState.DatabaseId.ValueString())
+	value.SetStream(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState.Stream.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel struct {
+	Database types.String `tfsdk:"database"`
+	Instance types.String `tfsdk:"instance"`
+	Stream   types.String `tfsdk:"stream"`
+	SubnetId types.String `tfsdk:"subnet_id"`
+	TlsMode  types.List   `tfsdk:"tls_mode"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) GetDatabase() types.String {
+	return m.Database
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) GetInstance() types.String {
+	return m.Instance
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) GetStream() types.String {
+	return m.Stream
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) GetSubnetId() types.String {
+	return m.SubnetId
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) GetTlsMode() types.List {
+	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) SetDatabase(target types.String) {
+	m.Database = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) SetInstance(target types.String) {
+	m.Instance = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) SetStream(target types.String) {
+	m.Stream = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) SetSubnetId(target types.String) {
+	m.SubnetId = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel() yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel {
+	return yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel{
+		Database: types.StringNull(),
+		Instance: types.StringNull(),
+		Stream:   types.StringNull(),
+		SubnetId: types.StringNull(),
+		TlsMode:  types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelFillUnknown(target yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel) yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel {
+	if target.Database.IsUnknown() || target.Database.IsNull() {
+		target.Database = types.StringNull()
+	}
+	if target.Instance.IsUnknown() || target.Instance.IsNull() {
+		target.Instance = types.StringNull()
+	}
+	if target.Stream.IsUnknown() || target.Stream.IsNull() {
+		target.Stream = types.StringNull()
+	}
+	if target.SubnetId.IsUnknown() || target.SubnetId.IsNull() {
+		target.SubnetId = types.StringNull()
+	}
+	if target.TlsMode.IsUnknown() || target.TlsMode.IsNull() {
+		target.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"database":  types.StringType,
+		"instance":  types.StringType,
+		"stream":    types.StringType,
+		"subnet_id": types.StringType,
+		"tls_mode":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise *endpoint.OnPremiseYDS,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise == nil || (yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise.String() == (&endpoint.OnPremiseYDS{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel{
+		Database: types.StringValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise.GetDatabase()),
+		Instance: types.StringValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise.GetInstance()),
+		Stream:   types.StringValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise.GetStream()),
+		SubnetId: types.StringValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise.GetSubnetId()),
+		TlsMode:  flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsMode(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise.GetTlsMode(), state.TlsMode, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremise(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState types.List, diags *diag.Diagnostics) *endpoint.OnPremiseYDS {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel, diags *diag.Diagnostics) *endpoint.OnPremiseYDS {
+	value := &endpoint.OnPremiseYDS{}
+	value.SetDatabase(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.Database.ValueString())
+	value.SetInstance(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.Instance.ValueString())
+	value.SetStream(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.Stream.ValueString())
+	value.SetSubnetId(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.SubnetId.ValueString())
+	value.SetTlsMode(expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsMode(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.TlsMode, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel struct {
+	Disabled types.List `tfsdk:"disabled"`
+	Enabled  types.List `tfsdk:"enabled"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel) GetDisabled() types.List {
+	return m.Disabled
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel) GetEnabled() types.List {
+	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel() yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel {
+	return yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel{
+		Disabled: types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType),
+		Enabled:  types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelFillUnknown(target yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel) yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType)
+	}
+	if target.Enabled.IsUnknown() || target.Enabled.IsNull() {
+		target.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"disabled": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType},
+		"enabled":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsMode(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsMode *endpoint.TLSMode,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsMode == nil || (yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsMode.String() == (&endpoint.TLSMode{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel{
+		Disabled: flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsMode.GetDisabled(), state.Disabled, diags),
+		Enabled:  flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsMode.GetEnabled(), state.Enabled, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsMode(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState types.List, diags *diag.Diagnostics) *endpoint.TLSMode {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel, diags *diag.Diagnostics) *endpoint.TLSMode {
+	value := &endpoint.TLSMode{}
+	if !(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Disabled.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Disabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Disabled.Elements()) == 0) {
+		value.SetDisabled(expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Disabled, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled.Elements()) == 0) {
+		value.SetEnabled(expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel struct {
+}
+
+func NewYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel() yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel {
+	return yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel{}
+}
+
+func yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel) yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel {
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabled *emptypb.Empty,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabled == nil || (yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabled.String() == (&emptypb.Empty{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel{})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabled(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledState types.List, diags *diag.Diagnostics) *emptypb.Empty {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledState.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledState yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeDisabledModel, diags *diag.Diagnostics) *emptypb.Empty {
+	value := &emptypb.Empty{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel struct {
+	CaCertificate types.String `tfsdk:"ca_certificate"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel() yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel {
+	return yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel{
+		CaCertificate: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel) yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"ca_certificate": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabled *endpoint.TLSConfig,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabled == nil || (yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabled.String() == (&endpoint.TLSConfig{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel{
+		CaCertificate: types.StringValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabled.GetCaCertificate()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabled(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState types.List, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel(ctx, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	value := &endpoint.TLSConfig{}
+	value.SetCaCertificate(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState.CaCertificate.ValueString())
 	if diags.HasError() {
 		return nil
 	}

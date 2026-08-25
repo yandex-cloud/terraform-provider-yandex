@@ -3856,6 +3856,63 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsYdbSourcePlan = yandexDatatransferEndpointSettingsYdbSourceListPlan[0]
 			}
 
+			if yandexDatatransferEndpointSettingsYdbSourcePlan.Authentication.IsNull() {
+				yandexDatatransferEndpointSettingsYdbSourcePlan.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType)
+			}
+			if yandexDatatransferEndpointSettingsYdbSourceState.Authentication.IsNull() {
+				yandexDatatransferEndpointSettingsYdbSourceState.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationModelType)
+			}
+
+			if (yandexDatatransferEndpointSettingsYdbSourcePlan.Authentication.IsNull() || yandexDatatransferEndpointSettingsYdbSourceState.Authentication.IsNull()) &&
+				!(yandexDatatransferEndpointSettingsYdbSourcePlan.Authentication.IsNull() && yandexDatatransferEndpointSettingsYdbSourceState.Authentication.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdbSourcePlan.Authentication.IsUnknown() {
+				updatePaths = append(updatePaths, "settings.ydb_source.authentication")
+			} else if !yandexDatatransferEndpointSettingsYdbSourcePlan.Authentication.IsUnknown() {
+				var yandexDatatransferEndpointSettingsYdbSourceAuthenticationListState, yandexDatatransferEndpointSettingsYdbSourceAuthenticationListPlan []yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel = make([]yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceState.Authentication.Elements())), make([]yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdbSourcePlan.Authentication.Elements()))
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourcePlan.Authentication.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceAuthenticationListPlan, false)...)
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceState.Authentication.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceAuthenticationListState, false)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				var yandexDatatransferEndpointSettingsYdbSourceAuthenticationState, yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan yandexDatatransferEndpointSettingsYdbSourceAuthenticationModel
+				if len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationListState) != 0 {
+					yandexDatatransferEndpointSettingsYdbSourceAuthenticationState = yandexDatatransferEndpointSettingsYdbSourceAuthenticationListState[0]
+				}
+				if len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationListPlan) != 0 {
+					yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan = yandexDatatransferEndpointSettingsYdbSourceAuthenticationListPlan[0]
+				}
+
+				if yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan.ServiceAccount.IsNull() {
+					yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan.ServiceAccount = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType)
+				}
+				if yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount.IsNull() {
+					yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModelType)
+				}
+
+				if (yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan.ServiceAccount.IsNull() || yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount.IsNull()) &&
+					!(yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan.ServiceAccount.IsNull() && yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan.ServiceAccount.IsUnknown() {
+					updatePaths = append(updatePaths, "settings.ydb_source.authentication.service_account")
+				} else if !yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan.ServiceAccount.IsUnknown() {
+					var yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountListState, yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountListPlan []yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel = make([]yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount.Elements())), make([]yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan.ServiceAccount.Elements()))
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceAuthenticationPlan.ServiceAccount.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountListPlan, false)...)
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceAuthenticationState.ServiceAccount.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountListState, false)...)
+					if resp.Diagnostics.HasError() {
+						return
+					}
+					var yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState, yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountPlan yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountModel
+					if len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountListState) != 0 {
+						yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState = yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountListState[0]
+					}
+					if len(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountListPlan) != 0 {
+						yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountPlan = yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountListPlan[0]
+					}
+
+					if !yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountPlan.ServiceAccountId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdbSourceAuthenticationServiceAccountState.ServiceAccountId) {
+						updatePaths = append(updatePaths, "settings.ydb_source.authentication.service_account.service_account_id")
+					}
+				}
+			}
 			if !yandexDatatransferEndpointSettingsYdbSourcePlan.ChangefeedCustomConsumerName.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.ChangefeedCustomConsumerName.Equal(yandexDatatransferEndpointSettingsYdbSourceState.ChangefeedCustomConsumerName) {
 				updatePaths = append(updatePaths, "settings.ydb_source.changefeed_custom_consumer_name")
 			}
@@ -3895,6 +3952,132 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if !yandexDatatransferEndpointSettingsYdbSourcePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourcePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdbSourceState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.ydb_source.subnet_id")
 			}
+
+			if yandexDatatransferEndpointSettingsYdbSourcePlan.YdbConnection.IsNull() {
+				yandexDatatransferEndpointSettingsYdbSourcePlan.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType)
+			}
+			if yandexDatatransferEndpointSettingsYdbSourceState.YdbConnection.IsNull() {
+				yandexDatatransferEndpointSettingsYdbSourceState.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModelType)
+			}
+
+			if (yandexDatatransferEndpointSettingsYdbSourcePlan.YdbConnection.IsNull() || yandexDatatransferEndpointSettingsYdbSourceState.YdbConnection.IsNull()) &&
+				!(yandexDatatransferEndpointSettingsYdbSourcePlan.YdbConnection.IsNull() && yandexDatatransferEndpointSettingsYdbSourceState.YdbConnection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdbSourcePlan.YdbConnection.IsUnknown() {
+				updatePaths = append(updatePaths, "settings.ydb_source.ydb_connection")
+			} else if !yandexDatatransferEndpointSettingsYdbSourcePlan.YdbConnection.IsUnknown() {
+				var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionListState, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionListPlan []yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel = make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceState.YdbConnection.Elements())), make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdbSourcePlan.YdbConnection.Elements()))
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourcePlan.YdbConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionListPlan, false)...)
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceState.YdbConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionListState, false)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan yandexDatatransferEndpointSettingsYdbSourceYdbConnectionModel
+				if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionListState) != 0 {
+					yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionListState[0]
+				}
+				if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionListPlan) != 0 {
+					yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionListPlan[0]
+				}
+
+				if !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.DatabaseId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.DatabaseId.Equal(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.DatabaseId) {
+					updatePaths = append(updatePaths, "settings.ydb_source.ydb_connection.database_id")
+				}
+
+				if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.OnPremise.IsNull() {
+					yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType)
+				}
+				if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise.IsNull() {
+					yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModelType)
+				}
+
+				if (yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise.IsNull()) &&
+					!(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.OnPremise.IsUnknown() {
+					updatePaths = append(updatePaths, "settings.ydb_source.ydb_connection.on_premise")
+				} else if !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.OnPremise.IsUnknown() {
+					var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseListState, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.OnPremise.Elements()))
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseListPlan, false)...)
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseListState, false)...)
+					if resp.Diagnostics.HasError() {
+						return
+					}
+					var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseModel
+					if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseListState) != 0 {
+						yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseListState[0]
+					}
+					if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseListPlan) != 0 {
+						yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseListPlan[0]
+					}
+
+					if !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.Database.Equal(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.Database) {
+						updatePaths = append(updatePaths, "settings.ydb_source.ydb_connection.on_premise.database")
+					}
+					if !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.Instance.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.Instance.Equal(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.Instance) {
+						updatePaths = append(updatePaths, "settings.ydb_source.ydb_connection.on_premise.instance")
+					}
+					if !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.SubnetId) {
+						updatePaths = append(updatePaths, "settings.ydb_source.ydb_connection.on_premise.subnet_id")
+					}
+
+					if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.TlsMode.IsNull() {
+						yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType)
+					}
+					if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.TlsMode.IsNull() {
+						yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModelType)
+					}
+
+					if (yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.TlsMode.IsUnknown() {
+						updatePaths = append(updatePaths, "settings.ydb_source.ydb_connection.on_premise.tls_mode")
+					} else if !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.TlsMode.IsUnknown() {
+						var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.TlsMode.Elements()))
+						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeListPlan, false)...)
+						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeListState, false)...)
+						if resp.Diagnostics.HasError() {
+							return
+						}
+						var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeModel
+						if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeListState) != 0 {
+							yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeListState[0]
+						}
+						if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeListPlan) != 0 {
+							yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeListPlan[0]
+						}
+
+						if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() {
+							yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+						}
+						if yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsNull() {
+							yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+						}
+
+						if (yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
+							updatePaths = append(updatePaths, "settings.ydb_source.ydb_connection.on_premise.tls_mode.enabled")
+						} else if !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
+							var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan.Enabled.Elements()))
+							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledListPlan, false)...)
+							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledListState, false)...)
+							if resp.Diagnostics.HasError() {
+								return
+							}
+							var yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState, yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledPlan yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledModel
+							if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledListState) != 0 {
+								yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledListState[0]
+							}
+							if len(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledListPlan) != 0 {
+								yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledListPlan[0]
+							}
+
+							if !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsYdbSourceYdbConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+								updatePaths = append(updatePaths, "settings.ydb_source.ydb_connection.on_premise.tls_mode.enabled.ca_certificate")
+							}
+						}
+					}
+				}
+			}
 		}
 
 		if yandexDatatransferEndpointSettingsPlan.YdbTarget.IsNull() {
@@ -3923,6 +4106,63 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsYdbTargetPlan = yandexDatatransferEndpointSettingsYdbTargetListPlan[0]
 			}
 
+			if yandexDatatransferEndpointSettingsYdbTargetPlan.Authentication.IsNull() {
+				yandexDatatransferEndpointSettingsYdbTargetPlan.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType)
+			}
+			if yandexDatatransferEndpointSettingsYdbTargetState.Authentication.IsNull() {
+				yandexDatatransferEndpointSettingsYdbTargetState.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationModelType)
+			}
+
+			if (yandexDatatransferEndpointSettingsYdbTargetPlan.Authentication.IsNull() || yandexDatatransferEndpointSettingsYdbTargetState.Authentication.IsNull()) &&
+				!(yandexDatatransferEndpointSettingsYdbTargetPlan.Authentication.IsNull() && yandexDatatransferEndpointSettingsYdbTargetState.Authentication.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdbTargetPlan.Authentication.IsUnknown() {
+				updatePaths = append(updatePaths, "settings.ydb_target.authentication")
+			} else if !yandexDatatransferEndpointSettingsYdbTargetPlan.Authentication.IsUnknown() {
+				var yandexDatatransferEndpointSettingsYdbTargetAuthenticationListState, yandexDatatransferEndpointSettingsYdbTargetAuthenticationListPlan []yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel = make([]yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetState.Authentication.Elements())), make([]yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetPlan.Authentication.Elements()))
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetPlan.Authentication.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetAuthenticationListPlan, false)...)
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetState.Authentication.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetAuthenticationListState, false)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				var yandexDatatransferEndpointSettingsYdbTargetAuthenticationState, yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan yandexDatatransferEndpointSettingsYdbTargetAuthenticationModel
+				if len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationListState) != 0 {
+					yandexDatatransferEndpointSettingsYdbTargetAuthenticationState = yandexDatatransferEndpointSettingsYdbTargetAuthenticationListState[0]
+				}
+				if len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationListPlan) != 0 {
+					yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan = yandexDatatransferEndpointSettingsYdbTargetAuthenticationListPlan[0]
+				}
+
+				if yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan.ServiceAccount.IsNull() {
+					yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan.ServiceAccount = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType)
+				}
+				if yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount.IsNull() {
+					yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModelType)
+				}
+
+				if (yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan.ServiceAccount.IsNull() || yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount.IsNull()) &&
+					!(yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan.ServiceAccount.IsNull() && yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan.ServiceAccount.IsUnknown() {
+					updatePaths = append(updatePaths, "settings.ydb_target.authentication.service_account")
+				} else if !yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan.ServiceAccount.IsUnknown() {
+					var yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountListState, yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountListPlan []yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel = make([]yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount.Elements())), make([]yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan.ServiceAccount.Elements()))
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetAuthenticationPlan.ServiceAccount.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountListPlan, false)...)
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetAuthenticationState.ServiceAccount.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountListState, false)...)
+					if resp.Diagnostics.HasError() {
+						return
+					}
+					var yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState, yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountPlan yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountModel
+					if len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountListState) != 0 {
+						yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState = yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountListState[0]
+					}
+					if len(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountListPlan) != 0 {
+						yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountPlan = yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountListPlan[0]
+					}
+
+					if !yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountPlan.ServiceAccountId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdbTargetAuthenticationServiceAccountState.ServiceAccountId) {
+						updatePaths = append(updatePaths, "settings.ydb_target.authentication.service_account.service_account_id")
+					}
+				}
+			}
 			if !yandexDatatransferEndpointSettingsYdbTargetPlan.CleanupPolicy.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.CleanupPolicy.Equal(yandexDatatransferEndpointSettingsYdbTargetState.CleanupPolicy) {
 				updatePaths = append(updatePaths, "settings.ydb_target.cleanup_policy")
 			}
@@ -3962,6 +4202,132 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if !yandexDatatransferEndpointSettingsYdbTargetPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdbTargetState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.ydb_target.subnet_id")
 			}
+
+			if yandexDatatransferEndpointSettingsYdbTargetPlan.YdbConnection.IsNull() {
+				yandexDatatransferEndpointSettingsYdbTargetPlan.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType)
+			}
+			if yandexDatatransferEndpointSettingsYdbTargetState.YdbConnection.IsNull() {
+				yandexDatatransferEndpointSettingsYdbTargetState.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModelType)
+			}
+
+			if (yandexDatatransferEndpointSettingsYdbTargetPlan.YdbConnection.IsNull() || yandexDatatransferEndpointSettingsYdbTargetState.YdbConnection.IsNull()) &&
+				!(yandexDatatransferEndpointSettingsYdbTargetPlan.YdbConnection.IsNull() && yandexDatatransferEndpointSettingsYdbTargetState.YdbConnection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdbTargetPlan.YdbConnection.IsUnknown() {
+				updatePaths = append(updatePaths, "settings.ydb_target.ydb_connection")
+			} else if !yandexDatatransferEndpointSettingsYdbTargetPlan.YdbConnection.IsUnknown() {
+				var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionListState, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionListPlan []yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel = make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetState.YdbConnection.Elements())), make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetPlan.YdbConnection.Elements()))
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetPlan.YdbConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionListPlan, false)...)
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetState.YdbConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionListState, false)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan yandexDatatransferEndpointSettingsYdbTargetYdbConnectionModel
+				if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionListState) != 0 {
+					yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionListState[0]
+				}
+				if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionListPlan) != 0 {
+					yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionListPlan[0]
+				}
+
+				if !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.DatabaseId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.DatabaseId.Equal(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.DatabaseId) {
+					updatePaths = append(updatePaths, "settings.ydb_target.ydb_connection.database_id")
+				}
+
+				if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.OnPremise.IsNull() {
+					yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType)
+				}
+				if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise.IsNull() {
+					yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModelType)
+				}
+
+				if (yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise.IsNull()) &&
+					!(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.OnPremise.IsUnknown() {
+					updatePaths = append(updatePaths, "settings.ydb_target.ydb_connection.on_premise")
+				} else if !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.OnPremise.IsUnknown() {
+					var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseListState, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.OnPremise.Elements()))
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseListPlan, false)...)
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseListState, false)...)
+					if resp.Diagnostics.HasError() {
+						return
+					}
+					var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseModel
+					if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseListState) != 0 {
+						yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseListState[0]
+					}
+					if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseListPlan) != 0 {
+						yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseListPlan[0]
+					}
+
+					if !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.Database.Equal(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.Database) {
+						updatePaths = append(updatePaths, "settings.ydb_target.ydb_connection.on_premise.database")
+					}
+					if !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.Instance.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.Instance.Equal(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.Instance) {
+						updatePaths = append(updatePaths, "settings.ydb_target.ydb_connection.on_premise.instance")
+					}
+					if !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.SubnetId) {
+						updatePaths = append(updatePaths, "settings.ydb_target.ydb_connection.on_premise.subnet_id")
+					}
+
+					if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.TlsMode.IsNull() {
+						yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType)
+					}
+					if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.TlsMode.IsNull() {
+						yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModelType)
+					}
+
+					if (yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.TlsMode.IsUnknown() {
+						updatePaths = append(updatePaths, "settings.ydb_target.ydb_connection.on_premise.tls_mode")
+					} else if !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.TlsMode.IsUnknown() {
+						var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.TlsMode.Elements()))
+						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeListPlan, false)...)
+						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeListState, false)...)
+						if resp.Diagnostics.HasError() {
+							return
+						}
+						var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeModel
+						if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeListState) != 0 {
+							yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeListState[0]
+						}
+						if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeListPlan) != 0 {
+							yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeListPlan[0]
+						}
+
+						if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() {
+							yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+						}
+						if yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsNull() {
+							yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+						}
+
+						if (yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
+							updatePaths = append(updatePaths, "settings.ydb_target.ydb_connection.on_premise.tls_mode.enabled")
+						} else if !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
+							var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan.Enabled.Elements()))
+							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledListPlan, false)...)
+							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledListState, false)...)
+							if resp.Diagnostics.HasError() {
+								return
+							}
+							var yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState, yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledPlan yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledModel
+							if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledListState) != 0 {
+								yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledListState[0]
+							}
+							if len(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledListPlan) != 0 {
+								yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledListPlan[0]
+							}
+
+							if !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsYdbTargetYdbConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+								updatePaths = append(updatePaths, "settings.ydb_target.ydb_connection.on_premise.tls_mode.enabled.ca_certificate")
+							}
+						}
+					}
+				}
+			}
 		}
 
 		if yandexDatatransferEndpointSettingsPlan.YdsSource.IsNull() {
@@ -3992,6 +4358,37 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 
 			if !yandexDatatransferEndpointSettingsYdsSourcePlan.AllowTtlRewind.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.AllowTtlRewind.Equal(yandexDatatransferEndpointSettingsYdsSourceState.AllowTtlRewind) {
 				updatePaths = append(updatePaths, "settings.yds_source.allow_ttl_rewind")
+			}
+
+			if yandexDatatransferEndpointSettingsYdsSourcePlan.Authentication.IsNull() {
+				yandexDatatransferEndpointSettingsYdsSourcePlan.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType)
+			}
+			if yandexDatatransferEndpointSettingsYdsSourceState.Authentication.IsNull() {
+				yandexDatatransferEndpointSettingsYdsSourceState.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceAuthenticationModelType)
+			}
+
+			if (yandexDatatransferEndpointSettingsYdsSourcePlan.Authentication.IsNull() || yandexDatatransferEndpointSettingsYdsSourceState.Authentication.IsNull()) &&
+				!(yandexDatatransferEndpointSettingsYdsSourcePlan.Authentication.IsNull() && yandexDatatransferEndpointSettingsYdsSourceState.Authentication.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdsSourcePlan.Authentication.IsUnknown() {
+				updatePaths = append(updatePaths, "settings.yds_source.authentication")
+			} else if !yandexDatatransferEndpointSettingsYdsSourcePlan.Authentication.IsUnknown() {
+				var yandexDatatransferEndpointSettingsYdsSourceAuthenticationListState, yandexDatatransferEndpointSettingsYdsSourceAuthenticationListPlan []yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel = make([]yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceState.Authentication.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdsSourcePlan.Authentication.Elements()))
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourcePlan.Authentication.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceAuthenticationListPlan, false)...)
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceState.Authentication.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceAuthenticationListState, false)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				var yandexDatatransferEndpointSettingsYdsSourceAuthenticationState, yandexDatatransferEndpointSettingsYdsSourceAuthenticationPlan yandexDatatransferEndpointSettingsYdsSourceAuthenticationModel
+				if len(yandexDatatransferEndpointSettingsYdsSourceAuthenticationListState) != 0 {
+					yandexDatatransferEndpointSettingsYdsSourceAuthenticationState = yandexDatatransferEndpointSettingsYdsSourceAuthenticationListState[0]
+				}
+				if len(yandexDatatransferEndpointSettingsYdsSourceAuthenticationListPlan) != 0 {
+					yandexDatatransferEndpointSettingsYdsSourceAuthenticationPlan = yandexDatatransferEndpointSettingsYdsSourceAuthenticationListPlan[0]
+				}
+
+				if !yandexDatatransferEndpointSettingsYdsSourceAuthenticationPlan.ServiceAccountId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceAuthenticationPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdsSourceAuthenticationState.ServiceAccountId) {
+					updatePaths = append(updatePaths, "settings.yds_source.authentication.service_account_id")
+				}
 			}
 			if !yandexDatatransferEndpointSettingsYdsSourcePlan.Consumer.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.Consumer.Equal(yandexDatatransferEndpointSettingsYdsSourceState.Consumer) {
 				updatePaths = append(updatePaths, "settings.yds_source.consumer")
@@ -4264,6 +4661,165 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			if !yandexDatatransferEndpointSettingsYdsSourcePlan.SupportedCodecs.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourcePlan.SupportedCodecs.Equal(yandexDatatransferEndpointSettingsYdsSourceState.SupportedCodecs) {
 				updatePaths = append(updatePaths, "settings.yds_source.supported_codecs")
 			}
+
+			if yandexDatatransferEndpointSettingsYdsSourcePlan.YdbConnection.IsNull() {
+				yandexDatatransferEndpointSettingsYdsSourcePlan.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType)
+			}
+			if yandexDatatransferEndpointSettingsYdsSourceState.YdbConnection.IsNull() {
+				yandexDatatransferEndpointSettingsYdsSourceState.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModelType)
+			}
+
+			if (yandexDatatransferEndpointSettingsYdsSourcePlan.YdbConnection.IsNull() || yandexDatatransferEndpointSettingsYdsSourceState.YdbConnection.IsNull()) &&
+				!(yandexDatatransferEndpointSettingsYdsSourcePlan.YdbConnection.IsNull() && yandexDatatransferEndpointSettingsYdsSourceState.YdbConnection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdsSourcePlan.YdbConnection.IsUnknown() {
+				updatePaths = append(updatePaths, "settings.yds_source.ydb_connection")
+			} else if !yandexDatatransferEndpointSettingsYdsSourcePlan.YdbConnection.IsUnknown() {
+				var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionListState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionListPlan []yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel = make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceState.YdbConnection.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdsSourcePlan.YdbConnection.Elements()))
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourcePlan.YdbConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionListPlan, false)...)
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceState.YdbConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionListState, false)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan yandexDatatransferEndpointSettingsYdsSourceYdbConnectionModel
+				if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionListState) != 0 {
+					yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionListState[0]
+				}
+				if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionListPlan) != 0 {
+					yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionListPlan[0]
+				}
+
+				if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.ManagedYds.IsNull() {
+					yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.ManagedYds = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType)
+				}
+				if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds.IsNull() {
+					yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModelType)
+				}
+
+				if (yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.ManagedYds.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds.IsNull()) &&
+					!(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.ManagedYds.IsNull() && yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.ManagedYds.IsUnknown() {
+					updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.managed_yds")
+				} else if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.ManagedYds.IsUnknown() {
+					var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsListState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsListPlan []yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel = make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.ManagedYds.Elements()))
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.ManagedYds.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsListPlan, false)...)
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.ManagedYds.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsListState, false)...)
+					if resp.Diagnostics.HasError() {
+						return
+					}
+					var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsPlan yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsModel
+					if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsListState) != 0 {
+						yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsListState[0]
+					}
+					if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsListPlan) != 0 {
+						yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsPlan = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsListPlan[0]
+					}
+
+					if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsPlan.DatabaseId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsPlan.DatabaseId.Equal(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState.DatabaseId) {
+						updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.managed_yds.database_id")
+					}
+					if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsPlan.Stream.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsPlan.Stream.Equal(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionManagedYdsState.Stream) {
+						updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.managed_yds.stream")
+					}
+				}
+
+				if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.OnPremise.IsNull() {
+					yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType)
+				}
+				if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise.IsNull() {
+					yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModelType)
+				}
+
+				if (yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise.IsNull()) &&
+					!(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.OnPremise.IsUnknown() {
+					updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.on_premise")
+				} else if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.OnPremise.IsUnknown() {
+					var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseListState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.OnPremise.Elements()))
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseListPlan, false)...)
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseListState, false)...)
+					if resp.Diagnostics.HasError() {
+						return
+					}
+					var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseModel
+					if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseListState) != 0 {
+						yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseListState[0]
+					}
+					if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseListPlan) != 0 {
+						yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseListPlan[0]
+					}
+
+					if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.Database.Equal(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.Database) {
+						updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.on_premise.database")
+					}
+					if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.Instance.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.Instance.Equal(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.Instance) {
+						updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.on_premise.instance")
+					}
+					if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.Stream.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.Stream.Equal(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.Stream) {
+						updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.on_premise.stream")
+					}
+					if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.SubnetId) {
+						updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.on_premise.subnet_id")
+					}
+
+					if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.TlsMode.IsNull() {
+						yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType)
+					}
+					if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.TlsMode.IsNull() {
+						yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModelType)
+					}
+
+					if (yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.TlsMode.IsUnknown() {
+						updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.on_premise.tls_mode")
+					} else if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.TlsMode.IsUnknown() {
+						var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.TlsMode.Elements()))
+						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeListPlan, false)...)
+						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeListState, false)...)
+						if resp.Diagnostics.HasError() {
+							return
+						}
+						var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeModel
+						if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeListState) != 0 {
+							yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeListState[0]
+						}
+						if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeListPlan) != 0 {
+							yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeListPlan[0]
+						}
+
+						if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() {
+							yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+						}
+						if yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsNull() {
+							yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModelType)
+						}
+
+						if (yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
+							updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.on_premise.tls_mode.enabled")
+						} else if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
+							var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan.Enabled.Elements()))
+							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledListPlan, false)...)
+							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledListState, false)...)
+							if resp.Diagnostics.HasError() {
+								return
+							}
+							var yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState, yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledPlan yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledModel
+							if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledListState) != 0 {
+								yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledListState[0]
+							}
+							if len(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledListPlan) != 0 {
+								yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledListPlan[0]
+							}
+
+							if !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsYdsSourceYdbConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+								updatePaths = append(updatePaths, "settings.yds_source.ydb_connection.on_premise.tls_mode.enabled.ca_certificate")
+							}
+						}
+					}
+				}
+			}
 		}
 
 		if yandexDatatransferEndpointSettingsPlan.YdsTarget.IsNull() {
@@ -4292,6 +4848,36 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 				yandexDatatransferEndpointSettingsYdsTargetPlan = yandexDatatransferEndpointSettingsYdsTargetListPlan[0]
 			}
 
+			if yandexDatatransferEndpointSettingsYdsTargetPlan.Authentication.IsNull() {
+				yandexDatatransferEndpointSettingsYdsTargetPlan.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType)
+			}
+			if yandexDatatransferEndpointSettingsYdsTargetState.Authentication.IsNull() {
+				yandexDatatransferEndpointSettingsYdsTargetState.Authentication = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetAuthenticationModelType)
+			}
+
+			if (yandexDatatransferEndpointSettingsYdsTargetPlan.Authentication.IsNull() || yandexDatatransferEndpointSettingsYdsTargetState.Authentication.IsNull()) &&
+				!(yandexDatatransferEndpointSettingsYdsTargetPlan.Authentication.IsNull() && yandexDatatransferEndpointSettingsYdsTargetState.Authentication.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdsTargetPlan.Authentication.IsUnknown() {
+				updatePaths = append(updatePaths, "settings.yds_target.authentication")
+			} else if !yandexDatatransferEndpointSettingsYdsTargetPlan.Authentication.IsUnknown() {
+				var yandexDatatransferEndpointSettingsYdsTargetAuthenticationListState, yandexDatatransferEndpointSettingsYdsTargetAuthenticationListPlan []yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel = make([]yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetState.Authentication.Elements())), make([]yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetPlan.Authentication.Elements()))
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetPlan.Authentication.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetAuthenticationListPlan, false)...)
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetState.Authentication.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetAuthenticationListState, false)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				var yandexDatatransferEndpointSettingsYdsTargetAuthenticationState, yandexDatatransferEndpointSettingsYdsTargetAuthenticationPlan yandexDatatransferEndpointSettingsYdsTargetAuthenticationModel
+				if len(yandexDatatransferEndpointSettingsYdsTargetAuthenticationListState) != 0 {
+					yandexDatatransferEndpointSettingsYdsTargetAuthenticationState = yandexDatatransferEndpointSettingsYdsTargetAuthenticationListState[0]
+				}
+				if len(yandexDatatransferEndpointSettingsYdsTargetAuthenticationListPlan) != 0 {
+					yandexDatatransferEndpointSettingsYdsTargetAuthenticationPlan = yandexDatatransferEndpointSettingsYdsTargetAuthenticationListPlan[0]
+				}
+
+				if !yandexDatatransferEndpointSettingsYdsTargetAuthenticationPlan.ServiceAccountId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetAuthenticationPlan.ServiceAccountId.Equal(yandexDatatransferEndpointSettingsYdsTargetAuthenticationState.ServiceAccountId) {
+					updatePaths = append(updatePaths, "settings.yds_target.authentication.service_account_id")
+				}
+			}
 			if !yandexDatatransferEndpointSettingsYdsTargetPlan.CompressionCodec.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.CompressionCodec.Equal(yandexDatatransferEndpointSettingsYdsTargetState.CompressionCodec) {
 				updatePaths = append(updatePaths, "settings.yds_target.compression_codec")
 			}
@@ -4385,6 +4971,165 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 			}
 			if !yandexDatatransferEndpointSettingsYdsTargetPlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetPlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdsTargetState.SubnetId) {
 				updatePaths = append(updatePaths, "settings.yds_target.subnet_id")
+			}
+
+			if yandexDatatransferEndpointSettingsYdsTargetPlan.YdbConnection.IsNull() {
+				yandexDatatransferEndpointSettingsYdsTargetPlan.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType)
+			}
+			if yandexDatatransferEndpointSettingsYdsTargetState.YdbConnection.IsNull() {
+				yandexDatatransferEndpointSettingsYdsTargetState.YdbConnection = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModelType)
+			}
+
+			if (yandexDatatransferEndpointSettingsYdsTargetPlan.YdbConnection.IsNull() || yandexDatatransferEndpointSettingsYdsTargetState.YdbConnection.IsNull()) &&
+				!(yandexDatatransferEndpointSettingsYdsTargetPlan.YdbConnection.IsNull() && yandexDatatransferEndpointSettingsYdsTargetState.YdbConnection.IsNull()) &&
+				!yandexDatatransferEndpointSettingsYdsTargetPlan.YdbConnection.IsUnknown() {
+				updatePaths = append(updatePaths, "settings.yds_target.ydb_connection")
+			} else if !yandexDatatransferEndpointSettingsYdsTargetPlan.YdbConnection.IsUnknown() {
+				var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionListState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionListPlan []yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel = make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetState.YdbConnection.Elements())), make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetPlan.YdbConnection.Elements()))
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetPlan.YdbConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionListPlan, false)...)
+				resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetState.YdbConnection.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionListState, false)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+				var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan yandexDatatransferEndpointSettingsYdsTargetYdbConnectionModel
+				if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionListState) != 0 {
+					yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionListState[0]
+				}
+				if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionListPlan) != 0 {
+					yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionListPlan[0]
+				}
+
+				if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.ManagedYds.IsNull() {
+					yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.ManagedYds = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType)
+				}
+				if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds.IsNull() {
+					yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModelType)
+				}
+
+				if (yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.ManagedYds.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds.IsNull()) &&
+					!(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.ManagedYds.IsNull() && yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.ManagedYds.IsUnknown() {
+					updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.managed_yds")
+				} else if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.ManagedYds.IsUnknown() {
+					var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsListState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsListPlan []yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel = make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds.Elements())), make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.ManagedYds.Elements()))
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.ManagedYds.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsListPlan, false)...)
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.ManagedYds.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsListState, false)...)
+					if resp.Diagnostics.HasError() {
+						return
+					}
+					var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsPlan yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsModel
+					if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsListState) != 0 {
+						yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsListState[0]
+					}
+					if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsListPlan) != 0 {
+						yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsPlan = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsListPlan[0]
+					}
+
+					if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsPlan.DatabaseId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsPlan.DatabaseId.Equal(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState.DatabaseId) {
+						updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.managed_yds.database_id")
+					}
+					if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsPlan.Stream.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsPlan.Stream.Equal(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionManagedYdsState.Stream) {
+						updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.managed_yds.stream")
+					}
+				}
+
+				if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.OnPremise.IsNull() {
+					yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType)
+				}
+				if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise.IsNull() {
+					yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModelType)
+				}
+
+				if (yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.OnPremise.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise.IsNull()) &&
+					!(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.OnPremise.IsNull() && yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise.IsNull()) &&
+					!yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.OnPremise.IsUnknown() {
+					updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.on_premise")
+				} else if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.OnPremise.IsUnknown() {
+					var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseListState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseListPlan []yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel = make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise.Elements())), make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.OnPremise.Elements()))
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionPlan.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseListPlan, false)...)
+					resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionState.OnPremise.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseListState, false)...)
+					if resp.Diagnostics.HasError() {
+						return
+					}
+					var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseModel
+					if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseListState) != 0 {
+						yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseListState[0]
+					}
+					if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseListPlan) != 0 {
+						yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseListPlan[0]
+					}
+
+					if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.Database.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.Database.Equal(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.Database) {
+						updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.on_premise.database")
+					}
+					if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.Instance.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.Instance.Equal(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.Instance) {
+						updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.on_premise.instance")
+					}
+					if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.Stream.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.Stream.Equal(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.Stream) {
+						updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.on_premise.stream")
+					}
+					if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.SubnetId.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.SubnetId.Equal(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.SubnetId) {
+						updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.on_premise.subnet_id")
+					}
+
+					if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.TlsMode.IsNull() {
+						yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType)
+					}
+					if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.TlsMode.IsNull() {
+						yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModelType)
+					}
+
+					if (yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.TlsMode.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.TlsMode.IsNull() && yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.TlsMode.IsNull()) &&
+						!yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.TlsMode.IsUnknown() {
+						updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.on_premise.tls_mode")
+					} else if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.TlsMode.IsUnknown() {
+						var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeListState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeListPlan []yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel = make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.TlsMode.Elements())), make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.TlsMode.Elements()))
+						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremisePlan.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeListPlan, false)...)
+						resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseState.TlsMode.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeListState, false)...)
+						if resp.Diagnostics.HasError() {
+							return
+						}
+						var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeModel
+						if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeListState) != 0 {
+							yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeListState[0]
+						}
+						if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeListPlan) != 0 {
+							yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeListPlan[0]
+						}
+
+						if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() {
+							yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+						}
+						if yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsNull() {
+							yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModelType)
+						}
+
+						if (yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() || yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsNull() && yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled.IsNull()) &&
+							!yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
+							updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.on_premise.tls_mode.enabled")
+						} else if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan.Enabled.IsUnknown() {
+							var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledListState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledListPlan []yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel = make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled.Elements())), make([]yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan.Enabled.Elements()))
+							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModePlan.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledListPlan, false)...)
+							resp.Diagnostics.Append(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeState.Enabled.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledListState, false)...)
+							if resp.Diagnostics.HasError() {
+								return
+							}
+							var yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState, yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledPlan yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledModel
+							if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledListState) != 0 {
+								yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledListState[0]
+							}
+							if len(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledListPlan) != 0 {
+								yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledPlan = yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledListPlan[0]
+							}
+
+							if !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.IsUnknown() && !yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledPlan.CaCertificate.Equal(yandexDatatransferEndpointSettingsYdsTargetYdbConnectionOnPremiseTlsModeEnabledState.CaCertificate) {
+								updatePaths = append(updatePaths, "settings.yds_target.ydb_connection.on_premise.tls_mode.enabled.ca_certificate")
+							}
+						}
+					}
+				}
 			}
 		}
 	}

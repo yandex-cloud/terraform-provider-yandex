@@ -185,6 +185,8 @@ func expandYandexMdbPostgresqlBackupRetentionPolicyModel(ctx context.Context, ya
 type yandexMdbPostgresqlBackupRetentionPolicyCronModel struct {
 	DayOfMonth types.String `tfsdk:"day_of_month"`
 	DayOfWeek  types.String `tfsdk:"day_of_week"`
+	Hour       types.String `tfsdk:"hour"`
+	Minute     types.String `tfsdk:"minute"`
 	Month      types.String `tfsdk:"month"`
 }
 
@@ -193,6 +195,12 @@ func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) GetDayOfMonth() type
 }
 func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) GetDayOfWeek() types.String {
 	return m.DayOfWeek
+}
+func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) GetHour() types.String {
+	return m.Hour
+}
+func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) GetMinute() types.String {
+	return m.Minute
 }
 func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) GetMonth() types.String {
 	return m.Month
@@ -204,6 +212,12 @@ func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) SetDayOfMonth(target
 func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) SetDayOfWeek(target types.String) {
 	m.DayOfWeek = target
 }
+func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) SetHour(target types.String) {
+	m.Hour = target
+}
+func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) SetMinute(target types.String) {
+	m.Minute = target
+}
 func (m *yandexMdbPostgresqlBackupRetentionPolicyCronModel) SetMonth(target types.String) {
 	m.Month = target
 }
@@ -212,6 +226,8 @@ func NewYandexMdbPostgresqlBackupRetentionPolicyCronModel() yandexMdbPostgresqlB
 	return yandexMdbPostgresqlBackupRetentionPolicyCronModel{
 		DayOfMonth: types.StringNull(),
 		DayOfWeek:  types.StringNull(),
+		Hour:       types.StringNull(),
+		Minute:     types.StringNull(),
 		Month:      types.StringNull(),
 	}
 }
@@ -223,6 +239,12 @@ func yandexMdbPostgresqlBackupRetentionPolicyCronModelFillUnknown(target yandexM
 	if target.DayOfWeek.IsUnknown() || target.DayOfWeek.IsNull() {
 		target.DayOfWeek = types.StringNull()
 	}
+	if target.Hour.IsUnknown() || target.Hour.IsNull() {
+		target.Hour = types.StringNull()
+	}
+	if target.Minute.IsUnknown() || target.Minute.IsNull() {
+		target.Minute = types.StringNull()
+	}
 	if target.Month.IsUnknown() || target.Month.IsNull() {
 		target.Month = types.StringNull()
 	}
@@ -233,6 +255,8 @@ var yandexMdbPostgresqlBackupRetentionPolicyCronModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"day_of_month": types.StringType,
 		"day_of_week":  types.StringType,
+		"hour":         types.StringType,
+		"minute":       types.StringType,
 		"month":        types.StringType,
 	},
 }
@@ -246,6 +270,8 @@ func flattenYandexMdbPostgresqlBackupRetentionPolicyCron(ctx context.Context,
 	value, diag := types.ObjectValueFrom(ctx, yandexMdbPostgresqlBackupRetentionPolicyCronModelType.AttrTypes, yandexMdbPostgresqlBackupRetentionPolicyCronModel{
 		DayOfMonth: types.StringValue(yandexMdbPostgresqlBackupRetentionPolicyCron.GetDayOfMonth()),
 		DayOfWeek:  types.StringValue(yandexMdbPostgresqlBackupRetentionPolicyCron.GetDayOfWeek()),
+		Hour:       types.StringValue(yandexMdbPostgresqlBackupRetentionPolicyCron.GetHour()),
+		Minute:     types.StringValue(yandexMdbPostgresqlBackupRetentionPolicyCron.GetMinute()),
 		Month:      types.StringValue(yandexMdbPostgresqlBackupRetentionPolicyCron.GetMonth()),
 	})
 	diags.Append(diag...)
@@ -268,6 +294,8 @@ func expandYandexMdbPostgresqlBackupRetentionPolicyCronModel(ctx context.Context
 	value := &mdb.CronTab{}
 	value.SetDayOfMonth(yandexMdbPostgresqlBackupRetentionPolicyCronState.DayOfMonth.ValueString())
 	value.SetDayOfWeek(yandexMdbPostgresqlBackupRetentionPolicyCronState.DayOfWeek.ValueString())
+	value.SetHour(yandexMdbPostgresqlBackupRetentionPolicyCronState.Hour.ValueString())
+	value.SetMinute(yandexMdbPostgresqlBackupRetentionPolicyCronState.Minute.ValueString())
 	value.SetMonth(yandexMdbPostgresqlBackupRetentionPolicyCronState.Month.ValueString())
 	if diags.HasError() {
 		return nil

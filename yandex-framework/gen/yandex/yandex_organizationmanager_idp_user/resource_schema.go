@@ -251,9 +251,36 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 				},
 			},
 
+			"password_created_at": schema.StringAttribute{
+				MarkdownDescription: "Timestamp when the user's current password was created.\n For synchronized passwords, this is the time when the password was last set in the source directory.",
+				Description: "Timestamp when the user's current password was created.\n For synchronized passwords, this is the time when the password was last set in the source directory." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.User.password_created_at
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Computed: true,
+			},
+
 			"password_hash": schema.SingleNestedAttribute{
 
 				Attributes: map[string]schema.Attribute{
+
+					"created_at": schema.StringAttribute{
+						MarkdownDescription: "Timestamp when the password was created.\n For synchronized passwords, use the time when the password was last set in the source directory.\n If omitted, the current time is used.\n Used by [CreateUserRequest] and [SetPasswordHashRequest].\n This value is ignored if [CreateUserRequest.password_change_required] or [SetPasswordHashRequest.need_change] is true.",
+						Description: "Timestamp when the password was created.\n For synchronized passwords, use the time when the password was last set in the source directory.\n If omitted, the current time is used.\n Used by [CreateUserRequest] and [SetPasswordHashRequest].\n This value is ignored if [CreateUserRequest.password_change_required] or [SetPasswordHashRequest.need_change] is true." +
+							// proto paths: +
+							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_hash -> yandex.cloud.organizationmanager.v1.idp.PasswordHash.created_at
+							"package: yandex.cloud.organizationmanager.v1.idp\n" +
+							"filename: yandex/cloud/organizationmanager/v1/idp/user_service.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+							planmodifiers.NilRelaxedString(),
+							planmodifiers.NullWriteOnlyString(),
+						},
+					},
 
 					"password_hash": schema.StringAttribute{
 						MarkdownDescription: "The password hash string.",

@@ -127,6 +127,16 @@ func YandexOrganizationmanagerIdpUserDatasourceSchema(ctx context.Context) schem
 				Computed: true,
 			},
 
+			"password_created_at": schema.StringAttribute{
+				MarkdownDescription: "Timestamp when the user's current password was created.\n For synchronized passwords, this is the time when the password was last set in the source directory.",
+				Description: "Timestamp when the user's current password was created.\n For synchronized passwords, this is the time when the password was last set in the source directory." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.User.password_created_at
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user.proto\n",
+				Computed: true,
+			},
+
 			"phone_number": schema.StringAttribute{
 				MarkdownDescription: "User's phone number.",
 				Description: "User's phone number." +

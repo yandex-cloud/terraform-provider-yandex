@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'alb: added `accept_untrusted` and `allow_expired` fields to `resource_yandex_alb_load_balancer` resource'
-time: 2026-08-19T16:37:59.264392+03:00
