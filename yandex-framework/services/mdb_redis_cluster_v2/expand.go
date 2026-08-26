@@ -55,36 +55,55 @@ func expandModules(ctx context.Context, o types.Object) (*redis.ValkeyModules, [
 
 	result := &redis.ValkeyModules{}
 
-	// Expand ValkeySearch
-	if modules.ValkeySearch != nil {
+	if utils.IsPresent(modules.ValkeySearch) {
+		search := &ValkeySearch{}
+		diags.Append(modules.ValkeySearch.As(ctx, search, baseOptions)...)
+		if diags.HasError() {
+			return nil, nil, diags
+		}
+
 		valkeySearch := &redis.ValkeySearch{}
-		valkeySearch.Enabled = modules.ValkeySearch.Enabled.ValueBool()
-		paths = append(paths, "config_spec.modules.valkey_search.enabled")
-		if utils.IsPresent(modules.ValkeySearch.ReaderThreads) {
-			valkeySearch.ReaderThreads = &wrappers.Int64Value{Value: modules.ValkeySearch.ReaderThreads.ValueInt64()}
+		if utils.IsPresent(search.Enabled) {
+			valkeySearch.Enabled = search.Enabled.ValueBool()
+			paths = append(paths, "config_spec.modules.valkey_search.enabled")
+		}
+		if utils.IsPresent(search.ReaderThreads) {
+			valkeySearch.ReaderThreads = &wrappers.Int64Value{Value: search.ReaderThreads.ValueInt64()}
 			paths = append(paths, "config_spec.modules.valkey_search.reader_threads")
 		}
-		if utils.IsPresent(modules.ValkeySearch.WriterThreads) {
-			valkeySearch.WriterThreads = &wrappers.Int64Value{Value: modules.ValkeySearch.WriterThreads.ValueInt64()}
+		if utils.IsPresent(search.WriterThreads) {
+			valkeySearch.WriterThreads = &wrappers.Int64Value{Value: search.WriterThreads.ValueInt64()}
 			paths = append(paths, "config_spec.modules.valkey_search.writer_threads")
 		}
 		result.ValkeySearch = valkeySearch
 	}
 
 	// Expand ValkeyJson
-	if modules.ValkeyJson != nil {
-		valkeyJson := &redis.ValkeyJson{}
-		valkeyJson.Enabled = modules.ValkeyJson.Enabled.ValueBool()
-		paths = append(paths, "config_spec.modules.valkey_json.enabled")
-		result.ValkeyJson = valkeyJson
+	if utils.IsPresent(modules.ValkeyJson) {
+		json := &ValkeyJson{}
+		diags.Append(modules.ValkeyJson.As(ctx, json, baseOptions)...)
+		if diags.HasError() {
+			return nil, nil, diags
+		}
+
+		if utils.IsPresent(json.Enabled) {
+			result.ValkeyJson = &redis.ValkeyJson{Enabled: json.Enabled.ValueBool()}
+			paths = append(paths, "config_spec.modules.valkey_json.enabled")
+		}
 	}
 
 	// Expand ValkeyBloom
-	if modules.ValkeyBloom != nil {
-		valkeyBloom := &redis.ValkeyBloom{}
-		valkeyBloom.Enabled = modules.ValkeyBloom.Enabled.ValueBool()
-		paths = append(paths, "config_spec.modules.valkey_bloom.enabled")
-		result.ValkeyBloom = valkeyBloom
+	if utils.IsPresent(modules.ValkeyBloom) {
+		bloom := &ValkeyBloom{}
+		diags.Append(modules.ValkeyBloom.As(ctx, bloom, baseOptions)...)
+		if diags.HasError() {
+			return nil, nil, diags
+		}
+
+		if utils.IsPresent(bloom.Enabled) {
+			result.ValkeyBloom = &redis.ValkeyBloom{Enabled: bloom.Enabled.ValueBool()}
+			paths = append(paths, "config_spec.modules.valkey_bloom.enabled")
+		}
 	}
 
 	return result, paths, diags
