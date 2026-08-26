@@ -130,21 +130,21 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				},
 			},
 			"sql_user_management": schema.BoolAttribute{
-				Description: "Enables `admin` user with user management permission.",
+				Description: "Enables `admin` user with user management permission. Can be enabled in-place, disabling requires the cluster to be recreated.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
-					boolplanmodifier.RequiresReplace(),
+					customplanmodifiers.RequiresReplaceOnDisable(),
 				},
 			},
 			"sql_database_management": schema.BoolAttribute{
-				Description: "Grants `admin` user database management permission.",
+				Description: "Grants `admin` user database management permission. Can be enabled in-place, disabling requires the cluster to be recreated.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
-					boolplanmodifier.RequiresReplace(),
+					customplanmodifiers.RequiresReplaceOnDisable(),
 				},
 			},
 			"embedded_keeper": schema.BoolAttribute{

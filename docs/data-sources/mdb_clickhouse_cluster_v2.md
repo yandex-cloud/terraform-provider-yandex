@@ -530,8 +530,8 @@ If the parameter is set to 0 (default), no hops is allowed.
     - `disk_type_id` (String). Type of the storage of hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
     - `resource_preset_id` (String). The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
   - `weight` (Number). The weight of shard.
-- `sql_database_management` (Bool). Grants `admin` user database management permission.
-- `sql_user_management` (Bool). Enables `admin` user with user management permission.
+- `sql_database_management` (Bool). Grants `admin` user database management permission. Can be enabled in-place, disabling requires the cluster to be recreated.
+- `sql_user_management` (Bool). Enables `admin` user with user management permission. Can be enabled in-place, disabling requires the cluster to be recreated.
 - `timeouts` [Block]. 
   - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
   - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
