@@ -1,5 +1,29 @@
 # Release notes
 
+## 0.224.0 (August 27, 2026)
+
+##### BUG FIXES:
+* mdb: fixed Value Conversion Error in yandex_mdb_redis_cluster_v2 when only a part of the valkey modules is listed in the configuration
+* postgresql: changes of `owner` and `extension` in `database` block of `yandex_mdb_postgresql_cluster` are no longer lost when other databases are added, removed or reordered
+
+##### ENHANCEMENTS:
+* triggers: add `source.yandex_messenger.bot_id` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_messenger` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_messenger.bot_login` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_messenger.bot_login` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_messenger.oauth_token` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_messenger.force` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_messenger` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_messenger.bot_id` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_messenger.oauth_token` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_messenger.bot_display_name` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_messenger.force` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_messenger.bot_display_name` to `yandex_serverless_triggers` data source
+* mdb_clickhouse: enabling `sql_user_management` and `sql_database_management` no longer recreates `yandex_mdb_clickhouse_cluster_v2`, the cluster is updated in place
+* postgresql: `owner` of `yandex_mdb_postgresql_database` can now be changed without recreating the database
+
+
+
 ## 0.223.0 (August 24, 2026)
 
 ##### FEATURES:

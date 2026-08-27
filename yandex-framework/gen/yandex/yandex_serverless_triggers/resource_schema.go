@@ -749,6 +749,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_message"),
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},
@@ -937,6 +938,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_message"),
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},
@@ -1081,6 +1083,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("container_registry"),
 								path.MatchRelative().AtParent().AtName("iot_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},
@@ -1242,6 +1245,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("container_registry"),
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},
@@ -1471,6 +1475,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_message"),
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},
@@ -1660,6 +1665,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_message"),
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},
@@ -1848,6 +1854,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_message"),
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},
@@ -1939,6 +1946,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("container_registry"),
 								path.MatchRelative().AtParent().AtName("iot_message"),
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},
@@ -2002,6 +2010,128 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Validators: []validator.Object{
 							objectvalidator.ConflictsWith(
+								path.MatchRelative().AtParent().AtName("ymq"),
+								path.MatchRelative().AtParent().AtName("yds"),
+								path.MatchRelative().AtParent().AtName("mail"),
+								path.MatchRelative().AtParent().AtName("billing_budget"),
+								path.MatchRelative().AtParent().AtName("logging"),
+								path.MatchRelative().AtParent().AtName("object_storage"),
+								path.MatchRelative().AtParent().AtName("container_registry"),
+								path.MatchRelative().AtParent().AtName("iot_message"),
+								path.MatchRelative().AtParent().AtName("iot_broker_message"),
+								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
+							),
+						},
+					},
+
+					"yandex_messenger": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"bot_display_name": schema.StringAttribute{
+								MarkdownDescription: "Display name of the bot the token belongs to. output only.",
+								Description: "Display name of the bot the token belongs to. output only." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_display_name
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_display_name
+									// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_display_name
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+							},
+
+							"bot_id": schema.StringAttribute{
+								MarkdownDescription: "ID of the bot the token belongs to. output only.",
+								Description: "ID of the bot the token belongs to. output only." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_id
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_id
+									// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_id
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+							},
+
+							"bot_login": schema.StringAttribute{
+								MarkdownDescription: "Login of the bot the token belongs to. output only.",
+								Description: "Login of the bot the token belongs to. output only." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_login
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_login
+									// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_login
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+							},
+
+							"force": schema.BoolAttribute{
+								MarkdownDescription: "input only. Overwrite a webhook the bot already has set to a different URL,\n instead of failing with \"webhook already in use\". If the webhook already\n points to this trigger, force does nothing - the existing webhook is kept.",
+								Description: "input only. Overwrite a webhook the bot already has set to a different URL,\n instead of failing with \"webhook already in use\". If the webhook already\n points to this trigger, force does nothing - the existing webhook is kept." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.force
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.force
+									// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.force
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.Bool{
+									boolplanmodifier.UseStateForUnknown(),
+								},
+							},
+
+							"oauth_token": schema.StringAttribute{
+								MarkdownDescription: "OAuth token of the Yandex Messenger bot.\n input only, always empty in output.\n Required on Create; on Update, changing it re-registers the webhook.",
+								Description: "OAuth token of the Yandex Messenger bot.\n input only, always empty in output.\n Required on Create; on Update, changing it re-registers the webhook." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.oauth_token
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.oauth_token
+									// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.oauth_token
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Optional:  true,
+								Computed:  true,
+								Sensitive: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+							},
+						},
+						MarkdownDescription: "Yandex Messenger source: fires on Yandex Messenger bot updates.",
+						Description: "Yandex Messenger source: fires on Yandex Messenger bot updates." +
+							// proto paths: +
+							// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger
+							// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger
+							// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger
+							"package: yandex.cloud.serverless.triggers.v2\n" +
+							"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+						Validators: []validator.Object{
+							objectvalidator.ConflictsWith(
+								path.MatchRelative().AtParent().AtName("timer"),
 								path.MatchRelative().AtParent().AtName("ymq"),
 								path.MatchRelative().AtParent().AtName("yds"),
 								path.MatchRelative().AtParent().AtName("mail"),
@@ -2191,6 +2321,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_message"),
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},
@@ -2356,6 +2487,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_message"),
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 							),
 						},
 					},

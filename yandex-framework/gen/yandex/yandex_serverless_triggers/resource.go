@@ -748,6 +748,35 @@ func (r *yandexServerlessTriggersResource) Update(ctx context.Context, req resou
 			}
 		}
 
+		if (yandexServerlessTriggersSourcePlan.YandexMessenger.IsNull() || yandexServerlessTriggersSourceState.YandexMessenger.IsNull()) &&
+			!(yandexServerlessTriggersSourcePlan.YandexMessenger.IsNull() && yandexServerlessTriggersSourceState.YandexMessenger.IsNull()) &&
+			!yandexServerlessTriggersSourcePlan.YandexMessenger.IsUnknown() {
+			updatePaths = append(updatePaths, "source.yandex_messenger")
+		} else if !yandexServerlessTriggersSourcePlan.YandexMessenger.IsUnknown() {
+			var yandexServerlessTriggersSourceYandexMessengerState, yandexServerlessTriggersSourceYandexMessengerPlan yandexServerlessTriggersSourceYandexMessengerModel
+			resp.Diagnostics.Append(yandexServerlessTriggersSourcePlan.YandexMessenger.As(ctx, &yandexServerlessTriggersSourceYandexMessengerPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			resp.Diagnostics.Append(yandexServerlessTriggersSourceState.YandexMessenger.As(ctx, &yandexServerlessTriggersSourceYandexMessengerState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			if !yandexServerlessTriggersSourceYandexMessengerPlan.BotDisplayName.IsUnknown() && !yandexServerlessTriggersSourceYandexMessengerPlan.BotDisplayName.Equal(yandexServerlessTriggersSourceYandexMessengerState.BotDisplayName) {
+				updatePaths = append(updatePaths, "source.yandex_messenger.bot_display_name")
+			}
+			if !yandexServerlessTriggersSourceYandexMessengerPlan.BotId.IsUnknown() && !yandexServerlessTriggersSourceYandexMessengerPlan.BotId.Equal(yandexServerlessTriggersSourceYandexMessengerState.BotId) {
+				updatePaths = append(updatePaths, "source.yandex_messenger.bot_id")
+			}
+			if !yandexServerlessTriggersSourceYandexMessengerPlan.BotLogin.IsUnknown() && !yandexServerlessTriggersSourceYandexMessengerPlan.BotLogin.Equal(yandexServerlessTriggersSourceYandexMessengerState.BotLogin) {
+				updatePaths = append(updatePaths, "source.yandex_messenger.bot_login")
+			}
+			if !yandexServerlessTriggersSourceYandexMessengerPlan.Force.IsUnknown() && !yandexServerlessTriggersSourceYandexMessengerPlan.Force.Equal(yandexServerlessTriggersSourceYandexMessengerState.Force) {
+				updatePaths = append(updatePaths, "source.yandex_messenger.force")
+			}
+			if !yandexServerlessTriggersSourceYandexMessengerPlan.OauthToken.IsUnknown() && !yandexServerlessTriggersSourceYandexMessengerPlan.OauthToken.Equal(yandexServerlessTriggersSourceYandexMessengerState.OauthToken) {
+				updatePaths = append(updatePaths, "source.yandex_messenger.oauth_token")
+			}
+		}
+
 		if (yandexServerlessTriggersSourcePlan.Yds.IsNull() || yandexServerlessTriggersSourceState.Yds.IsNull()) &&
 			!(yandexServerlessTriggersSourcePlan.Yds.IsNull() && yandexServerlessTriggersSourceState.Yds.IsNull()) &&
 			!yandexServerlessTriggersSourcePlan.Yds.IsUnknown() {

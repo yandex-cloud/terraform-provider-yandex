@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb_clickhouse: enabling `sql_user_management` and `sql_database_management` no longer recreates `yandex_mdb_clickhouse_cluster_v2`, the cluster is updated in place'
-time: 2026-08-12T03:00:00+03:00
