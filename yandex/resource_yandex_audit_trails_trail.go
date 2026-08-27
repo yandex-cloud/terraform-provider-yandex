@@ -33,6 +33,52 @@ func resourceAuditTrailsTrailResourceSchema() *schema.Resource {
 	}
 }
 
+func resourceAuditTrailsTrailFieldFilterRuleSchema(description string) *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Description: description,
+		Optional:    true,
+		MaxItems:    64,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"condition": {
+					Type:        schema.TypeList,
+					Description: "Condition that must be satisfied by an event. Conditions are combined using logical AND.",
+					Required:    true,
+					MinItems:    1,
+					MaxItems:    64,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"field": {
+								Type:         schema.TypeString,
+								Description:  "Path to a scalar field of the event.",
+								Required:     true,
+								ValidateFunc: validation.StringIsNotEmpty,
+							},
+							"operator": {
+								Type:        schema.TypeString,
+								Description: "Operator that controls how the values are interpreted.",
+								Required:    true,
+								ValidateDiagFunc: validation.ToDiagFunc(
+									validation.StringInSlice([]string{"IN", "IP_IN"}, false),
+								),
+							},
+							"values": {
+								Type:        schema.TypeList,
+								Description: "Values interpreted according to the selected field and operator.",
+								Required:    true,
+								MinItems:    1,
+								MaxItems:    64,
+								Elem:        &schema.Schema{Type: schema.TypeString},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func resourceYandexAuditTrailsTrail() *schema.Resource {
 	return &schema.Resource{
 		Description: "Allows management of [trail](https://yandex.cloud/docs/audit-trails/concepts/trail).\n\n## Migration from deprecated filter field\n\nIn order to migrate from using `filter` to the `filtering_policy`, you will have to:\n* Remove the `filter.event_filters.categories` blocks. With the introduction of `included_events`/`excluded_events` you can configure filtering per each event type.\n* Replace the `filter.event_filters.path_filter` with the appropriate `resource_scope` blocks. You have to account that `resource_scope` does not support specifying relations between resources, so your configuration will simplify to only the actual resources, that will be monitored.\n\n* Replace the `filter.path_filter` block with the `filtering_policy.management_events_filter`. New API states management events filtration in a more clear way. The resources, that were specified, must migrate into the `filtering_policy.management_events_filter.resource_scope`.\n\n",
@@ -192,6 +238,12 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"include_rule": resourceAuditTrailsTrailFieldFilterRuleSchema(
+										"Rules defining which management events will be included. Rules are combined using logical OR.",
+									),
+									"exclude_rule": resourceAuditTrailsTrailFieldFilterRuleSchema(
+										"Rules defining which management events will be excluded. Rules are combined using logical OR.",
+									),
 									"resource_scope": {
 										Required:    true,
 										Type:        schema.TypeList,
@@ -212,6 +264,12 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 							Description: "Structure describing filtering process for the service-specific data events.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"include_rule": resourceAuditTrailsTrailFieldFilterRuleSchema(
+										"Rules defining which data events will be included. Rules are combined using logical OR.",
+									),
+									"exclude_rule": resourceAuditTrailsTrailFieldFilterRuleSchema(
+										"Rules defining which data events will be excluded. Rules are combined using logical OR.",
+									),
 									"service": {
 										Required:    true,
 										Type:        schema.TypeString,
@@ -586,6 +644,8 @@ func packResourceDataIntoDataEventsFilters(data *schema.ResourceData, namespace 
 		filter := &audittrails.Trail_DataEventsFiltering{
 			ResourceScopes: packResourceDataIntoResourceScopes(data, filterNamespace+"resource_scope."),
 			Service:        data.Get(filterNamespace + "service").(string),
+			IncludeRules:   packResourceDataIntoFieldFilterRules(data, filterNamespace+"include_rule."),
+			ExcludeRules:   packResourceDataIntoFieldFilterRules(data, filterNamespace+"exclude_rule."),
 		}
 
 		_, exists := data.GetOk(filterNamespace + "included_events")
@@ -630,6 +690,53 @@ func packResourceDataIntoEventTypes(data *schema.ResourceData, namespace string)
 	return &audittrails.Trail_EventTypes{
 		EventTypes: res,
 	}
+}
+
+func packResourceDataIntoFieldFilterRules(
+	data *schema.ResourceData,
+	namespace string,
+) []*audittrails.Trail_FieldFilterRule {
+	numberOfRules := data.Get(namespace + "#").(int)
+	res := make([]*audittrails.Trail_FieldFilterRule, 0, numberOfRules)
+	for i := 0; i < numberOfRules; i++ {
+		ruleNamespace := fmt.Sprintf("%s%d.", namespace, i)
+		res = append(res, &audittrails.Trail_FieldFilterRule{
+			Conditions: packResourceDataIntoFieldConditions(data, ruleNamespace+"condition."),
+		})
+	}
+
+	return res
+}
+
+func packResourceDataIntoFieldConditions(
+	data *schema.ResourceData,
+	namespace string,
+) []*audittrails.Trail_FieldCondition {
+	numberOfConditions := data.Get(namespace + "#").(int)
+	res := make([]*audittrails.Trail_FieldCondition, 0, numberOfConditions)
+	for i := 0; i < numberOfConditions; i++ {
+		conditionNamespace := fmt.Sprintf("%s%d.", namespace, i)
+		operator := data.Get(conditionNamespace + "operator").(string)
+		res = append(res, &audittrails.Trail_FieldCondition{
+			Field: data.Get(conditionNamespace + "field").(string),
+			Operator: audittrails.Trail_FieldCondition_Operator(
+				audittrails.Trail_FieldCondition_Operator_value[operator],
+			),
+			Values: packResourceDataIntoFieldConditionValues(data, conditionNamespace+"values."),
+		})
+	}
+
+	return res
+}
+
+func packResourceDataIntoFieldConditionValues(data *schema.ResourceData, namespace string) []string {
+	numberOfValues := data.Get(namespace + "#").(int)
+	res := make([]string, 0, numberOfValues)
+	for i := 0; i < numberOfValues; i++ {
+		res = append(res, data.Get(fmt.Sprintf("%s%d", namespace, i)).(string))
+	}
+
+	return res
 }
 
 func packResourceDataIntoFilter(data *schema.ResourceData) *audittrails.Trail_FilteringPolicy {
@@ -723,6 +830,8 @@ func packResourceDataIntoPathFilter(data *schema.ResourceData, namespace string)
 func packResourceDataIntoManagementFilter(data *schema.ResourceData, namespace string) *audittrails.Trail_ManagementEventsFiltering {
 	return &audittrails.Trail_ManagementEventsFiltering{
 		ResourceScopes: packResourceDataIntoResourceScopes(data, namespace+"resource_scope."),
+		IncludeRules:   packResourceDataIntoFieldFilterRules(data, namespace+"include_rule."),
+		ExcludeRules:   packResourceDataIntoFieldFilterRules(data, namespace+"exclude_rule."),
 	}
 }
 

@@ -36,6 +36,45 @@ func dataSourceAuditTrailsTrailResourceListSchema() *schema.Schema {
 	}
 }
 
+func dataSourceAuditTrailsTrailFieldFilterRulesSchema() *schema.Schema {
+	return &schema.Schema{
+		Computed:    true,
+		Type:        schema.TypeList,
+		Description: "List of field filter rules. Rules are combined using logical OR.",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"condition": {
+					Computed:    true,
+					Type:        schema.TypeList,
+					Description: "List of field conditions. Conditions are combined using logical AND.",
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"field": {
+								Computed:    true,
+								Type:        schema.TypeString,
+								Description: "Path to a scalar field.",
+							},
+							"operator": {
+								Computed:    true,
+								Type:        schema.TypeString,
+								Description: "Condition operator.",
+							},
+							"values": {
+								Computed:    true,
+								Type:        schema.TypeList,
+								Description: "Textual operands interpreted according to the selected field and operator.",
+								Elem: &schema.Schema{
+									Type: schema.TypeString,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func dataSourceAuditTrailsTrailResourcePathSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
@@ -224,6 +263,8 @@ func dataSourceYandexAuditTrailsTrail() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resource_scope": dataSourceAuditTrailsTrailResourceListSchema(),
+									"include_rule":   dataSourceAuditTrailsTrailFieldFilterRulesSchema(),
+									"exclude_rule":   dataSourceAuditTrailsTrailFieldFilterRulesSchema(),
 								},
 							},
 						},
@@ -255,6 +296,8 @@ func dataSourceYandexAuditTrailsTrail() *schema.Resource {
 										},
 									},
 									"resource_scope": dataSourceAuditTrailsTrailResourceListSchema(),
+									"include_rule":   dataSourceAuditTrailsTrailFieldFilterRulesSchema(),
+									"exclude_rule":   dataSourceAuditTrailsTrailFieldFilterRulesSchema(),
 									"dns_filter": {
 										Type:        schema.TypeList,
 										Description: "Specific filter for DNS service.",
@@ -422,6 +465,8 @@ func unpackProtoTrailIntoResourceData(trail *audittrails.Trail, data *schema.Res
 
 		flatDataEventFilter["service"] = dataEventFilter.GetService()
 		flatDataEventFilter["resource_scope"] = unpackProtoResourceScopesIntoResourceData(dataEventFilter.GetResourceScopes())
+		flatDataEventFilter["include_rule"] = unpackProtoFieldFilterRulesIntoResourceData(dataEventFilter.GetIncludeRules())
+		flatDataEventFilter["exclude_rule"] = unpackProtoFieldFilterRulesIntoResourceData(dataEventFilter.GetExcludeRules())
 
 		if excludedEvents := dataEventFilter.GetExcludedEvents(); excludedEvents != nil {
 			flatDataEventFilter["excluded_events"] = unpackEventTypesIntoResourceData(excludedEvents)
@@ -443,12 +488,10 @@ func unpackProtoTrailIntoResourceData(trail *audittrails.Trail, data *schema.Res
 		flatTrailFilteringPolicy["data_events_filter"] = flatDataEventFilters
 	}
 
-	managementFilter := filteringPolicy.GetManagementEventsFilter()
-	if len(managementFilter.GetResourceScopes()) > 0 {
-		flatManagementFilter := map[string]interface{}{}
-		flatManagementFilter["resource_scope"] = unpackProtoResourceScopesIntoResourceData(managementFilter.GetResourceScopes())
-
-		flatTrailFilteringPolicy["management_events_filter"] = []interface{}{flatManagementFilter}
+	if flatManagementFilter := unpackProtoManagementEventsFilterIntoResourceData(
+		filteringPolicy.GetManagementEventsFilter(),
+	); len(flatManagementFilter) > 0 {
+		flatTrailFilteringPolicy["management_events_filter"] = flatManagementFilter
 	}
 
 	result = setAndAppendError(data, "filtering_policy", []interface{}{flatTrailFilteringPolicy}, result)
@@ -458,6 +501,59 @@ func unpackProtoTrailIntoResourceData(trail *audittrails.Trail, data *schema.Res
 
 func unpackEventTypesIntoResourceData(eventTypes *audittrails.Trail_EventTypes) []string {
 	return eventTypes.GetEventTypes()
+}
+
+func unpackProtoManagementEventsFilterIntoResourceData(
+	managementFilter *audittrails.Trail_ManagementEventsFiltering,
+) []interface{} {
+	if managementFilter == nil {
+		return nil
+	}
+
+	resourceScopes := unpackProtoResourceScopesIntoResourceData(
+		managementFilter.GetResourceScopes(),
+	)
+	if len(resourceScopes) == 0 {
+		return nil
+	}
+
+	flatManagementFilter := map[string]interface{}{
+		"resource_scope": resourceScopes,
+	}
+	if includeRules := unpackProtoFieldFilterRulesIntoResourceData(
+		managementFilter.GetIncludeRules(),
+	); len(includeRules) > 0 {
+		flatManagementFilter["include_rule"] = includeRules
+	}
+	if excludeRules := unpackProtoFieldFilterRulesIntoResourceData(
+		managementFilter.GetExcludeRules(),
+	); len(excludeRules) > 0 {
+		flatManagementFilter["exclude_rule"] = excludeRules
+	}
+
+	return []interface{}{flatManagementFilter}
+}
+
+func unpackProtoFieldFilterRulesIntoResourceData(rules []*audittrails.Trail_FieldFilterRule) []interface{} {
+	flatRules := make([]interface{}, 0, len(rules))
+	for _, rule := range rules {
+		flatRules = append(flatRules, map[string]interface{}{
+			"condition": unpackProtoFieldConditionsIntoResourceData(rule.GetConditions()),
+		})
+	}
+	return flatRules
+}
+
+func unpackProtoFieldConditionsIntoResourceData(conditions []*audittrails.Trail_FieldCondition) []interface{} {
+	flatConditions := make([]interface{}, 0, len(conditions))
+	for _, condition := range conditions {
+		flatConditions = append(flatConditions, map[string]interface{}{
+			"field":    condition.GetField(),
+			"operator": condition.GetOperator().String(),
+			"values":   condition.GetValues(),
+		})
+	}
+	return flatConditions
 }
 
 func unpackProtoResourceScopesIntoResourceData(resources []*audittrails.Trail_Resource) []interface{} {

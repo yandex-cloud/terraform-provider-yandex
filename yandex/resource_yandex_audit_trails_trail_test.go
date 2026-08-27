@@ -290,7 +290,22 @@ func checkTrail(trail yandexAuditTrailsTrail, dataSourceCheck bool) resource.Tes
 	}
 
 	managementFilter := trail.FilteringPolicy.ManagementFilter
-	checks = append(checks, checkResourceScopes(resourceName, "filtering_policy.0.management_events_filter.0.resource_scope.", managementFilter.ResourceScope)...)
+	managementFilterStatePrefix := "filtering_policy.0.management_events_filter.0."
+	checks = append(checks, checkResourceScopes(
+		resourceName,
+		managementFilterStatePrefix+"resource_scope.",
+		managementFilter.ResourceScope,
+	)...)
+	checks = append(checks, checkFieldFilterRules(
+		resourceName,
+		managementFilterStatePrefix+"include_rule.",
+		managementFilter.IncludeRules,
+	)...)
+	checks = append(checks, checkFieldFilterRules(
+		resourceName,
+		managementFilterStatePrefix+"exclude_rule.",
+		managementFilter.ExcludeRules,
+	)...)
 
 	dataEventFilters := trail.FilteringPolicy.DataEventFilters
 	for i, dataEventFilter := range dataEventFilters {
@@ -305,7 +320,21 @@ func checkDataEventFilter(resourceName string, statePrefix string, dataEventFilt
 	var checks []resource.TestCheckFunc
 
 	checks = append(checks, resource.TestCheckResourceAttr(resourceName, statePrefix+"service", dataEventFilter.Service))
-	checks = append(checks, checkResourceScopes(resourceName, statePrefix+"resource_scope.", dataEventFilter.ResourceScope)...)
+	checks = append(checks, checkResourceScopes(
+		resourceName,
+		statePrefix+"resource_scope.",
+		dataEventFilter.ResourceScope,
+	)...)
+	checks = append(checks, checkFieldFilterRules(
+		resourceName,
+		statePrefix+"include_rule.",
+		dataEventFilter.IncludeRules,
+	)...)
+	checks = append(checks, checkFieldFilterRules(
+		resourceName,
+		statePrefix+"exclude_rule.",
+		dataEventFilter.ExcludeRules,
+	)...)
 
 	for i, includedEvent := range dataEventFilter.IncludedEvents {
 		statePath := fmt.Sprintf("%sincluded_events.%d", statePrefix, i)
@@ -329,6 +358,48 @@ func checkDataEventFilter(resourceName string, statePrefix string, dataEventFilt
 			statePrefix+"dns_filter.#",
 			"0",
 		))
+	}
+
+	return checks
+}
+
+func checkFieldFilterRules(
+	resourceName string,
+	statePrefix string,
+	expected []trailFieldFilterRule,
+) []resource.TestCheckFunc {
+	checks := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(resourceName, statePrefix+"#", fmt.Sprint(len(expected))),
+	}
+
+	for ruleIndex, rule := range expected {
+		conditionStatePrefix := fmt.Sprintf("%s%d.condition.", statePrefix, ruleIndex)
+		checks = append(checks, resource.TestCheckResourceAttr(
+			resourceName,
+			conditionStatePrefix+"#",
+			fmt.Sprint(len(rule.Conditions)),
+		))
+
+		for conditionIndex, condition := range rule.Conditions {
+			conditionStatePath := fmt.Sprintf("%s%d.", conditionStatePrefix, conditionIndex)
+			checks = append(checks,
+				resource.TestCheckResourceAttr(resourceName, conditionStatePath+"field", condition.Field),
+				resource.TestCheckResourceAttr(resourceName, conditionStatePath+"operator", condition.Operator),
+				resource.TestCheckResourceAttr(
+					resourceName,
+					conditionStatePath+"values.#",
+					fmt.Sprint(len(condition.Values)),
+				),
+			)
+
+			for valueIndex, value := range condition.Values {
+				checks = append(checks, resource.TestCheckResourceAttr(
+					resourceName,
+					fmt.Sprintf("%svalues.%d", conditionStatePath, valueIndex),
+					value,
+				))
+			}
+		}
 	}
 
 	return checks
@@ -456,6 +527,31 @@ func auditTrailsYdsConfig(trailResourceName, ydbName, streamName, saName string)
 						ResourceType: "resource-manager.folder",
 					},
 				},
+				IncludeRules: []trailFieldFilterRule{
+					{
+						Conditions: []trailFieldCondition{
+							{
+								Field:    "$.event_type",
+								Operator: "IN",
+								Values: []string{
+									"yandex.cloud.audit.audittrails.CreateTrail",
+									"yandex.cloud.audit.audittrails.UpdateTrail",
+								},
+							},
+						},
+					},
+				},
+				ExcludeRules: []trailFieldFilterRule{
+					{
+						Conditions: []trailFieldCondition{
+							{
+								Field:    "$.request_metadata.remote_address",
+								Operator: "IP_IN",
+								Values:   []string{"10.0.0.0/8"},
+							},
+						},
+					},
+				},
 			},
 			DataEventFilters: []trailDataEventFilter{
 				{
@@ -507,6 +603,17 @@ func auditTrailsLoggingConfig(trailResourceName, logGroupName, saName string) ya
 						"yandex.cloud.audit.kms.Encrypt",
 						"yandex.cloud.audit.kms.Decrypt",
 					},
+					IncludeRules: []trailFieldFilterRule{
+						{
+							Conditions: []trailFieldCondition{
+								{
+									Field:    "$.details.key_id",
+									Operator: "IN",
+									Values:   []string{"key-a", "key-b"},
+								},
+							},
+						},
+					},
 				},
 				{
 					Service: "iam",
@@ -518,6 +625,17 @@ func auditTrailsLoggingConfig(trailResourceName, logGroupName, saName string) ya
 					},
 					ExcludedEvents: []string{
 						"yandex.cloud.audit.iam.oslogin.CheckSshPolicy",
+					},
+					ExcludeRules: []trailFieldFilterRule{
+						{
+							Conditions: []trailFieldCondition{
+								{
+									Field:    "$.request_metadata.remote_address",
+									Operator: "IP_IN",
+									Values:   []string{"192.0.2.0/24"},
+								},
+							},
+						},
 					},
 				},
 				{
@@ -768,6 +886,38 @@ resource "yandex_audit_trails_trail" "{{.Name}}" {
 		resource_type = "{{.ResourceType}}"
 	  }
 	  {{end}}
+
+	  {{range .FilteringPolicy.ManagementFilter.IncludeRules}}
+	  include_rule {
+	    {{range .Conditions}}
+	    condition {
+	      field = "{{.Field}}"
+	      operator = "{{.Operator}}"
+	      values = [
+	        {{range .Values}}
+	        "{{.}}",
+	        {{end}}
+	      ]
+	    }
+	    {{end}}
+	  }
+	  {{end}}
+
+	  {{range .FilteringPolicy.ManagementFilter.ExcludeRules}}
+	  exclude_rule {
+	    {{range .Conditions}}
+	    condition {
+	      field = "{{.Field}}"
+	      operator = "{{.Operator}}"
+	      values = [
+	        {{range .Values}}
+	        "{{.}}",
+	        {{end}}
+	      ]
+	    }
+	    {{end}}
+	  }
+	  {{end}}
 	}
 	{{end}}
     {{range .FilteringPolicy.DataEventFilters}}
@@ -795,6 +945,38 @@ resource "yandex_audit_trails_trail" "{{.Name}}" {
 	    "{{.}}",
 	  {{end}}
 	  ]
+	  {{end}}
+
+	  {{range .IncludeRules}}
+	  include_rule {
+	    {{range .Conditions}}
+	    condition {
+	      field = "{{.Field}}"
+	      operator = "{{.Operator}}"
+	      values = [
+	        {{range .Values}}
+	        "{{.}}",
+	        {{end}}
+	      ]
+	    }
+	    {{end}}
+	  }
+	  {{end}}
+
+	  {{range .ExcludeRules}}
+	  exclude_rule {
+	    {{range .Conditions}}
+	    condition {
+	      field = "{{.Field}}"
+	      operator = "{{.Operator}}"
+	      values = [
+	        {{range .Values}}
+	        "{{.}}",
+	        {{end}}
+	      ]
+	    }
+	    {{end}}
+	  }
 	  {{end}}
 
 	  {{if eq .Service "dns"}}
@@ -825,6 +1007,8 @@ type trailStorageDestination struct {
 
 type trailManagementFilter struct {
 	ResourceScope []trailResourceEntry
+	IncludeRules  []trailFieldFilterRule
+	ExcludeRules  []trailFieldFilterRule
 }
 
 type trailDataEventFilter struct {
@@ -832,7 +1016,19 @@ type trailDataEventFilter struct {
 	ResourceScope  []trailResourceEntry
 	IncludedEvents []string
 	ExcludedEvents []string
+	IncludeRules   []trailFieldFilterRule
+	ExcludeRules   []trailFieldFilterRule
 	DnsFilter      trailDnsFilter
+}
+
+type trailFieldFilterRule struct {
+	Conditions []trailFieldCondition
+}
+
+type trailFieldCondition struct {
+	Field    string
+	Operator string
+	Values   []string
 }
 
 type trailDnsFilter struct {
