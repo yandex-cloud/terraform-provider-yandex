@@ -14,6 +14,54 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
+func TestNonBlankStringValidator(t *testing.T) {
+	t.Parallel()
+	attributePath := path.Root("hosts").AtMapKey("psql1").AtName("subnet_id")
+
+	tests := []struct {
+		name       string
+		value      types.String
+		wantError  bool
+		wantDetail string
+	}{
+		{name: "null", value: types.StringNull()},
+		{name: "unknown", value: types.StringUnknown()},
+		{name: "subnet id", value: types.StringValue("subnet-a")},
+		{name: "surrounding whitespace", value: types.StringValue(" subnet-a ")},
+		{name: "empty", value: types.StringValue(""), wantError: true, wantDetail: `Value for hosts["psql1"].subnet_id must not be empty or contain only whitespace`},
+		{name: "whitespace only", value: types.StringValue(" \t\n"), wantError: true, wantDetail: `Value for hosts["psql1"].subnet_id must not be empty or contain only whitespace`},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var resp validator.StringResponse
+			NewNonBlankStringValidator().ValidateString(
+				context.Background(),
+				validator.StringRequest{
+					ConfigValue: test.value,
+					Path:        attributePath,
+				},
+				&resp,
+			)
+
+			if got := resp.Diagnostics.HasError(); got != test.wantError {
+				t.Fatalf("unexpected validation status: got error %t, want %t: %v", got, test.wantError, resp.Diagnostics)
+			}
+			if !test.wantError {
+				return
+			}
+
+			errors := resp.Diagnostics.Errors()
+			if len(errors) != 1 {
+				t.Fatalf("expected one validation error, got %d: %v", len(errors), errors)
+			}
+			if got := errors[0].Detail(); got != test.wantDetail {
+				t.Errorf("unexpected error detail: got %q, want %q", got, test.wantDetail)
+			}
+		})
+	}
+}
+
 func builTestMaintenanceWindowConfigSchema(blockName string) schema.Schema {
 	return schema.Schema{
 		Description: "Mock MW",

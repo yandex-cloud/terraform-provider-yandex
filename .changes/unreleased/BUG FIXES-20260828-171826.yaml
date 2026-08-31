@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: yandex_mdb_postgresql_cluster_v2 subnet_id optional + computed, blank string validator'
+time: 2026-08-28T17:18:26.314308+03:00

@@ -125,6 +125,10 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 						"subnet_id": schema.StringAttribute{
 							Description: "ID of the subnet where the host is located.",
 							Optional:    true,
+							Computed:    true,
+							Validators: []validator.String{
+								NewNonBlankStringValidator(),
+							},
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},

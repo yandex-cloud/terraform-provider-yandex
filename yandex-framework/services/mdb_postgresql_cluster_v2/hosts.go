@@ -15,7 +15,7 @@ type PostgresqlHostService struct {
 
 func (r PostgresqlHostService) FullyMatch(planHost Host, stateHost Host) bool {
 	return planHost.Zone.ValueString() == stateHost.Zone.ValueString() &&
-		(planHost.SubnetId.IsUnknown() || planHost.SubnetId.ValueString() == stateHost.SubnetId.ValueString()) &&
+		subnetMatchesOrComputed(planHost.SubnetId, stateHost.SubnetId) &&
 		planHost.AssignPublicIp.ValueBool() == stateHost.AssignPublicIp.ValueBool() &&
 		(planHost.ReplicationSource.IsUnknown() || planHost.ReplicationSource.Equal(stateHost.ReplicationSource))
 }
@@ -23,7 +23,11 @@ func (r PostgresqlHostService) FullyMatch(planHost Host, stateHost Host) bool {
 func (r PostgresqlHostService) PartialMatch(planHost Host, stateHost Host) bool {
 	return planHost.Zone.Equal(stateHost.Zone) &&
 		(planHost.FQDN.IsUnknown() || planHost.FQDN.Equal(stateHost.FQDN)) &&
-		(planHost.SubnetId.IsUnknown() || planHost.SubnetId.Equal(stateHost.SubnetId))
+		subnetMatchesOrComputed(planHost.SubnetId, stateHost.SubnetId)
+}
+
+func subnetMatchesOrComputed(planSubnet, stateSubnet types.String) bool {
+	return planSubnet.IsNull() || planSubnet.IsUnknown() || planSubnet.Equal(stateSubnet)
 }
 
 func (r PostgresqlHostService) GetChanges(plan Host, state Host) (*postgresql.UpdateHostSpec, diag.Diagnostics) {
