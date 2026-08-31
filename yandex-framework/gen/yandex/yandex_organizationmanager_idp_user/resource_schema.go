@@ -251,6 +251,23 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 				},
 			},
 
+			"password_change_required": schema.BoolAttribute{
+				MarkdownDescription: "Whether the user must change their password on first login.\n Applies only when [PasswordHash] credentials are provided.",
+				Description: "Whether the user must change their password on first login.\n Applies only when [PasswordHash] credentials are provided." +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_change_required
+					"package: yandex.cloud.organizationmanager.v1.idp\n" +
+					"filename: yandex/cloud/organizationmanager/v1/idp/user_service.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedBool(),
+					planmodifiers.NullWriteOnlyBool(),
+				},
+			},
+
 			"password_created_at": schema.StringAttribute{
 				MarkdownDescription: "Timestamp when the user's current password was created.\n For synchronized passwords, this is the time when the password was last set in the source directory.",
 				Description: "Timestamp when the user's current password was created.\n For synchronized passwords, this is the time when the password was last set in the source directory." +

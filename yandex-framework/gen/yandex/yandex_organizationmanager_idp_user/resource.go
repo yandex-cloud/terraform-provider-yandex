@@ -170,6 +170,7 @@ func (r *yandexOrganizationmanagerIdpUserResource) Create(ctx context.Context, r
 	createReq.SetJobTitle(plan.JobTitle.ValueString())
 	createReq.SetEmployeeId(plan.EmployeeId.ValueString())
 	createReq.SetExpiresAt(converter.ParseTimestamp(plan.ExpiresAt.ValueString(), &diags))
+	createReq.SetPasswordChangeRequired(plan.PasswordChangeRequired.ValueBool())
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

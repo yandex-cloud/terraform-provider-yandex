@@ -16,29 +16,30 @@ import (
 )
 
 type yandexOrganizationmanagerIdpUserModel struct {
-	CompanyName       types.String   `tfsdk:"company_name"`
-	CreatedAt         types.String   `tfsdk:"created_at"`
-	Department        types.String   `tfsdk:"department"`
-	Email             types.String   `tfsdk:"email"`
-	EmployeeId        types.String   `tfsdk:"employee_id"`
-	ExpiresAt         types.String   `tfsdk:"expires_at"`
-	ExternalId        types.String   `tfsdk:"external_id"`
-	FamilyName        types.String   `tfsdk:"family_name"`
-	FullName          types.String   `tfsdk:"full_name"`
-	GivenName         types.String   `tfsdk:"given_name"`
-	IsActive          types.Bool     `tfsdk:"is_active"`
-	JobTitle          types.String   `tfsdk:"job_title"`
-	PasswordCreatedAt types.String   `tfsdk:"password_created_at"`
-	PasswordHash      types.Object   `tfsdk:"password_hash"`
-	PasswordSpec      types.Object   `tfsdk:"password_spec"`
-	PhoneNumber       types.String   `tfsdk:"phone_number"`
-	Status            types.String   `tfsdk:"status"`
-	UpdatedAt         types.String   `tfsdk:"updated_at"`
-	UserId            types.String   `tfsdk:"user_id"`
-	ID                types.String   `tfsdk:"id"`
-	Username          types.String   `tfsdk:"username"`
-	UserpoolId        types.String   `tfsdk:"userpool_id"`
-	Timeouts          timeouts.Value `tfsdk:"timeouts"`
+	CompanyName            types.String   `tfsdk:"company_name"`
+	CreatedAt              types.String   `tfsdk:"created_at"`
+	Department             types.String   `tfsdk:"department"`
+	Email                  types.String   `tfsdk:"email"`
+	EmployeeId             types.String   `tfsdk:"employee_id"`
+	ExpiresAt              types.String   `tfsdk:"expires_at"`
+	ExternalId             types.String   `tfsdk:"external_id"`
+	FamilyName             types.String   `tfsdk:"family_name"`
+	FullName               types.String   `tfsdk:"full_name"`
+	GivenName              types.String   `tfsdk:"given_name"`
+	IsActive               types.Bool     `tfsdk:"is_active"`
+	JobTitle               types.String   `tfsdk:"job_title"`
+	PasswordChangeRequired types.Bool     `tfsdk:"password_change_required"`
+	PasswordCreatedAt      types.String   `tfsdk:"password_created_at"`
+	PasswordHash           types.Object   `tfsdk:"password_hash"`
+	PasswordSpec           types.Object   `tfsdk:"password_spec"`
+	PhoneNumber            types.String   `tfsdk:"phone_number"`
+	Status                 types.String   `tfsdk:"status"`
+	UpdatedAt              types.String   `tfsdk:"updated_at"`
+	UserId                 types.String   `tfsdk:"user_id"`
+	ID                     types.String   `tfsdk:"id"`
+	Username               types.String   `tfsdk:"username"`
+	UserpoolId             types.String   `tfsdk:"userpool_id"`
+	Timeouts               timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (m *yandexOrganizationmanagerIdpUserModel) GetCompanyName() types.String {
@@ -76,6 +77,9 @@ func (m *yandexOrganizationmanagerIdpUserModel) GetIsActive() types.Bool {
 }
 func (m *yandexOrganizationmanagerIdpUserModel) GetJobTitle() types.String {
 	return m.JobTitle
+}
+func (m *yandexOrganizationmanagerIdpUserModel) GetPasswordChangeRequired() types.Bool {
+	return m.PasswordChangeRequired
 }
 func (m *yandexOrganizationmanagerIdpUserModel) GetPasswordCreatedAt() types.String {
 	return m.PasswordCreatedAt
@@ -144,6 +148,9 @@ func (m *yandexOrganizationmanagerIdpUserModel) SetIsActive(target types.Bool) {
 func (m *yandexOrganizationmanagerIdpUserModel) SetJobTitle(target types.String) {
 	m.JobTitle = target
 }
+func (m *yandexOrganizationmanagerIdpUserModel) SetPasswordChangeRequired(target types.Bool) {
+	m.PasswordChangeRequired = target
+}
 func (m *yandexOrganizationmanagerIdpUserModel) SetPasswordCreatedAt(target types.String) {
 	m.PasswordCreatedAt = target
 }
@@ -177,28 +184,29 @@ func (m *yandexOrganizationmanagerIdpUserModel) SetUserpoolId(target types.Strin
 
 func NewYandexOrganizationmanagerIdpUserModel() yandexOrganizationmanagerIdpUserModel {
 	return yandexOrganizationmanagerIdpUserModel{
-		CompanyName:       types.StringNull(),
-		CreatedAt:         types.StringNull(),
-		Department:        types.StringNull(),
-		Email:             types.StringNull(),
-		EmployeeId:        types.StringNull(),
-		ExpiresAt:         types.StringNull(),
-		ExternalId:        types.StringNull(),
-		FamilyName:        types.StringNull(),
-		FullName:          types.StringNull(),
-		GivenName:         types.StringNull(),
-		IsActive:          types.BoolNull(),
-		JobTitle:          types.StringNull(),
-		PasswordCreatedAt: types.StringNull(),
-		PasswordHash:      types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordHashModelType.AttrTypes),
-		PasswordSpec:      types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordSpecModelType.AttrTypes),
-		PhoneNumber:       types.StringNull(),
-		Status:            types.StringNull(),
-		UpdatedAt:         types.StringNull(),
-		UserId:            types.StringNull(),
-		ID:                types.StringNull(),
-		Username:          types.StringNull(),
-		UserpoolId:        types.StringNull(),
+		CompanyName:            types.StringNull(),
+		CreatedAt:              types.StringNull(),
+		Department:             types.StringNull(),
+		Email:                  types.StringNull(),
+		EmployeeId:             types.StringNull(),
+		ExpiresAt:              types.StringNull(),
+		ExternalId:             types.StringNull(),
+		FamilyName:             types.StringNull(),
+		FullName:               types.StringNull(),
+		GivenName:              types.StringNull(),
+		IsActive:               types.BoolNull(),
+		JobTitle:               types.StringNull(),
+		PasswordChangeRequired: types.BoolNull(),
+		PasswordCreatedAt:      types.StringNull(),
+		PasswordHash:           types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordHashModelType.AttrTypes),
+		PasswordSpec:           types.ObjectNull(yandexOrganizationmanagerIdpUserPasswordSpecModelType.AttrTypes),
+		PhoneNumber:            types.StringNull(),
+		Status:                 types.StringNull(),
+		UpdatedAt:              types.StringNull(),
+		UserId:                 types.StringNull(),
+		ID:                     types.StringNull(),
+		Username:               types.StringNull(),
+		UserpoolId:             types.StringNull(),
 	}
 }
 
@@ -239,6 +247,9 @@ func yandexOrganizationmanagerIdpUserModelFillUnknown(target yandexOrganizationm
 	if target.JobTitle.IsUnknown() || target.JobTitle.IsNull() {
 		target.JobTitle = types.StringNull()
 	}
+	if target.PasswordChangeRequired.IsUnknown() || target.PasswordChangeRequired.IsNull() {
+		target.PasswordChangeRequired = types.BoolNull()
+	}
 	if target.PasswordCreatedAt.IsUnknown() || target.PasswordCreatedAt.IsNull() {
 		target.PasswordCreatedAt = types.StringNull()
 	}
@@ -274,29 +285,30 @@ func yandexOrganizationmanagerIdpUserModelFillUnknown(target yandexOrganizationm
 
 var yandexOrganizationmanagerIdpUserModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"company_name":        types.StringType,
-		"created_at":          types.StringType,
-		"department":          types.StringType,
-		"email":               types.StringType,
-		"employee_id":         types.StringType,
-		"expires_at":          types.StringType,
-		"external_id":         types.StringType,
-		"family_name":         types.StringType,
-		"full_name":           types.StringType,
-		"given_name":          types.StringType,
-		"is_active":           types.BoolType,
-		"job_title":           types.StringType,
-		"password_created_at": types.StringType,
-		"password_hash":       yandexOrganizationmanagerIdpUserPasswordHashModelType,
-		"password_spec":       yandexOrganizationmanagerIdpUserPasswordSpecModelType,
-		"phone_number":        types.StringType,
-		"status":              types.StringType,
-		"updated_at":          types.StringType,
-		"user_id":             types.StringType,
-		"id":                  types.StringType,
-		"username":            types.StringType,
-		"userpool_id":         types.StringType,
-		"timeouts":            timeouts.AttributesAll(context.Background()).GetType(),
+		"company_name":             types.StringType,
+		"created_at":               types.StringType,
+		"department":               types.StringType,
+		"email":                    types.StringType,
+		"employee_id":              types.StringType,
+		"expires_at":               types.StringType,
+		"external_id":              types.StringType,
+		"family_name":              types.StringType,
+		"full_name":                types.StringType,
+		"given_name":               types.StringType,
+		"is_active":                types.BoolType,
+		"job_title":                types.StringType,
+		"password_change_required": types.BoolType,
+		"password_created_at":      types.StringType,
+		"password_hash":            yandexOrganizationmanagerIdpUserPasswordHashModelType,
+		"password_spec":            yandexOrganizationmanagerIdpUserPasswordSpecModelType,
+		"phone_number":             types.StringType,
+		"status":                   types.StringType,
+		"updated_at":               types.StringType,
+		"user_id":                  types.StringType,
+		"id":                       types.StringType,
+		"username":                 types.StringType,
+		"userpool_id":              types.StringType,
+		"timeouts":                 timeouts.AttributesAll(context.Background()).GetType(),
 	},
 }
 
@@ -309,29 +321,30 @@ func flattenYandexOrganizationmanagerIdpUser(ctx context.Context,
 		return types.ObjectNull(yandexOrganizationmanagerIdpUserModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpUserModelType.AttrTypes, yandexOrganizationmanagerIdpUserModel{
-		CompanyName:       types.StringValue(yandexOrganizationmanagerIdpUser.GetCompanyName()),
-		CreatedAt:         types.StringValue(yandexOrganizationmanagerIdpUser.GetCreatedAt().AsTime().Format(time.RFC3339)),
-		Department:        types.StringValue(yandexOrganizationmanagerIdpUser.GetDepartment()),
-		Email:             types.StringValue(yandexOrganizationmanagerIdpUser.GetEmail()),
-		EmployeeId:        types.StringValue(yandexOrganizationmanagerIdpUser.GetEmployeeId()),
-		ExpiresAt:         types.StringValue(yandexOrganizationmanagerIdpUser.GetExpiresAt().AsTime().Format(time.RFC3339)),
-		ExternalId:        types.StringValue(yandexOrganizationmanagerIdpUser.GetExternalId()),
-		FamilyName:        types.StringValue(yandexOrganizationmanagerIdpUser.GetFamilyName()),
-		FullName:          types.StringValue(yandexOrganizationmanagerIdpUser.GetFullName()),
-		GivenName:         types.StringValue(yandexOrganizationmanagerIdpUser.GetGivenName()),
-		IsActive:          state.IsActive,
-		JobTitle:          types.StringValue(yandexOrganizationmanagerIdpUser.GetJobTitle()),
-		PasswordCreatedAt: types.StringValue(yandexOrganizationmanagerIdpUser.GetPasswordCreatedAt().AsTime().Format(time.RFC3339)),
-		PasswordHash:      state.PasswordHash,
-		PasswordSpec:      state.PasswordSpec,
-		PhoneNumber:       types.StringValue(yandexOrganizationmanagerIdpUser.GetPhoneNumber()),
-		Status:            types.StringValue(yandexOrganizationmanagerIdpUser.GetStatus().String()),
-		UpdatedAt:         types.StringValue(yandexOrganizationmanagerIdpUser.GetUpdatedAt().AsTime().Format(time.RFC3339)),
-		UserId:            types.StringValue(yandexOrganizationmanagerIdpUser.GetId()),
-		ID:                types.StringValue(yandexOrganizationmanagerIdpUser.GetId()),
-		Username:          types.StringValue(yandexOrganizationmanagerIdpUser.GetUsername()),
-		UserpoolId:        types.StringValue(yandexOrganizationmanagerIdpUser.GetUserpoolId()),
-		Timeouts:          to,
+		CompanyName:            types.StringValue(yandexOrganizationmanagerIdpUser.GetCompanyName()),
+		CreatedAt:              types.StringValue(yandexOrganizationmanagerIdpUser.GetCreatedAt().AsTime().Format(time.RFC3339)),
+		Department:             types.StringValue(yandexOrganizationmanagerIdpUser.GetDepartment()),
+		Email:                  types.StringValue(yandexOrganizationmanagerIdpUser.GetEmail()),
+		EmployeeId:             types.StringValue(yandexOrganizationmanagerIdpUser.GetEmployeeId()),
+		ExpiresAt:              types.StringValue(yandexOrganizationmanagerIdpUser.GetExpiresAt().AsTime().Format(time.RFC3339)),
+		ExternalId:             types.StringValue(yandexOrganizationmanagerIdpUser.GetExternalId()),
+		FamilyName:             types.StringValue(yandexOrganizationmanagerIdpUser.GetFamilyName()),
+		FullName:               types.StringValue(yandexOrganizationmanagerIdpUser.GetFullName()),
+		GivenName:              types.StringValue(yandexOrganizationmanagerIdpUser.GetGivenName()),
+		IsActive:               state.IsActive,
+		JobTitle:               types.StringValue(yandexOrganizationmanagerIdpUser.GetJobTitle()),
+		PasswordChangeRequired: state.PasswordChangeRequired,
+		PasswordCreatedAt:      types.StringValue(yandexOrganizationmanagerIdpUser.GetPasswordCreatedAt().AsTime().Format(time.RFC3339)),
+		PasswordHash:           state.PasswordHash,
+		PasswordSpec:           state.PasswordSpec,
+		PhoneNumber:            types.StringValue(yandexOrganizationmanagerIdpUser.GetPhoneNumber()),
+		Status:                 types.StringValue(yandexOrganizationmanagerIdpUser.GetStatus().String()),
+		UpdatedAt:              types.StringValue(yandexOrganizationmanagerIdpUser.GetUpdatedAt().AsTime().Format(time.RFC3339)),
+		UserId:                 types.StringValue(yandexOrganizationmanagerIdpUser.GetId()),
+		ID:                     types.StringValue(yandexOrganizationmanagerIdpUser.GetId()),
+		Username:               types.StringValue(yandexOrganizationmanagerIdpUser.GetUsername()),
+		UserpoolId:             types.StringValue(yandexOrganizationmanagerIdpUser.GetUserpoolId()),
+		Timeouts:               to,
 	})
 	diags.Append(diag...)
 	return value
