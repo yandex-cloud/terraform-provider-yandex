@@ -59,7 +59,7 @@ func (u *OrganizationIamUpdater) SetResourceIamPolicy(ctx context.Context, polic
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.Context(), YandexOrganizationManagerOrganizationDefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, YandexOrganizationManagerOrganizationDefaultTimeout)
 	defer cancel()
 
 	op, err := client.SetAccessBindings(ctx, req)
