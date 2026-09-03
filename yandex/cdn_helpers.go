@@ -928,13 +928,20 @@ func getShieldingLocation(ctx context.Context, resourceId string, config *Config
 	resp, err := client.Get(ctx, &cdn.GetShieldingDetailsRequest{
 		ResourceId: resourceId,
 	})
-	if isStatusWithCode(err, codes.NotFound) {
+	if isIgnorableShieldingReadError(err) {
+		if isStatusWithCode(err, codes.Unimplemented) {
+			log.Printf("[WARN] CDN shielding API is unavailable; treating shielding as disabled for resource %q", resourceId)
+		}
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
 	return &resp.LocationId, nil
+}
+
+func isIgnorableShieldingReadError(err error) bool {
+	return isStatusWithCode(err, codes.NotFound) || isStatusWithCode(err, codes.Unimplemented)
 }
 
 func updateShielding(ctx context.Context, d *schema.ResourceData, config *Config) error {
