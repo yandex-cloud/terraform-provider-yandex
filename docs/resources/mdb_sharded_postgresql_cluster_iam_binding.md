@@ -1,5 +1,5 @@
 ---
-subcategory: "Managed Service for PostgreSQL"
+subcategory: "Managed Service for SPQR"
 ---
 
 # yandex_mdb_sharded_postgresql_cluster_iam_binding (Resource)
