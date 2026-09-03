@@ -37,7 +37,7 @@ var ClusterConnectionManagerAttrTypes = map[string]attr.Type{
 // (omitted in HCL == default value == empty string on the server).
 func ClusterConnectionManagerFrameworkSchema() schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
-		Description: "Connection Manager integration settings. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration after the cluster is created is not supported.",
+		Description: "Connection Manager integration settings. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.",
 		Optional:    true,
 		Computed:    true,
 		PlanModifiers: []planmodifier.Object{
@@ -45,7 +45,7 @@ func ClusterConnectionManagerFrameworkSchema() schema.SingleNestedAttribute {
 		},
 		Attributes: map[string]schema.Attribute{
 			"enabled": schema.BoolAttribute{
-				Description: "Indicates whether Connection Manager integration is enabled. Set to `true` to enable the integration. If omitted, the API enables the integration by default for newly created clusters. Disabling the integration after the cluster is created is not supported.",
+				Description: "Indicates whether Connection Manager integration is enabled. Set to `true` to enable the integration. If omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
@@ -79,7 +79,8 @@ func ValidateClusterConnectionManagerFromConfig(ctx context.Context, cfg tfsdk.C
 		return
 	}
 	if !cm.Enabled.IsNull() && !cm.Enabled.IsUnknown() && !cm.Enabled.ValueBool() {
-		diags.AddError(
+		diags.AddAttributeError(
+			configPath.AtName("enabled"),
 			"connection_manager.enabled cannot be set to false, disabling Connection Manager integration is not supported",
 			"Remove the `enabled = false` line or set `enabled = true` to keep the integration enabled.",
 		)

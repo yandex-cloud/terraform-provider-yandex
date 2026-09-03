@@ -1,17 +1,21 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/proto"
 )
 
 func resourceYandexMDBKafkaConnector() *schema.Resource {
@@ -24,6 +28,12 @@ func resourceYandexMDBKafkaConnector() *schema.Resource {
 		Delete: resourceYandexMDBKafkaConnectorDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta any) error {
+			if err := validateKafkaConnectorSASLPasswordConflict(d); err != nil {
+				return err
+			}
+			return validateKafkaConnectorSASLPasswordPair(d)
 		},
 
 		SchemaVersion: 0,
@@ -227,6 +237,18 @@ func resourceYandexMDBKafkaClusterConnectionSpec() *schema.Resource {
 							Optional:    true,
 							Sensitive:   true,
 						},
+						"sasl_password_wo": {
+							Type:        schema.TypeString,
+							Description: "Password to use in SASL authentification mechanism. This attribute is write-only and is not stored in state. Requires `sasl_password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.",
+							Optional:    true,
+							WriteOnly:   true,
+							Sensitive:   true,
+						},
+						"sasl_password_wo_version": {
+							Type:        schema.TypeInt,
+							Description: "A version number for the write-only SASL password. Increment this to trigger a password update.",
+							Optional:    true,
+						},
 						"sasl_mechanism": {
 							Type:        schema.TypeString,
 							Description: "Type of SASL authentification mechanism to use.",
@@ -242,6 +264,85 @@ func resourceYandexMDBKafkaClusterConnectionSpec() *schema.Resource {
 			},
 		},
 	}
+}
+
+var kafkaConnectorSASLPasswordPrefixes = []string{
+	"connector_config_mirrormaker.0.source_cluster.0.external_cluster.0.",
+	"connector_config_mirrormaker.0.target_cluster.0.external_cluster.0.",
+}
+
+func validateKafkaConnectorSASLPasswordConflict(d mdbcommon.RawConfigProvider) error {
+	for _, prefix := range kafkaConnectorSASLPasswordPrefixes {
+		passwordPath := prefix + "sasl_password"
+		passwordWoPath := prefix + "sasl_password_wo"
+		_, hasPassword := mdbcommon.LookupRawConfigPath(d, passwordPath)
+		_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, passwordWoPath)
+		if hasPassword && hasPasswordWo {
+			return fmt.Errorf(
+				"only one of `%s` or `%s` can be specified",
+				kafkaConnectorUserConfigPath(passwordPath),
+				kafkaConnectorUserConfigPath(passwordWoPath),
+			)
+		}
+	}
+	return nil
+}
+
+func validateKafkaConnectorSASLPasswordPair(d mdbcommon.RawConfigProvider) error {
+	for _, prefix := range kafkaConnectorSASLPasswordPrefixes {
+		externalCluster, ok := mdbcommon.LookupRawConfigPath(d, strings.TrimSuffix(prefix, "."))
+		if !ok {
+			continue
+		}
+
+		passwordWoPath := prefix + "sasl_password_wo"
+		passwordWoVersionPath := prefix + "sasl_password_wo_version"
+		hasPasswordWo, passwordWoKnown := kafkaConnectorRawAttributePresence(externalCluster, "sasl_password_wo")
+		hasPasswordWoVersion, passwordWoVersionKnown := kafkaConnectorRawAttributePresence(externalCluster, "sasl_password_wo_version")
+		if !passwordWoKnown || !passwordWoVersionKnown {
+			continue
+		}
+
+		if hasPasswordWo != hasPasswordWoVersion {
+			return fmt.Errorf(
+				"`%s` and `%s` must be specified together",
+				kafkaConnectorUserConfigPath(passwordWoPath),
+				kafkaConnectorUserConfigPath(passwordWoVersionPath),
+			)
+		}
+	}
+	return nil
+}
+
+func kafkaConnectorRawAttributePresence(object cty.Value, name string) (present, known bool) {
+	if !object.Type().IsObjectType() || !object.Type().HasAttribute(name) {
+		return false, true
+	}
+
+	value := object.GetAttr(name)
+	if !value.IsKnown() {
+		return false, false
+	}
+	return !value.IsNull(), true
+}
+
+func kafkaConnectorUserConfigPath(path string) string {
+	return strings.ReplaceAll(path, ".0", "")
+}
+
+type kafkaConnectorSASLPasswordProvider interface {
+	mdbcommon.RawConfigProvider
+	GetOk(string) (any, bool)
+}
+
+func kafkaConnectorSASLPassword(d kafkaConnectorSASLPasswordProvider, prefix string) string {
+	if passwordWo, ok := mdbcommon.LookupRawConfigPath(d, prefix+"sasl_password_wo"); ok {
+		return passwordWo.AsString()
+	}
+	if password, ok := d.GetOk(prefix + "sasl_password"); ok {
+		return password.(string)
+	}
+	return ""
 }
 
 func resourceYandexMDBKafkaS3ConnectionSpec() *schema.Resource {
@@ -435,6 +536,13 @@ func resourceYandexMDBKafkaIcebergControlSpec() *schema.Resource {
 }
 
 func resourceYandexMDBKafkaConnectorCreate(d *schema.ResourceData, meta interface{}) error {
+	if err := validateKafkaConnectorSASLPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateKafkaConnectorSASLPasswordPair(d); err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
@@ -450,7 +558,7 @@ func resourceYandexMDBKafkaConnectorCreate(d *schema.ResourceData, meta interfac
 		ConnectorSpec: connectorSpec,
 	}
 	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
-		log.Printf("[DEBUG] Creating Kafka connector: %+v", req)
+		log.Printf("[DEBUG] Creating Kafka connector: %+v", redactKafkaConnectorCreateRequest(req))
 		return kafkasdk.NewConnectorClient(config.SDK).Create(ctx, req)
 	})
 	if err != nil {
@@ -509,7 +617,7 @@ func resourceYandexMDBKafkaConnectorRead(d *schema.ResourceData, meta interface{
 
 	switch conn.GetConnectorConfig().(type) {
 	case *kafka.Connector_ConnectorConfigMirrormaker:
-		cfg, err := flattenKafkaConnectorMirrormaker(conn.GetConnectorConfigMirrormaker())
+		cfg, err := flattenKafkaConnectorMirrormaker(conn.GetConnectorConfigMirrormaker(), d)
 		if err != nil {
 			return err
 		}
@@ -539,6 +647,13 @@ func resourceYandexMDBKafkaConnectorRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceYandexMDBKafkaConnectorUpdate(d *schema.ResourceData, meta interface{}) error {
+	if err := validateKafkaConnectorSASLPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateKafkaConnectorSASLPasswordPair(d); err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
@@ -569,7 +684,7 @@ func resourceYandexMDBKafkaConnectorUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
-		log.Printf("[DEBUG] Sending connector update request: %+v", request)
+		log.Printf("[DEBUG] Sending connector update request: %+v", redactKafkaConnectorUpdateRequest(request))
 		return kafkasdk.NewConnectorClient(config.SDK).Update(ctx, request)
 	})
 	if err != nil {
@@ -585,6 +700,71 @@ func resourceYandexMDBKafkaConnectorUpdate(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Finished updating Kafka connector %q", connName)
 
 	return resourceYandexMDBKafkaConnectorRead(d, meta)
+}
+
+func redactKafkaConnectorCreateRequest(request *kafka.CreateConnectorRequest) *kafka.CreateConnectorRequest {
+	if request == nil {
+		return nil
+	}
+	redacted := proto.Clone(request).(*kafka.CreateConnectorRequest)
+	if spec := redacted.GetConnectorSpec(); spec != nil {
+		redactKafkaConnectorProperties(spec.Properties)
+		redactKafkaMirrorMakerSecrets(spec.GetConnectorConfigMirrormaker())
+		redactKafkaS3ConnectionSecret(spec.GetConnectorConfigS3Sink().GetS3Connection())
+		redactKafkaIcebergS3ConnectionSecret(spec.GetConnectorConfigIcebergSink().GetS3Connection())
+	}
+	return redacted
+}
+
+func redactKafkaConnectorUpdateRequest(request *kafka.UpdateConnectorRequest) *kafka.UpdateConnectorRequest {
+	if request == nil {
+		return nil
+	}
+	redacted := proto.Clone(request).(*kafka.UpdateConnectorRequest)
+	if spec := redacted.GetConnectorSpec(); spec != nil {
+		redactKafkaConnectorProperties(spec.Properties)
+		redactKafkaMirrorMakerSecrets(spec.GetConnectorConfigMirrormaker())
+		redactKafkaS3ConnectionSecret(spec.GetConnectorConfigS3Sink().GetS3Connection())
+		redactKafkaIcebergS3ConnectionSecret(spec.GetConnectorConfigIcebergSink().GetS3Connection())
+	}
+	return redacted
+}
+
+func redactKafkaConnectorProperties(properties map[string]string) {
+	for key, value := range properties {
+		if value != "" {
+			properties[key] = redactedKafkaSecret
+		}
+	}
+}
+
+func redactKafkaMirrorMakerSecrets(spec *kafka.ConnectorConfigMirrorMakerSpec) {
+	if spec == nil {
+		return
+	}
+	for _, connection := range []*kafka.ClusterConnectionSpec{spec.SourceCluster, spec.TargetCluster} {
+		if external := connection.GetExternalCluster(); external != nil && external.SaslPassword != "" {
+			external.SaslPassword = redactedKafkaSecret
+		}
+	}
+}
+
+func redactKafkaS3ConnectionSecret(connection *kafka.S3ConnectionSpec) {
+	if connection == nil {
+		return
+	}
+	if external := connection.GetExternalS3(); external != nil && external.SecretAccessKey != "" {
+		external.SecretAccessKey = redactedKafkaSecret
+	}
+}
+
+func redactKafkaIcebergS3ConnectionSecret(connection *kafka.IcebergS3ConnectionSpec) {
+	if connection == nil {
+		return
+	}
+	if external := connection.GetExternalS3(); external != nil && external.SecretAccessKey != "" {
+		external.SecretAccessKey = redactedKafkaSecret
+	}
 }
 
 func resourceYandexMDBKafkaConnectorDelete(d *schema.ResourceData, meta interface{}) error {
@@ -712,7 +892,7 @@ func buildKafkaClusterConnectionSpec(d *schema.ResourceData, prefixKey string) *
 			ExternalCluster: &kafka.ExternalClusterConnectionSpec{
 				BootstrapServers: d.Get(key("external_cluster.0.bootstrap_servers")).(string),
 				SaslUsername:     d.Get(key("external_cluster.0.sasl_username")).(string),
-				SaslPassword:     d.Get(key("external_cluster.0.sasl_password")).(string),
+				SaslPassword:     kafkaConnectorSASLPassword(d, key("external_cluster.0.")),
 				SaslMechanism:    d.Get(key("external_cluster.0.sasl_mechanism")).(string),
 				SecurityProtocol: d.Get(key("external_cluster.0.security_protocol")).(string),
 			},
@@ -952,6 +1132,7 @@ func addMirrormakerUpdatePathsToFieldsMap(commonKeyPrefix string, commonValPrefi
 		mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"bootstrap_servers"] = valPrefix + "bootstrap_servers"
 		mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"sasl_username"] = valPrefix + "sasl_username"
 		mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"sasl_password"] = valPrefix + "sasl_password"
+		mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"sasl_password_wo_version"] = valPrefix + "sasl_password"
 		mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"sasl_mechanism"] = valPrefix + "sasl_mechanism"
 		mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"security_protocol"] = valPrefix + "security_protocol"
 	}

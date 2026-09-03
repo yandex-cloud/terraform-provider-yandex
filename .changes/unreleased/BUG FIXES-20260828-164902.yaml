@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mysql: add runtime validation that `restore.backup_id` is not empty.'
+time: 2026-08-28T16:49:02.816078666+03:00

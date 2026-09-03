@@ -1386,16 +1386,24 @@ func flattenKafkaUI(c *kafka.ConfigSpec) []map[string]interface{} {
 	return []map[string]interface{}{out}
 }
 
-func flattenKafkaConnectorMirrormaker(mm *kafka.ConnectorConfigMirrorMaker) ([]map[string]interface{}, error) {
+func flattenKafkaConnectorMirrormaker(mm *kafka.ConnectorConfigMirrorMaker, d *schema.ResourceData) ([]map[string]interface{}, error) {
 	config := map[string]interface{}{
 		"topics":             mm.Topics,
 		"replication_factor": mm.ReplicationFactor.GetValue(),
 	}
-	sourceCluster, err := flattenKafkaClusterConnection(mm.SourceCluster)
+	sourceCluster, err := flattenKafkaClusterConnection(
+		mm.SourceCluster,
+		d,
+		"connector_config_mirrormaker.0.source_cluster.0.",
+	)
 	if err != nil {
 		return nil, err
 	}
-	targetCluster, err := flattenKafkaClusterConnection(mm.TargetCluster)
+	targetCluster, err := flattenKafkaClusterConnection(
+		mm.TargetCluster,
+		d,
+		"connector_config_mirrormaker.0.target_cluster.0.",
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -1404,7 +1412,7 @@ func flattenKafkaConnectorMirrormaker(mm *kafka.ConnectorConfigMirrorMaker) ([]m
 	return []map[string]interface{}{config}, nil
 }
 
-func flattenKafkaClusterConnection(cc *kafka.ClusterConnection) (map[string]interface{}, error) {
+func flattenKafkaClusterConnection(cc *kafka.ClusterConnection, d *schema.ResourceData, prefix string) (map[string]interface{}, error) {
 	config := map[string]interface{}{
 		"alias": cc.Alias,
 	}
@@ -1412,20 +1420,29 @@ func flattenKafkaClusterConnection(cc *kafka.ClusterConnection) (map[string]inte
 	case *kafka.ClusterConnection_ThisCluster:
 		config["this_cluster"] = []interface{}{map[string]interface{}{}}
 	case *kafka.ClusterConnection_ExternalCluster:
-		config["external_cluster"] = []map[string]interface{}{flattenKafkaExternalClusterConnection(cc.GetExternalCluster())}
+		config["external_cluster"] = []map[string]interface{}{
+			flattenKafkaExternalClusterConnection(cc.GetExternalCluster(), d, prefix+"external_cluster.0."),
+		}
 	default:
 		return nil, fmt.Errorf("cluster connection type of mirrormaker's cluster with alias %q not specified", cc.Alias)
 	}
 	return config, nil
 }
 
-func flattenKafkaExternalClusterConnection(ecc *kafka.ExternalClusterConnection) map[string]interface{} {
-	return map[string]interface{}{
+func flattenKafkaExternalClusterConnection(ecc *kafka.ExternalClusterConnection, d *schema.ResourceData, prefix string) map[string]interface{} {
+	result := map[string]interface{}{
 		"bootstrap_servers": ecc.BootstrapServers,
 		"sasl_username":     ecc.SaslUsername,
 		"sasl_mechanism":    ecc.SaslMechanism,
 		"security_protocol": ecc.SecurityProtocol,
 	}
+	if password, ok := d.GetOk(prefix + "sasl_password"); ok {
+		result["sasl_password"] = password.(string)
+	}
+	if passwordWoVersion, ok := d.GetOkExists(prefix + "sasl_password_wo_version"); ok {
+		result["sasl_password_wo_version"] = passwordWoVersion
+	}
+	return result
 }
 
 func flattenKafkaConnectorS3Sink(s3Sink *kafka.ConnectorConfigS3Sink, d *schema.ResourceData) ([]map[string]interface{}, error) {

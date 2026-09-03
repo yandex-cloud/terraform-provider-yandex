@@ -18,16 +18,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	pconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
+	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -862,6 +866,214 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 		},
 	})
+}
+
+// Test that a cluster whose Connection Manager integration is off does not get
+// connection_manager planned as "(known after apply)" on every subsequent change.
+func TestAccMDBPostgreSQLCluster_connectionManagerDisabled(t *testing.T) {
+	t.Parallel()
+
+	version := pgLatestVersion
+
+	resources := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-hdd"
+	`
+
+	log.Printf("TestAccMDBPostgreSQLCluster_connectionManagerDisabled: version %s", version)
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-cm-disabled")
+	resourceId := "cluster_cm_disabled_test"
+	clusterResource := "yandex_mdb_postgresql_cluster_v2." + resourceId
+	description := "PostgreSQL Cluster Terraform Test Connection Manager Disabled"
+	descriptionUpdated := fmt.Sprintf("%s Updated", description)
+
+	var networkID, subnetID, clusterID string
+
+	connectionManagerDisabledValue := knownvalue.ObjectExact(map[string]knownvalue.Check{
+		"enabled":               knownvalue.Bool(false),
+		"connections_folder_id": knownvalue.Null(),
+		"secrets_folder_id":     knownvalue.Null(),
+	})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			// The cluster is created outside Terraform, so its network has to exist beforehand
+			{
+				Config: pgVPCDependencies,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCaptureResourceID("yandex_vpc_network.mdb-pg-test-net", &networkID),
+					testAccCaptureResourceID("yandex_vpc_subnet.mdb-pg-test-subnet-a", &subnetID),
+				),
+			},
+			// Take the cluster created above under Terraform management
+			{
+				PreConfig: func() {
+					clusterID = testAccCreateMDBPGClusterWithoutConnectionManager(t, clusterName, description, version, networkID, subnetID)
+				},
+				Config:             testAccMDBPGClusterConnectionManager(resourceId, clusterName, description, version, resources),
+				ResourceName:       clusterResource,
+				ImportState:        true,
+				ImportStatePersist: true,
+				ImportStateIdFunc:  func(*terraform.State) (string, error) { return clusterID, nil },
+			},
+			// Settle the imported state against the configuration: an import labels hosts by
+			// FQDN, so this apply is what relabels the single host to "na" and leaves the next
+			// step with a plan that holds nothing but the attribute it changes
+			{
+				Config: testAccMDBPGClusterConnectionManager(resourceId, clusterName, description, version, resources),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), connectionManagerDisabledValue),
+				},
+			},
+			// Change an unrelated attribute: connection_manager must keep its known value
+			// instead of turning into "(known after apply)"
+			{
+				Config: testAccMDBPGClusterConnectionManager(resourceId, clusterName, descriptionUpdated, version, resources),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(clusterResource, plancheck.ResourceActionUpdate),
+						plancheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), connectionManagerDisabledValue),
+					},
+				},
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), connectionManagerDisabledValue),
+				},
+			},
+		},
+	})
+}
+
+// testAccCreateMDBPGClusterWithoutConnectionManager creates a cluster with the Connection Manager
+// integration disabled and returns its id. Terraform cannot create one — the resource rejects
+// connection_manager.enabled = false in a configuration — while the API does, and clusters without
+// the integration are exactly what the reading path has to get right.
+func testAccCreateMDBPGClusterWithoutConnectionManager(t *testing.T, name, description, version, networkID, subnetID string) string {
+	t.Helper()
+
+	ctx := context.Background()
+	// The shared provider gets its SDK from the preceding step's apply, so this cannot be
+	// called from a PreConfig of the first step.
+	client := postgresqlsdk.NewClusterClient(test.AccProvider.(*provider.Provider).GetConfig().SDKv2)
+
+	// Registered before the call: a Create that reports an error after the API has accepted the
+	// request leaves a cluster behind and no id to delete it by. It is the last resort — failing
+	// here unwinds through Terraform's own teardown of the network this cluster sits in, and that
+	// teardown cannot remove a subnet while the cluster still holds an address in it.
+	t.Cleanup(func() { testAccDeleteMDBPGClusterByName(t, name) })
+	// fatal does not return. It reports before deleting, so that a deletion which drags on cannot
+	// take the reason for the failure with it.
+	fatal := func(format string, args ...any) {
+		t.Helper()
+		t.Errorf(format, args...)
+		testAccDeleteMDBPGClusterByName(t, name)
+		t.FailNow()
+	}
+
+	op, err := client.Create(ctx, &postgresql.CreateClusterRequest{
+		FolderId:    test.GetExampleFolderID(),
+		Name:        name,
+		Description: description,
+		Environment: postgresql.Cluster_PRESTABLE,
+		NetworkId:   networkID,
+		ConfigSpec: &postgresql.ConfigSpec{
+			Version: version,
+			Resources: &postgresql.Resources{
+				ResourcePresetId: "s2.micro",
+				DiskTypeId:       "network-hdd",
+				DiskSize:         datasize.ToBytes(10),
+			},
+			ConnectionManager: &mdbv1.ClusterConnectionManager{Enabled: wrapperspb.Bool(false)},
+		},
+		HostSpecs: []*postgresql.HostSpec{
+			{
+				ZoneId:   "ru-central1-a",
+				SubnetId: subnetID,
+			},
+		},
+	})
+	if err != nil {
+		fatal("Failed to create PostgreSQL cluster without Connection Manager integration: %s", err)
+	}
+
+	clusterID := op.Metadata().ClusterId
+
+	if _, err := op.Wait(ctx); err != nil {
+		fatal("Failed to wait for PostgreSQL cluster %q creation: %s", clusterID, err)
+	}
+
+	cluster, err := client.Get(ctx, &postgresql.GetClusterRequest{ClusterId: clusterID})
+	if err != nil {
+		fatal("Failed to read PostgreSQL cluster %q back: %s", clusterID, err)
+	}
+	// An absent message and an integration that is off are different answers, and the drift this
+	// test is about lives in that difference: the attribute stays known in a plan only while the
+	// API reports the integration state of a cluster that has the integration off.
+	connectionManager := cluster.GetConfig().GetConnectionManager()
+	if connectionManager.GetEnabled() == nil {
+		fatal("PostgreSQL cluster %q: the API reported no connection_manager.enabled for a cluster created with the integration off, leaving the provider no state to keep the attribute known from", clusterID)
+	}
+	if connectionManager.GetEnabled().GetValue() {
+		fatal("PostgreSQL cluster %q was created with Connection Manager integration enabled, the test needs a cluster without it", clusterID)
+	}
+
+	return clusterID
+}
+
+// testAccDeleteMDBPGClusterByName removes a cluster created outside Terraform. Terraform deletes
+// the cluster itself once it is in the state, so this covers the runs that never got that far —
+// by name, because a Create that reports an error may still have left a cluster behind.
+func testAccDeleteMDBPGClusterByName(t *testing.T, name string) {
+	t.Helper()
+
+	// The same patience the resource grants a delete, so that a stuck one costs this test rather
+	// than the whole acceptance run's timeout.
+	ctx, cancel := context.WithTimeout(context.Background(), yandexMDBPostgreSQLClusterDeleteTimeout)
+	defer cancel()
+	client := postgresqlsdk.NewClusterClient(test.AccProvider.(*provider.Provider).GetConfig().SDKv2)
+
+	resp, err := client.List(ctx, &postgresql.ListClustersRequest{
+		FolderId: test.GetExampleFolderID(),
+		Filter:   fmt.Sprintf("name = %q", name),
+	})
+	if err != nil {
+		t.Errorf("Failed to look PostgreSQL cluster %q up for deletion: %s", name, err)
+		return
+	}
+
+	for _, cluster := range resp.GetClusters() {
+		// The folder is shared by every acceptance test, so the name is checked here as well
+		// and not left to the server-side filter alone.
+		if cluster.GetName() != name {
+			continue
+		}
+		op, err := client.Delete(ctx, &postgresql.DeleteClusterRequest{ClusterId: cluster.GetId()})
+		if err != nil {
+			if validate.IsStatusWithCode(err, codes.NotFound) {
+				continue
+			}
+			t.Errorf("Failed to delete PostgreSQL cluster %q: %s", cluster.GetId(), err)
+			continue
+		}
+		if _, err := op.Wait(ctx); err != nil {
+			t.Errorf("Failed to wait for PostgreSQL cluster %q deletion: %s", cluster.GetId(), err)
+		}
+	}
+}
+
+func testAccCaptureResourceID(resourceName string, id *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+		*id = rs.Primary.ID
+		return nil
+	}
 }
 
 // TODO: Check enable and disable disk_size_autoscaling when fix api
@@ -1891,6 +2103,34 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
   }
 }
 `, resourceId, name, description, environment, labels, version, resources, performanceDiagnosticsBlock)
+}
+
+// testAccMDBPGClusterConnectionManager renders a cluster matching the one
+// testAccCreateMDBPGClusterWithoutConnectionManager builds through the API, with no
+// connection_manager block: the block is what the resource reads back from the API.
+func testAccMDBPGClusterConnectionManager(resourceId, name, description, version, resources string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "%s" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+  }
+
+  config {
+    version = "%s"
+    resources {
+      %s
+    }
+  }
+}
+`, resourceId, name, description, version, resources)
 }
 
 func testAccMDBPGClusterFull(

@@ -21,6 +21,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_signature_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mongodb_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mysql_backup_retention_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_opensearch_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_postgresql_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_redis_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_oauth_application"
@@ -53,6 +54,7 @@ func init() {
 		yandex_mdb_mongodb_backup_retention_policy.NewDataSource,
 		yandex_mdb_mysql_backup_retention_policy.NewDataSource,
 		yandex_mdb_postgresql_backup_retention_policy.NewDataSource,
+		yandex_mdb_opensearch_user.NewDataSource,
 		yandex_mdb_redis_backup_retention_policy.NewDataSource,
 		yandex_organizationmanager_idp_application_oauth_application.NewDataSource,
 		yandex_organizationmanager_idp_application_saml_application.NewDataSource,

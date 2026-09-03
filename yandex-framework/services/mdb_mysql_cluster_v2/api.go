@@ -3,10 +3,11 @@ package mdb_mysql_cluster_v2
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"log"
 	"math"
 	"time"
+
+	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -246,20 +247,20 @@ func (p *MysqlAPI) RestoreCluster(ctx context.Context, sdk *ycsdk.SDK, diags *di
 	op, err := mysqlsdk.NewClusterClient(sdk).Restore(ctx, req)
 	if err != nil {
 		diags.AddError(
-			"Failed to restore resource from backup",
-			fmt.Sprintf("Error while requesting API to restore MySQL cluster from backup: %s", err.Error()),
+			"Failed to restore resource",
+			fmt.Sprintf("Error while requesting API to restore MySQL cluster: %s", err.Error()),
 		)
 		return ""
 	}
 
 	md := op.Metadata()
 
-	tflog.Debug(ctx, "Restoring MySQL Cluster from backup", map[string]any{"request_body": req})
+	tflog.Debug(ctx, "Restoring MySQL cluster", map[string]any{"request_body": req})
 
 	if _, err = op.Wait(ctx); err != nil {
 		diags.AddError(
-			"Failed to restore resource from backup",
-			fmt.Sprintf("Error while waiting for operation %q to restore MySQL cluster from backup: %s", op.ID(), err.Error()),
+			"Failed to restore resource",
+			fmt.Sprintf("Error while waiting for operation %q to restore MySQL cluster: %s", op.ID(), err.Error()),
 		)
 		return ""
 	}

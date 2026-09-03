@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mongodb: add `operation_profiling` block with `slow_op_threshold` and `slow_op_sample_rate` attributes to `mongos` section of `yandex_mdb_mongodb_cluster`'
+time: 2026-08-01T16:09:00+03:00

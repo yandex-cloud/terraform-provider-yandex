@@ -46,8 +46,9 @@ var (
 		"hour": types.Int64Type,
 	}
 	expectedRestoreAttrTypes = map[string]attr.Type{
-		"backup_id": types.StringType,
-		"time":      types.StringType,
+		"backup_id":         types.StringType,
+		"time":              types.StringType,
+		"source_cluster_id": types.StringType,
 	}
 	expectedClusterAttrs = map[string]attr.Type{
 		"name":                      types.StringType,
@@ -186,8 +187,9 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 						types.StringValue("test-sg"),
 					}),
 					"restore": types.ObjectValueMust(expectedRestoreAttrTypes, map[string]attr.Value{
-						"backup_id": types.StringNull(),
-						"time":      types.StringNull(),
+						"backup_id":         types.StringNull(),
+						"time":              types.StringNull(),
+						"source_cluster_id": types.StringNull(),
 					}),
 					"mysql_config": NewMsSettingsMapValueMust(map[string]attr.Value{
 						"max_connections": types.Int64Value(100),
@@ -278,8 +280,9 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 					"maintenance_window":  types.ObjectNull(expectedMWAttrs),
 					"deletion_protection": types.BoolNull(),
 					"restore": types.ObjectValueMust(expectedRestoreAttrTypes, map[string]attr.Value{
-						"backup_id": types.StringNull(),
-						"time":      types.StringNull(),
+						"backup_id":         types.StringNull(),
+						"time":              types.StringNull(),
+						"source_cluster_id": types.StringNull(),
 					}),
 					"security_group_ids":     types.SetNull(types.StringType),
 					"mysql_config":           NewMsSettingsMapNull(),
@@ -407,7 +410,7 @@ func TestYandexProvider_MDBMySQLClusterPrepareRestoreRequest(t *testing.T) {
 		expectedError bool
 	}{
 		{
-			testname: "CheckFullAttributes",
+			testname: "CheckRestoreWithBackupIdWithTime",
 			reqVal: types.ObjectValueMust(
 				expectedClusterAttrs,
 				map[string]attr.Value{
@@ -457,8 +460,9 @@ func TestYandexProvider_MDBMySQLClusterPrepareRestoreRequest(t *testing.T) {
 						types.StringValue("test-sg"),
 					}),
 					"restore": types.ObjectValueMust(expectedRestoreAttrTypes, map[string]attr.Value{
-						"backup_id": types.StringValue("backup_id"),
-						"time":      types.StringValue("2006-01-02T15:04:05"),
+						"backup_id":         types.StringValue("backup_id"),
+						"time":              types.StringValue("2006-01-02T15:04:05"),
+						"source_cluster_id": types.StringNull(),
 					}),
 					"mysql_config": NewMsSettingsMapValueMust(map[string]attr.Value{
 						"max_connections": types.Int64Value(100),
@@ -474,6 +478,219 @@ func TestYandexProvider_MDBMySQLClusterPrepareRestoreRequest(t *testing.T) {
 			expectedVal: &mysql.RestoreClusterRequest{
 				BackupId:    "backup_id",
 				Time:        timestamppb.New(parceTime("2006-01-02T15:04:05")),
+				Name:        "test-cluster",
+				Description: "test-description",
+				Labels: map[string]string{
+					"key": "value",
+				},
+				Environment: mysql.Cluster_PRESTABLE,
+				NetworkId:   "test-network",
+				ConfigSpec: &mysql.ConfigSpec{
+					Version: "5.7",
+					Resources: &mysql.Resources{
+						ResourcePresetId: "s1.micro",
+						DiskTypeId:       "network-ssd",
+						DiskSize:         datasize.ToBytes(10),
+					},
+					BackupWindowStart: &timeofday.TimeOfDay{},
+					Access:            &mysql.Access{},
+					MysqlConfig: &mysql.ConfigSpec_MysqlConfig_5_7{
+						MysqlConfig_5_7: &msconfig.MysqlConfig5_7{
+							MaxConnections:              wrapperspb.Int64(100),
+							DefaultAuthenticationPlugin: msconfig.MysqlConfig5_7_MYSQL_NATIVE_PASSWORD,
+							InnodbPrintAllDeadlocks:     wrapperspb.Bool(true),
+						},
+					},
+				},
+				SecurityGroupIds:   []string{"test-sg"},
+				DeletionProtection: true,
+				FolderId:           "test-folder",
+				MaintenanceWindow: &mysql.MaintenanceWindow{
+					Policy: &mysql.MaintenanceWindow_WeeklyMaintenanceWindow{
+						WeeklyMaintenanceWindow: &mysql.WeeklyMaintenanceWindow{
+							Day:  mysql.WeeklyMaintenanceWindow_MON,
+							Hour: 1,
+						},
+					},
+				},
+				DiskEncryptionKeyId: wrapperspb.String("test-key"),
+			},
+		},
+		{
+			testname: "CheckRestoreWithSourceClusterIdWithTime",
+			reqVal: types.ObjectValueMust(
+				expectedClusterAttrs,
+				map[string]attr.Value{
+					"id": types.StringUnknown(),
+					"hosts": types.MapValueMust(types.StringType, map[string]attr.Value{
+						"host1": types.StringValue("host1"),
+						"host2": types.StringValue("host2"),
+					}),
+					"folder_id":   types.StringValue("test-folder"),
+					"name":        types.StringValue("test-cluster"),
+					"description": types.StringValue("test-description"),
+					"labels": types.MapValueMust(types.StringType, map[string]attr.Value{
+						"key": types.StringValue("value"),
+					}),
+					"environment": types.StringValue("PRESTABLE"),
+					"network_id":  types.StringValue("test-network"),
+					"version":     types.StringValue("5.7"),
+					"resources": types.ObjectValueMust(
+						expectedResourcesAttrs,
+						map[string]attr.Value{
+							"resource_preset_id": types.StringValue("s1.micro"),
+							"disk_type_id":       types.StringValue("network-ssd"),
+							"disk_size":          types.Int64Value(10),
+						},
+					),
+					"backup_window_start": types.ObjectNull(
+						expectedBWSAttrs,
+					),
+					"backup_retain_period_days": types.Int64Null(),
+					"performance_diagnostics": types.ObjectNull(
+						expectedPDAttrs,
+					),
+					"disk_size_autoscaling": types.ObjectNull(
+						expectedDSAAttrs,
+					),
+					"access": types.ObjectNull(AccessAttrTypes),
+					"maintenance_window": types.ObjectValueMust(
+						expectedMWAttrs,
+						map[string]attr.Value{
+							"type": types.StringValue("WEEKLY"),
+							"day":  types.StringValue("MON"),
+							"hour": types.Int64Value(1),
+						},
+					),
+					"deletion_protection": types.BoolValue(true),
+					"security_group_ids": types.SetValueMust(types.StringType, []attr.Value{
+						types.StringValue("test-sg"),
+					}),
+					"restore": types.ObjectValueMust(expectedRestoreAttrTypes, map[string]attr.Value{
+						"backup_id":         types.StringNull(),
+						"time":              types.StringValue("2006-01-02T15:04:05"),
+						"source_cluster_id": types.StringValue("source-cluster-id"),
+					}),
+					"mysql_config": NewMsSettingsMapValueMust(map[string]attr.Value{
+						"max_connections": types.Int64Value(100),
+						"default_authentication_plugin": types.Int64Value(
+							int64(msconfig.MysqlConfig8_0_MYSQL_NATIVE_PASSWORD),
+						),
+						"innodb_print_all_deadlocks": types.BoolValue(true),
+					}),
+					"disk_encryption_key_id": types.StringValue("test-key"),
+					"timeouts":               timeouts.Value{},
+				},
+			),
+			expectedVal: &mysql.RestoreClusterRequest{
+				SourceClusterId: "source-cluster-id",
+				Time:            timestamppb.New(parceTime("2006-01-02T15:04:05")),
+				Name:            "test-cluster",
+				Description:     "test-description",
+				Labels: map[string]string{
+					"key": "value",
+				},
+				Environment: mysql.Cluster_PRESTABLE,
+				NetworkId:   "test-network",
+				ConfigSpec: &mysql.ConfigSpec{
+					Version: "5.7",
+					Resources: &mysql.Resources{
+						ResourcePresetId: "s1.micro",
+						DiskTypeId:       "network-ssd",
+						DiskSize:         datasize.ToBytes(10),
+					},
+					BackupWindowStart: &timeofday.TimeOfDay{},
+					Access:            &mysql.Access{},
+					MysqlConfig: &mysql.ConfigSpec_MysqlConfig_5_7{
+						MysqlConfig_5_7: &msconfig.MysqlConfig5_7{
+							MaxConnections:              wrapperspb.Int64(100),
+							DefaultAuthenticationPlugin: msconfig.MysqlConfig5_7_MYSQL_NATIVE_PASSWORD,
+							InnodbPrintAllDeadlocks:     wrapperspb.Bool(true),
+						},
+					},
+				},
+				SecurityGroupIds:   []string{"test-sg"},
+				DeletionProtection: true,
+				FolderId:           "test-folder",
+				MaintenanceWindow: &mysql.MaintenanceWindow{
+					Policy: &mysql.MaintenanceWindow_WeeklyMaintenanceWindow{
+						WeeklyMaintenanceWindow: &mysql.WeeklyMaintenanceWindow{
+							Day:  mysql.WeeklyMaintenanceWindow_MON,
+							Hour: 1,
+						},
+					},
+				},
+				DiskEncryptionKeyId: wrapperspb.String("test-key"),
+			},
+		},
+		{
+			testname: "CheckRestoreWithBackupIdOnly",
+			reqVal: types.ObjectValueMust(
+				expectedClusterAttrs,
+				map[string]attr.Value{
+					"id": types.StringUnknown(),
+					"hosts": types.MapValueMust(types.StringType, map[string]attr.Value{
+						"host1": types.StringValue("host1"),
+						"host2": types.StringValue("host2"),
+					}),
+					"folder_id":   types.StringValue("test-folder"),
+					"name":        types.StringValue("test-cluster"),
+					"description": types.StringValue("test-description"),
+					"labels": types.MapValueMust(types.StringType, map[string]attr.Value{
+						"key": types.StringValue("value"),
+					}),
+					"environment": types.StringValue("PRESTABLE"),
+					"network_id":  types.StringValue("test-network"),
+					"version":     types.StringValue("5.7"),
+					"resources": types.ObjectValueMust(
+						expectedResourcesAttrs,
+						map[string]attr.Value{
+							"resource_preset_id": types.StringValue("s1.micro"),
+							"disk_type_id":       types.StringValue("network-ssd"),
+							"disk_size":          types.Int64Value(10),
+						},
+					),
+					"backup_window_start": types.ObjectNull(
+						expectedBWSAttrs,
+					),
+					"backup_retain_period_days": types.Int64Null(),
+					"performance_diagnostics": types.ObjectNull(
+						expectedPDAttrs,
+					),
+					"disk_size_autoscaling": types.ObjectNull(
+						expectedDSAAttrs,
+					),
+					"access": types.ObjectNull(AccessAttrTypes),
+					"maintenance_window": types.ObjectValueMust(
+						expectedMWAttrs,
+						map[string]attr.Value{
+							"type": types.StringValue("WEEKLY"),
+							"day":  types.StringValue("MON"),
+							"hour": types.Int64Value(1),
+						},
+					),
+					"deletion_protection": types.BoolValue(true),
+					"security_group_ids": types.SetValueMust(types.StringType, []attr.Value{
+						types.StringValue("test-sg"),
+					}),
+					"restore": types.ObjectValueMust(expectedRestoreAttrTypes, map[string]attr.Value{
+						"backup_id":         types.StringValue("backup_id"),
+						"time":              types.StringNull(),
+						"source_cluster_id": types.StringNull(),
+					}),
+					"mysql_config": NewMsSettingsMapValueMust(map[string]attr.Value{
+						"max_connections": types.Int64Value(100),
+						"default_authentication_plugin": types.Int64Value(
+							int64(msconfig.MysqlConfig8_0_MYSQL_NATIVE_PASSWORD),
+						),
+						"innodb_print_all_deadlocks": types.BoolValue(true),
+					}),
+					"disk_encryption_key_id": types.StringValue("test-key"),
+					"timeouts":               timeouts.Value{},
+				},
+			),
+			expectedVal: &mysql.RestoreClusterRequest{
+				BackupId:    "backup_id",
 				Name:        "test-cluster",
 				Description: "test-description",
 				Labels: map[string]string{

@@ -1161,6 +1161,26 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 											},
 										},
 									},
+									"operation_profiling": {
+										Type:        schema.TypeList,
+										Description: "A set of profiling settings (see the [operationProfiling](https://www.mongodb.com/docs/manual/reference/configuration-options/#operationprofiling-options) option).",
+										MaxItems:    1,
+										Optional:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"slow_op_threshold": {
+													Type:        schema.TypeInt,
+													Description: "The slow operation time threshold, in milliseconds. Operations that run for longer than this threshold are considered slow, and are written to the diagnostic (slow query) log. mongos has no profiler, so only the diagnostic log is affected. For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs) description in the official documentation.",
+													Optional:    true,
+												},
+												"slow_op_sample_rate": {
+													Type:        schema.TypeFloat,
+													Description: "The fraction of slow operations that should be logged. Accepts values between 0 and 1, inclusive. For more information, see the [operationProfiling.slowOpSampleRate](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpSampleRate) description in the official documentation.",
+													Optional:    true,
+												},
+											},
+										},
+									},
 									"chunk_size": {
 										Type:        schema.TypeInt,
 										Description: "The size of the chunk, in bytes. For more information, see the [chunkSize](https://www.mongodb.com/docs/manual/tutorial/modify-chunk-size-in-sharded-cluster) description in the official documentation.",

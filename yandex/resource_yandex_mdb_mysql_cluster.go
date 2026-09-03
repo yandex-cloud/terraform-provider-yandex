@@ -334,24 +334,34 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"restore": {
 				Type:        schema.TypeList,
-				Description: "The cluster will be created from the specified backup.",
+				Description: "The cluster will be created from the specified backup or source cluster.",
 				MaxItems:    1,
 				Optional:    true,
 				ForceNew:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"backup_id": {
-							Type:        schema.TypeString,
-							Description: "Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://yandex.cloud/docs/managed-mysql/operations/cluster-backups).",
-							Required:    true,
-							ForceNew:    true,
+							Type:         schema.TypeString,
+							Description:  "Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://yandex.cloud/docs/managed-mysql/operations/cluster-backups). Should not be used together with `source_cluster_id`.",
+							Optional:     true,
+							ForceNew:     true,
+							ExactlyOneOf: []string{"restore.0.backup_id", "restore.0.source_cluster_id"},
 						},
 						"time": {
 							Type:         schema.TypeString,
-							Description:  "Timestamp of the moment to which the MySQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.",
+							Description:  "Timestamp of the moment to which the MySQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). Required when `source_cluster_id` is used.",
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: stringToTimeValidateFunc,
+						},
+						"source_cluster_id": {
+							Type:         schema.TypeString,
+							Description:  "ID of the source cluster to restore from. The latest backup suitable for `time` will be used for the restore. `time` is required. Should not be used together with `backup_id`.",
+							Optional:     true,
+							ForceNew:     true,
+							ExactlyOneOf: []string{"restore.0.backup_id", "restore.0.source_cluster_id"},
+							RequiredWith: []string{"restore.0.time"},
+							ValidateFunc: validation.StringIsNotEmpty,
 						},
 					},
 				},
@@ -524,13 +534,13 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	if restoreBlockExists(d) {
+		return resourceYandexMDBMySQLClusterRestore(d, meta)
+	}
+
 	req, err := prepareCreateMySQLRequest(d, config)
 	if err != nil {
 		return err
-	}
-
-	if backupID, ok := d.GetOk("restore.0.backup_id"); ok && backupID != "" {
-		return resourceYandexMDBMySQLClusterRestore(d, meta, req, backupID.(string))
 	}
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
@@ -569,31 +579,38 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 	return resourceYandexMDBMySQLClusterRead(d, meta)
 }
 
-func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface{}, createClusterRequest *mysql.CreateClusterRequest, backupID string) error {
+func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	if err := checkBackupIdIsNotEmptyIfSpecified(d); err != nil {
+		return err
+	}
+
+	backupID := d.Get("restore.0.backup_id").(string)
+	sourceClusterID := d.Get("restore.0.source_cluster_id").(string)
+
+	var pitrTs *timestamp.Timestamp = nil
+	if inputPitrTime, ok := d.GetOk("restore.0.time"); ok {
+		parsedTime, err := mdbcommon.ParseStringToTime(inputPitrTime.(string))
+		if err != nil {
+			return fmt.Errorf("Error while parsing restore.0.time to restore MySQL Cluster, value: %v error: %s", inputPitrTime, err)
+		}
+		pitrTs = &timestamp.Timestamp{
+			Seconds: parsedTime.Unix(),
+		}
+	}
+
 	req, err := prepareCreateMySQLRequest(d, config)
 	if err != nil {
 		return err
 	}
 
-	timeBackup := time.Now()
-
-	if backupTime, ok := d.GetOk("restore.0.time"); ok {
-		var err error
-		timeBackup, err = mdbcommon.ParseStringToTime(backupTime.(string))
-		if err != nil {
-			return fmt.Errorf("Error while parsing restore.0.time to create MySQL Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
-		}
-
-	}
-
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 	request := &mysql.RestoreClusterRequest{
-		BackupId: backupID,
-		Time: &timestamp.Timestamp{
-			Seconds: timeBackup.Unix(),
-		},
+		BackupId:            backupID,
+		Time:                pitrTs,
+		SourceClusterId:     sourceClusterID,
 		Name:                req.Name,
 		Description:         req.Description,
 		NetworkId:           req.NetworkId,
@@ -620,28 +637,28 @@ func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface
 		return mysqlsdk.NewClusterClient(config.SDK).Restore(ctx, request)
 	})
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create MySQL Cluster from backup %v: %s", backupID, err)
+		return fmt.Errorf("Error while requesting API to restore MySQL Cluster: %s", err)
 	}
 	protoMetadata := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("Error while getting MySQL create operation metadata from backup %v: %s", backupID, err)
+		return fmt.Errorf("Error while getting MySQL restore operation metadata: %s", err)
 	}
 	md, ok := protoMetadata.(*mysql.RestoreClusterMetadata)
 	if !ok {
-		return fmt.Errorf("Could not get MySQL Cluster ID from create from backup %v operation metadata", backupID)
+		return fmt.Errorf("Could not get MySQL Cluster ID from restore operation metadata")
 	}
 	d.SetId(md.ClusterId)
 
 	_, err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error while waiting for operation to create MySQL Cluster from backup %v: %s", backupID, err)
+		return fmt.Errorf("Error while waiting for operation to restore MySQL Cluster: %s", err)
 	}
 	if err := op.Error(); err != nil {
-		return fmt.Errorf("MySQL Cluster creation from backup %v failed: %s", backupID, err)
+		return fmt.Errorf("MySQL Cluster restore failed: %s", err)
 	}
 
 	if err := updateMysqlClusterHosts(d, config); err != nil {
-		return fmt.Errorf("MySQL Cluster %v hosts creation from backup %v failed: %s", d.Id(), backupID, err)
+		return fmt.Errorf("MySQL Cluster %v hosts creation after restore failed: %s", d.Id(), err)
 	}
 
 	return resourceYandexMDBMySQLClusterRead(d, meta)
@@ -1494,6 +1511,28 @@ func validateClusterConfig(d *schema.ResourceData) error {
 	err = validateMysqlReplicationReferences(targetHosts)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func restoreBlockExists(d *schema.ResourceData) bool {
+	v, ok := d.GetOk("restore")
+	if !ok {
+		return false
+	}
+	items, ok := v.([]interface{})
+	return ok && len(items) > 0
+}
+
+func checkBackupIdIsNotEmptyIfSpecified(d mdbcommon.RawConfigProvider) error {
+	backupIDConfig, ok := mdbcommon.LookupRawConfigPath(d, "restore.0.backup_id")
+	if !ok {
+		return nil
+	}
+
+	if backupIDConfig.AsString() == "" {
+		return fmt.Errorf("`restore.0.backup_id` must be specified with a non-empty value")
 	}
 
 	return nil

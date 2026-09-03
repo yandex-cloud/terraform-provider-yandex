@@ -46,6 +46,13 @@ type clusterResource struct {
 	providerConfig *provider_config.Config
 }
 
+// The framework picks these up by type assertion, so a drifting signature would silently
+// stop validation and plan modification instead of breaking the build.
+var (
+	_ resource.ResourceWithValidateConfig = (*clusterResource)(nil)
+	_ resource.ResourceWithModifyPlan     = (*clusterResource)(nil)
+)
+
 func NewPostgreSQLClusterResourceV2() resource.Resource {
 	return &clusterResource{}
 }
@@ -518,6 +525,13 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 	}
 }
 
+// ValidateConfig rejects configuration that is invalid on its own, independently of the
+// cluster's current state. Checks live here rather than in ModifyPlan because ModifyPlan
+// returns early while the prior state is null, i.e. for the plan that creates the cluster.
+func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	mdbcommon.ValidateClusterConnectionManagerFromConfig(ctx, req.Config, path.Root("config").AtName("connection_manager"), &resp.Diagnostics)
+}
+
 func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Load the current state of the resource
 	var state Cluster
@@ -559,8 +573,6 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 	}
 
 	autoscalingOn := utils.IsPresent(attr.Value(cfgState.DiskSizeAutoscaling))
-
-	mdbcommon.ValidateClusterConnectionManagerFromConfig(ctx, req.Config, path.Root("config").AtName("connection_manager"), &resp.Diagnostics)
 
 	// remove changes on disk_size from plan if enabled autoscaling
 	cfgPlan.Resources = mdbcommon.FixDiskSizeOnAutoscalingChanges(ctx, cfgPlan.Resources, cfgState.Resources, autoscalingOn, &resp.Diagnostics)

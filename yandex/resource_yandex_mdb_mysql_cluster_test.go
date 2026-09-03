@@ -26,6 +26,7 @@ const (
 	mysqlResourceType          = "yandex_mdb_mysql_cluster"
 	mysqlResourceFoo           = mysqlResourceType + ".foo"
 	msRestoreBackupId          = "c9qnlqr37bgp53r9pbek:mdbel77v1so5qiu199ua"
+	msRestoreSourceClusterId   = "c9qnlqr37bgp53r9pbek"
 	msRestoreBackupIdEncrypted = "c9qpn7idf2pvl1077h8j:mdbq3r80r4hbj8uu26sd"
 )
 
@@ -413,6 +414,35 @@ func TestAccMDBMySQLCluster_restore(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(clusterResource, &cluster),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "false"),
+				),
+			},
+		},
+	})
+}
+
+// Test that MySQL cluster can be restored from source cluster
+func TestAccMDBMySQLCluster_restoreFromSourceCluster(t *testing.T) {
+	t.Parallel()
+
+	var cluster mysql.Cluster
+	clusterResource := "yandex_mdb_mysql_cluster.restore_from_source_cluster_test"
+	clusterName := acctest.RandomWithPrefix("mysql-restored-from-source-cluster-cluster")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             resource.ComposeTestCheckFunc(testAccCheckMDBMysqlClusterDestroy),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBMySQLClusterConfigRestoreFromCluster(clusterName, msRestoreSourceClusterId),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(clusterResource, &cluster),
+					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
+					resource.TestCheckResourceAttr(clusterResource, "description", "MySQL Cluster Restore From Source Cluster Test"),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.zone", "ru-central1-a"),
+					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "false"),
+					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 10737418240),
+					resource.TestCheckNoResourceAttr(clusterResource, "disk_encryption_key_id"),
 				),
 			},
 		},
@@ -1413,6 +1443,35 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
 }
 `, name, desc)
+}
+
+func testAccMDBMySQLClusterConfigRestoreFromCluster(name, sourceClusterId string) string {
+	return fmt.Sprintf(mysqlVPCDependencies+`
+resource "yandex_mdb_mysql_cluster" "restore_from_source_cluster_test" {
+  name        = "%s"
+  description = "MySQL Cluster Restore From Source Cluster Test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+
+  version = "8.0"
+
+  restore {
+	source_cluster_id =	 "%s"
+	time = "2025-08-26T14:04:05"
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo_a.id
+  }
+
+  resources {
+	resource_preset_id = "s2.micro"
+	disk_size          = 10 
+	disk_type_id       = "network-ssd"
+  }
+}
+`, name, sourceClusterId)
 }
 
 func testAccMDBMySQLClusterConfigRestore(name, backupId string, deleteProtection bool) string {

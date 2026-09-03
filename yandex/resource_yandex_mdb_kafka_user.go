@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -28,6 +30,9 @@ func resourceYandexMDBKafkaUser() *schema.Resource {
 		Delete: resourceYandexMDBKafkaUserDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta any) error {
+			return validateKafkaUserPasswordConflict(d)
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -53,10 +58,26 @@ func resourceYandexMDBKafkaUser() *schema.Resource {
 				ForceNew:    true,
 			},
 			"password": {
-				Type:        schema.TypeString,
-				Description: "The password of the user.",
-				Required:    true,
-				Sensitive:   true,
+				Type:         schema.TypeString,
+				Description:  "The password of the user.",
+				Optional:     true,
+				Sensitive:    true,
+				AtLeastOneOf: []string{"password", "password_wo"},
+			},
+			"password_wo": {
+				Type:         schema.TypeString,
+				Description:  "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher.",
+				Optional:     true,
+				WriteOnly:    true,
+				Sensitive:    true,
+				AtLeastOneOf: []string{"password", "password_wo"},
+				RequiredWith: []string{"password_wo_version"},
+			},
+			"password_wo_version": {
+				Type:         schema.TypeInt,
+				Description:  "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:     true,
+				RequiredWith: []string{"password_wo"},
 			},
 			"permission": {
 				Type:        schema.TypeSet,
@@ -69,7 +90,47 @@ func resourceYandexMDBKafkaUser() *schema.Resource {
 	}
 }
 
+func validateKafkaUserPasswordConflict(d mdbcommon.RawConfigProvider) error {
+	_, hasPassword := mdbcommon.LookupRawConfigPath(d, "password")
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
+	if hasPassword && hasPasswordWo {
+		return fmt.Errorf("only one of `password` or `password_wo` can be specified")
+	}
+	return nil
+}
+
+func validateKafkaUserPasswordPair(d mdbcommon.RawConfigProvider) error {
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
+	_, hasPasswordWoVersion := mdbcommon.LookupRawConfigPath(d, "password_wo_version")
+	if hasPasswordWo != hasPasswordWoVersion {
+		return fmt.Errorf("`password_wo` and `password_wo_version` must be specified together")
+	}
+	return nil
+}
+
+type kafkaUserPasswordProvider interface {
+	mdbcommon.RawConfigProvider
+	GetOk(string) (any, bool)
+}
+
+func kafkaUserPassword(d kafkaUserPasswordProvider) string {
+	if passwordWo, ok := mdbcommon.LookupRawConfigPath(d, "password_wo"); ok {
+		return passwordWo.AsString()
+	}
+	if password, ok := d.GetOk("password"); ok {
+		return password.(string)
+	}
+	return ""
+}
+
 func resourceYandexMDBKafkaUserCreate(d *schema.ResourceData, meta interface{}) error {
+	if err := validateKafkaUserPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateKafkaUserPasswordPair(d); err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
@@ -101,7 +162,7 @@ func buildKafkaUserPermissions(d *schema.ResourceData) ([]*kafka.Permission, boo
 func buildKafkaUserSpec(d *schema.ResourceData) (*kafka.UserSpec, error) {
 	userSpec := &kafka.UserSpec{
 		Name:     d.Get("name").(string),
-		Password: d.Get("password").(string),
+		Password: kafkaUserPassword(d),
 	}
 	permissions, ok, err := buildKafkaUserPermissions(d)
 	if err != nil {
@@ -139,6 +200,13 @@ func resourceYandexMDBKafkaUserRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceYandexMDBKafkaUserUpdate(d *schema.ResourceData, meta interface{}) error {
+	if err := validateKafkaUserPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := validateKafkaUserPasswordPair(d); err != nil {
+		return err
+	}
+
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -146,7 +214,7 @@ func resourceYandexMDBKafkaUserUpdate(d *schema.ResourceData, meta interface{}) 
 	request := &kafka.UpdateUserRequest{
 		ClusterId: d.Get("cluster_id").(string),
 		UserName:  d.Get("name").(string),
-		Password:  d.Get("password").(string),
+		Password:  kafkaUserPassword(d),
 	}
 
 	permissions, ok, err := buildKafkaUserPermissions(d)
@@ -175,8 +243,9 @@ func resourceYandexMDBKafkaUserUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 var mdbKafkaUserUpdateFieldsMap = map[string]string{
-	"password":   "password",
-	"permission": "permissions",
+	"password":            "password",
+	"password_wo_version": "password",
+	"permission":          "permissions",
 }
 
 func resourceYandexMDBKafkaUserDelete(d *schema.ResourceData, meta interface{}) error {

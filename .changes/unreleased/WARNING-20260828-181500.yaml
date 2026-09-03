@@ -1,0 +1,3 @@
+kind: WARNING
+body: 'mdb_postgresql: `connection_manager.enabled = false` is now rejected when creating a `yandex_mdb_postgresql_cluster_v2` resource, as it already was when updating one: creating a cluster without the Connection Manager integration is not supported through Terraform'
+time: 2026-08-28T18:15:00.000000+03:00

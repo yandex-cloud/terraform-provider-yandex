@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mysql: `restore.time` no longer defaults to the current time.'
+time: 2026-08-28T16:46:09.966360488+03:00

@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mysql: add optional `restore.source_cluster_id` parameter'
+time: 2026-08-28T16:49:55.08814203+03:00

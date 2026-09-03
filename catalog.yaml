@@ -1005,6 +1005,10 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_opensearch_user:
+    Category: "Managed Service for OpenSearch"
+    Type: fw
+    HasD: true
   mdb_postgresql_cluster:
     Category: "Managed Service for PostgreSQL"
     Type: sdk
