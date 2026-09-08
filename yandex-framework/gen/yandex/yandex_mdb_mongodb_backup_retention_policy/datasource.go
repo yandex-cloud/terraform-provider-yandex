@@ -99,6 +99,7 @@ func (r *yandexMdbMongodbBackupRetentionPolicyDataSource) Read(ctx context.Conte
 				"Error while requesting API to get backup_retention_policy:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read backup_retention_policy response: %s", validate.ProtoDump(res)))

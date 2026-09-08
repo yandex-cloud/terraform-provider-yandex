@@ -98,6 +98,7 @@ func (r *yandexYtsaurusClusterDataSource) Read(ctx context.Context, req datasour
 				"Error while requesting API to get cluster:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read cluster response: %s", validate.ProtoDump(res)))

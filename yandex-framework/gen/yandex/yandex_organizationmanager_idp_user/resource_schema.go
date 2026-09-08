@@ -190,7 +190,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 256),
+					stringvalidator.LengthBetween(1, 256),
 				},
 			},
 
@@ -314,7 +314,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 							planmodifiers.NullWriteOnlyString(),
 						},
 						Validators: []validator.String{
-							stringvalidator.LengthBetween(0, 512),
+							stringvalidator.LengthBetween(1, 512),
 						},
 					},
 
@@ -397,7 +397,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 							planmodifiers.NullWriteOnlyString(),
 						},
 						Validators: []validator.String{
-							stringvalidator.LengthBetween(0, 128),
+							stringvalidator.LengthBetween(1, 128),
 						},
 					},
 				},
@@ -520,7 +520,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 				},
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(regexp.MustCompile("^(|[a-z0-9A-Z\\._-]{1,64}@.{1,256})$"), "error validating regexp"),
-					stringvalidator.LengthBetween(0, 254),
+					stringvalidator.LengthBetween(1, 254),
 				},
 			},
 
@@ -538,7 +538,7 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 			"timeouts": timeouts.AttributesAll(ctx),

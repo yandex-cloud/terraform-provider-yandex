@@ -98,6 +98,7 @@ func (r *yandexCloudregistryFolderDataSource) Read(ctx context.Context, req data
 				"Error while requesting API to get artifact:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read artifact response: %s", validate.ProtoDump(res)))

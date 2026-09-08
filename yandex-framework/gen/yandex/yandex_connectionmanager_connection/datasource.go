@@ -98,6 +98,7 @@ func (r *yandexConnectionmanagerConnectionDataSource) Read(ctx context.Context, 
 				"Error while requesting API to get connection:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read connection response: %s", validate.ProtoDump(res)))

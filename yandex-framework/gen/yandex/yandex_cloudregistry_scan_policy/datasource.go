@@ -98,6 +98,7 @@ func (r *yandexCloudregistryScanPolicyDataSource) Read(ctx context.Context, req 
 				"Error while requesting API to get scan_policy:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read scan_policy response: %s", validate.ProtoDump(res)))

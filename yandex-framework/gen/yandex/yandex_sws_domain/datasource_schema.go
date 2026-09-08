@@ -298,8 +298,7 @@ func YandexSwsDomainDatasourceSchema(ctx context.Context) schema.Schema {
 					// -> yandex.cloud.smartwebsecurity.v1.load_balancer.GetDomainRequest.load_balancer_id
 					"package: yandex.cloud.smartwebsecurity.v1.load_balancer\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/load_balancer/domain_service.proto\n",
-				Optional: true,
-				Computed: true,
+				Required: true,
 			},
 
 			"name": schema.StringAttribute{
@@ -310,8 +309,7 @@ func YandexSwsDomainDatasourceSchema(ctx context.Context) schema.Schema {
 					// -> yandex.cloud.smartwebsecurity.v1.load_balancer.GetDomainRequest.domain_name
 					"package: yandex.cloud.smartwebsecurity.v1.load_balancer\n" +
 					"filename: yandex/cloud/smartwebsecurity/v1/load_balancer/domain_service.proto\n",
-				Optional: true,
-				Computed: true,
+				Required: true,
 
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(regexp.MustCompile("^([a-z][-a-z0-9]{1,56}[a-z0-9])$"), "error validating regexp"),
@@ -482,6 +480,16 @@ func YandexSwsDomainDatasourceSchema(ctx context.Context) schema.Schema {
 						Description: "ID of the Solid WAF profile." +
 							// proto paths: +
 							// -> yandex.cloud.smartwebsecurity.v1.load_balancer.Domain.solid_waf_settings -> yandex.cloud.smartwebsecurity.v1.load_balancer.SolidWafSettings.solid_waf_profile_id
+							"package: yandex.cloud.smartwebsecurity.v1.load_balancer\n" +
+							"filename: yandex/cloud/smartwebsecurity/v1/load_balancer/load_balancer.proto\n",
+						Computed: true,
+					},
+
+					"web_app_id": schema.StringAttribute{
+						MarkdownDescription: "ID of the Solid WAF web app.",
+						Description: "ID of the Solid WAF web app." +
+							// proto paths: +
+							// -> yandex.cloud.smartwebsecurity.v1.load_balancer.Domain.solid_waf_settings -> yandex.cloud.smartwebsecurity.v1.load_balancer.SolidWafSettings.web_app_id
 							"package: yandex.cloud.smartwebsecurity.v1.load_balancer\n" +
 							"filename: yandex/cloud/smartwebsecurity/v1/load_balancer/load_balancer.proto\n",
 						Computed: true,

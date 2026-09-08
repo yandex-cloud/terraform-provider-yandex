@@ -28,7 +28,7 @@ func YandexMdbPostgresqlBackupRetentionPolicyDatasourceSchema(ctx context.Contex
 				Required: true,
 
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 

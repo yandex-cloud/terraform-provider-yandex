@@ -98,6 +98,7 @@ func (r *yandexServerlessWorkflowDataSource) Read(ctx context.Context, req datas
 				"Error while requesting API to get workflow:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read workflow response: %s", validate.ProtoDump(res)))

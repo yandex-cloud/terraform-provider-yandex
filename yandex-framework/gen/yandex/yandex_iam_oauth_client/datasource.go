@@ -94,6 +94,7 @@ func (r *yandexIamOauthClientDataSource) Read(ctx context.Context, req datasourc
 				"Error while requesting API to get o_auth_client:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read o_auth_client response: %s", validate.ProtoDump(res)))

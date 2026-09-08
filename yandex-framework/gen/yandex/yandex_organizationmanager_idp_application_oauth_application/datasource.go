@@ -98,6 +98,7 @@ func (r *yandexOrganizationmanagerIdpApplicationOauthApplicationDataSource) Read
 				"Error while requesting API to get application:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read application response: %s", validate.ProtoDump(res)))

@@ -98,6 +98,7 @@ func (r *yandexOrganizationmanagerUserSshKeyDataSource) Read(ctx context.Context
 				"Error while requesting API to get user_ssh_key:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read user_ssh_key response: %s", validate.ProtoDump(res)))

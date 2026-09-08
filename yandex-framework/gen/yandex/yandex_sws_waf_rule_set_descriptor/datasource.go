@@ -95,6 +95,7 @@ func (r *yandexSwsWafRuleSetDescriptorDataSource) Read(ctx context.Context, req 
 				"Error while requesting API to get rule_set_descriptor:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read rule_set_descriptor response: %s", validate.ProtoDump(res)))

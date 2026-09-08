@@ -39,7 +39,7 @@ func YandexMdbMongodbBackupRetentionPolicyResourceSchema(ctx context.Context) sc
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 

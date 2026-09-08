@@ -98,6 +98,7 @@ func (r *yandexCloudregistryRegistryDataSource) Read(ctx context.Context, req da
 				"Error while requesting API to get registry:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read registry response: %s", validate.ProtoDump(res)))

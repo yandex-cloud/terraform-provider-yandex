@@ -98,6 +98,7 @@ func (r *yandexDatatransferTransferDataSource) Read(ctx context.Context, req dat
 				"Error while requesting API to get transfer:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read transfer response: %s", validate.ProtoDump(res)))

@@ -116,6 +116,7 @@ func (r *yandexSwsSecurityProfileDataSource) Read(ctx context.Context, req datas
 				"Error while requesting API to get security_profile:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read security_profile response: %s", validate.ProtoDump(res)))

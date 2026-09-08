@@ -98,6 +98,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolDataSource) Read(ctx context.Contex
 				"Error while requesting API to get userpool:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read userpool response: %s", validate.ProtoDump(res)))

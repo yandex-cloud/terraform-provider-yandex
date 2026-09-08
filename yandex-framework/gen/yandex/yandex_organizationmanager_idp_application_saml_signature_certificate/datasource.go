@@ -98,6 +98,7 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDataSour
 				"Error while requesting API to get signature_certificate:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read signature_certificate response: %s", validate.ProtoDump(res)))

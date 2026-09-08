@@ -98,6 +98,7 @@ func (r *yandexKmsAsymmetricSignatureKeyDataSource) Read(ctx context.Context, re
 				"Error while requesting API to get asymmetric_signature_key:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_signature_key response: %s", validate.ProtoDump(res)))

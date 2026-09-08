@@ -98,6 +98,7 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialDataSource) Read(ctx contex
 				"Error while requesting API to get federated_credential:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read federated_credential response: %s", validate.ProtoDump(res)))

@@ -98,6 +98,7 @@ func (r *yandexDatatransferEndpointDataSource) Read(ctx context.Context, req dat
 				"Error while requesting API to get endpoint:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read endpoint response: %s", validate.ProtoDump(res)))

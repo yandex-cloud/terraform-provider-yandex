@@ -98,6 +98,7 @@ func (r *yandexComputeReservedInstancePoolDataSource) Read(ctx context.Context, 
 				"Error while requesting API to get reserved_instance_pool:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read reserved_instance_pool response: %s", validate.ProtoDump(res)))

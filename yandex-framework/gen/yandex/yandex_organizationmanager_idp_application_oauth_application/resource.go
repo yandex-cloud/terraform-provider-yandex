@@ -358,6 +358,9 @@ func (r *yandexOrganizationmanagerIdpApplicationOauthApplicationResource) Update
 			return
 		}
 
+		if !yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan.GroupClaimValue.IsUnknown() && !yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan.GroupClaimValue.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState.GroupClaimValue) {
+			updatePaths = append(updatePaths, "group_claims_settings.group_claim_value")
+		}
 		if !yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan.GroupDistributionType.IsUnknown() && !yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsPlan.GroupDistributionType.Equal(yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState.GroupDistributionType) {
 			updatePaths = append(updatePaths, "group_claims_settings.group_distribution_type")
 		}

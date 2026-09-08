@@ -116,6 +116,7 @@ func (r *yandexSwsLoadBalancerDataSource) Read(ctx context.Context, req datasour
 				"Error while requesting API to get load_balancer:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read load_balancer response: %s", validate.ProtoDump(res)))

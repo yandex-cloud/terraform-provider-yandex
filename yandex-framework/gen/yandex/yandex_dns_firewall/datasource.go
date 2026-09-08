@@ -98,6 +98,7 @@ func (r *yandexDnsFirewallDataSource) Read(ctx context.Context, req datasource.R
 				"Error while requesting API to get dns_firewall:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read dns_firewall response: %s", validate.ProtoDump(res)))

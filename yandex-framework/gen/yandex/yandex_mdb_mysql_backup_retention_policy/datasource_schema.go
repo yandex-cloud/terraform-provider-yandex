@@ -28,7 +28,7 @@ func YandexMdbMysqlBackupRetentionPolicyDatasourceSchema(ctx context.Context) sc
 				Required: true,
 
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 

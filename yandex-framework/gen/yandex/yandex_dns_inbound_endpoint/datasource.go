@@ -98,6 +98,7 @@ func (r *yandexDnsInboundEndpointDataSource) Read(ctx context.Context, req datas
 				"Error while requesting API to get dns_inbound_endpoint:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read dns_inbound_endpoint response: %s", validate.ProtoDump(res)))

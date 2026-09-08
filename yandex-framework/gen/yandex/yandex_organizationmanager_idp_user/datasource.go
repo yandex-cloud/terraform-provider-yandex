@@ -98,6 +98,7 @@ func (r *yandexOrganizationmanagerIdpUserDataSource) Read(ctx context.Context, r
 				"Error while requesting API to get user:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read user response: %s", validate.ProtoDump(res)))

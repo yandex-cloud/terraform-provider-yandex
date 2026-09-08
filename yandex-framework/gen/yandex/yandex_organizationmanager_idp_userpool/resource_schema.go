@@ -131,7 +131,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 					planmodifiers.NullWriteOnlyString(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 63),
+					stringvalidator.LengthBetween(1, 63),
 				},
 			},
 
@@ -228,7 +228,7 @@ func YandexOrganizationmanagerIdpUserpoolResourceSchema(ctx context.Context) sch
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 

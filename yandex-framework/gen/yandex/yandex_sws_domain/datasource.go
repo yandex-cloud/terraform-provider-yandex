@@ -95,6 +95,7 @@ func (r *yandexSwsDomainDataSource) Read(ctx context.Context, req datasource.Rea
 				"Error while requesting API to get domain:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read domain response: %s", validate.ProtoDump(res)))

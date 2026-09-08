@@ -116,6 +116,7 @@ func (r *yandexSmartcaptchaCaptchaDataSource) Read(ctx context.Context, req data
 				"Error while requesting API to get captcha:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read captcha response: %s", validate.ProtoDump(res)))

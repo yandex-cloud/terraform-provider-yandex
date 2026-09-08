@@ -795,11 +795,15 @@ func expandYandexOrganizationmanagerIdpApplicationSamlApplicationAttributeMappin
 
 type yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel struct {
 	GroupAttributeName    types.String `tfsdk:"group_attribute_name"`
+	GroupAttributeValue   types.String `tfsdk:"group_attribute_value"`
 	GroupDistributionType types.String `tfsdk:"group_distribution_type"`
 }
 
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) GetGroupAttributeName() types.String {
 	return m.GroupAttributeName
+}
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) GetGroupAttributeValue() types.String {
+	return m.GroupAttributeValue
 }
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) GetGroupDistributionType() types.String {
 	return m.GroupDistributionType
@@ -808,6 +812,9 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettin
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) SetGroupAttributeName(target types.String) {
 	m.GroupAttributeName = target
 }
+func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) SetGroupAttributeValue(target types.String) {
+	m.GroupAttributeValue = target
+}
 func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) SetGroupDistributionType(target types.String) {
 	m.GroupDistributionType = target
 }
@@ -815,6 +822,7 @@ func (m *yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettin
 func NewYandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel() yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel {
 	return yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel{
 		GroupAttributeName:    types.StringNull(),
+		GroupAttributeValue:   types.StringNull(),
 		GroupDistributionType: types.StringNull(),
 	}
 }
@@ -822,6 +830,9 @@ func NewYandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSetting
 func yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModelFillUnknown(target yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel) yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel {
 	if target.GroupAttributeName.IsUnknown() || target.GroupAttributeName.IsNull() {
 		target.GroupAttributeName = types.StringNull()
+	}
+	if target.GroupAttributeValue.IsUnknown() || target.GroupAttributeValue.IsNull() {
+		target.GroupAttributeValue = types.StringNull()
 	}
 	if target.GroupDistributionType.IsUnknown() || target.GroupDistributionType.IsNull() {
 		target.GroupDistributionType = types.StringNull()
@@ -832,6 +843,7 @@ func yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsMo
 var yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"group_attribute_name":    types.StringType,
+		"group_attribute_value":   types.StringType,
 		"group_distribution_type": types.StringType,
 	},
 }
@@ -844,6 +856,7 @@ func flattenYandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSet
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModelType.AttrTypes, yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel{
 		GroupAttributeName:    types.StringValue(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettings.GetGroupAttributeName()),
+		GroupAttributeValue:   types.StringValue(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettings.GetGroupAttributeValue().String()),
 		GroupDistributionType: types.StringValue(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettings.GetGroupDistributionType().String()),
 	})
 	diags.Append(diag...)
@@ -865,6 +878,7 @@ func expandYandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSett
 func expandYandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel(ctx context.Context, yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsModel, diags *diag.Diagnostics) *saml.GroupClaimsSettings {
 	value := &saml.GroupClaimsSettings{}
 	value.SetGroupAttributeName(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupAttributeName.ValueString())
+	value.SetGroupAttributeValue(saml.GroupAttributeValue(saml.GroupAttributeValue_value[yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupAttributeValue.ValueString()]))
 	value.SetGroupDistributionType(saml.GroupDistributionType(saml.GroupDistributionType_value[yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupDistributionType.ValueString()]))
 	if diags.HasError() {
 		return nil

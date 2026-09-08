@@ -98,6 +98,7 @@ func (r *yandexDatacatalogCatalogDataSource) Read(ctx context.Context, req datas
 				"Error while requesting API to get catalog:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read catalog response: %s", validate.ProtoDump(res)))

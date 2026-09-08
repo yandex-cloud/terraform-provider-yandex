@@ -270,7 +270,7 @@ func YandexSwsMatchListResourceSchema(ctx context.Context) schema.Schema {
 								stringplanmodifier.UseStateForUnknown(),
 							},
 							Validators: []validator.String{
-								stringvalidator.LengthBetween(0, 256),
+								stringvalidator.LengthBetween(1, 256),
 							},
 						},
 					},

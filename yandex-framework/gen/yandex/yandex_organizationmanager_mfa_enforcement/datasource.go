@@ -98,6 +98,7 @@ func (r *yandexOrganizationmanagerMfaEnforcementDataSource) Read(ctx context.Con
 				"Error while requesting API to get mfa_enforcement:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read mfa_enforcement response: %s", validate.ProtoDump(res)))

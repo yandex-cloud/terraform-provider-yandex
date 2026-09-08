@@ -564,6 +564,9 @@ func (r *yandexSwsDomainResource) Update(ctx context.Context, req resource.Updat
 		if !yandexSwsDomainSolidWafSettingsPlan.SolidWafProfileId.IsUnknown() && !yandexSwsDomainSolidWafSettingsPlan.SolidWafProfileId.Equal(yandexSwsDomainSolidWafSettingsState.SolidWafProfileId) {
 			updatePaths = append(updatePaths, "solid_waf_settings.solid_waf_profile_id")
 		}
+		if !yandexSwsDomainSolidWafSettingsPlan.WebAppId.IsUnknown() && !yandexSwsDomainSolidWafSettingsPlan.WebAppId.Equal(yandexSwsDomainSolidWafSettingsState.WebAppId) {
+			updatePaths = append(updatePaths, "solid_waf_settings.web_app_id")
+		}
 	}
 
 	if (plan.TlsListener.IsNull() || state.TlsListener.IsNull()) &&

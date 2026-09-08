@@ -1002,6 +1002,7 @@ func expandYandexSwsDomainRateLimitModel(ctx context.Context, yandexSwsDomainRat
 type yandexSwsDomainSolidWafSettingsModel struct {
 	SessionAffinity   types.Object `tfsdk:"session_affinity"`
 	SolidWafProfileId types.String `tfsdk:"solid_waf_profile_id"`
+	WebAppId          types.String `tfsdk:"web_app_id"`
 }
 
 func (m *yandexSwsDomainSolidWafSettingsModel) GetSessionAffinity() types.Object {
@@ -1010,6 +1011,9 @@ func (m *yandexSwsDomainSolidWafSettingsModel) GetSessionAffinity() types.Object
 func (m *yandexSwsDomainSolidWafSettingsModel) GetSolidWafProfileId() types.String {
 	return m.SolidWafProfileId
 }
+func (m *yandexSwsDomainSolidWafSettingsModel) GetWebAppId() types.String {
+	return m.WebAppId
+}
 
 func (m *yandexSwsDomainSolidWafSettingsModel) SetSessionAffinity(target types.Object) {
 	m.SessionAffinity = target
@@ -1017,11 +1021,15 @@ func (m *yandexSwsDomainSolidWafSettingsModel) SetSessionAffinity(target types.O
 func (m *yandexSwsDomainSolidWafSettingsModel) SetSolidWafProfileId(target types.String) {
 	m.SolidWafProfileId = target
 }
+func (m *yandexSwsDomainSolidWafSettingsModel) SetWebAppId(target types.String) {
+	m.WebAppId = target
+}
 
 func NewYandexSwsDomainSolidWafSettingsModel() yandexSwsDomainSolidWafSettingsModel {
 	return yandexSwsDomainSolidWafSettingsModel{
 		SessionAffinity:   types.ObjectNull(yandexSwsDomainSolidWafSettingsSessionAffinityModelType.AttrTypes),
 		SolidWafProfileId: types.StringNull(),
+		WebAppId:          types.StringNull(),
 	}
 }
 
@@ -1032,6 +1040,9 @@ func yandexSwsDomainSolidWafSettingsModelFillUnknown(target yandexSwsDomainSolid
 	if target.SolidWafProfileId.IsUnknown() || target.SolidWafProfileId.IsNull() {
 		target.SolidWafProfileId = types.StringNull()
 	}
+	if target.WebAppId.IsUnknown() || target.WebAppId.IsNull() {
+		target.WebAppId = types.StringNull()
+	}
 	return target
 }
 
@@ -1039,6 +1050,7 @@ var yandexSwsDomainSolidWafSettingsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"session_affinity":     yandexSwsDomainSolidWafSettingsSessionAffinityModelType,
 		"solid_waf_profile_id": types.StringType,
+		"web_app_id":           types.StringType,
 	},
 }
 
@@ -1052,6 +1064,7 @@ func flattenYandexSwsDomainSolidWafSettings(ctx context.Context,
 	value, diag := types.ObjectValueFrom(ctx, yandexSwsDomainSolidWafSettingsModelType.AttrTypes, yandexSwsDomainSolidWafSettingsModel{
 		SessionAffinity:   flattenYandexSwsDomainSolidWafSettingsSessionAffinity(ctx, yandexSwsDomainSolidWafSettings.GetSessionAffinity(), converter.ExpandObject(ctx, state.SessionAffinity, yandexSwsDomainSolidWafSettingsSessionAffinityModel{}, diags).(yandexSwsDomainSolidWafSettingsSessionAffinityModel), diags),
 		SolidWafProfileId: types.StringValue(yandexSwsDomainSolidWafSettings.GetSolidWafProfileId()),
+		WebAppId:          types.StringValue(yandexSwsDomainSolidWafSettings.GetWebAppId()),
 	})
 	diags.Append(diag...)
 	return value
@@ -1073,6 +1086,7 @@ func expandYandexSwsDomainSolidWafSettingsModel(ctx context.Context, yandexSwsDo
 	value := &load_balancer.SolidWafSettings{}
 	value.SetSessionAffinity(expandYandexSwsDomainSolidWafSettingsSessionAffinity(ctx, yandexSwsDomainSolidWafSettingsState.SessionAffinity, diags))
 	value.SetSolidWafProfileId(yandexSwsDomainSolidWafSettingsState.SolidWafProfileId.ValueString())
+	value.SetWebAppId(yandexSwsDomainSolidWafSettingsState.WebAppId.ValueString())
 	if diags.HasError() {
 		return nil
 	}

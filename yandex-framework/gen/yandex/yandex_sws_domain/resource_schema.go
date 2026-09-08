@@ -879,6 +879,23 @@ func YandexSwsDomainResourceSchema(ctx context.Context) schema.Schema {
 							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
+
+					"web_app_id": schema.StringAttribute{
+						MarkdownDescription: "ID of the Solid WAF web app.",
+						Description: "ID of the Solid WAF web app." +
+							// proto paths: +
+							// -> yandex.cloud.smartwebsecurity.v1.load_balancer.CreateDomainRequest.solid_waf_settings -> yandex.cloud.smartwebsecurity.v1.load_balancer.SolidWafSettings.web_app_id
+							// -> yandex.cloud.smartwebsecurity.v1.load_balancer.Domain.solid_waf_settings -> yandex.cloud.smartwebsecurity.v1.load_balancer.SolidWafSettings.web_app_id
+							// -> yandex.cloud.smartwebsecurity.v1.load_balancer.UpdateDomainRequest.solid_waf_settings -> yandex.cloud.smartwebsecurity.v1.load_balancer.SolidWafSettings.web_app_id
+							"package: yandex.cloud.smartwebsecurity.v1.load_balancer\n" +
+							"filename: yandex/cloud/smartwebsecurity/v1/load_balancer/load_balancer.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
+					},
 				},
 				MarkdownDescription: "Optional Solid WAF settings.",
 				Description: "Optional Solid WAF settings." +

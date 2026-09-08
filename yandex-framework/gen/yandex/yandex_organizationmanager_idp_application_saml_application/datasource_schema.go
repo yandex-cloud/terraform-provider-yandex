@@ -165,6 +165,16 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationDatasourceSchema(ctx 
 						Computed: true,
 					},
 
+					"group_attribute_value": schema.StringAttribute{
+						MarkdownDescription: "Source of the group value provided to the application.",
+						Description: "Source of the group value provided to the application." +
+							// proto paths: +
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_value
+							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
+							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
+						Computed: true,
+					},
+
 					"group_distribution_type": schema.StringAttribute{
 						MarkdownDescription: "Distribution type for group claims.",
 						Description: "Distribution type for group claims." +

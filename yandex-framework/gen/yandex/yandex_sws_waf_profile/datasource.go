@@ -116,6 +116,7 @@ func (r *yandexSwsWafProfileDataSource) Read(ctx context.Context, req datasource
 				"Error while requesting API to get waf_profile:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read waf_profile response: %s", validate.ProtoDump(res)))

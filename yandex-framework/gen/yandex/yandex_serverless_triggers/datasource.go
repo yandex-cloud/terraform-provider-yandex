@@ -98,6 +98,7 @@ func (r *yandexServerlessTriggersDataSource) Read(ctx context.Context, req datas
 				"Error while requesting API to get trigger:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read trigger response: %s", validate.ProtoDump(res)))

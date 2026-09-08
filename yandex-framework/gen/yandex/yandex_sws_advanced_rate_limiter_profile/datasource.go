@@ -116,6 +116,7 @@ func (r *yandexSwsAdvancedRateLimiterProfileDataSource) Read(ctx context.Context
 				"Error while requesting API to get advanced_rate_limiter_profile:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read advanced_rate_limiter_profile response: %s", validate.ProtoDump(res)))

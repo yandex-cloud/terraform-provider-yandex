@@ -116,6 +116,7 @@ func (r *yandexSwsMatchListDataSource) Read(ctx context.Context, req datasource.
 				"Error while requesting API to get match_list:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read match_list response: %s", validate.ProtoDump(res)))

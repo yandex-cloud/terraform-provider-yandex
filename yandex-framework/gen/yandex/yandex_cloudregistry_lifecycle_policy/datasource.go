@@ -98,6 +98,7 @@ func (r *yandexCloudregistryLifecyclePolicyDataSource) Read(ctx context.Context,
 				"Error while requesting API to get lifecycle_policy:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read lifecycle_policy response: %s", validate.ProtoDump(res)))

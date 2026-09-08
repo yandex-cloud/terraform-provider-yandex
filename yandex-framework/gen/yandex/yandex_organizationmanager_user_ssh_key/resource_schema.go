@@ -46,7 +46,7 @@ func YandexOrganizationmanagerUserSshKeyResourceSchema(ctx context.Context) sche
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 20000),
+					stringvalidator.LengthBetween(1, 20000),
 				},
 			},
 
@@ -112,7 +112,7 @@ func YandexOrganizationmanagerUserSshKeyResourceSchema(ctx context.Context) sche
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 
@@ -131,7 +131,7 @@ func YandexOrganizationmanagerUserSshKeyResourceSchema(ctx context.Context) sche
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 
