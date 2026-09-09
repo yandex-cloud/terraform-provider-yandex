@@ -33,7 +33,7 @@ func (r SPQRHostService) GetChanges(plan Host, state Host) (*spqr.UpdateHostSpec
 	if !r.PartialMatch(plan, state) {
 		diags.AddError(
 			"Wrong changes for host",
-			"Attributes shard_name, zone, subnet_id can't be changed. Try to replace this host to new one",
+			"Attributes type, zone, subnet_id can't be changed. Try to replace this host to new one",
 		)
 		return nil, diags
 	}
