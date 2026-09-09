@@ -195,7 +195,14 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 			Branch:  gitSyncValue.Branch.ValueString(),
 			SubPath: gitSyncValue.SubPath.ValueString(),
 		}
-		gitSyncConfig.SetSshKey(gitSyncValue.SshKey.ValueString())
+		if !gitSyncValue.SshKey.IsNull() && gitSyncValue.SshKey.ValueString() != "" {
+			gitSyncConfig.SetSshKey(gitSyncValue.SshKey.ValueString())
+		} else {
+			gitSyncConfig.SetUsernameAndPassword(&airflow.GitSyncUsernameAndPassword{
+				Username: gitSyncValue.Username.ValueString(),
+				Password: gitSyncValue.Password.ValueString(),
+			})
+		}
 		codeSyncConfig = &airflow.CodeSyncConfig{
 			Source: &airflow.CodeSyncConfig_GitSync{
 				GitSync: gitSyncConfig,

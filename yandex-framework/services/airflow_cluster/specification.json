@@ -199,9 +199,31 @@
                       {
                         "name": "ssh_key",
                         "string": {
-                          "computed_optional_required": "required",
-                          "description": "The SSH key that is used to access the Git repository.",
+                          "computed_optional_required": "optional",
+                          "description": "The SSH key that is used to access the Git repository. Exactly one of `ssh_key` or `username`/`password` should be specified.",
                           "sensitive": true
+                        }
+                      },
+                      {
+                        "name": "username",
+                        "string": {
+                          "computed_optional_required": "optional",
+                          "description": "Username for repository authentication. For GitLab access tokens use `oauth2`. Exactly one of `ssh_key` or `username`/`password` should be specified."
+                        }
+                      },
+                      {
+                        "name": "password",
+                        "string": {
+                          "computed_optional_required": "optional",
+                          "description": "Password or access token for repository authentication. Exactly one of `ssh_key` or `username`/`password` should be specified.",
+                          "sensitive": true
+                        }
+                      }
+                    ],
+                    "validators": [
+                      {
+                        "custom": {
+                          "schema_definition": "gitSyncValidator()"
                         }
                       }
                     ]

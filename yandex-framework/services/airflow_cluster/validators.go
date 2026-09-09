@@ -198,3 +198,66 @@ func (c *codeSyncStructValidator) Description(_ context.Context) string {
 func (c *codeSyncStructValidator) MarkdownDescription(_ context.Context) string {
 	return "code_sync configuration must contains one of 's3' or 'git_sync' and only one of them"
 }
+
+type gitSyncStructValidator struct{}
+
+func gitSyncValidator() validator.Object { return &gitSyncStructValidator{} }
+
+func stringConfigured(v types.String) bool {
+	return !v.IsNull() && !v.IsUnknown() && v.ValueString() != ""
+}
+
+func (g *gitSyncStructValidator) ValidateObject(ctx context.Context, request validator.ObjectRequest, response *validator.ObjectResponse) {
+	if request.ConfigValue.IsNull() || request.ConfigValue.IsUnknown() {
+		return
+	}
+
+	var gitSyncValue GitSyncValue
+	response.Diagnostics.Append(request.Config.GetAttribute(ctx, request.Path, &gitSyncValue)...)
+	if response.Diagnostics.HasError() {
+		return
+	}
+
+	if gitSyncValue.SshKey.IsUnknown() || gitSyncValue.Username.IsUnknown() || gitSyncValue.Password.IsUnknown() {
+		return
+	}
+
+	hasSSHKey := stringConfigured(gitSyncValue.SshKey)
+	hasUsername := stringConfigured(gitSyncValue.Username)
+	hasPassword := stringConfigured(gitSyncValue.Password)
+	hasUserPass := hasUsername && hasPassword
+
+	if hasUsername != hasPassword {
+		response.Diagnostics.AddAttributeError(
+			request.Path,
+			"Invalid git_sync configuration",
+			"The git_sync configuration requires both 'username' and 'password' when using username/password authentication.",
+		)
+		return
+	}
+
+	if hasSSHKey && hasUserPass {
+		response.Diagnostics.AddAttributeError(
+			request.Path,
+			"Invalid git_sync configuration",
+			"The git_sync configuration requires exactly one of 'ssh_key' or 'username'/'password'.",
+		)
+		return
+	}
+
+	if !hasSSHKey && !hasUserPass {
+		response.Diagnostics.AddAttributeError(
+			request.Path,
+			"Invalid git_sync configuration",
+			"The git_sync configuration requires exactly one of 'ssh_key' or 'username'/'password'.",
+		)
+	}
+}
+
+func (g *gitSyncStructValidator) Description(_ context.Context) string {
+	return "git_sync configuration must contain exactly one of 'ssh_key' or 'username'/'password'"
+}
+
+func (g *gitSyncStructValidator) MarkdownDescription(_ context.Context) string {
+	return "git_sync configuration must contain exactly one of `ssh_key` or `username`/`password`"
+}

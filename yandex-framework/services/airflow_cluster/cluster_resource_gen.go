@@ -63,21 +63,32 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 								Description:         "The name of the branch that stores DAG files used in the cluster.",
 								MarkdownDescription: "The name of the branch that stores DAG files used in the cluster.",
 							},
+							"password": schema.StringAttribute{
+								Optional:            true,
+								Sensitive:           true,
+								Description:         "Password or access token for repository authentication. Exactly one of `ssh_key` or `username`/`password` should be specified.",
+								MarkdownDescription: "Password or access token for repository authentication. Exactly one of `ssh_key` or `username`/`password` should be specified.",
+							},
 							"repo": schema.StringAttribute{
 								Required:            true,
 								Description:         "The URL of the Git repository that stores DAG files used in the cluster.",
 								MarkdownDescription: "The URL of the Git repository that stores DAG files used in the cluster.",
 							},
 							"ssh_key": schema.StringAttribute{
-								Required:            true,
+								Optional:            true,
 								Sensitive:           true,
-								Description:         "The SSH key that is used to access the Git repository.",
-								MarkdownDescription: "The SSH key that is used to access the Git repository.",
+								Description:         "The SSH key that is used to access the Git repository. Exactly one of `ssh_key` or `username`/`password` should be specified.",
+								MarkdownDescription: "The SSH key that is used to access the Git repository. Exactly one of `ssh_key` or `username`/`password` should be specified.",
 							},
 							"sub_path": schema.StringAttribute{
 								Required:            true,
 								Description:         "The path to the directory in the repository that stores DAG files used in the cluster.",
 								MarkdownDescription: "The path to the directory in the repository that stores DAG files used in the cluster.",
+							},
+							"username": schema.StringAttribute{
+								Optional:            true,
+								Description:         "Username for repository authentication. For GitLab access tokens use `oauth2`. Exactly one of `ssh_key` or `username`/`password` should be specified.",
+								MarkdownDescription: "Username for repository authentication. For GitLab access tokens use `oauth2`. Exactly one of `ssh_key` or `username`/`password` should be specified.",
 							},
 						},
 						CustomType: GitSyncType{
@@ -88,6 +99,9 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Git repository that stores DAG files used in the cluster.",
 						MarkdownDescription: "Git repository that stores DAG files used in the cluster.",
+						Validators: []validator.Object{
+							gitSyncValidator(),
+						},
 					},
 					"s3": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -964,6 +978,24 @@ func (t GitSyncType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`branch expected to be basetypes.StringValue, was: %T`, branchAttribute))
 	}
 
+	passwordAttribute, ok := attributes["password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`password is missing from object`)
+
+		return nil, diags
+	}
+
+	passwordVal, ok := passwordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`password expected to be basetypes.StringValue, was: %T`, passwordAttribute))
+	}
+
 	repoAttribute, ok := attributes["repo"]
 
 	if !ok {
@@ -1018,16 +1050,36 @@ func (t GitSyncType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`sub_path expected to be basetypes.StringValue, was: %T`, subPathAttribute))
 	}
 
+	usernameAttribute, ok := attributes["username"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`username is missing from object`)
+
+		return nil, diags
+	}
+
+	usernameVal, ok := usernameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`username expected to be basetypes.StringValue, was: %T`, usernameAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return GitSyncValue{
-		Branch:  branchVal,
-		Repo:    repoVal,
-		SshKey:  sshKeyVal,
-		SubPath: subPathVal,
-		state:   attr.ValueStateKnown,
+		Branch:   branchVal,
+		Password: passwordVal,
+		Repo:     repoVal,
+		SshKey:   sshKeyVal,
+		SubPath:  subPathVal,
+		Username: usernameVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1112,6 +1164,24 @@ func NewGitSyncValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`branch expected to be basetypes.StringValue, was: %T`, branchAttribute))
 	}
 
+	passwordAttribute, ok := attributes["password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`password is missing from object`)
+
+		return NewGitSyncValueUnknown(), diags
+	}
+
+	passwordVal, ok := passwordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`password expected to be basetypes.StringValue, was: %T`, passwordAttribute))
+	}
+
 	repoAttribute, ok := attributes["repo"]
 
 	if !ok {
@@ -1166,16 +1236,36 @@ func NewGitSyncValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`sub_path expected to be basetypes.StringValue, was: %T`, subPathAttribute))
 	}
 
+	usernameAttribute, ok := attributes["username"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`username is missing from object`)
+
+		return NewGitSyncValueUnknown(), diags
+	}
+
+	usernameVal, ok := usernameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`username expected to be basetypes.StringValue, was: %T`, usernameAttribute))
+	}
+
 	if diags.HasError() {
 		return NewGitSyncValueUnknown(), diags
 	}
 
 	return GitSyncValue{
-		Branch:  branchVal,
-		Repo:    repoVal,
-		SshKey:  sshKeyVal,
-		SubPath: subPathVal,
-		state:   attr.ValueStateKnown,
+		Branch:   branchVal,
+		Password: passwordVal,
+		Repo:     repoVal,
+		SshKey:   sshKeyVal,
+		SubPath:  subPathVal,
+		Username: usernameVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1247,29 +1337,33 @@ func (t GitSyncType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = GitSyncValue{}
 
 type GitSyncValue struct {
-	Branch  basetypes.StringValue `tfsdk:"branch"`
-	Repo    basetypes.StringValue `tfsdk:"repo"`
-	SshKey  basetypes.StringValue `tfsdk:"ssh_key"`
-	SubPath basetypes.StringValue `tfsdk:"sub_path"`
-	state   attr.ValueState
+	Branch   basetypes.StringValue `tfsdk:"branch"`
+	Password basetypes.StringValue `tfsdk:"password"`
+	Repo     basetypes.StringValue `tfsdk:"repo"`
+	SshKey   basetypes.StringValue `tfsdk:"ssh_key"`
+	SubPath  basetypes.StringValue `tfsdk:"sub_path"`
+	Username basetypes.StringValue `tfsdk:"username"`
+	state    attr.ValueState
 }
 
 func (v GitSyncValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["branch"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["repo"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ssh_key"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sub_path"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["username"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.Branch.ToTerraformValue(ctx)
 
@@ -1278,6 +1372,14 @@ func (v GitSyncValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["branch"] = val
+
+		val, err = v.Password.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["password"] = val
 
 		val, err = v.Repo.ToTerraformValue(ctx)
 
@@ -1302,6 +1404,14 @@ func (v GitSyncValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["sub_path"] = val
+
+		val, err = v.Username.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["username"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -1334,9 +1444,11 @@ func (v GitSyncValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 
 	attributeTypes := map[string]attr.Type{
 		"branch":   basetypes.StringType{},
+		"password": basetypes.StringType{},
 		"repo":     basetypes.StringType{},
 		"ssh_key":  basetypes.StringType{},
 		"sub_path": basetypes.StringType{},
+		"username": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -1351,9 +1463,11 @@ func (v GitSyncValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		attributeTypes,
 		map[string]attr.Value{
 			"branch":   v.Branch,
+			"password": v.Password,
 			"repo":     v.Repo,
 			"ssh_key":  v.SshKey,
 			"sub_path": v.SubPath,
+			"username": v.Username,
 		})
 
 	return objVal, diags
@@ -1378,6 +1492,10 @@ func (v GitSyncValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Password.Equal(other.Password) {
+		return false
+	}
+
 	if !v.Repo.Equal(other.Repo) {
 		return false
 	}
@@ -1387,6 +1505,10 @@ func (v GitSyncValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.SubPath.Equal(other.SubPath) {
+		return false
+	}
+
+	if !v.Username.Equal(other.Username) {
 		return false
 	}
 
@@ -1404,9 +1526,11 @@ func (v GitSyncValue) Type(ctx context.Context) attr.Type {
 func (v GitSyncValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"branch":   basetypes.StringType{},
+		"password": basetypes.StringType{},
 		"repo":     basetypes.StringType{},
 		"ssh_key":  basetypes.StringType{},
 		"sub_path": basetypes.StringType{},
+		"username": basetypes.StringType{},
 	}
 }
 
