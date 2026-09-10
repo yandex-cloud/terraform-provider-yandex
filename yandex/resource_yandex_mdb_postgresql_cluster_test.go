@@ -1316,6 +1316,34 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 			sharedPreloadLibraries:      sharedPreloadLibraries,
 			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
 		}, nil
+	case "19":
+		userConfig := cluster.Config.GetPostgresqlConfig_19().UserConfig
+		sharedPreloadLibraries := []int32{}
+		for _, v := range userConfig.SharedPreloadLibraries {
+			sharedPreloadLibraries = append(sharedPreloadLibraries, int32(v.Number()))
+		}
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+			sharedPreloadLibraries:      sharedPreloadLibraries,
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
+		}, nil
+	case "19-1c":
+		userConfig := cluster.Config.GetPostgresqlConfig_19_1C().UserConfig
+		sharedPreloadLibraries := []int32{}
+		for _, v := range userConfig.SharedPreloadLibraries {
+			sharedPreloadLibraries = append(sharedPreloadLibraries, int32(v.Number()))
+		}
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+			sharedPreloadLibraries:      sharedPreloadLibraries,
+			synchronousCommit:           int32(userConfig.SynchronousCommit.Number()),
+		}, nil
 	}
 	return nil, fmt.Errorf("Add PostgreSQL %s settings to tests", version)
 }
