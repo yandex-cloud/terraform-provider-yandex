@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: allow statements_sampling_interval values from 1 to 86400 seconds in yandex_mdb_postgresql_cluster_v2, matching the API and yandex_mdb_postgresql_cluster resource'
+time: 2026-09-11T17:53:44.644501+03:00

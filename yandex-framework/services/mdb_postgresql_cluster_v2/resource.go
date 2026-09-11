@@ -350,10 +350,10 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 								},
 							},
 							"statements_sampling_interval": schema.Int64Attribute{
-								Description: "Interval (in seconds) for pg_stat_statements sampling. Acceptable values are 60 to 86400, inclusive.",
+								Description: "Interval (in seconds) for pg_stat_statements sampling. Acceptable values are 1 to 86400, inclusive.",
 								Required:    true,
 								Validators: []validator.Int64{
-									int64validator.Between(60, 86400),
+									int64validator.Between(1, 86400),
 								},
 							},
 						},
