@@ -894,6 +894,9 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.default_user_settings.max_threads", "8"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.default_user_settings.max_memory_usage", "1000000000"),
 
+					resource.TestCheckResourceAttr(chResource, "connection_manager.connections_folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "connection_manager.secrets_folder_id", folderID),
+
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.log_level", "TRACE"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.max_connections", "512"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.max_concurrent_queries", "100"),
@@ -1962,6 +1965,11 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
+  connection_manager = {
+    connections_folder_id = "%s"
+    secrets_folder_id     = "%s"
+  }
+
   # sql management
   %s
 
@@ -2043,6 +2051,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 }
 `,
 		name,
+		test.GetExampleFolderID(),
+		test.GetExampleFolderID(),
 		sqlManagement,
 		chVersion,
 		buildClickhouseConfigHCL(config),

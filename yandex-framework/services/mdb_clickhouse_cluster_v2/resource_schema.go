@@ -138,6 +138,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 					customplanmodifiers.RequiresReplaceOnDisable(),
 				},
 			},
+			"connection_manager": mdbcommon.ClusterConnectionManagerFrameworkSchema(),
 			"sql_database_management": schema.BoolAttribute{
 				Description: "Grants `admin` user database management permission. Can be enabled in-place, disabling requires the cluster to be recreated.",
 				Optional:    true,

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	datasourceschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -59,6 +60,29 @@ func ClusterConnectionManagerFrameworkSchema() schema.SingleNestedAttribute {
 			"secrets_folder_id": schema.StringAttribute{
 				Description: "ID of the folder where connection secrets are created. Defaults to the cluster's folder if not specified.",
 				Optional:    true,
+			},
+		},
+	}
+}
+
+// ClusterConnectionManagerFrameworkDataSourceSchema returns the schema for the
+// connection_manager block in a datasource (all fields Computed).
+func ClusterConnectionManagerFrameworkDataSourceSchema() datasourceschema.SingleNestedAttribute {
+	return datasourceschema.SingleNestedAttribute{
+		MarkdownDescription: "Connection Manager integration settings.",
+		Computed:            true,
+		Attributes: map[string]datasourceschema.Attribute{
+			"enabled": datasourceschema.BoolAttribute{
+				MarkdownDescription: "Indicates whether Connection Manager integration is enabled.",
+				Computed:            true,
+			},
+			"connections_folder_id": datasourceschema.StringAttribute{
+				MarkdownDescription: "ID of the folder where connections for the cluster are created.",
+				Computed:            true,
+			},
+			"secrets_folder_id": datasourceschema.StringAttribute{
+				MarkdownDescription: "ID of the folder where connection secrets are created.",
+				Computed:            true,
 			},
 		},
 	}

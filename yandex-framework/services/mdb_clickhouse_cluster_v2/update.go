@@ -225,6 +225,20 @@ func prepareClusterConfigSpec(ctx context.Context, plan, state *models.ClusterRe
 		)
 	}
 
+	if !plan.ConnectionManager.Equal(state.ConnectionManager) {
+		config.SetConnectionManager(mdbcommon.ExpandClusterConnectionManagerFramework(ctx, plan.ConnectionManager, diags))
+		if diags.HasError() {
+			return config, updateMaskPaths
+		}
+
+		cmPaths, d := mdbcommon.ClusterConnectionManagerUpdateMaskPaths(ctx, plan.ConnectionManager, state.ConnectionManager, "config_spec.connection_manager.")
+		diags.Append(d...)
+		if diags.HasError() {
+			return config, updateMaskPaths
+		}
+		updateMaskPaths = append(updateMaskPaths, cmPaths...)
+	}
+
 	if !plan.SqlDatabaseManagement.Equal(state.SqlDatabaseManagement) {
 		config.SetSqlDatabaseManagement(&wrapperspb.BoolValue{Value: plan.SqlDatabaseManagement.ValueBool()})
 		updateMaskPaths = append(updateMaskPaths, "config_spec.sql_database_management")

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 func DataSourceClusterSchema(ctx context.Context) schema.Schema {
@@ -92,6 +93,7 @@ func DataSourceClusterSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Grants `admin` user database management permission.",
 				Computed:            true,
 			},
+			"connection_manager": mdbcommon.ClusterConnectionManagerFrameworkDataSourceSchema(),
 			"embedded_keeper": schema.BoolAttribute{
 				MarkdownDescription: "Whether to use ClickHouse Keeper as a coordination system.",
 				Computed:            true,

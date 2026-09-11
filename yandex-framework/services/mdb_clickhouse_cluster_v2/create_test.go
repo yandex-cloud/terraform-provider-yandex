@@ -18,6 +18,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
+	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
@@ -62,6 +63,7 @@ var (
 			"backup_window_start":       types.ObjectNull(models.BackupWindowStartAttrTypes),
 			"access":                    types.ObjectNull(models.AccessAttrTypes),
 			"cloud_storage":             types.ObjectNull(models.CloudStorageAttrTypes),
+			"connection_manager":        types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 			"sql_database_management":   types.BoolNull(),
 			"sql_user_management":       types.BoolNull(),
 			"admin_password":            types.StringNull(),
@@ -674,6 +676,11 @@ var (
 					),
 				},
 			),
+			"connection_manager": types.ObjectValueMust(mdbcommon.ClusterConnectionManagerAttrTypes, map[string]attr.Value{
+				"enabled":               types.BoolValue(true),
+				"connections_folder_id": types.StringValue("connections-folder"),
+				"secrets_folder_id":     types.StringValue("secrets-folder"),
+			}),
 			"sql_database_management":   types.BoolValue(true),
 			"sql_user_management":       types.BoolValue(true),
 			"admin_password":            types.StringNull(),
@@ -1191,6 +1198,11 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 						DataCacheEnabled: wrapperspb.Bool(true),
 						DataCacheMaxSize: wrapperspb.Int64(32),
 						PreferNotToMerge: wrapperspb.Bool(false),
+					},
+					ConnectionManager: &mdbv1.ClusterConnectionManager{
+						Enabled:             wrapperspb.Bool(true),
+						ConnectionsFolderId: "connections-folder",
+						SecretsFolderId:     "secrets-folder",
 					},
 					SqlDatabaseManagement:  wrapperspb.Bool(true),
 					SqlUserManagement:      wrapperspb.Bool(true),

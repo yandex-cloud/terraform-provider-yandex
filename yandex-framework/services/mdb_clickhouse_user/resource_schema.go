@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 func UserSchema(ctx context.Context) schema.Schema {
@@ -85,7 +86,8 @@ func UserSchema(ctx context.Context) schema.Schema {
 				Default:             stringdefault.StaticString(defaultUserAuthMethod),
 				Validators:          UserAuthMethod_validator,
 			},
-			"connection_manager": ConnectionManagerSchema(),
+			"connection_manager":      ConnectionManagerSchema(),
+			"user_connection_manager": mdbcommon.UserConnectionManagerFrameworkSchema(),
 		},
 		Blocks: map[string]schema.Block{
 			"permission": PermissionSchema(),
@@ -134,7 +136,8 @@ func SettingsSchema() schema.SingleNestedBlock {
 
 func ConnectionManagerSchema() schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
-		MarkdownDescription: "Connection Manager connection configuration. Filled in by the server automatically.",
+		MarkdownDescription: "**Deprecated**. Please use `user_connection_manager` instead. Connection Manager connection configuration. Filled in by the server automatically.",
+		DeprecationMessage:  "The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.",
 		Attributes: map[string]schema.Attribute{
 			"connection_id": schema.StringAttribute{
 				MarkdownDescription: "ID of Connection Manager connection. Filled in by the server automatically. String.",

@@ -30,7 +30,10 @@ const (
 	yandexMDBClickHouseClusterRestoreTimeout = 48 * time.Hour
 )
 
-var _ resource.ResourceWithModifyPlan = &clusterResource{}
+var (
+	_ resource.ResourceWithModifyPlan     = &clusterResource{}
+	_ resource.ResourceWithValidateConfig = &clusterResource{}
+)
 
 type clusterResource struct {
 	providerConfig *provider_config.Config
@@ -639,6 +642,10 @@ func (r *clusterResource) ConfigValidators(ctx context.Context) []resource.Confi
 	}
 }
 
+func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	mdbcommon.ValidateClusterConnectionManagerFromConfig(ctx, req.Config, path.Root("connection_manager"), &resp.Diagnostics)
+}
+
 func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
@@ -701,6 +708,7 @@ func refreshState(ctx context.Context, prevState, state *models.ClusterResource,
 	state.AdminPassword = prevState.AdminPassword
 	state.AdminPasswordWo = types.StringNull()
 	state.AdminPasswordWoVersion = prevState.AdminPasswordWoVersion
+	state.ConnectionManager = mdbcommon.FlattenClusterConnectionManagerFramework(ctx, cluster.Config.GetConnectionManager(), diags)
 	state.SqlDatabaseManagement = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.SqlDatabaseManagement, diags)
 	state.SqlUserManagement = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.SqlUserManagement, diags)
 	state.EmbeddedKeeper = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.EmbeddedKeeper, diags)

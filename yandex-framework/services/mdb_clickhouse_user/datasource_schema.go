@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 func DataSourceUserSchema() schema.Schema {
@@ -31,7 +32,8 @@ func DataSourceUserSchema() schema.Schema {
 				MarkdownDescription: "Authentication method for the user. Possible values are `password`, `iam`. Default is `password`.",
 				Computed:            true,
 			},
-			"connection_manager": DataSourceConnectionManagerSchema(),
+			"connection_manager":      DataSourceConnectionManagerSchema(),
+			"user_connection_manager": mdbcommon.UserConnectionManagerFrameworkDataSourceSchema(),
 		},
 		Blocks: map[string]schema.Block{
 			"permission": DataSourcePermissionSchema(),
@@ -93,7 +95,8 @@ func DataSourceSettingsSchema() schema.SingleNestedBlock {
 
 func DataSourceConnectionManagerSchema() schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
-		MarkdownDescription: "Connection Manager connection configuration. Filled in by the server automatically.",
+		MarkdownDescription: "**Deprecated**. Please use `user_connection_manager` instead. Connection Manager connection configuration. Filled in by the server automatically.",
+		DeprecationMessage:  "The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.",
 		Attributes: map[string]schema.Attribute{
 			"connection_id": schema.StringAttribute{
 				MarkdownDescription: "ID of Connection Manager connection. Filled in by the server automatically. String.",
