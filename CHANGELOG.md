@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.227.0 (September 10, 2026)
+
+##### FEATURES:
+* postgresql: add pg 19 support
+* airflow: gitsync configuration support username+password authentication for airflow dags source
+
+##### ENHANCEMENTS:
+* mongodb: add write-only password attributes to `yandex_mdb_mongodb_user`
+
+
+
 ## 0.226.0 (September 7, 2026)
 
 ##### FEATURES:

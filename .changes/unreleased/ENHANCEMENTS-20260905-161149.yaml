@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mongodb: add write-only password attributes to `yandex_mdb_mongodb_user`'
-time: 2026-09-05T16:11:49.652869+03:00

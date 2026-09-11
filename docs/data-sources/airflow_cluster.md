@@ -32,8 +32,8 @@ data "yandex_airflow_cluster" "airflow_cluster_by_id" {
 - `code_sync` [Block]. Parameters of the location and access to the code that will be executed in the cluster.
   - `git_sync` [Block]. Git repository that stores DAG files used in the cluster.
     - `branch` (**Required**)(String). The name of the branch that stores DAG files used in the cluster.
-    - `repo` (**Required**)(String). The URL of the Git repository that stores DAG files used in the cluster.
     - `password` (String). Password or access token for repository authentication. Exactly one of `ssh_key` or `username`/`password` should be specified.
+    - `repo` (**Required**)(String). The URL of the Git repository that stores DAG files used in the cluster.
     - `ssh_key` (String). The SSH key that is used to access the Git repository. Exactly one of `ssh_key` or `username`/`password` should be specified.
     - `sub_path` (**Required**)(String). The path to the directory in the repository that stores DAG files used in the cluster.
     - `username` (String). Username for repository authentication. For GitLab access tokens use `oauth2`. Exactly one of `ssh_key` or `username`/`password` should be specified.
