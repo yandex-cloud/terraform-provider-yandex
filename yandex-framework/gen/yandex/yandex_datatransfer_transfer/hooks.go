@@ -30,7 +30,9 @@ const (
 	requestIDMetadataKey = "x-server-request-id"
 )
 
-func PatchIDsAfterRead(ctx context.Context, config *config.Config, resp *datatransfer.Transfer, model *yandexDatatransferTransferModel) diag.Diagnostics {
+// prior holds the state the read was made against (state on refresh, plan on
+// create/update). This hook does not need it.
+func PatchIDsAfterRead(ctx context.Context, config *config.Config, resp *datatransfer.Transfer, model *yandexDatatransferTransferModel, prior *yandexDatatransferTransferModel) diag.Diagnostics {
 	model.SourceId = types.StringValue(resp.GetSource().GetId())
 	model.TargetId = types.StringValue(resp.GetTarget().GetId())
 	if model.OnCreateActivateMode.ValueString() == "" {

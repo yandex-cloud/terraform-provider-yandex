@@ -309,6 +309,199 @@ func TestAccCloudRegistry_updateLabelValue(t *testing.T) {
 	})
 }
 
+const (
+	cloudRegistryDefaultPropertyKey   = "immutableArtifactsPolicy"
+	cloudRegistryDefaultPropertyValue = "DISABLED"
+
+	cloudRegistryResourceAddr = "yandex_cloudregistry_registry.foobar"
+)
+
+func TestAccCloudRegistry_createWithPropertyWithDefaultValue(t *testing.T) {
+
+	var registry cloudregistry.Registry
+	registryName := fmt.Sprintf("tf-test-props-create-%s", strings.ToLower(acctest.RandString(10)))
+	folderID := test.GetExampleFolderID()
+	config := testAccCloudRegistry_properties(registryName, folderID, "DOCKER", "LOCAL",
+		cloudRegistryDefaultPropertyKey, cloudRegistryDefaultPropertyValue)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckCloudRegistryDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCloudRegistryExists(cloudRegistryResourceAddr, &registry),
+					resource.TestCheckResourceAttr(cloudRegistryResourceAddr,
+						"properties."+cloudRegistryDefaultPropertyKey, cloudRegistryDefaultPropertyValue),
+					testAccCheckCloudRegistryPropertyOmittedByAPI(&registry, cloudRegistryDefaultPropertyKey),
+				),
+			},
+			{
+				Config:   config,
+				PlanOnly: true,
+			},
+			{
+				ResourceName:            cloudRegistryResourceAddr,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"properties"},
+			},
+		},
+	})
+}
+
+func TestAccCloudRegistry_addPropertyWithDefaultValue(t *testing.T) {
+
+	var registry cloudregistry.Registry
+	registryName := fmt.Sprintf("tf-test-props-add-%s", strings.ToLower(acctest.RandString(10)))
+	folderID := test.GetExampleFolderID()
+	withProperty := testAccCloudRegistry_properties(registryName, folderID, "DOCKER", "LOCAL",
+		cloudRegistryDefaultPropertyKey, cloudRegistryDefaultPropertyValue)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckCloudRegistryDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRegistry_basic(registryName, folderID, "DOCKER", "LOCAL", "my-init-value"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCloudRegistryExists(cloudRegistryResourceAddr, &registry),
+					resource.TestCheckNoResourceAttr(cloudRegistryResourceAddr,
+						"properties."+cloudRegistryDefaultPropertyKey),
+				),
+			},
+			{
+				Config: withProperty,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPtr(cloudRegistryResourceAddr, "id", &registry.Id),
+					testAccCheckCloudRegistryExists(cloudRegistryResourceAddr, &registry),
+					resource.TestCheckResourceAttr(cloudRegistryResourceAddr,
+						"properties."+cloudRegistryDefaultPropertyKey, cloudRegistryDefaultPropertyValue),
+					testAccCheckCloudRegistryPropertyOmittedByAPI(&registry, cloudRegistryDefaultPropertyKey),
+				),
+			},
+			{
+				Config:   withProperty,
+				PlanOnly: true,
+			},
+			{
+				ResourceName:            cloudRegistryResourceAddr,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"properties"},
+			},
+		},
+	})
+}
+
+func TestAccCloudRegistry_removePropertyWithDefaultValue(t *testing.T) {
+
+	var registry cloudregistry.Registry
+	registryName := fmt.Sprintf("tf-test-props-remove-%s", strings.ToLower(acctest.RandString(10)))
+	folderID := test.GetExampleFolderID()
+	emptyProperties := testAccCloudRegistry_propertiesEmpty(registryName, folderID, "DOCKER", "LOCAL")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckCloudRegistryDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRegistry_properties(registryName, folderID, "DOCKER", "LOCAL",
+					cloudRegistryDefaultPropertyKey, cloudRegistryDefaultPropertyValue),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCloudRegistryExists(cloudRegistryResourceAddr, &registry),
+					resource.TestCheckResourceAttr(cloudRegistryResourceAddr,
+						"properties."+cloudRegistryDefaultPropertyKey, cloudRegistryDefaultPropertyValue),
+				),
+			},
+			{
+				Config:   testAccCloudRegistry_basic(registryName, folderID, "DOCKER", "LOCAL", "my-init-value"),
+				PlanOnly: true,
+			},
+			{
+				Config: emptyProperties,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCloudRegistryExists(cloudRegistryResourceAddr, &registry),
+					resource.TestCheckNoResourceAttr(cloudRegistryResourceAddr,
+						"properties."+cloudRegistryDefaultPropertyKey),
+				),
+			},
+			{
+				Config:   emptyProperties,
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
+func TestAccCloudRegistry_importPropertyWithDefaultValue(t *testing.T) {
+
+	var registry cloudregistry.Registry
+	registryName := fmt.Sprintf("tf-test-props-import-%s", strings.ToLower(acctest.RandString(10)))
+	folderID := test.GetExampleFolderID()
+	config := testAccCloudRegistry_properties(registryName, folderID, "DOCKER", "LOCAL",
+		cloudRegistryDefaultPropertyKey, cloudRegistryDefaultPropertyValue)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckCloudRegistryDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCloudRegistryExists(cloudRegistryResourceAddr, &registry),
+					resource.TestCheckResourceAttr(cloudRegistryResourceAddr,
+						"properties."+cloudRegistryDefaultPropertyKey, cloudRegistryDefaultPropertyValue),
+				),
+			},
+			{
+				ResourceName:     cloudRegistryResourceAddr,
+				ImportState:      true,
+				ImportStateCheck: testAccCheckImportedCloudRegistryHasNoProperty(cloudRegistryDefaultPropertyKey),
+			},
+			{
+				Config:   config,
+				PlanOnly: true,
+			},
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCloudRegistryExists(cloudRegistryResourceAddr, &registry),
+					resource.TestCheckResourceAttr(cloudRegistryResourceAddr,
+						"properties."+cloudRegistryDefaultPropertyKey, cloudRegistryDefaultPropertyValue),
+					testAccCheckCloudRegistryPropertyOmittedByAPI(&registry, cloudRegistryDefaultPropertyKey),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckCloudRegistryPropertyOmittedByAPI(registry *cloudregistry.Registry, key string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if value, ok := registry.GetProperties()[key]; ok {
+			return fmt.Errorf("expected GetRegistry to omit property %q, but it returned %q", key, value)
+		}
+		return nil
+	}
+}
+
+func testAccCheckImportedCloudRegistryHasNoProperty(key string) resource.ImportStateCheckFunc {
+	return func(states []*terraform.InstanceState) error {
+		if len(states) != 1 {
+			return fmt.Errorf("expected exactly one imported instance, got %d", len(states))
+		}
+		if value, ok := states[0].Attributes["properties."+key]; ok {
+			return fmt.Errorf("expected imported state to carry no property %q, got %q", key, value)
+		}
+		return nil
+	}
+}
+
 func testAccCheckCloudRegistryDestroy(s *terraform.State) error {
 	config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
@@ -462,6 +655,42 @@ resource "yandex_cloudregistry_registry" "foobar" {
   }
 }
 `, name, folderID, kind, typeName, labelValue)
+}
+
+func testAccCloudRegistry_properties(name, folderID, kind, typeName, propertyKey, propertyValue string) string {
+	return fmt.Sprintf(`
+resource "yandex_cloudregistry_registry" "foobar" {
+  name      = "%s"
+  folder_id = "%s"
+  kind      = "%s"
+  type		= "%s"
+
+  labels = {
+    test-label = "my-init-value"
+  }
+
+  properties = {
+    %s = "%s"
+  }
+}
+`, name, folderID, kind, typeName, propertyKey, propertyValue)
+}
+
+func testAccCloudRegistry_propertiesEmpty(name, folderID, kind, typeName string) string {
+	return fmt.Sprintf(`
+resource "yandex_cloudregistry_registry" "foobar" {
+  name      = "%s"
+  folder_id = "%s"
+  kind      = "%s"
+  type		= "%s"
+
+  labels = {
+    test-label = "my-init-value"
+  }
+
+  properties = {}
+}
+`, name, folderID, kind, typeName)
 }
 
 func testAccCloudRegistry_updateDescription(name, folderID, kind, typeName, description string) string {

@@ -49,7 +49,9 @@ func customDomainImporter(ctx context.Context, req resource.ImportStateRequest, 
 }
 
 // setID sets the composite ID in the model based on userpool_id and domain
-func setID(ctx context.Context, providerConfig *provider_config.Config, res *idp.Domain, state *yandexOrganizationmanagerIdpUserpoolDomainModel) diag.Diagnostics {
+// prior holds the state the read was made against (state on refresh, plan on
+// create/update) and is not needed here.
+func setID(ctx context.Context, providerConfig *provider_config.Config, res *idp.Domain, state *yandexOrganizationmanagerIdpUserpoolDomainModel, prior *yandexOrganizationmanagerIdpUserpoolDomainModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	if state.UserpoolId.IsNull() || state.UserpoolId.IsUnknown() {

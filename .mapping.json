@@ -1302,6 +1302,7 @@
   "yandex-framework/gen/yandex/yandex_cloudregistry_registry/datasource_models.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_registry/datasource_models.go",
   "yandex-framework/gen/yandex/yandex_cloudregistry_registry/datasource_schema.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_registry/datasource_schema.go",
   "yandex-framework/gen/yandex/yandex_cloudregistry_registry/datasource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_registry/datasource_test.go",
+  "yandex-framework/gen/yandex/yandex_cloudregistry_registry/hooks.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_registry/hooks.go",
   "yandex-framework/gen/yandex/yandex_cloudregistry_registry/resource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_registry/resource.go",
   "yandex-framework/gen/yandex/yandex_cloudregistry_registry/resource_models.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_registry/resource_models.go",
   "yandex-framework/gen/yandex/yandex_cloudregistry_registry/resource_schema.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_registry/resource_schema.go",

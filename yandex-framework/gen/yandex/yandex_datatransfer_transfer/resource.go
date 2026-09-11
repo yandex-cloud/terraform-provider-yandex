@@ -133,7 +133,7 @@ func (r *yandexDatatransferTransferResource) Read(ctx context.Context, req resou
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(PatchIDsAfterRead(ctx, r.providerConfig, res, &yandexDatatransferTransferNewState)...)
+	resp.Diagnostics.Append(PatchIDsAfterRead(ctx, r.providerConfig, res, &yandexDatatransferTransferNewState, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -265,7 +265,7 @@ func (r *yandexDatatransferTransferResource) Create(ctx context.Context, req res
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(PatchIDsAfterRead(ctx, r.providerConfig, res, &yandexDatatransferTransferNewState)...)
+	resp.Diagnostics.Append(PatchIDsAfterRead(ctx, r.providerConfig, res, &yandexDatatransferTransferNewState, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -849,7 +849,7 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(PatchIDsAfterRead(ctx, r.providerConfig, res, &yandexDatatransferTransferNewState)...)
+	resp.Diagnostics.Append(PatchIDsAfterRead(ctx, r.providerConfig, res, &yandexDatatransferTransferNewState, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -128,7 +128,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolDomainResource) Read(ctx context.Co
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(setID(ctx, r.providerConfig, res, &yandexOrganizationmanagerIdpUserpoolDomainNewState)...)
+	resp.Diagnostics.Append(setID(ctx, r.providerConfig, res, &yandexOrganizationmanagerIdpUserpoolDomainNewState, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -246,7 +246,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolDomainResource) Create(ctx context.
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(setID(ctx, r.providerConfig, res, &yandexOrganizationmanagerIdpUserpoolDomainNewState)...)
+	resp.Diagnostics.Append(setID(ctx, r.providerConfig, res, &yandexOrganizationmanagerIdpUserpoolDomainNewState, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -127,6 +128,22 @@ func (r *yandexCloudregistryRegistryResource) Read(ctx context.Context, req reso
 		return
 	}
 
+	var yandexCloudregistryRegistryNewState yandexCloudregistryRegistryModel
+	resp.Diagnostics.Append(newState.As(ctx, &yandexCloudregistryRegistryNewState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(afterReadRegistry(ctx, r.providerConfig, res, &yandexCloudregistryRegistryNewState, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	var d diag.Diagnostics
+	newState, d = types.ObjectValueFrom(ctx, yandexCloudregistryRegistryModelType.AttrTypes, yandexCloudregistryRegistryNewState)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &newState)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -231,6 +248,22 @@ func (r *yandexCloudregistryRegistryResource) Create(ctx context.Context, req re
 	}
 
 	newState := flattenYandexCloudregistryRegistry(ctx, res, plan, plan.Timeouts, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var yandexCloudregistryRegistryNewState yandexCloudregistryRegistryModel
+	resp.Diagnostics.Append(newState.As(ctx, &yandexCloudregistryRegistryNewState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(afterReadRegistry(ctx, r.providerConfig, res, &yandexCloudregistryRegistryNewState, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	var d diag.Diagnostics
+	newState, d = types.ObjectValueFrom(ctx, yandexCloudregistryRegistryModelType.AttrTypes, yandexCloudregistryRegistryNewState)
+	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -466,6 +499,22 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 	}
 
 	newState := flattenYandexCloudregistryRegistry(ctx, res, plan, to, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var yandexCloudregistryRegistryNewState yandexCloudregistryRegistryModel
+	resp.Diagnostics.Append(newState.As(ctx, &yandexCloudregistryRegistryNewState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(afterReadRegistry(ctx, r.providerConfig, res, &yandexCloudregistryRegistryNewState, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	var d diag.Diagnostics
+	newState, d = types.ObjectValueFrom(ctx, yandexCloudregistryRegistryModelType.AttrTypes, yandexCloudregistryRegistryNewState)
+	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
