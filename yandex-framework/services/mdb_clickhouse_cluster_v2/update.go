@@ -890,7 +890,9 @@ func appendNestedConfigUpdatePaths(
 	pathPrefix string,
 ) []string {
 	for setting := range attrTypes {
-		if !planAttrs[setting].Equal(stateAttrs[setting]) {
+		planVal := planAttrs[setting]
+		stateVal := stateAttrs[setting]
+		if planVal != nil && !planVal.IsUnknown() && !planVal.Equal(stateVal) {
 			updateMaskPaths = append(
 				updateMaskPaths,
 				pathPrefix+setting,
