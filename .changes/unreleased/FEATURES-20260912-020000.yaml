@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'mdb_clickhouse: support Connection Manager folders — `connection_manager` in `yandex_mdb_clickhouse_cluster_v2` and `user_connection_manager` in `yandex_mdb_clickhouse_user`'
-time: 2026-09-12T02:00:00+03:00
