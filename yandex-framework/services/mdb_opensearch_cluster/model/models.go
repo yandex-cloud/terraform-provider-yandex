@@ -164,7 +164,7 @@ func configToState(ctx context.Context, cfg *opensearch.ClusterConfig, state *Op
 		return types.ObjectUnknown(ConfigAttrTypes), diags
 	}
 
-	access, diags := accessToObject(ctx, cfg.Access)
+	access, diags := accessToObject(ctx, cfg.Access, stateCfg)
 	if diags.HasError() {
 		return types.ObjectUnknown(ConfigAttrTypes), diags
 	}

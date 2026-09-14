@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -188,31 +189,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
-	createReq := &greenplum.CreateClusterRequest{}
-	createReq.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), r.providerConfig, &diags))
-	createReq.SetName(plan.Name.ValueString())
-	createReq.SetDescription(plan.Description.ValueString())
-	createReq.SetLabels(expandYandexMdbGreenplumClusterV2Labels(ctx, plan.Labels, &diags))
-	createReq.SetEnvironment(greenplum.Cluster_Environment(greenplum.Cluster_Environment_value[plan.Environment.ValueString()]))
-	createReq.SetConfig(expandYandexMdbGreenplumClusterV2Config(ctx, plan.Config, &diags))
-	createReq.SetMasterConfig(expandYandexMdbGreenplumClusterV2MasterConfig(ctx, plan.MasterConfig, &diags))
-	createReq.SetSegmentConfig(expandYandexMdbGreenplumClusterV2SegmentConfig(ctx, plan.SegmentConfig, &diags))
-	createReq.SetMasterHostCount(plan.MasterHostCount.ValueInt64())
-	createReq.SetSegmentInHost(plan.SegmentInHost.ValueInt64())
-	createReq.SetSegmentHostCount(plan.SegmentHostCount.ValueInt64())
-	createReq.SetUserName(plan.UserName.ValueString())
-	createReq.SetUserPassword(greenplumClusterPasswordForCreate(&plan, passwordWo))
-	createReq.SetNetworkId(plan.NetworkId.ValueString())
-	createReq.SetSecurityGroupIds(expandYandexMdbGreenplumClusterV2SecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
-	createReq.SetDeletionProtection(plan.DeletionProtection.ValueBool())
-	createReq.SetHostGroupIds(expandYandexMdbGreenplumClusterV2HostGroupIds(ctx, plan.HostGroupIds, &diags))
-	createReq.SetMaintenanceWindow(expandYandexMdbGreenplumClusterV2MaintenanceWindow(ctx, plan.MaintenanceWindow, &diags))
-	createReq.SetConfigSpec(expandYandexMdbGreenplumClusterV2ClusterConfig_create(ctx, plan.ClusterConfig, &diags))
-	createReq.SetCloudStorage(expandYandexMdbGreenplumClusterV2CloudStorage(ctx, plan.CloudStorage, &diags))
-	createReq.SetMasterHostGroupIds(expandYandexMdbGreenplumClusterV2HostGroupIds(ctx, plan.MasterHostGroupIds, &diags))
-	createReq.SetSegmentHostGroupIds(expandYandexMdbGreenplumClusterV2HostGroupIds(ctx, plan.SegmentHostGroupIds, &diags))
-	createReq.SetServiceAccountId(plan.ServiceAccountId.ValueString())
-	createReq.SetLogging(expandYandexMdbGreenplumClusterV2Logging(ctx, plan.Logging, &diags))
+	createReq, diags := prepareCreateRequest(ctx, &plan, passwordWo, r.providerConfig)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -272,6 +249,37 @@ func (r *clusterResource) createCluster(
 	plan.ID = types.StringValue(op.Metadata().ClusterId)
 }
 
+func prepareCreateRequest(ctx context.Context, plan *yandexMdbGreenplumClusterV2Model, passwordWo types.String, providerConfig *providerconfig.Config) (*greenplum.CreateClusterRequest, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	createReq := &greenplum.CreateClusterRequest{}
+	createReq.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), providerConfig, &diags))
+	createReq.SetName(plan.Name.ValueString())
+	createReq.SetDescription(plan.Description.ValueString())
+	createReq.SetLabels(expandYandexMdbGreenplumClusterV2Labels(ctx, plan.Labels, &diags))
+	createReq.SetEnvironment(greenplum.Cluster_Environment(greenplum.Cluster_Environment_value[plan.Environment.ValueString()]))
+	createReq.SetConfig(expandYandexMdbGreenplumClusterV2Config(ctx, plan.Config, &diags))
+	createReq.SetMasterConfig(expandYandexMdbGreenplumClusterV2MasterConfig(ctx, plan.MasterConfig, &diags))
+	createReq.SetSegmentConfig(expandYandexMdbGreenplumClusterV2SegmentConfig(ctx, plan.SegmentConfig, &diags))
+	createReq.SetMasterHostCount(plan.MasterHostCount.ValueInt64())
+	createReq.SetSegmentInHost(plan.SegmentInHost.ValueInt64())
+	createReq.SetSegmentHostCount(plan.SegmentHostCount.ValueInt64())
+	createReq.SetUserName(plan.UserName.ValueString())
+	createReq.SetUserPassword(greenplumClusterPasswordForCreate(plan, passwordWo))
+	createReq.SetNetworkId(plan.NetworkId.ValueString())
+	createReq.SetSecurityGroupIds(expandYandexMdbGreenplumClusterV2SecurityGroupIds(ctx, plan.SecurityGroupIds, &diags))
+	createReq.SetDeletionProtection(plan.DeletionProtection.ValueBool())
+	createReq.SetHostGroupIds(expandYandexMdbGreenplumClusterV2HostGroupIds(ctx, plan.HostGroupIds, &diags))
+	createReq.SetMaintenanceWindow(expandYandexMdbGreenplumClusterV2MaintenanceWindow(ctx, plan.MaintenanceWindow, &diags))
+	createReq.SetConfigSpec(expandYandexMdbGreenplumClusterV2ClusterConfig_create(ctx, plan.ClusterConfig, &diags))
+	createReq.SetCloudStorage(expandYandexMdbGreenplumClusterV2CloudStorage(ctx, plan.CloudStorage, &diags))
+	createReq.SetMasterHostGroupIds(expandYandexMdbGreenplumClusterV2HostGroupIds(ctx, plan.MasterHostGroupIds, &diags))
+	createReq.SetSegmentHostGroupIds(expandYandexMdbGreenplumClusterV2HostGroupIds(ctx, plan.SegmentHostGroupIds, &diags))
+	createReq.SetDiskEncryptionKeyId(mdbcommon.ExpandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags))
+	createReq.SetServiceAccountId(plan.ServiceAccountId.ValueString())
+	createReq.SetLogging(expandYandexMdbGreenplumClusterV2Logging(ctx, plan.Logging, &diags))
+	return createReq, diags
+}
+
 func prepareRestoreRequest(
 	ctx context.Context,
 	plan *yandexMdbGreenplumClusterV2Model,
@@ -325,13 +333,14 @@ func prepareRestoreRequest(
 	gpConfig := expandYandexMdbGreenplumClusterV2Config(ctx, plan.Config, &diags)
 
 	request := &greenplum.RestoreClusterRequest{
-		BackupId:    restoreConf.BackupId.ValueString(),
-		Time:        timeBackup,
-		FolderId:    folderID,
-		Name:        plan.Name.ValueString(),
-		Description: plan.Description.ValueString(),
-		Labels:      mdbcommon.ExpandLabels(ctx, plan.Labels, &diags),
-		Environment: mdbcommon.ExpandEnvironment[greenplum.Cluster_Environment](ctx, plan.Environment, &diags),
+		DiskEncryptionKeyId: mdbcommon.ExpandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags),
+		BackupId:            restoreConf.BackupId.ValueString(),
+		Time:                timeBackup,
+		FolderId:            folderID,
+		Name:                plan.Name.ValueString(),
+		Description:         plan.Description.ValueString(),
+		Labels:              mdbcommon.ExpandLabels(ctx, plan.Labels, &diags),
+		Environment:         mdbcommon.ExpandEnvironment[greenplum.Cluster_Environment](ctx, plan.Environment, &diags),
 		Config: &greenplum.GreenplumRestoreConfig{
 			BackupWindowStart: gpConfig.BackupWindowStart,
 			Access:            gpConfig.Access,
@@ -352,6 +361,11 @@ func prepareRestoreRequest(
 		MasterHostGroupIds:  expandYandexMdbGreenplumClusterV2HostGroupIds(ctx, plan.MasterHostGroupIds, &diags),
 		SegmentHostGroupIds: expandYandexMdbGreenplumClusterV2HostGroupIds(ctx, plan.SegmentHostGroupIds, &diags),
 		ServiceAccountId:    plan.GetServiceAccountId().ValueString(),
+	}
+
+	if request.DiskEncryptionKeyId == nil {
+		// Explicitly disable encryption instead of inheriting the backup key.
+		request.DiskEncryptionKeyId = wrapperspb.String("")
 	}
 
 	return request, diags
