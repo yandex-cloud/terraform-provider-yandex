@@ -81,13 +81,18 @@ func TestAccResourceMonitoringDashboard(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// creates dashboard with description
-				Config: testAccResourceMonitoringDashboard("Dashboard description"),
+				Config: testAccResourceMonitoringDashboard("Dashboard description", testAccGroupWidgetBlock),
 				Check:  checkResourceMonitoringDashboardStep("Dashboard description"),
 			},
 			{
 				// updates dashboard with description
-				Config: testAccResourceMonitoringDashboard("Dashboard description 2"),
+				Config: testAccResourceMonitoringDashboard("Dashboard description 2", testAccGroupWidgetBlock),
 				Check:  checkResourceMonitoringDashboardStep("Dashboard description 2"),
+			},
+			{
+				// updates group widget in-place
+				Config: testAccResourceMonitoringDashboard("Dashboard description 2", testAccGroupWidgetBlockUpdated),
+				Check:  checkResourceMonitoringDashboardGroupUpdatedStep(),
 			},
 		},
 	})
@@ -124,7 +129,7 @@ func checkResourceMonitoringDashboardStep(description string) resource.TestCheck
 		resource.TestCheckResourceAttr(monitoringDashboardResource, "parametrization.0.parameters.0.custom.0.values.1", "2"),
 		resource.TestCheckResourceAttr(monitoringDashboardResource, "parametrization.0.parameters.0.custom.0.values.2", "3"),
 
-		resource.TestCheckNoResourceAttr(monitoringDashboardResource, "widgets.3"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.#", "4"),
 		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.0.text.0.text", "text here"),
 		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.0.position.0.h", "1"),
 		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.0.position.0.w", "1"),
@@ -180,10 +185,138 @@ func checkResourceMonitoringDashboardStep(description string) resource.TestCheck
 		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.1.chart.0.visualization_settings.0.yaxis_settings.0.right.0.precision", "2"),
 		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.1.chart.0.visualization_settings.0.yaxis_settings.0.right.0.type", "YAXIS_TYPE_LOGARITHMIC"),
 		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.1.chart.0.visualization_settings.0.yaxis_settings.0.right.0.unit_format", "UNIT_NONE"),
+
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.title", "Group section"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.collapsed", "true"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.group_id", "test-group"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.repeat_settings.0.repeat_by.0", "host"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.#", "3"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.0.widget_id", "child-title"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.0.title.0.text", "grouped title"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.0.title.0.size", "TITLE_SIZE_XS"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.0.position.0.h", "1"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.1.widget_id", "child-chart"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.1.chart.0.chart_id", "groupchart1id"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.1.chart.0.title", "grouped chart"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.1.chart.0.queries.0.target.0.query", "{service=monitoring}"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.1.position.0.y", "1"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.2.widget_id", "child-text"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.2.text.0.text", "grouped text"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.position.0.h", "10"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.position.0.y", "10"),
 	)
 }
 
-func testAccResourceMonitoringDashboard(description string) string {
+func checkResourceMonitoringDashboardGroupUpdatedStep() resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		testAccResourceMonitoringDashboardExists(),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.title", "Group section renamed"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.group_id", "test-group"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.collapsed", "false"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.repeat_settings.#", "0"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.#", "1"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.0.widget_id", "child-chart"),
+		resource.TestCheckResourceAttr(monitoringDashboardResource, "widgets.3.group.0.widgets.0.chart.0.chart_id", "groupchart1id"),
+	)
+}
+
+const testAccGroupWidgetBlock = `
+  widgets {
+	group {
+	  group_id  = "test-group"
+	  title     = "Group section"
+	  collapsed = true
+	  repeat_settings {
+		repeat_by = ["host"]
+	  }
+	  widgets {
+		widget_id = "child-title"
+		title {
+		  text = "grouped title"
+		  size = "TITLE_SIZE_XS"
+		}
+		position {
+		  h = 1
+		  w = 1
+		  x = 0
+		  y = 0
+		}
+	  }
+	  widgets {
+		widget_id = "child-chart"
+		chart {
+		  chart_id = "groupchart1id"
+		  title    = "grouped chart"
+		  queries {
+			target {
+			  query = "{service=monitoring}"
+			}
+		  }
+		}
+		position {
+		  h = 2
+		  w = 2
+		  x = 0
+		  y = 1
+		}
+	  }
+	  widgets {
+		widget_id = "child-text"
+		text {
+		  text = "grouped text"
+		}
+		position {
+		  h = 1
+		  w = 1
+		  x = 2
+		  y = 0
+		}
+	  }
+	}
+	position {
+	  h = 10
+	  w = 10
+	  x = 0
+	  y = 10
+	}
+  }
+`
+
+const testAccGroupWidgetBlockUpdated = `
+  widgets {
+	group {
+	  group_id  = "test-group"
+	  title     = "Group section renamed"
+	  collapsed = false
+	  widgets {
+		widget_id = "child-chart"
+		chart {
+		  chart_id = "groupchart1id"
+		  title    = "grouped chart"
+		  queries {
+			target {
+			  query = "{service=monitoring}"
+			}
+		  }
+		}
+		position {
+		  h = 2
+		  w = 2
+		  x = 0
+		  y = 0
+		}
+	  }
+	}
+	position {
+	  h = 10
+	  w = 10
+	  x = 0
+	  y = 10
+	}
+  }
+`
+
+func testAccResourceMonitoringDashboard(description string, groupBlock string) string {
 	return fmt.Sprintf(`
 	resource "yandex_monitoring_dashboard" "this" {
 	  name        = "local-id-resource"
@@ -329,7 +462,8 @@ func testAccResourceMonitoringDashboard(description string) string {
 		  y = 1
 		}
 	  }
-	}`, description)
+	%s
+	}`, description, groupBlock)
 }
 
 func testAccResourceMonitoringDashboardExists() resource.TestCheckFunc {
