@@ -50,6 +50,7 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 			Version:            common.Version,
 			Tls:                common.Tls,
 			ResourceManagement: common.ResourceManagement,
+			EventListeners:     common.EventListeners,
 		},
 		Network: &trino.NetworkConfig{
 			SubnetIds:        subnetIds,
@@ -83,6 +84,7 @@ type CommonForCreateAndUpdate struct {
 
 	MaintenanceWindow  *trino.MaintenanceWindow
 	ResourceManagement *trino.ResourceManagementConfig
+	EventListeners     *trino.EventListenersConfigSpec
 }
 
 func (c *CommonForCreateAndUpdate) workerConfigForUpdate() *trino.UpdateWorkerConfig {
@@ -301,6 +303,17 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		updateMaskPaths = append(updateMaskPaths, "trino.retry_policy")
 	}
 
+	var eventListeners *trino.EventListenersConfigSpec
+	if !isNullOrUnknown(plan.EventListeners) {
+		eventListeners = &trino.EventListenersConfigSpec{}
+		if !isNullOrUnknown(plan.EventListeners.DataCatalog) {
+			eventListeners.DataCatalog = &trino.DataCatalogEventListener{}
+		}
+	}
+	if state != nil && !eventListenersValuesAreEqual(plan.EventListeners, state.EventListeners) {
+		updateMaskPaths = append(updateMaskPaths, "trino.event_listeners")
+	}
+
 	var version string
 	if !plan.Version.IsNull() && !plan.Version.IsUnknown() {
 		version = plan.Version.ValueString()
@@ -404,6 +417,7 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		RetryPolicy:        retrPolicyConfig,
 		Version:            version,
 		ResourceManagement: resourceManagementConfig,
+		EventListeners:     eventListeners,
 	}
 
 	return params, updateMaskPaths, diags
@@ -444,6 +458,9 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 			Version:            common.Version,
 			Tls:                common.Tls,
 			ResourceManagement: common.ResourceManagement,
+			EventListeners: &trino.UpdateEventListenersSpec{
+				DataCatalog: common.EventListeners.GetDataCatalog(),
+			},
 		},
 		NetworkSpec: &trino.UpdateNetworkConfigSpec{
 			SecurityGroupIds: common.SecurityGroupIds,
@@ -516,4 +533,15 @@ func tlsValuesAreEqual(a, b TlsValue) bool {
 
 func isEmptyTlsValue(t TlsValue) bool {
 	return t.IsNull() || (!t.IsUnknown() && len(t.TrustedCertificates.Elements()) == 0)
+}
+
+func eventListenersValuesAreEqual(a, b EventListenersValue) bool {
+	if a.Equal(b) {
+		return true
+	}
+	// The API may omit an empty configuration. Preserve its Terraform representation.
+	isEmpty := func(v EventListenersValue) bool {
+		return v.IsNull() || (!v.IsUnknown() && v.DataCatalog.IsNull())
+	}
+	return isEmpty(a) && isEmpty(b)
 }

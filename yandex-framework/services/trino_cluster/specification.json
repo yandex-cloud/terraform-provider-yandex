@@ -372,6 +372,22 @@
             }
           },
           {
+            "name": "event_listeners",
+            "single_nested": {
+              "computed_optional_required": "optional",
+              "description": "Event listeners configuration.",
+              "attributes": [
+                {
+                  "name": "data_catalog",
+                  "single_nested": {
+                    "computed_optional_required": "optional",
+                    "description": "Enables the Data Catalog event listener. Set to an empty object to enable it."
+                  }
+                }
+              ]
+            }
+          },
+          {
             "name": "tls",
             "single_nested": {
               "computed_optional_required": "optional",

@@ -39,6 +39,23 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				MarkdownDescription: "The resource description.",
 			},
+			"event_listeners": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"data_catalog": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{},
+						CustomType: DataCatalogType{ObjectType: types.ObjectType{
+							AttrTypes: DataCatalogValue{}.AttributeTypes(ctx),
+						}},
+						Computed:            true,
+						MarkdownDescription: "Data Catalog event listener configuration.",
+					},
+				},
+				CustomType: EventListenersType{ObjectType: types.ObjectType{
+					AttrTypes: EventListenersValue{}.AttributeTypes(ctx),
+				}},
+				Computed:            true,
+				MarkdownDescription: "Event listeners configuration.",
+			},
 			"folder_id": schema.StringAttribute{
 				Computed:            true,
 				Optional:            true,

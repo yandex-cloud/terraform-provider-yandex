@@ -15,6 +15,10 @@ resource "yandex_trino_cluster" "trino" {
   }
 
 
+  event_listeners = {
+    data_catalog = {}
+  }
+
   retry_policy = {
     additional_properties = {
       fault-tolerant-execution-max-task-split-count = 1024
