@@ -15,6 +15,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudrouter_routing_instance"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cm_certificate_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cm_certificate_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_disk_iam_binding"
@@ -197,6 +198,7 @@ func init() {
 		yandex_cloudregistry_registry_iam_binding.NewResource,
 		yandex_cloudregistry_registry_iam_member.NewResource,
 		yandex_cloudregistry_scan_policy.NewResource,
+		yandex_cloudrouter_routing_instance.NewResource,
 		yandex_compute_disk_placement_group.NewResource,
 		yandex_compute_disk_placement_group_iam_binding.NewResource,
 		yandex_compute_disk_iam_binding.NewResource,

@@ -801,6 +801,8 @@ github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.79 h1:sv6zQWoxxnNsdUTj
 github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.79/go.mod h1:PIkFYTA330BOaAKRQPY35ygegLDH/i4D44PcBwRYSWQ=
 github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.96 h1:wZ/PssB+Ejy02d0tYrOrPX49Xi9TpoCaz0nCbYpE4ww=
 github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.96/go.mod h1:6b2Gh/g5F/qtQbGp+DUDibDfC741DHcSaOc9BYFjNHQ=
+github.com/yandex-cloud/go-sdk/services/cloudrouter v0.0.95 h1:mE7bW7X1ldCGDI3OYc5g/PyPXvdhyJvfT6dsR6TRuhI=
+github.com/yandex-cloud/go-sdk/services/cloudrouter v0.0.95/go.mod h1:sz/nzz+YJ2yEwdO0Llr/Swj9JGJzcXtYDlUy3jKptN4=
 github.com/yandex-cloud/go-sdk/services/compute v1.0.101 h1:FKo0RzU6L7PtxuZ/W2e/oRaJhJ+H1W3Y6vWXnugB2eA=
 github.com/yandex-cloud/go-sdk/services/compute v1.0.101/go.mod h1:M8nkBZ8l2zZGHyl51hiXtaFpStUu55PpZE+Rz1wLR5c=
 github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.92 h1:sDuXyQXK4U6GWubFnAt1Y3zPWxDuCjevxsASYZYkuAk=

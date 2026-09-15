@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'cloudrouter: add the `yandex_cloudrouter_routing_instance` resource and data source'
+time: 2026-09-11T12:16:45+03:00

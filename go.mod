@@ -49,6 +49,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.96
 	github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.79
 	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.96
+	github.com/yandex-cloud/go-sdk/services/cloudrouter v0.0.95
 	github.com/yandex-cloud/go-sdk/services/compute v1.0.101
 	github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.92
 	github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.96
