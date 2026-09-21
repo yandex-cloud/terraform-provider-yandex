@@ -95,6 +95,11 @@ func prepareClusterUpdateRequest(ctx context.Context, state, plan *models.Cluste
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "security_group_ids")
 	}
 
+	if !plan.ServiceAccountId.Equal(state.ServiceAccountId) {
+		request.SetServiceAccountId(plan.ServiceAccountId.ValueString())
+		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "service_account_id")
+	}
+
 	if !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) {
 		request.SetMaintenanceWindow(mdbcommon.ExpandClusterMaintenanceWindow[
 			clickhouse.MaintenanceWindow,

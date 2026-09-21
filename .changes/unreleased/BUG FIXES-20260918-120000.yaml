@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mdb_clickhouse: update `service_account_id` in `yandex_mdb_clickhouse_cluster_v2`'
+time: 2026-09-18T12:00:00+01:00

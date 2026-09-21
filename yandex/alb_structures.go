@@ -1693,6 +1693,10 @@ func expandHealthCheck(d *schema.ResourceData, key string) *apploadbalancer.Heal
 		}
 	}
 
+	if _, ok := d.GetOk(key + "tls"); ok {
+		healthCheck.SetTls(expandALBHealthCheckTls(d, key))
+	}
+
 	if val, ok := d.GetOk(key + "healthy_threshold"); ok {
 		healthCheck.SetHealthyThreshold(int64(val.(int)))
 	}
@@ -1793,6 +1797,48 @@ func expandALBTls(d *schema.ResourceData, key string) *apploadbalancer.BackendTl
 				}
 			}
 			tls.SetValidationContext(context)
+		}
+		if _, ok := d.GetOk(tlsKey + "client_certificate"); ok {
+			clientCert := &apploadbalancer.ClientCertificateOptions{}
+			for _, certKey := range IterateKeys(d, tlsKey+"client_certificate") {
+				if val, ok := d.GetOk(certKey + "certificate_id"); ok {
+					clientCert.SetCertificateId(val.(string))
+				}
+			}
+			tls.SetClientCertificate(clientCert)
+		}
+	}
+	return tls
+}
+
+func expandALBHealthCheckTls(d *schema.ResourceData, key string) *apploadbalancer.SecureTransportSettings {
+	tls := &apploadbalancer.SecureTransportSettings{}
+	// there will be only one tls
+	for _, tlsKey := range IterateKeys(d, key+"tls") {
+		if val, ok := d.GetOk(tlsKey + "sni"); ok {
+			tls.SetSni(val.(string))
+		}
+		if _, ok := d.GetOk(tlsKey + "validation_context"); ok {
+			context := &apploadbalancer.ValidationContext{}
+			// there will be only one validation context
+			for _, contextKey := range IterateKeys(d, tlsKey+"validation_context") {
+				if val, ok := d.GetOk(contextKey + "trusted_ca_bytes"); ok {
+					context.SetTrustedCaBytes(val.(string))
+				}
+				if val, ok := d.GetOk(contextKey + "trusted_ca_id"); ok {
+					context.SetTrustedCaId(val.(string))
+				}
+			}
+			tls.SetValidationContext(context)
+		}
+		if _, ok := d.GetOk(tlsKey + "client_certificate"); ok {
+			clientCert := &apploadbalancer.ClientCertificateOptions{}
+			for _, certKey := range IterateKeys(d, tlsKey+"client_certificate") {
+				if val, ok := d.GetOk(certKey + "certificate_id"); ok {
+					clientCert.SetCertificateId(val.(string))
+				}
+			}
+			tls.SetClientCertificate(clientCert)
 		}
 	}
 	return tls
@@ -2586,10 +2632,32 @@ func flattenALBBackendTLS(tls *apploadbalancer.BackendTls) []map[string]interfac
 	if tls == nil {
 		return []map[string]interface{}{}
 	}
-	return []map[string]interface{}{{
+	result := map[string]interface{}{
 		"sni":                tls.Sni,
 		"validation_context": flattenALBValidationContext(tls.ValidationContext),
-	}}
+	}
+	if cc := tls.GetClientCertificate(); cc != nil {
+		result["client_certificate"] = []map[string]interface{}{{
+			"certificate_id": cc.GetCertificateId(),
+		}}
+	}
+	return []map[string]interface{}{result}
+}
+
+func flattenALBHealthCheckTLS(tls *apploadbalancer.SecureTransportSettings) []map[string]interface{} {
+	if tls == nil {
+		return []map[string]interface{}{}
+	}
+	result := map[string]interface{}{
+		"sni":                tls.Sni,
+		"validation_context": flattenALBValidationContext(tls.ValidationContext),
+	}
+	if cc := tls.GetClientCertificate(); cc != nil {
+		result["client_certificate"] = []map[string]interface{}{{
+			"certificate_id": cc.GetCertificateId(),
+		}}
+	}
+	return []map[string]interface{}{result}
 }
 
 func flattenALBLoadBalancingConfig(lbConfig *apploadbalancer.LoadBalancingConfig) []map[string]interface{} {
@@ -2709,6 +2777,10 @@ func flattenALBHealthChecks(healthChecks []*apploadbalancer.HealthCheck) []inter
 			}
 
 			flHealthCheck["stream_healthcheck"] = []map[string]interface{}{flStreamHealthcheck}
+		}
+
+		if tls := check.GetTls(); tls != nil {
+			flHealthCheck["tls"] = flattenALBHealthCheckTLS(tls)
 		}
 
 		result = append(result, flHealthCheck)
