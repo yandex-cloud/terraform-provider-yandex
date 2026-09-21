@@ -59,7 +59,6 @@ require (
 	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.96
 	github.com/yandex-cloud/go-sdk/services/dns v0.0.96
 	github.com/yandex-cloud/go-sdk/services/gitlab v0.0.96
-	github.com/yandex-cloud/go-sdk/services/iam v0.0.2
 	github.com/yandex-cloud/go-sdk/services/iot v0.0.96
 	github.com/yandex-cloud/go-sdk/services/k8s v0.0.96
 	github.com/yandex-cloud/go-sdk/services/k8s/marketplace v0.0.86

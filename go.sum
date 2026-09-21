@@ -821,8 +821,6 @@ github.com/yandex-cloud/go-sdk/services/dns v0.0.96 h1:+5HieV3XzDRewMDdKHTscOdgI
 github.com/yandex-cloud/go-sdk/services/dns v0.0.96/go.mod h1:QzIZyAp2FB0h15JgoGhttMzOfNEC0qbqvt7expDKdqU=
 github.com/yandex-cloud/go-sdk/services/gitlab v0.0.96 h1:MDLvDwVhiVSRAv8xjiWYKvKeuzeMWc6Zsb25KEmfMv4=
 github.com/yandex-cloud/go-sdk/services/gitlab v0.0.96/go.mod h1:9nFr9j68rDaQYveELf/nb+j5ZYLJegUHeXB1Tbf2spM=
-github.com/yandex-cloud/go-sdk/services/iam v0.0.2 h1:5JwlgEw6sbei9yO++0rdIFJOFzkvtrOozkVLTVZ71Vw=
-github.com/yandex-cloud/go-sdk/services/iam v0.0.2/go.mod h1:17EOBXJlbnT1Sb2PTVyUziR+VIGa+VwCe9Xd8liiqBU=
 github.com/yandex-cloud/go-sdk/services/iot v0.0.96 h1:ls80joAG2WrPrGrFnoWy1Gjd6IojJk8nGsvC7n7suN4=
 github.com/yandex-cloud/go-sdk/services/iot v0.0.96/go.mod h1:DHXLUV7aRWzoBy4g35Er7TbLsM6vf/uZxwMDolRk2+4=
 github.com/yandex-cloud/go-sdk/services/k8s v0.0.96 h1:oYR0N4xKSefeoSOsAPnbnsx3rozFWMXHoGbIMKEpCgk=
