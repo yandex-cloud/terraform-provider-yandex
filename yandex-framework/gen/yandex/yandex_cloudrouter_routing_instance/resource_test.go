@@ -21,6 +21,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 func TestAccCloudRouterRoutingInstance_basic(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-cloudrouter")
 	provider := yandexframework.NewFrameworkProvider().(*yandexframework.Provider)
