@@ -1,4 +1,0 @@
-kind: FEATURES
-body: 'trino: add event_listeners.data_catalog support to the cluster resource and
-  data source'
-time: 2026-09-08T17:39:53.945744+02:00

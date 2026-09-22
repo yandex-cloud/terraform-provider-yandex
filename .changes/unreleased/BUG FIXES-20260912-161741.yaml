@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'opensearch: preserve explicitly configured access blocks with disabled flags in yandex_mdb_opensearch_cluster, fixing inconsistent state after apply'
-time: 2026-09-12T16:17:41.93306+02:00

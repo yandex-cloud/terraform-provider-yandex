@@ -487,7 +487,7 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlApplicationResource) Update(
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update application:"+err.Error(),
 			)
 			return

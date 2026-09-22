@@ -88,7 +88,7 @@ func (r *yandexDnsInboundEndpointDataSource) Read(ctx context.Context, req datas
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"dns_inbound_endpoint not found",
 			)
@@ -109,7 +109,7 @@ func (r *yandexDnsInboundEndpointDataSource) Read(ctx context.Context, req datas
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

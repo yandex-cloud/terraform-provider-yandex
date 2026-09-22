@@ -373,7 +373,7 @@ func (r *yandexComputeReservedInstancePoolResource) Update(ctx context.Context, 
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update reserved_instance_pool:"+err.Error(),
 			)
 			return

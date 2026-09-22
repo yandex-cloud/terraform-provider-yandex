@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'alb: added `client_certificate` field to the `resource_yandex_alb_backend_group` resource'
-time: 2026-09-09T15:19:39.250557+03:00

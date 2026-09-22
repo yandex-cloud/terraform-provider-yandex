@@ -5163,7 +5163,7 @@ func (r *yandexDatatransferEndpointResource) Update(ctx context.Context, req res
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update endpoint:"+err.Error(),
 			)
 			return

@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mdb_clickhouse: do not plan the ClickHouse settings absent from the configuration from state when the version of `yandex_mdb_clickhouse_cluster_v2` changes, since the API answers with the defaults of the new version'
-time: 2026-09-13T12:00:00+03:00

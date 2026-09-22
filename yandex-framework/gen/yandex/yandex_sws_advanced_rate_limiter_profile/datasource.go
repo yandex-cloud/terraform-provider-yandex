@@ -106,7 +106,7 @@ func (r *yandexSwsAdvancedRateLimiterProfileDataSource) Read(ctx context.Context
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"advanced_rate_limiter_profile not found",
 			)
@@ -127,7 +127,7 @@ func (r *yandexSwsAdvancedRateLimiterProfileDataSource) Read(ctx context.Context
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

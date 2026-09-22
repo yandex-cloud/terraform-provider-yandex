@@ -374,7 +374,7 @@ func (r *yandexOrganizationmanagerMfaEnforcementResource) Update(ctx context.Con
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update mfa_enforcement:"+err.Error(),
 			)
 			return

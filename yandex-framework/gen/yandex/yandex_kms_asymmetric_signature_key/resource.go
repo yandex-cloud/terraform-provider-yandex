@@ -367,7 +367,7 @@ func (r *yandexKmsAsymmetricSignatureKeyResource) Update(ctx context.Context, re
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update asymmetric_signature_key:"+err.Error(),
 			)
 			return

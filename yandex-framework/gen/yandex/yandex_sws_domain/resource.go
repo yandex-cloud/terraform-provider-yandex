@@ -625,7 +625,7 @@ func (r *yandexSwsDomainResource) Update(ctx context.Context, req resource.Updat
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update domain:"+err.Error(),
 			)
 			return

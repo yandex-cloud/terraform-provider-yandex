@@ -359,7 +359,7 @@ func (r *yandexComputeDiskPlacementGroupResource) Update(ctx context.Context, re
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update disk_placement_group:"+err.Error(),
 			)
 			return

@@ -85,7 +85,7 @@ func (r *yandexSwsDomainDataSource) Read(ctx context.Context, req datasource.Rea
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"domain not found",
 			)
@@ -106,7 +106,7 @@ func (r *yandexSwsDomainDataSource) Read(ctx context.Context, req datasource.Rea
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

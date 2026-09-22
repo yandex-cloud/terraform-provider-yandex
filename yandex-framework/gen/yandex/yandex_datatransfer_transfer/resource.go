@@ -779,7 +779,7 @@ func (r *yandexDatatransferTransferResource) Update(ctx context.Context, req res
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update transfer:"+err.Error(),
 			)
 			return

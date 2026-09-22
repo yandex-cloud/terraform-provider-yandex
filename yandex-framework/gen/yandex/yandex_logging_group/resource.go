@@ -367,7 +367,7 @@ func (r *yandexLoggingGroupResource) Update(ctx context.Context, req resource.Up
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update log_group:"+err.Error(),
 			)
 			return

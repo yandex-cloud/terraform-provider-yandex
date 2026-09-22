@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb_greenplum: support disk_encryption_key_id when creating and restoring yandex_mdb_greenplum_cluster and yandex_mdb_greenplum_cluster_v2; the parameter only works when both master and segment hosts use `local-ssd` disks'
-time: 2026-09-11T14:37:34.511711+03:00

@@ -156,6 +156,7 @@ func (r *yandexComputeGpuClusterResource) Create(ctx context.Context, req resour
 	createReq.SetLabels(expandYandexComputeGpuClusterLabels(ctx, plan.Labels, &diags))
 	createReq.SetZoneId(converter.GetZone(plan.Zone.ValueString(), r.providerConfig, &diags))
 	createReq.SetInterconnectType(compute.GpuInterconnectType(compute.GpuInterconnectType_value[plan.InterconnectType.ValueString()]))
+	createReq.SetSubnets((plan.Subnets.ValueInt64()))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -359,7 +360,7 @@ func (r *yandexComputeGpuClusterResource) Update(ctx context.Context, req resour
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update gpu_cluster:"+err.Error(),
 			)
 			return

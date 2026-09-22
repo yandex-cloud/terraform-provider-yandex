@@ -400,7 +400,7 @@ func (r *yandexOrganizationmanagerIdpUserResource) Update(ctx context.Context, r
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update user:"+err.Error(),
 			)
 			return

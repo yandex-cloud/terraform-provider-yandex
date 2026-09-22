@@ -345,7 +345,7 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateResource
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update signature_certificate:"+err.Error(),
 			)
 			return
