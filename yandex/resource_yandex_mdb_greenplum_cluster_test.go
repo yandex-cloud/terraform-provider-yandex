@@ -266,6 +266,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.web_sql", "true"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.trino", "true"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.yandex_query", "true"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "backup_window_start.0.minutes", "15"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "maintenance_window.0.day", "SAT"),
@@ -296,6 +297,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.web_sql", "true"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_lens", "false"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.trino", "false"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.yandex_query", "false"),
 				),
 			},
@@ -659,6 +661,7 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
 	web_sql       = true
 	data_lens     = true
 	data_transfer = true
+	trino         = true
 	yandex_query  = true
   }
   cloud_storage {

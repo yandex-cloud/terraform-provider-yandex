@@ -150,6 +150,7 @@ filename: yandex/cloud/mdb/greenplum/v1/cluster.proto
   - `access` [Block]. Access policy for external services.
     - `data_lens` (*Read-Only*) (Bool). Allows data export from the cluster to DataLens.
     - `data_transfer` (*Read-Only*) (Bool). Allows access for DataTransfer.
+    - `trino` (*Read-Only*) (Bool). Allows access from Trino, including encrypted gpfdist connections.
     - `web_sql` (*Read-Only*) (Bool). Allows SQL queries to the cluster databases from the management console.
     - `yandex_query` (*Read-Only*) (Bool). Allow access for YandexQuery.
   - `assign_public_ip` (*Read-Only*) (Bool). Determines whether the cluster has a public IP address.
@@ -226,5 +227,4 @@ filename: yandex/cloud/mdb/greenplum/v1/cluster.proto
   - `read` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Read operations occur during any refresh or planning operation when refresh is enabled.
   - `update` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
 - `user_name` (*Read-Only*) (String). Owner user name.
-
 

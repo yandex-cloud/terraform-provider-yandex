@@ -134,3 +134,19 @@ func TestExpandGreenplumConfigSpecGreenplumConfig_Negative(t *testing.T) {
 		})
 	}
 }
+
+func TestGreenplumAccessTrinoRoundTrip(t *testing.T) {
+	rd := schema.TestResourceDataRaw(t, resourceYandexMDBGreenplumCluster().Schema, map[string]interface{}{
+		"access": []interface{}{map[string]interface{}{
+			"trino": true,
+		}},
+	})
+
+	expanded := expandGreenplumAccess(rd)
+	require.NotNil(t, expanded)
+	assert.True(t, expanded.GetTrino())
+
+	flattened := flattenGreenplumAccess(&greenplum.GreenplumConfig{Access: expanded})
+	require.Len(t, flattened, 1)
+	assert.Equal(t, true, flattened[0]["trino"])
+}

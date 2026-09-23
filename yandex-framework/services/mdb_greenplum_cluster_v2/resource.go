@@ -806,6 +806,9 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !yandexMdbGreenplumClusterV2ConfigAccessPlan.DataTransfer.Equal(yandexMdbGreenplumClusterV2ConfigAccessState.DataTransfer) {
 		updatePaths = append(updatePaths, "config.access.data_transfer")
 	}
+	if !yandexMdbGreenplumClusterV2ConfigAccessPlan.Trino.Equal(yandexMdbGreenplumClusterV2ConfigAccessState.Trino) {
+		updatePaths = append(updatePaths, "config.access.trino")
+	}
 	if !yandexMdbGreenplumClusterV2ConfigAccessPlan.WebSql.Equal(yandexMdbGreenplumClusterV2ConfigAccessState.WebSql) {
 		updatePaths = append(updatePaths, "config.access.web_sql")
 	}

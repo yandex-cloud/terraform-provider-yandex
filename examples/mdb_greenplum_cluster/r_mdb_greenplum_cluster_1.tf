@@ -30,6 +30,7 @@ resource "yandex_mdb_greenplum_cluster" "my_cluster" {
 
   access {
     web_sql = true
+    trino   = true
   }
 
   greenplum_config = {

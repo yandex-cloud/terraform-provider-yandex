@@ -5,12 +5,35 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	frameworkresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 )
+
+func TestGreenplumClusterAccessTrinoRoundTrip(t *testing.T) {
+	ctx := context.Background()
+	var diags diag.Diagnostics
+
+	flattened := flattenYandexMdbGreenplumClusterV2ConfigAccess(ctx, &greenplum.Access{Trino: true}, &diags)
+	if diags.HasError() {
+		t.Fatalf("flatten diagnostics: %#v", diags)
+	}
+	trino, ok := flattened.Attributes()["trino"].(types.Bool)
+	if !ok || !trino.ValueBool() {
+		t.Fatalf("flattened trino = %#v, want true", flattened.Attributes()["trino"])
+	}
+
+	expanded := expandYandexMdbGreenplumClusterV2ConfigAccess(ctx, flattened, &diags)
+	if diags.HasError() {
+		t.Fatalf("expand diagnostics: %#v", diags)
+	}
+	if expanded == nil || !expanded.GetTrino() {
+		t.Fatalf("expanded access = %#v, want trino=true", expanded)
+	}
+}
 
 func TestGreenplumClusterPasswordWoSchema(t *testing.T) {
 	var resp frameworkresource.SchemaResponse

@@ -36,6 +36,9 @@ resource "yandex_mdb_greenplum_cluster_v2" "my_cluster" {
 
   config = {
     zone_id = "ru-central1-a"
+    access = {
+      trino = true
+    }
   }
 
   master_config = {
@@ -215,6 +218,7 @@ filename: yandex/cloud/mdb/greenplum/v1/cluster.proto
   - `access` [Block]. Access policy for external services.
     - `data_lens` (Bool). Allows data export from the cluster to DataLens.
     - `data_transfer` (Bool). Allows access for DataTransfer.
+    - `trino` (Bool). Allows access from Trino, including encrypted gpfdist connections.
     - `web_sql` (Bool). Allows SQL queries to the cluster databases from the management console.
     - `yandex_query` (Bool). Allow access for YandexQuery.
   - `assign_public_ip` (Bool). Determines whether the cluster has a public IP address.

@@ -175,6 +175,10 @@ func testAccDataSourceMDBGreenplumClusterAttributesCheck(datasourceName string, 
 				"access.0.data_lens",
 			},
 			{
+				"access.0.trino",
+				"access.0.trino",
+			},
+			{
 				"cloud_storage.0.enable",
 				"cloud_storage.0.enable",
 			},

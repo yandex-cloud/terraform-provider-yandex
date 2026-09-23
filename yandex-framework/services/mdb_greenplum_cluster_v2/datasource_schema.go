@@ -769,6 +769,16 @@ func YandexMdbGreenplumClusterV2DatasourceSchema(ctx context.Context) schema.Sch
 								Computed: true,
 							},
 
+							"trino": schema.BoolAttribute{
+								MarkdownDescription: "Allows access from Trino, including encrypted gpfdist connections.",
+								Description: "Allows access from Trino, including encrypted gpfdist connections." +
+									// proto paths: +
+									// -> yandex.cloud.mdb.greenplum.v1.Cluster.configyandex.cloud.mdb.greenplum.v1.GreenplumConfig.accessyandex.cloud.mdb.greenplum.v1.Access.trino
+									"package: yandex.cloud.mdb.greenplum.v1\n" +
+									"filename: yandex/cloud/mdb/greenplum/v1/cluster.proto\n",
+								Computed: true,
+							},
+
 							"web_sql": schema.BoolAttribute{
 								MarkdownDescription: "Allows SQL queries to the cluster databases from the management console.",
 								Description: "Allows SQL queries to the cluster databases from the management console." +

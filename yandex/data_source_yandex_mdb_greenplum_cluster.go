@@ -305,6 +305,10 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"trino": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 						"yandex_query": {
 							Type:     schema.TypeBool,
 							Computed: true,
