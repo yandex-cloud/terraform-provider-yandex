@@ -1,60 +1,178 @@
-# This GitHub action can publish assets for release when a tag is created.
-# Currently its setup to run on any tag that matches the pattern "v*" (ie. v0.1.0).
-#
-# This uses an action (paultyng/ghaction-import-gpg) that assumes you set your
-# private key in the `GPG_PRIVATE_KEY` secret and passphrase in the `PASSPHRASE`
-# secret. If you would rather own your own GPG handling, please fork this action
-# or use an alternative one for key handling.
-#
-# You will need to pass the `--batch` flag to `gpg` in your signing step
-# in `goreleaser` to indicate this is being used in a non-interactive mode.
-#
+# A release is published when the release pipeline adds one versioned changelog
+# to master. Other pushes to master are successful no-ops.
 name: release
+
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - master
+
+permissions:
+  contents: write
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
-      -
-        name: CLEAN-UP
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+
+      - name: Detect release changelog
+        id: release
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$BEFORE_SHA" =~ ^[0-9a-f]{40}$ || "$BEFORE_SHA" =~ ^0+$ ]]; then
+            echo "The push event does not contain a usable before commit: $BEFORE_SHA" >&2
+            exit 1
+          fi
+          if [[ ! "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "The push event does not contain a usable release commit: $RELEASE_SHA" >&2
+            exit 1
+          fi
+          if [[ "$(git rev-parse HEAD)" != "$RELEASE_SHA" ]]; then
+            echo "Checkout is not at the pushed commit $RELEASE_SHA" >&2
+            exit 1
+          fi
+          git cat-file -e "${BEFORE_SHA}^{commit}"
+
+          changed_paths="$(git diff --diff-filter=A --name-only "$BEFORE_SHA" "$RELEASE_SHA" -- .changes)"
+          changelogs=()
+          while IFS= read -r path; do
+            if [[ "$path" =~ ^\.changes/[^/]+\.md$ ]]; then
+              changelogs+=("$path")
+            fi
+          done <<< "$changed_paths"
+
+          if (( ${#changelogs[@]} == 0 )); then
+            echo "No versioned changelog was added; there is nothing to publish."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if (( ${#changelogs[@]} != 1 )); then
+            echo "Expected at most one new versioned changelog, found ${#changelogs[@]}:" >&2
+            printf '  %s\n' "${changelogs[@]}" >&2
+            exit 1
+          fi
+
+          changelog="${changelogs[0]}"
+          if [[ ! "$changelog" =~ ^\.changes/([0-9]+\.[0-9]+\.[0-9]+)\.md$ ]]; then
+            echo "Malformed versioned changelog path: $changelog" >&2
+            exit 1
+          fi
+          version="${BASH_REMATCH[1]}"
+          if ! grep -Eq "^## ${version//./\\.}( \\(|$)" "$changelog"; then
+            echo "$changelog does not start a section for version $version" >&2
+            exit 1
+          fi
+
+          {
+            echo "release=true"
+            echo "version=$version"
+            echo "tag=v$version"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Inspect release and tag
+        id: state
+        if: steps.release.outputs.release == 'true'
+        shell: bash
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          api_error="$(mktemp)"
+          release_state=absent
+          if release_draft="$(gh api "/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq .draft 2>"$api_error")"; then
+            case "$release_draft" in
+              false) release_state=published ;;
+              true) echo "Release $RELEASE_TAG is a draft; refusing to replace it" >&2; exit 1 ;;
+              *) echo "Unexpected release state: $release_draft" >&2; exit 1 ;;
+            esac
+          elif ! grep -q '(HTTP 404)' "$api_error"; then
+            cat "$api_error" >&2
+            exit 1
+          fi
+          rm -f "$api_error"
+
+          tag_commit=""
+          remote_tag="$(git ls-remote --tags origin "refs/tags/$RELEASE_TAG")"
+          if [[ -n "$remote_tag" ]]; then
+            git fetch --force origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+            tag_commit="$(git rev-parse "$RELEASE_TAG^{commit}")"
+            if [[ "$tag_commit" != "$RELEASE_SHA" ]]; then
+              echo "Tag $RELEASE_TAG points to $tag_commit instead of $RELEASE_SHA" >&2
+              exit 1
+            fi
+          fi
+
+          if [[ "$release_state" == "published" ]]; then
+            if [[ -z "$tag_commit" ]]; then
+              echo "Published GitHub release $RELEASE_TAG has no matching remote tag" >&2
+              exit 1
+            fi
+            echo "GitHub release $RELEASE_TAG is already published at $RELEASE_SHA."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ -z "$tag_commit" ]]; then
+            git tag "$RELEASE_TAG" "$RELEASE_SHA"
+            if ! git push origin "refs/tags/$RELEASE_TAG"; then
+              git tag -d "$RELEASE_TAG"
+              git fetch --force origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+              tag_commit="$(git rev-parse "$RELEASE_TAG^{commit}")"
+              if [[ "$tag_commit" != "$RELEASE_SHA" ]]; then
+                echo "Concurrent tag $RELEASE_TAG points to $tag_commit instead of $RELEASE_SHA" >&2
+                exit 1
+              fi
+            fi
+          fi
+
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+
+      - name: CLEAN-UP
+        if: steps.state.outputs.publish == 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           tool-cache: true
-
-          # all of these default to true, but feel free to set to
-          # false if necessary for your workflow
           android: true
           dotnet: true
           haskell: true
           large-packages: true
           swap-storage: true
-      -
-        name: Checkout
-        uses: actions/checkout@v2
-      -
-        name: Unshallow
-        run: git fetch --prune --unshallow
-      -
-        name: Set up Go
-        uses: actions/setup-go@v2
+
+      - name: Set up Go
+        if: steps.state.outputs.publish == 'true'
+        uses: actions/setup-go@v6
         with:
-          go-version: '1.21'
-      -
-        name: Import GPG key
+          go-version: '1.25.10'
+          cache: false
+
+      - name: Import GPG key
+        if: steps.state.outputs.publish == 'true'
         id: import_gpg
-        uses: paultyng/ghaction-import-gpg@v2.1.0
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ""
-      -
-        name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v4
+        uses: crazy-max/ghaction-import-gpg@v7
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: Run GoReleaser
+        if: steps.state.outputs.publish == 'true'
+        uses: goreleaser/goreleaser-action@v7
         with:
           version: '1.26'
           args: release --rm-dist --timeout 45m
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ steps.release.outputs.tag }}
