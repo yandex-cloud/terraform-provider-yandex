@@ -88,7 +88,7 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDataSour
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"signature_certificate not found",
 			)
@@ -98,6 +98,7 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDataSour
 				"Error while requesting API to get signature_certificate:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read signature_certificate response: %s", validate.ProtoDump(res)))
@@ -108,7 +109,7 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlSignatureCertificateDataSour
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

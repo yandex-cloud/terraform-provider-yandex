@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'spark: add preemptible attribute for executor resource pool'
-time: 2026-08-04T16:00:00.000000+03:00

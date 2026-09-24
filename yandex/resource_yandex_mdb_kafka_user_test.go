@@ -145,7 +145,7 @@ func mdbKafkaUserImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"password", // password are not returned
+			"password", "password_wo_version", // passwords and write-only password versions are not returned
 		},
 	}
 }

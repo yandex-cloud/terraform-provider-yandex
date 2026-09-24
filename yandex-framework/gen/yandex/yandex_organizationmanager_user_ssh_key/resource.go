@@ -348,7 +348,7 @@ func (r *yandexOrganizationmanagerUserSshKeyResource) Update(ctx context.Context
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update user_ssh_key:"+err.Error(),
 			)
 			return

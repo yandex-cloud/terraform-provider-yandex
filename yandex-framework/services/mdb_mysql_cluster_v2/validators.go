@@ -67,8 +67,8 @@ func (m *maintenanceWindowStructValidator) Description(_ context.Context) string
 
 func (m *maintenanceWindowStructValidator) MarkdownDescription(_ context.Context) string {
 	return `
-		Maintenance window block validation. 
-		Check block structure in general for *ANYTIME* and *WEEKLY* maintenance. 
+		Maintenance window block validation.
+		Check block structure in general for *ANYTIME* and *WEEKLY* maintenance.
 		Attributes hour and day should be set ONLY for *WEEKLY* maintenance.
 	`
 }

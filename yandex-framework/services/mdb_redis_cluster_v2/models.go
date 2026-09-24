@@ -93,9 +93,9 @@ var DiskSizeAutoscalingType = types.ObjectType{
 }
 
 type ValkeyModules struct {
-	ValkeySearch *ValkeySearch `tfsdk:"valkey_search"`
-	ValkeyJson   *ValkeyJson   `tfsdk:"valkey_json"`
-	ValkeyBloom  *ValkeyBloom  `tfsdk:"valkey_bloom"`
+	ValkeySearch types.Object `tfsdk:"valkey_search"`
+	ValkeyJson   types.Object `tfsdk:"valkey_json"`
+	ValkeyBloom  types.Object `tfsdk:"valkey_bloom"`
 }
 
 type ValkeySearch struct {

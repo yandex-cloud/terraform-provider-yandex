@@ -297,6 +297,12 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
         {{if .Mongos.SetParameter.WarmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs}}warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms = {{.Mongos.SetParameter.WarmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs}}{{end}}
       }
 {{end}}
+{{if .Mongos.OperationProfiling}}
+      operation_profiling {
+        slow_op_threshold = "{{.Mongos.OperationProfiling.OpThreshold}}"
+        slow_op_sample_rate = "{{.Mongos.OperationProfiling.OpSampleRate}}"
+      }
+{{end}}
     }
 {{end}}
 
@@ -1978,6 +1984,10 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 							"WarmMinConnectionsInShardingTaskExecutorPoolOnStartup":       false,
 							"WarmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs": 100,
 						},
+						"OperationProfiling": map[string]interface{}{
+							"OpThreshold":  500,
+							"OpSampleRate": 0.7,
+						},
 					},
 					"MongoCfg": map[string]interface{}{
 						"OperationProfiling": map[string]interface{}{
@@ -2066,6 +2076,10 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 						"cluster_config.0.mongos.0.set_parameter.0.sharding_task_executor_pool_min_size_for_config_servers", "100"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo,
 						"cluster_config.0.mongos.0.audit_log.0.filter", "{\"atype\": {\"$in\": [\"createCollection\", \"dropCollection\"]}}"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo,
+						"cluster_config.0.mongos.0.operation_profiling.0.slow_op_threshold", "500"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo,
+						"cluster_config.0.mongos.0.operation_profiling.0.slow_op_sample_rate", "0.7"),
 
 					resource.TestCheckResourceAttr(mongodbResourceFoo,
 						"cluster_config.0.mongocfg.0.net.0.max_incoming_connections", "1102"),
@@ -2097,7 +2111,8 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 						"SetParameter":       nil,
 					},
 					"Mongos": map[string]interface{}{
-						"Net": nil,
+						"Net":                nil,
+						"OperationProfiling": nil,
 					},
 					"MongoCfg": map[string]interface{}{
 						"Net":                nil,
@@ -2116,6 +2131,8 @@ func TestAccMDBMongoDBCluster_8_0ShardedCfgV1(t *testing.T) {
 						"cluster_config.0.mongod.0.set_parameter.#", "0"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo,
 						"cluster_config.0.mongos.0.net.#", "0"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo,
+						"cluster_config.0.mongos.0.operation_profiling.#", "0"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo,
 						"cluster_config.0.mongocfg.0.net.#", "0"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo,
@@ -2255,6 +2272,10 @@ func TestAccMDBMongoDBCluster_8_0ShardedInfraV1(t *testing.T) {
 						"Net": map[string]interface{}{
 							"MaxConnections": 1101,
 						},
+						"OperationProfiling": map[string]interface{}{
+							"OpThreshold":  500,
+							"OpSampleRate": 0.7,
+						},
 					},
 					"MongoCfg": map[string]interface{}{
 						"OperationProfiling": map[string]interface{}{
@@ -2288,6 +2309,10 @@ func TestAccMDBMongoDBCluster_8_0ShardedInfraV1(t *testing.T) {
 						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds", "300"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo,
 						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "1101"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo,
+						"cluster_config.0.mongos.0.operation_profiling.0.slow_op_threshold", "500"),
+					resource.TestCheckResourceAttr(mongodbResourceFoo,
+						"cluster_config.0.mongos.0.operation_profiling.0.slow_op_sample_rate", "0.7"),
 					resource.TestCheckResourceAttr(mongodbResourceFoo,
 						"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold", "1000"),
 				),

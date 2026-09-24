@@ -1,7 +1,7 @@
 SEMVER ?= 0.0.1
 
 TEST?=$$(go list ./... )
-GOFMT_FILES?=$$(find . -name '*.go')
+GOFMT_FILES?=$$(find . -path './vendor' -prune -o -name '*.go' -print)
 PKG_NAME=yandex
 LINT_PACKAGES= ./yandex/... yandex-framework/...
 
@@ -62,12 +62,14 @@ default: build
 build: fmtcheck
 	go install ${LDFLAGS}
 
+LOCAL_BUILD_DIR ?= $(HOME)/.terraform.d/plugins/registry.terraform.io/yandex-cloud/yandex/$(SEMVER)/$(shell go env GOOS)_$(shell go env GOARCH)
+
 local-build: fmtcheck
-	go build ${LDFLAGS} -o $(HOME)/.terraform.d/plugins/registry.terraform.io/yandex-cloud/yandex/$(SEMVER)/$(shell go env GOOS)_$(shell go env GOARCH)/terraform-provider-yandex main.go
+	go build ${LDFLAGS} -o $(LOCAL_BUILD_DIR)/terraform-provider-yandex main.go
 
 sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts.";
-	go test $(SWEEP_DIR) -v -sweep=$(SWEEP) -sweep-run=$(SWEEPERS_FOR_RUNNING) -timeout 60m
+	go test $(SWEEP_DIR) -v -run='^$$' -sweep=$(SWEEP) -sweep-run=$(SWEEPERS_FOR_RUNNING) -timeout 60m
 
 test: fmtcheck
 	go test $(TEST) -timeout=60s -parallel=4

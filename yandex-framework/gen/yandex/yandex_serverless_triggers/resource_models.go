@@ -1247,6 +1247,7 @@ type yandexServerlessTriggersSourceModel struct {
 	ObjectStorage     types.Object `tfsdk:"object_storage"`
 	TelegramMessage   types.Object `tfsdk:"telegram_message"`
 	Timer             types.Object `tfsdk:"timer"`
+	YandexMessenger   types.Object `tfsdk:"yandex_messenger"`
 	Yds               types.Object `tfsdk:"yds"`
 	Ymq               types.Object `tfsdk:"ymq"`
 }
@@ -1277,6 +1278,9 @@ func (m *yandexServerlessTriggersSourceModel) GetTelegramMessage() types.Object 
 }
 func (m *yandexServerlessTriggersSourceModel) GetTimer() types.Object {
 	return m.Timer
+}
+func (m *yandexServerlessTriggersSourceModel) GetYandexMessenger() types.Object {
+	return m.YandexMessenger
 }
 func (m *yandexServerlessTriggersSourceModel) GetYds() types.Object {
 	return m.Yds
@@ -1312,6 +1316,9 @@ func (m *yandexServerlessTriggersSourceModel) SetTelegramMessage(target types.Ob
 func (m *yandexServerlessTriggersSourceModel) SetTimer(target types.Object) {
 	m.Timer = target
 }
+func (m *yandexServerlessTriggersSourceModel) SetYandexMessenger(target types.Object) {
+	m.YandexMessenger = target
+}
 func (m *yandexServerlessTriggersSourceModel) SetYds(target types.Object) {
 	m.Yds = target
 }
@@ -1330,6 +1337,7 @@ func NewYandexServerlessTriggersSourceModel() yandexServerlessTriggersSourceMode
 		ObjectStorage:     types.ObjectNull(yandexServerlessTriggersSourceObjectStorageModelType.AttrTypes),
 		TelegramMessage:   types.ObjectNull(yandexServerlessTriggersSourceTelegramMessageModelType.AttrTypes),
 		Timer:             types.ObjectNull(yandexServerlessTriggersSourceTimerModelType.AttrTypes),
+		YandexMessenger:   types.ObjectNull(yandexServerlessTriggersSourceYandexMessengerModelType.AttrTypes),
 		Yds:               types.ObjectNull(yandexServerlessTriggersSourceYdsModelType.AttrTypes),
 		Ymq:               types.ObjectNull(yandexServerlessTriggersSourceYmqModelType.AttrTypes),
 	}
@@ -1363,6 +1371,9 @@ func yandexServerlessTriggersSourceModelFillUnknown(target yandexServerlessTrigg
 	if target.Timer.IsUnknown() || target.Timer.IsNull() {
 		target.Timer = types.ObjectNull(yandexServerlessTriggersSourceTimerModelType.AttrTypes)
 	}
+	if target.YandexMessenger.IsUnknown() || target.YandexMessenger.IsNull() {
+		target.YandexMessenger = types.ObjectNull(yandexServerlessTriggersSourceYandexMessengerModelType.AttrTypes)
+	}
 	if target.Yds.IsUnknown() || target.Yds.IsNull() {
 		target.Yds = types.ObjectNull(yandexServerlessTriggersSourceYdsModelType.AttrTypes)
 	}
@@ -1383,6 +1394,7 @@ var yandexServerlessTriggersSourceModelType = types.ObjectType{
 		"object_storage":     yandexServerlessTriggersSourceObjectStorageModelType,
 		"telegram_message":   yandexServerlessTriggersSourceTelegramMessageModelType,
 		"timer":              yandexServerlessTriggersSourceTimerModelType,
+		"yandex_messenger":   yandexServerlessTriggersSourceYandexMessengerModelType,
 		"yds":                yandexServerlessTriggersSourceYdsModelType,
 		"ymq":                yandexServerlessTriggersSourceYmqModelType,
 	},
@@ -1405,6 +1417,7 @@ func flattenYandexServerlessTriggersSource(ctx context.Context,
 		ObjectStorage:     flattenYandexServerlessTriggersSourceObjectStorage(ctx, yandexServerlessTriggersSource.GetObjectStorage(), converter.ExpandObject(ctx, state.ObjectStorage, yandexServerlessTriggersSourceObjectStorageModel{}, diags).(yandexServerlessTriggersSourceObjectStorageModel), diags),
 		TelegramMessage:   flattenYandexServerlessTriggersSourceTelegramMessage(ctx, yandexServerlessTriggersSource.GetTelegramMessage(), converter.ExpandObject(ctx, state.TelegramMessage, yandexServerlessTriggersSourceTelegramMessageModel{}, diags).(yandexServerlessTriggersSourceTelegramMessageModel), diags),
 		Timer:             flattenYandexServerlessTriggersSourceTimer(ctx, yandexServerlessTriggersSource.GetTimer(), diags),
+		YandexMessenger:   flattenYandexServerlessTriggersSourceYandexMessenger(ctx, yandexServerlessTriggersSource.GetYandexMessenger(), converter.ExpandObject(ctx, state.YandexMessenger, yandexServerlessTriggersSourceYandexMessengerModel{}, diags).(yandexServerlessTriggersSourceYandexMessengerModel), diags),
 		Yds:               flattenYandexServerlessTriggersSourceYds(ctx, yandexServerlessTriggersSource.GetYds(), converter.ExpandObject(ctx, state.Yds, yandexServerlessTriggersSourceYdsModel{}, diags).(yandexServerlessTriggersSourceYdsModel), diags),
 		Ymq:               flattenYandexServerlessTriggersSourceYmq(ctx, yandexServerlessTriggersSource.GetYmq(), converter.ExpandObject(ctx, state.Ymq, yandexServerlessTriggersSourceYmqModel{}, diags).(yandexServerlessTriggersSourceYmqModel), diags),
 	})
@@ -1452,6 +1465,9 @@ func expandYandexServerlessTriggersSourceModel(ctx context.Context, yandexServer
 	}
 	if !(yandexServerlessTriggersSourceState.Timer.IsNull() || yandexServerlessTriggersSourceState.Timer.IsUnknown() || yandexServerlessTriggersSourceState.Timer.Equal(types.Object{})) {
 		value.SetTimer(expandYandexServerlessTriggersSourceTimer(ctx, yandexServerlessTriggersSourceState.Timer, diags))
+	}
+	if !(yandexServerlessTriggersSourceState.YandexMessenger.IsNull() || yandexServerlessTriggersSourceState.YandexMessenger.IsUnknown() || yandexServerlessTriggersSourceState.YandexMessenger.Equal(types.Object{})) {
+		value.SetYandexMessenger(expandYandexServerlessTriggersSourceYandexMessenger(ctx, yandexServerlessTriggersSourceState.YandexMessenger, diags))
 	}
 	if !(yandexServerlessTriggersSourceState.Yds.IsNull() || yandexServerlessTriggersSourceState.Yds.IsUnknown() || yandexServerlessTriggersSourceState.Yds.Equal(types.Object{})) {
 		value.SetYds(expandYandexServerlessTriggersSourceYds(ctx, yandexServerlessTriggersSourceState.Yds, diags))
@@ -3289,6 +3305,128 @@ func expandYandexServerlessTriggersSourceTimerModel(ctx context.Context, yandexS
 	value := &triggers.Timer{}
 	value.SetCronExpression(yandexServerlessTriggersSourceTimerState.CronExpression.ValueString())
 	value.SetPayload(yandexServerlessTriggersSourceTimerState.Payload.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexServerlessTriggersSourceYandexMessengerModel struct {
+	BotDisplayName types.String `tfsdk:"bot_display_name"`
+	BotId          types.String `tfsdk:"bot_id"`
+	BotLogin       types.String `tfsdk:"bot_login"`
+	Force          types.Bool   `tfsdk:"force"`
+	OauthToken     types.String `tfsdk:"oauth_token"`
+}
+
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) GetBotDisplayName() types.String {
+	return m.BotDisplayName
+}
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) GetBotId() types.String {
+	return m.BotId
+}
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) GetBotLogin() types.String {
+	return m.BotLogin
+}
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) GetForce() types.Bool {
+	return m.Force
+}
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) GetOauthToken() types.String {
+	return m.OauthToken
+}
+
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) SetBotDisplayName(target types.String) {
+	m.BotDisplayName = target
+}
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) SetBotId(target types.String) {
+	m.BotId = target
+}
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) SetBotLogin(target types.String) {
+	m.BotLogin = target
+}
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) SetForce(target types.Bool) {
+	m.Force = target
+}
+func (m *yandexServerlessTriggersSourceYandexMessengerModel) SetOauthToken(target types.String) {
+	m.OauthToken = target
+}
+
+func NewYandexServerlessTriggersSourceYandexMessengerModel() yandexServerlessTriggersSourceYandexMessengerModel {
+	return yandexServerlessTriggersSourceYandexMessengerModel{
+		BotDisplayName: types.StringNull(),
+		BotId:          types.StringNull(),
+		BotLogin:       types.StringNull(),
+		Force:          types.BoolNull(),
+		OauthToken:     types.StringNull(),
+	}
+}
+
+func yandexServerlessTriggersSourceYandexMessengerModelFillUnknown(target yandexServerlessTriggersSourceYandexMessengerModel) yandexServerlessTriggersSourceYandexMessengerModel {
+	if target.BotDisplayName.IsUnknown() || target.BotDisplayName.IsNull() {
+		target.BotDisplayName = types.StringNull()
+	}
+	if target.BotId.IsUnknown() || target.BotId.IsNull() {
+		target.BotId = types.StringNull()
+	}
+	if target.BotLogin.IsUnknown() || target.BotLogin.IsNull() {
+		target.BotLogin = types.StringNull()
+	}
+	if target.Force.IsUnknown() || target.Force.IsNull() {
+		target.Force = types.BoolNull()
+	}
+	if target.OauthToken.IsUnknown() || target.OauthToken.IsNull() {
+		target.OauthToken = types.StringNull()
+	}
+	return target
+}
+
+var yandexServerlessTriggersSourceYandexMessengerModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"bot_display_name": types.StringType,
+		"bot_id":           types.StringType,
+		"bot_login":        types.StringType,
+		"force":            types.BoolType,
+		"oauth_token":      types.StringType,
+	},
+}
+
+func flattenYandexServerlessTriggersSourceYandexMessenger(ctx context.Context,
+	yandexServerlessTriggersSourceYandexMessenger *triggers.YandexMessenger,
+	state yandexServerlessTriggersSourceYandexMessengerModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexServerlessTriggersSourceYandexMessenger == nil {
+		return types.ObjectNull(yandexServerlessTriggersSourceYandexMessengerModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexServerlessTriggersSourceYandexMessengerModelType.AttrTypes, yandexServerlessTriggersSourceYandexMessengerModel{
+		BotDisplayName: types.StringValue(yandexServerlessTriggersSourceYandexMessenger.GetBotDisplayName()),
+		BotId:          types.StringValue(yandexServerlessTriggersSourceYandexMessenger.GetBotId()),
+		BotLogin:       types.StringValue(yandexServerlessTriggersSourceYandexMessenger.GetBotLogin()),
+		Force:          types.BoolValue(yandexServerlessTriggersSourceYandexMessenger.GetForce()),
+		OauthToken:     converter.SetUnknownStringValue(state.OauthToken),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexServerlessTriggersSourceYandexMessenger(ctx context.Context, yandexServerlessTriggersSourceYandexMessengerState types.Object, diags *diag.Diagnostics) *triggers.YandexMessenger {
+	if yandexServerlessTriggersSourceYandexMessengerState.IsNull() || yandexServerlessTriggersSourceYandexMessengerState.IsUnknown() {
+		return nil
+	}
+	var yandexServerlessTriggersSourceYandexMessenger yandexServerlessTriggersSourceYandexMessengerModel
+	diags.Append(yandexServerlessTriggersSourceYandexMessengerState.As(ctx, &yandexServerlessTriggersSourceYandexMessenger, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexServerlessTriggersSourceYandexMessengerModel(ctx, yandexServerlessTriggersSourceYandexMessenger, diags)
+}
+
+func expandYandexServerlessTriggersSourceYandexMessengerModel(ctx context.Context, yandexServerlessTriggersSourceYandexMessengerState yandexServerlessTriggersSourceYandexMessengerModel, diags *diag.Diagnostics) *triggers.YandexMessenger {
+	value := &triggers.YandexMessenger{}
+	value.SetBotDisplayName(yandexServerlessTriggersSourceYandexMessengerState.BotDisplayName.ValueString())
+	value.SetBotId(yandexServerlessTriggersSourceYandexMessengerState.BotId.ValueString())
+	value.SetBotLogin(yandexServerlessTriggersSourceYandexMessengerState.BotLogin.ValueString())
+	value.SetForce(yandexServerlessTriggersSourceYandexMessengerState.Force.ValueBool())
+	value.SetOauthToken(yandexServerlessTriggersSourceYandexMessengerState.OauthToken.ValueString())
 	if diags.HasError() {
 		return nil
 	}

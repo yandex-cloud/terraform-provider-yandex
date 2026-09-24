@@ -19,7 +19,7 @@ import (
 func ClusterConnectionManagerSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
-		Description: "Connection Manager integration configuration for the cluster. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration after the cluster is created is not supported.",
+		Description: "Connection Manager integration configuration for the cluster. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.",
 		Optional:    true,
 		Computed:    true,
 		MaxItems:    1,
@@ -27,7 +27,7 @@ func ClusterConnectionManagerSchema() *schema.Schema {
 			Schema: map[string]*schema.Schema{
 				"enabled": {
 					Type:        schema.TypeBool,
-					Description: "Indicates whether Connection Manager integration is enabled for the cluster. Set to `true` to enable the integration. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration after the cluster is created is not supported.",
+					Description: "Indicates whether Connection Manager integration is enabled for the cluster. Set to `true` to enable the integration. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.",
 					Optional:    true,
 					Computed:    true,
 				},

@@ -361,7 +361,7 @@ func (r *yandexCloudregistryLifecyclePolicyResource) Update(ctx context.Context,
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update lifecycle_policy:"+err.Error(),
 			)
 			return

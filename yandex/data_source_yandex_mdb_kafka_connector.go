@@ -6,6 +6,7 @@ import (
 
 func dataSourceYandexMDBKafkaConnector() *schema.Resource {
 	dataSource := convertResourceToDataSource(resourceYandexMDBKafkaConnector())
+	removeWriteOnlyFields(dataSource.Schema)
 
 	dataSource.Description = "Get information about a connector of the Yandex Managed Kafka cluster. For more information, see [the official documentation](https://yandex.cloud/docs/managed-kafka/concepts)."
 

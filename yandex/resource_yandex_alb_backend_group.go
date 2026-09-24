@@ -439,6 +439,56 @@ func healthCheck() *schema.Schema {
 						},
 					},
 				},
+				"tls": {
+					Type:        schema.TypeList,
+					Description: "TLS transport settings for health checks. Used to establish mTLS connections with the backend.\n\n~> Only one of `validation_context.0.trusted_ca_id` or `validation_context.0.trusted_ca_bytes` should be specified.\n",
+					Optional:    true,
+					MaxItems:    1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"sni": {
+								Type:        schema.TypeString,
+								Description: "SNI string for TLS connections.",
+								Optional:    true,
+							},
+							"validation_context": {
+								Type:        schema.TypeList,
+								Description: "Validation context for backend TLS connections.",
+								Optional:    true,
+								MaxItems:    1,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"trusted_ca_id": {
+											Type:        schema.TypeString,
+											Description: "Trusted CA certificate ID in the Certificate Manager.",
+											Optional:    true,
+										},
+										"trusted_ca_bytes": {
+											Type:        schema.TypeString,
+											Description: "PEM-encoded trusted CA certificate chain.",
+											Optional:    true,
+										},
+									},
+								},
+							},
+							"client_certificate": {
+								Type:        schema.TypeList,
+								Description: "Client certificate specification. Used to establish mTLS connections with the backend.",
+								Optional:    true,
+								MaxItems:    1,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"certificate_id": {
+											Type:        schema.TypeString,
+											Description: "Certificate ID in the Certificate Manager to use as a client certificate for connections to the backend.",
+											Required:    true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -473,6 +523,21 @@ func tlsBackend() *schema.Schema {
 								Type:        schema.TypeString,
 								Description: "PEM-encoded trusted CA certificate chain.",
 								Optional:    true,
+							},
+						},
+					},
+				},
+				"client_certificate": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: "Client certificate specification. Used to establish mTLS connections with the backend.",
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"certificate_id": {
+								Type:        schema.TypeString,
+								Description: "Certificate ID in the Certificate Manager to use as a client certificate for connections to the backend.",
+								Required:    true,
 							},
 						},
 					},

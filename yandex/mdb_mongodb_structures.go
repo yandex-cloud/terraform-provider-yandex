@@ -92,6 +92,9 @@ var mdbMongodbConfigUpdateFieldsMap = map[string]string{
 	"cluster_config.0.mongos.0.set_parameter.0.warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms": "config_spec.mongodb.mongos.config.set_parameter.warm_min_connections_in_sharding_task_executor_pool_on_startup_wait_ms",
 	"cluster_config.0.mongos.0.audit_log":                                                                              "config_spec.mongodb.mongos.config.audit_log",
 	"cluster_config.0.mongos.0.audit_log.0.filter":                                                                     "config_spec.mongodb.mongos.config.audit_log.filter",
+	"cluster_config.0.mongos.0.operation_profiling":                                                                    "config_spec.mongodb.mongos.config.operation_profiling",
+	"cluster_config.0.mongos.0.operation_profiling.0.slow_op_threshold":                                                "config_spec.mongodb.mongos.config.operation_profiling.slow_op_threshold",
+	"cluster_config.0.mongos.0.operation_profiling.0.slow_op_sample_rate":                                              "config_spec.mongodb.mongos.config.operation_profiling.slow_op_sample_rate",
 	"cluster_config.0.mongos.0.chunk_size":                                                                             "config_spec.mongodb.mongos.config.chunk_size",
 
 	"cluster_config.0.mongocfg":                                               "config_spec.mongodb.mongocfg.config",
@@ -434,6 +437,17 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 						audit_log_data["filter"] = audit_log.GetFilter()
 					}
 					result["audit_log"] = []map[string]interface{}{audit_log_data}
+				}
+
+				if opProfiling := userConfig.GetOperationProfiling(); opProfiling != nil {
+					flattenOpProfiling := map[string]interface{}{}
+					if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+						flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+					}
+					if opSampleRate := opProfiling.GetSlowOpSampleRate(); opSampleRate != nil {
+						flattenOpProfiling["slow_op_sample_rate"] = opSampleRate.GetValue()
+					}
+					result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
 				}
 
 				if chunkSize := userConfig.GetChunkSize(); chunkSize != nil {
@@ -799,6 +813,17 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 					setParameterMongos.SetWarmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs(&wrappers.Int64Value{Value: int64(warmMinConnectionsInShardingTaskExecutorPoolOnStartupWaitMs.(int))})
 				}
 				configMongos.SetSetParameter(&setParameterMongos)
+			}
+			if _, ok := d.GetOk("cluster_config.0.mongos.0.operation_profiling"); ok {
+				opProfilingMongos := mongo_config.MongosConfig_OperationProfiling{}
+				if opThreshold, ok := d.GetOk("cluster_config.0.mongos.0.operation_profiling.0.slow_op_threshold"); ok {
+					opProfilingMongos.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+				}
+
+				if opSampleRate, ok := d.GetOk("cluster_config.0.mongos.0.operation_profiling.0.slow_op_sample_rate"); ok {
+					opProfilingMongos.SetSlowOpSampleRate(&wrappers.DoubleValue{Value: opSampleRate.(float64)})
+				}
+				configMongos.SetOperationProfiling(&opProfilingMongos)
 			}
 			if chunkSize, ok := d.GetOk("cluster_config.0.mongos.0.chunk_size"); ok {
 				configMongos.SetChunkSize(&wrappers.Int64Value{Value: int64(chunkSize.(int))})

@@ -3,6 +3,7 @@ package mdb_postgresql_cluster_v2
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/helpers/validatordiag"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -12,6 +13,35 @@ import (
 )
 
 var _ validator.Object = &maintenanceWindowStructValidator{}
+var _ validator.String = &nonBlankStringValidator{}
+
+type nonBlankStringValidator struct{}
+
+func NewNonBlankStringValidator() *nonBlankStringValidator {
+	return &nonBlankStringValidator{}
+}
+
+func (v *nonBlankStringValidator) ValidateString(_ context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		return
+	}
+
+	if strings.TrimSpace(req.ConfigValue.ValueString()) == "" {
+		resp.Diagnostics.AddAttributeError(
+			req.Path,
+			"Invalid string value",
+			fmt.Sprintf("Value for %s must not be empty or contain only whitespace", req.Path.String()),
+		)
+	}
+}
+
+func (v *nonBlankStringValidator) Description(_ context.Context) string {
+	return "Value must not be empty or contain only whitespace"
+}
+
+func (v *nonBlankStringValidator) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
 
 type maintenanceWindowStructValidator struct{}
 

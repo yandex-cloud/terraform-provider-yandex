@@ -161,7 +161,7 @@ func YandexOrganizationmanagerGroupResourceSchema(ctx context.Context) schema.Sc
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 		},

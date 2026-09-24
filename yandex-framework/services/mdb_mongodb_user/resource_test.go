@@ -149,7 +149,8 @@ func mdbMongoDBUserImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"password", // password is not returned
+			"password",            // password is not returned
+			"password_wo_version", // write-only password version is not importable
 		},
 	}
 }

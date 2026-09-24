@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	datasourceschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -37,7 +38,7 @@ var ClusterConnectionManagerAttrTypes = map[string]attr.Type{
 // (omitted in HCL == default value == empty string on the server).
 func ClusterConnectionManagerFrameworkSchema() schema.SingleNestedAttribute {
 	return schema.SingleNestedAttribute{
-		Description: "Connection Manager integration settings. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration after the cluster is created is not supported.",
+		Description: "Connection Manager integration settings. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.",
 		Optional:    true,
 		Computed:    true,
 		PlanModifiers: []planmodifier.Object{
@@ -45,7 +46,7 @@ func ClusterConnectionManagerFrameworkSchema() schema.SingleNestedAttribute {
 		},
 		Attributes: map[string]schema.Attribute{
 			"enabled": schema.BoolAttribute{
-				Description: "Indicates whether Connection Manager integration is enabled. Set to `true` to enable the integration. If omitted, the API enables the integration by default for newly created clusters. Disabling the integration after the cluster is created is not supported.",
+				Description: "Indicates whether Connection Manager integration is enabled. Set to `true` to enable the integration. If omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
@@ -59,6 +60,29 @@ func ClusterConnectionManagerFrameworkSchema() schema.SingleNestedAttribute {
 			"secrets_folder_id": schema.StringAttribute{
 				Description: "ID of the folder where connection secrets are created. Defaults to the cluster's folder if not specified.",
 				Optional:    true,
+			},
+		},
+	}
+}
+
+// ClusterConnectionManagerFrameworkDataSourceSchema returns the schema for the
+// connection_manager block in a datasource (all fields Computed).
+func ClusterConnectionManagerFrameworkDataSourceSchema() datasourceschema.SingleNestedAttribute {
+	return datasourceschema.SingleNestedAttribute{
+		MarkdownDescription: "Connection Manager integration settings.",
+		Computed:            true,
+		Attributes: map[string]datasourceschema.Attribute{
+			"enabled": datasourceschema.BoolAttribute{
+				MarkdownDescription: "Indicates whether Connection Manager integration is enabled.",
+				Computed:            true,
+			},
+			"connections_folder_id": datasourceschema.StringAttribute{
+				MarkdownDescription: "ID of the folder where connections for the cluster are created.",
+				Computed:            true,
+			},
+			"secrets_folder_id": datasourceschema.StringAttribute{
+				MarkdownDescription: "ID of the folder where connection secrets are created.",
+				Computed:            true,
 			},
 		},
 	}
@@ -79,7 +103,8 @@ func ValidateClusterConnectionManagerFromConfig(ctx context.Context, cfg tfsdk.C
 		return
 	}
 	if !cm.Enabled.IsNull() && !cm.Enabled.IsUnknown() && !cm.Enabled.ValueBool() {
-		diags.AddError(
+		diags.AddAttributeError(
+			configPath.AtName("enabled"),
 			"connection_manager.enabled cannot be set to false, disabling Connection Manager integration is not supported",
 			"Remove the `enabled = false` line or set `enabled = true` to keep the integration enabled.",
 		)

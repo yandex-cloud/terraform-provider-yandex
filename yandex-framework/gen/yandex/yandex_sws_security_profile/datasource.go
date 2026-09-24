@@ -106,7 +106,7 @@ func (r *yandexSwsSecurityProfileDataSource) Read(ctx context.Context, req datas
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"security_profile not found",
 			)
@@ -116,6 +116,7 @@ func (r *yandexSwsSecurityProfileDataSource) Read(ctx context.Context, req datas
 				"Error while requesting API to get security_profile:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read security_profile response: %s", validate.ProtoDump(res)))
@@ -126,7 +127,7 @@ func (r *yandexSwsSecurityProfileDataSource) Read(ctx context.Context, req datas
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

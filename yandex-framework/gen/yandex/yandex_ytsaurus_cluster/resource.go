@@ -717,7 +717,7 @@ func (r *yandexYtsaurusClusterResource) Update(ctx context.Context, req resource
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update cluster:"+err.Error(),
 			)
 			return

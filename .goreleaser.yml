@@ -1,9 +1,5 @@
 # Visit https://goreleaser.com for documentation on how to customize this
 # behavior.
-before:
-  hooks:
-    # this is just an example and not a requirement for provider building/publishing
-    - go mod tidy
 builds:
 - env:
     # goreleaser does not work with CGO, it could also complicate
@@ -13,6 +9,7 @@ builds:
   mod_timestamp: '{{ .CommitTimestamp }}'
   flags:
     - -trimpath
+    - -mod=vendor
   ldflags:
     - '-s -w -X github.com/yandex-cloud/terraform-provider-yandex/version.ProviderVersion={{.Version}}'
   goos:

@@ -595,10 +595,17 @@ func TestAccMDBRedisClusterV2_create_with_disabled_modules(t *testing.T) {
 		OpModify,
 	}
 	conf := testAccModulesDisabledConfig(redisName, redisDesc)
+	// only valkey_search is listed, valkey_json and valkey_bloom are omitted entirely,
+	// so terraform passes them to the provider as unknown
 	modulesDisabledConfig := makeConfig(t, conf, &redisConfigTest{
 		Config: &config{
 			Version:  &version,
 			Password: &password,
+		},
+		Modules: &valkeyModules{
+			ValkeySearch: &valkeySearch{
+				Enabled: newPtr(false),
+			},
 		},
 		TlsEnabled: &tlsEnabled,
 		Hosts:      nonShardedHosts,

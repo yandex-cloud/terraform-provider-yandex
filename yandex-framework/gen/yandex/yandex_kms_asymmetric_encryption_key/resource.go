@@ -367,7 +367,7 @@ func (r *yandexKmsAsymmetricEncryptionKeyResource) Update(ctx context.Context, r
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update asymmetric_encryption_key:"+err.Error(),
 			)
 			return

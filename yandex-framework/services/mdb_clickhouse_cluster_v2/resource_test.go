@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
@@ -36,6 +37,11 @@ const (
 
 	chVersion        = "25.8"
 	chUpdatedVersion = "26.3"
+
+	sqlManagementEnabled = `
+  sql_user_management     = true
+  sql_database_management = true
+`
 
 	chResourceKeeper        = "yandex_mdb_clickhouse_cluster_v2.keeper"
 	chResourceCloudStorage  = "yandex_mdb_clickhouse_cluster_v2.cloud"
@@ -878,7 +884,7 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForFirstStep, defaultUserSettingsForFirstStep),
+				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForFirstStep, defaultUserSettingsForFirstStep, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -887,6 +893,9 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.default_user_settings.max_threads", "8"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.default_user_settings.max_memory_usage", "1000000000"),
+
+					resource.TestCheckResourceAttr(chResource, "connection_manager.connections_folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "connection_manager.secrets_folder_id", folderID),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.log_level", "TRACE"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.max_connections", "512"),
@@ -1070,8 +1079,16 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			{
-				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForSecondStep, defaultUserSettingsForSecondStep),
+				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForSecondStep, defaultUserSettingsForSecondStep, sqlManagementEnabled),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(chResource, plancheck.ResourceActionUpdate),
+					},
+				},
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(chResource, "sql_user_management", "true"),
+					resource.TestCheckResourceAttr(chResource, "sql_database_management", "true"),
+
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
@@ -1939,13 +1956,22 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 	)
 }
 
-func testAccMDBClickHouseCluster_clickhouse_config(name string, config *clickhouseConfig.ClickhouseConfig, defaultUserSettings string) string {
+func testAccMDBClickHouseCluster_clickhouse_config(name string, config *clickhouseConfig.ClickhouseConfig, defaultUserSettings, sqlManagement string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           = "%s"
   description    = "ClickHouse config"
   environment    = "PRESTABLE"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
+
+  connection_manager = {
+    connections_folder_id = "%s"
+    secrets_folder_id     = "%s"
+  }
+
+  # sql management
+  %s
 
   version = "%s"
   clickhouse = {
@@ -2025,6 +2051,9 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 }
 `,
 		name,
+		test.GetExampleFolderID(),
+		test.GetExampleFolderID(),
+		sqlManagement,
 		chVersion,
 		buildClickhouseConfigHCL(config),
 		defaultUserSettings,
@@ -2207,6 +2236,9 @@ resource "yandex_mdb_clickhouse_cluster_v2" "migrate_to_keeper" {
     shard1 = {}
   }
 
+  # maintenance_window
+  %s
+
   %s
 }
 `,
@@ -2214,6 +2246,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "migrate_to_keeper" {
 		coordinatorType,
 		coordinatorType,
 		coordinatorType,
+		maintenanceWindowAnytime,
 		allowDegradationConfig,
 	)
 }

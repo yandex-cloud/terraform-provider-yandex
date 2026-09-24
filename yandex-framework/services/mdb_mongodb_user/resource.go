@@ -7,8 +7,11 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -94,9 +97,28 @@ func (r *bindingResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				},
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: "The password of the user. Required for users with `PASSWORD` authentication and must be omitted for users with `IAM` authentication.",
+				MarkdownDescription: "The password of the user. Either `password` or `password_wo` is required for users with `PASSWORD` authentication and both must be omitted for users with `IAM` authentication.",
 				Optional:            true,
 				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("password_wo")),
+				},
+			},
+			"password_wo": schema.StringAttribute{
+				MarkdownDescription: "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are supported in Terraform 1.11 and later. Must be omitted for users with `IAM` authentication.",
+				Optional:            true,
+				Sensitive:           true,
+				WriteOnly:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo_version")),
+				},
+			},
+			"password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo")),
+				},
 			},
 			"auth_type": schema.StringAttribute{
 				MarkdownDescription: "The authentication type of the user. Either `PASSWORD` (default) or `IAM`.",
@@ -179,6 +201,8 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	var plan User
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -192,7 +216,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
-	userPlan, diags := userFromState(ctx, &plan)
+	userPlan, diags := userFromState(ctx, &plan, mongodbUserPasswordForCreate(&plan, passwordWo))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -208,9 +232,9 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	resp.Diagnostics.Append(diags...)
 }
 
-func getUpdatePaths(plan, state *mongodb.UserSpec) []string {
+func getUpdatePaths(plan, state *mongodb.UserSpec, passwordChanged bool) []string {
 	var updatePaths []string
-	if state.Password != plan.Password {
+	if passwordChanged {
 		updatePaths = append(updatePaths, "password")
 	}
 	if fmt.Sprintf("%v", state.Permissions) != fmt.Sprintf("%v", plan.Permissions) {
@@ -227,6 +251,8 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	var state User
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	var passwordWo types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &passwordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -240,14 +266,19 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
-	userState, diags := userFromState(ctx, &state)
+	password, passwordChanged, passwordDiags := mongodbUserPasswordChange(&plan, &state, passwordWo)
+	resp.Diagnostics.Append(passwordDiags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	userState, diags := userFromState(ctx, &state, state.Password.ValueString())
 	resp.Diagnostics.Append(diags...)
-	userPlan, diags := userFromState(ctx, &plan)
+	userPlan, diags := userFromState(ctx, &plan, password)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	updatePaths := getUpdatePaths(userPlan, userState)
+	updatePaths := getUpdatePaths(userPlan, userState, passwordChanged)
 
 	if len(updatePaths) > 0 {
 		updateUser(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, userPlan, updatePaths)
@@ -308,4 +339,31 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 
 	diags := resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
+}
+
+func mongodbUserPasswordForCreate(plan *User, passwordWo types.String) string {
+	if !passwordWo.IsNull() && !passwordWo.IsUnknown() {
+		return passwordWo.ValueString()
+	}
+	return plan.Password.ValueString()
+}
+
+func mongodbUserPasswordChange(plan, state *User, passwordWo types.String) (string, bool, diag.Diagnostics) {
+	password := plan.Password.ValueString()
+	passwordChanged := !plan.Password.IsNull() && !plan.Password.Equal(state.Password)
+
+	if plan.PasswordWoVersion.IsNull() || plan.PasswordWoVersion.Equal(state.PasswordWoVersion) {
+		return password, passwordChanged, nil
+	}
+	if passwordWo.IsNull() || passwordWo.IsUnknown() {
+		diagnostics := diag.Diagnostics{}
+		diagnostics.AddAttributeError(
+			path.Root("password_wo"),
+			"Missing MongoDB user password",
+			"password_wo must be configured when password_wo_version changes",
+		)
+		return "", false, diagnostics
+	}
+
+	return passwordWo.ValueString(), true, nil
 }

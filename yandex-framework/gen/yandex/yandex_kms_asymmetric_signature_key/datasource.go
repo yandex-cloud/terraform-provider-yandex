@@ -88,7 +88,7 @@ func (r *yandexKmsAsymmetricSignatureKeyDataSource) Read(ctx context.Context, re
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"asymmetric_signature_key not found",
 			)
@@ -98,6 +98,7 @@ func (r *yandexKmsAsymmetricSignatureKeyDataSource) Read(ctx context.Context, re
 				"Error while requesting API to get asymmetric_signature_key:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read asymmetric_signature_key response: %s", validate.ProtoDump(res)))
@@ -108,7 +109,7 @@ func (r *yandexKmsAsymmetricSignatureKeyDataSource) Read(ctx context.Context, re
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

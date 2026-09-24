@@ -33,6 +33,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  airflow_cluster_change_freeze:
+    Category: "Managed Service for Apache Airflow"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   alb_backend_group:
     Category: "Application Load Balancer (ALB)"
     Type: sdk
@@ -385,6 +391,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  dataproc_cluster_change_freeze:
+    Category: "Data Processing"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   datasphere_community:
     Category: "Datasphere"
     Type: fw
@@ -865,6 +877,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_clickhouse_cluster_change_freeze:
+    Category: "Managed Service for ClickHouse"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   mdb_clickhouse_database:
     Category: "Managed Service for ClickHouse"
     Type: fw
@@ -889,6 +907,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_greenplum_cluster_change_freeze:
+    Category: "Managed Service for Greenplum"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   mdb_greenplum_resource_group:
     Category: "Managed Service for Greenplum"
     Type: sdk
@@ -913,6 +937,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_kafka_cluster_change_freeze:
+    Category: "Managed Service for Apache Kafka"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   mdb_kafka_connector:
     Category: "Managed Service for Apache Kafka"
     Type: sdk
@@ -945,6 +975,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_mongodb_cluster_change_freeze:
+    Category: "Managed Service for MongoDB"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   mdb_mongodb_database:
     Category: "Managed Service for MongoDB"
     Type: fw
@@ -975,6 +1011,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_mysql_cluster_change_freeze:
+    Category: "Managed Service for MySQL"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   mdb_mysql_database:
     Category: "Managed Service for MySQL"
     Type: sdk
@@ -1005,6 +1047,16 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_opensearch_cluster_change_freeze:
+    Category: "Managed Service for OpenSearch"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
+  mdb_opensearch_user:
+    Category: "Managed Service for OpenSearch"
+    Type: fw
+    HasD: true
   mdb_postgresql_cluster:
     Category: "Managed Service for PostgreSQL"
     Type: sdk
@@ -1013,6 +1065,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_postgresql_cluster_change_freeze:
+    Category: "Managed Service for PostgreSQL"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   mdb_postgresql_database:
     Category: "Managed Service for PostgreSQL"
     Type: sdk
@@ -1059,6 +1117,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_redis_cluster_change_freeze:
+    Category: "Managed Service for Redis"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   mdb_redis_user:
     Category: "Managed Service for Redis"
     Type: fw
@@ -1089,6 +1153,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  metastore_cluster_change_freeze:
+    Category: "Apache Hive Metastore"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   monitoring_dashboard:
     Category: "Monitoring"
     Type: sdk
@@ -1273,6 +1343,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  spark_cluster_change_freeze:
+    Category: "Managed Service for Apache Spark"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   mdb_sharded_postgresql_cluster:
     Category: "Managed Service for Sharded PostgreSQL"
     Type: fw
@@ -1281,6 +1357,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  mdb_sharded_postgresql_cluster_change_freeze:
+    Category: "Managed Service for Sharded PostgreSQL"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   mdb_sharded_postgresql_user:
     Category: "Managed Service for Sharded PostgreSQL"
     Type: fw
@@ -1401,6 +1483,12 @@ Resources:
     HasI: true
     #HasF: false
     #HasE: false
+  trino_cluster_change_freeze:
+    Category: "Managed Service for Trino"
+    Type: fw
+    HasR: true
+    HasD: false
+    HasI: true
   trino_catalog:
     Category: "Managed Service for Trino"
     Type: fw

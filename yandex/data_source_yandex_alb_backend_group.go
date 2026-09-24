@@ -416,6 +416,63 @@ func dataSourceHealthCheck() *schema.Schema {
 						},
 					},
 				},
+				"tls": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Computed:    true,
+					MaxItems:    1,
+					Description: "TLS settings for the health check.",
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"sni": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Computed:    true,
+								Description: "Server name indication (SNI) to be sent to the backend.",
+							},
+							"validation_context": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								Computed:    true,
+								MaxItems:    1,
+								Description: "Validation context for the TLS connection.",
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"trusted_ca_id": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Computed:    true,
+											Description: "ID of the trusted CA certificate.",
+										},
+										"trusted_ca_bytes": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Computed:    true,
+											Description: "PEM-encoded trusted CA certificate bytes.",
+										},
+									},
+								},
+							},
+							"client_certificate": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								Computed:    true,
+								MaxItems:    1,
+								Description: "Client certificate to present during TLS handshake.",
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"certificate_id": {
+											Type:        schema.TypeString,
+											Optional:    true,
+											Computed:    true,
+											Description: "ID of the client certificate.",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -423,33 +480,55 @@ func dataSourceHealthCheck() *schema.Schema {
 
 func dataSourceTLS() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeList,
-		Optional: true,
-		Computed: true,
-		MaxItems: 1,
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		MaxItems:    1,
+		Description: "TLS settings for the backend connection.",
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"sni": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
+					Type:        schema.TypeString,
+					Optional:    true,
+					Computed:    true,
+					Description: "Server name indication (SNI) to be sent to the backend.",
 				},
 				"validation_context": {
-					Type:     schema.TypeList,
-					Optional: true,
-					Computed: true,
-					MaxItems: 1,
+					Type:        schema.TypeList,
+					Optional:    true,
+					Computed:    true,
+					MaxItems:    1,
+					Description: "Validation context for the TLS connection.",
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"trusted_ca_id": {
-								Type:     schema.TypeString,
-								Optional: true,
-								Computed: true,
+								Type:        schema.TypeString,
+								Optional:    true,
+								Computed:    true,
+								Description: "ID of the trusted CA certificate.",
 							},
 							"trusted_ca_bytes": {
-								Type:     schema.TypeString,
-								Optional: true,
-								Computed: true,
+								Type:        schema.TypeString,
+								Optional:    true,
+								Computed:    true,
+								Description: "PEM-encoded trusted CA certificate bytes.",
+							},
+						},
+					},
+				},
+				"client_certificate": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Computed:    true,
+					MaxItems:    1,
+					Description: "Client certificate to present during TLS handshake.",
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"certificate_id": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Computed:    true,
+								Description: "ID of the client certificate.",
 							},
 						},
 					},

@@ -21,6 +21,19 @@ type User struct {
 	ClusterID          types.String   `tfsdk:"cluster_id"`
 	Name               types.String   `tfsdk:"name"`
 	Password           types.String   `tfsdk:"password"`
+	PasswordWo         types.String   `tfsdk:"password_wo"`
+	PasswordWoVersion  types.Int64    `tfsdk:"password_wo_version"`
+	AuthType           types.String   `tfsdk:"auth_type"`
+	DeletionProtection types.Bool     `tfsdk:"deletion_protection"`
+	Permission         types.Set      `tfsdk:"permission"`
+	Timeouts           timeouts.Value `tfsdk:"timeouts"`
+}
+
+type dataSourceUser struct {
+	Id                 types.String   `tfsdk:"id"`
+	ClusterID          types.String   `tfsdk:"cluster_id"`
+	Name               types.String   `tfsdk:"name"`
+	Password           types.String   `tfsdk:"password"`
 	AuthType           types.String   `tfsdk:"auth_type"`
 	DeletionProtection types.Bool     `tfsdk:"deletion_protection"`
 	Permission         types.Set      `tfsdk:"permission"`
@@ -64,11 +77,29 @@ func userToState(user *mongodb.User, state *User) diag.Diagnostics {
 	state.ClusterID = types.StringValue(user.ClusterId)
 	state.AuthType = authTypeToState(user.GetAuthType())
 	state.DeletionProtection = wrappers.BoolToTF(user.GetDeletionProtection())
+	state.PasswordWo = types.StringNull()
 
 	return permissionsToState(user.Permissions, state)
 }
 
+func dataSourceUserToState(user *mongodb.User, state *dataSourceUser) diag.Diagnostics {
+	state.Name = types.StringValue(user.Name)
+	state.ClusterID = types.StringValue(user.ClusterId)
+	state.AuthType = authTypeToState(user.GetAuthType())
+	state.DeletionProtection = wrappers.BoolToTF(user.GetDeletionProtection())
+
+	permissions, diags := permissionsToSet(user.Permissions)
+	state.Permission = permissions
+	return diags
+}
+
 func permissionsToState(permissions []*mongodb.Permission, state *User) diag.Diagnostics {
+	value, diags := permissionsToSet(permissions)
+	state.Permission = value
+	return diags
+}
+
+func permissionsToSet(permissions []*mongodb.Permission) (types.Set, diag.Diagnostics) {
 	var permissionValues []attr.Value
 
 	var diags diag.Diagnostics
@@ -93,15 +124,14 @@ func permissionsToState(permissions []*mongodb.Permission, state *User) diag.Dia
 	value, diagnostics := types.SetValue(permissionType, permissionValues)
 	diags.Append(diagnostics...)
 
-	state.Permission = value
-	return diags
+	return value, diags
 }
 
-func userFromState(ctx context.Context, state *User) (*mongodb.UserSpec, diag.Diagnostics) {
+func userFromState(ctx context.Context, state *User, password string) (*mongodb.UserSpec, diag.Diagnostics) {
 	permissions, diags := permissionsFromState(ctx, state)
 	return &mongodb.UserSpec{
 		Name:               state.Name.ValueString(),
-		Password:           state.Password.ValueString(),
+		Password:           password,
 		AuthType:           authTypeFromState(state.AuthType),
 		DeletionProtection: wrappers.BoolFromTF(state.DeletionProtection),
 		Permissions:        permissions,

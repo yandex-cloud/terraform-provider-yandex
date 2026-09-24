@@ -379,7 +379,7 @@ func (r *yandexIamWorkloadIdentityOidcFederationResource) Update(ctx context.Con
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update federation:"+err.Error(),
 			)
 			return

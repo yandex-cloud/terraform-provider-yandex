@@ -7371,6 +7371,282 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 										},
 									},
 								},
+								Blocks: map[string]schema.Block{
+
+									"authentication": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Blocks: map[string]schema.Block{
+
+												"service_account": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"service_account_id": schema.StringAttribute{
+																MarkdownDescription: "Service account ID for interaction with database",
+																Description: "Service account ID for interaction with database" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.ServiceAccount.service_account_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.ServiceAccount.service_account_id
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.ServiceAccount.service_account_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.SizeAtMost(1),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication
+											// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+
+									"ydb_connection": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"database_id": schema.StringAttribute{
+													MarkdownDescription: "Managed Service for YDB database ID",
+													Description: "Managed Service for YDB database ID" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.database_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.database_id
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.database_id
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.String{
+														stringvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("on_premise"),
+														),
+													},
+												},
+											},
+											Blocks: map[string]schema.Block{
+
+												"on_premise": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database": schema.StringAttribute{
+																MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
+																Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.database
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.database
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.database
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"instance": schema.StringAttribute{
+																MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.",
+																Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.instance
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.instance
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.instance
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"subnet_id": schema.StringAttribute{
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.subnet_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+														Blocks: map[string]schema.Block{
+
+															"tls_mode": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
+
+																	Blocks: map[string]schema.Block{
+
+																		"disabled": schema.ListNestedBlock{
+																			NestedObject:        schema.NestedBlockObject{},
+																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("enabled"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"enabled": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"ca_certificate": schema.StringAttribute{
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "TLS is used for the server connection",
+																			Description: "TLS is used for the server connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("disabled"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+																	},
+																},
+																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
+																Description: "TLS settings for server connection. Disabled by default." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+																PlanModifiers: []planmodifier.List{
+																	listplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.List{
+																	listvalidator.SizeAtMost(1),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("database_id"),
+														), listvalidator.SizeAtMost(1),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection
+											// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+								},
 							},
 							MarkdownDescription: "",
 							Description: "" +
@@ -7608,6 +7884,282 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 										},
 									},
 								},
+								Blocks: map[string]schema.Block{
+
+									"authentication": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Blocks: map[string]schema.Block{
+
+												"service_account": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"service_account_id": schema.StringAttribute{
+																MarkdownDescription: "Service account ID for interaction with database",
+																Description: "Service account ID for interaction with database" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.ServiceAccount.service_account_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.ServiceAccount.service_account_id
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.ServiceAccount.service_account_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.SizeAtMost(1),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication
+											// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+
+									"ydb_connection": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"database_id": schema.StringAttribute{
+													MarkdownDescription: "Managed Service for YDB database ID",
+													Description: "Managed Service for YDB database ID" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.database_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.database_id
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.database_id
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.String{
+														stringvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("on_premise"),
+														),
+													},
+												},
+											},
+											Blocks: map[string]schema.Block{
+
+												"on_premise": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database": schema.StringAttribute{
+																MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
+																Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.database
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.database
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.database
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"instance": schema.StringAttribute{
+																MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.",
+																Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.instance
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.instance
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.instance
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"subnet_id": schema.StringAttribute{
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.subnet_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+														Blocks: map[string]schema.Block{
+
+															"tls_mode": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
+
+																	Blocks: map[string]schema.Block{
+
+																		"disabled": schema.ListNestedBlock{
+																			NestedObject:        schema.NestedBlockObject{},
+																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("enabled"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"enabled": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"ca_certificate": schema.StringAttribute{
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "TLS is used for the server connection",
+																			Description: "TLS is used for the server connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("disabled"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+																	},
+																},
+																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
+																Description: "TLS settings for server connection. Disabled by default." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+																PlanModifiers: []planmodifier.List{
+																	listplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.List{
+																	listvalidator.SizeAtMost(1),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("database_id"),
+														), listvalidator.SizeAtMost(1),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection
+											// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+								},
 							},
 							MarkdownDescription: "",
 							Description: "" +
@@ -7815,6 +8367,46 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 									},
 								},
 								Blocks: map[string]schema.Block{
+
+									"authentication": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"service_account_id": schema.StringAttribute{
+													MarkdownDescription: "Service account ID for interaction with database",
+													Description: "Service account ID for interaction with database" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.YDSAuthenticationMethod.service_account_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.YDSAuthenticationMethod.service_account_id
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.YDSAuthenticationMethod.service_account_id
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Choose one of authentication methods, right now only service account is avaiable",
+										Description: "Choose one of authentication methods, right now only service account is avaiable" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.authentication
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.authentication
+											// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.authentication
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
 
 									"parser": schema.ListNestedBlock{
 										NestedObject: schema.NestedBlockObject{
@@ -8408,6 +9000,269 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 											listvalidator.SizeAtMost(1),
 										},
 									},
+
+									"ydb_connection": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Blocks: map[string]schema.Block{
+
+												"managed_yds": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database_id": schema.StringAttribute{
+																MarkdownDescription: "Managed Service for YDB database ID",
+																Description: "Managed Service for YDB database ID" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.database_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.database_id
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.database_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"stream": schema.StringAttribute{
+																MarkdownDescription: "Stream to read",
+																Description: "Stream to read" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.stream
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.stream
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.stream
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("on_premise"),
+														), listvalidator.SizeAtMost(1),
+													},
+												},
+
+												"on_premise": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database": schema.StringAttribute{
+																MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
+																Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.database
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.database
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.database
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"instance": schema.StringAttribute{
+																MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.",
+																Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.instance
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.instance
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.instance
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"stream": schema.StringAttribute{
+																MarkdownDescription: "Stream to read",
+																Description: "Stream to read" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.stream
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.stream
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.stream
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"subnet_id": schema.StringAttribute{
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.subnet_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+														Blocks: map[string]schema.Block{
+
+															"tls_mode": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
+
+																	Blocks: map[string]schema.Block{
+
+																		"disabled": schema.ListNestedBlock{
+																			NestedObject:        schema.NestedBlockObject{},
+																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("enabled"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"enabled": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"ca_certificate": schema.StringAttribute{
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "TLS is used for the server connection",
+																			Description: "TLS is used for the server connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("disabled"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+																	},
+																},
+																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
+																Description: "TLS settings for server connection. Disabled by default." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+																PlanModifiers: []planmodifier.List{
+																	listplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.List{
+																	listvalidator.SizeAtMost(1),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("managed_yds"),
+														), listvalidator.SizeAtMost(1),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Connection settings for managed YDB or for on premise",
+										Description: "Connection settings for managed YDB or for on premise" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection
+											// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
 								},
 							},
 							MarkdownDescription: "",
@@ -8593,6 +9448,46 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 								},
 								Blocks: map[string]schema.Block{
 
+									"authentication": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"service_account_id": schema.StringAttribute{
+													MarkdownDescription: "Service account ID for interaction with database",
+													Description: "Service account ID for interaction with database" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.YDSAuthenticationMethod.service_account_id
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.YDSAuthenticationMethod.service_account_id
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.YDSAuthenticationMethod.service_account_id
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+													Optional: true,
+													Computed: true,
+
+													PlanModifiers: []planmodifier.String{
+														stringplanmodifier.UseStateForUnknown(),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Choose one of authentication methods, right now only service account is avaiable",
+										Description: "Choose one of authentication methods, right now only service account is avaiable" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.authentication
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.authentication
+											// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.authentication
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+
 									"serializer": schema.ListNestedBlock{
 										NestedObject: schema.NestedBlockObject{
 
@@ -8730,6 +9625,269 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer
 											// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.serializer
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+
+									"ydb_connection": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Blocks: map[string]schema.Block{
+
+												"managed_yds": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database_id": schema.StringAttribute{
+																MarkdownDescription: "Managed Service for YDB database ID",
+																Description: "Managed Service for YDB database ID" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.database_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.database_id
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.database_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"stream": schema.StringAttribute{
+																MarkdownDescription: "Stream to read",
+																Description: "Stream to read" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.stream
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.stream
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.stream
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("on_premise"),
+														), listvalidator.SizeAtMost(1),
+													},
+												},
+
+												"on_premise": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database": schema.StringAttribute{
+																MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
+																Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.database
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.database
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.database
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"instance": schema.StringAttribute{
+																MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.",
+																Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.instance
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.instance
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.instance
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"stream": schema.StringAttribute{
+																MarkdownDescription: "Stream to read",
+																Description: "Stream to read" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.stream
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.stream
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.stream
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"subnet_id": schema.StringAttribute{
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.subnet_id
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.subnet_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+														Blocks: map[string]schema.Block{
+
+															"tls_mode": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
+
+																	Blocks: map[string]schema.Block{
+
+																		"disabled": schema.ListNestedBlock{
+																			NestedObject:        schema.NestedBlockObject{},
+																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("enabled"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"enabled": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"ca_certificate": schema.StringAttribute{
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "TLS is used for the server connection",
+																			Description: "TLS is used for the server connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("disabled"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+																	},
+																},
+																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
+																Description: "TLS settings for server connection. Disabled by default." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+																PlanModifiers: []planmodifier.List{
+																	listplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.List{
+																	listvalidator.SizeAtMost(1),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("managed_yds"),
+														), listvalidator.SizeAtMost(1),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Connection settings for managed YDB or for on premise",
+										Description: "Connection settings for managed YDB or for on premise" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection
+											// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 

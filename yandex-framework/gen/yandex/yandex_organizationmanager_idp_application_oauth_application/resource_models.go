@@ -342,24 +342,35 @@ func expandYandexOrganizationmanagerIdpApplicationOauthApplicationClientGrantAut
 }
 
 type yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel struct {
+	GroupClaimValue       types.String `tfsdk:"group_claim_value"`
 	GroupDistributionType types.String `tfsdk:"group_distribution_type"`
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel) GetGroupClaimValue() types.String {
+	return m.GroupClaimValue
+}
 func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel) GetGroupDistributionType() types.String {
 	return m.GroupDistributionType
 }
 
+func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel) SetGroupClaimValue(target types.String) {
+	m.GroupClaimValue = target
+}
 func (m *yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel) SetGroupDistributionType(target types.String) {
 	m.GroupDistributionType = target
 }
 
 func NewYandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel() yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel {
 	return yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel{
+		GroupClaimValue:       types.StringNull(),
 		GroupDistributionType: types.StringNull(),
 	}
 }
 
 func yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModelFillUnknown(target yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel) yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel {
+	if target.GroupClaimValue.IsUnknown() || target.GroupClaimValue.IsNull() {
+		target.GroupClaimValue = types.StringNull()
+	}
 	if target.GroupDistributionType.IsUnknown() || target.GroupDistributionType.IsNull() {
 		target.GroupDistributionType = types.StringNull()
 	}
@@ -368,6 +379,7 @@ func yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsM
 
 var yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"group_claim_value":       types.StringType,
 		"group_distribution_type": types.StringType,
 	},
 }
@@ -379,6 +391,7 @@ func flattenYandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSe
 		return types.ObjectNull(yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModelType.AttrTypes, yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel{
+		GroupClaimValue:       types.StringValue(yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettings.GetGroupClaimValue().String()),
 		GroupDistributionType: types.StringValue(yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettings.GetGroupDistributionType().String()),
 	})
 	diags.Append(diag...)
@@ -399,6 +412,7 @@ func expandYandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSet
 
 func expandYandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel(ctx context.Context, yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsModel, diags *diag.Diagnostics) *oauth.GroupClaimsSettings {
 	value := &oauth.GroupClaimsSettings{}
+	value.SetGroupClaimValue(oauth.GroupClaimValue(oauth.GroupClaimValue_value[yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState.GroupClaimValue.ValueString()]))
 	value.SetGroupDistributionType(oauth.GroupDistributionType(oauth.GroupDistributionType_value[yandexOrganizationmanagerIdpApplicationOauthApplicationGroupClaimsSettingsState.GroupDistributionType.ValueString()]))
 	if diags.HasError() {
 		return nil

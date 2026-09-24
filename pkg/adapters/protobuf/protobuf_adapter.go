@@ -9,12 +9,14 @@ import (
 	"reflect"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -48,6 +50,12 @@ var wrapperNulls = []attr.Value{
 	types.StringNull(),
 	types.NumberNull(),
 	types.NumberNull(),
+}
+
+var durationType = reflect.TypeOf(&durationpb.Duration{})
+
+func isScalarMessageType(t reflect.Type) bool {
+	return slices.Contains(wrapperTypes, t) || t == durationType
 }
 
 var primitiveTypes = []reflect.Kind{
@@ -138,7 +146,7 @@ func (f *ProtobufMapDataAdapter) fill(ctx context.Context, target any, attribute
 		}
 
 		// If pointer to struct
-		if field.Type.Kind() == reflect.Ptr && field.Type.Elem().Kind() == reflect.Struct && !slices.Contains(wrapperTypes, field.Type) {
+		if field.Type.Kind() == reflect.Ptr && field.Type.Elem().Kind() == reflect.Struct && !isScalarMessageType(field.Type) {
 			targetNestedField := targetReflectVal.Field(i)
 			if depth != maxDepth {
 				if targetNestedField.IsNil() {
@@ -193,6 +201,10 @@ func (f *ProtobufMapDataAdapter) mapAttributeToType(ctx context.Context, t refle
 		return f.mapToWrapper(ctx, t, attribute, diags)
 	}
 
+	if t == durationType {
+		return f.mapToDuration(t, attribute, diags)
+	}
+
 	if t.Implements(reflect.TypeOf((*protoreflect.Enum)(nil)).Elem()) {
 		return f.mapToEnum(ctx, t, attribute, diags)
 	}
@@ -207,6 +219,22 @@ func (f *ProtobufMapDataAdapter) mapAttributeToType(ctx context.Context, t refle
 
 	diags.AddError("Error protobuf filler", fmt.Sprintf("%s type is not supported for mapping", t.Name()))
 	return reflect.Value{}
+}
+
+func (f *ProtobufMapDataAdapter) mapToDuration(t reflect.Type, attribute attr.Value, diags *diag.Diagnostics) reflect.Value {
+	v, ok := attribute.(types.String)
+	if !ok {
+		diags.AddError("Error protobuf filler", fmt.Sprintf("Attribute for %s must be string", t.Name()))
+		return reflect.Value{}
+	}
+
+	d, err := time.ParseDuration(v.ValueString())
+	if err != nil {
+		diags.AddError("Error protobuf filler", fmt.Sprintf("Attribute for %s must be a valid duration: %v", t.Name(), err))
+		return reflect.Value{}
+	}
+
+	return reflect.ValueOf(durationpb.New(d))
 }
 
 func (f *ProtobufMapDataAdapter) mapToEnum(ctx context.Context, t reflect.Type, attribute attr.Value, diags *diag.Diagnostics) reflect.Value {
@@ -442,7 +470,7 @@ func (b *ProtobufMapDataAdapter) Extract(ctx context.Context, src any, diags *di
 		}
 
 		if field.Type.Kind() == reflect.Ptr && field.Type.Elem().Kind() == reflect.Struct &&
-			!slices.Contains(wrapperTypes, field.Type) || field.Type.Kind() == reflect.Struct {
+			!isScalarMessageType(field.Type) || field.Type.Kind() == reflect.Struct {
 
 			extendedAttributes := b.Extract(ctx, srcVal.Field(i).Interface(), diags)
 			if diags.HasError() {
@@ -469,6 +497,19 @@ func (b *ProtobufMapDataAdapter) Extract(ctx context.Context, src any, diags *di
 }
 
 func (b *ProtobufMapDataAdapter) getAttributeFromReflectValue(ctx context.Context, srcType reflect.Type, srcVal reflect.Value, diags *diag.Diagnostics) attr.Value {
+	if srcType == durationType {
+		if srcVal.IsNil() {
+			return types.StringNull()
+		}
+
+		d := srcVal.Interface().(*durationpb.Duration)
+		if err := d.CheckValid(); err != nil {
+			diags.AddError("Error protobuf extractor", fmt.Sprintf("Invalid duration: %v", err))
+			return nil
+		}
+
+		return types.StringValue(d.AsDuration().String())
+	}
 
 	if slices.Contains(wrapperTypes, srcType) {
 		if srcVal.IsNil() {

@@ -96,7 +96,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 										stringplanmodifier.UseStateForUnknown(),
 									},
 									Validators: []validator.String{
-										stringvalidator.LengthBetween(0, 8000),
+										stringvalidator.LengthBetween(1, 8000),
 									},
 								},
 
@@ -115,7 +115,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 										stringplanmodifier.UseStateForUnknown(),
 									},
 									Validators: []validator.String{
-										stringvalidator.LengthBetween(0, 50),
+										stringvalidator.LengthBetween(1, 50),
 									},
 								},
 							},
@@ -262,6 +262,26 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 						},
 						Validators: []validator.String{
 							stringvalidator.LengthBetween(0, 8000),
+						},
+					},
+
+					"group_attribute_value": schema.StringAttribute{
+						MarkdownDescription: "Source of the group value provided to the application.",
+						Description: "Source of the group value provided to the application." +
+							// proto paths: +
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.Application.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_value
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.CreateApplicationRequest.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_value
+							// -> yandex.cloud.organizationmanager.v1.idp.application.saml.UpdateApplicationRequest.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.saml.GroupClaimsSettings.group_attribute_value
+							"package: yandex.cloud.organizationmanager.v1.idp.application.saml\n" +
+							"filename: yandex/cloud/organizationmanager/v1/idp/application/saml/application.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
+						Validators: []validator.String{
+							stringvalidator.OneOf(converter.MapKeys(saml.GroupAttributeValue_value)...),
 						},
 					},
 
@@ -417,7 +437,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 
@@ -518,7 +538,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 										stringplanmodifier.UseStateForUnknown(),
 									},
 									Validators: []validator.String{
-										stringvalidator.LengthBetween(0, 8000),
+										stringvalidator.LengthBetween(1, 8000),
 									},
 								},
 							},
@@ -555,7 +575,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 							stringplanmodifier.UseStateForUnknown(),
 						},
 						Validators: []validator.String{
-							stringvalidator.LengthBetween(0, 8000),
+							stringvalidator.LengthBetween(1, 8000),
 						},
 					},
 
@@ -618,7 +638,7 @@ func YandexOrganizationmanagerIdpApplicationSamlApplicationResourceSchema(ctx co
 										stringplanmodifier.UseStateForUnknown(),
 									},
 									Validators: []validator.String{
-										stringvalidator.LengthBetween(0, 8000),
+										stringvalidator.LengthBetween(1, 8000),
 									},
 								},
 							},

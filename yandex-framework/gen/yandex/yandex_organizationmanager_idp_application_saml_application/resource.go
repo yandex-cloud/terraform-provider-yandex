@@ -380,6 +380,9 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlApplicationResource) Update(
 		if !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupAttributeName.IsUnknown() && !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupAttributeName.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupAttributeName) {
 			updatePaths = append(updatePaths, "group_claims_settings.group_attribute_name")
 		}
+		if !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupAttributeValue.IsUnknown() && !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupAttributeValue.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupAttributeValue) {
+			updatePaths = append(updatePaths, "group_claims_settings.group_attribute_value")
+		}
 		if !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupDistributionType.IsUnknown() && !yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsPlan.GroupDistributionType.Equal(yandexOrganizationmanagerIdpApplicationSamlApplicationGroupClaimsSettingsState.GroupDistributionType) {
 			updatePaths = append(updatePaths, "group_claims_settings.group_distribution_type")
 		}
@@ -484,7 +487,7 @@ func (r *yandexOrganizationmanagerIdpApplicationSamlApplicationResource) Update(
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update application:"+err.Error(),
 			)
 			return

@@ -172,6 +172,7 @@ func expandYandexMdbGreenplumClusterV2MonitoringStructModel(ctx context.Context,
 }
 
 type yandexMdbGreenplumClusterV2Model struct {
+	DiskEncryptionKeyId   types.String   `tfsdk:"disk_encryption_key_id"`
 	Restore               types.Object   `tfsdk:"restore"`
 	CloudStorage          types.Object   `tfsdk:"cloud_storage"`
 	ClusterConfig         types.Object   `tfsdk:"cluster_config"`
@@ -206,6 +207,9 @@ type yandexMdbGreenplumClusterV2Model struct {
 	Timeouts              timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexMdbGreenplumClusterV2Model) GetDiskEncryptionKeyId() types.String {
+	return m.DiskEncryptionKeyId
+}
 func (m *yandexMdbGreenplumClusterV2Model) GetRestore() types.Object {
 	return m.Restore
 }
@@ -302,6 +306,7 @@ func (m *yandexMdbGreenplumClusterV2Model) GetUserPasswordWoVersion() types.Int6
 
 func NewYandexMdbGreenplumClusterV2Model() yandexMdbGreenplumClusterV2Model {
 	return yandexMdbGreenplumClusterV2Model{
+		DiskEncryptionKeyId:   types.StringNull(),
 		Restore:               types.ObjectNull(yandexMdbGreenplumClusterV2RestoreModelType.AttrTypes),
 		CloudStorage:          types.ObjectNull(yandexMdbGreenplumClusterV2CloudStorageModelType.AttrTypes),
 		ClusterConfig:         types.ObjectNull(yandexMdbGreenplumClusterV2ClusterConfigModelType.AttrTypes),
@@ -337,6 +342,9 @@ func NewYandexMdbGreenplumClusterV2Model() yandexMdbGreenplumClusterV2Model {
 }
 
 func yandexMdbGreenplumClusterV2ModelFillUnknown(target yandexMdbGreenplumClusterV2Model) yandexMdbGreenplumClusterV2Model {
+	if target.DiskEncryptionKeyId.IsUnknown() || target.DiskEncryptionKeyId.IsNull() {
+		target.DiskEncryptionKeyId = types.StringNull()
+	}
 	if target.Restore.IsUnknown() || target.Restore.IsNull() {
 		target.Restore = types.ObjectNull(yandexMdbGreenplumClusterV2RestoreModelType.AttrTypes)
 	}
@@ -435,6 +443,7 @@ func yandexMdbGreenplumClusterV2ModelFillUnknown(target yandexMdbGreenplumCluste
 
 var yandexMdbGreenplumClusterV2ModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"disk_encryption_key_id":   types.StringType,
 		"restore":                  yandexMdbGreenplumClusterV2RestoreModelType,
 		"cloud_storage":            yandexMdbGreenplumClusterV2CloudStorageModelType,
 		"cluster_config":           yandexMdbGreenplumClusterV2ClusterConfigModelType,
@@ -480,6 +489,8 @@ func flattenYandexMdbGreenplumClusterV2(ctx context.Context,
 		return yandexMdbGreenplumClusterV2Model{}
 	}
 	return yandexMdbGreenplumClusterV2Model{
+		// The Cluster API does not return the disk encryption key yet.
+		DiskEncryptionKeyId:   state.DiskEncryptionKeyId,
 		Restore:               state.Restore,
 		CloudStorage:          flattenYandexMdbGreenplumClusterV2CloudStorage(ctx, yandexMdbGreenplumClusterV2.GetCloudStorage(), diags),
 		ClusterConfig:         flattenYandexMdbGreenplumClusterV2ClusterConfig(ctx, yandexMdbGreenplumClusterV2.GetClusterConfig(), converter.ExpandObject(ctx, state.ClusterConfig, yandexMdbGreenplumClusterV2ClusterConfigModel{}, diags).(yandexMdbGreenplumClusterV2ClusterConfigModel), diags),

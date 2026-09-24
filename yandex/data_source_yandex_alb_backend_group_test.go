@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
 	"testing"
 
@@ -132,6 +133,63 @@ func TestAccDataSourceALBBackendGroup_fullWithHTTPBackend(t *testing.T) {
 							lbConfigStrictLocality := bg.GetHttp().GetBackends()[0].LoadBalancingConfig.StrictLocality
 							if value != strconv.FormatBool(lbConfigStrictLocality) {
 								return fmt.Errorf("BackendGroup's http backend's load balancing config panic threshold doesnt't match. %s != %t", value, lbConfigStrictLocality)
+							}
+							return nil
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceALBBackendGroup_withClientCertificate(t *testing.T) {
+	t.Parallel()
+
+	BGResource := albBackendGroupInfo()
+	BGResource.IsDataSource = true
+	BGResource.IsHTTPBackend = true
+	BGResource.IsUseClientCertificate = true
+	BGResource.ClientCertificateID = os.Getenv("ALB_TEST_CLIENT_CERTIFICATE_ID")
+
+	backendPath := ""
+	var bg apploadbalancer.BackendGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceALBBackendGroupExists(albBgDataSourceResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
+					testExistsFirstElementWithAttr(
+						albBgDataSourceResource, "http_backend", "tls", &backendPath,
+					),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &backendPath, "tls.0.sni", func(value string) error {
+							backends := bg.GetHttp().GetBackends()
+							if len(backends) == 0 {
+								return fmt.Errorf("BackendGroup's http backend doesn't exist")
+							}
+							tlsSni := backends[0].GetTls().GetSni()
+							if value != tlsSni {
+								return fmt.Errorf("BackendGroup's http backend's tls sni doesn't match. %s != %s", value, tlsSni)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &backendPath, "tls.0.client_certificate.0.certificate_id", func(value string) error {
+							backends := bg.GetHttp().GetBackends()
+							if len(backends) == 0 {
+								return fmt.Errorf("BackendGroup's http backend doesn't exist")
+							}
+							certID := backends[0].GetTls().GetClientCertificate().GetCertificateId()
+							if value != certID {
+								return fmt.Errorf("BackendGroup's http backend's tls client certificate id doesn't match. %s != %s", value, certID)
 							}
 							return nil
 						},

@@ -8,6 +8,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -67,6 +68,12 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateParsableValue(parseGreenplumEnv),
+			},
+			"disk_encryption_key_id": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["disk_encryption_key_id"] + " This parameter only works when both master and segment hosts use `local-ssd` disks. Changing this value requires recreating the cluster. The key is preserved in Terraform state but cannot currently be read from the API, including during import.",
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"network_id": {
 				Type:        schema.TypeString,
@@ -796,16 +803,43 @@ func resourceYandexMDBGreenplumClusterCreate(d *schema.ResourceData, meta interf
 func resourceYandexMDBGreenplumClusterRestore(d *schema.ResourceData, meta interface{}, createReq *greenplum.CreateClusterRequest, backupID string) error {
 	config := meta.(*Config)
 
+	req, err := prepareRestoreGreenplumClusterRequest(d, createReq, backupID)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	op, err := greenplumsdk.NewClusterClient(config.SDK).Restore(ctx, req)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to create Greenplum Cluster from backup %v: %s", backupID, err)
+	}
+	md := op.Metadata()
+	d.SetId(md.ClusterId)
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while waiting for operation to create Greenplum Cluster from backup %v: %s", backupID, err)
+	}
+	if err := op.Error(); err != nil {
+		return fmt.Errorf("failed to create Greenplum Cluster from backup %v: %s", backupID, err)
+	}
+	return resourceYandexMDBGreenplumClusterRead(d, meta)
+}
+
+func prepareRestoreGreenplumClusterRequest(d *schema.ResourceData, createReq *greenplum.CreateClusterRequest, backupID string) (*greenplum.RestoreClusterRequest, error) {
 	var timeBackup *timestamppb.Timestamp
 	if backupTime, ok := d.GetOk("restore.0.time"); ok {
 		t, err := mdbcommon.ParseStringToTime(backupTime.(string))
 		if err != nil {
-			return fmt.Errorf("error while parsing restore.0.time to create Greenplum Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
+			return nil, fmt.Errorf("error while parsing restore.0.time to create Greenplum Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
 		}
 		timeBackup = &timestamppb.Timestamp{Seconds: t.Unix()}
 	}
 
 	req := &greenplum.RestoreClusterRequest{
+		DiskEncryptionKeyId: createReq.DiskEncryptionKeyId,
 		BackupId:            backupID,
 		Time:                timeBackup,
 		FolderId:            createReq.FolderId,
@@ -835,24 +869,11 @@ func resourceYandexMDBGreenplumClusterRestore(d *schema.ResourceData, meta inter
 		RestoreHba: d.Get("restore.0.restore_hba").(bool),
 	}
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
-	defer cancel()
-
-	op, err := greenplumsdk.NewClusterClient(config.SDK).Restore(ctx, req)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to create Greenplum Cluster from backup %v: %s", backupID, err)
+	if req.DiskEncryptionKeyId == nil {
+		// Explicitly disable encryption instead of inheriting the backup key.
+		req.DiskEncryptionKeyId = wrapperspb.String("")
 	}
-	md := op.Metadata()
-	d.SetId(md.ClusterId)
-
-	_, err = op.Wait(ctx)
-	if err != nil {
-		return fmt.Errorf("error while waiting for operation to create Greenplum Cluster from backup %v: %s", backupID, err)
-	}
-	if err := op.Error(); err != nil {
-		return fmt.Errorf("failed to create Greenplum Cluster from backup %v: %s", backupID, err)
-	}
-	return resourceYandexMDBGreenplumClusterRead(d, meta)
+	return req, nil
 }
 
 func prepareCreateGreenplumClusterRequest(d *schema.ResourceData, meta *Config) (*greenplum.CreateClusterRequest, error) {
@@ -887,18 +908,24 @@ func prepareCreateGreenplumClusterRequest(d *schema.ResourceData, meta *Config) 
 		return nil, fmt.Errorf("error while expanding maintenance_window on Greenplum Cluster create: %s", err)
 	}
 
+	var diskEncryptionKeyID *wrapperspb.StringValue
+	if val, ok := d.GetOk("disk_encryption_key_id"); ok {
+		diskEncryptionKeyID = wrapperspb.String(val.(string))
+	}
+
 	return &greenplum.CreateClusterRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		NetworkId:          networkID,
-		Environment:        env,
-		Labels:             labels,
-		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
-		DeletionProtection: d.Get("deletion_protection").(bool),
-		MaintenanceWindow:  maintenanceWindow,
-		ServiceAccountId:   d.Get("service_account_id").(string),
-		Logging:            expandGreenplumLogging(d),
+		DiskEncryptionKeyId: diskEncryptionKeyID,
+		FolderId:            folderID,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		NetworkId:           networkID,
+		Environment:         env,
+		Labels:              labels,
+		SecurityGroupIds:    expandSecurityGroupIds(d.Get("security_group_ids")),
+		DeletionProtection:  d.Get("deletion_protection").(bool),
+		MaintenanceWindow:   maintenanceWindow,
+		ServiceAccountId:    d.Get("service_account_id").(string),
+		Logging:             expandGreenplumLogging(d),
 
 		MasterHostCount:  int64(d.Get("master_host_count").(int)),
 		SegmentInHost:    int64(d.Get("segment_in_host").(int)),

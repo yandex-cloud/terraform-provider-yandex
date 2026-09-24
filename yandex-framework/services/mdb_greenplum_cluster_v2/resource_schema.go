@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
@@ -37,6 +38,11 @@ func YandexMdbGreenplumClusterV2ResourceSchema(ctx context.Context) schema.Schem
 		MarkdownDescription: "A Greenplum® cluster resource.",
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
+			"disk_encryption_key_id": schema.StringAttribute{
+				Description:   common.ResourceDescriptions["disk_encryption_key_id"] + " This parameter only works when both master and segment hosts use `local-ssd` disks. Changing this value requires recreating the cluster. The key is preserved in Terraform state but cannot currently be read from the API, including during import.",
+				Optional:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
+			},
 			"restore": schema.SingleNestedAttribute{
 				Description: "The cluster will be created from the specified backup.",
 				Optional:    true,

@@ -376,7 +376,7 @@ func (r *yandexKMSSymmetricKeyResource) Update(ctx context.Context, req resource
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update symmetric_key:"+err.Error(),
 			)
 			return

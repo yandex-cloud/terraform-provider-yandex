@@ -900,6 +900,17 @@ func TestRemoveWriteOnlyFields(t *testing.T) {
 			RequiredWith: []string{"password_wo"},
 			Description:  "Version of the write-only password.",
 		},
+		"api_key_wo": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			WriteOnly:   true,
+			Description: "Write-only API key without declarative pairing.",
+		},
+		"api_key_wo_version": {
+			Type:        schema.TypeInt,
+			Optional:    true,
+			Description: "Version of the write-only API key.",
+		},
 		"config": {
 			Type:        schema.TypeList,
 			Optional:    true,
@@ -927,6 +938,8 @@ func TestRemoveWriteOnlyFields(t *testing.T) {
 	require.Contains(t, resourceSchema, "password")
 	require.NotContains(t, resourceSchema, "password_wo")
 	require.NotContains(t, resourceSchema, "password_wo_version")
+	require.NotContains(t, resourceSchema, "api_key_wo")
+	require.NotContains(t, resourceSchema, "api_key_wo_version")
 
 	nestedSchema := resourceSchema["config"].Elem.(*schema.Resource).Schema
 	require.NotContains(t, nestedSchema, "token_wo")

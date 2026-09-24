@@ -311,27 +311,51 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				},
 			},
 			"restore": schema.SingleNestedAttribute{
-				Description: "The cluster will be created from the specified backup.",
+				Description: "The cluster will be created from the specified backup or source cluster.",
 				Optional:    true,
 				PlanModifiers: []planmodifier.Object{
 					objectplanmodifier.RequiresReplace(),
 				},
 				Attributes: map[string]schema.Attribute{
 					"backup_id": schema.StringAttribute{
-						Description: "Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://yandex.cloud/docs/managed-mysql/operations/cluster-backups).",
-						Required:    true,
+						Description: "Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://yandex.cloud/docs/managed-mysql/operations/cluster-backups). Should not be used together with `source_cluster_id`.",
+						Optional:    true,
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.RequiresReplace(),
 						},
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+							stringvalidator.ExactlyOneOf(
+								path.MatchRelative(),
+								path.MatchRelative().AtParent().AtName("source_cluster_id"),
+							),
+						},
 					},
 					"time": schema.StringAttribute{
-						Description: "Timestamp of the moment to which the MySQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). When not set, current time is used.",
+						Description: "Timestamp of the moment to which the MySQL cluster should be restored. (Format: `2006-01-02T15:04:05` - UTC). Required when `source_cluster_id` is used.",
 						Optional:    true,
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.RequiresReplace(),
 						},
 						Validators: []validator.String{
 							mdbcommon.NewStringToTimeValidator(),
+						},
+					},
+					"source_cluster_id": schema.StringAttribute{
+						Description: "ID of the source cluster to restore from. The latest backup suitable for `time` will be used for the restore. `time` is required. Should not be used together with `backup_id`.",
+						Optional:    true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplace(),
+						},
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+							stringvalidator.ExactlyOneOf(
+								path.MatchRelative(),
+								path.MatchRelative().AtParent().AtName("backup_id"),
+							),
+							stringvalidator.AlsoRequires(
+								path.MatchRelative().AtParent().AtName("time"),
+							),
 						},
 					},
 				},

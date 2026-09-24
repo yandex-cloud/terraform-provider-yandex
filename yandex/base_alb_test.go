@@ -266,6 +266,7 @@ type resourceALBBackendGroupInfo struct {
 	UseHeaderAffinity                  bool
 	UseCookieAffinity                  bool
 	KeepConnectionsOnHostHealthFailure bool
+	IsUseClientCertificate             bool
 
 	BaseTemplate string
 
@@ -275,6 +276,7 @@ type resourceALBBackendGroupInfo struct {
 	BGDescription        string
 	TlsSni               string
 	TlsValidationContext string
+	ClientCertificateID  string
 	BackendWeight        string
 	PanicThreshold       string
 	LoadBalancingMode    string
@@ -886,6 +888,11 @@ resource "yandex_alb_backend_group" "test-bg" {
 EOF
       }
       {{end}}
+      {{ if .IsUseClientCertificate }}
+      client_certificate {
+        certificate_id = "{{.ClientCertificateID}}"
+      }
+      {{ end }}
     }
     load_balancing_config {
       panic_threshold                = {{.PanicThreshold}}

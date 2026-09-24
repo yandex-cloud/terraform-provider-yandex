@@ -28,7 +28,7 @@ func YandexMDBRedisBackupRetentionPolicyDatasourceSchema(ctx context.Context) sc
 				Required: true,
 
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 
@@ -61,6 +61,26 @@ func YandexMDBRedisBackupRetentionPolicyDatasourceSchema(ctx context.Context) sc
 						Description: "Day of week in cron format. Valid values: 0-7 (0 and 7 both mean Sunday), *, ranges (1-5), steps (0-6/2), lists (1,3,5).\n Defaults to \"*\"." +
 							// proto paths: +
 							// -> yandex.cloud.mdb.v1.BackupRetentionPolicy.cron -> yandex.cloud.mdb.v1.CronTab.day_of_week
+							"package: yandex.cloud.mdb.v1\n" +
+							"filename: yandex/cloud/mdb/v1/backup_retention_policy.proto\n",
+						Computed: true,
+					},
+
+					"hour": schema.StringAttribute{
+						MarkdownDescription: "Hour in cron format. Valid values: 0-23, *, ranges (8-18), steps (*/2), lists (0,12).\n Defaults to \"\". Support depends on the database engine.",
+						Description: "Hour in cron format. Valid values: 0-23, *, ranges (8-18), steps (*/2), lists (0,12).\n Defaults to \"\". Support depends on the database engine." +
+							// proto paths: +
+							// -> yandex.cloud.mdb.v1.BackupRetentionPolicy.cron -> yandex.cloud.mdb.v1.CronTab.hour
+							"package: yandex.cloud.mdb.v1\n" +
+							"filename: yandex/cloud/mdb/v1/backup_retention_policy.proto\n",
+						Computed: true,
+					},
+
+					"minute": schema.StringAttribute{
+						MarkdownDescription: "Minute in cron format. Valid values: 0-59, *, ranges (0-30), steps (*/5), lists (0,15,30,45).\n Defaults to \"\". Support depends on the database engine.",
+						Description: "Minute in cron format. Valid values: 0-59, *, ranges (0-30), steps (*/5), lists (0,15,30,45).\n Defaults to \"\". Support depends on the database engine." +
+							// proto paths: +
+							// -> yandex.cloud.mdb.v1.BackupRetentionPolicy.cron -> yandex.cloud.mdb.v1.CronTab.minute
 							"package: yandex.cloud.mdb.v1\n" +
 							"filename: yandex/cloud/mdb/v1/backup_retention_policy.proto\n",
 						Computed: true,

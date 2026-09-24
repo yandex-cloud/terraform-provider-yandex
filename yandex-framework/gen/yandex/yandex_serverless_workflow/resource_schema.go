@@ -321,7 +321,7 @@ func YandexServerlessWorkflowResourceSchema(ctx context.Context) schema.Schema {
 							stringplanmodifier.UseStateForUnknown(),
 						},
 						Validators: []validator.String{
-							stringvalidator.LengthBetween(0, 100),
+							stringvalidator.LengthBetween(1, 100),
 						},
 					},
 

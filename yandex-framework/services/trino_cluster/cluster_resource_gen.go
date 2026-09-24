@@ -61,6 +61,29 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "The resource description.",
 				MarkdownDescription: "The resource description.",
 			},
+			"event_listeners": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"data_catalog": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{},
+						CustomType: DataCatalogType{
+							ObjectType: types.ObjectType{
+								AttrTypes: DataCatalogValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "Enables the Data Catalog event listener. Set to an empty object to enable it.",
+						MarkdownDescription: "Enables the Data Catalog event listener. Set to an empty object to enable it.",
+					},
+				},
+				CustomType: EventListenersType{
+					ObjectType: types.ObjectType{
+						AttrTypes: EventListenersValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "Event listeners configuration.",
+				MarkdownDescription: "Event listeners configuration.",
+			},
 			"folder_id": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -379,6 +402,7 @@ type ClusterModel struct {
 	CreatedAt          types.String           `tfsdk:"created_at"`
 	DeletionProtection types.Bool             `tfsdk:"deletion_protection"`
 	Description        types.String           `tfsdk:"description"`
+	EventListeners     EventListenersValue    `tfsdk:"event_listeners"`
 	FolderId           types.String           `tfsdk:"folder_id"`
 	Id                 types.String           `tfsdk:"id"`
 	Labels             types.Map              `tfsdk:"labels"`
@@ -720,6 +744,617 @@ func (v CoordinatorValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 	return map[string]attr.Type{
 		"resource_preset_id": basetypes.StringType{},
 	}
+}
+
+var _ basetypes.ObjectTypable = EventListenersType{}
+
+type EventListenersType struct {
+	basetypes.ObjectType
+}
+
+func (t EventListenersType) Equal(o attr.Type) bool {
+	other, ok := o.(EventListenersType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t EventListenersType) String() string {
+	return "EventListenersType"
+}
+
+func (t EventListenersType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	dataCatalogAttribute, ok := attributes["data_catalog"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`data_catalog is missing from object`)
+
+		return nil, diags
+	}
+
+	dataCatalogVal, ok := dataCatalogAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`data_catalog expected to be basetypes.ObjectValue, was: %T`, dataCatalogAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return EventListenersValue{
+		DataCatalog: dataCatalogVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewEventListenersValueNull() EventListenersValue {
+	return EventListenersValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewEventListenersValueUnknown() EventListenersValue {
+	return EventListenersValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewEventListenersValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (EventListenersValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing EventListenersValue Attribute Value",
+				"While creating a EventListenersValue value, a missing attribute value was detected. "+
+					"A EventListenersValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("EventListenersValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid EventListenersValue Attribute Type",
+				"While creating a EventListenersValue value, an invalid attribute value was detected. "+
+					"A EventListenersValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("EventListenersValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("EventListenersValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra EventListenersValue Attribute Value",
+				"While creating a EventListenersValue value, an extra attribute value was detected. "+
+					"A EventListenersValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra EventListenersValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewEventListenersValueUnknown(), diags
+	}
+
+	dataCatalogAttribute, ok := attributes["data_catalog"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`data_catalog is missing from object`)
+
+		return NewEventListenersValueUnknown(), diags
+	}
+
+	dataCatalogVal, ok := dataCatalogAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`data_catalog expected to be basetypes.ObjectValue, was: %T`, dataCatalogAttribute))
+	}
+
+	if diags.HasError() {
+		return NewEventListenersValueUnknown(), diags
+	}
+
+	return EventListenersValue{
+		DataCatalog: dataCatalogVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewEventListenersValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) EventListenersValue {
+	object, diags := NewEventListenersValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewEventListenersValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t EventListenersType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewEventListenersValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewEventListenersValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewEventListenersValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewEventListenersValueMust(EventListenersValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t EventListenersType) ValueType(ctx context.Context) attr.Value {
+	return EventListenersValue{}
+}
+
+var _ basetypes.ObjectValuable = EventListenersValue{}
+
+type EventListenersValue struct {
+	DataCatalog basetypes.ObjectValue `tfsdk:"data_catalog"`
+	state       attr.ValueState
+}
+
+func (v EventListenersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["data_catalog"] = basetypes.ObjectType{
+		AttrTypes: DataCatalogValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.DataCatalog.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["data_catalog"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v EventListenersValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v EventListenersValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v EventListenersValue) String() string {
+	return "EventListenersValue"
+}
+
+func (v EventListenersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var dataCatalog basetypes.ObjectValue
+
+	if v.DataCatalog.IsNull() {
+		dataCatalog = types.ObjectNull(
+			DataCatalogValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.DataCatalog.IsUnknown() {
+		dataCatalog = types.ObjectUnknown(
+			DataCatalogValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.DataCatalog.IsNull() && !v.DataCatalog.IsUnknown() {
+		dataCatalog = types.ObjectValueMust(
+			DataCatalogValue{}.AttributeTypes(ctx),
+			v.DataCatalog.Attributes(),
+		)
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"data_catalog": basetypes.ObjectType{
+			AttrTypes: DataCatalogValue{}.AttributeTypes(ctx),
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"data_catalog": dataCatalog,
+		})
+
+	return objVal, diags
+}
+
+func (v EventListenersValue) Equal(o attr.Value) bool {
+	other, ok := o.(EventListenersValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.DataCatalog.Equal(other.DataCatalog) {
+		return false
+	}
+
+	return true
+}
+
+func (v EventListenersValue) Type(ctx context.Context) attr.Type {
+	return EventListenersType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v EventListenersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"data_catalog": basetypes.ObjectType{
+			AttrTypes: DataCatalogValue{}.AttributeTypes(ctx),
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = DataCatalogType{}
+
+type DataCatalogType struct {
+	basetypes.ObjectType
+}
+
+func (t DataCatalogType) Equal(o attr.Type) bool {
+	other, ok := o.(DataCatalogType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t DataCatalogType) String() string {
+	return "DataCatalogType"
+}
+
+func (t DataCatalogType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return DataCatalogValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDataCatalogValueNull() DataCatalogValue {
+	return DataCatalogValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewDataCatalogValueUnknown() DataCatalogValue {
+	return DataCatalogValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewDataCatalogValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (DataCatalogValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing DataCatalogValue Attribute Value",
+				"While creating a DataCatalogValue value, a missing attribute value was detected. "+
+					"A DataCatalogValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DataCatalogValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid DataCatalogValue Attribute Type",
+				"While creating a DataCatalogValue value, an invalid attribute value was detected. "+
+					"A DataCatalogValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DataCatalogValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("DataCatalogValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra DataCatalogValue Attribute Value",
+				"While creating a DataCatalogValue value, an extra attribute value was detected. "+
+					"A DataCatalogValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra DataCatalogValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewDataCatalogValueUnknown(), diags
+	}
+
+	if diags.HasError() {
+		return NewDataCatalogValueUnknown(), diags
+	}
+
+	return DataCatalogValue{
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDataCatalogValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) DataCatalogValue {
+	object, diags := NewDataCatalogValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewDataCatalogValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t DataCatalogType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewDataCatalogValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewDataCatalogValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewDataCatalogValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewDataCatalogValueMust(DataCatalogValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t DataCatalogType) ValueType(ctx context.Context) attr.Value {
+	return DataCatalogValue{}
+}
+
+var _ basetypes.ObjectValuable = DataCatalogValue{}
+
+type DataCatalogValue struct {
+	state attr.ValueState
+}
+
+func (v DataCatalogValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 0)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 0)
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v DataCatalogValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v DataCatalogValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v DataCatalogValue) String() string {
+	return "DataCatalogValue"
+}
+
+func (v DataCatalogValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{})
+
+	return objVal, diags
+}
+
+func (v DataCatalogValue) Equal(o attr.Value) bool {
+	other, ok := o.(DataCatalogValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	return true
+}
+
+func (v DataCatalogValue) Type(ctx context.Context) attr.Type {
+	return DataCatalogType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v DataCatalogValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{}
 }
 
 var _ basetypes.ObjectTypable = LoggingType{}

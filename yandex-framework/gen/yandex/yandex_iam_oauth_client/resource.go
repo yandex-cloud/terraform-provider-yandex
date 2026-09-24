@@ -368,7 +368,7 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update o_auth_client:"+err.Error(),
 			)
 			return

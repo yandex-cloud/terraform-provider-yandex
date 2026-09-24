@@ -369,7 +369,7 @@ func (r *yandexLbTargetGroupResource) Update(ctx context.Context, req resource.U
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update target_group:"+err.Error(),
 			)
 			return

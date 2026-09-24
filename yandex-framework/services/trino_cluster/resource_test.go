@@ -12,7 +12,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
+	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/stretchr/testify/require"
 	trinov1 "github.com/yandex-cloud/go-genproto/yandex/cloud/trino/v1"
 	trinosdk "github.com/yandex-cloud/go-sdk/services/trino/v1"
@@ -83,6 +86,12 @@ resource "yandex_resourcemanager_folder_iam_member" "trino-sa-storage-{{ .RandSu
   member    = "serviceAccount:${yandex_iam_service_account.trino-sa-{{ .RandSuffix }}.id}"
 }
 
+resource "yandex_resourcemanager_folder_iam_member" "trino-sa-data-catalog-{{ .RandSuffix }}" {
+  folder_id = "{{ .FolderID }}"
+  role      = "data-catalog.dataConsumer"
+  member    = "serviceAccount:${yandex_iam_service_account.trino-sa-{{ .RandSuffix }}.id}"
+}
+
 resource "yandex_storage_bucket" "trino-exchange-{{ .RandSuffix }}" {
   bucket     = "trino-exchange-{{ .RandSuffix }}"
   folder_id  = "{{ .FolderID }}"
@@ -112,6 +121,11 @@ type trinoClusterConfigParams struct {
 	TrustedCerts       []string
 	ResourceGroups     string
 	QueryProperties    map[string]string
+	EventListeners     *EventListenersParams
+}
+
+type EventListenersParams struct {
+	DataCatalog bool
 }
 
 type MaintenanceWindow struct {
@@ -211,6 +225,14 @@ EOT
   }
   {{ end }}
 
+  {{ if .EventListeners }}
+  event_listeners = {
+    {{ if .EventListeners.DataCatalog }}
+    data_catalog = {}
+    {{ end }}
+  }
+  {{ end }}
+
   {{ if .RetryPolicy }}
   retry_policy = {
     policy = "{{ .RetryPolicy.Policy }}"
@@ -273,7 +295,8 @@ EOT
   }
 
   depends_on = [
-    yandex_resourcemanager_folder_iam_member.trino-sa-bindings-{{ .RandSuffix }}
+    yandex_resourcemanager_folder_iam_member.trino-sa-bindings-{{ .RandSuffix }},
+    yandex_resourcemanager_folder_iam_member.trino-sa-data-catalog-{{ .RandSuffix }}
     {{ if and .RetryPolicy .RetryPolicy.ExchangeManager.S3Bucket }}
     , yandex_storage_bucket.trino-exchange-{{ .RandSuffix }}
     {{ end }}
@@ -383,6 +406,9 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					},
 					PrivateAccess: false,
 				}),
+				ConfigStateChecks: []statecheck.StateCheck{
+					eventListenersStateCheck("yandex_trino_cluster.trino_cluster", false),
+				},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
 					resource.TestCheckResourceAttrSet("yandex_trino_cluster.trino_cluster", "service_account_id"),
@@ -425,6 +451,9 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 						Hour: 2,
 					},
 					AdditionalParams: true,
+					EventListeners: &EventListenersParams{
+						DataCatalog: true,
+					},
 					RetryPolicy: &RetryPolicyParams{
 						Policy: "TASK",
 						AdditionalProperties: map[string]string{
@@ -443,6 +472,9 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 						"query.max-run-time":        "23h",
 					},
 				}),
+				ConfigStateChecks: []statecheck.StateCheck{
+					eventListenersStateCheck("yandex_trino_cluster.trino_cluster", true),
+				},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
 					resource.TestCheckResourceAttrSet("yandex_trino_cluster.trino_cluster", "service_account_id"),
@@ -498,6 +530,9 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					},
 					Version: "468",
 				}),
+				ConfigStateChecks: []statecheck.StateCheck{
+					eventListenersStateCheck("yandex_trino_cluster.trino_cluster", false),
+				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
 					resource.TestCheckResourceAttrSet("yandex_trino_cluster.trino_cluster", "service_account_id"),
@@ -548,4 +583,14 @@ func testCheckResourceGroupsEqual(resourceName, attrName, expectedJSON string) r
 
 		return nil
 	}
+}
+
+func eventListenersStateCheck(resourceName string, dataCatalog bool) statecheck.StateCheck {
+	var expected knownvalue.Check = knownvalue.Null()
+	if dataCatalog {
+		expected = knownvalue.ObjectExact(map[string]knownvalue.Check{
+			"data_catalog": knownvalue.ObjectExact(map[string]knownvalue.Check{}),
+		})
+	}
+	return statecheck.ExpectKnownValue(resourceName, tfjsonpath.New("event_listeners"), expected)
 }

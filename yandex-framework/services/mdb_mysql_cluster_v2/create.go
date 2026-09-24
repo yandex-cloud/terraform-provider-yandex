@@ -66,13 +66,11 @@ func prepareRestoreRequest(
 	if utils.IsPresent(restoreConf.Time) {
 		time, err := mdbcommon.ParseStringToTime(restoreConf.Time.ValueString())
 		if err != nil {
-
 			diags.Append(
 				diag.NewErrorDiagnostic(
-					"Failed to create MySQL cluster from backup",
+					"Failed to create MySQL cluster",
 					fmt.Sprintf(
-						"Error while parsing restore time to create MySQL Cluster from backup %v, value: %v error: %s",
-						restoreConf.BackupId,
+						"Error while parsing restore time, value: %v error: %s",
 						restoreConf.Time,
 						err.Error(),
 					),
@@ -88,6 +86,7 @@ func prepareRestoreRequest(
 
 	request := &mysql.RestoreClusterRequest{
 		BackupId:           restoreConf.BackupId.ValueString(),
+		SourceClusterId:    restoreConf.SourceClusterId.ValueString(),
 		Time:               timeBackup,
 		Name:               plan.Name.ValueString(),
 		Description:        plan.Description.ValueString(),

@@ -1699,6 +1699,150 @@ func Test_buildALBBackendGroupCreateRequest(t *testing.T) {
 				Labels: map[string]string{},
 			},
 		},
+		{
+			name:     "http backend: tls with client_certificate",
+			folderID: "some-folder",
+			config: map[string]interface{}{
+				"name":        "http-backend-group",
+				"description": "some-description",
+				"http_backend": []interface{}{
+					map[string]interface{}{
+						"name":             "http-backend",
+						"weight":           1,
+						"target_group_ids": []interface{}{"target-group-id"},
+						"tls": []interface{}{
+							map[string]interface{}{
+								"sni": "some-sni",
+								"validation_context": []interface{}{
+									map[string]interface{}{
+										"trusted_ca_bytes": "PEM-encoded-CA",
+									},
+								},
+								"client_certificate": []interface{}{
+									map[string]interface{}{
+										"certificate_id": "certificate-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateBackendGroupRequest{
+				FolderId:    "some-folder",
+				Name:        "http-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.CreateBackendGroupRequest_Http{
+					Http: &apploadbalancer.HttpBackendGroup{
+						Backends: []*apploadbalancer.HttpBackend{
+							{
+								Name:          "http-backend",
+								BackendWeight: wrapperspb.Int64(1),
+								BackendType: &apploadbalancer.HttpBackend_TargetGroups{
+									TargetGroups: &apploadbalancer.TargetGroupsBackend{
+										TargetGroupIds: []string{"target-group-id"},
+									},
+								},
+								Tls: &apploadbalancer.BackendTls{
+									Sni: "some-sni",
+									ValidationContext: &apploadbalancer.ValidationContext{
+										TrustedCa: &apploadbalancer.ValidationContext_TrustedCaBytes{
+											TrustedCaBytes: "PEM-encoded-CA",
+										},
+									},
+									ClientCertificate: &apploadbalancer.ClientCertificateOptions{
+										CertificateId: "certificate-id",
+									},
+								},
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
+		{
+			name:     "http backend: healthcheck tls with client_certificate",
+			folderID: "some-folder",
+			config: map[string]interface{}{
+				"name":        "http-backend-group",
+				"description": "some-description",
+				"http_backend": []interface{}{
+					map[string]interface{}{
+						"name":             "http-backend",
+						"weight":           1,
+						"target_group_ids": []interface{}{"target-group-id"},
+						"healthcheck": []interface{}{
+							map[string]interface{}{
+								"http_healthcheck": []interface{}{
+									map[string]interface{}{
+										"path": "/",
+									},
+								},
+								"tls": []interface{}{
+									map[string]interface{}{
+										"sni": "some-sni",
+										"validation_context": []interface{}{
+											map[string]interface{}{
+												"trusted_ca_id": "trusted-ca-id",
+											},
+										},
+										"client_certificate": []interface{}{
+											map[string]interface{}{
+												"certificate_id": "certificate-id",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateBackendGroupRequest{
+				FolderId:    "some-folder",
+				Name:        "http-backend-group",
+				Description: "some-description",
+				Backend: &apploadbalancer.CreateBackendGroupRequest_Http{
+					Http: &apploadbalancer.HttpBackendGroup{
+						Backends: []*apploadbalancer.HttpBackend{
+							{
+								Name:          "http-backend",
+								BackendWeight: wrapperspb.Int64(1),
+								BackendType: &apploadbalancer.HttpBackend_TargetGroups{
+									TargetGroups: &apploadbalancer.TargetGroupsBackend{
+										TargetGroupIds: []string{"target-group-id"},
+									},
+								},
+								Healthchecks: []*apploadbalancer.HealthCheck{
+									{
+										Healthcheck: &apploadbalancer.HealthCheck_Http{
+											Http: &apploadbalancer.HealthCheck_HttpHealthCheck{
+												Path: "/",
+											},
+										},
+										TransportSettings: &apploadbalancer.HealthCheck_Tls{
+											Tls: &apploadbalancer.SecureTransportSettings{
+												Sni: "some-sni",
+												ValidationContext: &apploadbalancer.ValidationContext{
+													TrustedCa: &apploadbalancer.ValidationContext_TrustedCaId{
+														TrustedCaId: "trusted-ca-id",
+													},
+												},
+												ClientCertificate: &apploadbalancer.ClientCertificateOptions{
+													CertificateId: "certificate-id",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Labels: map[string]string{},
+			},
+		},
 	}
 
 	for _, testCase := range testsTable {

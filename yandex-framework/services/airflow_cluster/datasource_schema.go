@@ -65,8 +65,18 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 								MarkdownDescription: "The path to the directory in the Git repository that stores DAG files used in the cluster.",
 							},
 							"ssh_key": schema.StringAttribute{
-								Required:            true,
-								MarkdownDescription: "The SSH key that will be used to access the Git repository.",
+								Optional:            true,
+								Sensitive:           true,
+								MarkdownDescription: "The SSH key that will be used to access the Git repository. Exactly one of `ssh_key` or `username`/`password` should be specified.",
+							},
+							"username": schema.StringAttribute{
+								Optional:            true,
+								MarkdownDescription: "Username for repository authentication. For GitLab access tokens use `oauth2`. Exactly one of `ssh_key` or `username`/`password` should be specified.",
+							},
+							"password": schema.StringAttribute{
+								Optional:            true,
+								Sensitive:           true,
+								MarkdownDescription: "Password or access token for repository authentication. Exactly one of `ssh_key` or `username`/`password` should be specified.",
 							},
 						},
 						CustomType: GitSyncType{
@@ -76,6 +86,9 @@ func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						Optional:            true,
 						MarkdownDescription: "Git repository is supported as the source of DAG files.",
+						Validators: []validator.Object{
+							gitSyncValidator(),
+						},
 					},
 				},
 				CustomType: CodeSyncType{

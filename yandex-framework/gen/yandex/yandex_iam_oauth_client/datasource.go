@@ -84,7 +84,7 @@ func (r *yandexIamOauthClientDataSource) Read(ctx context.Context, req datasourc
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"o_auth_client not found",
 			)
@@ -94,6 +94,7 @@ func (r *yandexIamOauthClientDataSource) Read(ctx context.Context, req datasourc
 				"Error while requesting API to get o_auth_client:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read o_auth_client response: %s", validate.ProtoDump(res)))
@@ -104,7 +105,7 @@ func (r *yandexIamOauthClientDataSource) Read(ctx context.Context, req datasourc
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

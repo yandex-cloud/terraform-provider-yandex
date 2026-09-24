@@ -208,11 +208,13 @@ func codeSyncValueFromAPI(ctx context.Context, cfg *airflow.CodeSyncConfig, stat
 
 	case *airflow.CodeSyncConfig_GitSync:
 		gitSyncValue := GitSyncValue{
-			Repo:    types.StringValue(source.GitSync.GetRepo()),
-			Branch:  types.StringValue(source.GitSync.GetBranch()),
-			SubPath: types.StringValue(source.GitSync.GetSubPath()),
-			SshKey:  state.CodeSync.GitSync.Attributes()["ssh_key"].(basetypes.StringValue),
-			state:   attr.ValueStateKnown,
+			Repo:     types.StringValue(source.GitSync.GetRepo()),
+			Branch:   types.StringValue(source.GitSync.GetBranch()),
+			SubPath:  types.StringValue(source.GitSync.GetSubPath()),
+			SshKey:   gitSyncStringFromState(state.CodeSync.GitSync, "ssh_key"),
+			Username: gitSyncStringFromState(state.CodeSync.GitSync, "username"),
+			Password: gitSyncStringFromState(state.CodeSync.GitSync, "password"),
+			state:    attr.ValueStateKnown,
 		}
 		gitAsObjectValue, diags := gitSyncValue.ToObjectValue(ctx)
 		if diags.HasError() {
@@ -232,6 +234,21 @@ func codeSyncValueFromAPI(ctx context.Context, cfg *airflow.CodeSyncConfig, stat
 		)
 		return NewCodeSyncValueUnknown(), diag.Diagnostics{d}
 	}
+}
+
+func gitSyncStringFromState(gitSync basetypes.ObjectValue, name string) basetypes.StringValue {
+	if gitSync.IsNull() || gitSync.IsUnknown() {
+		return types.StringNull()
+	}
+	attrValue, ok := gitSync.Attributes()[name]
+	if !ok || attrValue == nil {
+		return types.StringNull()
+	}
+	stringValue, ok := attrValue.(basetypes.StringValue)
+	if !ok {
+		return types.StringNull()
+	}
+	return stringValue
 }
 
 func nullableStringSliceToSet(ctx context.Context, s []string) (types.Set, diag.Diagnostics) {

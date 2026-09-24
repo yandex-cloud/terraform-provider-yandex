@@ -3,6 +3,7 @@ package mdb_clickhouse_cluster_v2
 import (
 	"context"
 	"fmt"
+	"maps"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -10,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
@@ -30,7 +32,10 @@ const (
 	yandexMDBClickHouseClusterRestoreTimeout = 48 * time.Hour
 )
 
-var _ resource.ResourceWithModifyPlan = &clusterResource{}
+var (
+	_ resource.ResourceWithModifyPlan     = &clusterResource{}
+	_ resource.ResourceWithValidateConfig = &clusterResource{}
+)
 
 type clusterResource struct {
 	providerConfig *provider_config.Config
@@ -492,9 +497,10 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 // Plan modify logic:
 // - add coordinator hosts without zookeeper.resources	  => zookeeper.resources 						  = Unknown
-// - migrate ZooKeeper hosts to Keeper                    => hosts[*].fqdn                                  = Unknown
+// - migrate ZooKeeper hosts to Keeper                    => hosts[*].fqdn                                = Unknown
 // - clickhouse.<resources|disk_size_autoscaling> changed => shards[*].<resources|disk_size_autoscaling>  = Unknown
 // - shards[*].<resources|disk_size_autoscaling> changed  => clickhouse.<resources|disk_size_autoscaling> = Unknown
+// - version changed                                      => clickhouse.config.<absent in config>         = Unknown
 func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	if req.Plan.Raw.IsNull() || req.Config.Raw.IsNull() || req.State.Raw.IsNull() {
 		return
@@ -504,6 +510,11 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	markClickHouseConfigUnknown(ctx, config, plan, state, resp)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -639,6 +650,10 @@ func (r *clusterResource) ConfigValidators(ctx context.Context) []resource.Confi
 	}
 }
 
+func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	mdbcommon.ValidateClusterConnectionManagerFromConfig(ctx, req.Config, path.Root("connection_manager"), &resp.Diagnostics)
+}
+
 func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
@@ -701,6 +716,7 @@ func refreshState(ctx context.Context, prevState, state *models.ClusterResource,
 	state.AdminPassword = prevState.AdminPassword
 	state.AdminPasswordWo = types.StringNull()
 	state.AdminPasswordWoVersion = prevState.AdminPasswordWoVersion
+	state.ConnectionManager = mdbcommon.FlattenClusterConnectionManagerFramework(ctx, cluster.Config.GetConnectionManager(), diags)
 	state.SqlDatabaseManagement = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.SqlDatabaseManagement, diags)
 	state.SqlUserManagement = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.SqlUserManagement, diags)
 	state.EmbeddedKeeper = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.EmbeddedKeeper, diags)
@@ -726,6 +742,93 @@ func refreshState(ctx context.Context, prevState, state *models.ClusterResource,
 
 	currentDicts := clickhouseApi.ListExternalDictionaries(ctx, sdk, diags, cid)
 	state.ExternalDictionary = models.FlattenExternalDictionaries(ctx, currentDicts, prevState.ExternalDictionary, diags)
+}
+
+func markClickHouseConfigUnknown(
+	ctx context.Context,
+	config, plan, state models.ClusterResource,
+	resp *resource.ModifyPlanResponse,
+) {
+	if config.Version.IsNull() || config.Version.IsUnknown() || config.Version.Equal(state.Version) {
+		return
+	}
+
+	planConfig := clickHouseConfigObject(ctx, plan.ClickHouse, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() || planConfig.IsNull() || planConfig.IsUnknown() {
+		return
+	}
+
+	newPlanConfig := unsetAttributesUnknown(
+		ctx, planConfig, clickHouseConfigObject(ctx, config.ClickHouse, &resp.Diagnostics), &resp.Diagnostics,
+	)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(
+		resp.Plan.SetAttribute(ctx, path.Root("clickhouse").AtName("config"), newPlanConfig)...,
+	)
+}
+
+func clickHouseConfigObject(ctx context.Context, clickHouse types.Object, diags *diag.Diagnostics) types.Object {
+	nullConfig := types.ObjectNull(models.ClickhouseConfigAttrTypes)
+	if clickHouse.IsNull() || clickHouse.IsUnknown() {
+		return nullConfig
+	}
+
+	config, ok := clickHouse.Attributes()["config"].(types.Object)
+	if !ok {
+		diags.AddError(
+			"Failed to read ClickHouse config",
+			"Expected clickhouse.config to be an object. Please report this issue to the provider developers.",
+		)
+		return nullConfig
+	}
+
+	return config
+}
+
+// unsetAttributesUnknown returns the plan object with every attribute that is not set in the
+// configuration replaced by an unknown value of the same type, descending into nested objects.
+func unsetAttributesUnknown(ctx context.Context, plan, config types.Object, diags *diag.Diagnostics) types.Object {
+	attrTypes := plan.AttributeTypes(ctx)
+	if config.IsNull() || config.IsUnknown() {
+		return types.ObjectUnknown(attrTypes)
+	}
+
+	planAttrs := maps.Clone(plan.Attributes())
+	configAttrs := config.Attributes()
+	for name, planValue := range planAttrs {
+		configValue, ok := configAttrs[name]
+		if ok && !configValue.IsNull() {
+			planObject, isObject := planValue.(types.Object)
+			if isObject && !planObject.IsNull() && !planObject.IsUnknown() {
+				configObject, _ := configValue.(types.Object)
+				planAttrs[name] = unsetAttributesUnknown(ctx, planObject, configObject, diags)
+			}
+			continue
+		}
+
+		unknownValue, err := attrTypes[name].ValueFromTerraform(
+			ctx, tftypes.NewValue(attrTypes[name].TerraformType(ctx), tftypes.UnknownValue),
+		)
+		if err != nil {
+			diags.AddError(
+				"Failed to build unknown value for "+name,
+				err.Error()+". Please report this issue to the provider developers.",
+			)
+			return plan
+		}
+		planAttrs[name] = unknownValue
+	}
+
+	newPlan, d := types.ObjectValue(attrTypes, planAttrs)
+	diags.Append(d...)
+	if d.HasError() {
+		return plan
+	}
+
+	return newPlan
 }
 
 func shardOverridesChanged(

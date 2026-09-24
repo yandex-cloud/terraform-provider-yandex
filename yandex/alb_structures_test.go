@@ -443,6 +443,140 @@ func Test_flattenALBHealthChecks(t *testing.T) {
 	}
 }
 
+func Test_flattenALBBackendTLS(t *testing.T) {
+	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		tls            *apploadbalancer.BackendTls
+		expectedResult []map[string]interface{}
+	}{
+		{
+			name:           "nil tls",
+			tls:            nil,
+			expectedResult: []map[string]interface{}{},
+		},
+		{
+			name: "empty tls",
+			tls:  &apploadbalancer.BackendTls{},
+			expectedResult: []map[string]interface{}{
+				{
+					"sni":                "",
+					"validation_context": []interface{}{},
+				},
+			},
+		},
+		{
+			name: "tls with client certificate and trusted ca bytes",
+			tls: &apploadbalancer.BackendTls{
+				Sni: "some-sni",
+				ValidationContext: &apploadbalancer.ValidationContext{
+					TrustedCa: &apploadbalancer.ValidationContext_TrustedCaBytes{
+						TrustedCaBytes: "PEM-encoded-CA",
+					},
+				},
+				ClientCertificate: &apploadbalancer.ClientCertificateOptions{
+					CertificateId: "certificate-id",
+				},
+			},
+			expectedResult: []map[string]interface{}{
+				{
+					"sni": "some-sni",
+					"validation_context": []interface{}{
+						map[string]interface{}{
+							"trusted_ca_bytes": "PEM-encoded-CA",
+						},
+					},
+					"client_certificate": []map[string]interface{}{
+						{
+							"certificate_id": "certificate-id",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			actualResult := flattenALBBackendTLS(testCase.tls)
+
+			assert.Equal(t, testCase.expectedResult, actualResult)
+		})
+	}
+}
+
+func Test_flattenALBHealthCheckTLS(t *testing.T) {
+	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		tls            *apploadbalancer.SecureTransportSettings
+		expectedResult []map[string]interface{}
+	}{
+		{
+			name:           "nil tls",
+			tls:            nil,
+			expectedResult: []map[string]interface{}{},
+		},
+		{
+			name: "empty tls",
+			tls:  &apploadbalancer.SecureTransportSettings{},
+			expectedResult: []map[string]interface{}{
+				{
+					"sni":                "",
+					"validation_context": []interface{}{},
+				},
+			},
+		},
+		{
+			name: "tls with client certificate and trusted ca id",
+			tls: &apploadbalancer.SecureTransportSettings{
+				Sni: "some-sni",
+				ValidationContext: &apploadbalancer.ValidationContext{
+					TrustedCa: &apploadbalancer.ValidationContext_TrustedCaId{
+						TrustedCaId: "trusted-ca-id",
+					},
+				},
+				ClientCertificate: &apploadbalancer.ClientCertificateOptions{
+					CertificateId: "certificate-id",
+				},
+			},
+			expectedResult: []map[string]interface{}{
+				{
+					"sni": "some-sni",
+					"validation_context": []interface{}{
+						map[string]interface{}{
+							"trusted_ca_id": "trusted-ca-id",
+						},
+					},
+					"client_certificate": []map[string]interface{}{
+						{
+							"certificate_id": "certificate-id",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			actualResult := flattenALBHealthCheckTLS(testCase.tls)
+
+			assert.Equal(t, testCase.expectedResult, actualResult)
+		})
+	}
+}
+
 func Test_flattenALBAutoscalePolicy(t *testing.T) {
 	t.Parallel()
 

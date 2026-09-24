@@ -170,6 +170,7 @@ func refreshDataSourceState(ctx context.Context, prevState, state *models.Cluste
 	state.Access = models.FlattenAccess(ctx, cluster.Config.Access, diags)
 	state.CloudStorage = models.FlattenCloudStorage(ctx, cluster.Config.CloudStorage, diags)
 	state.AdminPassword = prevState.AdminPassword
+	state.ConnectionManager = mdbcommon.FlattenClusterConnectionManagerFramework(ctx, cluster.Config.GetConnectionManager(), diags)
 	state.SqlDatabaseManagement = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.SqlDatabaseManagement, diags)
 	state.SqlUserManagement = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.SqlUserManagement, diags)
 	state.EmbeddedKeeper = mdbcommon.FlattenBoolWrapper(ctx, cluster.Config.EmbeddedKeeper, diags)

@@ -164,7 +164,7 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 

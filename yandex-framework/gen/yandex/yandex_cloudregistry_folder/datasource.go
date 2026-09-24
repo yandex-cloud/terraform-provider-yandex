@@ -88,7 +88,7 @@ func (r *yandexCloudregistryFolderDataSource) Read(ctx context.Context, req data
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"artifact not found",
 			)
@@ -98,6 +98,7 @@ func (r *yandexCloudregistryFolderDataSource) Read(ctx context.Context, req data
 				"Error while requesting API to get artifact:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read artifact response: %s", validate.ProtoDump(res)))
@@ -108,7 +109,7 @@ func (r *yandexCloudregistryFolderDataSource) Read(ctx context.Context, req data
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

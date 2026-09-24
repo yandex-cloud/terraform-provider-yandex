@@ -8,12 +8,76 @@ import (
 	"math/big"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
+
+type messageWithDuration struct {
+	Duration *durationpb.Duration `protobuf:"bytes,1,opt,name=duration,proto3"`
+}
+
+func TestYandexProvider_MDBCommonProtobufDuration(t *testing.T) {
+	t.Parallel()
+
+	f := NewProtobufMapDataAdapter()
+	ctx := context.Background()
+
+	t.Run("absent duration stays nil", func(t *testing.T) {
+		var diags diag.Diagnostics
+		obj := messageWithDuration{}
+
+		f.Fill(ctx, &obj, map[string]attr.Value{}, &diags)
+
+		if diags.HasError() {
+			t.Fatalf("Unexpected fill error: %v", diags.Errors())
+		}
+		if obj.Duration != nil {
+			t.Fatalf("Expected nil duration, got %v", obj.Duration)
+		}
+	})
+
+	t.Run("duration round trip", func(t *testing.T) {
+		var diags diag.Diagnostics
+		obj := messageWithDuration{}
+
+		f.Fill(ctx, &obj, map[string]attr.Value{
+			"duration": types.StringValue("1m30s"),
+		}, &diags)
+
+		if diags.HasError() {
+			t.Fatalf("Unexpected fill error: %v", diags.Errors())
+		}
+		if expected := durationpb.New(90 * time.Second); !reflect.DeepEqual(obj.Duration, expected) {
+			t.Fatalf("Unexpected duration: expected %v, got %v", expected, obj.Duration)
+		}
+
+		attrs := f.Extract(ctx, &obj, &diags)
+		if diags.HasError() {
+			t.Fatalf("Unexpected extract error: %v", diags.Errors())
+		}
+		if expected := types.StringValue("1m30s"); !attrs["duration"].Equal(expected) {
+			t.Fatalf("Unexpected extracted duration: expected %v, got %v", expected, attrs["duration"])
+		}
+	})
+
+	t.Run("invalid duration is rejected", func(t *testing.T) {
+		var diags diag.Diagnostics
+		obj := messageWithDuration{}
+
+		f.Fill(ctx, &obj, map[string]attr.Value{
+			"duration": types.StringValue("invalid"),
+		}, &diags)
+
+		if !diags.HasError() {
+			t.Fatal("Expected invalid duration error")
+		}
+	})
+}
 
 func TestYandexProvider_MDBCommonProtobufFillFull(t *testing.T) {
 

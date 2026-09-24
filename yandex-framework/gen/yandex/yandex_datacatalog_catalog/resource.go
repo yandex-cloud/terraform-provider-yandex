@@ -395,7 +395,7 @@ func (r *yandexDatacatalogCatalogResource) Update(ctx context.Context, req resou
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update catalog:"+err.Error(),
 			)
 			return

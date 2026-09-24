@@ -107,7 +107,7 @@ func YandexIamWorkloadIdentityFederatedCredentialResourceSchema(ctx context.Cont
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 

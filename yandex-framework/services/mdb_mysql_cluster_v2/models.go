@@ -147,6 +147,7 @@ var BackupWindowStartAttrTypes = map[string]attr.Type{
 }
 
 type Restore struct {
-	BackupId types.String `tfsdk:"backup_id"`
-	Time     types.String `tfsdk:"time"`
+	BackupId        types.String `tfsdk:"backup_id"`
+	Time            types.String `tfsdk:"time"`
+	SourceClusterId types.String `tfsdk:"source_cluster_id"`
 }

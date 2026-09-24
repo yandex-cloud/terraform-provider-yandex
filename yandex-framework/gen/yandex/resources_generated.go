@@ -4,6 +4,7 @@ package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_airflow_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_airflow_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_api_gateway_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_api_gateway_iam_member"
@@ -15,6 +16,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudrouter_routing_instance"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cm_certificate_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cm_certificate_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_disk_iam_binding"
@@ -36,6 +38,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datacatalog_catalog"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dataproc_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dataproc_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_project_iam_binding"
@@ -70,19 +73,29 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_lockbox_secret_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_lockbox_secret_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_logging_group"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_clickhouse_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_clickhouse_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_greenplum_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_greenplum_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_kafka_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_kafka_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mongodb_backup_retention_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mongodb_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mongodb_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mysql_backup_retention_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mysql_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mysql_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_opensearch_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_opensearch_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_postgresql_backup_retention_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_postgresql_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_postgresql_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_redis_backup_retention_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_redis_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_redis_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_sharded_postgresql_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_sharded_postgresql_cluster_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_metastore_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_metastore_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organization_manager_organization_iam_policy_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_group"
@@ -113,11 +126,15 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_workflow_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_serverless_workflow_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_spark_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_spark_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_advanced_rate_limiter_profile"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_domain"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_load_balancer"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_match_list"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_security_profile"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_waf_profile"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_trino_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_trino_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ydb_database_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
@@ -129,6 +146,7 @@ func init() {
 		yandex_container_registry_iam_binding.NewResource,
 		yandex_container_repository.NewResource,
 		yandex_container_repository_iam_binding.NewResource,
+		yandex_dataproc_cluster_change_freeze.NewResource,
 		yandex_dataproc_cluster_iam_binding.NewResource,
 		yandex_iam_workload_identity_oidc_federation.NewResource,
 		yandex_iam_workload_identity_oidc_federation_iam_binding.NewResource,
@@ -150,17 +168,26 @@ func init() {
 		yandex_kms_symmetric_key_iam_member.NewResource,
 		yandex_lb_target_group.NewResource,
 		yandex_mdb_mongodb_backup_retention_policy.NewResource,
+		yandex_mdb_mongodb_cluster_change_freeze.NewResource,
 		yandex_mdb_mongodb_cluster_iam_binding.NewResource,
 		yandex_mdb_mysql_backup_retention_policy.NewResource,
+		yandex_mdb_mysql_cluster_change_freeze.NewResource,
 		yandex_mdb_mysql_cluster_iam_binding.NewResource,
 		yandex_mdb_postgresql_backup_retention_policy.NewResource,
+		yandex_mdb_postgresql_cluster_change_freeze.NewResource,
 		yandex_mdb_postgresql_cluster_iam_binding.NewResource,
+		yandex_mdb_clickhouse_cluster_change_freeze.NewResource,
 		yandex_mdb_clickhouse_cluster_iam_binding.NewResource,
+		yandex_mdb_greenplum_cluster_change_freeze.NewResource,
 		yandex_mdb_greenplum_cluster_iam_binding.NewResource,
+		yandex_mdb_kafka_cluster_change_freeze.NewResource,
 		yandex_mdb_kafka_cluster_iam_binding.NewResource,
+		yandex_mdb_opensearch_cluster_change_freeze.NewResource,
 		yandex_mdb_opensearch_cluster_iam_binding.NewResource,
 		yandex_mdb_redis_backup_retention_policy.NewResource,
+		yandex_mdb_redis_cluster_change_freeze.NewResource,
 		yandex_mdb_redis_cluster_iam_binding.NewResource,
+		yandex_mdb_sharded_postgresql_cluster_change_freeze.NewResource,
 		yandex_mdb_sharded_postgresql_cluster_iam_binding.NewResource,
 		yandex_organizationmanager_idp_application_oauth_application.NewResource,
 		yandex_organizationmanager_idp_application_saml_application.NewResource,
@@ -184,6 +211,7 @@ func init() {
 		yandex_resourcemanager_folder_iam_member.NewResource,
 		yandex_resource_manager_folder_iam_policy_binding.NewResource,
 		yandex_ydb_database_iam_binding.NewResource,
+		yandex_airflow_cluster_change_freeze.NewResource,
 		yandex_airflow_cluster_iam_binding.NewResource,
 		yandex_cm_certificate_iam_binding.NewResource,
 		yandex_cm_certificate_iam_member.NewResource,
@@ -195,6 +223,7 @@ func init() {
 		yandex_cloudregistry_registry_iam_binding.NewResource,
 		yandex_cloudregistry_registry_iam_member.NewResource,
 		yandex_cloudregistry_scan_policy.NewResource,
+		yandex_cloudrouter_routing_instance.NewResource,
 		yandex_compute_disk_placement_group.NewResource,
 		yandex_compute_disk_placement_group_iam_binding.NewResource,
 		yandex_compute_disk_iam_binding.NewResource,
@@ -222,6 +251,7 @@ func init() {
 		yandex_lockbox_secret_iam_binding.NewResource,
 		yandex_lockbox_secret_iam_member.NewResource,
 		yandex_logging_group.NewResource,
+		yandex_metastore_cluster_change_freeze.NewResource,
 		yandex_metastore_cluster_iam_binding.NewResource,
 		yandex_api_gateway_iam_binding.NewResource,
 		yandex_api_gateway_iam_member.NewResource,
@@ -236,10 +266,14 @@ func init() {
 		yandex_serverless_workflow_iam_member.NewResource,
 		yandex_smartcaptcha_captcha.NewResource,
 		yandex_sws_advanced_rate_limiter_profile.NewResource,
+		yandex_sws_domain.NewResource,
+		yandex_sws_load_balancer.NewResource,
 		yandex_sws_match_list.NewResource,
 		yandex_sws_waf_profile.NewResource,
 		yandex_sws_security_profile.NewResource,
+		yandex_spark_cluster_change_freeze.NewResource,
 		yandex_spark_cluster_iam_binding.NewResource,
+		yandex_trino_cluster_change_freeze.NewResource,
 		yandex_trino_cluster_iam_binding.NewResource,
 		yandex_ytsaurus_cluster.NewResource,
 	}

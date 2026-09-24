@@ -108,6 +108,16 @@ func YandexOrganizationmanagerIdpApplicationOauthApplicationDatasourceSchema(ctx
 
 				Attributes: map[string]schema.Attribute{
 
+					"group_claim_value": schema.StringAttribute{
+						MarkdownDescription: "Source of the group value provided to the application.",
+						Description: "Source of the group value provided to the application." +
+							// proto paths: +
+							// -> yandex.cloud.organizationmanager.v1.idp.application.oauth.Application.group_claims_settings -> yandex.cloud.organizationmanager.v1.idp.application.oauth.GroupClaimsSettings.group_claim_value
+							"package: yandex.cloud.organizationmanager.v1.idp.application.oauth\n" +
+							"filename: yandex/cloud/organizationmanager/v1/idp/application/oauth/application.proto\n",
+						Computed: true,
+					},
+
 					"group_distribution_type": schema.StringAttribute{
 						MarkdownDescription: "Represents current distribution type of the groups. I.e. which groups are visible for the application users.",
 						Description: "Represents current distribution type of the groups. I.e. which groups are visible for the application users." +

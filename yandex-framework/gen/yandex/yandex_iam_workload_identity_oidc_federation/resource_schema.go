@@ -187,7 +187,7 @@ func YandexIamWorkloadIdentityOidcFederationResourceSchema(ctx context.Context) 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 8000),
+					stringvalidator.LengthBetween(1, 8000),
 				},
 			},
 
@@ -206,7 +206,7 @@ func YandexIamWorkloadIdentityOidcFederationResourceSchema(ctx context.Context) 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 8000),
+					stringvalidator.LengthBetween(1, 8000),
 				},
 			},
 

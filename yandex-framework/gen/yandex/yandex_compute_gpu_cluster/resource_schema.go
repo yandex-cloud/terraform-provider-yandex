@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -182,10 +183,16 @@ func YandexComputeGpuClusterResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Number of subnets in the GPU cluster.",
 				Description: "Number of subnets in the GPU cluster." +
 					// proto paths: +
+					// -> yandex.cloud.compute.v1.CreateGpuClusterRequest.subnets
 					// -> yandex.cloud.compute.v1.GpuCluster.subnets
 					"package: yandex.cloud.compute.v1\n" +
 					"filename: yandex/cloud/compute/v1/gpu_cluster.proto\n",
+				Optional: true,
 				Computed: true,
+
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 
 			"zone": schema.StringAttribute{

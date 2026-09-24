@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 type ClusterResource struct {
@@ -28,6 +29,7 @@ type ClusterResource struct {
 	BackupWindowStart      types.Object `tfsdk:"backup_window_start"`
 	Access                 types.Object `tfsdk:"access"`
 	CloudStorage           types.Object `tfsdk:"cloud_storage"`
+	ConnectionManager      types.Object `tfsdk:"connection_manager"`
 	SqlDatabaseManagement  types.Bool   `tfsdk:"sql_database_management"`
 	SqlUserManagement      types.Bool   `tfsdk:"sql_user_management"`
 	AdminPassword          types.String `tfsdk:"admin_password"`
@@ -75,6 +77,7 @@ var ClusterResourceAttrTypes = map[string]attr.Type{
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 	"access":                    types.ObjectType{AttrTypes: AccessAttrTypes},
 	"cloud_storage":             types.ObjectType{AttrTypes: CloudStorageAttrTypes},
+	"connection_manager":        types.ObjectType{AttrTypes: mdbcommon.ClusterConnectionManagerAttrTypes},
 	"sql_database_management":   types.BoolType,
 	"sql_user_management":       types.BoolType,
 	"admin_password":            types.StringType,
@@ -123,6 +126,7 @@ type ClusterDataSource struct {
 	BackupWindowStart      types.Object `tfsdk:"backup_window_start"`
 	Access                 types.Object `tfsdk:"access"`
 	CloudStorage           types.Object `tfsdk:"cloud_storage"`
+	ConnectionManager      types.Object `tfsdk:"connection_manager"`
 	SqlDatabaseManagement  types.Bool   `tfsdk:"sql_database_management"`
 	SqlUserManagement      types.Bool   `tfsdk:"sql_user_management"`
 	AdminPassword          types.String `tfsdk:"admin_password"`
@@ -166,6 +170,7 @@ var ClusterDataSourceTypes = map[string]attr.Type{
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 	"access":                    types.ObjectType{AttrTypes: AccessAttrTypes},
 	"cloud_storage":             types.ObjectType{AttrTypes: CloudStorageAttrTypes},
+	"connection_manager":        types.ObjectType{AttrTypes: mdbcommon.ClusterConnectionManagerAttrTypes},
 	"sql_database_management":   types.BoolType,
 	"sql_user_management":       types.BoolType,
 	"admin_password":            types.StringType,

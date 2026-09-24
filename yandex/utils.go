@@ -878,6 +878,7 @@ func removeWriteOnlyFields(resourceSchema map[string]*schema.Schema) {
 		}
 
 		delete(resourceSchema, fieldName)
+		delete(resourceSchema, fieldName+"_version")
 		for _, requiredFieldPath := range fieldSchema.RequiredWith {
 			requiredFieldName := requiredFieldPath[strings.LastIndex(requiredFieldPath, ".")+1:]
 			delete(resourceSchema, requiredFieldName)

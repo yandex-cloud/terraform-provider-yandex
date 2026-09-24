@@ -59,8 +59,7 @@ func resourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 			},
 			"owner": {
 				Type:        schema.TypeString,
-				Description: "Name of the user assigned as the owner of the database. Forbidden to change in an existing database.",
-				ForceNew:    true,
+				Description: "Name of the user assigned as the owner of the database. Changing this value transfers ownership of the database to another user.",
 				Required:    true,
 			},
 			"lc_collate": {
@@ -235,11 +234,15 @@ func resourceYandexMDBPostgreSQLDatabaseUpdate(d *schema.ResourceData, meta inte
 	if deletionProtection != nil {
 		updateMask.Paths = append(updateMask.Paths, "deletion_protection")
 	}
+	if d.HasChange("owner") {
+		updateMask.Paths = append(updateMask.Paths, "owner")
+	}
 
 	oldName, newName := d.GetChange("name")
 	request := &postgresql.UpdateDatabaseRequest{
 		ClusterId:          clusterID,
 		DatabaseName:       oldName.(string),
+		Owner:              d.Get("owner").(string),
 		Extensions:         extensions,
 		DeletionProtection: deletionProtection,
 		UpdateMask:         updateMask,

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 )
 
@@ -22,10 +23,18 @@ func TestAccDataSourceMDBTrinoCluster_basic(t *testing.T) {
 			{
 				Config: trinoDatasourceClusterConfig(t, randSuffix, true),
 				Check:  datasourceTestCheckComposeFunc(randSuffix),
+				ConfigStateChecks: []statecheck.StateCheck{
+					eventListenersStateCheck("yandex_trino_cluster.trino_cluster", true),
+					eventListenersStateCheck("data.yandex_trino_cluster.trino_cluster", true),
+				},
 			},
 			{
 				Config: trinoDatasourceClusterConfig(t, randSuffix, false),
 				Check:  datasourceTestCheckComposeFunc(randSuffix),
+				ConfigStateChecks: []statecheck.StateCheck{
+					eventListenersStateCheck("yandex_trino_cluster.trino_cluster", true),
+					eventListenersStateCheck("data.yandex_trino_cluster.trino_cluster", true),
+				},
 			},
 		},
 	})
@@ -53,6 +62,9 @@ func trinoDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) st
 			Hour: 2,
 		},
 		AdditionalParams: true,
+		EventListeners: &EventListenersParams{
+			DataCatalog: true,
+		},
 		RetryPolicy: &RetryPolicyParams{
 			Policy: "TASK",
 			AdditionalProperties: map[string]string{

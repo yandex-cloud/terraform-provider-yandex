@@ -88,7 +88,7 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialDataSource) Read(ctx contex
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"federated_credential not found",
 			)
@@ -98,6 +98,7 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialDataSource) Read(ctx contex
 				"Error while requesting API to get federated_credential:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read federated_credential response: %s", validate.ProtoDump(res)))
@@ -108,7 +109,7 @@ func (r *yandexIamWorkloadIdentityFederatedCredentialDataSource) Read(ctx contex
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

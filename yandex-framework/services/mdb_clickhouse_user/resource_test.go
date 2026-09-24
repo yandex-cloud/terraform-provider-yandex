@@ -58,6 +58,8 @@ func TestAccMDBClickHouseUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(chUserResourceID1, "name", chUserResourceName1),
 					resource.TestCheckResourceAttr(chUserResourceID1, "generate_password", "false"),
 					resource.TestCheckResourceAttr(chUserResourceID1, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(chUserResourceID1, "user_connection_manager.connection_folder_id", test.GetExampleFolderID()),
+					resource.TestCheckResourceAttr(chUserResourceID1, "user_connection_manager.secret_folder_id", test.GetExampleFolderID()),
 					testAccCheckMDBClickHouseClusterHasUsers(chClusterResourceID, []string{chUserResourceName1}),
 				),
 			},
@@ -69,6 +71,8 @@ func TestAccMDBClickHouseUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(chUserResourceID1, "name", chUserResourceName1),
 					resource.TestCheckResourceAttr(chUserResourceID1, "generate_password", "false"),
 					resource.TestCheckResourceAttr(chUserResourceID1, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(chUserResourceID1, "user_connection_manager.connection_folder_id", test.GetExampleFolderID()),
+					resource.TestCheckResourceAttr(chUserResourceID1, "user_connection_manager.secret_folder_id", test.GetExampleFolderID()),
 					testAccCheckMDBClickHouseUserHasDatabases(chUserResourceID1, []string{chDBResourceName1, chDBResourceName2}),
 					resource.TestCheckResourceAttr(chUserResourceID1, "quota.0.interval_duration", "79800000"),
 					resource.TestCheckResourceAttr(chUserResourceID1, "quota.0.queries", "5000"),
@@ -508,12 +512,18 @@ func testAccMDBClickHouseUserConfig_basic_create(name string, description string
 		cluster_id = %s
 		name       = "%s"
 		password   = "mysecureP@ssw0rd"
+		user_connection_manager = {
+			connection_folder_id = "%s"
+			secret_folder_id     = "%s"
+		}
 		permission {
 	      database_name = %s.name
 	  	}
 	}
 
-	`, chUserResourceName1, chClusterResourceIDLink, chUserResourceName1, makeCHDBResource(chDBResourceName1))
+	`, chUserResourceName1, chClusterResourceIDLink, chUserResourceName1,
+		test.GetExampleFolderID(), test.GetExampleFolderID(),
+		makeCHDBResource(chDBResourceName1))
 }
 
 func testAccMDBClickHouseUserConfig_basic_update(name string, description string) string {
@@ -523,6 +533,10 @@ func testAccMDBClickHouseUserConfig_basic_update(name string, description string
 		cluster_id = %s
 		name       = "%s"
 		password   = "mysecureP@ssw0rd"
+		user_connection_manager = {
+			connection_folder_id = "%s"
+			secret_folder_id     = "%s"
+		}
 		permission {
 	      database_name = %s.name
 	  	}
@@ -545,6 +559,7 @@ func testAccMDBClickHouseUserConfig_basic_update(name string, description string
 	}
 
 	`, chUserResourceName1, chClusterResourceIDLink, chUserResourceName1,
+		test.GetExampleFolderID(), test.GetExampleFolderID(),
 		makeCHDBResource(chDBResourceName1), makeCHDBResource(chDBResourceName2))
 }
 

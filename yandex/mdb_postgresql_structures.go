@@ -133,6 +133,16 @@ func flattenPGSettingsSPL(settings map[string]string, fieldsInfo *objectFieldsIn
 
 func convertPGSPLtoInts(c *postgresql.ClusterConfig) []int32 {
 	out := []int32{}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_19); ok {
+		for _, v := range cf.PostgresqlConfig_19.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_19_1C); ok {
+		for _, v := range cf.PostgresqlConfig_19_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_18); ok {
 		for _, v := range cf.PostgresqlConfig_18.UserConfig.SharedPreloadLibraries {
 			out = append(out, int32(v))
@@ -193,6 +203,22 @@ func flattenPGSettings(c *postgresql.ClusterConfig) (map[string]string, error) {
 		return nil, err
 	}
 
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_19); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_19.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_19_1C); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_19_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_18); ok {
 		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_18.UserConfig, false, settingsFieldsInfo, false, true, nil)
 		if err != nil {
@@ -923,6 +949,10 @@ func getPostgreSQLConfigFieldName(version string) (string, error) {
 		return "postgresql_config_18", nil
 	case "18-1c":
 		return "postgresql_config_18_1c", nil
+	case "19":
+		return "postgresql_config_19", nil
+	case "19-1c":
+		return "postgresql_config_19_1c", nil
 	default:
 		return "", fmt.Errorf("Unsupported postgresql version: %s", version)
 	}
@@ -1729,6 +1759,28 @@ func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.C
 		}
 		configSpec.PostgresqlConfig = cfg
 		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo18_1C, d, cfg.PostgresqlConfig_18_1C, "config.0.postgresql_config.", true)
+	} else if version == "19" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_19{
+			PostgresqlConfig_19: &config.PostgresqlConfig19{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_19.SharedPreloadLibraries = append(cfg.PostgresqlConfig_19.SharedPreloadLibraries, config.PostgresqlConfig19_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo19, d, cfg.PostgresqlConfig_19, "config.0.postgresql_config.", true)
+	} else if version == "19-1c" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_19_1C{
+			PostgresqlConfig_19_1C: &config.PostgresqlConfig19_1C{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_19_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_19_1C.SharedPreloadLibraries, config.PostgresqlConfig19_1C_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo19_1C, d, cfg.PostgresqlConfig_19_1C, "config.0.postgresql_config.", true)
 	}
 
 	return []string{}, err
@@ -1758,8 +1810,25 @@ func pgDatabasesDiff(currDBs []*postgresql.Database, targetDBs []*postgresql.Dat
 	return toDel, toAdd
 }
 
-func pgChangedDatabases(oldSpecs []interface{}, newSpecs []interface{}) ([]*postgresql.DatabaseSpec, error) {
-	out := []*postgresql.DatabaseSpec{}
+type pgDatabaseChange struct {
+	Spec       *postgresql.DatabaseSpec
+	UpdatePath []string
+}
+
+func pgDatabaseUpdatePaths(oldDB, newDB *postgresql.DatabaseSpec) []string {
+	updatePath := []string{}
+	if oldDB.Owner != newDB.Owner {
+		updatePath = append(updatePath, "owner")
+	}
+	if !reflect.DeepEqual(oldDB.Extensions, newDB.Extensions) {
+		updatePath = append(updatePath, "extensions")
+	}
+
+	return updatePath
+}
+
+func pgChangedDatabases(oldSpecs []interface{}, newSpecs []interface{}) ([]pgDatabaseChange, error) {
+	out := []pgDatabaseChange{}
 
 	m := map[string]*postgresql.DatabaseSpec{}
 	for _, spec := range oldSpecs {
@@ -1775,10 +1844,12 @@ func pgChangedDatabases(oldSpecs []interface{}, newSpecs []interface{}) ([]*post
 		if err != nil {
 			return nil, err
 		}
-		if oldDB, ok := m[db.Name]; ok {
-			if !reflect.DeepEqual(db, oldDB) {
-				out = append(out, db)
-			}
+		oldDB, ok := m[db.Name]
+		if !ok {
+			continue
+		}
+		if updatePath := pgDatabaseUpdatePaths(oldDB, db); len(updatePath) > 0 {
+			out = append(out, pgDatabaseChange{Spec: db, UpdatePath: updatePath})
 		}
 	}
 
@@ -2018,10 +2089,78 @@ func getMdbPGSettingsFieldsInfo(version string) (*objectFieldsInfo, error) {
 		return mdbPGSettingsFieldsInfo18, nil
 	case "18-1c":
 		return mdbPGSettingsFieldsInfo18_1C, nil
+	case "19":
+		return mdbPGSettingsFieldsInfo19, nil
+	case "19-1c":
+		return mdbPGSettingsFieldsInfo19_1C, nil
 	default:
 		return nil, fmt.Errorf("Unsupported postgresql version: %s", version)
 	}
 }
+
+var mdbPGSettingsFieldsInfo19 = newObjectFieldsInfo().
+	addType(config.PostgresqlConfig19{}, []reflect.Type{}).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig19_WalLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig19_SynchronousCommit_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig19_ConstraintExclusion_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig19_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig19_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig19_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig19_LogErrorVerbosity_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig19_LogStatement_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig19_TransactionIsolation_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig19_ByteaOutput_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig19_XmlBinary_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig19_XmlOption_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig19_BackslashQuote_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig19_PlanCacheMode_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig19_PgHintPlanDebugPrint_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig19_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig19_AutoExplainLogFormat_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig19_PasswordEncryption_name,
+		int(config.PostgresqlConfig19_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig19_DebugParallelQuery_name).
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig19_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo19_1C = newObjectFieldsInfo().
+	addType(config.PostgresqlConfig19_1C{}, []reflect.Type{}).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig19_1C_WalLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig19_1C_SynchronousCommit_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig19_1C_ConstraintExclusion_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig19_1C_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig19_1C_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig19_1C_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig19_1C_LogErrorVerbosity_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig19_1C_LogStatement_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig19_1C_TransactionIsolation_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig19_1C_ByteaOutput_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig19_1C_XmlBinary_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig19_1C_XmlOption_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig19_1C_BackslashQuote_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig19_1C_PlanCacheMode_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig19_1C_PgHintPlanDebugPrint_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig19_1C_LogLevel_name).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig19_1C_AutoExplainLogFormat_name).
+	addEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig19_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig19_1C_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
+	addEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig19_1C_DebugParallelQuery_name).
+	addSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig19_1C_SharedPreloadLibraries_name,
+		defaultStringOfEnumsCheck("shared_preload_libraries"),
+		stringOfEnumSliceCompareWithDefault,
+	)
 
 var mdbPGSettingsFieldsInfo18 = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig18{}, []reflect.Type{}).

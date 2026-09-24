@@ -4024,6 +4024,47 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 
 								Attributes: map[string]schema.Attribute{
 
+									"authentication": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"service_account": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"service_account_id": schema.StringAttribute{
+																MarkdownDescription: "Service account ID for interaction with database",
+																Description: "Service account ID for interaction with database" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.ServiceAccount.service_account_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.authentication
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+										Computed: true,
+									},
+
 									"changefeed_custom_consumer_name": schema.StringAttribute{
 										MarkdownDescription: "Consumer for pre-created change feed if any",
 										Description: "Consumer for pre-created change feed if any" +
@@ -4117,6 +4158,127 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
 									},
+
+									"ydb_connection": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"database_id": schema.StringAttribute{
+													MarkdownDescription: "Managed Service for YDB database ID",
+													Description: "Managed Service for YDB database ID" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.database_id
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+													Computed: true,
+												},
+
+												"on_premise": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database": schema.StringAttribute{
+																MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
+																Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.database
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Computed: true,
+															},
+
+															"instance": schema.StringAttribute{
+																MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.",
+																Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.instance
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Computed: true,
+															},
+
+															"subnet_id": schema.StringAttribute{
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.subnet_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Computed: true,
+															},
+
+															"tls_mode": schema.ListNestedAttribute{
+																NestedObject: schema.NestedAttributeObject{
+
+																	Attributes: map[string]schema.Attribute{
+
+																		"disabled": schema.ListNestedAttribute{
+																			NestedObject:        schema.NestedAttributeObject{},
+																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																			Computed: true,
+																		},
+
+																		"enabled": schema.ListNestedAttribute{
+																			NestedObject: schema.NestedAttributeObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"ca_certificate": schema.StringAttribute{
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																						Computed: true,
+																					},
+																				},
+																			},
+																			MarkdownDescription: "TLS is used for the server connection",
+																			Description: "TLS is used for the server connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																			Computed: true,
+																		},
+																	},
+																},
+																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
+																Description: "TLS settings for server connection. Disabled by default." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_source -> yandex.cloud.datatransfer.v1.endpoint.YdbSource.ydb_connection
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+										Computed: true,
+									},
 								},
 							},
 							MarkdownDescription: "",
@@ -4132,6 +4294,47 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							NestedObject: schema.NestedAttributeObject{
 
 								Attributes: map[string]schema.Attribute{
+
+									"authentication": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"service_account": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"service_account_id": schema.StringAttribute{
+																MarkdownDescription: "Service account ID for interaction with database",
+																Description: "Service account ID for interaction with database" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.ServiceAccount.service_account_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.AuthenticationMethod.service_account
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.authentication
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+										Computed: true,
+									},
 
 									"cleanup_policy": schema.StringAttribute{
 										MarkdownDescription: "Cleanup policy determine how to clean collections when activating the transfer.\n One of `YDB_CLEANUP_POLICY_DISABLED` or `YDB_CLEANUP_POLICY_DROP`",
@@ -4245,6 +4448,127 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
 										Computed: true,
 									},
+
+									"ydb_connection": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"database_id": schema.StringAttribute{
+													MarkdownDescription: "Managed Service for YDB database ID",
+													Description: "Managed Service for YDB database ID" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.database_id
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+													Computed: true,
+												},
+
+												"on_premise": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database": schema.StringAttribute{
+																MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
+																Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.database
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Computed: true,
+															},
+
+															"instance": schema.StringAttribute{
+																MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.",
+																Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.instance
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Computed: true,
+															},
+
+															"subnet_id": schema.StringAttribute{
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.subnet_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Computed: true,
+															},
+
+															"tls_mode": schema.ListNestedAttribute{
+																NestedObject: schema.NestedAttributeObject{
+
+																	Attributes: map[string]schema.Attribute{
+
+																		"disabled": schema.ListNestedAttribute{
+																			NestedObject:        schema.NestedAttributeObject{},
+																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																			Computed: true,
+																		},
+
+																		"enabled": schema.ListNestedAttribute{
+																			NestedObject: schema.NestedAttributeObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"ca_certificate": schema.StringAttribute{
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																						Computed: true,
+																					},
+																				},
+																			},
+																			MarkdownDescription: "TLS is used for the server connection",
+																			Description: "TLS is used for the server connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																			Computed: true,
+																		},
+																	},
+																},
+																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
+																Description: "TLS settings for server connection. Disabled by default." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDB.tls_mode
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDBConnection.on_premise
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "",
+										Description: "" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.ydb_target -> yandex.cloud.datatransfer.v1.endpoint.YdbTarget.ydb_connection
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/ydb.proto\n",
+										Computed: true,
+									},
 								},
 							},
 							MarkdownDescription: "",
@@ -4266,6 +4590,32 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										Description: "Should continue working, if consumer read lag exceed TTL of topic\n False: stop the transfer in error state, if detected lost data. True: continue\n working with losing part of data" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.allow_ttl_rewind
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+										Computed: true,
+									},
+
+									"authentication": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"service_account_id": schema.StringAttribute{
+													MarkdownDescription: "Service account ID for interaction with database",
+													Description: "Service account ID for interaction with database" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.authentication -> yandex.cloud.datatransfer.v1.endpoint.YDSAuthenticationMethod.service_account_id
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Choose one of authentication methods, right now only service account is avaiable",
+										Description: "Choose one of authentication methods, right now only service account is avaiable" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.authentication
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
@@ -4692,6 +5042,162 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,
 									},
+
+									"ydb_connection": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"managed_yds": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database_id": schema.StringAttribute{
+																MarkdownDescription: "Managed Service for YDB database ID",
+																Description: "Managed Service for YDB database ID" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.database_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"stream": schema.StringAttribute{
+																MarkdownDescription: "Stream to read",
+																Description: "Stream to read" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.stream
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+													Computed: true,
+												},
+
+												"on_premise": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database": schema.StringAttribute{
+																MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
+																Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.database
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"instance": schema.StringAttribute{
+																MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.",
+																Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.instance
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"stream": schema.StringAttribute{
+																MarkdownDescription: "Stream to read",
+																Description: "Stream to read" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.stream
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"subnet_id": schema.StringAttribute{
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.subnet_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"tls_mode": schema.ListNestedAttribute{
+																NestedObject: schema.NestedAttributeObject{
+
+																	Attributes: map[string]schema.Attribute{
+
+																		"disabled": schema.ListNestedAttribute{
+																			NestedObject:        schema.NestedAttributeObject{},
+																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																			Computed: true,
+																		},
+
+																		"enabled": schema.ListNestedAttribute{
+																			NestedObject: schema.NestedAttributeObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"ca_certificate": schema.StringAttribute{
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																						Computed: true,
+																					},
+																				},
+																			},
+																			MarkdownDescription: "TLS is used for the server connection",
+																			Description: "TLS is used for the server connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																			Computed: true,
+																		},
+																	},
+																},
+																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
+																Description: "TLS settings for server connection. Disabled by default." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Connection settings for managed YDB or for on premise",
+										Description: "Connection settings for managed YDB or for on premise" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.ydb_connection
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+										Computed: true,
+									},
 								},
 							},
 							MarkdownDescription: "",
@@ -4707,6 +5213,32 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 							NestedObject: schema.NestedAttributeObject{
 
 								Attributes: map[string]schema.Attribute{
+
+									"authentication": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"service_account_id": schema.StringAttribute{
+													MarkdownDescription: "Service account ID for interaction with database",
+													Description: "Service account ID for interaction with database" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.authentication -> yandex.cloud.datatransfer.v1.endpoint.YDSAuthenticationMethod.service_account_id
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Choose one of authentication methods, right now only service account is avaiable",
+										Description: "Choose one of authentication methods, right now only service account is avaiable" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.authentication
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+										Computed: true,
+									},
 
 									"compression_codec": schema.StringAttribute{
 										MarkdownDescription: "Codec to use for output data compression. If not specified, no compression will\n be done\n Options: YDS_COMPRESSION_CODEC_RAW, YDS_COMPRESSION_CODEC_ZSTD,\n YDS_COMPRESSION_CODEC_GZIP",
@@ -4872,6 +5404,162 @@ func YandexDatatransferEndpointDatasourceSchema(ctx context.Context) schema.Sche
 										Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the\n database. If omitted, the server has to be accessible via Internet" +
 											// proto paths: +
 											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.subnet_id
+											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+										Computed: true,
+									},
+
+									"ydb_connection": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+
+											Attributes: map[string]schema.Attribute{
+
+												"managed_yds": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database_id": schema.StringAttribute{
+																MarkdownDescription: "Managed Service for YDB database ID",
+																Description: "Managed Service for YDB database ID" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.database_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"stream": schema.StringAttribute{
+																MarkdownDescription: "Stream to read",
+																Description: "Stream to read" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds -> yandex.cloud.datatransfer.v1.endpoint.ManagedYDS.stream
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.managed_yds
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+													Computed: true,
+												},
+
+												"on_premise": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"database": schema.StringAttribute{
+																MarkdownDescription: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`",
+																Description: "Database path in YDB where tables are stored.\n Example: `/ru/transfer_manager/prod/data-transfer`" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.database
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"instance": schema.StringAttribute{
+																MarkdownDescription: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135.",
+																Description: "Instance of YDB. example: ydb-ru-prestable.yandex.net:2135." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.instance
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"stream": schema.StringAttribute{
+																MarkdownDescription: "Stream to read",
+																Description: "Stream to read" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.stream
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"subnet_id": schema.StringAttribute{
+																MarkdownDescription: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet",
+																Description: "Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database.\n If omitted, the server has to be accessible via Internet" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.subnet_id
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+
+															"tls_mode": schema.ListNestedAttribute{
+																NestedObject: schema.NestedAttributeObject{
+
+																	Attributes: map[string]schema.Attribute{
+
+																		"disabled": schema.ListNestedAttribute{
+																			NestedObject:        schema.NestedAttributeObject{},
+																			MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																			Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																			Computed: true,
+																		},
+
+																		"enabled": schema.ListNestedAttribute{
+																			NestedObject: schema.NestedAttributeObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"ca_certificate": schema.StringAttribute{
+																						MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																						Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																						Computed: true,
+																					},
+																				},
+																			},
+																			MarkdownDescription: "TLS is used for the server connection",
+																			Description: "TLS is used for the server connection" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																			Computed: true,
+																		},
+																	},
+																},
+																MarkdownDescription: "TLS settings for server connection. Disabled by default.",
+																Description: "TLS settings for server connection. Disabled by default." +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise -> yandex.cloud.datatransfer.v1.endpoint.OnPremiseYDS.tls_mode
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "",
+													Description: "" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection -> yandex.cloud.datatransfer.v1.endpoint.YDSConnection.on_premise
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
+													Computed: true,
+												},
+											},
+										},
+										MarkdownDescription: "Connection settings for managed YDB or for on premise",
+										Description: "Connection settings for managed YDB or for on premise" +
+											// proto paths: +
+											// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_target -> yandex.cloud.datatransfer.v1.endpoint.YDSTarget.ydb_connection
 											"package: yandex.cloud.datatransfer.v1.endpoint\n" +
 											"filename: yandex/cloud/datatransfer/v1/endpoint/yds.proto\n",
 										Computed: true,

@@ -84,6 +84,14 @@ func ClusterToState(ctx context.Context, cluster *trino.Cluster, state *ClusterM
 	}
 	state.RetryPolicy = retryPolicy
 
+	eventListeners, diags := eventListenersValueFromAPI(ctx, cluster.GetTrino().GetEventListeners())
+	if diags.HasError() {
+		return diags
+	}
+	if !eventListenersValuesAreEqual(state.EventListeners, eventListeners) {
+		state.EventListeners = eventListeners
+	}
+
 	loggingConfig, diags := loggingValueFromAPI(cluster.GetLogging())
 	if diags.HasError() {
 		return diags
@@ -341,4 +349,18 @@ func resourceGroupsAreEqual(state types.String, newConfig *ResourceGroups) (bool
 	}
 
 	return stateConfig.Equal(newConfig), diags
+}
+
+func eventListenersValueFromAPI(ctx context.Context, cfg *trino.EventListenersConfig) (EventListenersValue, diag.Diagnostics) {
+	if cfg.GetDataCatalog() == nil {
+		return NewEventListenersValueNull(), nil
+	}
+	dataCatalog, diags := (DataCatalogValue{state: attr.ValueStateKnown}).ToObjectValue(ctx)
+	if diags.HasError() {
+		return NewEventListenersValueUnknown(), diags
+	}
+	return EventListenersValue{
+		DataCatalog: dataCatalog,
+		state:       attr.ValueStateKnown,
+	}, diags
 }

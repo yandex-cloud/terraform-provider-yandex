@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
@@ -24,6 +25,7 @@ const (
 	yandexMDBKafkaClusterReadTimeout   = 5 * time.Minute
 	yandexMDBKafkaClusterDeleteTimeout = 60 * time.Minute
 	yandexMDBKafkaClusterUpdateTimeout = 60 * time.Minute
+	redactedKafkaSecret                = "[REDACTED]"
 )
 
 func resourceYandexMDBKafkaCluster() *schema.Resource {
@@ -830,7 +832,7 @@ func resourceYandexMDBKafkaClusterCreate(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	log.Printf("[DEBUG] Creating Kafka cluster: %+v", req)
+	log.Printf("[DEBUG] Creating Kafka cluster: %+v", redactKafkaClusterCreateRequest(req))
 
 	op, err := kafkasdk.NewClusterClient(config.SDK).Create(ctx, req)
 	if err != nil {
@@ -1504,7 +1506,7 @@ func createKafkaUser(ctx context.Context, config *Config, clusterID string, user
 	}
 
 	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
-		log.Printf("[DEBUG] Creating Kafka user %q: %+v", userSpec.Name, req)
+		log.Printf("[DEBUG] Creating Kafka user %q: %+v", userSpec.Name, redactKafkaUserCreateRequest(req))
 		return kafkasdk.NewUserClient(config.SDK).Create(ctx, req)
 	})
 	if err != nil {
@@ -1567,7 +1569,7 @@ func updateKafkaUsers(ctx context.Context, config *Config, d *schema.ResourceDat
 
 func updateKafkaUser(ctx context.Context, config *Config, req *kafka.UpdateUserRequest) error {
 	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
-		log.Printf("[DEBUG] Updating Kafka user %q: %+v", req.UserName, req)
+		log.Printf("[DEBUG] Updating Kafka user %q: %+v", req.UserName, redactKafkaUserUpdateRequest(req))
 		return kafkasdk.NewUserClient(config.SDK).Update(ctx, req)
 	})
 	if err != nil {
@@ -1579,6 +1581,41 @@ func updateKafkaUser(ctx context.Context, config *Config, req *kafka.UpdateUserR
 	}
 	log.Printf("[DEBUG] Finished updating Kafka user %q", req.UserName)
 	return nil
+}
+
+func redactKafkaUserCreateRequest(req *kafka.CreateUserRequest) *kafka.CreateUserRequest {
+	if req == nil {
+		return nil
+	}
+	redacted := proto.Clone(req).(*kafka.CreateUserRequest)
+	if redacted.UserSpec != nil && redacted.UserSpec.Password != "" {
+		redacted.UserSpec.Password = redactedKafkaSecret
+	}
+	return redacted
+}
+
+func redactKafkaClusterCreateRequest(req *kafka.CreateClusterRequest) *kafka.CreateClusterRequest {
+	if req == nil {
+		return nil
+	}
+	redacted := proto.Clone(req).(*kafka.CreateClusterRequest)
+	for _, userSpec := range redacted.UserSpecs {
+		if userSpec.Password != "" {
+			userSpec.Password = redactedKafkaSecret
+		}
+	}
+	return redacted
+}
+
+func redactKafkaUserUpdateRequest(req *kafka.UpdateUserRequest) *kafka.UpdateUserRequest {
+	if req == nil {
+		return nil
+	}
+	redacted := proto.Clone(req).(*kafka.UpdateUserRequest)
+	if redacted.Password != "" {
+		redacted.Password = redactedKafkaSecret
+	}
+	return redacted
 }
 
 func kafkaTopicUpdateMask(oldTopic, newTopic map[string]interface{}, version string) []string {

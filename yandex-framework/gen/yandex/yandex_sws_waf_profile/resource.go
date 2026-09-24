@@ -513,7 +513,7 @@ func (r *yandexSwsWafProfileResource) Update(ctx context.Context, req resource.U
 		}
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Failed to Read resource",
+				"Unable to Update Resource",
 				"Error while requesting API to update waf_profile:"+err.Error(),
 			)
 			return

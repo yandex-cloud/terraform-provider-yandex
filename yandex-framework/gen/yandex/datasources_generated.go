@@ -8,6 +8,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_lifecycle_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudrouter_routing_instance"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_compute_reserved_instance_pool"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_connectionmanager_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datacatalog_catalog"
@@ -21,6 +22,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_kms_asymmetric_signature_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mongodb_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_mysql_backup_retention_policy"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_opensearch_user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_postgresql_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_mdb_redis_backup_retention_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_idp_application_oauth_application"
@@ -35,6 +37,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_smartcaptcha_captcha_keys"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_advanced_rate_limiter_profile"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_domain"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_load_balancer"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_match_list"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_security_profile"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_sws_waf_profile"
@@ -51,6 +55,7 @@ func init() {
 		yandex_mdb_mongodb_backup_retention_policy.NewDataSource,
 		yandex_mdb_mysql_backup_retention_policy.NewDataSource,
 		yandex_mdb_postgresql_backup_retention_policy.NewDataSource,
+		yandex_mdb_opensearch_user.NewDataSource,
 		yandex_mdb_redis_backup_retention_policy.NewDataSource,
 		yandex_organizationmanager_idp_application_oauth_application.NewDataSource,
 		yandex_organizationmanager_idp_application_saml_application.NewDataSource,
@@ -63,6 +68,7 @@ func init() {
 		yandex_cloudregistry_lifecycle_policy.NewDataSource,
 		yandex_cloudregistry_registry.NewDataSource,
 		yandex_cloudregistry_scan_policy.NewDataSource,
+		yandex_cloudrouter_routing_instance.NewDataSource,
 		yandex_compute_reserved_instance_pool.NewDataSource,
 		yandex_connectionmanager_connection.NewDataSource,
 		yandex_datacatalog_catalog.NewDataSource,
@@ -75,6 +81,8 @@ func init() {
 		yandex_smartcaptcha_captcha.NewDataSource,
 		yandex_smartcaptcha_captcha_keys.NewDataSource,
 		yandex_sws_advanced_rate_limiter_profile.NewDataSource,
+		yandex_sws_domain.NewDataSource,
+		yandex_sws_load_balancer.NewDataSource,
 		yandex_sws_match_list.NewDataSource,
 		yandex_sws_waf_rule_set_descriptor.NewDataSource,
 		yandex_sws_waf_profile.NewDataSource,

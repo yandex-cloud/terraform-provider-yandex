@@ -712,6 +712,10 @@ If the parameter is set to 0 (default), no hops is allowed.
   - `move_factor` (Number). Sets the minimum free space ratio in the cluster storage. If the free space is lower than this value, the data is transferred to Yandex Object Storage. Acceptable values are 0 to 1, inclusive.
   - `prefer_not_to_merge` (Bool). Disables merging of data parts in `Yandex Object Storage`.
 - `cluster_id` (*Read-Only*) (String). ID of the ClickHouse cluster. This ID is assigned by MDB at creation time.
+- `connection_manager` [Block]. Connection Manager integration settings. If the block is omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.
+  - `connections_folder_id` (String). ID of the folder where connections for the cluster are created. Defaults to the cluster's folder if not specified.
+  - `enabled` (Bool). Indicates whether Connection Manager integration is enabled. Set to `true` to enable the integration. If omitted, the API enables the integration by default for newly created clusters. Disabling the integration is not supported: `enabled = false` is rejected.
+  - `secrets_folder_id` (String). ID of the folder where connection secrets are created. Defaults to the cluster's folder if not specified.
 - `copy_schema_on_new_hosts` (Bool). Whether to copy schema on new ClickHouse hosts.
 - `created_at` (*Read-Only*) (String). The creation timestamp of the resource.
 - `deletion_protection` (Bool). The `true` value means that resource is protected from accidental deletion.
@@ -857,8 +861,8 @@ If the parameter is set to 0 (default), no hops is allowed.
     - `disk_type_id` (String). Type of the storage of hosts. For more information see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts/storage).
     - `resource_preset_id` (String). The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://yandex.cloud/docs/managed-clickhouse/concepts).
   - `weight` (Number). The weight of shard.
-- `sql_database_management` (Bool). Grants `admin` user database management permission.
-- `sql_user_management` (Bool). Enables `admin` user with user management permission.
+- `sql_database_management` (Bool). Grants `admin` user database management permission. Can be enabled in-place, disabling requires the cluster to be recreated.
+- `sql_user_management` (Bool). Enables `admin` user with user management permission. Can be enabled in-place, disabling requires the cluster to be recreated.
 - `timeouts` [Block]. 
   - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
   - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.

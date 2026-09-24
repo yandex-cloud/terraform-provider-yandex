@@ -88,7 +88,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolDataSource) Read(ctx context.Contex
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"Failed to Read resource",
 				"userpool not found",
 			)
@@ -98,6 +98,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolDataSource) Read(ctx context.Contex
 				"Error while requesting API to get userpool:"+err.Error(),
 			)
 		}
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Read userpool response: %s", validate.ProtoDump(res)))
@@ -108,7 +109,7 @@ func (r *yandexOrganizationmanagerIdpUserpoolDataSource) Read(ctx context.Contex
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
+		resp.Diagnostics.AddError("Failed to read", "Resource not found")
 		return
 	}
 

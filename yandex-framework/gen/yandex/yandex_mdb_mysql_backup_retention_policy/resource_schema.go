@@ -40,7 +40,7 @@ func YandexMdbMysqlBackupRetentionPolicyResourceSchema(ctx context.Context) sche
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
+					stringvalidator.LengthBetween(1, 50),
 				},
 			},
 
@@ -81,6 +81,40 @@ func YandexMdbMysqlBackupRetentionPolicyResourceSchema(ctx context.Context) sche
 							// proto paths: +
 							// -> yandex.cloud.mdb.mysql.v1.CreateBackupRetentionPolicyRequest.cron -> yandex.cloud.mdb.v1.CronTab.day_of_week
 							// -> yandex.cloud.mdb.v1.BackupRetentionPolicy.cron -> yandex.cloud.mdb.v1.CronTab.day_of_week
+							"package: yandex.cloud.mdb.v1\n" +
+							"filename: yandex/cloud/mdb/v1/backup_retention_policy.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+							stringplanmodifier.UseStateForUnknown(),
+						},
+					},
+
+					"hour": schema.StringAttribute{
+						MarkdownDescription: "Hour in cron format. Valid values: 0-23, *, ranges (8-18), steps (*/2), lists (0,12).\n Defaults to \"\". Support depends on the database engine.",
+						Description: "Hour in cron format. Valid values: 0-23, *, ranges (8-18), steps (*/2), lists (0,12).\n Defaults to \"\". Support depends on the database engine." +
+							// proto paths: +
+							// -> yandex.cloud.mdb.mysql.v1.CreateBackupRetentionPolicyRequest.cron -> yandex.cloud.mdb.v1.CronTab.hour
+							// -> yandex.cloud.mdb.v1.BackupRetentionPolicy.cron -> yandex.cloud.mdb.v1.CronTab.hour
+							"package: yandex.cloud.mdb.v1\n" +
+							"filename: yandex/cloud/mdb/v1/backup_retention_policy.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.RequiresReplaceIfConfigured(),
+							stringplanmodifier.UseStateForUnknown(),
+						},
+					},
+
+					"minute": schema.StringAttribute{
+						MarkdownDescription: "Minute in cron format. Valid values: 0-59, *, ranges (0-30), steps (*/5), lists (0,15,30,45).\n Defaults to \"\". Support depends on the database engine.",
+						Description: "Minute in cron format. Valid values: 0-59, *, ranges (0-30), steps (*/5), lists (0,15,30,45).\n Defaults to \"\". Support depends on the database engine." +
+							// proto paths: +
+							// -> yandex.cloud.mdb.mysql.v1.CreateBackupRetentionPolicyRequest.cron -> yandex.cloud.mdb.v1.CronTab.minute
+							// -> yandex.cloud.mdb.v1.BackupRetentionPolicy.cron -> yandex.cloud.mdb.v1.CronTab.minute
 							"package: yandex.cloud.mdb.v1\n" +
 							"filename: yandex/cloud/mdb/v1/backup_retention_policy.proto\n",
 						Optional: true,

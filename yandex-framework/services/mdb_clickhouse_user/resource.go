@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
@@ -27,6 +28,7 @@ const (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &bindingResource{}
 var _ resource.ResourceWithImportState = &bindingResource{}
+var _ resource.ResourceWithModifyPlan = &bindingResource{}
 
 type bindingResource struct {
 	providerConfig *provider_config.Config
@@ -56,6 +58,22 @@ func (r *bindingResource) Configure(_ context.Context,
 	}
 
 	r.providerConfig = providerConfig
+}
+
+func (r *bindingResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.State.Raw.IsNull() || req.Config.Raw.IsNull() {
+		return
+	}
+
+	var config, state types.Object
+	ucmPath := path.Root("user_connection_manager")
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, ucmPath, &config)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, ucmPath, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	mdbcommon.ValidateUserConnectionManagerNotChanged(ctx, config, state, ucmPath, &resp.Diagnostics)
 }
 
 func (r *bindingResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {

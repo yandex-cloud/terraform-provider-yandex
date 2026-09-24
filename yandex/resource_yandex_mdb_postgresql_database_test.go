@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
@@ -67,6 +68,19 @@ func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 				),
 			},
 			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName1),
+			{
+				Config: testAccMDBPostgreSQLDatabaseConfigStep5(clusterName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(pgDatabaseResourceName1, plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "owner", "bob"),
+					testAccCheckMDBPostgreSQLDatabaseHasOwner(t, "testdb1", "bob"),
+				),
+			},
+			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName1),
 		},
 	})
 }
@@ -111,6 +125,17 @@ func testAccCheckMDBPostgreSQLClusterHasDatabase(t *testing.T, dbname string, ex
 	}
 }
 
+func testAccCheckMDBPostgreSQLDatabaseHasOwner(t *testing.T, dbname string, owner string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		db, err := testAccLoadPostgreSQLDatabase(s, dbname)
+		if err != nil {
+			return err
+		}
+		assert.Equal(t, owner, db.Owner)
+		return nil
+	}
+}
+
 func testAccMDBPostgreSQLDatabaseConfigStep0(name string) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
@@ -138,6 +163,12 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 resource "yandex_mdb_postgresql_user" "alice" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "alice"
+	password   = "mysecurepassword"
+}
+
+resource "yandex_mdb_postgresql_user" "bob" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "bob"
 	password   = "mysecurepassword"
 }
 `, name, postgresqlLatestVersion)
@@ -199,6 +230,36 @@ resource "yandex_mdb_postgresql_database" "testdb1" {
 	name        = "testdb1"
 	template_db = "testdb"
 	owner       = yandex_mdb_postgresql_user.alice.name
+	lc_collate  = "en_US.UTF-8"
+	lc_type     = "en_US.UTF-8"
+
+	extension {
+		name    = "uuid-ossp"
+	}
+	extension {
+		name    = "xml2"
+	}
+}
+` + `
+resource "yandex_mdb_postgresql_database" "testdb" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "testdb"
+	owner      = yandex_mdb_postgresql_user.alice.name
+	lc_collate = "en_US.UTF-8"
+	lc_type    = "en_US.UTF-8"
+	deletion_protection = "false"
+}
+`
+}
+
+// Owner change works in place, without database recreation
+func testAccMDBPostgreSQLDatabaseConfigStep5(name string) string {
+	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
+resource "yandex_mdb_postgresql_database" "testdb1" {
+	cluster_id  = yandex_mdb_postgresql_cluster.foo.id
+	name        = "testdb1"
+	template_db = "testdb"
+	owner       = yandex_mdb_postgresql_user.bob.name
 	lc_collate  = "en_US.UTF-8"
 	lc_type     = "en_US.UTF-8"
 

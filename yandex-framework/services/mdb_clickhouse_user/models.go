@@ -11,6 +11,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -27,22 +28,25 @@ type User interface {
 	GetQuotas() types.Set
 	SetConnectionManager(connectionManager types.Object)
 	GetConnectionManager() types.Object
+	SetUserConnectionManager(userConnectionManager types.Object)
+	GetUserConnectionManager() types.Object
 }
 
 type ResourceUser struct {
-	Id                types.String   `tfsdk:"id"`
-	ClusterID         types.String   `tfsdk:"cluster_id"`
-	Name              types.String   `tfsdk:"name"`
-	Password          types.String   `tfsdk:"password"`
-	PasswordWo        types.String   `tfsdk:"password_wo"`
-	PasswordWoVersion types.Int64    `tfsdk:"password_wo_version"`
-	GeneratePassword  types.Bool     `tfsdk:"generate_password"`
-	AuthMethod        types.String   `tfsdk:"auth_method"`
-	Permissions       types.Set      `tfsdk:"permission"`
-	Settings          types.Object   `tfsdk:"settings"`
-	Quotas            types.Set      `tfsdk:"quota"`
-	ConnectionManager types.Object   `tfsdk:"connection_manager"`
-	Timeouts          timeouts.Value `tfsdk:"timeouts"`
+	Id                    types.String   `tfsdk:"id"`
+	ClusterID             types.String   `tfsdk:"cluster_id"`
+	Name                  types.String   `tfsdk:"name"`
+	Password              types.String   `tfsdk:"password"`
+	PasswordWo            types.String   `tfsdk:"password_wo"`
+	PasswordWoVersion     types.Int64    `tfsdk:"password_wo_version"`
+	GeneratePassword      types.Bool     `tfsdk:"generate_password"`
+	AuthMethod            types.String   `tfsdk:"auth_method"`
+	Permissions           types.Set      `tfsdk:"permission"`
+	Settings              types.Object   `tfsdk:"settings"`
+	Quotas                types.Set      `tfsdk:"quota"`
+	ConnectionManager     types.Object   `tfsdk:"connection_manager"`
+	UserConnectionManager types.Object   `tfsdk:"user_connection_manager"`
+	Timeouts              timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (ru *ResourceUser) SetId(id types.String) {
@@ -101,16 +105,25 @@ func (ru *ResourceUser) GetConnectionManager() types.Object {
 	return ru.ConnectionManager
 }
 
+func (ru *ResourceUser) SetUserConnectionManager(userConnectionManager types.Object) {
+	ru.UserConnectionManager = userConnectionManager
+}
+
+func (ru *ResourceUser) GetUserConnectionManager() types.Object {
+	return ru.UserConnectionManager
+}
+
 type DatasourceUser struct {
-	Id                types.String `tfsdk:"id"`
-	ClusterID         types.String `tfsdk:"cluster_id"`
-	Name              types.String `tfsdk:"name"`
-	Password          types.String `tfsdk:"password"`
-	AuthMethod        types.String `tfsdk:"auth_method"`
-	Permissions       types.Set    `tfsdk:"permission"`
-	Settings          types.Object `tfsdk:"settings"`
-	Quotas            types.Set    `tfsdk:"quota"`
-	ConnectionManager types.Object `tfsdk:"connection_manager"`
+	Id                    types.String `tfsdk:"id"`
+	ClusterID             types.String `tfsdk:"cluster_id"`
+	Name                  types.String `tfsdk:"name"`
+	Password              types.String `tfsdk:"password"`
+	AuthMethod            types.String `tfsdk:"auth_method"`
+	Permissions           types.Set    `tfsdk:"permission"`
+	Settings              types.Object `tfsdk:"settings"`
+	Quotas                types.Set    `tfsdk:"quota"`
+	ConnectionManager     types.Object `tfsdk:"connection_manager"`
+	UserConnectionManager types.Object `tfsdk:"user_connection_manager"`
 }
 
 func (du *DatasourceUser) SetId(id types.String) {
@@ -162,6 +175,14 @@ func (du *DatasourceUser) SetConnectionManager(connectionManager types.Object) {
 
 func (du *DatasourceUser) GetConnectionManager() types.Object {
 	return du.ConnectionManager
+}
+
+func (du *DatasourceUser) SetUserConnectionManager(userConnectionManager types.Object) {
+	du.UserConnectionManager = userConnectionManager
+}
+
+func (du *DatasourceUser) GetUserConnectionManager() types.Object {
+	return du.UserConnectionManager
 }
 
 type Permission struct {
@@ -227,6 +248,7 @@ func userToState(ctx context.Context, user *clickhouse.User, state User) diag.Di
 	log.Printf("[TRACE] mdb_clickhouse_user: flattened settings: %+v\n", state.GetSettings())
 	state.SetConnectionManager(flattenConnectionManager(ctx, user.ConnectionManager, &diags))
 	log.Printf("[TRACE] mdb_clickhouse_user: flattened connection_manager: %+v\n", state.GetConnectionManager())
+	state.SetUserConnectionManager(mdbcommon.FlattenUserConnectionManagerFramework(ctx, user.UserConnectionManager, &diags))
 
 	return diags
 }
@@ -240,12 +262,13 @@ func userFromState(ctx context.Context, state *ResourceUser, password string) (*
 	settings := usersettings.Expand(ctx, state.Settings, &diags)
 	log.Printf("[TRACE] mdb_clickhouse_user: expanded settings: %+v\n", settings)
 	return &clickhouse.UserSpec{
-		Name:             state.Name.ValueString(),
-		Password:         password,
-		Permissions:      permissions,
-		Quotas:           quotas,
-		Settings:         settings,
-		GeneratePassword: wrapperspb.Bool(state.GeneratePassword.ValueBool()),
-		AuthMethod:       getAuthMethodValue(state.AuthMethod),
+		Name:                  state.Name.ValueString(),
+		Password:              password,
+		Permissions:           permissions,
+		Quotas:                quotas,
+		Settings:              settings,
+		GeneratePassword:      wrapperspb.Bool(state.GeneratePassword.ValueBool()),
+		AuthMethod:            getAuthMethodValue(state.AuthMethod),
+		UserConnectionManager: mdbcommon.ExpandUserConnectionManagerFramework(ctx, state.UserConnectionManager, &diags),
 	}, diags
 }

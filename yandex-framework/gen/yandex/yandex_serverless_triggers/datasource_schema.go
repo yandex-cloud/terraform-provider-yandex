@@ -1085,6 +1085,70 @@ func YandexServerlessTriggersDatasourceSchema(ctx context.Context) schema.Schema
 						Computed: true,
 					},
 
+					"yandex_messenger": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"bot_display_name": schema.StringAttribute{
+								MarkdownDescription: "Display name of the bot the token belongs to. output only.",
+								Description: "Display name of the bot the token belongs to. output only." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_display_name
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed: true,
+							},
+
+							"bot_id": schema.StringAttribute{
+								MarkdownDescription: "ID of the bot the token belongs to. output only.",
+								Description: "ID of the bot the token belongs to. output only." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_id
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed: true,
+							},
+
+							"bot_login": schema.StringAttribute{
+								MarkdownDescription: "Login of the bot the token belongs to. output only.",
+								Description: "Login of the bot the token belongs to. output only." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.bot_login
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed: true,
+							},
+
+							"force": schema.BoolAttribute{
+								MarkdownDescription: "input only. Overwrite a webhook the bot already has set to a different URL,\n instead of failing with \"webhook already in use\". If the webhook already\n points to this trigger, force does nothing - the existing webhook is kept.",
+								Description: "input only. Overwrite a webhook the bot already has set to a different URL,\n instead of failing with \"webhook already in use\". If the webhook already\n points to this trigger, force does nothing - the existing webhook is kept." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.force
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed: true,
+							},
+
+							"oauth_token": schema.StringAttribute{
+								MarkdownDescription: "OAuth token of the Yandex Messenger bot.\n input only, always empty in output.\n Required on Create; on Update, changing it re-registers the webhook.",
+								Description: "OAuth token of the Yandex Messenger bot.\n input only, always empty in output.\n Required on Create; on Update, changing it re-registers the webhook." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger -> yandex.cloud.serverless.triggers.v2.YandexMessenger.oauth_token
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed:  true,
+								Sensitive: true,
+							},
+						},
+						MarkdownDescription: "Yandex Messenger source: fires on Yandex Messenger bot updates.",
+						Description: "Yandex Messenger source: fires on Yandex Messenger bot updates." +
+							// proto paths: +
+							// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_messenger
+							"package: yandex.cloud.serverless.triggers.v2\n" +
+							"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+						Computed: true,
+					},
+
 					"yds": schema.SingleNestedAttribute{
 
 						Attributes: map[string]schema.Attribute{
