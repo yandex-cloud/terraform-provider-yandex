@@ -18,3 +18,16 @@ func TestSuccessfulCreateRetry(t *testing.T) {
 		t.Fatal("must not accept a different error after a retry")
 	}
 }
+
+func TestEnsureLifecycleFilterState(t *testing.T) {
+	empty := ensureLifecycleFilterState(nil)
+	if len(empty) != 1 || len(empty[0]) != 0 {
+		t.Fatalf("expected one empty filter block, got %#v", empty)
+	}
+
+	configured := []map[string]interface{}{{"prefix": "logs/"}}
+	got := ensureLifecycleFilterState(configured)
+	if len(got) != 1 || got[0]["prefix"] != "logs/" {
+		t.Fatalf("expected configured filter to be preserved, got %#v", got)
+	}
+}

@@ -1691,6 +1691,13 @@ func (c *Client) getBucketLogging(ctx context.Context, bucket string) ([]map[str
 	return append(lcl, lc), nil
 }
 
+func ensureLifecycleFilterState(ruleFilter []map[string]interface{}) []map[string]interface{} {
+	if len(ruleFilter) == 0 {
+		return []map[string]interface{}{make(map[string]interface{})}
+	}
+	return ruleFilter
+}
+
 func (c *Client) getBucketLifecycle(ctx context.Context, bucket string) ([]map[string]interface{}, error) {
 	lifecycle, err := RetryLongTermOperations[*s3.GetBucketLifecycleConfigurationOutput](
 		ctx,
@@ -1762,7 +1769,7 @@ func (c *Client) getBucketLifecycle(ctx context.Context, bucket string) ([]map[s
 					ruleFilter = append(ruleFilter, map[string]interface{}{"tag": append(tagList, tag)})
 				}
 			}
-			rule["filter"] = ruleFilter
+			rule["filter"] = ensureLifecycleFilterState(ruleFilter)
 		}
 
 		// Enabled
