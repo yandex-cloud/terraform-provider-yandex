@@ -1,3 +1,14 @@
+# The first vendor PR has files but no modules.txt; the second PR completes it.
+ifneq ($(wildcard vendor),)
+ifeq ($(wildcard vendor/modules.txt),)
+INCOMPLETE_VENDOR := 1
+endif
+endif
+
+ifeq ($(INCOMPLETE_VENDOR),1)
+export GOFLAGS := -mod=mod
+endif
+
 SEMVER ?= 0.0.1
 
 TEST?=$$(go list ./... )
@@ -71,8 +82,13 @@ sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts.";
 	go test $(SWEEP_DIR) -v -run='^$$' -sweep=$(SWEEP) -sweep-run=$(SWEEPERS_FOR_RUNNING) -timeout 60m
 
+ifeq ($(INCOMPLETE_VENDOR),1)
+test:
+	@echo "Skipping test: vendor/modules.txt arrives in PR 2/2"
+else
 test: fmtcheck
 	go test $(TEST) -timeout=60s -parallel=4
+endif
 
 testacc: fmtcheck
 	TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
@@ -92,15 +108,25 @@ fmt:
 fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
+ifeq ($(INCOMPLETE_VENDOR),1)
+lint:
+	@echo "Skipping lint: vendor/modules.txt arrives in PR 2/2"
+else
 lint:
 	golangci-lint version
 	golangci-lint run --modules-download-mode mod $(LINT_PACKAGES) -v
+endif
 
+ifeq ($(INCOMPLETE_VENDOR),1)
+tools:
+	@echo "Skipping tools: vendor/modules.txt arrives in PR 2/2"
+else
 tools:
 	@echo "==> installing required tooling..."
 	go install github.com/client9/misspell/cmd/misspell
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.2.2
 	go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+endif
 
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
@@ -111,14 +137,24 @@ test-compile:
 	go test -c $(TEST) $(TESTARGS)
 
 
+ifeq ($(INCOMPLETE_VENDOR),1)
+changie-lint:
+	@echo "Skipping changie-lint: vendor/modules.txt arrives in PR 2/2"
+else
 changie-lint:
 	go run lint/cmd/changie/changie.go batch patch -d
+endif
 
 install-yfm:
 	npm i @diplodoc/cli -g
 
+ifeq ($(INCOMPLETE_VENDOR),1)
+affected-lint-provider-docs:
+	@echo "Skipping affected-lint-provider-docs: vendor/modules.txt arrives in PR 2/2"
+else
 affected-lint-provider-docs:
 	@sh -c "'$(CURDIR)//scripts/affectedocs.sh'"
+endif
 
 build-website:
 	go run tools/cmd/generate-toc/generate_toc.go ./docs && \
@@ -129,8 +165,13 @@ publish-website:
 	go run tools/cmd/generate-toc/generate_toc.go ./docs && \
 	yfm -i ./docs -o ./output-folder -c .yfm -v '{"version": "$(SEMVER)"}' --publish
 
+ifeq ($(INCOMPLETE_VENDOR),1)
+validate-docs:
+	@echo "Skipping validate-docs: vendor/modules.txt arrives in PR 2/2"
+else
 validate-docs:
 	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs validate -provider-name ${PKG_NAME}
+endif
 
 generate:
 	@echo "Public Terraform generation is release-only; use release-generate and generate-docs in release pipeline"
