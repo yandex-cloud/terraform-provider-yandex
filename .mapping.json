@@ -1324,6 +1324,7 @@
   "scripts/gofmtcheck.sh":"opensource/terraform-provider-yandex-mirror/scripts/gofmtcheck.sh",
   "scripts/gogetcookie.sh":"opensource/terraform-provider-yandex-mirror/scripts/gogetcookie.sh",
   "scripts/mockgen.sh":"opensource/terraform-provider-yandex-mirror/scripts/mockgen.sh",
+  "scripts/precheck-go-mod.sh":"opensource/terraform-provider-yandex-mirror/scripts/precheck-go-mod.sh",
   "tools.go":"opensource/terraform-provider-yandex-mirror/tools.go",
   "tools/cmd/generate-toc/generate_toc.go":"opensource/terraform-provider-yandex-mirror/tools/cmd/generate-toc/generate_toc.go",
   "vendor/4d63.com/gocheckcompilerdirectives/LICENSE":"opensource/terraform-provider-yandex-mirror/vendor/4d63.com/gocheckcompilerdirectives/LICENSE",
