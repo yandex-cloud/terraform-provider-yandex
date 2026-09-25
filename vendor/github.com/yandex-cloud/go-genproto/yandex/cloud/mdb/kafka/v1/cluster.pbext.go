@@ -75,6 +75,10 @@ func (m *Cluster) SetPlannedOperation(v *MaintenanceOperation) {
 	m.PlannedOperation = v
 }
 
+func (m *Cluster) SetIsHa(v bool) {
+	m.IsHa = v
+}
+
 func (m *Cluster) SetKafkaUi(v *Cluster_KafkaUI) {
 	m.KafkaUi = v
 }

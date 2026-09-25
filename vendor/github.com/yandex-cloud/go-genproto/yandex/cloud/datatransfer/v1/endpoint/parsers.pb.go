@@ -21,6 +21,108 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type SchemaRegistryTableNamePolicyDerivedJSONType int32
+
+const (
+	SchemaRegistryTableNamePolicyDerivedJSONType_SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_UNSPECIFIED SchemaRegistryTableNamePolicyDerivedJSONType = 0
+	// Schema title is "<schema>.<table>", as Debezium produces it
+	SchemaRegistryTableNamePolicyDerivedJSONType_SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_DEBEZIUM_LIKE SchemaRegistryTableNamePolicyDerivedJSONType = 1
+	// Schema title is used as the table name as is
+	SchemaRegistryTableNamePolicyDerivedJSONType_SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_TITLE SchemaRegistryTableNamePolicyDerivedJSONType = 2
+)
+
+// Enum value maps for SchemaRegistryTableNamePolicyDerivedJSONType.
+var (
+	SchemaRegistryTableNamePolicyDerivedJSONType_name = map[int32]string{
+		0: "SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_UNSPECIFIED",
+		1: "SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_DEBEZIUM_LIKE",
+		2: "SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_TITLE",
+	}
+	SchemaRegistryTableNamePolicyDerivedJSONType_value = map[string]int32{
+		"SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_UNSPECIFIED":   0,
+		"SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_DEBEZIUM_LIKE": 1,
+		"SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_TITLE":         2,
+	}
+)
+
+func (x SchemaRegistryTableNamePolicyDerivedJSONType) Enum() *SchemaRegistryTableNamePolicyDerivedJSONType {
+	p := new(SchemaRegistryTableNamePolicyDerivedJSONType)
+	*p = x
+	return p
+}
+
+func (x SchemaRegistryTableNamePolicyDerivedJSONType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SchemaRegistryTableNamePolicyDerivedJSONType) Descriptor() protoreflect.EnumDescriptor {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_enumTypes[0].Descriptor()
+}
+
+func (SchemaRegistryTableNamePolicyDerivedJSONType) Type() protoreflect.EnumType {
+	return &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_enumTypes[0]
+}
+
+func (x SchemaRegistryTableNamePolicyDerivedJSONType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SchemaRegistryTableNamePolicyDerivedJSONType.Descriptor instead.
+func (SchemaRegistryTableNamePolicyDerivedJSONType) EnumDescriptor() ([]byte, []int) {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{0}
+}
+
+type SchemaRegistryTableNamePolicyDerivedProtobufType int32
+
+const (
+	SchemaRegistryTableNamePolicyDerivedProtobufType_SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_UNSPECIFIED SchemaRegistryTableNamePolicyDerivedProtobufType = 0
+	// Full message name is "<server>.<schema>.<table>.<message>", as Debezium produces it
+	SchemaRegistryTableNamePolicyDerivedProtobufType_SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_DEBEZIUM_LIKE SchemaRegistryTableNamePolicyDerivedProtobufType = 1
+	// Short message name is used as the table name
+	SchemaRegistryTableNamePolicyDerivedProtobufType_SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_MESSAGE_NAME SchemaRegistryTableNamePolicyDerivedProtobufType = 2
+)
+
+// Enum value maps for SchemaRegistryTableNamePolicyDerivedProtobufType.
+var (
+	SchemaRegistryTableNamePolicyDerivedProtobufType_name = map[int32]string{
+		0: "SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_UNSPECIFIED",
+		1: "SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_DEBEZIUM_LIKE",
+		2: "SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_MESSAGE_NAME",
+	}
+	SchemaRegistryTableNamePolicyDerivedProtobufType_value = map[string]int32{
+		"SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_UNSPECIFIED":   0,
+		"SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_DEBEZIUM_LIKE": 1,
+		"SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_MESSAGE_NAME":  2,
+	}
+)
+
+func (x SchemaRegistryTableNamePolicyDerivedProtobufType) Enum() *SchemaRegistryTableNamePolicyDerivedProtobufType {
+	p := new(SchemaRegistryTableNamePolicyDerivedProtobufType)
+	*p = x
+	return p
+}
+
+func (x SchemaRegistryTableNamePolicyDerivedProtobufType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SchemaRegistryTableNamePolicyDerivedProtobufType) Descriptor() protoreflect.EnumDescriptor {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_enumTypes[1].Descriptor()
+}
+
+func (SchemaRegistryTableNamePolicyDerivedProtobufType) Type() protoreflect.EnumType {
+	return &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_enumTypes[1]
+}
+
+func (x SchemaRegistryTableNamePolicyDerivedProtobufType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SchemaRegistryTableNamePolicyDerivedProtobufType.Descriptor instead.
+func (SchemaRegistryTableNamePolicyDerivedProtobufType) EnumDescriptor() ([]byte, []int) {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{1}
+}
+
 type Parser struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Parser:
@@ -29,6 +131,7 @@ type Parser struct {
 	//	*Parser_AuditTrailsV1Parser
 	//	*Parser_CloudLoggingParser
 	//	*Parser_TskvParser
+	//	*Parser_ConfluentSchemaRegistryParser
 	Parser        isParser_Parser `protobuf_oneof:"parser"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -107,6 +210,15 @@ func (x *Parser) GetTskvParser() *GenericParserCommon {
 	return nil
 }
 
+func (x *Parser) GetConfluentSchemaRegistryParser() *ConfluentSchemaRegistryParser {
+	if x != nil {
+		if x, ok := x.Parser.(*Parser_ConfluentSchemaRegistryParser); ok {
+			return x.ConfluentSchemaRegistryParser
+		}
+	}
+	return nil
+}
+
 type isParser_Parser interface {
 	isParser_Parser()
 }
@@ -131,6 +243,11 @@ type Parser_TskvParser struct {
 	TskvParser *GenericParserCommon `protobuf:"bytes,6,opt,name=tskv_parser,json=tskvParser,proto3,oneof"`
 }
 
+type Parser_ConfluentSchemaRegistryParser struct {
+	// Parse messages in Confluent wire format using schemas from a schema registry
+	ConfluentSchemaRegistryParser *ConfluentSchemaRegistryParser `protobuf:"bytes,7,opt,name=confluent_schema_registry_parser,json=confluentSchemaRegistryParser,proto3,oneof"`
+}
+
 func (*Parser_JsonParser) isParser_Parser() {}
 
 func (*Parser_AuditTrailsV1Parser) isParser_Parser() {}
@@ -138,6 +255,8 @@ func (*Parser_AuditTrailsV1Parser) isParser_Parser() {}
 func (*Parser_CloudLoggingParser) isParser_Parser() {}
 
 func (*Parser_TskvParser) isParser_Parser() {}
+
+func (*Parser_ConfluentSchemaRegistryParser) isParser_Parser() {}
 
 type GenericParserCommon struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -283,18 +402,499 @@ func (*CloudLoggingParser) Descriptor() ([]byte, []int) {
 	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{3}
 }
 
+type ConfluentSchemaRegistryConnection struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Schema Registry api url
+	SchemaRegistryUrl string `protobuf:"bytes,1,opt,name=schema_registry_url,json=schemaRegistryUrl,proto3" json:"schema_registry_url,omitempty"`
+	// CA certificate of the Schema Registry server.
+	// TLS is turned on by the https scheme in schema_registry_url, not by this field.
+	// Without a certificate here the server certificate is not verified
+	TlsMode *TLSMode `protobuf:"bytes,2,opt,name=tls_mode,json=tlsMode,proto3" json:"tls_mode,omitempty"`
+	// Schema Registry authentication config. Empty credentials mean no authentication
+	Auth          *ConfluentSchemaRegistryAuth `protobuf:"bytes,3,opt,name=auth,proto3" json:"auth,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfluentSchemaRegistryConnection) Reset() {
+	*x = ConfluentSchemaRegistryConnection{}
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfluentSchemaRegistryConnection) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfluentSchemaRegistryConnection) ProtoMessage() {}
+
+func (x *ConfluentSchemaRegistryConnection) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfluentSchemaRegistryConnection.ProtoReflect.Descriptor instead.
+func (*ConfluentSchemaRegistryConnection) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ConfluentSchemaRegistryConnection) GetSchemaRegistryUrl() string {
+	if x != nil {
+		return x.SchemaRegistryUrl
+	}
+	return ""
+}
+
+func (x *ConfluentSchemaRegistryConnection) GetTlsMode() *TLSMode {
+	if x != nil {
+		return x.TlsMode
+	}
+	return nil
+}
+
+func (x *ConfluentSchemaRegistryConnection) GetAuth() *ConfluentSchemaRegistryAuth {
+	if x != nil {
+		return x.Auth
+	}
+	return nil
+}
+
+// Table name is derived from the message schema
+type SchemaRegistryTableNamePolicyDerived struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Naming for messages with JSON Schema
+	Json SchemaRegistryTableNamePolicyDerivedJSONType `protobuf:"varint,1,opt,name=json,proto3,enum=yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerivedJSONType" json:"json,omitempty"`
+	// Naming for messages with Protobuf schema
+	Protobuf      SchemaRegistryTableNamePolicyDerivedProtobufType `protobuf:"varint,2,opt,name=protobuf,proto3,enum=yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerivedProtobufType" json:"protobuf,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SchemaRegistryTableNamePolicyDerived) Reset() {
+	*x = SchemaRegistryTableNamePolicyDerived{}
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SchemaRegistryTableNamePolicyDerived) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SchemaRegistryTableNamePolicyDerived) ProtoMessage() {}
+
+func (x *SchemaRegistryTableNamePolicyDerived) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SchemaRegistryTableNamePolicyDerived.ProtoReflect.Descriptor instead.
+func (*SchemaRegistryTableNamePolicyDerived) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SchemaRegistryTableNamePolicyDerived) GetJson() SchemaRegistryTableNamePolicyDerivedJSONType {
+	if x != nil {
+		return x.Json
+	}
+	return SchemaRegistryTableNamePolicyDerivedJSONType_SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_UNSPECIFIED
+}
+
+func (x *SchemaRegistryTableNamePolicyDerived) GetProtobuf() SchemaRegistryTableNamePolicyDerivedProtobufType {
+	if x != nil {
+		return x.Protobuf
+	}
+	return SchemaRegistryTableNamePolicyDerivedProtobufType_SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_UNSPECIFIED
+}
+
+// All messages are written to the single table
+type SchemaRegistryTableNamePolicyManual struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Name of the table to write all messages to
+	TableName     string `protobuf:"bytes,1,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SchemaRegistryTableNamePolicyManual) Reset() {
+	*x = SchemaRegistryTableNamePolicyManual{}
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SchemaRegistryTableNamePolicyManual) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SchemaRegistryTableNamePolicyManual) ProtoMessage() {}
+
+func (x *SchemaRegistryTableNamePolicyManual) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SchemaRegistryTableNamePolicyManual.ProtoReflect.Descriptor instead.
+func (*SchemaRegistryTableNamePolicyManual) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SchemaRegistryTableNamePolicyManual) GetTableName() string {
+	if x != nil {
+		return x.TableName
+	}
+	return ""
+}
+
+type SchemaRegistryTableNamePolicy struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to SchemaRegistryTableNamePolicy:
+	//
+	//	*SchemaRegistryTableNamePolicy_Derived
+	//	*SchemaRegistryTableNamePolicy_Manual
+	SchemaRegistryTableNamePolicy isSchemaRegistryTableNamePolicy_SchemaRegistryTableNamePolicy `protobuf_oneof:"schema_registry_table_name_policy"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
+}
+
+func (x *SchemaRegistryTableNamePolicy) Reset() {
+	*x = SchemaRegistryTableNamePolicy{}
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SchemaRegistryTableNamePolicy) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SchemaRegistryTableNamePolicy) ProtoMessage() {}
+
+func (x *SchemaRegistryTableNamePolicy) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SchemaRegistryTableNamePolicy.ProtoReflect.Descriptor instead.
+func (*SchemaRegistryTableNamePolicy) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *SchemaRegistryTableNamePolicy) GetSchemaRegistryTableNamePolicy() isSchemaRegistryTableNamePolicy_SchemaRegistryTableNamePolicy {
+	if x != nil {
+		return x.SchemaRegistryTableNamePolicy
+	}
+	return nil
+}
+
+func (x *SchemaRegistryTableNamePolicy) GetDerived() *SchemaRegistryTableNamePolicyDerived {
+	if x != nil {
+		if x, ok := x.SchemaRegistryTableNamePolicy.(*SchemaRegistryTableNamePolicy_Derived); ok {
+			return x.Derived
+		}
+	}
+	return nil
+}
+
+func (x *SchemaRegistryTableNamePolicy) GetManual() *SchemaRegistryTableNamePolicyManual {
+	if x != nil {
+		if x, ok := x.SchemaRegistryTableNamePolicy.(*SchemaRegistryTableNamePolicy_Manual); ok {
+			return x.Manual
+		}
+	}
+	return nil
+}
+
+type isSchemaRegistryTableNamePolicy_SchemaRegistryTableNamePolicy interface {
+	isSchemaRegistryTableNamePolicy_SchemaRegistryTableNamePolicy()
+}
+
+type SchemaRegistryTableNamePolicy_Derived struct {
+	// Derive the table name from the message schema
+	Derived *SchemaRegistryTableNamePolicyDerived `protobuf:"bytes,1,opt,name=derived,proto3,oneof"`
+}
+
+type SchemaRegistryTableNamePolicy_Manual struct {
+	// Write all messages to the single table
+	Manual *SchemaRegistryTableNamePolicyManual `protobuf:"bytes,2,opt,name=manual,proto3,oneof"`
+}
+
+func (*SchemaRegistryTableNamePolicy_Derived) isSchemaRegistryTableNamePolicy_SchemaRegistryTableNamePolicy() {
+}
+
+func (*SchemaRegistryTableNamePolicy_Manual) isSchemaRegistryTableNamePolicy_SchemaRegistryTableNamePolicy() {
+}
+
+type ConfluentSchemaRegistryParser struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Connection:
+	//
+	//	*ConfluentSchemaRegistryParser_ConfluentSchemaRegistryConnection
+	Connection isConfluentSchemaRegistryParser_Connection `protobuf_oneof:"connection"`
+	// Produce update events instead of inserts
+	IsGenerateUpdates bool `protobuf:"varint,5,opt,name=is_generate_updates,json=isGenerateUpdates,proto3" json:"is_generate_updates,omitempty"`
+	// Target table naming. If not set, table name is derived from the schema in
+	// Debezium-like manner
+	TableNamePolicy *SchemaRegistryTableNamePolicy `protobuf:"bytes,6,opt,name=table_name_policy,json=tableNamePolicy,proto3" json:"table_name_policy,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ConfluentSchemaRegistryParser) Reset() {
+	*x = ConfluentSchemaRegistryParser{}
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfluentSchemaRegistryParser) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfluentSchemaRegistryParser) ProtoMessage() {}
+
+func (x *ConfluentSchemaRegistryParser) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfluentSchemaRegistryParser.ProtoReflect.Descriptor instead.
+func (*ConfluentSchemaRegistryParser) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ConfluentSchemaRegistryParser) GetConnection() isConfluentSchemaRegistryParser_Connection {
+	if x != nil {
+		return x.Connection
+	}
+	return nil
+}
+
+func (x *ConfluentSchemaRegistryParser) GetConfluentSchemaRegistryConnection() *ConfluentSchemaRegistryConnection {
+	if x != nil {
+		if x, ok := x.Connection.(*ConfluentSchemaRegistryParser_ConfluentSchemaRegistryConnection); ok {
+			return x.ConfluentSchemaRegistryConnection
+		}
+	}
+	return nil
+}
+
+func (x *ConfluentSchemaRegistryParser) GetIsGenerateUpdates() bool {
+	if x != nil {
+		return x.IsGenerateUpdates
+	}
+	return false
+}
+
+func (x *ConfluentSchemaRegistryParser) GetTableNamePolicy() *SchemaRegistryTableNamePolicy {
+	if x != nil {
+		return x.TableNamePolicy
+	}
+	return nil
+}
+
+type isConfluentSchemaRegistryParser_Connection interface {
+	isConfluentSchemaRegistryParser_Connection()
+}
+
+type ConfluentSchemaRegistryParser_ConfluentSchemaRegistryConnection struct {
+	// Connection to a Confluent-compatible schema registry
+	ConfluentSchemaRegistryConnection *ConfluentSchemaRegistryConnection `protobuf:"bytes,1,opt,name=confluent_schema_registry_connection,json=confluentSchemaRegistryConnection,proto3,oneof"`
+}
+
+func (*ConfluentSchemaRegistryParser_ConfluentSchemaRegistryConnection) isConfluentSchemaRegistryParser_Connection() {
+}
+
+type ConfluentSchemaRegistryAuth struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to ConfluentSchemaRegistryAuth:
+	//
+	//	*ConfluentSchemaRegistryAuth_NoAuth
+	//	*ConfluentSchemaRegistryAuth_Basic
+	ConfluentSchemaRegistryAuth isConfluentSchemaRegistryAuth_ConfluentSchemaRegistryAuth `protobuf_oneof:"confluent_schema_registry_auth"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
+}
+
+func (x *ConfluentSchemaRegistryAuth) Reset() {
+	*x = ConfluentSchemaRegistryAuth{}
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfluentSchemaRegistryAuth) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfluentSchemaRegistryAuth) ProtoMessage() {}
+
+func (x *ConfluentSchemaRegistryAuth) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfluentSchemaRegistryAuth.ProtoReflect.Descriptor instead.
+func (*ConfluentSchemaRegistryAuth) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ConfluentSchemaRegistryAuth) GetConfluentSchemaRegistryAuth() isConfluentSchemaRegistryAuth_ConfluentSchemaRegistryAuth {
+	if x != nil {
+		return x.ConfluentSchemaRegistryAuth
+	}
+	return nil
+}
+
+func (x *ConfluentSchemaRegistryAuth) GetNoAuth() *NoAuth {
+	if x != nil {
+		if x, ok := x.ConfluentSchemaRegistryAuth.(*ConfluentSchemaRegistryAuth_NoAuth); ok {
+			return x.NoAuth
+		}
+	}
+	return nil
+}
+
+func (x *ConfluentSchemaRegistryAuth) GetBasic() *BasicAuthSR {
+	if x != nil {
+		if x, ok := x.ConfluentSchemaRegistryAuth.(*ConfluentSchemaRegistryAuth_Basic); ok {
+			return x.Basic
+		}
+	}
+	return nil
+}
+
+type isConfluentSchemaRegistryAuth_ConfluentSchemaRegistryAuth interface {
+	isConfluentSchemaRegistryAuth_ConfluentSchemaRegistryAuth()
+}
+
+type ConfluentSchemaRegistryAuth_NoAuth struct {
+	// Connect to the schema registry without authentication
+	NoAuth *NoAuth `protobuf:"bytes,1,opt,name=no_auth,json=noAuth,proto3,oneof"`
+}
+
+type ConfluentSchemaRegistryAuth_Basic struct {
+	// Authenticate with a user name and a password
+	Basic *BasicAuthSR `protobuf:"bytes,2,opt,name=basic,proto3,oneof"`
+}
+
+func (*ConfluentSchemaRegistryAuth_NoAuth) isConfluentSchemaRegistryAuth_ConfluentSchemaRegistryAuth() {
+}
+
+func (*ConfluentSchemaRegistryAuth_Basic) isConfluentSchemaRegistryAuth_ConfluentSchemaRegistryAuth() {
+}
+
+type BasicAuthSR struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// User
+	User string `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	// Password for user. Write-only: it is never returned, and an empty value on
+	// update keeps the stored one
+	Password      *Secret `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BasicAuthSR) Reset() {
+	*x = BasicAuthSR{}
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BasicAuthSR) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BasicAuthSR) ProtoMessage() {}
+
+func (x *BasicAuthSR) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BasicAuthSR.ProtoReflect.Descriptor instead.
+func (*BasicAuthSR) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *BasicAuthSR) GetUser() string {
+	if x != nil {
+		return x.User
+	}
+	return ""
+}
+
+func (x *BasicAuthSR) GetPassword() *Secret {
+	if x != nil {
+		return x.Password
+	}
+	return nil
+}
+
 var File_yandex_cloud_datatransfer_v1_endpoint_parsers_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDesc = "" +
 	"\n" +
-	"3yandex/cloud/datatransfer/v1/endpoint/parsers.proto\x12%yandex.cloud.datatransfer.v1.endpoint\x1a2yandex/cloud/datatransfer/v1/endpoint/common.proto\"\xbe\x03\n" +
+	"3yandex/cloud/datatransfer/v1/endpoint/parsers.proto\x12%yandex.cloud.datatransfer.v1.endpoint\x1a2yandex/cloud/datatransfer/v1/endpoint/common.proto\"\xd0\x04\n" +
 	"\x06Parser\x12]\n" +
 	"\vjson_parser\x18\x01 \x01(\v2:.yandex.cloud.datatransfer.v1.endpoint.GenericParserCommonH\x00R\n" +
 	"jsonParser\x12q\n" +
 	"\x16audit_trails_v1_parser\x18\x02 \x01(\v2:.yandex.cloud.datatransfer.v1.endpoint.AuditTrailsV1ParserH\x00R\x13auditTrailsV1Parser\x12m\n" +
 	"\x14cloud_logging_parser\x18\x04 \x01(\v29.yandex.cloud.datatransfer.v1.endpoint.CloudLoggingParserH\x00R\x12cloudLoggingParser\x12]\n" +
 	"\vtskv_parser\x18\x06 \x01(\v2:.yandex.cloud.datatransfer.v1.endpoint.GenericParserCommonH\x00R\n" +
-	"tskvParserB\b\n" +
+	"tskvParser\x12\x8f\x01\n" +
+	" confluent_schema_registry_parser\x18\a \x01(\v2D.yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParserH\x00R\x1dconfluentSchemaRegistryParserB\b\n" +
 	"\x06parserJ\x04\b\x03\x10\x04J\x04\b\x05\x10\x06\"\xf9\x01\n" +
 	"\x13GenericParserCommon\x12R\n" +
 	"\vdata_schema\x18\x01 \x01(\v21.yandex.cloud.datatransfer.v1.endpoint.DataSchemaR\n" +
@@ -303,7 +903,42 @@ const file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDesc = "" +
 	"\x0fadd_rest_column\x18\x03 \x01(\bR\raddRestColumn\x124\n" +
 	"\x16unescape_string_values\x18\a \x01(\bR\x14unescapeStringValuesJ\x04\b\x04\x10\a\"\x15\n" +
 	"\x13AuditTrailsV1Parser\"\x14\n" +
-	"\x12CloudLoggingParserB\xa7\x01\n" +
+	"\x12CloudLoggingParser\"\xf6\x01\n" +
+	"!ConfluentSchemaRegistryConnection\x12.\n" +
+	"\x13schema_registry_url\x18\x01 \x01(\tR\x11schemaRegistryUrl\x12I\n" +
+	"\btls_mode\x18\x02 \x01(\v2..yandex.cloud.datatransfer.v1.endpoint.TLSModeR\atlsMode\x12V\n" +
+	"\x04auth\x18\x03 \x01(\v2B.yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuthR\x04auth\"\x84\x02\n" +
+	"$SchemaRegistryTableNamePolicyDerived\x12g\n" +
+	"\x04json\x18\x01 \x01(\x0e2S.yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerivedJSONTypeR\x04json\x12s\n" +
+	"\bprotobuf\x18\x02 \x01(\x0e2W.yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerivedProtobufTypeR\bprotobuf\"D\n" +
+	"#SchemaRegistryTableNamePolicyManual\x12\x1d\n" +
+	"\n" +
+	"table_name\x18\x01 \x01(\tR\ttableName\"\x93\x02\n" +
+	"\x1dSchemaRegistryTableNamePolicy\x12g\n" +
+	"\aderived\x18\x01 \x01(\v2K.yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerivedH\x00R\aderived\x12d\n" +
+	"\x06manual\x18\x02 \x01(\v2J.yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyManualH\x00R\x06manualB#\n" +
+	"!schema_registry_table_name_policy\"\xf3\x02\n" +
+	"\x1dConfluentSchemaRegistryParser\x12\x9b\x01\n" +
+	"$confluent_schema_registry_connection\x18\x01 \x01(\v2H.yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnectionH\x00R!confluentSchemaRegistryConnection\x12.\n" +
+	"\x13is_generate_updates\x18\x05 \x01(\bR\x11isGenerateUpdates\x12p\n" +
+	"\x11table_name_policy\x18\x06 \x01(\v2D.yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyR\x0ftableNamePolicyB\f\n" +
+	"\n" +
+	"connectionJ\x04\b\x02\x10\x05\"\xd5\x01\n" +
+	"\x1bConfluentSchemaRegistryAuth\x12H\n" +
+	"\ano_auth\x18\x01 \x01(\v2-.yandex.cloud.datatransfer.v1.endpoint.NoAuthH\x00R\x06noAuth\x12J\n" +
+	"\x05basic\x18\x02 \x01(\v22.yandex.cloud.datatransfer.v1.endpoint.BasicAuthSRH\x00R\x05basicB \n" +
+	"\x1econfluent_schema_registry_auth\"l\n" +
+	"\vBasicAuthSR\x12\x12\n" +
+	"\x04user\x18\x01 \x01(\tR\x04user\x12I\n" +
+	"\bpassword\x18\x02 \x01(\v2-.yandex.cloud.datatransfer.v1.endpoint.SecretR\bpassword*\xf9\x01\n" +
+	",SchemaRegistryTableNamePolicyDerivedJSONType\x12C\n" +
+	"?SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_UNSPECIFIED\x10\x00\x12E\n" +
+	"ASCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_DEBEZIUM_LIKE\x10\x01\x12=\n" +
+	"9SCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_JSON_TYPE_TITLE\x10\x02*\x90\x02\n" +
+	"0SchemaRegistryTableNamePolicyDerivedProtobufType\x12G\n" +
+	"CSCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_UNSPECIFIED\x10\x00\x12I\n" +
+	"ESCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_DEBEZIUM_LIKE\x10\x01\x12H\n" +
+	"DSCHEMA_REGISTRY_TABLE_NAME_POLICY_DERIVED_PROTOBUF_TYPE_MESSAGE_NAME\x10\x02B\xa7\x01\n" +
 	")yandex.cloud.api.datatransfer.v1.endpointZRgithub.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1/endpoint;endpoint\xaa\x02%Yandex.Cloud.Datatransfer.V1.EndPointb\x06proto3"
 
 var (
@@ -318,25 +953,50 @@ func file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescGZIP() []by
 	return file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDescData
 }
 
-var file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_goTypes = []any{
-	(*Parser)(nil),              // 0: yandex.cloud.datatransfer.v1.endpoint.Parser
-	(*GenericParserCommon)(nil), // 1: yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon
-	(*AuditTrailsV1Parser)(nil), // 2: yandex.cloud.datatransfer.v1.endpoint.AuditTrailsV1Parser
-	(*CloudLoggingParser)(nil),  // 3: yandex.cloud.datatransfer.v1.endpoint.CloudLoggingParser
-	(*DataSchema)(nil),          // 4: yandex.cloud.datatransfer.v1.endpoint.DataSchema
+	(SchemaRegistryTableNamePolicyDerivedJSONType)(0),     // 0: yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerivedJSONType
+	(SchemaRegistryTableNamePolicyDerivedProtobufType)(0), // 1: yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerivedProtobufType
+	(*Parser)(nil),                               // 2: yandex.cloud.datatransfer.v1.endpoint.Parser
+	(*GenericParserCommon)(nil),                  // 3: yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon
+	(*AuditTrailsV1Parser)(nil),                  // 4: yandex.cloud.datatransfer.v1.endpoint.AuditTrailsV1Parser
+	(*CloudLoggingParser)(nil),                   // 5: yandex.cloud.datatransfer.v1.endpoint.CloudLoggingParser
+	(*ConfluentSchemaRegistryConnection)(nil),    // 6: yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection
+	(*SchemaRegistryTableNamePolicyDerived)(nil), // 7: yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived
+	(*SchemaRegistryTableNamePolicyManual)(nil),  // 8: yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyManual
+	(*SchemaRegistryTableNamePolicy)(nil),        // 9: yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy
+	(*ConfluentSchemaRegistryParser)(nil),        // 10: yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser
+	(*ConfluentSchemaRegistryAuth)(nil),          // 11: yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth
+	(*BasicAuthSR)(nil),                          // 12: yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR
+	(*DataSchema)(nil),                           // 13: yandex.cloud.datatransfer.v1.endpoint.DataSchema
+	(*TLSMode)(nil),                              // 14: yandex.cloud.datatransfer.v1.endpoint.TLSMode
+	(*NoAuth)(nil),                               // 15: yandex.cloud.datatransfer.v1.endpoint.NoAuth
+	(*Secret)(nil),                               // 16: yandex.cloud.datatransfer.v1.endpoint.Secret
 }
 var file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_depIdxs = []int32{
-	1, // 0: yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser:type_name -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon
-	2, // 1: yandex.cloud.datatransfer.v1.endpoint.Parser.audit_trails_v1_parser:type_name -> yandex.cloud.datatransfer.v1.endpoint.AuditTrailsV1Parser
-	3, // 2: yandex.cloud.datatransfer.v1.endpoint.Parser.cloud_logging_parser:type_name -> yandex.cloud.datatransfer.v1.endpoint.CloudLoggingParser
-	1, // 3: yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser:type_name -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon
-	4, // 4: yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema:type_name -> yandex.cloud.datatransfer.v1.endpoint.DataSchema
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3,  // 0: yandex.cloud.datatransfer.v1.endpoint.Parser.json_parser:type_name -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon
+	4,  // 1: yandex.cloud.datatransfer.v1.endpoint.Parser.audit_trails_v1_parser:type_name -> yandex.cloud.datatransfer.v1.endpoint.AuditTrailsV1Parser
+	5,  // 2: yandex.cloud.datatransfer.v1.endpoint.Parser.cloud_logging_parser:type_name -> yandex.cloud.datatransfer.v1.endpoint.CloudLoggingParser
+	3,  // 3: yandex.cloud.datatransfer.v1.endpoint.Parser.tskv_parser:type_name -> yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon
+	10, // 4: yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser:type_name -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser
+	13, // 5: yandex.cloud.datatransfer.v1.endpoint.GenericParserCommon.data_schema:type_name -> yandex.cloud.datatransfer.v1.endpoint.DataSchema
+	14, // 6: yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode:type_name -> yandex.cloud.datatransfer.v1.endpoint.TLSMode
+	11, // 7: yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth:type_name -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth
+	0,  // 8: yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.json:type_name -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerivedJSONType
+	1,  // 9: yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.protobuf:type_name -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerivedProtobufType
+	7,  // 10: yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived:type_name -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived
+	8,  // 11: yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual:type_name -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyManual
+	6,  // 12: yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection:type_name -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection
+	9,  // 13: yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy:type_name -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy
+	15, // 14: yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.no_auth:type_name -> yandex.cloud.datatransfer.v1.endpoint.NoAuth
+	12, // 15: yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic:type_name -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR
+	16, // 16: yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password:type_name -> yandex.cloud.datatransfer.v1.endpoint.Secret
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_init() }
@@ -350,19 +1010,32 @@ func file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_init() {
 		(*Parser_AuditTrailsV1Parser)(nil),
 		(*Parser_CloudLoggingParser)(nil),
 		(*Parser_TskvParser)(nil),
+		(*Parser_ConfluentSchemaRegistryParser)(nil),
+	}
+	file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[7].OneofWrappers = []any{
+		(*SchemaRegistryTableNamePolicy_Derived)(nil),
+		(*SchemaRegistryTableNamePolicy_Manual)(nil),
+	}
+	file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[8].OneofWrappers = []any{
+		(*ConfluentSchemaRegistryParser_ConfluentSchemaRegistryConnection)(nil),
+	}
+	file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes[9].OneofWrappers = []any{
+		(*ConfluentSchemaRegistryAuth_NoAuth)(nil),
+		(*ConfluentSchemaRegistryAuth_Basic)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDesc), len(file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      2,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_goTypes,
 		DependencyIndexes: file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_depIdxs,
+		EnumInfos:         file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_enumTypes,
 		MessageInfos:      file_yandex_cloud_datatransfer_v1_endpoint_parsers_proto_msgTypes,
 	}.Build()
 	File_yandex_cloud_datatransfer_v1_endpoint_parsers_proto = out.File

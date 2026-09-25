@@ -92,6 +92,17 @@ func YandexIamOauthClientDatasourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 			},
 
+			"post_logout_redirect_uris": schema.SetAttribute{
+				ElementType:         types.StringType,
+				MarkdownDescription: "List of URIs to which users can be redirected after signing out of the oauth client.",
+				Description: "List of URIs to which users can be redirected after signing out of the oauth client." +
+					// proto paths: +
+					// -> yandex.cloud.iam.v1.OAuthClient.post_logout_redirect_uris
+					"package: yandex.cloud.iam.v1\n" +
+					"filename: yandex/cloud/iam/v1/oauth_client.proto\n",
+				Computed: true,
+			},
+
 			"profile_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the profile that defines the set of allowed settings for the oauth client.",
 				Description: "ID of the profile that defines the set of allowed settings for the oauth client." +

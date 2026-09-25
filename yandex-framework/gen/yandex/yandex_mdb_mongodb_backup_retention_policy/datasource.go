@@ -89,7 +89,7 @@ func (r *yandexMdbMongodbBackupRetentionPolicyDataSource) Read(ctx context.Conte
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddError(
+			resp.Diagnostics.AddWarning(
 				"Failed to Read resource",
 				"backup_retention_policy not found",
 			)
@@ -110,7 +110,7 @@ func (r *yandexMdbMongodbBackupRetentionPolicyDataSource) Read(ctx context.Conte
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddError("Failed to read", "Resource not found")
+		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
 		return
 	}
 

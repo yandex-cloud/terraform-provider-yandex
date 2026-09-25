@@ -359,6 +359,8 @@ type Cluster struct {
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,16,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Scheduled maintenance operation.
 	PlannedOperation *MaintenanceOperation `protobuf:"bytes,17,opt,name=planned_operation,json=plannedOperation,proto3" json:"planned_operation,omitempty"`
+	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
+	IsHa bool `protobuf:"varint,20,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
 	// KafkaUI state.
 	KafkaUi *Cluster_KafkaUI `protobuf:"bytes,18,opt,name=kafka_ui,json=kafkaUi,proto3" json:"kafka_ui,omitempty"`
 	// ID of the key to encrypt cluster disks.
@@ -514,6 +516,13 @@ func (x *Cluster) GetPlannedOperation() *MaintenanceOperation {
 		return x.PlannedOperation
 	}
 	return nil
+}
+
+func (x *Cluster) GetIsHa() bool {
+	if x != nil {
+		return x.IsHa
+	}
+	return false
 }
 
 func (x *Cluster) GetKafkaUi() *Cluster_KafkaUI {
@@ -2120,7 +2129,7 @@ var File_yandex_cloud_mdb_kafka_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_kafka_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"'yandex/cloud/mdb/kafka/v1/cluster.proto\x12\x19yandex.cloud.mdb.kafka.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a&yandex/cloud/mdb/kafka/v1/common.proto\x1a+yandex/cloud/mdb/kafka/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xa5\v\n" +
+	"'yandex/cloud/mdb/kafka/v1/cluster.proto\x12\x19yandex.cloud.mdb.kafka.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a&yandex/cloud/mdb/kafka/v1/common.proto\x1a+yandex/cloud/mdb/kafka/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xba\v\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -2143,7 +2152,8 @@ const file_yandex_cloud_mdb_kafka_v1_cluster_proto_rawDesc = "" +
 	"\x0ehost_group_ids\x18\x0e \x03(\tR\fhostGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\x0f \x01(\bR\x12deletionProtection\x12[\n" +
 	"\x12maintenance_window\x18\x10 \x01(\v2,.yandex.cloud.mdb.kafka.v1.MaintenanceWindowR\x11maintenanceWindow\x12\\\n" +
-	"\x11planned_operation\x18\x11 \x01(\v2/.yandex.cloud.mdb.kafka.v1.MaintenanceOperationR\x10plannedOperation\x12E\n" +
+	"\x11planned_operation\x18\x11 \x01(\v2/.yandex.cloud.mdb.kafka.v1.MaintenanceOperationR\x10plannedOperation\x12\x13\n" +
+	"\x05is_ha\x18\x14 \x01(\bR\x04isHa\x12E\n" +
 	"\bkafka_ui\x18\x12 \x01(\v2*.yandex.cloud.mdb.kafka.v1.Cluster.KafkaUIR\akafkaUi\x12Q\n" +
 	"\x16disk_encryption_key_id\x18\x13 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +

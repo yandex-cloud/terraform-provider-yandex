@@ -26,330 +26,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Strategy for translating PromQL (Prometheus data source) panel queries.
-// Queries against the Monitoring data source are unaffected by this mode.
-type QueryTranslationMode int32
-
-const (
-	QueryTranslationMode_QUERY_TRANSLATION_MODE_UNSPECIFIED QueryTranslationMode = 0
-	// Keep queries in PromQL for the native Prometheus data source, adapting
-	// only Grafana template syntax (`$var`, `$__rate_interval`).
-	QueryTranslationMode_QUERY_TRANSLATION_MODE_KEEP_PROMQL QueryTranslationMode = 1
-	// Translate PromQL to the Monitoring query language where possible; an
-	// untranslatable query is kept in PromQL and reported with a WARNING
-	// diagnostic.
-	QueryTranslationMode_QUERY_TRANSLATION_MODE_TRANSLATE_TO_SEL QueryTranslationMode = 2
-)
-
-// Enum value maps for QueryTranslationMode.
-var (
-	QueryTranslationMode_name = map[int32]string{
-		0: "QUERY_TRANSLATION_MODE_UNSPECIFIED",
-		1: "QUERY_TRANSLATION_MODE_KEEP_PROMQL",
-		2: "QUERY_TRANSLATION_MODE_TRANSLATE_TO_SEL",
-	}
-	QueryTranslationMode_value = map[string]int32{
-		"QUERY_TRANSLATION_MODE_UNSPECIFIED":      0,
-		"QUERY_TRANSLATION_MODE_KEEP_PROMQL":      1,
-		"QUERY_TRANSLATION_MODE_TRANSLATE_TO_SEL": 2,
-	}
-)
-
-func (x QueryTranslationMode) Enum() *QueryTranslationMode {
-	p := new(QueryTranslationMode)
-	*p = x
-	return p
-}
-
-func (x QueryTranslationMode) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (QueryTranslationMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[0].Descriptor()
-}
-
-func (QueryTranslationMode) Type() protoreflect.EnumType {
-	return &file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[0]
-}
-
-func (x QueryTranslationMode) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use QueryTranslationMode.Descriptor instead.
-func (QueryTranslationMode) EnumDescriptor() ([]byte, []int) {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP(), []int{0}
-}
-
-// Strategy for widget types that have no direct Monitoring equivalent.
-type UnsupportedWidgetMode int32
-
-const (
-	UnsupportedWidgetMode_UNSUPPORTED_WIDGET_MODE_UNSPECIFIED UnsupportedWidgetMode = 0
-	// Map to the closest supported widget type and emit an INFO diagnostic;
-	// a type with no reasonable match becomes a text placeholder with
-	// a WARNING diagnostic.
-	UnsupportedWidgetMode_UNSUPPORTED_WIDGET_MODE_CLOSEST_MATCH UnsupportedWidgetMode = 1
-	// Drop the widget and emit an ERROR diagnostic.
-	UnsupportedWidgetMode_UNSUPPORTED_WIDGET_MODE_SKIP UnsupportedWidgetMode = 2
-)
-
-// Enum value maps for UnsupportedWidgetMode.
-var (
-	UnsupportedWidgetMode_name = map[int32]string{
-		0: "UNSUPPORTED_WIDGET_MODE_UNSPECIFIED",
-		1: "UNSUPPORTED_WIDGET_MODE_CLOSEST_MATCH",
-		2: "UNSUPPORTED_WIDGET_MODE_SKIP",
-	}
-	UnsupportedWidgetMode_value = map[string]int32{
-		"UNSUPPORTED_WIDGET_MODE_UNSPECIFIED":   0,
-		"UNSUPPORTED_WIDGET_MODE_CLOSEST_MATCH": 1,
-		"UNSUPPORTED_WIDGET_MODE_SKIP":          2,
-	}
-)
-
-func (x UnsupportedWidgetMode) Enum() *UnsupportedWidgetMode {
-	p := new(UnsupportedWidgetMode)
-	*p = x
-	return p
-}
-
-func (x UnsupportedWidgetMode) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (UnsupportedWidgetMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[1].Descriptor()
-}
-
-func (UnsupportedWidgetMode) Type() protoreflect.EnumType {
-	return &file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[1]
-}
-
-func (x UnsupportedWidgetMode) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use UnsupportedWidgetMode.Descriptor instead.
-func (UnsupportedWidgetMode) EnumDescriptor() ([]byte, []int) {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP(), []int{1}
-}
-
-// Strategy for queries whose data source is not available in Monitoring
-// (InfluxDB, Graphite, SQL, CloudWatch, ...).
-type UnavailableDataSourceMode int32
-
-const (
-	UnavailableDataSourceMode_UNAVAILABLE_DATA_SOURCE_MODE_UNSPECIFIED UnavailableDataSourceMode = 0
-	// Keep such queries as is (only template variable syntax is adapted) and
-	// report each with a WARNING diagnostic; the widget renders no data until
-	// the query is rewritten.
-	UnavailableDataSourceMode_UNAVAILABLE_DATA_SOURCE_MODE_KEEP_QUERIES UnavailableDataSourceMode = 1
-	// Drop such queries; a widget left with no queries at all is dropped with
-	// an ERROR diagnostic.
-	UnavailableDataSourceMode_UNAVAILABLE_DATA_SOURCE_MODE_DROP UnavailableDataSourceMode = 2
-)
-
-// Enum value maps for UnavailableDataSourceMode.
-var (
-	UnavailableDataSourceMode_name = map[int32]string{
-		0: "UNAVAILABLE_DATA_SOURCE_MODE_UNSPECIFIED",
-		1: "UNAVAILABLE_DATA_SOURCE_MODE_KEEP_QUERIES",
-		2: "UNAVAILABLE_DATA_SOURCE_MODE_DROP",
-	}
-	UnavailableDataSourceMode_value = map[string]int32{
-		"UNAVAILABLE_DATA_SOURCE_MODE_UNSPECIFIED":  0,
-		"UNAVAILABLE_DATA_SOURCE_MODE_KEEP_QUERIES": 1,
-		"UNAVAILABLE_DATA_SOURCE_MODE_DROP":         2,
-	}
-)
-
-func (x UnavailableDataSourceMode) Enum() *UnavailableDataSourceMode {
-	p := new(UnavailableDataSourceMode)
-	*p = x
-	return p
-}
-
-func (x UnavailableDataSourceMode) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (UnavailableDataSourceMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[2].Descriptor()
-}
-
-func (UnavailableDataSourceMode) Type() protoreflect.EnumType {
-	return &file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[2]
-}
-
-func (x UnavailableDataSourceMode) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use UnavailableDataSourceMode.Descriptor instead.
-func (UnavailableDataSourceMode) EnumDescriptor() ([]byte, []int) {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP(), []int{2}
-}
-
-// Severity of a single conversion diagnostic.
-type ConversionDiagnostic_Severity int32
-
-const (
-	ConversionDiagnostic_SEVERITY_UNSPECIFIED ConversionDiagnostic_Severity = 0
-	// Benign approximation worth noting, e.g. a widget type substitution.
-	ConversionDiagnostic_SEVERITY_INFO ConversionDiagnostic_Severity = 1
-	// Best-effort fallback, e.g. a query kept in PromQL.
-	ConversionDiagnostic_SEVERITY_WARNING ConversionDiagnostic_Severity = 2
-	// Element could not be converted and was dropped.
-	ConversionDiagnostic_SEVERITY_ERROR ConversionDiagnostic_Severity = 3
-)
-
-// Enum value maps for ConversionDiagnostic_Severity.
-var (
-	ConversionDiagnostic_Severity_name = map[int32]string{
-		0: "SEVERITY_UNSPECIFIED",
-		1: "SEVERITY_INFO",
-		2: "SEVERITY_WARNING",
-		3: "SEVERITY_ERROR",
-	}
-	ConversionDiagnostic_Severity_value = map[string]int32{
-		"SEVERITY_UNSPECIFIED": 0,
-		"SEVERITY_INFO":        1,
-		"SEVERITY_WARNING":     2,
-		"SEVERITY_ERROR":       3,
-	}
-)
-
-func (x ConversionDiagnostic_Severity) Enum() *ConversionDiagnostic_Severity {
-	p := new(ConversionDiagnostic_Severity)
-	*p = x
-	return p
-}
-
-func (x ConversionDiagnostic_Severity) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (ConversionDiagnostic_Severity) Descriptor() protoreflect.EnumDescriptor {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[3].Descriptor()
-}
-
-func (ConversionDiagnostic_Severity) Type() protoreflect.EnumType {
-	return &file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[3]
-}
-
-func (x ConversionDiagnostic_Severity) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use ConversionDiagnostic_Severity.Descriptor instead.
-func (ConversionDiagnostic_Severity) EnumDescriptor() ([]byte, []int) {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP(), []int{18, 0}
-}
-
-// Machine-readable category of a diagnostic. Lets the caller act on it
-// (build a metric mapping editor, group by cause) without parsing the
-// message text.
-type ConversionDiagnostic_Kind int32
-
-const (
-	ConversionDiagnostic_KIND_UNSPECIFIED ConversionDiagnostic_Kind = 0
-	// A query could not be translated (unsupported construct or data source);
-	// it is kept in the source language or dropped with its widget.
-	ConversionDiagnostic_KIND_UNSUPPORTED_QUERY ConversionDiagnostic_Kind = 1
-	// The element converted with a known approximation - in the emitted query
-	// or in the widget's visual features.
-	ConversionDiagnostic_KIND_APPROXIMATION ConversionDiagnostic_Kind = 2
-	// `subject` names a metric absent from the target container; `suggestions`
-	// carry the closest existing names, possibly none.
-	ConversionDiagnostic_KIND_METRIC_NOT_FOUND ConversionDiagnostic_Kind = 3
-	// `subject` names a label key absent from the target container.
-	ConversionDiagnostic_KIND_LABEL_NOT_FOUND ConversionDiagnostic_Kind = 4
-	// `subject` was automatically resolved to an existing metric name
-	// (case, separator and unit suffix reconciliation); `suggestions[0]` is
-	// the applied name. Override via [ConversionOptions.metric_renames].
-	ConversionDiagnostic_KIND_METRIC_AUTO_RESOLVED ConversionDiagnostic_Kind = 5
-	// `subject` is a Prometheus recording rule (colon-form name); it never
-	// exists in raw data - the rule must be recreated or its expression
-	// inlined, a rename cannot fix it.
-	ConversionDiagnostic_KIND_RECORDING_RULE ConversionDiagnostic_Kind = 6
-	// `subject` is a Prometheus scrape meta-metric (`up`, `scrape_*`); it has
-	// no equivalent in pushed data.
-	ConversionDiagnostic_KIND_SCRAPE_META_METRIC ConversionDiagnostic_Kind = 7
-	// `subject` contains an unexpanded template variable, so existence cannot
-	// be verified.
-	ConversionDiagnostic_KIND_UNVERIFIED_NAME ConversionDiagnostic_Kind = 8
-	// A [ConversionOptions.metric_renames] entry points to a metric absent
-	// from the container.
-	ConversionDiagnostic_KIND_RENAME_TARGET_NOT_FOUND ConversionDiagnostic_Kind = 9
-	// A [ConversionOptions.metric_renames] entry matched nothing in the
-	// dashboard.
-	ConversionDiagnostic_KIND_RENAME_ENTRY_UNUSED ConversionDiagnostic_Kind = 10
-	// A widget type has no direct Monitoring equivalent (substituted or
-	// dropped per [ConversionOptions.unsupported_widget]).
-	ConversionDiagnostic_KIND_UNSUPPORTED_WIDGET ConversionDiagnostic_Kind = 11
-)
-
-// Enum value maps for ConversionDiagnostic_Kind.
-var (
-	ConversionDiagnostic_Kind_name = map[int32]string{
-		0:  "KIND_UNSPECIFIED",
-		1:  "KIND_UNSUPPORTED_QUERY",
-		2:  "KIND_APPROXIMATION",
-		3:  "KIND_METRIC_NOT_FOUND",
-		4:  "KIND_LABEL_NOT_FOUND",
-		5:  "KIND_METRIC_AUTO_RESOLVED",
-		6:  "KIND_RECORDING_RULE",
-		7:  "KIND_SCRAPE_META_METRIC",
-		8:  "KIND_UNVERIFIED_NAME",
-		9:  "KIND_RENAME_TARGET_NOT_FOUND",
-		10: "KIND_RENAME_ENTRY_UNUSED",
-		11: "KIND_UNSUPPORTED_WIDGET",
-	}
-	ConversionDiagnostic_Kind_value = map[string]int32{
-		"KIND_UNSPECIFIED":             0,
-		"KIND_UNSUPPORTED_QUERY":       1,
-		"KIND_APPROXIMATION":           2,
-		"KIND_METRIC_NOT_FOUND":        3,
-		"KIND_LABEL_NOT_FOUND":         4,
-		"KIND_METRIC_AUTO_RESOLVED":    5,
-		"KIND_RECORDING_RULE":          6,
-		"KIND_SCRAPE_META_METRIC":      7,
-		"KIND_UNVERIFIED_NAME":         8,
-		"KIND_RENAME_TARGET_NOT_FOUND": 9,
-		"KIND_RENAME_ENTRY_UNUSED":     10,
-		"KIND_UNSUPPORTED_WIDGET":      11,
-	}
-)
-
-func (x ConversionDiagnostic_Kind) Enum() *ConversionDiagnostic_Kind {
-	p := new(ConversionDiagnostic_Kind)
-	*p = x
-	return p
-}
-
-func (x ConversionDiagnostic_Kind) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (ConversionDiagnostic_Kind) Descriptor() protoreflect.EnumDescriptor {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[4].Descriptor()
-}
-
-func (ConversionDiagnostic_Kind) Type() protoreflect.EnumType {
-	return &file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes[4]
-}
-
-func (x ConversionDiagnostic_Kind) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use ConversionDiagnostic_Kind.Descriptor instead.
-func (ConversionDiagnostic_Kind) EnumDescriptor() ([]byte, []int) {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP(), []int{18, 1}
-}
-
 type GetDashboardRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Dashboard ID.
@@ -1480,373 +1156,6 @@ func (x *ListDashboardLabelValuesResponse) GetTruncated() bool {
 	return false
 }
 
-// Tunable knobs for a dashboard conversion. Each dimension is independent;
-// new dimensions are added as new fields without breaking existing callers.
-// Widget layout is not configurable: positions are derived from the Grafana
-// `gridPos` coordinates, rescaled to the Monitoring grid and regrouped by rows.
-type ConversionOptions struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// How to translate panel queries.
-	// If unspecified, `QUERY_TRANSLATION_MODE_TRANSLATE_TO_SEL` is used.
-	QueryTranslation QueryTranslationMode `protobuf:"varint,1,opt,name=query_translation,json=queryTranslation,proto3,enum=yandex.cloud.monitoring.v3.QueryTranslationMode" json:"query_translation,omitempty"`
-	// What to do with widget types Monitoring has no equivalent for.
-	// If unspecified, `UNSUPPORTED_WIDGET_MODE_CLOSEST_MATCH` is used.
-	UnsupportedWidget UnsupportedWidgetMode `protobuf:"varint,2,opt,name=unsupported_widget,json=unsupportedWidget,proto3,enum=yandex.cloud.monitoring.v3.UnsupportedWidgetMode" json:"unsupported_widget,omitempty"`
-	// Target Prometheus workspace for converted Prometheus queries.
-	// When unset, the workspace in the draft is left empty and the caller must
-	// fill it in before [DashboardService.Create].
-	PrometheusWorkspaceId string `protobuf:"bytes,3,opt,name=prometheus_workspace_id,json=prometheusWorkspaceId,proto3" json:"prometheus_workspace_id,omitempty"`
-	// Explicit metric renames applied during query translation, keyed by the
-	// metric name exactly as written in the source PromQL. Applied before any
-	// automatic name resolution and wins over it. Typical flow: the first
-	// [DashboardService.ConvertFromGrafana] call reports `KIND_METRIC_NOT_FOUND`
-	// and `KIND_METRIC_AUTO_RESOLVED` diagnostics with suggestions, the caller
-	// reviews them and repeats the call with the chosen renames.
-	MetricRenames map[string]string `protobuf:"bytes,4,rep,name=metric_renames,json=metricRenames,proto3" json:"metric_renames,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// What to do with queries whose data source is not available in Monitoring.
-	// If unspecified, `UNAVAILABLE_DATA_SOURCE_MODE_KEEP_QUERIES` is used.
-	UnavailableDataSource UnavailableDataSourceMode `protobuf:"varint,5,opt,name=unavailable_data_source,json=unavailableDataSource,proto3,enum=yandex.cloud.monitoring.v3.UnavailableDataSourceMode" json:"unavailable_data_source,omitempty"`
-	// Optional coordinates of the shard the translated queries should read,
-	// together with the project. They are also where the metric and label name
-	// catalog is read from to reconcile Prometheus-style names against the names
-	// actually stored (a Prometheus exporter and an OTLP push spell the same
-	// metric differently). Either one unset means no catalog: translation still
-	// happens, the selector keeps `*` in place of the missing coordinate, and
-	// every metric and label name is carried over from the source PromQL exactly
-	// as written.
-	Cluster string `protobuf:"bytes,6,opt,name=cluster,proto3" json:"cluster,omitempty"`
-	// Service half of the shard coordinates; see cluster above.
-	Service string `protobuf:"bytes,7,opt,name=service,proto3" json:"service,omitempty"`
-	// Optional label that holds the metric name in the target shard: "__name__" in a
-	// Prometheus workspace, "sensor" on a migrated intranet shard, "name" on a cloud
-	// one. Unset means the server takes it from the shard catalog, which is right
-	// whenever the catalog is readable; set it when the catalog is unavailable or when
-	// the shard carries several name-like labels and the wrong one would be picked:
-	// with the wrong label the conversion succeeds and every widget renders empty.
-	MetricNameLabel string `protobuf:"bytes,8,opt,name=metric_name_label,json=metricNameLabel,proto3" json:"metric_name_label,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *ConversionOptions) Reset() {
-	*x = ConversionOptions{}
-	mi := &file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ConversionOptions) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConversionOptions) ProtoMessage() {}
-
-func (x *ConversionOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConversionOptions.ProtoReflect.Descriptor instead.
-func (*ConversionOptions) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *ConversionOptions) GetQueryTranslation() QueryTranslationMode {
-	if x != nil {
-		return x.QueryTranslation
-	}
-	return QueryTranslationMode_QUERY_TRANSLATION_MODE_UNSPECIFIED
-}
-
-func (x *ConversionOptions) GetUnsupportedWidget() UnsupportedWidgetMode {
-	if x != nil {
-		return x.UnsupportedWidget
-	}
-	return UnsupportedWidgetMode_UNSUPPORTED_WIDGET_MODE_UNSPECIFIED
-}
-
-func (x *ConversionOptions) GetPrometheusWorkspaceId() string {
-	if x != nil {
-		return x.PrometheusWorkspaceId
-	}
-	return ""
-}
-
-func (x *ConversionOptions) GetMetricRenames() map[string]string {
-	if x != nil {
-		return x.MetricRenames
-	}
-	return nil
-}
-
-func (x *ConversionOptions) GetUnavailableDataSource() UnavailableDataSourceMode {
-	if x != nil {
-		return x.UnavailableDataSource
-	}
-	return UnavailableDataSourceMode_UNAVAILABLE_DATA_SOURCE_MODE_UNSPECIFIED
-}
-
-func (x *ConversionOptions) GetCluster() string {
-	if x != nil {
-		return x.Cluster
-	}
-	return ""
-}
-
-func (x *ConversionOptions) GetService() string {
-	if x != nil {
-		return x.Service
-	}
-	return ""
-}
-
-func (x *ConversionOptions) GetMetricNameLabel() string {
-	if x != nil {
-		return x.MetricNameLabel
-	}
-	return ""
-}
-
-type ConvertFromGrafanaRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Project ID the resulting draft belongs to.
-	ProjectId string `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	// Required. Raw Grafana dashboard JSON (the dashboard "JSON model").
-	GrafanaJson string `protobuf:"bytes,2,opt,name=grafana_json,json=grafanaJson,proto3" json:"grafana_json,omitempty"`
-	// Tunable conversion knobs. Omit for the defaults.
-	Options       *ConversionOptions `protobuf:"bytes,3,opt,name=options,proto3" json:"options,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ConvertFromGrafanaRequest) Reset() {
-	*x = ConvertFromGrafanaRequest{}
-	mi := &file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ConvertFromGrafanaRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConvertFromGrafanaRequest) ProtoMessage() {}
-
-func (x *ConvertFromGrafanaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConvertFromGrafanaRequest.ProtoReflect.Descriptor instead.
-func (*ConvertFromGrafanaRequest) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *ConvertFromGrafanaRequest) GetProjectId() string {
-	if x != nil {
-		return x.ProjectId
-	}
-	return ""
-}
-
-func (x *ConvertFromGrafanaRequest) GetGrafanaJson() string {
-	if x != nil {
-		return x.GrafanaJson
-	}
-	return ""
-}
-
-func (x *ConvertFromGrafanaRequest) GetOptions() *ConversionOptions {
-	if x != nil {
-		return x.Options
-	}
-	return nil
-}
-
-type ConvertFromGrafanaResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Dashboard draft, ready to pass to [DashboardService.Create]. Nothing is
-	// persisted by the conversion, so server-assigned fields (id, created_at,
-	// modified_at, created_by, modified_by, etag) are empty.
-	Dashboard *Dashboard `protobuf:"bytes,1,opt,name=dashboard,proto3" json:"dashboard,omitempty"`
-	// Per-element diagnostics: approximations, dropped panels, untranslated
-	// queries, unsupported widget types, etc.
-	Diagnostics   []*ConversionDiagnostic `protobuf:"bytes,2,rep,name=diagnostics,proto3" json:"diagnostics,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ConvertFromGrafanaResponse) Reset() {
-	*x = ConvertFromGrafanaResponse{}
-	mi := &file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ConvertFromGrafanaResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConvertFromGrafanaResponse) ProtoMessage() {}
-
-func (x *ConvertFromGrafanaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConvertFromGrafanaResponse.ProtoReflect.Descriptor instead.
-func (*ConvertFromGrafanaResponse) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *ConvertFromGrafanaResponse) GetDashboard() *Dashboard {
-	if x != nil {
-		return x.Dashboard
-	}
-	return nil
-}
-
-func (x *ConvertFromGrafanaResponse) GetDiagnostics() []*ConversionDiagnostic {
-	if x != nil {
-		return x.Diagnostics
-	}
-	return nil
-}
-
-type ConversionDiagnostic struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Severity of this diagnostic.
-	Severity ConversionDiagnostic_Severity `protobuf:"varint,1,opt,name=severity,proto3,enum=yandex.cloud.monitoring.v3.ConversionDiagnostic_Severity" json:"severity,omitempty"`
-	// Location in the source Grafana JSON, e.g. `panels[4].targets[0]`.
-	SourcePath string `protobuf:"bytes,2,opt,name=source_path,json=sourcePath,proto3" json:"source_path,omitempty"`
-	// Title of the related panel or widget, when available.
-	WidgetTitle string `protobuf:"bytes,3,opt,name=widget_title,json=widgetTitle,proto3" json:"widget_title,omitempty"`
-	// Human-readable explanation.
-	Message string `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	// Machine-readable category of this diagnostic.
-	Kind ConversionDiagnostic_Kind `protobuf:"varint,5,opt,name=kind,proto3,enum=yandex.cloud.monitoring.v3.ConversionDiagnostic_Kind" json:"kind,omitempty"`
-	// The metric or label name this diagnostic is about, when the kind implies
-	// one.
-	Subject string `protobuf:"bytes,6,opt,name=subject,proto3" json:"subject,omitempty"`
-	// Existing names from the target container offered as replacements for
-	// `subject`, best match first. Feed the chosen one back via
-	// [ConversionOptions.metric_renames].
-	Suggestions []string `protobuf:"bytes,7,rep,name=suggestions,proto3" json:"suggestions,omitempty"`
-	// Titles of all affected widgets when the diagnostic is aggregated
-	// dashboard-wide (e.g. one `KIND_METRIC_NOT_FOUND` per missing metric);
-	// `widget_title` and `source_path` may then be empty.
-	AffectedWidgets []string `protobuf:"bytes,8,rep,name=affected_widgets,json=affectedWidgets,proto3" json:"affected_widgets,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *ConversionDiagnostic) Reset() {
-	*x = ConversionDiagnostic{}
-	mi := &file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ConversionDiagnostic) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConversionDiagnostic) ProtoMessage() {}
-
-func (x *ConversionDiagnostic) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConversionDiagnostic.ProtoReflect.Descriptor instead.
-func (*ConversionDiagnostic) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *ConversionDiagnostic) GetSeverity() ConversionDiagnostic_Severity {
-	if x != nil {
-		return x.Severity
-	}
-	return ConversionDiagnostic_SEVERITY_UNSPECIFIED
-}
-
-func (x *ConversionDiagnostic) GetSourcePath() string {
-	if x != nil {
-		return x.SourcePath
-	}
-	return ""
-}
-
-func (x *ConversionDiagnostic) GetWidgetTitle() string {
-	if x != nil {
-		return x.WidgetTitle
-	}
-	return ""
-}
-
-func (x *ConversionDiagnostic) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-func (x *ConversionDiagnostic) GetKind() ConversionDiagnostic_Kind {
-	if x != nil {
-		return x.Kind
-	}
-	return ConversionDiagnostic_KIND_UNSPECIFIED
-}
-
-func (x *ConversionDiagnostic) GetSubject() string {
-	if x != nil {
-		return x.Subject
-	}
-	return ""
-}
-
-func (x *ConversionDiagnostic) GetSuggestions() []string {
-	if x != nil {
-		return x.Suggestions
-	}
-	return nil
-}
-
-func (x *ConversionDiagnostic) GetAffectedWidgets() []string {
-	if x != nil {
-		return x.AffectedWidgets
-	}
-	return nil
-}
-
 var File_yandex_cloud_monitoring_v3_dashboard_service_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDesc = "" +
@@ -1948,68 +1257,7 @@ const file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDesc = "" +
 	"\tpage_size\x18\x05 \x01(\x03R\bpageSize\"c\n" +
 	" ListDashboardLabelValuesResponse\x12!\n" +
 	"\flabel_values\x18\x01 \x03(\tR\vlabelValues\x12\x1c\n" +
-	"\ttruncated\x18\x02 \x01(\bR\ttruncated\"\xc6\x05\n" +
-	"\x11ConversionOptions\x12]\n" +
-	"\x11query_translation\x18\x01 \x01(\x0e20.yandex.cloud.monitoring.v3.QueryTranslationModeR\x10queryTranslation\x12`\n" +
-	"\x12unsupported_widget\x18\x02 \x01(\x0e21.yandex.cloud.monitoring.v3.UnsupportedWidgetModeR\x11unsupportedWidget\x12@\n" +
-	"\x17prometheus_workspace_id\x18\x03 \x01(\tB\b\x8a\xc81\x04<=50R\x15prometheusWorkspaceId\x12|\n" +
-	"\x0emetric_renames\x18\x04 \x03(\v2@.yandex.cloud.monitoring.v3.ConversionOptions.MetricRenamesEntryB\x13\x82\xc81\x06<=1000\x8a\xc81\x05<=200R\rmetricRenames\x12m\n" +
-	"\x17unavailable_data_source\x18\x05 \x01(\x0e25.yandex.cloud.monitoring.v3.UnavailableDataSourceModeR\x15unavailableDataSource\x12#\n" +
-	"\acluster\x18\x06 \x01(\tB\t\x8a\xc81\x05<=101R\acluster\x12#\n" +
-	"\aservice\x18\a \x01(\tB\t\x8a\xc81\x05<=101R\aservice\x125\n" +
-	"\x11metric_name_label\x18\b \x01(\tB\t\x8a\xc81\x05<=101R\x0fmetricNameLabel\x1a@\n" +
-	"\x12MetricRenamesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xba\x01\n" +
-	"\x19ConvertFromGrafanaRequest\x12+\n" +
-	"\n" +
-	"project_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tprojectId\x12'\n" +
-	"\fgrafana_json\x18\x02 \x01(\tB\x04\xe8\xc71\x01R\vgrafanaJson\x12G\n" +
-	"\aoptions\x18\x03 \x01(\v2-.yandex.cloud.monitoring.v3.ConversionOptionsR\aoptions\"\xb5\x01\n" +
-	"\x1aConvertFromGrafanaResponse\x12C\n" +
-	"\tdashboard\x18\x01 \x01(\v2%.yandex.cloud.monitoring.v3.DashboardR\tdashboard\x12R\n" +
-	"\vdiagnostics\x18\x02 \x03(\v20.yandex.cloud.monitoring.v3.ConversionDiagnosticR\vdiagnostics\"\xb4\x06\n" +
-	"\x14ConversionDiagnostic\x12U\n" +
-	"\bseverity\x18\x01 \x01(\x0e29.yandex.cloud.monitoring.v3.ConversionDiagnostic.SeverityR\bseverity\x12\x1f\n" +
-	"\vsource_path\x18\x02 \x01(\tR\n" +
-	"sourcePath\x12!\n" +
-	"\fwidget_title\x18\x03 \x01(\tR\vwidgetTitle\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage\x12I\n" +
-	"\x04kind\x18\x05 \x01(\x0e25.yandex.cloud.monitoring.v3.ConversionDiagnostic.KindR\x04kind\x12\x18\n" +
-	"\asubject\x18\x06 \x01(\tR\asubject\x12 \n" +
-	"\vsuggestions\x18\a \x03(\tR\vsuggestions\x12)\n" +
-	"\x10affected_widgets\x18\b \x03(\tR\x0faffectedWidgets\"a\n" +
-	"\bSeverity\x12\x18\n" +
-	"\x14SEVERITY_UNSPECIFIED\x10\x00\x12\x11\n" +
-	"\rSEVERITY_INFO\x10\x01\x12\x14\n" +
-	"\x10SEVERITY_WARNING\x10\x02\x12\x12\n" +
-	"\x0eSEVERITY_ERROR\x10\x03\"\xd1\x02\n" +
-	"\x04Kind\x12\x14\n" +
-	"\x10KIND_UNSPECIFIED\x10\x00\x12\x1a\n" +
-	"\x16KIND_UNSUPPORTED_QUERY\x10\x01\x12\x16\n" +
-	"\x12KIND_APPROXIMATION\x10\x02\x12\x19\n" +
-	"\x15KIND_METRIC_NOT_FOUND\x10\x03\x12\x18\n" +
-	"\x14KIND_LABEL_NOT_FOUND\x10\x04\x12\x1d\n" +
-	"\x19KIND_METRIC_AUTO_RESOLVED\x10\x05\x12\x17\n" +
-	"\x13KIND_RECORDING_RULE\x10\x06\x12\x1b\n" +
-	"\x17KIND_SCRAPE_META_METRIC\x10\a\x12\x18\n" +
-	"\x14KIND_UNVERIFIED_NAME\x10\b\x12 \n" +
-	"\x1cKIND_RENAME_TARGET_NOT_FOUND\x10\t\x12\x1c\n" +
-	"\x18KIND_RENAME_ENTRY_UNUSED\x10\n" +
-	"\x12\x1b\n" +
-	"\x17KIND_UNSUPPORTED_WIDGET\x10\v*\x93\x01\n" +
-	"\x14QueryTranslationMode\x12&\n" +
-	"\"QUERY_TRANSLATION_MODE_UNSPECIFIED\x10\x00\x12&\n" +
-	"\"QUERY_TRANSLATION_MODE_KEEP_PROMQL\x10\x01\x12+\n" +
-	"'QUERY_TRANSLATION_MODE_TRANSLATE_TO_SEL\x10\x02*\x8d\x01\n" +
-	"\x15UnsupportedWidgetMode\x12'\n" +
-	"#UNSUPPORTED_WIDGET_MODE_UNSPECIFIED\x10\x00\x12)\n" +
-	"%UNSUPPORTED_WIDGET_MODE_CLOSEST_MATCH\x10\x01\x12 \n" +
-	"\x1cUNSUPPORTED_WIDGET_MODE_SKIP\x10\x02*\x9f\x01\n" +
-	"\x19UnavailableDataSourceMode\x12,\n" +
-	"(UNAVAILABLE_DATA_SOURCE_MODE_UNSPECIFIED\x10\x00\x12-\n" +
-	")UNAVAILABLE_DATA_SOURCE_MODE_KEEP_QUERIES\x10\x01\x12%\n" +
-	"!UNAVAILABLE_DATA_SOURCE_MODE_DROP\x10\x022\xb7\b\n" +
+	"\ttruncated\x18\x02 \x01(\bR\ttruncated2\xb7\b\n" +
 	"\x10DashboardService\x12\x8f\x01\n" +
 	"\x03Get\x12/.yandex.cloud.monitoring.v3.GetDashboardRequest\x1a%.yandex.cloud.monitoring.v3.Dashboard\"0\x82\xd3\xe4\x93\x02*\x12(/monitoring/v3/dashboards/{dashboard_id}\x12\x90\x01\n" +
 	"\x04List\x121.yandex.cloud.monitoring.v3.ListDashboardsRequest\x1a2.yandex.cloud.monitoring.v3.ListDashboardsResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/monitoring/v3/dashboards\x12\xad\x01\n" +
@@ -2019,9 +1267,7 @@ const file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDesc = "" +
 	"\x17UpdateDashboardMetadata\x12\tDashboard\x82\xd3\xe4\x93\x02-:\x01*2(/monitoring/v3/dashboards/{dashboard_id}\x12\xc5\x01\n" +
 	"\x06Delete\x122.yandex.cloud.monitoring.v3.DeleteDashboardRequest\x1a!.yandex.cloud.operation.Operation\"d\xb2\xd2*0\n" +
 	"\x17DeleteDashboardMetadata\x12\x15google.protobuf.Empty\x82\xd3\xe4\x93\x02**(/monitoring/v3/dashboards/{dashboard_id}\x12\xc6\x01\n" +
-	"\x0eListOperations\x12:.yandex.cloud.monitoring.v3.ListDashboardOperationsRequest\x1a;.yandex.cloud.monitoring.v3.ListDashboardOperationsResponse\";\x82\xd3\xe4\x93\x025\x123/monitoring/v3/dashboards/{dashboard_id}/operations2\xdb\x01\n" +
-	"\x1aDashboardConversionService\x12\xbc\x01\n" +
-	"\x12ConvertFromGrafana\x125.yandex.cloud.monitoring.v3.ConvertFromGrafanaRequest\x1a6.yandex.cloud.monitoring.v3.ConvertFromGrafanaResponse\"7\x82\xd3\xe4\x93\x021:\x01*\",/monitoring/v3/dashboards:convertFromGrafanaBk\n" +
+	"\x0eListOperations\x12:.yandex.cloud.monitoring.v3.ListDashboardOperationsRequest\x1a;.yandex.cloud.monitoring.v3.ListDashboardOperationsResponse\";\x82\xd3\xe4\x93\x025\x123/monitoring/v3/dashboards/{dashboard_id}/operationsBk\n" +
 	"\x1eyandex.cloud.api.monitoring.v3ZIgithub.com/yandex-cloud/go-genproto/yandex/cloud/monitoring/v3;monitoringb\x06proto3"
 
 var (
@@ -2036,89 +1282,67 @@ func file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescGZIP() []byt
 	return file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDescData
 }
 
-var file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_yandex_cloud_monitoring_v3_dashboard_service_proto_goTypes = []any{
-	(QueryTranslationMode)(0),                // 0: yandex.cloud.monitoring.v3.QueryTranslationMode
-	(UnsupportedWidgetMode)(0),               // 1: yandex.cloud.monitoring.v3.UnsupportedWidgetMode
-	(UnavailableDataSourceMode)(0),           // 2: yandex.cloud.monitoring.v3.UnavailableDataSourceMode
-	(ConversionDiagnostic_Severity)(0),       // 3: yandex.cloud.monitoring.v3.ConversionDiagnostic.Severity
-	(ConversionDiagnostic_Kind)(0),           // 4: yandex.cloud.monitoring.v3.ConversionDiagnostic.Kind
-	(*GetDashboardRequest)(nil),              // 5: yandex.cloud.monitoring.v3.GetDashboardRequest
-	(*ListDashboardsRequest)(nil),            // 6: yandex.cloud.monitoring.v3.ListDashboardsRequest
-	(*ListDashboardsResponse)(nil),           // 7: yandex.cloud.monitoring.v3.ListDashboardsResponse
-	(*CreateDashboardRequest)(nil),           // 8: yandex.cloud.monitoring.v3.CreateDashboardRequest
-	(*CreateDashboardMetadata)(nil),          // 9: yandex.cloud.monitoring.v3.CreateDashboardMetadata
-	(*UpdateDashboardRequest)(nil),           // 10: yandex.cloud.monitoring.v3.UpdateDashboardRequest
-	(*UpdateDashboardMetadata)(nil),          // 11: yandex.cloud.monitoring.v3.UpdateDashboardMetadata
-	(*DeleteDashboardRequest)(nil),           // 12: yandex.cloud.monitoring.v3.DeleteDashboardRequest
-	(*DeleteDashboardMetadata)(nil),          // 13: yandex.cloud.monitoring.v3.DeleteDashboardMetadata
-	(*ListDashboardOperationsRequest)(nil),   // 14: yandex.cloud.monitoring.v3.ListDashboardOperationsRequest
-	(*ListDashboardOperationsResponse)(nil),  // 15: yandex.cloud.monitoring.v3.ListDashboardOperationsResponse
-	(*ListDashboardLabelNamesRequest)(nil),   // 16: yandex.cloud.monitoring.v3.ListDashboardLabelNamesRequest
-	(*ListDashboardLabelNamesResponse)(nil),  // 17: yandex.cloud.monitoring.v3.ListDashboardLabelNamesResponse
-	(*ListDashboardLabelValuesRequest)(nil),  // 18: yandex.cloud.monitoring.v3.ListDashboardLabelValuesRequest
-	(*ListDashboardLabelValuesResponse)(nil), // 19: yandex.cloud.monitoring.v3.ListDashboardLabelValuesResponse
-	(*ConversionOptions)(nil),                // 20: yandex.cloud.monitoring.v3.ConversionOptions
-	(*ConvertFromGrafanaRequest)(nil),        // 21: yandex.cloud.monitoring.v3.ConvertFromGrafanaRequest
-	(*ConvertFromGrafanaResponse)(nil),       // 22: yandex.cloud.monitoring.v3.ConvertFromGrafanaResponse
-	(*ConversionDiagnostic)(nil),             // 23: yandex.cloud.monitoring.v3.ConversionDiagnostic
-	nil,                                      // 24: yandex.cloud.monitoring.v3.CreateDashboardRequest.LabelsEntry
-	nil,                                      // 25: yandex.cloud.monitoring.v3.UpdateDashboardRequest.LabelsEntry
-	nil,                                      // 26: yandex.cloud.monitoring.v3.ConversionOptions.MetricRenamesEntry
-	(*fieldmaskpb.FieldMask)(nil),            // 27: google.protobuf.FieldMask
-	(*Dashboard)(nil),                        // 28: yandex.cloud.monitoring.v3.Dashboard
-	(*Widget)(nil),                           // 29: yandex.cloud.monitoring.v3.Widget
-	(*Parametrization)(nil),                  // 30: yandex.cloud.monitoring.v3.Parametrization
-	(*Timeline)(nil),                         // 31: yandex.cloud.monitoring.v3.Timeline
-	(*LinkItem)(nil),                         // 32: yandex.cloud.monitoring.v3.LinkItem
-	(*PresetItem)(nil),                       // 33: yandex.cloud.monitoring.v3.PresetItem
-	(*operation.Operation)(nil),              // 34: yandex.cloud.operation.Operation
+	(*GetDashboardRequest)(nil),              // 0: yandex.cloud.monitoring.v3.GetDashboardRequest
+	(*ListDashboardsRequest)(nil),            // 1: yandex.cloud.monitoring.v3.ListDashboardsRequest
+	(*ListDashboardsResponse)(nil),           // 2: yandex.cloud.monitoring.v3.ListDashboardsResponse
+	(*CreateDashboardRequest)(nil),           // 3: yandex.cloud.monitoring.v3.CreateDashboardRequest
+	(*CreateDashboardMetadata)(nil),          // 4: yandex.cloud.monitoring.v3.CreateDashboardMetadata
+	(*UpdateDashboardRequest)(nil),           // 5: yandex.cloud.monitoring.v3.UpdateDashboardRequest
+	(*UpdateDashboardMetadata)(nil),          // 6: yandex.cloud.monitoring.v3.UpdateDashboardMetadata
+	(*DeleteDashboardRequest)(nil),           // 7: yandex.cloud.monitoring.v3.DeleteDashboardRequest
+	(*DeleteDashboardMetadata)(nil),          // 8: yandex.cloud.monitoring.v3.DeleteDashboardMetadata
+	(*ListDashboardOperationsRequest)(nil),   // 9: yandex.cloud.monitoring.v3.ListDashboardOperationsRequest
+	(*ListDashboardOperationsResponse)(nil),  // 10: yandex.cloud.monitoring.v3.ListDashboardOperationsResponse
+	(*ListDashboardLabelNamesRequest)(nil),   // 11: yandex.cloud.monitoring.v3.ListDashboardLabelNamesRequest
+	(*ListDashboardLabelNamesResponse)(nil),  // 12: yandex.cloud.monitoring.v3.ListDashboardLabelNamesResponse
+	(*ListDashboardLabelValuesRequest)(nil),  // 13: yandex.cloud.monitoring.v3.ListDashboardLabelValuesRequest
+	(*ListDashboardLabelValuesResponse)(nil), // 14: yandex.cloud.monitoring.v3.ListDashboardLabelValuesResponse
+	nil,                                      // 15: yandex.cloud.monitoring.v3.CreateDashboardRequest.LabelsEntry
+	nil,                                      // 16: yandex.cloud.monitoring.v3.UpdateDashboardRequest.LabelsEntry
+	(*fieldmaskpb.FieldMask)(nil),            // 17: google.protobuf.FieldMask
+	(*Dashboard)(nil),                        // 18: yandex.cloud.monitoring.v3.Dashboard
+	(*Widget)(nil),                           // 19: yandex.cloud.monitoring.v3.Widget
+	(*Parametrization)(nil),                  // 20: yandex.cloud.monitoring.v3.Parametrization
+	(*Timeline)(nil),                         // 21: yandex.cloud.monitoring.v3.Timeline
+	(*LinkItem)(nil),                         // 22: yandex.cloud.monitoring.v3.LinkItem
+	(*PresetItem)(nil),                       // 23: yandex.cloud.monitoring.v3.PresetItem
+	(*operation.Operation)(nil),              // 24: yandex.cloud.operation.Operation
 }
 var file_yandex_cloud_monitoring_v3_dashboard_service_proto_depIdxs = []int32{
-	27, // 0: yandex.cloud.monitoring.v3.ListDashboardsRequest.read_mask:type_name -> google.protobuf.FieldMask
-	28, // 1: yandex.cloud.monitoring.v3.ListDashboardsResponse.dashboards:type_name -> yandex.cloud.monitoring.v3.Dashboard
-	24, // 2: yandex.cloud.monitoring.v3.CreateDashboardRequest.labels:type_name -> yandex.cloud.monitoring.v3.CreateDashboardRequest.LabelsEntry
-	29, // 3: yandex.cloud.monitoring.v3.CreateDashboardRequest.widgets:type_name -> yandex.cloud.monitoring.v3.Widget
-	30, // 4: yandex.cloud.monitoring.v3.CreateDashboardRequest.parametrization:type_name -> yandex.cloud.monitoring.v3.Parametrization
-	31, // 5: yandex.cloud.monitoring.v3.CreateDashboardRequest.timeline:type_name -> yandex.cloud.monitoring.v3.Timeline
-	32, // 6: yandex.cloud.monitoring.v3.CreateDashboardRequest.links:type_name -> yandex.cloud.monitoring.v3.LinkItem
-	33, // 7: yandex.cloud.monitoring.v3.CreateDashboardRequest.preset_items:type_name -> yandex.cloud.monitoring.v3.PresetItem
-	25, // 8: yandex.cloud.monitoring.v3.UpdateDashboardRequest.labels:type_name -> yandex.cloud.monitoring.v3.UpdateDashboardRequest.LabelsEntry
-	29, // 9: yandex.cloud.monitoring.v3.UpdateDashboardRequest.widgets:type_name -> yandex.cloud.monitoring.v3.Widget
-	30, // 10: yandex.cloud.monitoring.v3.UpdateDashboardRequest.parametrization:type_name -> yandex.cloud.monitoring.v3.Parametrization
-	31, // 11: yandex.cloud.monitoring.v3.UpdateDashboardRequest.timeline:type_name -> yandex.cloud.monitoring.v3.Timeline
-	32, // 12: yandex.cloud.monitoring.v3.UpdateDashboardRequest.links:type_name -> yandex.cloud.monitoring.v3.LinkItem
-	33, // 13: yandex.cloud.monitoring.v3.UpdateDashboardRequest.preset_items:type_name -> yandex.cloud.monitoring.v3.PresetItem
-	34, // 14: yandex.cloud.monitoring.v3.ListDashboardOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	0,  // 15: yandex.cloud.monitoring.v3.ConversionOptions.query_translation:type_name -> yandex.cloud.monitoring.v3.QueryTranslationMode
-	1,  // 16: yandex.cloud.monitoring.v3.ConversionOptions.unsupported_widget:type_name -> yandex.cloud.monitoring.v3.UnsupportedWidgetMode
-	26, // 17: yandex.cloud.monitoring.v3.ConversionOptions.metric_renames:type_name -> yandex.cloud.monitoring.v3.ConversionOptions.MetricRenamesEntry
-	2,  // 18: yandex.cloud.monitoring.v3.ConversionOptions.unavailable_data_source:type_name -> yandex.cloud.monitoring.v3.UnavailableDataSourceMode
-	20, // 19: yandex.cloud.monitoring.v3.ConvertFromGrafanaRequest.options:type_name -> yandex.cloud.monitoring.v3.ConversionOptions
-	28, // 20: yandex.cloud.monitoring.v3.ConvertFromGrafanaResponse.dashboard:type_name -> yandex.cloud.monitoring.v3.Dashboard
-	23, // 21: yandex.cloud.monitoring.v3.ConvertFromGrafanaResponse.diagnostics:type_name -> yandex.cloud.monitoring.v3.ConversionDiagnostic
-	3,  // 22: yandex.cloud.monitoring.v3.ConversionDiagnostic.severity:type_name -> yandex.cloud.monitoring.v3.ConversionDiagnostic.Severity
-	4,  // 23: yandex.cloud.monitoring.v3.ConversionDiagnostic.kind:type_name -> yandex.cloud.monitoring.v3.ConversionDiagnostic.Kind
-	5,  // 24: yandex.cloud.monitoring.v3.DashboardService.Get:input_type -> yandex.cloud.monitoring.v3.GetDashboardRequest
-	6,  // 25: yandex.cloud.monitoring.v3.DashboardService.List:input_type -> yandex.cloud.monitoring.v3.ListDashboardsRequest
-	8,  // 26: yandex.cloud.monitoring.v3.DashboardService.Create:input_type -> yandex.cloud.monitoring.v3.CreateDashboardRequest
-	10, // 27: yandex.cloud.monitoring.v3.DashboardService.Update:input_type -> yandex.cloud.monitoring.v3.UpdateDashboardRequest
-	12, // 28: yandex.cloud.monitoring.v3.DashboardService.Delete:input_type -> yandex.cloud.monitoring.v3.DeleteDashboardRequest
-	14, // 29: yandex.cloud.monitoring.v3.DashboardService.ListOperations:input_type -> yandex.cloud.monitoring.v3.ListDashboardOperationsRequest
-	21, // 30: yandex.cloud.monitoring.v3.DashboardConversionService.ConvertFromGrafana:input_type -> yandex.cloud.monitoring.v3.ConvertFromGrafanaRequest
-	28, // 31: yandex.cloud.monitoring.v3.DashboardService.Get:output_type -> yandex.cloud.monitoring.v3.Dashboard
-	7,  // 32: yandex.cloud.monitoring.v3.DashboardService.List:output_type -> yandex.cloud.monitoring.v3.ListDashboardsResponse
-	34, // 33: yandex.cloud.monitoring.v3.DashboardService.Create:output_type -> yandex.cloud.operation.Operation
-	34, // 34: yandex.cloud.monitoring.v3.DashboardService.Update:output_type -> yandex.cloud.operation.Operation
-	34, // 35: yandex.cloud.monitoring.v3.DashboardService.Delete:output_type -> yandex.cloud.operation.Operation
-	15, // 36: yandex.cloud.monitoring.v3.DashboardService.ListOperations:output_type -> yandex.cloud.monitoring.v3.ListDashboardOperationsResponse
-	22, // 37: yandex.cloud.monitoring.v3.DashboardConversionService.ConvertFromGrafana:output_type -> yandex.cloud.monitoring.v3.ConvertFromGrafanaResponse
-	31, // [31:38] is the sub-list for method output_type
-	24, // [24:31] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	17, // 0: yandex.cloud.monitoring.v3.ListDashboardsRequest.read_mask:type_name -> google.protobuf.FieldMask
+	18, // 1: yandex.cloud.monitoring.v3.ListDashboardsResponse.dashboards:type_name -> yandex.cloud.monitoring.v3.Dashboard
+	15, // 2: yandex.cloud.monitoring.v3.CreateDashboardRequest.labels:type_name -> yandex.cloud.monitoring.v3.CreateDashboardRequest.LabelsEntry
+	19, // 3: yandex.cloud.monitoring.v3.CreateDashboardRequest.widgets:type_name -> yandex.cloud.monitoring.v3.Widget
+	20, // 4: yandex.cloud.monitoring.v3.CreateDashboardRequest.parametrization:type_name -> yandex.cloud.monitoring.v3.Parametrization
+	21, // 5: yandex.cloud.monitoring.v3.CreateDashboardRequest.timeline:type_name -> yandex.cloud.monitoring.v3.Timeline
+	22, // 6: yandex.cloud.monitoring.v3.CreateDashboardRequest.links:type_name -> yandex.cloud.monitoring.v3.LinkItem
+	23, // 7: yandex.cloud.monitoring.v3.CreateDashboardRequest.preset_items:type_name -> yandex.cloud.monitoring.v3.PresetItem
+	16, // 8: yandex.cloud.monitoring.v3.UpdateDashboardRequest.labels:type_name -> yandex.cloud.monitoring.v3.UpdateDashboardRequest.LabelsEntry
+	19, // 9: yandex.cloud.monitoring.v3.UpdateDashboardRequest.widgets:type_name -> yandex.cloud.monitoring.v3.Widget
+	20, // 10: yandex.cloud.monitoring.v3.UpdateDashboardRequest.parametrization:type_name -> yandex.cloud.monitoring.v3.Parametrization
+	21, // 11: yandex.cloud.monitoring.v3.UpdateDashboardRequest.timeline:type_name -> yandex.cloud.monitoring.v3.Timeline
+	22, // 12: yandex.cloud.monitoring.v3.UpdateDashboardRequest.links:type_name -> yandex.cloud.monitoring.v3.LinkItem
+	23, // 13: yandex.cloud.monitoring.v3.UpdateDashboardRequest.preset_items:type_name -> yandex.cloud.monitoring.v3.PresetItem
+	24, // 14: yandex.cloud.monitoring.v3.ListDashboardOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	0,  // 15: yandex.cloud.monitoring.v3.DashboardService.Get:input_type -> yandex.cloud.monitoring.v3.GetDashboardRequest
+	1,  // 16: yandex.cloud.monitoring.v3.DashboardService.List:input_type -> yandex.cloud.monitoring.v3.ListDashboardsRequest
+	3,  // 17: yandex.cloud.monitoring.v3.DashboardService.Create:input_type -> yandex.cloud.monitoring.v3.CreateDashboardRequest
+	5,  // 18: yandex.cloud.monitoring.v3.DashboardService.Update:input_type -> yandex.cloud.monitoring.v3.UpdateDashboardRequest
+	7,  // 19: yandex.cloud.monitoring.v3.DashboardService.Delete:input_type -> yandex.cloud.monitoring.v3.DeleteDashboardRequest
+	9,  // 20: yandex.cloud.monitoring.v3.DashboardService.ListOperations:input_type -> yandex.cloud.monitoring.v3.ListDashboardOperationsRequest
+	18, // 21: yandex.cloud.monitoring.v3.DashboardService.Get:output_type -> yandex.cloud.monitoring.v3.Dashboard
+	2,  // 22: yandex.cloud.monitoring.v3.DashboardService.List:output_type -> yandex.cloud.monitoring.v3.ListDashboardsResponse
+	24, // 23: yandex.cloud.monitoring.v3.DashboardService.Create:output_type -> yandex.cloud.operation.Operation
+	24, // 24: yandex.cloud.monitoring.v3.DashboardService.Update:output_type -> yandex.cloud.operation.Operation
+	24, // 25: yandex.cloud.monitoring.v3.DashboardService.Delete:output_type -> yandex.cloud.operation.Operation
+	10, // 26: yandex.cloud.monitoring.v3.DashboardService.ListOperations:output_type -> yandex.cloud.monitoring.v3.ListDashboardOperationsResponse
+	21, // [21:27] is the sub-list for method output_type
+	15, // [15:21] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_monitoring_v3_dashboard_service_proto_init() }
@@ -2143,14 +1367,13 @@ func file_yandex_cloud_monitoring_v3_dashboard_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDesc), len(file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDesc)),
-			NumEnums:      5,
-			NumMessages:   22,
+			NumEnums:      0,
+			NumMessages:   17,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   1,
 		},
 		GoTypes:           file_yandex_cloud_monitoring_v3_dashboard_service_proto_goTypes,
 		DependencyIndexes: file_yandex_cloud_monitoring_v3_dashboard_service_proto_depIdxs,
-		EnumInfos:         file_yandex_cloud_monitoring_v3_dashboard_service_proto_enumTypes,
 		MessageInfos:      file_yandex_cloud_monitoring_v3_dashboard_service_proto_msgTypes,
 	}.Build()
 	File_yandex_cloud_monitoring_v3_dashboard_service_proto = out.File

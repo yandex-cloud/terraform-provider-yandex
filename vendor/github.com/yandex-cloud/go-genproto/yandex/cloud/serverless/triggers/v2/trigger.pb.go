@@ -341,6 +341,7 @@ type Source struct {
 	//	*Source_IotBrokerMessage
 	//	*Source_TelegramMessage
 	//	*Source_YandexMessenger
+	//	*Source_MaxMessage
 	Source        isSource_Source `protobuf_oneof:"source"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -491,6 +492,15 @@ func (x *Source) GetYandexMessenger() *YandexMessenger {
 	return nil
 }
 
+func (x *Source) GetMaxMessage() *MaxMessage {
+	if x != nil {
+		if x, ok := x.Source.(*Source_MaxMessage); ok {
+			return x.MaxMessage
+		}
+	}
+	return nil
+}
+
 type isSource_Source interface {
 	isSource_Source()
 }
@@ -555,6 +565,11 @@ type Source_YandexMessenger struct {
 	YandexMessenger *YandexMessenger `protobuf:"bytes,14,opt,name=yandex_messenger,json=yandexMessenger,proto3,oneof"`
 }
 
+type Source_MaxMessage struct {
+	// MAX source: fires on MAX bot updates.
+	MaxMessage *MaxMessage `protobuf:"bytes,15,opt,name=max_message,json=maxMessage,proto3,oneof"`
+}
+
 func (*Source_Timer) isSource_Source() {}
 
 func (*Source_Ymq) isSource_Source() {}
@@ -578,6 +593,8 @@ func (*Source_IotBrokerMessage) isSource_Source() {}
 func (*Source_TelegramMessage) isSource_Source() {}
 
 func (*Source_YandexMessenger) isSource_Source() {}
+
+func (*Source_MaxMessage) isSource_Source() {}
 
 // Timer fires on a schedule defined by a cron expression.
 // One invocation is produced per schedule tick; batching does not apply.
@@ -1371,6 +1388,71 @@ func (x *TelegramMessage) GetForce() bool {
 	return false
 }
 
+type MaxMessage struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Input only, always empty in output.
+	// Required on Create; on Update, changing it re-registers the subscription.
+	BotToken string `protobuf:"bytes,1,opt,name=bot_token,json=botToken,proto3" json:"bot_token,omitempty"`
+	// Types of MAX updates to receive. Optional, default is ["message_created"].
+	UpdateTypes []string `protobuf:"bytes,2,rep,name=update_types,json=updateTypes,proto3" json:"update_types,omitempty"`
+	// Input only. Delete all existing webhook subscriptions before registering this trigger.
+	// Without force, registration fails if any subscription uses a different URL.
+	Force         bool `protobuf:"varint,3,opt,name=force,proto3" json:"force,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MaxMessage) Reset() {
+	*x = MaxMessage{}
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MaxMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MaxMessage) ProtoMessage() {}
+
+func (x *MaxMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MaxMessage.ProtoReflect.Descriptor instead.
+func (*MaxMessage) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *MaxMessage) GetBotToken() string {
+	if x != nil {
+		return x.BotToken
+	}
+	return ""
+}
+
+func (x *MaxMessage) GetUpdateTypes() []string {
+	if x != nil {
+		return x.UpdateTypes
+	}
+	return nil
+}
+
+func (x *MaxMessage) GetForce() bool {
+	if x != nil {
+		return x.Force
+	}
+	return false
+}
+
 type YandexMessenger struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// OAuth token of the Yandex Messenger bot.
@@ -1393,7 +1475,7 @@ type YandexMessenger struct {
 
 func (x *YandexMessenger) Reset() {
 	*x = YandexMessenger{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[13]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1405,7 +1487,7 @@ func (x *YandexMessenger) String() string {
 func (*YandexMessenger) ProtoMessage() {}
 
 func (x *YandexMessenger) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[13]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1418,7 +1500,7 @@ func (x *YandexMessenger) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use YandexMessenger.ProtoReflect.Descriptor instead.
 func (*YandexMessenger) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{13}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *YandexMessenger) GetOauthToken() string {
@@ -1485,7 +1567,7 @@ type Action struct {
 
 func (x *Action) Reset() {
 	*x = Action{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[14]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1497,7 +1579,7 @@ func (x *Action) String() string {
 func (*Action) ProtoMessage() {}
 
 func (x *Action) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[14]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1510,7 +1592,7 @@ func (x *Action) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Action.ProtoReflect.Descriptor instead.
 func (*Action) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{14}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Action) GetAction() isAction_Action {
@@ -1629,7 +1711,7 @@ type Filter struct {
 
 func (x *Filter) Reset() {
 	*x = Filter{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[15]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1641,7 +1723,7 @@ func (x *Filter) String() string {
 func (*Filter) ProtoMessage() {}
 
 func (x *Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[15]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1654,7 +1736,7 @@ func (x *Filter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Filter.ProtoReflect.Descriptor instead.
 func (*Filter) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{15}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *Filter) GetCondition() isFilter_Condition {
@@ -1698,7 +1780,7 @@ type Transformer struct {
 
 func (x *Transformer) Reset() {
 	*x = Transformer{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[16]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1710,7 +1792,7 @@ func (x *Transformer) String() string {
 func (*Transformer) ProtoMessage() {}
 
 func (x *Transformer) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[16]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1723,7 +1805,7 @@ func (x *Transformer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Transformer.ProtoReflect.Descriptor instead.
 func (*Transformer) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{16}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *Transformer) GetTransformer() isTransformer_Transformer {
@@ -1770,7 +1852,7 @@ type InvokeFunction struct {
 
 func (x *InvokeFunction) Reset() {
 	*x = InvokeFunction{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[17]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1782,7 +1864,7 @@ func (x *InvokeFunction) String() string {
 func (*InvokeFunction) ProtoMessage() {}
 
 func (x *InvokeFunction) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[17]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1795,7 +1877,7 @@ func (x *InvokeFunction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InvokeFunction.ProtoReflect.Descriptor instead.
 func (*InvokeFunction) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{17}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *InvokeFunction) GetFunctionId() string {
@@ -1835,7 +1917,7 @@ type InvokeContainer struct {
 
 func (x *InvokeContainer) Reset() {
 	*x = InvokeContainer{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[18]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1847,7 +1929,7 @@ func (x *InvokeContainer) String() string {
 func (*InvokeContainer) ProtoMessage() {}
 
 func (x *InvokeContainer) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[18]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1860,7 +1942,7 @@ func (x *InvokeContainer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InvokeContainer.ProtoReflect.Descriptor instead.
 func (*InvokeContainer) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{18}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *InvokeContainer) GetContainerId() string {
@@ -1898,7 +1980,7 @@ type StartWorkflow struct {
 
 func (x *StartWorkflow) Reset() {
 	*x = StartWorkflow{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[19]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1910,7 +1992,7 @@ func (x *StartWorkflow) String() string {
 func (*StartWorkflow) ProtoMessage() {}
 
 func (x *StartWorkflow) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[19]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1923,7 +2005,7 @@ func (x *StartWorkflow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartWorkflow.ProtoReflect.Descriptor instead.
 func (*StartWorkflow) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{19}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *StartWorkflow) GetWorkflowId() string {
@@ -1956,7 +2038,7 @@ type GatewayWebsocketBroadcast struct {
 
 func (x *GatewayWebsocketBroadcast) Reset() {
 	*x = GatewayWebsocketBroadcast{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[20]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1968,7 +2050,7 @@ func (x *GatewayWebsocketBroadcast) String() string {
 func (*GatewayWebsocketBroadcast) ProtoMessage() {}
 
 func (x *GatewayWebsocketBroadcast) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[20]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1981,7 +2063,7 @@ func (x *GatewayWebsocketBroadcast) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GatewayWebsocketBroadcast.ProtoReflect.Descriptor instead.
 func (*GatewayWebsocketBroadcast) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{20}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GatewayWebsocketBroadcast) GetGatewayId() string {
@@ -2018,7 +2100,7 @@ type RetryPolicy struct {
 
 func (x *RetryPolicy) Reset() {
 	*x = RetryPolicy{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[21]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2030,7 +2112,7 @@ func (x *RetryPolicy) String() string {
 func (*RetryPolicy) ProtoMessage() {}
 
 func (x *RetryPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[21]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2043,7 +2125,7 @@ func (x *RetryPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryPolicy.ProtoReflect.Descriptor instead.
 func (*RetryPolicy) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{21}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *RetryPolicy) GetRetryAttempts() int64 {
@@ -2073,7 +2155,7 @@ type DeadLetter struct {
 
 func (x *DeadLetter) Reset() {
 	*x = DeadLetter{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[22]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2085,7 +2167,7 @@ func (x *DeadLetter) String() string {
 func (*DeadLetter) ProtoMessage() {}
 
 func (x *DeadLetter) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[22]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2098,7 +2180,7 @@ func (x *DeadLetter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeadLetter.ProtoReflect.Descriptor instead.
 func (*DeadLetter) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{22}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *DeadLetter) GetDeadLetter() isDeadLetter_DeadLetter {
@@ -2146,7 +2228,7 @@ type BatchSettings struct {
 
 func (x *BatchSettings) Reset() {
 	*x = BatchSettings{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[23]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2158,7 +2240,7 @@ func (x *BatchSettings) String() string {
 func (*BatchSettings) ProtoMessage() {}
 
 func (x *BatchSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[23]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2171,7 +2253,7 @@ func (x *BatchSettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchSettings.ProtoReflect.Descriptor instead.
 func (*BatchSettings) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{23}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *BatchSettings) GetMaxCount() int64 {
@@ -2211,7 +2293,7 @@ type PutQueueMessage struct {
 
 func (x *PutQueueMessage) Reset() {
 	*x = PutQueueMessage{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[24]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2223,7 +2305,7 @@ func (x *PutQueueMessage) String() string {
 func (*PutQueueMessage) ProtoMessage() {}
 
 func (x *PutQueueMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[24]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2236,7 +2318,7 @@ func (x *PutQueueMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutQueueMessage.ProtoReflect.Descriptor instead.
 func (*PutQueueMessage) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{24}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *PutQueueMessage) GetQueueArn() string {
@@ -2273,7 +2355,7 @@ type ObjectStorageBucketSettings struct {
 
 func (x *ObjectStorageBucketSettings) Reset() {
 	*x = ObjectStorageBucketSettings{}
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[25]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2285,7 +2367,7 @@ func (x *ObjectStorageBucketSettings) String() string {
 func (*ObjectStorageBucketSettings) ProtoMessage() {}
 
 func (x *ObjectStorageBucketSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[25]
+	mi := &file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2298,7 +2380,7 @@ func (x *ObjectStorageBucketSettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObjectStorageBucketSettings.ProtoReflect.Descriptor instead.
 func (*ObjectStorageBucketSettings) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{25}
+	return file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ObjectStorageBucketSettings) GetBucketId() string {
@@ -2344,7 +2426,7 @@ const file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDesc = "" +
 	"\bCREATING\x10\x03\x12\f\n" +
 	"\bDELETING\x10\x04\x12\f\n" +
 	"\bUPDATING\x10\x05\x12\t\n" +
-	"\x05ERROR\x10\x06J\x04\b\a\x10\b\"\x93\b\n" +
+	"\x05ERROR\x10\x06J\x04\b\a\x10\b\"\xe7\b\n" +
 	"\x06Source\x12B\n" +
 	"\x05timer\x18\x01 \x01(\v2*.yandex.cloud.serverless.triggers.v2.TimerH\x00R\x05timer\x12<\n" +
 	"\x03ymq\x18\x02 \x01(\v2(.yandex.cloud.serverless.triggers.v2.YMQH\x00R\x03ymq\x12<\n" +
@@ -2358,7 +2440,9 @@ const file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDesc = "" +
 	"iotMessage\x12e\n" +
 	"\x12iot_broker_message\x18\f \x01(\v25.yandex.cloud.serverless.triggers.v2.IoTBrokerMessageH\x00R\x10iotBrokerMessage\x12a\n" +
 	"\x10telegram_message\x18\r \x01(\v24.yandex.cloud.serverless.triggers.v2.TelegramMessageH\x00R\x0ftelegramMessage\x12a\n" +
-	"\x10yandex_messenger\x18\x0e \x01(\v24.yandex.cloud.serverless.triggers.v2.YandexMessengerH\x00R\x0fyandexMessengerB\x0e\n" +
+	"\x10yandex_messenger\x18\x0e \x01(\v24.yandex.cloud.serverless.triggers.v2.YandexMessengerH\x00R\x0fyandexMessenger\x12R\n" +
+	"\vmax_message\x18\x0f \x01(\v2/.yandex.cloud.serverless.triggers.v2.MaxMessageH\x00R\n" +
+	"maxMessageB\x0e\n" +
 	"\x06source\x12\x04\xc0\xc11\x01J\x04\b\x06\x10\aJ\x04\b\n" +
 	"\x10\v\"e\n" +
 	"\x05Timer\x126\n" +
@@ -2425,6 +2509,11 @@ const file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDesc = "" +
 	"\x0fTelegramMessage\x12\x1b\n" +
 	"\tbot_token\x18\x01 \x01(\tR\bbotToken\x12'\n" +
 	"\x0fallowed_updates\x18\x02 \x03(\tR\x0eallowedUpdates\x12\x14\n" +
+	"\x05force\x18\x03 \x01(\bR\x05force\"b\n" +
+	"\n" +
+	"MaxMessage\x12\x1b\n" +
+	"\tbot_token\x18\x01 \x01(\tR\bbotToken\x12!\n" +
+	"\fupdate_types\x18\x02 \x03(\tR\vupdateTypes\x12\x14\n" +
 	"\x05force\x18\x03 \x01(\bR\x05force\"\xac\x01\n" +
 	"\x0fYandexMessenger\x12\x1f\n" +
 	"\voauth_token\x18\x01 \x01(\tR\n" +
@@ -2519,7 +2608,7 @@ func file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDescGZIP() []byte
 }
 
 var file_yandex_cloud_serverless_triggers_v2_trigger_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_yandex_cloud_serverless_triggers_v2_trigger_proto_goTypes = []any{
 	(ObjectStorageEventType)(0),         // 0: yandex.cloud.serverless.triggers.v2.ObjectStorageEventType
 	(ContainerRegistryEventType)(0),     // 1: yandex.cloud.serverless.triggers.v2.ContainerRegistryEventType
@@ -2537,30 +2626,31 @@ var file_yandex_cloud_serverless_triggers_v2_trigger_proto_goTypes = []any{
 	(*IoTMessage)(nil),                  // 13: yandex.cloud.serverless.triggers.v2.IoTMessage
 	(*IoTBrokerMessage)(nil),            // 14: yandex.cloud.serverless.triggers.v2.IoTBrokerMessage
 	(*TelegramMessage)(nil),             // 15: yandex.cloud.serverless.triggers.v2.TelegramMessage
-	(*YandexMessenger)(nil),             // 16: yandex.cloud.serverless.triggers.v2.YandexMessenger
-	(*Action)(nil),                      // 17: yandex.cloud.serverless.triggers.v2.Action
-	(*Filter)(nil),                      // 18: yandex.cloud.serverless.triggers.v2.Filter
-	(*Transformer)(nil),                 // 19: yandex.cloud.serverless.triggers.v2.Transformer
-	(*InvokeFunction)(nil),              // 20: yandex.cloud.serverless.triggers.v2.InvokeFunction
-	(*InvokeContainer)(nil),             // 21: yandex.cloud.serverless.triggers.v2.InvokeContainer
-	(*StartWorkflow)(nil),               // 22: yandex.cloud.serverless.triggers.v2.StartWorkflow
-	(*GatewayWebsocketBroadcast)(nil),   // 23: yandex.cloud.serverless.triggers.v2.GatewayWebsocketBroadcast
-	(*RetryPolicy)(nil),                 // 24: yandex.cloud.serverless.triggers.v2.RetryPolicy
-	(*DeadLetter)(nil),                  // 25: yandex.cloud.serverless.triggers.v2.DeadLetter
-	(*BatchSettings)(nil),               // 26: yandex.cloud.serverless.triggers.v2.BatchSettings
-	(*PutQueueMessage)(nil),             // 27: yandex.cloud.serverless.triggers.v2.PutQueueMessage
-	(*ObjectStorageBucketSettings)(nil), // 28: yandex.cloud.serverless.triggers.v2.ObjectStorageBucketSettings
-	nil,                                 // 29: yandex.cloud.serverless.triggers.v2.Trigger.LabelsEntry
-	nil,                                 // 30: yandex.cloud.serverless.triggers.v2.PutQueueMessage.MessageAttributesEntry
-	(*timestamppb.Timestamp)(nil),       // 31: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),         // 32: google.protobuf.Duration
-	(v1.LogLevel_Level)(0),              // 33: yandex.cloud.logging.v1.LogLevel.Level
+	(*MaxMessage)(nil),                  // 16: yandex.cloud.serverless.triggers.v2.MaxMessage
+	(*YandexMessenger)(nil),             // 17: yandex.cloud.serverless.triggers.v2.YandexMessenger
+	(*Action)(nil),                      // 18: yandex.cloud.serverless.triggers.v2.Action
+	(*Filter)(nil),                      // 19: yandex.cloud.serverless.triggers.v2.Filter
+	(*Transformer)(nil),                 // 20: yandex.cloud.serverless.triggers.v2.Transformer
+	(*InvokeFunction)(nil),              // 21: yandex.cloud.serverless.triggers.v2.InvokeFunction
+	(*InvokeContainer)(nil),             // 22: yandex.cloud.serverless.triggers.v2.InvokeContainer
+	(*StartWorkflow)(nil),               // 23: yandex.cloud.serverless.triggers.v2.StartWorkflow
+	(*GatewayWebsocketBroadcast)(nil),   // 24: yandex.cloud.serverless.triggers.v2.GatewayWebsocketBroadcast
+	(*RetryPolicy)(nil),                 // 25: yandex.cloud.serverless.triggers.v2.RetryPolicy
+	(*DeadLetter)(nil),                  // 26: yandex.cloud.serverless.triggers.v2.DeadLetter
+	(*BatchSettings)(nil),               // 27: yandex.cloud.serverless.triggers.v2.BatchSettings
+	(*PutQueueMessage)(nil),             // 28: yandex.cloud.serverless.triggers.v2.PutQueueMessage
+	(*ObjectStorageBucketSettings)(nil), // 29: yandex.cloud.serverless.triggers.v2.ObjectStorageBucketSettings
+	nil,                                 // 30: yandex.cloud.serverless.triggers.v2.Trigger.LabelsEntry
+	nil,                                 // 31: yandex.cloud.serverless.triggers.v2.PutQueueMessage.MessageAttributesEntry
+	(*timestamppb.Timestamp)(nil),       // 32: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),         // 33: google.protobuf.Duration
+	(v1.LogLevel_Level)(0),              // 34: yandex.cloud.logging.v1.LogLevel.Level
 }
 var file_yandex_cloud_serverless_triggers_v2_trigger_proto_depIdxs = []int32{
-	31, // 0: yandex.cloud.serverless.triggers.v2.Trigger.created_at:type_name -> google.protobuf.Timestamp
-	29, // 1: yandex.cloud.serverless.triggers.v2.Trigger.labels:type_name -> yandex.cloud.serverless.triggers.v2.Trigger.LabelsEntry
+	32, // 0: yandex.cloud.serverless.triggers.v2.Trigger.created_at:type_name -> google.protobuf.Timestamp
+	30, // 1: yandex.cloud.serverless.triggers.v2.Trigger.labels:type_name -> yandex.cloud.serverless.triggers.v2.Trigger.LabelsEntry
 	4,  // 2: yandex.cloud.serverless.triggers.v2.Trigger.source:type_name -> yandex.cloud.serverless.triggers.v2.Source
-	17, // 3: yandex.cloud.serverless.triggers.v2.Trigger.action:type_name -> yandex.cloud.serverless.triggers.v2.Action
+	18, // 3: yandex.cloud.serverless.triggers.v2.Trigger.action:type_name -> yandex.cloud.serverless.triggers.v2.Action
 	2,  // 4: yandex.cloud.serverless.triggers.v2.Trigger.status:type_name -> yandex.cloud.serverless.triggers.v2.Trigger.Status
 	5,  // 5: yandex.cloud.serverless.triggers.v2.Source.timer:type_name -> yandex.cloud.serverless.triggers.v2.Timer
 	6,  // 6: yandex.cloud.serverless.triggers.v2.Source.ymq:type_name -> yandex.cloud.serverless.triggers.v2.YMQ
@@ -2573,37 +2663,38 @@ var file_yandex_cloud_serverless_triggers_v2_trigger_proto_depIdxs = []int32{
 	13, // 13: yandex.cloud.serverless.triggers.v2.Source.iot_message:type_name -> yandex.cloud.serverless.triggers.v2.IoTMessage
 	14, // 14: yandex.cloud.serverless.triggers.v2.Source.iot_broker_message:type_name -> yandex.cloud.serverless.triggers.v2.IoTBrokerMessage
 	15, // 15: yandex.cloud.serverless.triggers.v2.Source.telegram_message:type_name -> yandex.cloud.serverless.triggers.v2.TelegramMessage
-	16, // 16: yandex.cloud.serverless.triggers.v2.Source.yandex_messenger:type_name -> yandex.cloud.serverless.triggers.v2.YandexMessenger
-	26, // 17: yandex.cloud.serverless.triggers.v2.YMQ.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
-	32, // 18: yandex.cloud.serverless.triggers.v2.YMQ.visibility_timeout:type_name -> google.protobuf.Duration
-	26, // 19: yandex.cloud.serverless.triggers.v2.YDS.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
-	28, // 20: yandex.cloud.serverless.triggers.v2.Mail.attachments_bucket:type_name -> yandex.cloud.serverless.triggers.v2.ObjectStorageBucketSettings
-	26, // 21: yandex.cloud.serverless.triggers.v2.Mail.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
-	0,  // 22: yandex.cloud.serverless.triggers.v2.ObjectStorage.event_type:type_name -> yandex.cloud.serverless.triggers.v2.ObjectStorageEventType
-	26, // 23: yandex.cloud.serverless.triggers.v2.ObjectStorage.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
-	1,  // 24: yandex.cloud.serverless.triggers.v2.ContainerRegistry.event_type:type_name -> yandex.cloud.serverless.triggers.v2.ContainerRegistryEventType
-	26, // 25: yandex.cloud.serverless.triggers.v2.ContainerRegistry.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
-	33, // 26: yandex.cloud.serverless.triggers.v2.Logging.levels:type_name -> yandex.cloud.logging.v1.LogLevel.Level
-	26, // 27: yandex.cloud.serverless.triggers.v2.Logging.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
-	26, // 28: yandex.cloud.serverless.triggers.v2.IoTMessage.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
-	26, // 29: yandex.cloud.serverless.triggers.v2.IoTBrokerMessage.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
-	21, // 30: yandex.cloud.serverless.triggers.v2.Action.invoke_container:type_name -> yandex.cloud.serverless.triggers.v2.InvokeContainer
-	20, // 31: yandex.cloud.serverless.triggers.v2.Action.invoke_function:type_name -> yandex.cloud.serverless.triggers.v2.InvokeFunction
-	23, // 32: yandex.cloud.serverless.triggers.v2.Action.gateway_websocket_broadcast:type_name -> yandex.cloud.serverless.triggers.v2.GatewayWebsocketBroadcast
-	22, // 33: yandex.cloud.serverless.triggers.v2.Action.start_workflow:type_name -> yandex.cloud.serverless.triggers.v2.StartWorkflow
-	18, // 34: yandex.cloud.serverless.triggers.v2.Action.filter:type_name -> yandex.cloud.serverless.triggers.v2.Filter
-	19, // 35: yandex.cloud.serverless.triggers.v2.Action.transformer:type_name -> yandex.cloud.serverless.triggers.v2.Transformer
-	24, // 36: yandex.cloud.serverless.triggers.v2.Action.retry_policy:type_name -> yandex.cloud.serverless.triggers.v2.RetryPolicy
-	25, // 37: yandex.cloud.serverless.triggers.v2.Action.dead_letter:type_name -> yandex.cloud.serverless.triggers.v2.DeadLetter
-	32, // 38: yandex.cloud.serverless.triggers.v2.RetryPolicy.interval:type_name -> google.protobuf.Duration
-	27, // 39: yandex.cloud.serverless.triggers.v2.DeadLetter.dead_letter_queue:type_name -> yandex.cloud.serverless.triggers.v2.PutQueueMessage
-	32, // 40: yandex.cloud.serverless.triggers.v2.BatchSettings.cutoff:type_name -> google.protobuf.Duration
-	30, // 41: yandex.cloud.serverless.triggers.v2.PutQueueMessage.message_attributes:type_name -> yandex.cloud.serverless.triggers.v2.PutQueueMessage.MessageAttributesEntry
-	42, // [42:42] is the sub-list for method output_type
-	42, // [42:42] is the sub-list for method input_type
-	42, // [42:42] is the sub-list for extension type_name
-	42, // [42:42] is the sub-list for extension extendee
-	0,  // [0:42] is the sub-list for field type_name
+	17, // 16: yandex.cloud.serverless.triggers.v2.Source.yandex_messenger:type_name -> yandex.cloud.serverless.triggers.v2.YandexMessenger
+	16, // 17: yandex.cloud.serverless.triggers.v2.Source.max_message:type_name -> yandex.cloud.serverless.triggers.v2.MaxMessage
+	27, // 18: yandex.cloud.serverless.triggers.v2.YMQ.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
+	33, // 19: yandex.cloud.serverless.triggers.v2.YMQ.visibility_timeout:type_name -> google.protobuf.Duration
+	27, // 20: yandex.cloud.serverless.triggers.v2.YDS.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
+	29, // 21: yandex.cloud.serverless.triggers.v2.Mail.attachments_bucket:type_name -> yandex.cloud.serverless.triggers.v2.ObjectStorageBucketSettings
+	27, // 22: yandex.cloud.serverless.triggers.v2.Mail.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
+	0,  // 23: yandex.cloud.serverless.triggers.v2.ObjectStorage.event_type:type_name -> yandex.cloud.serverless.triggers.v2.ObjectStorageEventType
+	27, // 24: yandex.cloud.serverless.triggers.v2.ObjectStorage.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
+	1,  // 25: yandex.cloud.serverless.triggers.v2.ContainerRegistry.event_type:type_name -> yandex.cloud.serverless.triggers.v2.ContainerRegistryEventType
+	27, // 26: yandex.cloud.serverless.triggers.v2.ContainerRegistry.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
+	34, // 27: yandex.cloud.serverless.triggers.v2.Logging.levels:type_name -> yandex.cloud.logging.v1.LogLevel.Level
+	27, // 28: yandex.cloud.serverless.triggers.v2.Logging.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
+	27, // 29: yandex.cloud.serverless.triggers.v2.IoTMessage.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
+	27, // 30: yandex.cloud.serverless.triggers.v2.IoTBrokerMessage.batch_settings:type_name -> yandex.cloud.serverless.triggers.v2.BatchSettings
+	22, // 31: yandex.cloud.serverless.triggers.v2.Action.invoke_container:type_name -> yandex.cloud.serverless.triggers.v2.InvokeContainer
+	21, // 32: yandex.cloud.serverless.triggers.v2.Action.invoke_function:type_name -> yandex.cloud.serverless.triggers.v2.InvokeFunction
+	24, // 33: yandex.cloud.serverless.triggers.v2.Action.gateway_websocket_broadcast:type_name -> yandex.cloud.serverless.triggers.v2.GatewayWebsocketBroadcast
+	23, // 34: yandex.cloud.serverless.triggers.v2.Action.start_workflow:type_name -> yandex.cloud.serverless.triggers.v2.StartWorkflow
+	19, // 35: yandex.cloud.serverless.triggers.v2.Action.filter:type_name -> yandex.cloud.serverless.triggers.v2.Filter
+	20, // 36: yandex.cloud.serverless.triggers.v2.Action.transformer:type_name -> yandex.cloud.serverless.triggers.v2.Transformer
+	25, // 37: yandex.cloud.serverless.triggers.v2.Action.retry_policy:type_name -> yandex.cloud.serverless.triggers.v2.RetryPolicy
+	26, // 38: yandex.cloud.serverless.triggers.v2.Action.dead_letter:type_name -> yandex.cloud.serverless.triggers.v2.DeadLetter
+	33, // 39: yandex.cloud.serverless.triggers.v2.RetryPolicy.interval:type_name -> google.protobuf.Duration
+	28, // 40: yandex.cloud.serverless.triggers.v2.DeadLetter.dead_letter_queue:type_name -> yandex.cloud.serverless.triggers.v2.PutQueueMessage
+	33, // 41: yandex.cloud.serverless.triggers.v2.BatchSettings.cutoff:type_name -> google.protobuf.Duration
+	31, // 42: yandex.cloud.serverless.triggers.v2.PutQueueMessage.message_attributes:type_name -> yandex.cloud.serverless.triggers.v2.PutQueueMessage.MessageAttributesEntry
+	43, // [43:43] is the sub-list for method output_type
+	43, // [43:43] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_serverless_triggers_v2_trigger_proto_init() }
@@ -2624,20 +2715,21 @@ func file_yandex_cloud_serverless_triggers_v2_trigger_proto_init() {
 		(*Source_IotBrokerMessage)(nil),
 		(*Source_TelegramMessage)(nil),
 		(*Source_YandexMessenger)(nil),
+		(*Source_MaxMessage)(nil),
 	}
-	file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[14].OneofWrappers = []any{
+	file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[15].OneofWrappers = []any{
 		(*Action_InvokeContainer)(nil),
 		(*Action_InvokeFunction)(nil),
 		(*Action_GatewayWebsocketBroadcast)(nil),
 		(*Action_StartWorkflow)(nil),
 	}
-	file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[15].OneofWrappers = []any{
+	file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[16].OneofWrappers = []any{
 		(*Filter_Jq)(nil),
 	}
-	file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[16].OneofWrappers = []any{
+	file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[17].OneofWrappers = []any{
 		(*Transformer_Jq)(nil),
 	}
-	file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[22].OneofWrappers = []any{
+	file_yandex_cloud_serverless_triggers_v2_trigger_proto_msgTypes[23].OneofWrappers = []any{
 		(*DeadLetter_DeadLetterQueue)(nil),
 	}
 	type x struct{}
@@ -2646,7 +2738,7 @@ func file_yandex_cloud_serverless_triggers_v2_trigger_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDesc), len(file_yandex_cloud_serverless_triggers_v2_trigger_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   28,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

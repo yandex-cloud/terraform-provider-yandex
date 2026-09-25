@@ -467,6 +467,18 @@ func (m *UserSettings) SetMinExecutionSpeedBytes(v *wrapperspb.Int64Value) {
 	m.MinExecutionSpeedBytes = v
 }
 
+func (m *UserSettings) SetUseStatistics(v *wrapperspb.BoolValue) {
+	m.UseStatistics = v
+}
+
+func (m *UserSettings) SetUseStatisticsForPartPruning(v *wrapperspb.BoolValue) {
+	m.UseStatisticsForPartPruning = v
+}
+
+func (m *UserSettings) SetRefreshStatisticsInterval(v *wrapperspb.Int64Value) {
+	m.RefreshStatisticsInterval = v
+}
+
 func (m *UserSettings) SetInputFormatValuesInterpretExpressions(v *wrapperspb.BoolValue) {
 	m.InputFormatValuesInterpretExpressions = v
 }

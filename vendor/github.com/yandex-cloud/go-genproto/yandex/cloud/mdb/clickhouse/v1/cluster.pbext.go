@@ -83,6 +83,10 @@ func (m *Cluster) SetDiskEncryptionKeyId(v *wrapperspb.StringValue) {
 	m.DiskEncryptionKeyId = v
 }
 
+func (m *Cluster) SetIsHa(v bool) {
+	m.IsHa = v
+}
+
 func (m *Monitoring) SetName(v string) {
 	m.Name = v
 }
@@ -181,6 +185,10 @@ func (m *Shard) SetClusterId(v string) {
 
 func (m *Shard) SetConfig(v *ShardConfig) {
 	m.Config = v
+}
+
+func (m *Shard) SetIsHa(v bool) {
+	m.IsHa = v
 }
 
 func (m *Shards) SetShards(v []*Shard) {

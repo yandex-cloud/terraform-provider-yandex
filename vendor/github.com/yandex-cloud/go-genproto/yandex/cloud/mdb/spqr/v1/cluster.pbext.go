@@ -76,6 +76,10 @@ func (m *Cluster) SetHostGroupIds(v []string) {
 	m.HostGroupIds = v
 }
 
+func (m *Cluster) SetIsHa(v bool) {
+	m.IsHa = v
+}
+
 func (m *Monitoring) SetName(v string) {
 	m.Name = v
 }

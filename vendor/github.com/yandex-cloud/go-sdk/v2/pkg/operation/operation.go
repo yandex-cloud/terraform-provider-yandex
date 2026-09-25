@@ -55,7 +55,7 @@ func NewOperation(pb YCOperation, concretization *Concretization) (*Operation, e
 
 	}
 
-	if reflect.TypeOf(data) != reflect.TypeOf(concretization.MetadataType) {
+	if pb.GetMetadata() != nil && reflect.TypeOf(data) != reflect.TypeOf(concretization.MetadataType) {
 		return nil, fmt.Errorf("expected operation metadata to be '%s', but got '%s'",
 			proto.MessageName(concretization.MetadataType),
 			proto.MessageName(data),
@@ -206,6 +206,14 @@ func (o *Operation) Response() proto.Message {
 	return o.response
 }
 
+// RawResponse returns the protobuf response without applying the generated
+// operation response type assertion. It is primarily useful for compatibility
+// with APIs whose historical response type differs from the generated SDK
+// declaration.
+func (o *Operation) RawResponse() (proto.Message, error) {
+	return o.parseResponse()
+}
+
 // parseResponse extracts and unmarshals the response from an operation after it is completed. Returns nil if no response exists.
 func (o *Operation) parseResponse() (proto.Message, error) {
 	if !o.Done() {
@@ -245,3 +253,6 @@ func (o *Operation) Result() OperationResult {
 
 	return o
 }
+
+// Proto returns the complete operation, including its latest polled state.
+func (o *Operation) Proto() YCOperation { return o.proto }

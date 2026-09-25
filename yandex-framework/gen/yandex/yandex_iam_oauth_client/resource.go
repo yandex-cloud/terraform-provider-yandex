@@ -151,6 +151,7 @@ func (r *yandexIamOauthClientResource) Create(ctx context.Context, req resource.
 	createReq.SetScopes(expandYandexIamOauthClientScopes(ctx, plan.Scopes, &diags))
 	createReq.SetFolderId(converter.GetFolderID(plan.FolderId.ValueString(), r.providerConfig, &diags))
 	createReq.SetAuthenticationMethods(expandYandexIamOauthClientAuthenticationMethods(ctx, plan.AuthenticationMethods, &diags))
+	createReq.SetPostLogoutRedirectUris(expandYandexIamOauthClientPostLogoutRedirectUris(ctx, plan.PostLogoutRedirectUris, &diags))
 	createReq.SetProfileId(plan.ProfileId.ValueString())
 	createReq.SetPkceRequired(plan.PkceRequired.ValueBool())
 	resp.Diagnostics.Append(diags...)
@@ -323,6 +324,15 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 	if !plan.PkceRequired.IsUnknown() && !plan.PkceRequired.Equal(state.PkceRequired) {
 		updatePaths = append(updatePaths, "pkce_required")
 	}
+	if plan.PostLogoutRedirectUris.IsNull() {
+		plan.PostLogoutRedirectUris = types.SetNull(types.StringType)
+	}
+	if state.PostLogoutRedirectUris.IsNull() {
+		state.PostLogoutRedirectUris = types.SetNull(types.StringType)
+	}
+	if !plan.PostLogoutRedirectUris.IsUnknown() && !plan.PostLogoutRedirectUris.Equal(state.PostLogoutRedirectUris) {
+		updatePaths = append(updatePaths, "post_logout_redirect_uris")
+	}
 	if plan.RedirectUris.IsNull() {
 		plan.RedirectUris = types.SetNull(types.StringType)
 	}
@@ -349,6 +359,7 @@ func (r *yandexIamOauthClientResource) Update(ctx context.Context, req resource.
 		updateReq.SetRedirectUris(expandYandexIamOauthClientRedirectUris(ctx, plan.RedirectUris, &diags))
 		updateReq.SetScopes(expandYandexIamOauthClientScopes(ctx, plan.Scopes, &diags))
 		updateReq.SetAuthenticationMethods(expandYandexIamOauthClientAuthenticationMethods(ctx, plan.AuthenticationMethods, &diags))
+		updateReq.SetPostLogoutRedirectUris(expandYandexIamOauthClientPostLogoutRedirectUris(ctx, plan.PostLogoutRedirectUris, &diags))
 		updateReq.SetPkceRequired(plan.PkceRequired.ValueBool())
 		updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 

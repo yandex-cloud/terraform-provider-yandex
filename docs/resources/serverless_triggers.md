@@ -105,6 +105,12 @@ subcategory: "Serverless Triggers"
       - `max_count` (Number). Maximum number of events in a batch.
  At least one of max_count, max_bytes must be greater than 0.
     - `email` (String). Email address that receives messages for this trigger.
+  - `max_message` [Block]. MAX source: fires on MAX bot updates.
+    - `bot_token` (String). Input only, always empty in output.
+ Required on Create; on Update, changing it re-registers the subscription.
+    - `force` (Bool). Input only. Delete all existing webhook subscriptions before registering this trigger.
+ Without force, registration fails if any subscription uses a different URL.
+    - `update_types` (List Of String). Types of MAX updates to receive. Optional, default is ["message_created"].
   - `object_storage` [Block]. Object Storage source: fires on object events in a bucket.
     - `batch_settings` [Block]. Batch settings for accumulating object events.
       - `cutoff` (**Required**)(String). Maximum time to wait before flushing an incomplete batch.

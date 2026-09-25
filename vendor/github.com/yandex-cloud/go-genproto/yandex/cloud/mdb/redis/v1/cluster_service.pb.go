@@ -548,6 +548,8 @@ type CreateClusterRequest struct {
 	// Enable FQDN instead of ip
 	AnnounceHostnames bool `protobuf:"varint,16,opt,name=announce_hostnames,json=announceHostnames,proto3" json:"announce_hostnames,omitempty"`
 	// Window of maintenance operations.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,17,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Descriptions of users to be created in the Valkey cluster.
 	UserSpecs []*UserSpec `protobuf:"bytes,18,rep,name=user_specs,json=userSpecs,proto3" json:"user_specs,omitempty"`
@@ -687,6 +689,7 @@ func (x *CreateClusterRequest) GetAnnounceHostnames() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
 func (x *CreateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -779,6 +782,8 @@ type UpdateClusterRequest struct {
 	// New name for the cluster.
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
 	// New maintenance window settings for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,7,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// User security groups
 	SecurityGroupIds []string `protobuf:"bytes,8,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
@@ -868,6 +873,7 @@ func (x *UpdateClusterRequest) GetName() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
 func (x *UpdateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -1585,6 +1591,8 @@ type RestoreClusterRequest struct {
 	// Enable FQDN instead of ip
 	AnnounceHostnames bool `protobuf:"varint,14,opt,name=announce_hostnames,json=announceHostnames,proto3" json:"announce_hostnames,omitempty"`
 	// Window of maintenance operations.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,15,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Allows to use ACL users to auth in sentinel
 	AuthSentinel bool `protobuf:"varint,16,opt,name=auth_sentinel,json=authSentinel,proto3" json:"auth_sentinel,omitempty"`
@@ -1726,6 +1734,7 @@ func (x *RestoreClusterRequest) GetAnnounceHostnames() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
 func (x *RestoreClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -3992,7 +4001,7 @@ const file_yandex_cloud_mdb_redis_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"~\n" +
 	"\x14ListClustersResponse\x12>\n" +
 	"\bclusters\x18\x01 \x03(\v2\".yandex.cloud.mdb.redis.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x96\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x9a\n" +
 	"\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x122\n" +
@@ -4013,8 +4022,8 @@ const file_yandex_cloud_mdb_redis_v1_cluster_service_proto_rawDesc = "" +
 	"tlsEnabled\x12/\n" +
 	"\x13deletion_protection\x18\x0e \x01(\bR\x12deletionProtection\x12]\n" +
 	"\x10persistence_mode\x18\x0f \x01(\x0e22.yandex.cloud.mdb.redis.v1.Cluster.PersistenceModeR\x0fpersistenceMode\x12-\n" +
-	"\x12announce_hostnames\x18\x10 \x01(\bR\x11announceHostnames\x12[\n" +
-	"\x12maintenance_window\x18\x11 \x01(\v2,.yandex.cloud.mdb.redis.v1.MaintenanceWindowR\x11maintenanceWindow\x12K\n" +
+	"\x12announce_hostnames\x18\x10 \x01(\bR\x11announceHostnames\x12_\n" +
+	"\x12maintenance_window\x18\x11 \x01(\v2,.yandex.cloud.mdb.redis.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12K\n" +
 	"\n" +
 	"user_specs\x18\x12 \x03(\v2#.yandex.cloud.mdb.redis.v1.UserSpecB\a\x82\xc81\x03>=0R\tuserSpecs\x12#\n" +
 	"\rauth_sentinel\x18\x13 \x01(\bR\fauthSentinel\x12k\n" +
@@ -4025,7 +4034,7 @@ const file_yandex_cloud_mdb_redis_v1_cluster_service_proto_rawDesc = "" +
 	"\"6\n" +
 	"\x15CreateClusterMetadata\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\x90\a\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\x94\a\n" +
 	"\x14UpdateClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12;\n" +
@@ -4035,8 +4044,8 @@ const file_yandex_cloud_mdb_redis_v1_cluster_service_proto_rawDesc = "" +
 	"\x06labels\x18\x04 \x03(\v2;.yandex.cloud.mdb.redis.v1.UpdateClusterRequest.LabelsEntryB?\xf2\xc71\v[-_0-9a-z]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x1c\x12\x14[a-z][-_./\\@0-9a-z]*\x1a\x04<=63R\x06labels\x12F\n" +
 	"\vconfig_spec\x18\x05 \x01(\v2%.yandex.cloud.mdb.redis.v1.ConfigSpecR\n" +
 	"configSpec\x12.\n" +
-	"\x04name\x18\x06 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12[\n" +
-	"\x12maintenance_window\x18\a \x01(\v2,.yandex.cloud.mdb.redis.v1.MaintenanceWindowR\x11maintenanceWindow\x12,\n" +
+	"\x04name\x18\x06 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12_\n" +
+	"\x12maintenance_window\x18\a \x01(\v2,.yandex.cloud.mdb.redis.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12,\n" +
 	"\x12security_group_ids\x18\b \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\t \x01(\bR\x12deletionProtection\x12]\n" +
 	"\x10persistence_mode\x18\n" +
@@ -4092,7 +4101,7 @@ const file_yandex_cloud_mdb_redis_v1_cluster_service_proto_rawDesc = "" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\"6\n" +
 	"\x15BackupClusterMetadata\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xa9\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xad\n" +
 	"\n" +
 	"\x15RestoreClusterRequest\x12!\n" +
 	"\tbackup_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\bbackupId\x122\n" +
@@ -4113,8 +4122,8 @@ const file_yandex_cloud_mdb_redis_v1_cluster_service_proto_rawDesc = "" +
 	"tlsEnabled\x12]\n" +
 	"\x10persistence_mode\x18\f \x01(\x0e22.yandex.cloud.mdb.redis.v1.Cluster.PersistenceModeR\x0fpersistenceMode\x12/\n" +
 	"\x13deletion_protection\x18\r \x01(\bR\x12deletionProtection\x12-\n" +
-	"\x12announce_hostnames\x18\x0e \x01(\bR\x11announceHostnames\x12[\n" +
-	"\x12maintenance_window\x18\x0f \x01(\v2,.yandex.cloud.mdb.redis.v1.MaintenanceWindowR\x11maintenanceWindow\x12#\n" +
+	"\x12announce_hostnames\x18\x0e \x01(\bR\x11announceHostnames\x12_\n" +
+	"\x12maintenance_window\x18\x0f \x01(\v2,.yandex.cloud.mdb.redis.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12#\n" +
 	"\rauth_sentinel\x18\x10 \x01(\bR\fauthSentinel\x12\x18\n" +
 	"\asharded\x18\x11 \x01(\bR\asharded\x12k\n" +
 	"\x16disk_encryption_key_id\x18\x12 \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x12K\n" +

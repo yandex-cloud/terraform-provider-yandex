@@ -106,7 +106,7 @@ func (r *yandexSmartcaptchaCaptchaDataSource) Read(ctx context.Context, req data
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddError(
+			resp.Diagnostics.AddWarning(
 				"Failed to Read resource",
 				"captcha not found",
 			)
@@ -127,7 +127,7 @@ func (r *yandexSmartcaptchaCaptchaDataSource) Read(ctx context.Context, req data
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddError("Failed to read", "Resource not found")
+		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
 		return
 	}
 

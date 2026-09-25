@@ -19,6 +19,7 @@ type MigrationClient interface {
 	StartCloud(context.Context, *cloudregistry.StartCloudMigrationRequest, ...grpc.CallOption) (*MigrationStartCloudOperation, error)
 	StartFolder(context.Context, *cloudregistry.StartFolderMigrationRequest, ...grpc.CallOption) (*MigrationStartFolderOperation, error)
 	GetCloudMigrationStatusDashboard(context.Context, *cloudregistry.GetCloudMigrationStatusDashboardRequest, ...grpc.CallOption) (*cloudregistry.CloudMigrationStatusDashboard, error)
+	GetFolderMigrationStatusDashboard(context.Context, *cloudregistry.GetFolderMigrationStatusDashboardRequest, ...grpc.CallOption) (*cloudregistry.FolderMigrationStatusDashboard, error)
 	ToggleRegistryRedirects(context.Context, *cloudregistry.ToggleRegistryRedirectsRequest, ...grpc.CallOption) (*MigrationToggleRegistryRedirectsOperation, error)
 	ToggleFolderRedirects(context.Context, *cloudregistry.ToggleFolderRedirectsRequest, ...grpc.CallOption) (*MigrationToggleFolderRedirectsOperation, error)
 	ToggleCloudRedirects(context.Context, *cloudregistry.ToggleCloudRedirectsRequest, ...grpc.CallOption) (*MigrationToggleCloudRedirectsOperation, error)
@@ -144,6 +145,15 @@ func (c migrationClient) GetCloudMigrationStatusDashboard(ctx context.Context, i
 		return nil, err
 	}
 	return cloudregistry.NewMigrationServiceClient(connection).GetCloudMigrationStatusDashboard(ctx, in, opts...)
+}
+
+// GetFolderMigrationStatusDashboard is an operation of Yandex.Cloud Cloudregistry Migration service.
+func (c migrationClient) GetFolderMigrationStatusDashboard(ctx context.Context, in *cloudregistry.GetFolderMigrationStatusDashboardRequest, opts ...grpc.CallOption) (*cloudregistry.FolderMigrationStatusDashboard, error) {
+	connection, err := c.connector.GetConnection(ctx, MigrationGetFolderMigrationStatusDashboard, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return cloudregistry.NewMigrationServiceClient(connection).GetFolderMigrationStatusDashboard(ctx, in, opts...)
 }
 
 // MigrationToggleRegistryRedirectsOperation is used to monitor the state of ToggleRegistryRedirects operations.
@@ -309,11 +319,12 @@ func (c migrationClient) pollOperation(ctx context.Context, operationId string, 
 }
 
 var (
-	MigrationStartCloud                       = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.StartCloud")
-	MigrationStartFolder                      = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.StartFolder")
-	MigrationGetCloudMigrationStatusDashboard = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.GetCloudMigrationStatusDashboard")
-	MigrationToggleRegistryRedirects          = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.ToggleRegistryRedirects")
-	MigrationToggleFolderRedirects            = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.ToggleFolderRedirects")
-	MigrationToggleCloudRedirects             = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.ToggleCloudRedirects")
-	MigrationOperationPoller                  = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
+	MigrationStartCloud                        = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.StartCloud")
+	MigrationStartFolder                       = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.StartFolder")
+	MigrationGetCloudMigrationStatusDashboard  = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.GetCloudMigrationStatusDashboard")
+	MigrationGetFolderMigrationStatusDashboard = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.GetFolderMigrationStatusDashboard")
+	MigrationToggleRegistryRedirects           = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.ToggleRegistryRedirects")
+	MigrationToggleFolderRedirects             = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.ToggleFolderRedirects")
+	MigrationToggleCloudRedirects              = protoreflect.FullName("yandex.cloud.cloudregistry.v1.MigrationService.ToggleCloudRedirects")
+	MigrationOperationPoller                   = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
 )

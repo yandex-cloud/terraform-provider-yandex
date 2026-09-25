@@ -1244,6 +1244,7 @@ type yandexServerlessTriggersSourceModel struct {
 	IotMessage        types.Object `tfsdk:"iot_message"`
 	Logging           types.Object `tfsdk:"logging"`
 	Mail              types.Object `tfsdk:"mail"`
+	MaxMessage        types.Object `tfsdk:"max_message"`
 	ObjectStorage     types.Object `tfsdk:"object_storage"`
 	TelegramMessage   types.Object `tfsdk:"telegram_message"`
 	Timer             types.Object `tfsdk:"timer"`
@@ -1269,6 +1270,9 @@ func (m *yandexServerlessTriggersSourceModel) GetLogging() types.Object {
 }
 func (m *yandexServerlessTriggersSourceModel) GetMail() types.Object {
 	return m.Mail
+}
+func (m *yandexServerlessTriggersSourceModel) GetMaxMessage() types.Object {
+	return m.MaxMessage
 }
 func (m *yandexServerlessTriggersSourceModel) GetObjectStorage() types.Object {
 	return m.ObjectStorage
@@ -1307,6 +1311,9 @@ func (m *yandexServerlessTriggersSourceModel) SetLogging(target types.Object) {
 func (m *yandexServerlessTriggersSourceModel) SetMail(target types.Object) {
 	m.Mail = target
 }
+func (m *yandexServerlessTriggersSourceModel) SetMaxMessage(target types.Object) {
+	m.MaxMessage = target
+}
 func (m *yandexServerlessTriggersSourceModel) SetObjectStorage(target types.Object) {
 	m.ObjectStorage = target
 }
@@ -1334,6 +1341,7 @@ func NewYandexServerlessTriggersSourceModel() yandexServerlessTriggersSourceMode
 		IotMessage:        types.ObjectNull(yandexServerlessTriggersSourceIotMessageModelType.AttrTypes),
 		Logging:           types.ObjectNull(yandexServerlessTriggersSourceLoggingModelType.AttrTypes),
 		Mail:              types.ObjectNull(yandexServerlessTriggersSourceMailModelType.AttrTypes),
+		MaxMessage:        types.ObjectNull(yandexServerlessTriggersSourceMaxMessageModelType.AttrTypes),
 		ObjectStorage:     types.ObjectNull(yandexServerlessTriggersSourceObjectStorageModelType.AttrTypes),
 		TelegramMessage:   types.ObjectNull(yandexServerlessTriggersSourceTelegramMessageModelType.AttrTypes),
 		Timer:             types.ObjectNull(yandexServerlessTriggersSourceTimerModelType.AttrTypes),
@@ -1361,6 +1369,9 @@ func yandexServerlessTriggersSourceModelFillUnknown(target yandexServerlessTrigg
 	}
 	if target.Mail.IsUnknown() || target.Mail.IsNull() {
 		target.Mail = types.ObjectNull(yandexServerlessTriggersSourceMailModelType.AttrTypes)
+	}
+	if target.MaxMessage.IsUnknown() || target.MaxMessage.IsNull() {
+		target.MaxMessage = types.ObjectNull(yandexServerlessTriggersSourceMaxMessageModelType.AttrTypes)
 	}
 	if target.ObjectStorage.IsUnknown() || target.ObjectStorage.IsNull() {
 		target.ObjectStorage = types.ObjectNull(yandexServerlessTriggersSourceObjectStorageModelType.AttrTypes)
@@ -1391,6 +1402,7 @@ var yandexServerlessTriggersSourceModelType = types.ObjectType{
 		"iot_message":        yandexServerlessTriggersSourceIotMessageModelType,
 		"logging":            yandexServerlessTriggersSourceLoggingModelType,
 		"mail":               yandexServerlessTriggersSourceMailModelType,
+		"max_message":        yandexServerlessTriggersSourceMaxMessageModelType,
 		"object_storage":     yandexServerlessTriggersSourceObjectStorageModelType,
 		"telegram_message":   yandexServerlessTriggersSourceTelegramMessageModelType,
 		"timer":              yandexServerlessTriggersSourceTimerModelType,
@@ -1414,6 +1426,7 @@ func flattenYandexServerlessTriggersSource(ctx context.Context,
 		IotMessage:        flattenYandexServerlessTriggersSourceIotMessage(ctx, yandexServerlessTriggersSource.GetIotMessage(), converter.ExpandObject(ctx, state.IotMessage, yandexServerlessTriggersSourceIotMessageModel{}, diags).(yandexServerlessTriggersSourceIotMessageModel), diags),
 		Logging:           flattenYandexServerlessTriggersSourceLogging(ctx, yandexServerlessTriggersSource.GetLogging(), converter.ExpandObject(ctx, state.Logging, yandexServerlessTriggersSourceLoggingModel{}, diags).(yandexServerlessTriggersSourceLoggingModel), diags),
 		Mail:              flattenYandexServerlessTriggersSourceMail(ctx, yandexServerlessTriggersSource.GetMail(), converter.ExpandObject(ctx, state.Mail, yandexServerlessTriggersSourceMailModel{}, diags).(yandexServerlessTriggersSourceMailModel), diags),
+		MaxMessage:        flattenYandexServerlessTriggersSourceMaxMessage(ctx, yandexServerlessTriggersSource.GetMaxMessage(), converter.ExpandObject(ctx, state.MaxMessage, yandexServerlessTriggersSourceMaxMessageModel{}, diags).(yandexServerlessTriggersSourceMaxMessageModel), diags),
 		ObjectStorage:     flattenYandexServerlessTriggersSourceObjectStorage(ctx, yandexServerlessTriggersSource.GetObjectStorage(), converter.ExpandObject(ctx, state.ObjectStorage, yandexServerlessTriggersSourceObjectStorageModel{}, diags).(yandexServerlessTriggersSourceObjectStorageModel), diags),
 		TelegramMessage:   flattenYandexServerlessTriggersSourceTelegramMessage(ctx, yandexServerlessTriggersSource.GetTelegramMessage(), converter.ExpandObject(ctx, state.TelegramMessage, yandexServerlessTriggersSourceTelegramMessageModel{}, diags).(yandexServerlessTriggersSourceTelegramMessageModel), diags),
 		Timer:             flattenYandexServerlessTriggersSourceTimer(ctx, yandexServerlessTriggersSource.GetTimer(), diags),
@@ -1456,6 +1469,9 @@ func expandYandexServerlessTriggersSourceModel(ctx context.Context, yandexServer
 	}
 	if !(yandexServerlessTriggersSourceState.Mail.IsNull() || yandexServerlessTriggersSourceState.Mail.IsUnknown() || yandexServerlessTriggersSourceState.Mail.Equal(types.Object{})) {
 		value.SetMail(expandYandexServerlessTriggersSourceMail(ctx, yandexServerlessTriggersSourceState.Mail, diags))
+	}
+	if !(yandexServerlessTriggersSourceState.MaxMessage.IsNull() || yandexServerlessTriggersSourceState.MaxMessage.IsUnknown() || yandexServerlessTriggersSourceState.MaxMessage.Equal(types.Object{})) {
+		value.SetMaxMessage(expandYandexServerlessTriggersSourceMaxMessage(ctx, yandexServerlessTriggersSourceState.MaxMessage, diags))
 	}
 	if !(yandexServerlessTriggersSourceState.ObjectStorage.IsNull() || yandexServerlessTriggersSourceState.ObjectStorage.IsUnknown() || yandexServerlessTriggersSourceState.ObjectStorage.Equal(types.Object{})) {
 		value.SetObjectStorage(expandYandexServerlessTriggersSourceObjectStorage(ctx, yandexServerlessTriggersSourceState.ObjectStorage, diags))
@@ -2846,6 +2862,137 @@ func expandYandexServerlessTriggersSourceMailBatchSettingsModel(ctx context.Cont
 		return nil
 	}
 	return value
+}
+
+type yandexServerlessTriggersSourceMaxMessageModel struct {
+	BotToken    types.String `tfsdk:"bot_token"`
+	Force       types.Bool   `tfsdk:"force"`
+	UpdateTypes types.List   `tfsdk:"update_types"`
+}
+
+func (m *yandexServerlessTriggersSourceMaxMessageModel) GetBotToken() types.String {
+	return m.BotToken
+}
+func (m *yandexServerlessTriggersSourceMaxMessageModel) GetForce() types.Bool {
+	return m.Force
+}
+func (m *yandexServerlessTriggersSourceMaxMessageModel) GetUpdateTypes() types.List {
+	return m.UpdateTypes
+}
+
+func (m *yandexServerlessTriggersSourceMaxMessageModel) SetBotToken(target types.String) {
+	m.BotToken = target
+}
+func (m *yandexServerlessTriggersSourceMaxMessageModel) SetForce(target types.Bool) {
+	m.Force = target
+}
+func (m *yandexServerlessTriggersSourceMaxMessageModel) SetUpdateTypes(target types.List) {
+	m.UpdateTypes = target
+}
+
+func NewYandexServerlessTriggersSourceMaxMessageModel() yandexServerlessTriggersSourceMaxMessageModel {
+	return yandexServerlessTriggersSourceMaxMessageModel{
+		BotToken:    types.StringNull(),
+		Force:       types.BoolNull(),
+		UpdateTypes: types.ListNull(types.StringType),
+	}
+}
+
+func yandexServerlessTriggersSourceMaxMessageModelFillUnknown(target yandexServerlessTriggersSourceMaxMessageModel) yandexServerlessTriggersSourceMaxMessageModel {
+	if target.BotToken.IsUnknown() || target.BotToken.IsNull() {
+		target.BotToken = types.StringNull()
+	}
+	if target.Force.IsUnknown() || target.Force.IsNull() {
+		target.Force = types.BoolNull()
+	}
+	if target.UpdateTypes.IsUnknown() || target.UpdateTypes.IsNull() {
+		target.UpdateTypes = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexServerlessTriggersSourceMaxMessageModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"bot_token":    types.StringType,
+		"force":        types.BoolType,
+		"update_types": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexServerlessTriggersSourceMaxMessage(ctx context.Context,
+	yandexServerlessTriggersSourceMaxMessage *triggers.MaxMessage,
+	state yandexServerlessTriggersSourceMaxMessageModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexServerlessTriggersSourceMaxMessage == nil {
+		return types.ObjectNull(yandexServerlessTriggersSourceMaxMessageModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexServerlessTriggersSourceMaxMessageModelType.AttrTypes, yandexServerlessTriggersSourceMaxMessageModel{
+		BotToken:    converter.SetUnknownStringValue(state.BotToken),
+		Force:       types.BoolValue(yandexServerlessTriggersSourceMaxMessage.GetForce()),
+		UpdateTypes: flattenYandexServerlessTriggersSourceMaxMessageUpdateTypes(ctx, yandexServerlessTriggersSourceMaxMessage.GetUpdateTypes(), state.UpdateTypes, diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexServerlessTriggersSourceMaxMessage(ctx context.Context, yandexServerlessTriggersSourceMaxMessageState types.Object, diags *diag.Diagnostics) *triggers.MaxMessage {
+	if yandexServerlessTriggersSourceMaxMessageState.IsNull() || yandexServerlessTriggersSourceMaxMessageState.IsUnknown() {
+		return nil
+	}
+	var yandexServerlessTriggersSourceMaxMessage yandexServerlessTriggersSourceMaxMessageModel
+	diags.Append(yandexServerlessTriggersSourceMaxMessageState.As(ctx, &yandexServerlessTriggersSourceMaxMessage, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexServerlessTriggersSourceMaxMessageModel(ctx, yandexServerlessTriggersSourceMaxMessage, diags)
+}
+
+func expandYandexServerlessTriggersSourceMaxMessageModel(ctx context.Context, yandexServerlessTriggersSourceMaxMessageState yandexServerlessTriggersSourceMaxMessageModel, diags *diag.Diagnostics) *triggers.MaxMessage {
+	value := &triggers.MaxMessage{}
+	value.SetBotToken(yandexServerlessTriggersSourceMaxMessageState.BotToken.ValueString())
+	value.SetForce(yandexServerlessTriggersSourceMaxMessageState.Force.ValueBool())
+	value.SetUpdateTypes(expandYandexServerlessTriggersSourceMaxMessageUpdateTypes(ctx, yandexServerlessTriggersSourceMaxMessageState.UpdateTypes, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexServerlessTriggersSourceMaxMessageUpdateTypes(ctx context.Context, yandexServerlessTriggersSourceMaxMessageUpdateTypes []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexServerlessTriggersSourceMaxMessageUpdateTypes == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexServerlessTriggersSourceMaxMessageUpdateTypesValues []attr.Value
+	for _, elem := range yandexServerlessTriggersSourceMaxMessageUpdateTypes {
+		val := types.StringValue(elem)
+		yandexServerlessTriggersSourceMaxMessageUpdateTypesValues = append(yandexServerlessTriggersSourceMaxMessageUpdateTypesValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexServerlessTriggersSourceMaxMessageUpdateTypesValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexServerlessTriggersSourceMaxMessageUpdateTypes(ctx context.Context, yandexServerlessTriggersSourceMaxMessageUpdateTypesState types.List, diags *diag.Diagnostics) []string {
+	if yandexServerlessTriggersSourceMaxMessageUpdateTypesState.IsNull() || yandexServerlessTriggersSourceMaxMessageUpdateTypesState.IsUnknown() {
+		return nil
+	}
+	if len(yandexServerlessTriggersSourceMaxMessageUpdateTypesState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexServerlessTriggersSourceMaxMessageUpdateTypesRes := make([]string, 0, len(yandexServerlessTriggersSourceMaxMessageUpdateTypesState.Elements()))
+	yandexServerlessTriggersSourceMaxMessageUpdateTypesType := make([]types.String, 0, len(yandexServerlessTriggersSourceMaxMessageUpdateTypesState.Elements()))
+	diags.Append(yandexServerlessTriggersSourceMaxMessageUpdateTypesState.ElementsAs(ctx, &yandexServerlessTriggersSourceMaxMessageUpdateTypesType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexServerlessTriggersSourceMaxMessageUpdateTypesType {
+		yandexServerlessTriggersSourceMaxMessageUpdateTypesRes = append(yandexServerlessTriggersSourceMaxMessageUpdateTypesRes, elem.ValueString())
+	}
+	return yandexServerlessTriggersSourceMaxMessageUpdateTypesRes
 }
 
 type yandexServerlessTriggersSourceObjectStorageModel struct {

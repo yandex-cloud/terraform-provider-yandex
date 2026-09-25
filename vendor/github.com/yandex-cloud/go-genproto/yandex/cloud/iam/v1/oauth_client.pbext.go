@@ -30,6 +30,10 @@ func (m *OAuthClient) SetStatus(v OAuthClient_Status) {
 	m.Status = v
 }
 
+func (m *OAuthClient) SetPostLogoutRedirectUris(v []string) {
+	m.PostLogoutRedirectUris = v
+}
+
 func (m *OAuthClient) SetProfileId(v string) {
 	m.ProfileId = v
 }

@@ -2423,7 +2423,8 @@ type ConfigSpec struct {
 	// Retain period of automatically created backup in days
 	BackupRetainPeriodDays *wrapperspb.Int64Value `protobuf:"bytes,3,opt,name=backup_retain_period_days,json=backupRetainPeriodDays,proto3" json:"backup_retain_period_days,omitempty"`
 	// Access policy to DB
-	Access        *Access               `protobuf:"bytes,4,opt,name=access,proto3" json:"access,omitempty"`
+	Access *Access `protobuf:"bytes,4,opt,name=access,proto3" json:"access,omitempty"`
+	// Configuration setting which enables/disables SOX audit.
 	SoxAudit      *wrapperspb.BoolValue `protobuf:"bytes,5,opt,name=sox_audit,json=soxAudit,proto3" json:"sox_audit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

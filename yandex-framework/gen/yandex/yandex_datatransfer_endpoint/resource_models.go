@@ -5936,10 +5936,11 @@ func expandYandexDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsMo
 }
 
 type yandexDatatransferEndpointSettingsKafkaSourceParserModel struct {
-	AuditTrailsV1Parser types.List `tfsdk:"audit_trails_v1_parser"`
-	CloudLoggingParser  types.List `tfsdk:"cloud_logging_parser"`
-	JsonParser          types.List `tfsdk:"json_parser"`
-	TskvParser          types.List `tfsdk:"tskv_parser"`
+	AuditTrailsV1Parser           types.List `tfsdk:"audit_trails_v1_parser"`
+	CloudLoggingParser            types.List `tfsdk:"cloud_logging_parser"`
+	ConfluentSchemaRegistryParser types.List `tfsdk:"confluent_schema_registry_parser"`
+	JsonParser                    types.List `tfsdk:"json_parser"`
+	TskvParser                    types.List `tfsdk:"tskv_parser"`
 }
 
 func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) GetAuditTrailsV1Parser() types.List {
@@ -5947,6 +5948,9 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) GetAuditTrail
 }
 func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) GetCloudLoggingParser() types.List {
 	return m.CloudLoggingParser
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) GetConfluentSchemaRegistryParser() types.List {
+	return m.ConfluentSchemaRegistryParser
 }
 func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) GetJsonParser() types.List {
 	return m.JsonParser
@@ -5961,6 +5965,9 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) SetAuditTrail
 func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) SetCloudLoggingParser(target types.List) {
 	m.CloudLoggingParser = target
 }
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) SetConfluentSchemaRegistryParser(target types.List) {
+	m.ConfluentSchemaRegistryParser = target
+}
 func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) SetJsonParser(target types.List) {
 	m.JsonParser = target
 }
@@ -5970,10 +5977,11 @@ func (m *yandexDatatransferEndpointSettingsKafkaSourceParserModel) SetTskvParser
 
 func NewYandexDatatransferEndpointSettingsKafkaSourceParserModel() yandexDatatransferEndpointSettingsKafkaSourceParserModel {
 	return yandexDatatransferEndpointSettingsKafkaSourceParserModel{
-		AuditTrailsV1Parser: types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1ParserModelType),
-		CloudLoggingParser:  types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParserModelType),
-		JsonParser:          types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModelType),
-		TskvParser:          types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModelType),
+		AuditTrailsV1Parser:           types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1ParserModelType),
+		CloudLoggingParser:            types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParserModelType),
+		ConfluentSchemaRegistryParser: types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType),
+		JsonParser:                    types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModelType),
+		TskvParser:                    types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModelType),
 	}
 }
 
@@ -5983,6 +5991,9 @@ func yandexDatatransferEndpointSettingsKafkaSourceParserModelFillUnknown(target 
 	}
 	if target.CloudLoggingParser.IsUnknown() || target.CloudLoggingParser.IsNull() {
 		target.CloudLoggingParser = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParserModelType)
+	}
+	if target.ConfluentSchemaRegistryParser.IsUnknown() || target.ConfluentSchemaRegistryParser.IsNull() {
+		target.ConfluentSchemaRegistryParser = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType)
 	}
 	if target.JsonParser.IsUnknown() || target.JsonParser.IsNull() {
 		target.JsonParser = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModelType)
@@ -5995,10 +6006,11 @@ func yandexDatatransferEndpointSettingsKafkaSourceParserModelFillUnknown(target 
 
 var yandexDatatransferEndpointSettingsKafkaSourceParserModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"audit_trails_v1_parser": types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1ParserModelType},
-		"cloud_logging_parser":   types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParserModelType},
-		"json_parser":            types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModelType},
-		"tskv_parser":            types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModelType},
+		"audit_trails_v1_parser":           types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1ParserModelType},
+		"cloud_logging_parser":             types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParserModelType},
+		"confluent_schema_registry_parser": types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType},
+		"json_parser":                      types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserJsonParserModelType},
+		"tskv_parser":                      types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserTskvParserModelType},
 	},
 }
 
@@ -6033,10 +6045,11 @@ func flattenYandexDatatransferEndpointSettingsKafkaSourceParser(ctx context.Cont
 		state = yandexDatatransferEndpointSettingsKafkaSourceParserType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserModel{
-		AuditTrailsV1Parser: flattenYandexDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1Parser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParser.GetAuditTrailsV1Parser(), state.AuditTrailsV1Parser, diags),
-		CloudLoggingParser:  flattenYandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParser.GetCloudLoggingParser(), state.CloudLoggingParser, diags),
-		JsonParser:          flattenYandexDatatransferEndpointSettingsKafkaSourceParserJsonParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParser.GetJsonParser(), state.JsonParser, diags),
-		TskvParser:          flattenYandexDatatransferEndpointSettingsKafkaSourceParserTskvParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParser.GetTskvParser(), state.TskvParser, diags),
+		AuditTrailsV1Parser:           flattenYandexDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1Parser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParser.GetAuditTrailsV1Parser(), state.AuditTrailsV1Parser, diags),
+		CloudLoggingParser:            flattenYandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParser.GetCloudLoggingParser(), state.CloudLoggingParser, diags),
+		ConfluentSchemaRegistryParser: flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParser.GetConfluentSchemaRegistryParser(), state.ConfluentSchemaRegistryParser, diags),
+		JsonParser:                    flattenYandexDatatransferEndpointSettingsKafkaSourceParserJsonParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParser.GetJsonParser(), state.JsonParser, diags),
+		TskvParser:                    flattenYandexDatatransferEndpointSettingsKafkaSourceParserTskvParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParser.GetTskvParser(), state.TskvParser, diags),
 	})
 	diags.Append(diag...)
 	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserModelType, []attr.Value{value})
@@ -6066,6 +6079,9 @@ func expandYandexDatatransferEndpointSettingsKafkaSourceParserModel(ctx context.
 	}
 	if !(yandexDatatransferEndpointSettingsKafkaSourceParserState.CloudLoggingParser.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserState.CloudLoggingParser.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserState.CloudLoggingParser.Elements()) == 0) {
 		value.SetCloudLoggingParser(expandYandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserState.CloudLoggingParser, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsKafkaSourceParserState.ConfluentSchemaRegistryParser.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserState.ConfluentSchemaRegistryParser.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserState.ConfluentSchemaRegistryParser.Elements()) == 0) {
+		value.SetConfluentSchemaRegistryParser(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserState.ConfluentSchemaRegistryParser, diags))
 	}
 	if !(yandexDatatransferEndpointSettingsKafkaSourceParserState.JsonParser.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserState.JsonParser.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserState.JsonParser.Elements()) == 0) {
 		value.SetJsonParser(expandYandexDatatransferEndpointSettingsKafkaSourceParserJsonParser(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserState.JsonParser, diags))
@@ -6205,6 +6221,1193 @@ func expandYandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParser
 
 func expandYandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParserModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParserState yandexDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParserModel, diags *diag.Diagnostics) *endpoint.CloudLoggingParser {
 	value := &endpoint.CloudLoggingParser{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel struct {
+	ConfluentSchemaRegistryConnection types.List `tfsdk:"confluent_schema_registry_connection"`
+	IsGenerateUpdates                 types.Bool `tfsdk:"is_generate_updates"`
+	TableNamePolicy                   types.List `tfsdk:"table_name_policy"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel) GetConfluentSchemaRegistryConnection() types.List {
+	return m.ConfluentSchemaRegistryConnection
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel) GetIsGenerateUpdates() types.Bool {
+	return m.IsGenerateUpdates
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel) GetTableNamePolicy() types.List {
+	return m.TableNamePolicy
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel) SetConfluentSchemaRegistryConnection(target types.List) {
+	m.ConfluentSchemaRegistryConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel) SetIsGenerateUpdates(target types.Bool) {
+	m.IsGenerateUpdates = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel) SetTableNamePolicy(target types.List) {
+	m.TableNamePolicy = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel{
+		ConfluentSchemaRegistryConnection: types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType),
+		IsGenerateUpdates:                 types.BoolNull(),
+		TableNamePolicy:                   types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel {
+	if target.ConfluentSchemaRegistryConnection.IsUnknown() || target.ConfluentSchemaRegistryConnection.IsNull() {
+		target.ConfluentSchemaRegistryConnection = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType)
+	}
+	if target.IsGenerateUpdates.IsUnknown() || target.IsGenerateUpdates.IsNull() {
+		target.IsGenerateUpdates = types.BoolNull()
+	}
+	if target.TableNamePolicy.IsUnknown() || target.TableNamePolicy.IsNull() {
+		target.TableNamePolicy = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"confluent_schema_registry_connection": types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType},
+		"is_generate_updates":                  types.BoolType,
+		"table_name_policy":                    types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser *endpoint.ConfluentSchemaRegistryParser,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser.String() == (&endpoint.ConfluentSchemaRegistryParser{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType)
+	}
+	var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType)
+		}
+		state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel{
+		ConfluentSchemaRegistryConnection: flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser.GetConfluentSchemaRegistryConnection(), state.ConfluentSchemaRegistryConnection, diags),
+		IsGenerateUpdates:                 types.BoolValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser.GetIsGenerateUpdates()),
+		TableNamePolicy:                   flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicy(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser.GetTableNamePolicy(), state.TableNamePolicy, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParser(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState types.List, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryParser {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserModel, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryParser {
+	value := &endpoint.ConfluentSchemaRegistryParser{}
+	if !(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.ConfluentSchemaRegistryConnection.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.ConfluentSchemaRegistryConnection.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.ConfluentSchemaRegistryConnection.Elements()) == 0) {
+		value.SetConfluentSchemaRegistryConnection(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.ConfluentSchemaRegistryConnection, diags))
+	}
+	value.SetIsGenerateUpdates(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.IsGenerateUpdates.ValueBool())
+	value.SetTableNamePolicy(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicy(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserState.TableNamePolicy, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel struct {
+	Auth              types.List   `tfsdk:"auth"`
+	SchemaRegistryUrl types.String `tfsdk:"schema_registry_url"`
+	TlsMode           types.List   `tfsdk:"tls_mode"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) GetAuth() types.List {
+	return m.Auth
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) GetSchemaRegistryUrl() types.String {
+	return m.SchemaRegistryUrl
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) GetTlsMode() types.List {
+	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) SetAuth(target types.List) {
+	m.Auth = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) SetSchemaRegistryUrl(target types.String) {
+	m.SchemaRegistryUrl = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel{
+		Auth:              types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType),
+		SchemaRegistryUrl: types.StringNull(),
+		TlsMode:           types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType)
+	}
+	if target.SchemaRegistryUrl.IsUnknown() || target.SchemaRegistryUrl.IsNull() {
+		target.SchemaRegistryUrl = types.StringNull()
+	}
+	if target.TlsMode.IsUnknown() || target.TlsMode.IsNull() {
+		target.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"auth":                types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType},
+		"schema_registry_url": types.StringType,
+		"tls_mode":            types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection *endpoint.ConfluentSchemaRegistryConnection,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection.String() == (&endpoint.ConfluentSchemaRegistryConnection{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType)
+	}
+	var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType)
+		}
+		state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel{
+		Auth:              flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection.GetAuth(), state.Auth, diags),
+		SchemaRegistryUrl: types.StringValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection.GetSchemaRegistryUrl()),
+		TlsMode:           flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection.GetTlsMode(), state.TlsMode, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState types.List, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryConnection {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryConnection {
+	value := &endpoint.ConfluentSchemaRegistryConnection{}
+	value.SetAuth(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.Auth, diags))
+	value.SetSchemaRegistryUrl(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.SchemaRegistryUrl.ValueString())
+	value.SetTlsMode(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.TlsMode, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel struct {
+	Basic  types.List `tfsdk:"basic"`
+	NoAuth types.List `tfsdk:"no_auth"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) GetBasic() types.List {
+	return m.Basic
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) GetNoAuth() types.List {
+	return m.NoAuth
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) SetBasic(target types.List) {
+	m.Basic = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) SetNoAuth(target types.List) {
+	m.NoAuth = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel{
+		Basic:  types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType),
+		NoAuth: types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel {
+	if target.Basic.IsUnknown() || target.Basic.IsNull() {
+		target.Basic = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType)
+	}
+	if target.NoAuth.IsUnknown() || target.NoAuth.IsNull() {
+		target.NoAuth = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"basic":   types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType},
+		"no_auth": types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth *endpoint.ConfluentSchemaRegistryAuth,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth.String() == (&endpoint.ConfluentSchemaRegistryAuth{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType)
+	}
+	var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType)
+		}
+		state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel{
+		Basic:  flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth.GetBasic(), state.Basic, diags),
+		NoAuth: flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth.GetNoAuth(), state.NoAuth, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState types.List, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryAuth {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryAuth {
+	value := &endpoint.ConfluentSchemaRegistryAuth{}
+	if !(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Basic.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Basic.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Basic.Elements()) == 0) {
+		value.SetBasic(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Basic, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.NoAuth.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.NoAuth.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.NoAuth.Elements()) == 0) {
+		value.SetNoAuth(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.NoAuth, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel struct {
+	Password types.List   `tfsdk:"password"`
+	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) GetPassword() types.List {
+	return m.Password
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) GetUser() types.String {
+	return m.User
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) SetUser(target types.String) {
+	m.User = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel{
+		Password: types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType),
+		User:     types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"password": types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType},
+		"user":     types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic *endpoint.BasicAuthSR,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic.String() == (&endpoint.BasicAuthSR{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType)
+	}
+	var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType)
+		}
+		state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel{
+		Password: flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic.GetPassword(), state.Password, diags),
+		User:     types.StringValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic.GetUser()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState types.List, diags *diag.Diagnostics) *endpoint.BasicAuthSR {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel, diags *diag.Diagnostics) *endpoint.BasicAuthSR {
+	value := &endpoint.BasicAuthSR{}
+	value.SetPassword(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.Password, diags))
+	value.SetUser(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.User.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel struct {
+	Raw types.String `tfsdk:"raw"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel) GetRaw() types.String {
+	return m.Raw
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel{
+		Raw: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel {
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"raw": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword *endpoint.Secret,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword.String() == (&endpoint.Secret{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType)
+	}
+	var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType)
+		}
+		state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel{
+		Raw: converter.SetUnknownStringValue(state.Raw),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState types.List, diags *diag.Diagnostics) *endpoint.Secret {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel, diags *diag.Diagnostics) *endpoint.Secret {
+	value := &endpoint.Secret{}
+	if !(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Raw.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Raw.IsUnknown() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Raw.Equal(types.StringValue(""))) {
+		value.SetRaw(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Raw.ValueString())
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel struct {
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel{}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel {
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth *endpoint.NoAuth,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth.String() == (&endpoint.NoAuth{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel{})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState types.List, diags *diag.Diagnostics) *endpoint.NoAuth {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel, diags *diag.Diagnostics) *endpoint.NoAuth {
+	value := &endpoint.NoAuth{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel struct {
+	Disabled types.List `tfsdk:"disabled"`
+	Enabled  types.List `tfsdk:"enabled"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) GetDisabled() types.List {
+	return m.Disabled
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) GetEnabled() types.List {
+	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel{
+		Disabled: types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType),
+		Enabled:  types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType)
+	}
+	if target.Enabled.IsUnknown() || target.Enabled.IsNull() {
+		target.Enabled = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"disabled": types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType},
+		"enabled":  types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode *endpoint.TLSMode,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode.String() == (&endpoint.TLSMode{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType)
+	}
+	var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType)
+		}
+		state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel{
+		Disabled: flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode.GetDisabled(), state.Disabled, diags),
+		Enabled:  flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode.GetEnabled(), state.Enabled, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState types.List, diags *diag.Diagnostics) *endpoint.TLSMode {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel, diags *diag.Diagnostics) *endpoint.TLSMode {
+	value := &endpoint.TLSMode{}
+	if !(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Disabled.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Disabled.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Disabled.Elements()) == 0) {
+		value.SetDisabled(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Disabled, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Enabled.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Enabled.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Enabled.Elements()) == 0) {
+		value.SetEnabled(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Enabled, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel struct {
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel{}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel {
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled *emptypb.Empty,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled.String() == (&emptypb.Empty{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel{})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState types.List, diags *diag.Diagnostics) *emptypb.Empty {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel, diags *diag.Diagnostics) *emptypb.Empty {
+	value := &emptypb.Empty{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel struct {
+	CaCertificate types.String `tfsdk:"ca_certificate"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel{
+		CaCertificate: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"ca_certificate": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled *endpoint.TLSConfig,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled.String() == (&endpoint.TLSConfig{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel{
+		CaCertificate: types.StringValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled.GetCaCertificate()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState types.List, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	value := &endpoint.TLSConfig{}
+	value.SetCaCertificate(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.CaCertificate.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel struct {
+	Derived types.List `tfsdk:"derived"`
+	Manual  types.List `tfsdk:"manual"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) GetDerived() types.List {
+	return m.Derived
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) GetManual() types.List {
+	return m.Manual
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) SetDerived(target types.List) {
+	m.Derived = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) SetManual(target types.List) {
+	m.Manual = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel{
+		Derived: types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType),
+		Manual:  types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel {
+	if target.Derived.IsUnknown() || target.Derived.IsNull() {
+		target.Derived = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType)
+	}
+	if target.Manual.IsUnknown() || target.Manual.IsNull() {
+		target.Manual = types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"derived": types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType},
+		"manual":  types.ListType{ElemType: yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicy(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicy *endpoint.SchemaRegistryTableNamePolicy,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicy == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicy.String() == (&endpoint.SchemaRegistryTableNamePolicy{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType)
+	}
+	var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType)
+		}
+		state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel{
+		Derived: flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicy.GetDerived(), state.Derived, diags),
+		Manual:  flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManual(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicy.GetManual(), state.Manual, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicy(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState types.List, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicy {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyModel, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicy {
+	value := &endpoint.SchemaRegistryTableNamePolicy{}
+	if !(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Derived.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Derived.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Derived.Elements()) == 0) {
+		value.SetDerived(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Derived, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Manual.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Manual.IsUnknown() || len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Manual.Elements()) == 0) {
+		value.SetManual(expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManual(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Manual, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel struct {
+	Json     types.String `tfsdk:"json"`
+	Protobuf types.String `tfsdk:"protobuf"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) GetJson() types.String {
+	return m.Json
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) GetProtobuf() types.String {
+	return m.Protobuf
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) SetJson(target types.String) {
+	m.Json = target
+}
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) SetProtobuf(target types.String) {
+	m.Protobuf = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel{
+		Json:     types.StringNull(),
+		Protobuf: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel {
+	if target.Json.IsUnknown() || target.Json.IsNull() {
+		target.Json = types.StringNull()
+	}
+	if target.Protobuf.IsUnknown() || target.Protobuf.IsNull() {
+		target.Protobuf = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"json":     types.StringType,
+		"protobuf": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived *endpoint.SchemaRegistryTableNamePolicyDerived,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived.String() == (&endpoint.SchemaRegistryTableNamePolicyDerived{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel{
+		Json:     types.StringValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived.GetJson().String()),
+		Protobuf: types.StringValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived.GetProtobuf().String()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState types.List, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicyDerived {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicyDerived {
+	value := &endpoint.SchemaRegistryTableNamePolicyDerived{}
+	value.SetJson(endpoint.SchemaRegistryTableNamePolicyDerivedJSONType(endpoint.SchemaRegistryTableNamePolicyDerivedJSONType_value[yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.Json.ValueString()]))
+	value.SetProtobuf(endpoint.SchemaRegistryTableNamePolicyDerivedProtobufType(endpoint.SchemaRegistryTableNamePolicyDerivedProtobufType_value[yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.Protobuf.ValueString()]))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel struct {
+	TableName types.String `tfsdk:"table_name"`
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel) GetTableName() types.String {
+	return m.TableName
+}
+
+func (m *yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel) SetTableName(target types.String) {
+	m.TableName = target
+}
+
+func NewYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel() yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel {
+	return yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel{
+		TableName: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelFillUnknown(target yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel) yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel {
+	if target.TableName.IsUnknown() || target.TableName.IsNull() {
+		target.TableName = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"table_name": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManual(ctx context.Context,
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManual *endpoint.SchemaRegistryTableNamePolicyManual,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManual == nil || (yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManual.String() == (&endpoint.SchemaRegistryTableNamePolicyManual{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType)
+				}
+				state = yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType.AttrTypes, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel{
+		TableName: types.StringValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManual.GetTableName()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManual(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState types.List, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicyManual {
+	if yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.IsNull() || yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType := make([]yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel, 0, len(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel(ctx, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel(ctx context.Context, yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicyManual {
+	value := &endpoint.SchemaRegistryTableNamePolicyManual{}
+	value.SetTableName(yandexDatatransferEndpointSettingsKafkaSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.TableName.ValueString())
 	if diags.HasError() {
 		return nil
 	}
@@ -18564,10 +19767,11 @@ func expandYandexDatatransferEndpointSettingsYdsSourceAuthenticationModel(ctx co
 }
 
 type yandexDatatransferEndpointSettingsYdsSourceParserModel struct {
-	AuditTrailsV1Parser types.List `tfsdk:"audit_trails_v1_parser"`
-	CloudLoggingParser  types.List `tfsdk:"cloud_logging_parser"`
-	JsonParser          types.List `tfsdk:"json_parser"`
-	TskvParser          types.List `tfsdk:"tskv_parser"`
+	AuditTrailsV1Parser           types.List `tfsdk:"audit_trails_v1_parser"`
+	CloudLoggingParser            types.List `tfsdk:"cloud_logging_parser"`
+	ConfluentSchemaRegistryParser types.List `tfsdk:"confluent_schema_registry_parser"`
+	JsonParser                    types.List `tfsdk:"json_parser"`
+	TskvParser                    types.List `tfsdk:"tskv_parser"`
 }
 
 func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) GetAuditTrailsV1Parser() types.List {
@@ -18575,6 +19779,9 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) GetAuditTrailsV
 }
 func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) GetCloudLoggingParser() types.List {
 	return m.CloudLoggingParser
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) GetConfluentSchemaRegistryParser() types.List {
+	return m.ConfluentSchemaRegistryParser
 }
 func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) GetJsonParser() types.List {
 	return m.JsonParser
@@ -18589,6 +19796,9 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) SetAuditTrailsV
 func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) SetCloudLoggingParser(target types.List) {
 	m.CloudLoggingParser = target
 }
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) SetConfluentSchemaRegistryParser(target types.List) {
+	m.ConfluentSchemaRegistryParser = target
+}
 func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) SetJsonParser(target types.List) {
 	m.JsonParser = target
 }
@@ -18598,10 +19808,11 @@ func (m *yandexDatatransferEndpointSettingsYdsSourceParserModel) SetTskvParser(t
 
 func NewYandexDatatransferEndpointSettingsYdsSourceParserModel() yandexDatatransferEndpointSettingsYdsSourceParserModel {
 	return yandexDatatransferEndpointSettingsYdsSourceParserModel{
-		AuditTrailsV1Parser: types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserAuditTrailsV1ParserModelType),
-		CloudLoggingParser:  types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParserModelType),
-		JsonParser:          types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModelType),
-		TskvParser:          types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModelType),
+		AuditTrailsV1Parser:           types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserAuditTrailsV1ParserModelType),
+		CloudLoggingParser:            types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParserModelType),
+		ConfluentSchemaRegistryParser: types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType),
+		JsonParser:                    types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModelType),
+		TskvParser:                    types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModelType),
 	}
 }
 
@@ -18611,6 +19822,9 @@ func yandexDatatransferEndpointSettingsYdsSourceParserModelFillUnknown(target ya
 	}
 	if target.CloudLoggingParser.IsUnknown() || target.CloudLoggingParser.IsNull() {
 		target.CloudLoggingParser = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParserModelType)
+	}
+	if target.ConfluentSchemaRegistryParser.IsUnknown() || target.ConfluentSchemaRegistryParser.IsNull() {
+		target.ConfluentSchemaRegistryParser = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType)
 	}
 	if target.JsonParser.IsUnknown() || target.JsonParser.IsNull() {
 		target.JsonParser = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModelType)
@@ -18623,10 +19837,11 @@ func yandexDatatransferEndpointSettingsYdsSourceParserModelFillUnknown(target ya
 
 var yandexDatatransferEndpointSettingsYdsSourceParserModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"audit_trails_v1_parser": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserAuditTrailsV1ParserModelType},
-		"cloud_logging_parser":   types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParserModelType},
-		"json_parser":            types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModelType},
-		"tskv_parser":            types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModelType},
+		"audit_trails_v1_parser":           types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserAuditTrailsV1ParserModelType},
+		"cloud_logging_parser":             types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParserModelType},
+		"confluent_schema_registry_parser": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType},
+		"json_parser":                      types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserJsonParserModelType},
+		"tskv_parser":                      types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserTskvParserModelType},
 	},
 }
 
@@ -18661,10 +19876,11 @@ func flattenYandexDatatransferEndpointSettingsYdsSourceParser(ctx context.Contex
 		state = yandexDatatransferEndpointSettingsYdsSourceParserType[0]
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserModel{
-		AuditTrailsV1Parser: flattenYandexDatatransferEndpointSettingsYdsSourceParserAuditTrailsV1Parser(ctx, yandexDatatransferEndpointSettingsYdsSourceParser.GetAuditTrailsV1Parser(), state.AuditTrailsV1Parser, diags),
-		CloudLoggingParser:  flattenYandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParser.GetCloudLoggingParser(), state.CloudLoggingParser, diags),
-		JsonParser:          flattenYandexDatatransferEndpointSettingsYdsSourceParserJsonParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParser.GetJsonParser(), state.JsonParser, diags),
-		TskvParser:          flattenYandexDatatransferEndpointSettingsYdsSourceParserTskvParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParser.GetTskvParser(), state.TskvParser, diags),
+		AuditTrailsV1Parser:           flattenYandexDatatransferEndpointSettingsYdsSourceParserAuditTrailsV1Parser(ctx, yandexDatatransferEndpointSettingsYdsSourceParser.GetAuditTrailsV1Parser(), state.AuditTrailsV1Parser, diags),
+		CloudLoggingParser:            flattenYandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParser.GetCloudLoggingParser(), state.CloudLoggingParser, diags),
+		ConfluentSchemaRegistryParser: flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParser.GetConfluentSchemaRegistryParser(), state.ConfluentSchemaRegistryParser, diags),
+		JsonParser:                    flattenYandexDatatransferEndpointSettingsYdsSourceParserJsonParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParser.GetJsonParser(), state.JsonParser, diags),
+		TskvParser:                    flattenYandexDatatransferEndpointSettingsYdsSourceParserTskvParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParser.GetTskvParser(), state.TskvParser, diags),
 	})
 	diags.Append(diag...)
 	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserModelType, []attr.Value{value})
@@ -18694,6 +19910,9 @@ func expandYandexDatatransferEndpointSettingsYdsSourceParserModel(ctx context.Co
 	}
 	if !(yandexDatatransferEndpointSettingsYdsSourceParserState.CloudLoggingParser.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserState.CloudLoggingParser.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserState.CloudLoggingParser.Elements()) == 0) {
 		value.SetCloudLoggingParser(expandYandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParserState.CloudLoggingParser, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdsSourceParserState.ConfluentSchemaRegistryParser.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserState.ConfluentSchemaRegistryParser.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserState.ConfluentSchemaRegistryParser.Elements()) == 0) {
+		value.SetConfluentSchemaRegistryParser(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParserState.ConfluentSchemaRegistryParser, diags))
 	}
 	if !(yandexDatatransferEndpointSettingsYdsSourceParserState.JsonParser.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserState.JsonParser.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserState.JsonParser.Elements()) == 0) {
 		value.SetJsonParser(expandYandexDatatransferEndpointSettingsYdsSourceParserJsonParser(ctx, yandexDatatransferEndpointSettingsYdsSourceParserState.JsonParser, diags))
@@ -18833,6 +20052,1193 @@ func expandYandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParser(c
 
 func expandYandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParserModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParserState yandexDatatransferEndpointSettingsYdsSourceParserCloudLoggingParserModel, diags *diag.Diagnostics) *endpoint.CloudLoggingParser {
 	value := &endpoint.CloudLoggingParser{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel struct {
+	ConfluentSchemaRegistryConnection types.List `tfsdk:"confluent_schema_registry_connection"`
+	IsGenerateUpdates                 types.Bool `tfsdk:"is_generate_updates"`
+	TableNamePolicy                   types.List `tfsdk:"table_name_policy"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel) GetConfluentSchemaRegistryConnection() types.List {
+	return m.ConfluentSchemaRegistryConnection
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel) GetIsGenerateUpdates() types.Bool {
+	return m.IsGenerateUpdates
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel) GetTableNamePolicy() types.List {
+	return m.TableNamePolicy
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel) SetConfluentSchemaRegistryConnection(target types.List) {
+	m.ConfluentSchemaRegistryConnection = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel) SetIsGenerateUpdates(target types.Bool) {
+	m.IsGenerateUpdates = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel) SetTableNamePolicy(target types.List) {
+	m.TableNamePolicy = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel{
+		ConfluentSchemaRegistryConnection: types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType),
+		IsGenerateUpdates:                 types.BoolNull(),
+		TableNamePolicy:                   types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel {
+	if target.ConfluentSchemaRegistryConnection.IsUnknown() || target.ConfluentSchemaRegistryConnection.IsNull() {
+		target.ConfluentSchemaRegistryConnection = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType)
+	}
+	if target.IsGenerateUpdates.IsUnknown() || target.IsGenerateUpdates.IsNull() {
+		target.IsGenerateUpdates = types.BoolNull()
+	}
+	if target.TableNamePolicy.IsUnknown() || target.TableNamePolicy.IsNull() {
+		target.TableNamePolicy = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"confluent_schema_registry_connection": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType},
+		"is_generate_updates":                  types.BoolType,
+		"table_name_policy":                    types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser *endpoint.ConfluentSchemaRegistryParser,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser.String() == (&endpoint.ConfluentSchemaRegistryParser{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel{
+		ConfluentSchemaRegistryConnection: flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser.GetConfluentSchemaRegistryConnection(), state.ConfluentSchemaRegistryConnection, diags),
+		IsGenerateUpdates:                 types.BoolValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser.GetIsGenerateUpdates()),
+		TableNamePolicy:                   flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicy(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser.GetTableNamePolicy(), state.TableNamePolicy, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParser(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState types.List, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryParser {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserModel, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryParser {
+	value := &endpoint.ConfluentSchemaRegistryParser{}
+	if !(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.ConfluentSchemaRegistryConnection.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.ConfluentSchemaRegistryConnection.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.ConfluentSchemaRegistryConnection.Elements()) == 0) {
+		value.SetConfluentSchemaRegistryConnection(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.ConfluentSchemaRegistryConnection, diags))
+	}
+	value.SetIsGenerateUpdates(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.IsGenerateUpdates.ValueBool())
+	value.SetTableNamePolicy(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicy(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserState.TableNamePolicy, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel struct {
+	Auth              types.List   `tfsdk:"auth"`
+	SchemaRegistryUrl types.String `tfsdk:"schema_registry_url"`
+	TlsMode           types.List   `tfsdk:"tls_mode"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) GetAuth() types.List {
+	return m.Auth
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) GetSchemaRegistryUrl() types.String {
+	return m.SchemaRegistryUrl
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) GetTlsMode() types.List {
+	return m.TlsMode
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) SetAuth(target types.List) {
+	m.Auth = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) SetSchemaRegistryUrl(target types.String) {
+	m.SchemaRegistryUrl = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) SetTlsMode(target types.List) {
+	m.TlsMode = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel{
+		Auth:              types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType),
+		SchemaRegistryUrl: types.StringNull(),
+		TlsMode:           types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel {
+	if target.Auth.IsUnknown() || target.Auth.IsNull() {
+		target.Auth = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType)
+	}
+	if target.SchemaRegistryUrl.IsUnknown() || target.SchemaRegistryUrl.IsNull() {
+		target.SchemaRegistryUrl = types.StringNull()
+	}
+	if target.TlsMode.IsUnknown() || target.TlsMode.IsNull() {
+		target.TlsMode = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"auth":                types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType},
+		"schema_registry_url": types.StringType,
+		"tls_mode":            types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection *endpoint.ConfluentSchemaRegistryConnection,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection.String() == (&endpoint.ConfluentSchemaRegistryConnection{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel{
+		Auth:              flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection.GetAuth(), state.Auth, diags),
+		SchemaRegistryUrl: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection.GetSchemaRegistryUrl()),
+		TlsMode:           flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection.GetTlsMode(), state.TlsMode, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnection(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState types.List, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryConnection {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionModel, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryConnection {
+	value := &endpoint.ConfluentSchemaRegistryConnection{}
+	value.SetAuth(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.Auth, diags))
+	value.SetSchemaRegistryUrl(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.SchemaRegistryUrl.ValueString())
+	value.SetTlsMode(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionState.TlsMode, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel struct {
+	Basic  types.List `tfsdk:"basic"`
+	NoAuth types.List `tfsdk:"no_auth"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) GetBasic() types.List {
+	return m.Basic
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) GetNoAuth() types.List {
+	return m.NoAuth
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) SetBasic(target types.List) {
+	m.Basic = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) SetNoAuth(target types.List) {
+	m.NoAuth = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel{
+		Basic:  types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType),
+		NoAuth: types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel {
+	if target.Basic.IsUnknown() || target.Basic.IsNull() {
+		target.Basic = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType)
+	}
+	if target.NoAuth.IsUnknown() || target.NoAuth.IsNull() {
+		target.NoAuth = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"basic":   types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType},
+		"no_auth": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth *endpoint.ConfluentSchemaRegistryAuth,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth.String() == (&endpoint.ConfluentSchemaRegistryAuth{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel{
+		Basic:  flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth.GetBasic(), state.Basic, diags),
+		NoAuth: flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth.GetNoAuth(), state.NoAuth, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuth(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState types.List, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryAuth {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthModel, diags *diag.Diagnostics) *endpoint.ConfluentSchemaRegistryAuth {
+	value := &endpoint.ConfluentSchemaRegistryAuth{}
+	if !(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Basic.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Basic.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Basic.Elements()) == 0) {
+		value.SetBasic(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.Basic, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.NoAuth.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.NoAuth.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.NoAuth.Elements()) == 0) {
+		value.SetNoAuth(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthState.NoAuth, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel struct {
+	Password types.List   `tfsdk:"password"`
+	User     types.String `tfsdk:"user"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) GetPassword() types.List {
+	return m.Password
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) GetUser() types.String {
+	return m.User
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) SetPassword(target types.List) {
+	m.Password = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) SetUser(target types.String) {
+	m.User = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel{
+		Password: types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType),
+		User:     types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel {
+	if target.Password.IsUnknown() || target.Password.IsNull() {
+		target.Password = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType)
+	}
+	if target.User.IsUnknown() || target.User.IsNull() {
+		target.User = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"password": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType},
+		"user":     types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic *endpoint.BasicAuthSR,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic.String() == (&endpoint.BasicAuthSR{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel{
+		Password: flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic.GetPassword(), state.Password, diags),
+		User:     types.StringValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic.GetUser()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasic(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState types.List, diags *diag.Diagnostics) *endpoint.BasicAuthSR {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicModel, diags *diag.Diagnostics) *endpoint.BasicAuthSR {
+	value := &endpoint.BasicAuthSR{}
+	value.SetPassword(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.Password, diags))
+	value.SetUser(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicState.User.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel struct {
+	Raw types.String `tfsdk:"raw"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel) GetRaw() types.String {
+	return m.Raw
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel) SetRaw(target types.String) {
+	m.Raw = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel{
+		Raw: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel {
+	if target.Raw.IsUnknown() || target.Raw.IsNull() {
+		target.Raw = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"raw": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword *endpoint.Secret,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword.String() == (&endpoint.Secret{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel{
+		Raw: converter.SetUnknownStringValue(state.Raw),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPassword(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState types.List, diags *diag.Diagnostics) *endpoint.Secret {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordModel, diags *diag.Diagnostics) *endpoint.Secret {
+	value := &endpoint.Secret{}
+	if !(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Raw.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Raw.IsUnknown() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Raw.Equal(types.StringValue(""))) {
+		value.SetRaw(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthBasicPasswordState.Raw.ValueString())
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel struct {
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel{}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel {
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth *endpoint.NoAuth,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth.String() == (&endpoint.NoAuth{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel{})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuth(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState types.List, diags *diag.Diagnostics) *endpoint.NoAuth {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionAuthNoAuthModel, diags *diag.Diagnostics) *endpoint.NoAuth {
+	value := &endpoint.NoAuth{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel struct {
+	Disabled types.List `tfsdk:"disabled"`
+	Enabled  types.List `tfsdk:"enabled"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) GetDisabled() types.List {
+	return m.Disabled
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) GetEnabled() types.List {
+	return m.Enabled
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) SetDisabled(target types.List) {
+	m.Disabled = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) SetEnabled(target types.List) {
+	m.Enabled = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel{
+		Disabled: types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType),
+		Enabled:  types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel {
+	if target.Disabled.IsUnknown() || target.Disabled.IsNull() {
+		target.Disabled = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType)
+	}
+	if target.Enabled.IsUnknown() || target.Enabled.IsNull() {
+		target.Enabled = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"disabled": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType},
+		"enabled":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode *endpoint.TLSMode,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode.String() == (&endpoint.TLSMode{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel{
+		Disabled: flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode.GetDisabled(), state.Disabled, diags),
+		Enabled:  flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode.GetEnabled(), state.Enabled, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsMode(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState types.List, diags *diag.Diagnostics) *endpoint.TLSMode {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeModel, diags *diag.Diagnostics) *endpoint.TLSMode {
+	value := &endpoint.TLSMode{}
+	if !(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Disabled.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Disabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Disabled.Elements()) == 0) {
+		value.SetDisabled(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Disabled, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Enabled.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Enabled.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Enabled.Elements()) == 0) {
+		value.SetEnabled(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeState.Enabled, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel struct {
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel{}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel {
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled *emptypb.Empty,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled.String() == (&emptypb.Empty{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel{})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabled(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState types.List, diags *diag.Diagnostics) *emptypb.Empty {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeDisabledModel, diags *diag.Diagnostics) *emptypb.Empty {
+	value := &emptypb.Empty{}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel struct {
+	CaCertificate types.String `tfsdk:"ca_certificate"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel) GetCaCertificate() types.String {
+	return m.CaCertificate
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel) SetCaCertificate(target types.String) {
+	m.CaCertificate = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel{
+		CaCertificate: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel {
+	if target.CaCertificate.IsUnknown() || target.CaCertificate.IsNull() {
+		target.CaCertificate = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"ca_certificate": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled *endpoint.TLSConfig,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled.String() == (&endpoint.TLSConfig{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel{
+		CaCertificate: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled.GetCaCertificate()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabled(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState types.List, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledModel, diags *diag.Diagnostics) *endpoint.TLSConfig {
+	value := &endpoint.TLSConfig{}
+	value.SetCaCertificate(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserConfluentSchemaRegistryConnectionTlsModeEnabledState.CaCertificate.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel struct {
+	Derived types.List `tfsdk:"derived"`
+	Manual  types.List `tfsdk:"manual"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) GetDerived() types.List {
+	return m.Derived
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) GetManual() types.List {
+	return m.Manual
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) SetDerived(target types.List) {
+	m.Derived = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) SetManual(target types.List) {
+	m.Manual = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel{
+		Derived: types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType),
+		Manual:  types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel {
+	if target.Derived.IsUnknown() || target.Derived.IsNull() {
+		target.Derived = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType)
+	}
+	if target.Manual.IsUnknown() || target.Manual.IsNull() {
+		target.Manual = types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType)
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"derived": types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType},
+		"manual":  types.ListType{ElemType: yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType},
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicy(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicy *endpoint.SchemaRegistryTableNamePolicy,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicy == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicy.String() == (&endpoint.SchemaRegistryTableNamePolicy{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType)
+	}
+	var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType)
+		}
+		state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel{
+		Derived: flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicy.GetDerived(), state.Derived, diags),
+		Manual:  flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManual(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicy.GetManual(), state.Manual, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicy(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState types.List, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicy {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyModel, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicy {
+	value := &endpoint.SchemaRegistryTableNamePolicy{}
+	if !(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Derived.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Derived.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Derived.Elements()) == 0) {
+		value.SetDerived(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Derived, diags))
+	}
+	if !(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Manual.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Manual.IsUnknown() || len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Manual.Elements()) == 0) {
+		value.SetManual(expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManual(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyState.Manual, diags))
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel struct {
+	Json     types.String `tfsdk:"json"`
+	Protobuf types.String `tfsdk:"protobuf"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) GetJson() types.String {
+	return m.Json
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) GetProtobuf() types.String {
+	return m.Protobuf
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) SetJson(target types.String) {
+	m.Json = target
+}
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) SetProtobuf(target types.String) {
+	m.Protobuf = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel{
+		Json:     types.StringNull(),
+		Protobuf: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel {
+	if target.Json.IsUnknown() || target.Json.IsNull() {
+		target.Json = types.StringNull()
+	}
+	if target.Protobuf.IsUnknown() || target.Protobuf.IsNull() {
+		target.Protobuf = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"json":     types.StringType,
+		"protobuf": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived *endpoint.SchemaRegistryTableNamePolicyDerived,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived.String() == (&endpoint.SchemaRegistryTableNamePolicyDerived{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel{
+		Json:     types.StringValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived.GetJson().String()),
+		Protobuf: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived.GetProtobuf().String()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerived(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState types.List, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicyDerived {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedModel, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicyDerived {
+	value := &endpoint.SchemaRegistryTableNamePolicyDerived{}
+	value.SetJson(endpoint.SchemaRegistryTableNamePolicyDerivedJSONType(endpoint.SchemaRegistryTableNamePolicyDerivedJSONType_value[yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.Json.ValueString()]))
+	value.SetProtobuf(endpoint.SchemaRegistryTableNamePolicyDerivedProtobufType(endpoint.SchemaRegistryTableNamePolicyDerivedProtobufType_value[yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyDerivedState.Protobuf.ValueString()]))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel struct {
+	TableName types.String `tfsdk:"table_name"`
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel) GetTableName() types.String {
+	return m.TableName
+}
+
+func (m *yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel) SetTableName(target types.String) {
+	m.TableName = target
+}
+
+func NewYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel() yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel {
+	return yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel{
+		TableName: types.StringNull(),
+	}
+}
+
+func yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelFillUnknown(target yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel) yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel {
+	if target.TableName.IsUnknown() || target.TableName.IsNull() {
+		target.TableName = types.StringNull()
+	}
+	return target
+}
+
+var yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"table_name": types.StringType,
+	},
+}
+
+func flattenYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManual(ctx context.Context,
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManual *endpoint.SchemaRegistryTableNamePolicyManual,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManual == nil || (yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManual.String() == (&endpoint.SchemaRegistryTableNamePolicyManual{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType)
+				}
+				state = yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType.AttrTypes, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel{
+		TableName: types.StringValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManual.GetTableName()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManual(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState types.List, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicyManual {
+	if yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.IsNull() || yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.IsUnknown() {
+		return nil
+	}
+	if len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.Elements()) == 0 {
+		return nil
+	}
+	yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType := make([]yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel, 0, len(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.Elements()))
+	diags.Append(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.ElementsAs(ctx, &yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel(ctx, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualType[0], diags)
+}
+
+func expandYandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel(ctx context.Context, yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualModel, diags *diag.Diagnostics) *endpoint.SchemaRegistryTableNamePolicyManual {
+	value := &endpoint.SchemaRegistryTableNamePolicyManual{}
+	value.SetTableName(yandexDatatransferEndpointSettingsYdsSourceParserConfluentSchemaRegistryParserTableNamePolicyManualState.TableName.ValueString())
 	if diags.HasError() {
 		return nil
 	}

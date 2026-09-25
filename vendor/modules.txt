@@ -1177,7 +1177,7 @@ github.com/xen0n/gosmopolitan
 github.com/yagipy/maintidx
 github.com/yagipy/maintidx/pkg/cyc
 github.com/yagipy/maintidx/pkg/halstvol
-# github.com/yandex-cloud/go-genproto v0.122.0
+# github.com/yandex-cloud/go-genproto v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.21
 github.com/yandex-cloud/go-genproto/yandex/cloud
 github.com/yandex-cloud/go-genproto/yandex/cloud/access
@@ -1269,180 +1269,180 @@ github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1/privatelink
 github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/ytsaurus/v1
-# github.com/yandex-cloud/go-sdk/services/airflow v0.0.98
+# github.com/yandex-cloud/go-sdk/services/airflow v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/airflow/v1
-# github.com/yandex-cloud/go-sdk/services/apploadbalancer v0.0.98
+# github.com/yandex-cloud/go-sdk/services/apploadbalancer v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1
-# github.com/yandex-cloud/go-sdk/services/audittrails v0.0.98
+# github.com/yandex-cloud/go-sdk/services/audittrails v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/audittrails/v1
-# github.com/yandex-cloud/go-sdk/services/backup v0.0.98
+# github.com/yandex-cloud/go-sdk/services/backup v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/backup/v1
-# github.com/yandex-cloud/go-sdk/services/billing v0.0.98
+# github.com/yandex-cloud/go-sdk/services/billing v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/billing/v1
-# github.com/yandex-cloud/go-sdk/services/cdn v0.0.98
+# github.com/yandex-cloud/go-sdk/services/cdn v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/cdn/v1
-# github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.98
+# github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/certificatemanager/v1
-# github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.81
+# github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/clouddesktop/v1/api
-# github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.98
+# github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/cloudregistry/v1
-# github.com/yandex-cloud/go-sdk/services/cloudrouter v0.0.98
+# github.com/yandex-cloud/go-sdk/services/cloudrouter v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/cloudrouter/v1
-# github.com/yandex-cloud/go-sdk/services/compute v1.0.103
+# github.com/yandex-cloud/go-sdk/services/compute v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/compute/v1
 github.com/yandex-cloud/go-sdk/services/compute/v1/instancegroup
-# github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.94
+# github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/connectionmanager/v1
-# github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.98
+# github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/containerregistry/v1
-# github.com/yandex-cloud/go-sdk/services/datacatalog v0.0.54
+# github.com/yandex-cloud/go-sdk/services/datacatalog v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/datacatalog/v1
-# github.com/yandex-cloud/go-sdk/services/dataproc v0.0.98
+# github.com/yandex-cloud/go-sdk/services/dataproc v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/dataproc/v1
-# github.com/yandex-cloud/go-sdk/services/datasphere v0.0.98
+# github.com/yandex-cloud/go-sdk/services/datasphere v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/datasphere/v2
-# github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.98
+# github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/datatransfer/v1
-# github.com/yandex-cloud/go-sdk/services/dns v0.0.98
+# github.com/yandex-cloud/go-sdk/services/dns v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/dns/v1
-# github.com/yandex-cloud/go-sdk/services/gitlab v0.0.98
+# github.com/yandex-cloud/go-sdk/services/gitlab v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/gitlab/v1
-# github.com/yandex-cloud/go-sdk/services/iot v0.0.98
+# github.com/yandex-cloud/go-sdk/services/iot v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/iot/broker/v1
 github.com/yandex-cloud/go-sdk/services/iot/devices/v1
-# github.com/yandex-cloud/go-sdk/services/k8s v0.0.98
+# github.com/yandex-cloud/go-sdk/services/k8s v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/k8s/v1
-# github.com/yandex-cloud/go-sdk/services/k8s/marketplace v0.0.88
+# github.com/yandex-cloud/go-sdk/services/k8s/marketplace v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/k8s/marketplace/v1
-# github.com/yandex-cloud/go-sdk/services/kms v0.0.98
+# github.com/yandex-cloud/go-sdk/services/kms v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/kms/v1
 github.com/yandex-cloud/go-sdk/services/kms/v1/asymmetricencryption
 github.com/yandex-cloud/go-sdk/services/kms/v1/asymmetricsignature
-# github.com/yandex-cloud/go-sdk/services/loadbalancer v0.0.98
+# github.com/yandex-cloud/go-sdk/services/loadbalancer v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/loadbalancer/v1
-# github.com/yandex-cloud/go-sdk/services/lockbox v0.0.98
+# github.com/yandex-cloud/go-sdk/services/lockbox v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/lockbox/v1
-# github.com/yandex-cloud/go-sdk/services/logging v0.0.98
+# github.com/yandex-cloud/go-sdk/services/logging v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/logging/v1
-# github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.88
+# github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/mdb/clickhouse/v1
-# github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.88
+# github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1
-# github.com/yandex-cloud/go-sdk/services/mdb/kafka v0.0.88
+# github.com/yandex-cloud/go-sdk/services/mdb/kafka v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1
-# github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.88
+# github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/mdb/mongodb/v1
-# github.com/yandex-cloud/go-sdk/services/mdb/mysql v0.0.88
+# github.com/yandex-cloud/go-sdk/services/mdb/mysql v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1
-# github.com/yandex-cloud/go-sdk/services/mdb/opensearch v0.0.88
+# github.com/yandex-cloud/go-sdk/services/mdb/opensearch v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/mdb/opensearch/v1
-# github.com/yandex-cloud/go-sdk/services/mdb/postgresql v0.0.88
+# github.com/yandex-cloud/go-sdk/services/mdb/postgresql v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1
-# github.com/yandex-cloud/go-sdk/services/mdb/redis v0.0.88
+# github.com/yandex-cloud/go-sdk/services/mdb/redis v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/mdb/redis/v1
-# github.com/yandex-cloud/go-sdk/services/mdb/spqr v0.0.88
+# github.com/yandex-cloud/go-sdk/services/mdb/spqr v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1
-# github.com/yandex-cloud/go-sdk/services/metastore v0.0.98
+# github.com/yandex-cloud/go-sdk/services/metastore v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/metastore/v1
-# github.com/yandex-cloud/go-sdk/services/monitoring v0.0.98
+# github.com/yandex-cloud/go-sdk/services/monitoring v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/monitoring/v3
-# github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.98
+# github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/organizationmanager/v1
 github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/idp
 github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/idp/application/oauth
 github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/idp/application/saml
 github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/saml
-# github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.98
+# github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/resourcemanager/v1
-# github.com/yandex-cloud/go-sdk/services/serverless/apigateway v0.0.89
+# github.com/yandex-cloud/go-sdk/services/serverless/apigateway v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/serverless/apigateway/v1
-# github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.87
+# github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/serverless/containers/v1
-# github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.89
+# github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/serverless/eventrouter/v1
-# github.com/yandex-cloud/go-sdk/services/serverless/functions v0.0.89
+# github.com/yandex-cloud/go-sdk/services/serverless/functions v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/serverless/functions/v1
-# github.com/yandex-cloud/go-sdk/services/serverless/triggers v0.0.89
+# github.com/yandex-cloud/go-sdk/services/serverless/triggers v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/serverless/triggers/v1
 github.com/yandex-cloud/go-sdk/services/serverless/triggers/v2
-# github.com/yandex-cloud/go-sdk/services/serverless/workflows v0.0.89
+# github.com/yandex-cloud/go-sdk/services/serverless/workflows v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/serverless/workflows/v1
-# github.com/yandex-cloud/go-sdk/services/smartcaptcha v0.0.97
+# github.com/yandex-cloud/go-sdk/services/smartcaptcha v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/smartcaptcha/v1
-# github.com/yandex-cloud/go-sdk/services/smartwebsecurity v0.0.98
+# github.com/yandex-cloud/go-sdk/services/smartwebsecurity v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1
 github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1/advanced_rate_limiter
 github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1/load_balancer
 github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1/match_list
 github.com/yandex-cloud/go-sdk/services/smartwebsecurity/v1/waf
-# github.com/yandex-cloud/go-sdk/services/spark v0.0.98
+# github.com/yandex-cloud/go-sdk/services/spark v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/spark/v1
-# github.com/yandex-cloud/go-sdk/services/storage v0.0.98
+# github.com/yandex-cloud/go-sdk/services/storage v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/storage/v1
-# github.com/yandex-cloud/go-sdk/services/trino v0.0.98
+# github.com/yandex-cloud/go-sdk/services/trino v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/trino/v1
-# github.com/yandex-cloud/go-sdk/services/vpc v0.0.98
+# github.com/yandex-cloud/go-sdk/services/vpc v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/vpc/v1
 github.com/yandex-cloud/go-sdk/services/vpc/v1/privatelink
-# github.com/yandex-cloud/go-sdk/services/ydb v0.0.98
+# github.com/yandex-cloud/go-sdk/services/ydb v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/ydb/v1
-# github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.98
+# github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/ytsaurus/v1
-# github.com/yandex-cloud/go-sdk/v2 v2.177.0
+# github.com/yandex-cloud/go-sdk/v2 v2.0.0-tf.f49bf6f4a4103b19a7b28b0ceb5929c5201db828
 ## explicit; go 1.23.0
 github.com/yandex-cloud/go-sdk/v2
 github.com/yandex-cloud/go-sdk/v2/credentials

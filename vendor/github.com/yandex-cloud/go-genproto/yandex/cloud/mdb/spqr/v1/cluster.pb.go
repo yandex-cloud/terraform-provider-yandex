@@ -32,7 +32,7 @@ const (
 	// Stable environment with a conservative update policy: only hotfixes
 	// are applied during regular maintenance.
 	Cluster_PRODUCTION Cluster_Environment = 1
-	// Environment with more aggressive update policy: new versions
+	// Environment with a more aggressive update policy: new versions
 	// are rolled out irrespective of backward compatibility.
 	Cluster_PRESTABLE Cluster_Environment = 2
 )
@@ -244,7 +244,9 @@ type Cluster struct {
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,16,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Host groups hosting VMs of the cluster.
-	HostGroupIds  []string `protobuf:"bytes,17,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
+	HostGroupIds []string `protobuf:"bytes,17,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
+	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
+	IsHa          bool `protobuf:"varint,18,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -398,6 +400,13 @@ func (x *Cluster) GetHostGroupIds() []string {
 	return nil
 }
 
+func (x *Cluster) GetIsHa() bool {
+	if x != nil {
+		return x.IsHa
+	}
+	return false
+}
+
 // Monitoring system.
 type Monitoring struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -471,7 +480,8 @@ type ClusterConfig struct {
 	// Retain period of automatically created backup in days
 	BackupRetainPeriodDays *wrapperspb.Int64Value `protobuf:"bytes,3,opt,name=backup_retain_period_days,json=backupRetainPeriodDays,proto3" json:"backup_retain_period_days,omitempty"`
 	// Access policy to DB
-	Access        *Access               `protobuf:"bytes,4,opt,name=access,proto3" json:"access,omitempty"`
+	Access *Access `protobuf:"bytes,4,opt,name=access,proto3" json:"access,omitempty"`
+	// Configuration setting which enables/disables SOX audit.
 	SoxAudit      *wrapperspb.BoolValue `protobuf:"bytes,5,opt,name=sox_audit,json=soxAudit,proto3" json:"sox_audit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -619,7 +629,7 @@ var File_yandex_cloud_mdb_spqr_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_spqr_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"&yandex/cloud/mdb/spqr/v1/cluster.proto\x12\x18yandex.cloud.mdb.spqr.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a%yandex/cloud/mdb/spqr/v1/config.proto\x1a*yandex/cloud/mdb/spqr/v1/maintenance.proto\"\xe9\t\n" +
+	"&yandex/cloud/mdb/spqr/v1/cluster.proto\x12\x18yandex.cloud.mdb.spqr.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a%yandex/cloud/mdb/spqr/v1/config.proto\x1a*yandex/cloud/mdb/spqr/v1/maintenance.proto\"\xfe\t\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -642,7 +652,8 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_proto_rawDesc = "" +
 	"\x11planned_operation\x18\x0e \x01(\v2..yandex.cloud.mdb.spqr.v1.MaintenanceOperationR\x10plannedOperation\x12,\n" +
 	"\x12security_group_ids\x18\x0f \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\x10 \x01(\bR\x12deletionProtection\x12$\n" +
-	"\x0ehost_group_ids\x18\x11 \x03(\tR\fhostGroupIds\x1a9\n" +
+	"\x0ehost_group_ids\x18\x11 \x03(\tR\fhostGroupIds\x12\x13\n" +
+	"\x05is_ha\x18\x12 \x01(\bR\x04isHa\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"I\n" +

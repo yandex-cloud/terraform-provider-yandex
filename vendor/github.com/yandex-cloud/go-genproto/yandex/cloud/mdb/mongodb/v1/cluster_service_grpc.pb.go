@@ -51,6 +51,7 @@ const (
 	ClusterService_ListAccessBindings_FullMethodName    = "/yandex.cloud.mdb.mongodb.v1.ClusterService/ListAccessBindings"
 	ClusterService_SetAccessBindings_FullMethodName     = "/yandex.cloud.mdb.mongodb.v1.ClusterService/SetAccessBindings"
 	ClusterService_UpdateAccessBindings_FullMethodName  = "/yandex.cloud.mdb.mongodb.v1.ClusterService/UpdateAccessBindings"
+	ClusterService_SetBalancerStatus_FullMethodName     = "/yandex.cloud.mdb.mongodb.v1.ClusterService/SetBalancerStatus"
 )
 
 // ClusterServiceClient is the client API for ClusterService service.
@@ -131,6 +132,8 @@ type ClusterServiceClient interface {
 	SetAccessBindings(ctx context.Context, in *access.SetAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Updates access bindings for the specified StoreDoc cluster.
 	UpdateAccessBindings(ctx context.Context, in *access.UpdateAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Sets the balancer status for the specified sharded StoreDoc cluster.
+	SetBalancerStatus(ctx context.Context, in *SetBalancerStatusRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 }
 
 type clusterServiceClient struct {
@@ -450,6 +453,16 @@ func (c *clusterServiceClient) UpdateAccessBindings(ctx context.Context, in *acc
 	return out, nil
 }
 
+func (c *clusterServiceClient) SetBalancerStatus(ctx context.Context, in *SetBalancerStatusRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, ClusterService_SetBalancerStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClusterServiceServer is the server API for ClusterService service.
 // All implementations should embed UnimplementedClusterServiceServer
 // for forward compatibility.
@@ -528,6 +541,8 @@ type ClusterServiceServer interface {
 	SetAccessBindings(context.Context, *access.SetAccessBindingsRequest) (*operation.Operation, error)
 	// Updates access bindings for the specified StoreDoc cluster.
 	UpdateAccessBindings(context.Context, *access.UpdateAccessBindingsRequest) (*operation.Operation, error)
+	// Sets the balancer status for the specified sharded StoreDoc cluster.
+	SetBalancerStatus(context.Context, *SetBalancerStatusRequest) (*operation.Operation, error)
 }
 
 // UnimplementedClusterServiceServer should be embedded to have
@@ -626,6 +641,9 @@ func (UnimplementedClusterServiceServer) SetAccessBindings(context.Context, *acc
 }
 func (UnimplementedClusterServiceServer) UpdateAccessBindings(context.Context, *access.UpdateAccessBindingsRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateAccessBindings not implemented")
+}
+func (UnimplementedClusterServiceServer) SetBalancerStatus(context.Context, *SetBalancerStatusRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetBalancerStatus not implemented")
 }
 func (UnimplementedClusterServiceServer) testEmbeddedByValue() {}
 
@@ -1180,6 +1198,24 @@ func _ClusterService_UpdateAccessBindings_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClusterService_SetBalancerStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetBalancerStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServiceServer).SetBalancerStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClusterService_SetBalancerStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServiceServer).SetBalancerStatus(ctx, req.(*SetBalancerStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClusterService_ServiceDesc is the grpc.ServiceDesc for ClusterService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1302,6 +1338,10 @@ var ClusterService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAccessBindings",
 			Handler:    _ClusterService_UpdateAccessBindings_Handler,
+		},
+		{
+			MethodName: "SetBalancerStatus",
+			Handler:    _ClusterService_SetBalancerStatus_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

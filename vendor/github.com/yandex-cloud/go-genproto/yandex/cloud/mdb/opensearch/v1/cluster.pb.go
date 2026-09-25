@@ -417,8 +417,10 @@ type Cluster struct {
 	PlannedOperation *MaintenanceOperation `protobuf:"bytes,17,opt,name=planned_operation,json=plannedOperation,proto3" json:"planned_operation,omitempty"`
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,19,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
+	IsHa          bool `protobuf:"varint,20,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Cluster) Reset() {
@@ -575,6 +577,13 @@ func (x *Cluster) GetDiskEncryptionKeyId() *wrapperspb.StringValue {
 		return x.DiskEncryptionKeyId
 	}
 	return nil
+}
+
+func (x *Cluster) GetIsHa() bool {
+	if x != nil {
+		return x.IsHa
+	}
+	return false
 }
 
 // Monitoring system metadata.
@@ -1719,8 +1728,7 @@ var File_yandex_cloud_mdb_opensearch_v1_cluster_proto protoreflect.FileDescripto
 
 const file_yandex_cloud_mdb_opensearch_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	",yandex/cloud/mdb/opensearch/v1/cluster.proto\x12\x1eyandex.cloud.mdb.opensearch.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a+yandex/cloud/mdb/opensearch/v1/backup.proto\x1a5yandex/cloud/mdb/opensearch/v1/config/audit_log.proto\x1a6yandex/cloud/mdb/opensearch/v1/config/opensearch.proto\x1a0yandex/cloud/mdb/opensearch/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xfa\n" +
-	"\n" +
+	",yandex/cloud/mdb/opensearch/v1/cluster.proto\x12\x1eyandex.cloud.mdb.opensearch.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a+yandex/cloud/mdb/opensearch/v1/backup.proto\x1a5yandex/cloud/mdb/opensearch/v1/config/audit_log.proto\x1a6yandex/cloud/mdb/opensearch/v1/config/opensearch.proto\x1a0yandex/cloud/mdb/opensearch/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\x8f\v\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -1744,7 +1752,8 @@ const file_yandex_cloud_mdb_opensearch_v1_cluster_proto_rawDesc = "" +
 	"\x13deletion_protection\x18\x0f \x01(\bR\x12deletionProtection\x12`\n" +
 	"\x12maintenance_window\x18\x10 \x01(\v21.yandex.cloud.mdb.opensearch.v1.MaintenanceWindowR\x11maintenanceWindow\x12a\n" +
 	"\x11planned_operation\x18\x11 \x01(\v24.yandex.cloud.mdb.opensearch.v1.MaintenanceOperationR\x10plannedOperation\x12Q\n" +
-	"\x16disk_encryption_key_id\x18\x13 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
+	"\x16disk_encryption_key_id\x18\x13 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x12\x13\n" +
+	"\x05is_ha\x18\x14 \x01(\bR\x04isHa\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"I\n" +

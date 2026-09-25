@@ -2048,6 +2048,7 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 															path.MatchRelative().AtParent().AtName("json_parser"),
 															path.MatchRelative().AtParent().AtName("cloud_logging_parser"),
 															path.MatchRelative().AtParent().AtName("tskv_parser"),
+															path.MatchRelative().AtParent().AtName("confluent_schema_registry_parser"),
 														), listvalidator.SizeAtMost(1),
 													},
 												},
@@ -2070,6 +2071,441 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 														listvalidator.ConflictsWith(
 															path.MatchRelative().AtParent().AtName("json_parser"),
 															path.MatchRelative().AtParent().AtName("audit_trails_v1_parser"),
+															path.MatchRelative().AtParent().AtName("tskv_parser"),
+															path.MatchRelative().AtParent().AtName("confluent_schema_registry_parser"),
+														), listvalidator.SizeAtMost(1),
+													},
+												},
+
+												"confluent_schema_registry_parser": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"is_generate_updates": schema.BoolAttribute{
+																MarkdownDescription: "Produce update events instead of inserts",
+																Description: "Produce update events instead of inserts" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.is_generate_updates
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.is_generate_updates
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.is_generate_updates
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.Bool{
+																	boolplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+														Blocks: map[string]schema.Block{
+
+															"confluent_schema_registry_connection": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
+
+																	Attributes: map[string]schema.Attribute{
+
+																		"schema_registry_url": schema.StringAttribute{
+																			MarkdownDescription: "Schema Registry api url",
+																			Description: "Schema Registry api url" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.schema_registry_url
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.schema_registry_url
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.schema_registry_url
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																			Optional: true,
+																			Computed: true,
+
+																			PlanModifiers: []planmodifier.String{
+																				stringplanmodifier.UseStateForUnknown(),
+																			},
+																		},
+																	},
+																	Blocks: map[string]schema.Block{
+
+																		"auth": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Blocks: map[string]schema.Block{
+
+																					"basic": schema.ListNestedBlock{
+																						NestedObject: schema.NestedBlockObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"user": schema.StringAttribute{
+																									MarkdownDescription: "User",
+																									Description: "User" +
+																										// proto paths: +
+																										// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.user
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.user
+																										// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.user
+																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																										"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																									Optional: true,
+																									Computed: true,
+
+																									PlanModifiers: []planmodifier.String{
+																										stringplanmodifier.UseStateForUnknown(),
+																									},
+																								},
+																							},
+																							Blocks: map[string]schema.Block{
+
+																								"password": schema.ListNestedBlock{
+																									NestedObject: schema.NestedBlockObject{
+
+																										Attributes: map[string]schema.Attribute{
+
+																											"raw": schema.StringAttribute{
+																												MarkdownDescription: "Raw secret value",
+																												Description: "Raw secret value" +
+																													// proto paths: +
+																													// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																													// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																													// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																													"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																													"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																												Optional:  true,
+																												Computed:  true,
+																												Sensitive: true,
+
+																												PlanModifiers: []planmodifier.String{
+																													stringplanmodifier.UseStateForUnknown(),
+																												},
+																											},
+																										},
+																									},
+																									MarkdownDescription: "Password for user. Write-only: it is never returned, and an empty value on\n update keeps the stored one",
+																									Description: "Password for user. Write-only: it is never returned, and an empty value on\n update keeps the stored one" +
+																										// proto paths: +
+																										// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password
+																										// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password
+																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																										"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																									PlanModifiers: []planmodifier.List{
+																										listplanmodifier.UseStateForUnknown(),
+																									},
+																									Validators: []validator.List{
+																										listvalidator.SizeAtMost(1),
+																									},
+																								},
+																							},
+																						},
+																						MarkdownDescription: "Authenticate with a user name and a password",
+																						Description: "Authenticate with a user name and a password" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ConflictsWith(
+																								path.MatchRelative().AtParent().AtName("no_auth"),
+																							), listvalidator.SizeAtMost(1),
+																						},
+																					},
+
+																					"no_auth": schema.ListNestedBlock{
+																						NestedObject:        schema.NestedBlockObject{},
+																						MarkdownDescription: "Connect to the schema registry without authentication",
+																						Description: "Connect to the schema registry without authentication" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.no_auth
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.no_auth
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.no_auth
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ConflictsWith(
+																								path.MatchRelative().AtParent().AtName("basic"),
+																							), listvalidator.SizeAtMost(1),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Schema Registry authentication config. Empty credentials mean no authentication",
+																			Description: "Schema Registry authentication config. Empty credentials mean no authentication" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"tls_mode": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Blocks: map[string]schema.Block{
+
+																					"disabled": schema.ListNestedBlock{
+																						NestedObject:        schema.NestedBlockObject{},
+																						MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																						Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ConflictsWith(
+																								path.MatchRelative().AtParent().AtName("enabled"),
+																							), listvalidator.SizeAtMost(1),
+																						},
+																					},
+
+																					"enabled": schema.ListNestedBlock{
+																						NestedObject: schema.NestedBlockObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"ca_certificate": schema.StringAttribute{
+																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																										// proto paths: +
+																										// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																									Optional: true,
+																									Computed: true,
+
+																									PlanModifiers: []planmodifier.String{
+																										stringplanmodifier.UseStateForUnknown(),
+																									},
+																								},
+																							},
+																						},
+																						MarkdownDescription: "TLS is used for the server connection",
+																						Description: "TLS is used for the server connection" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ConflictsWith(
+																								path.MatchRelative().AtParent().AtName("disabled"),
+																							), listvalidator.SizeAtMost(1),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "CA certificate of the Schema Registry server.\n TLS is turned on by the https scheme in schema_registry_url, not by this field.\n Without a certificate here the server certificate is not verified",
+																			Description: "CA certificate of the Schema Registry server.\n TLS is turned on by the https scheme in schema_registry_url, not by this field.\n Without a certificate here the server certificate is not verified" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.SizeAtMost(1),
+																			},
+																		},
+																	},
+																},
+																MarkdownDescription: "Connection to a Confluent-compatible schema registry",
+																Description: "Connection to a Confluent-compatible schema registry" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																PlanModifiers: []planmodifier.List{
+																	listplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.List{
+																	listvalidator.SizeAtMost(1),
+																},
+															},
+
+															"table_name_policy": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
+
+																	Blocks: map[string]schema.Block{
+
+																		"derived": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"json": schema.StringAttribute{
+																						MarkdownDescription: "Naming for messages with JSON Schema",
+																						Description: "Naming for messages with JSON Schema" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.json
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.json
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.json
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.String{
+																							stringvalidator.OneOf(converter.MapKeys(endpoint.SchemaRegistryTableNamePolicyDerivedJSONType_value)...),
+																						},
+																					},
+
+																					"protobuf": schema.StringAttribute{
+																						MarkdownDescription: "Naming for messages with Protobuf schema",
+																						Description: "Naming for messages with Protobuf schema" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.protobuf
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.protobuf
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.protobuf
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.String{
+																							stringvalidator.OneOf(converter.MapKeys(endpoint.SchemaRegistryTableNamePolicyDerivedProtobufType_value)...),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Derive the table name from the message schema",
+																			Description: "Derive the table name from the message schema" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("manual"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"manual": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"table_name": schema.StringAttribute{
+																						MarkdownDescription: "Name of the table to write all messages to",
+																						Description: "Name of the table to write all messages to" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyManual.table_name
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyManual.table_name
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyManual.table_name
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Write all messages to the single table",
+																			Description: "Write all messages to the single table" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("derived"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+																	},
+																},
+																MarkdownDescription: "Target table naming. If not set, table name is derived from the schema in\n Debezium-like manner",
+																Description: "Target table naming. If not set, table name is derived from the schema in\n Debezium-like manner" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																PlanModifiers: []planmodifier.List{
+																	listplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.List{
+																	listvalidator.SizeAtMost(1),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "Parse messages in Confluent wire format using schemas from a schema registry",
+													Description: "Parse messages in Confluent wire format using schemas from a schema registry" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.kafka_source -> yandex.cloud.datatransfer.v1.endpoint.KafkaSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("json_parser"),
+															path.MatchRelative().AtParent().AtName("audit_trails_v1_parser"),
+															path.MatchRelative().AtParent().AtName("cloud_logging_parser"),
 															path.MatchRelative().AtParent().AtName("tskv_parser"),
 														), listvalidator.SizeAtMost(1),
 													},
@@ -2333,6 +2769,7 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 															path.MatchRelative().AtParent().AtName("audit_trails_v1_parser"),
 															path.MatchRelative().AtParent().AtName("cloud_logging_parser"),
 															path.MatchRelative().AtParent().AtName("tskv_parser"),
+															path.MatchRelative().AtParent().AtName("confluent_schema_registry_parser"),
 														), listvalidator.SizeAtMost(1),
 													},
 												},
@@ -2595,6 +3032,7 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 															path.MatchRelative().AtParent().AtName("json_parser"),
 															path.MatchRelative().AtParent().AtName("audit_trails_v1_parser"),
 															path.MatchRelative().AtParent().AtName("cloud_logging_parser"),
+															path.MatchRelative().AtParent().AtName("confluent_schema_registry_parser"),
 														), listvalidator.SizeAtMost(1),
 													},
 												},
@@ -8432,6 +8870,7 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 															path.MatchRelative().AtParent().AtName("json_parser"),
 															path.MatchRelative().AtParent().AtName("cloud_logging_parser"),
 															path.MatchRelative().AtParent().AtName("tskv_parser"),
+															path.MatchRelative().AtParent().AtName("confluent_schema_registry_parser"),
 														), listvalidator.SizeAtMost(1),
 													},
 												},
@@ -8454,6 +8893,441 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 														listvalidator.ConflictsWith(
 															path.MatchRelative().AtParent().AtName("json_parser"),
 															path.MatchRelative().AtParent().AtName("audit_trails_v1_parser"),
+															path.MatchRelative().AtParent().AtName("tskv_parser"),
+															path.MatchRelative().AtParent().AtName("confluent_schema_registry_parser"),
+														), listvalidator.SizeAtMost(1),
+													},
+												},
+
+												"confluent_schema_registry_parser": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"is_generate_updates": schema.BoolAttribute{
+																MarkdownDescription: "Produce update events instead of inserts",
+																Description: "Produce update events instead of inserts" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.is_generate_updates
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.is_generate_updates
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.is_generate_updates
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.Bool{
+																	boolplanmodifier.UseStateForUnknown(),
+																},
+															},
+														},
+														Blocks: map[string]schema.Block{
+
+															"confluent_schema_registry_connection": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
+
+																	Attributes: map[string]schema.Attribute{
+
+																		"schema_registry_url": schema.StringAttribute{
+																			MarkdownDescription: "Schema Registry api url",
+																			Description: "Schema Registry api url" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.schema_registry_url
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.schema_registry_url
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.schema_registry_url
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																			Optional: true,
+																			Computed: true,
+
+																			PlanModifiers: []planmodifier.String{
+																				stringplanmodifier.UseStateForUnknown(),
+																			},
+																		},
+																	},
+																	Blocks: map[string]schema.Block{
+
+																		"auth": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Blocks: map[string]schema.Block{
+
+																					"basic": schema.ListNestedBlock{
+																						NestedObject: schema.NestedBlockObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"user": schema.StringAttribute{
+																									MarkdownDescription: "User",
+																									Description: "User" +
+																										// proto paths: +
+																										// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.user
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.user
+																										// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.user
+																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																										"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																									Optional: true,
+																									Computed: true,
+
+																									PlanModifiers: []planmodifier.String{
+																										stringplanmodifier.UseStateForUnknown(),
+																									},
+																								},
+																							},
+																							Blocks: map[string]schema.Block{
+
+																								"password": schema.ListNestedBlock{
+																									NestedObject: schema.NestedBlockObject{
+
+																										Attributes: map[string]schema.Attribute{
+
+																											"raw": schema.StringAttribute{
+																												MarkdownDescription: "Raw secret value",
+																												Description: "Raw secret value" +
+																													// proto paths: +
+																													// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																													// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																													// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password -> yandex.cloud.datatransfer.v1.endpoint.Secret.raw
+																													"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																													"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																												Optional:  true,
+																												Computed:  true,
+																												Sensitive: true,
+
+																												PlanModifiers: []planmodifier.String{
+																													stringplanmodifier.UseStateForUnknown(),
+																												},
+																											},
+																										},
+																									},
+																									MarkdownDescription: "Password for user. Write-only: it is never returned, and an empty value on\n update keeps the stored one",
+																									Description: "Password for user. Write-only: it is never returned, and an empty value on\n update keeps the stored one" +
+																										// proto paths: +
+																										// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password
+																										// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic -> yandex.cloud.datatransfer.v1.endpoint.BasicAuthSR.password
+																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																										"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																									PlanModifiers: []planmodifier.List{
+																										listplanmodifier.UseStateForUnknown(),
+																									},
+																									Validators: []validator.List{
+																										listvalidator.SizeAtMost(1),
+																									},
+																								},
+																							},
+																						},
+																						MarkdownDescription: "Authenticate with a user name and a password",
+																						Description: "Authenticate with a user name and a password" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.basic
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ConflictsWith(
+																								path.MatchRelative().AtParent().AtName("no_auth"),
+																							), listvalidator.SizeAtMost(1),
+																						},
+																					},
+
+																					"no_auth": schema.ListNestedBlock{
+																						NestedObject:        schema.NestedBlockObject{},
+																						MarkdownDescription: "Connect to the schema registry without authentication",
+																						Description: "Connect to the schema registry without authentication" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.no_auth
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.no_auth
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryAuth.no_auth
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ConflictsWith(
+																								path.MatchRelative().AtParent().AtName("basic"),
+																							), listvalidator.SizeAtMost(1),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Schema Registry authentication config. Empty credentials mean no authentication",
+																			Description: "Schema Registry authentication config. Empty credentials mean no authentication" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.auth
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"tls_mode": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Blocks: map[string]schema.Block{
+
+																					"disabled": schema.ListNestedBlock{
+																						NestedObject:        schema.NestedBlockObject{},
+																						MarkdownDescription: "Empty block designating that the connection is not secured, i.e. plaintext\n connection",
+																						Description: "Empty block designating that the connection is not secured, i.e. plaintext\n connection" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.disabled
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ConflictsWith(
+																								path.MatchRelative().AtParent().AtName("enabled"),
+																							), listvalidator.SizeAtMost(1),
+																						},
+																					},
+
+																					"enabled": schema.ListNestedBlock{
+																						NestedObject: schema.NestedBlockObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"ca_certificate": schema.StringAttribute{
+																									MarkdownDescription: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA",
+																									Description: "CA certificate\n X.509 certificate of the certificate authority which issued the server's\n certificate, in PEM format. When CA certificate is specified, TLS is used to\n connect to the server. If CA certificate is empty, the server's certificate must\n be signed by a well-known CA" +
+																										// proto paths: +
+																										// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled -> yandex.cloud.datatransfer.v1.endpoint.TLSConfig.ca_certificate
+																										"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																										"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+																									Optional: true,
+																									Computed: true,
+
+																									PlanModifiers: []planmodifier.String{
+																										stringplanmodifier.UseStateForUnknown(),
+																									},
+																								},
+																							},
+																						},
+																						MarkdownDescription: "TLS is used for the server connection",
+																						Description: "TLS is used for the server connection" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode -> yandex.cloud.datatransfer.v1.endpoint.TLSMode.enabled
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/common.proto\n",
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ConflictsWith(
+																								path.MatchRelative().AtParent().AtName("disabled"),
+																							), listvalidator.SizeAtMost(1),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "CA certificate of the Schema Registry server.\n TLS is turned on by the https scheme in schema_registry_url, not by this field.\n Without a certificate here the server certificate is not verified",
+																			Description: "CA certificate of the Schema Registry server.\n TLS is turned on by the https scheme in schema_registry_url, not by this field.\n Without a certificate here the server certificate is not verified" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryConnection.tls_mode
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.SizeAtMost(1),
+																			},
+																		},
+																	},
+																},
+																MarkdownDescription: "Connection to a Confluent-compatible schema registry",
+																Description: "Connection to a Confluent-compatible schema registry" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.confluent_schema_registry_connection
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																PlanModifiers: []planmodifier.List{
+																	listplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.List{
+																	listvalidator.SizeAtMost(1),
+																},
+															},
+
+															"table_name_policy": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
+
+																	Blocks: map[string]schema.Block{
+
+																		"derived": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"json": schema.StringAttribute{
+																						MarkdownDescription: "Naming for messages with JSON Schema",
+																						Description: "Naming for messages with JSON Schema" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.json
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.json
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.json
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.String{
+																							stringvalidator.OneOf(converter.MapKeys(endpoint.SchemaRegistryTableNamePolicyDerivedJSONType_value)...),
+																						},
+																					},
+
+																					"protobuf": schema.StringAttribute{
+																						MarkdownDescription: "Naming for messages with Protobuf schema",
+																						Description: "Naming for messages with Protobuf schema" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.protobuf
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.protobuf
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyDerived.protobuf
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																						Validators: []validator.String{
+																							stringvalidator.OneOf(converter.MapKeys(endpoint.SchemaRegistryTableNamePolicyDerivedProtobufType_value)...),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Derive the table name from the message schema",
+																			Description: "Derive the table name from the message schema" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.derived
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("manual"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"manual": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"table_name": schema.StringAttribute{
+																						MarkdownDescription: "Name of the table to write all messages to",
+																						Description: "Name of the table to write all messages to" +
+																							// proto paths: +
+																							// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyManual.table_name
+																							// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyManual.table_name
+																							// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicyManual.table_name
+																							"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																							"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.String{
+																							stringplanmodifier.UseStateForUnknown(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Write all messages to the single table",
+																			Description: "Write all messages to the single table" +
+																				// proto paths: +
+																				// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual
+																				// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual
+																				// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy -> yandex.cloud.datatransfer.v1.endpoint.SchemaRegistryTableNamePolicy.manual
+																				"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																				"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.ConflictsWith(
+																					path.MatchRelative().AtParent().AtName("derived"),
+																				), listvalidator.SizeAtMost(1),
+																			},
+																		},
+																	},
+																},
+																MarkdownDescription: "Target table naming. If not set, table name is derived from the schema in\n Debezium-like manner",
+																Description: "Target table naming. If not set, table name is derived from the schema in\n Debezium-like manner" +
+																	// proto paths: +
+																	// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy
+																	// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy
+																	// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser -> yandex.cloud.datatransfer.v1.endpoint.ConfluentSchemaRegistryParser.table_name_policy
+																	"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+																	"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+																PlanModifiers: []planmodifier.List{
+																	listplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.List{
+																	listvalidator.SizeAtMost(1),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "Parse messages in Confluent wire format using schemas from a schema registry",
+													Description: "Parse messages in Confluent wire format using schemas from a schema registry" +
+														// proto paths: +
+														// -> yandex.cloud.datatransfer.v1.CreateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser
+														// -> yandex.cloud.datatransfer.v1.Endpoint.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser
+														// -> yandex.cloud.datatransfer.v1.UpdateEndpointRequest.settings -> yandex.cloud.datatransfer.v1.EndpointSettings.yds_source -> yandex.cloud.datatransfer.v1.endpoint.YDSSource.parser -> yandex.cloud.datatransfer.v1.endpoint.Parser.confluent_schema_registry_parser
+														"package: yandex.cloud.datatransfer.v1.endpoint\n" +
+														"filename: yandex/cloud/datatransfer/v1/endpoint/parsers.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.ConflictsWith(
+															path.MatchRelative().AtParent().AtName("json_parser"),
+															path.MatchRelative().AtParent().AtName("audit_trails_v1_parser"),
+															path.MatchRelative().AtParent().AtName("cloud_logging_parser"),
 															path.MatchRelative().AtParent().AtName("tskv_parser"),
 														), listvalidator.SizeAtMost(1),
 													},
@@ -8717,6 +9591,7 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 															path.MatchRelative().AtParent().AtName("audit_trails_v1_parser"),
 															path.MatchRelative().AtParent().AtName("cloud_logging_parser"),
 															path.MatchRelative().AtParent().AtName("tskv_parser"),
+															path.MatchRelative().AtParent().AtName("confluent_schema_registry_parser"),
 														), listvalidator.SizeAtMost(1),
 													},
 												},
@@ -8979,6 +9854,7 @@ func YandexDatatransferEndpointResourceSchema(ctx context.Context) schema.Schema
 															path.MatchRelative().AtParent().AtName("json_parser"),
 															path.MatchRelative().AtParent().AtName("audit_trails_v1_parser"),
 															path.MatchRelative().AtParent().AtName("cloud_logging_parser"),
+															path.MatchRelative().AtParent().AtName("confluent_schema_registry_parser"),
 														), listvalidator.SizeAtMost(1),
 													},
 												},

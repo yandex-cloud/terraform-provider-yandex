@@ -148,12 +148,12 @@ func (sdk *SDK) Shutdown(ctx context.Context) error {
 // userAgent returns the User-Agent string that includes the SDK name and its version, read from the build info.
 func userAgent() string {
 	cloudUserAgent := "yandex-cloud/go-sdk-v2"
-
-	build, _ := debug.ReadBuildInfo()
 	version := "unknown"
 
-	if build.Main.Version != "" {
-		version = build.Main.Version
+	if build, ok := debug.ReadBuildInfo(); ok {
+		if build.Main.Version != "" {
+			version = build.Main.Version
+		}
 	}
 
 	return fmt.Sprintf("%s/%s", cloudUserAgent, version)

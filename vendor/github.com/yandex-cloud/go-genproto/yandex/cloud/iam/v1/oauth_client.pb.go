@@ -93,6 +93,8 @@ type OAuthClient struct {
 	AuthenticationMethods []string `protobuf:"bytes,9,rep,name=authentication_methods,json=authenticationMethods,proto3" json:"authentication_methods,omitempty"`
 	// Current status of the oauth client.
 	Status OAuthClient_Status `protobuf:"varint,6,opt,name=status,proto3,enum=yandex.cloud.iam.v1.OAuthClient_Status" json:"status,omitempty"`
+	// List of URIs to which users can be redirected after signing out of the oauth client.
+	PostLogoutRedirectUris []string `protobuf:"bytes,10,rep,name=post_logout_redirect_uris,json=postLogoutRedirectUris,proto3" json:"post_logout_redirect_uris,omitempty"`
 	// ID of the profile that defines the set of allowed settings for the oauth client.
 	ProfileId string `protobuf:"bytes,7,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// Whether PKCE (Proof Key for Code Exchange) is required for the oauth client during the authorization code flow.
@@ -178,6 +180,13 @@ func (x *OAuthClient) GetStatus() OAuthClient_Status {
 		return x.Status
 	}
 	return OAuthClient_STATUS_UNSPECIFIED
+}
+
+func (x *OAuthClient) GetPostLogoutRedirectUris() []string {
+	if x != nil {
+		return x.PostLogoutRedirectUris
+	}
+	return nil
 }
 
 func (x *OAuthClient) GetProfileId() string {
@@ -282,7 +291,7 @@ var File_yandex_cloud_iam_v1_oauth_client_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_iam_v1_oauth_client_proto_rawDesc = "" +
 	"\n" +
-	"&yandex/cloud/iam/v1/oauth_client.proto\x12\x13yandex.cloud.iam.v1\"\x91\x03\n" +
+	"&yandex/cloud/iam/v1/oauth_client.proto\x12\x13yandex.cloud.iam.v1\"\xcc\x03\n" +
 	"\vOAuthClient\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
@@ -290,7 +299,9 @@ const file_yandex_cloud_iam_v1_oauth_client_proto_rawDesc = "" +
 	"\x06scopes\x18\x04 \x03(\tR\x06scopes\x12\x1b\n" +
 	"\tfolder_id\x18\x05 \x01(\tR\bfolderId\x125\n" +
 	"\x16authentication_methods\x18\t \x03(\tR\x15authenticationMethods\x12?\n" +
-	"\x06status\x18\x06 \x01(\x0e2'.yandex.cloud.iam.v1.OAuthClient.StatusR\x06status\x12\x1d\n" +
+	"\x06status\x18\x06 \x01(\x0e2'.yandex.cloud.iam.v1.OAuthClient.StatusR\x06status\x129\n" +
+	"\x19post_logout_redirect_uris\x18\n" +
+	" \x03(\tR\x16postLogoutRedirectUris\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\a \x01(\tR\tprofileId\x12#\n" +
 	"\rpkce_required\x18\b \x01(\bR\fpkceRequired\"H\n" +

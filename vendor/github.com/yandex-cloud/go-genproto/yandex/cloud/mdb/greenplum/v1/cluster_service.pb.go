@@ -2963,7 +2963,7 @@ const file_yandex_cloud_mdb_greenplum_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"\x82\x01\n" +
 	"\x14ListClustersResponse\x12B\n" +
 	"\bclusters\x18\x01 \x03(\v2&.yandex.cloud.mdb.greenplum.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xac\r\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc6\r\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -2991,8 +2991,8 @@ const file_yandex_cloud_mdb_greenplum_v1_cluster_service_proto_rawDesc = "" +
 	"\x15master_host_group_ids\x18\x16 \x03(\tR\x12masterHostGroupIds\x123\n" +
 	"\x16segment_host_group_ids\x18\x17 \x03(\tR\x13segmentHostGroupIds\x12,\n" +
 	"\x12service_account_id\x18\x18 \x01(\tR\x10serviceAccountId\x12F\n" +
-	"\alogging\x18\x19 \x01(\v2,.yandex.cloud.mdb.greenplum.v1.LoggingConfigR\alogging\x12Q\n" +
-	"\x16disk_encryption_key_id\x18\x1a \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
+	"\alogging\x18\x19 \x01(\v2,.yandex.cloud.mdb.greenplum.v1.LoggingConfigR\alogging\x12k\n" +
+	"\x16disk_encryption_key_id\x18\x1a \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x12\x10\x13\"6\n" +
@@ -3179,7 +3179,7 @@ const file_yandex_cloud_mdb_greenplum_v1_cluster_service_proto_rawDesc = "" +
 	"\x15BackupClusterMetadata\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12\x1b\n" +
-	"\tbackup_id\x18\x02 \x01(\tR\bbackupId\"\x9d\f\n" +
+	"\tbackup_id\x18\x02 \x01(\tR\bbackupId\"\xb7\f\n" +
 	"\x15RestoreClusterRequest\x12!\n" +
 	"\tbackup_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\bbackupId\x12.\n" +
 	"\x04time\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12)\n" +
@@ -3207,8 +3207,8 @@ const file_yandex_cloud_mdb_greenplum_v1_cluster_service_proto_rawDesc = "" +
 	"restorePxf\x12\x1f\n" +
 	"\vrestore_hba\x18\x17 \x01(\bR\n" +
 	"restoreHba\x12,\n" +
-	"\x12service_account_id\x18\x18 \x01(\tR\x10serviceAccountId\x12Q\n" +
-	"\x16disk_encryption_key_id\x18\x0e \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
+	"\x12service_account_id\x18\x18 \x01(\tR\x10serviceAccountId\x12k\n" +
+	"\x16disk_encryption_key_id\x18\x0e \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"T\n" +

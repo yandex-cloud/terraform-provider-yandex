@@ -358,6 +358,14 @@ func (m *ClickhouseConfig) SetMysqlProtocol(v *wrapperspb.BoolValue) {
 	m.MysqlProtocol = v
 }
 
+func (m *ClickhouseConfig) SetGrpcProtocol(v *wrapperspb.BoolValue) {
+	m.GrpcProtocol = v
+}
+
+func (m *ClickhouseConfig) SetArrowflightProtocol(v *wrapperspb.BoolValue) {
+	m.ArrowflightProtocol = v
+}
+
 func (m *ClickhouseConfig) SetCustomMacros(v []*ClickhouseConfig_Macro) {
 	m.CustomMacros = v
 }

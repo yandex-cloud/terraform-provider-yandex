@@ -124,6 +124,10 @@ func (m *Cluster) SetLogging(v *LoggingConfig) {
 	m.Logging = v
 }
 
+func (m *Cluster) SetIsHa(v bool) {
+	m.IsHa = v
+}
+
 func (m *Monitoring) SetName(v string) {
 	m.Name = v
 }

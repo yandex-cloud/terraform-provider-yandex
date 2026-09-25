@@ -85,7 +85,7 @@ func (r *yandexMDBOpensearchUserDataSource) Read(ctx context.Context, req dataso
 	}
 	if err != nil {
 		if validate.IsStatusWithCode(err, codes.NotFound) {
-			resp.Diagnostics.AddError(
+			resp.Diagnostics.AddWarning(
 				"Failed to Read resource",
 				"user not found",
 			)
@@ -106,7 +106,7 @@ func (r *yandexMDBOpensearchUserDataSource) Read(ctx context.Context, req dataso
 
 	// diagnostics don't have errors and resource is nil => resource not found
 	if res == nil {
-		resp.Diagnostics.AddError("Failed to read", "Resource not found")
+		resp.Diagnostics.AddWarning("Failed to read", "Resource not found")
 		return
 	}
 

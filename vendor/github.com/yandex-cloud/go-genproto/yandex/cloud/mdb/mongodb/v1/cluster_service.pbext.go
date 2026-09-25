@@ -1508,3 +1508,15 @@ func (m *ConfigSpec) SetMongodb(v *MongodbSpec) {
 func (m *ConfigSpec) SetAutocompactConfig(v *AutoCompactConfig) {
 	m.AutocompactConfig = v
 }
+
+func (m *SetBalancerStatusRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *SetBalancerStatusRequest) SetEnabled(v *wrapperspb.BoolValue) {
+	m.Enabled = v
+}
+
+func (m *SetBalancerStatusMetadata) SetClusterId(v string) {
+	m.ClusterId = v
+}

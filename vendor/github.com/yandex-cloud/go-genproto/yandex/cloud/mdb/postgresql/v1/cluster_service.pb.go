@@ -410,7 +410,9 @@ type CreateClusterRequest struct {
 	DeletionProtection bool `protobuf:"varint,12,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Host groups hosting VMs of the cluster.
 	HostGroupIds []string `protobuf:"bytes,13,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
-	// Window of maintenance operations.
+	// Deprecated. Use maintenance_windows instead.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/postgresql/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,14,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Deprecated. Use yandex.cloud.mdb.postgresql.v1.BackupRetentionPolicyService.Create to create retention policies instead.
 	//
@@ -418,8 +420,13 @@ type CreateClusterRequest struct {
 	RetentionPolicies []*v1.BackupRetentionPolicySpec `protobuf:"bytes,15,rep,name=retention_policies,json=retentionPolicies,proto3" json:"retention_policies,omitempty"`
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,16,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Maintenance windows.
+	// If both maintenance fields are set, maintenance_window must match
+	// the day and hour of the first weekly slot, or anytime for an anytime schedule.
+	// If neither field is set, maintenance can be scheduled anytime.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,17,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CreateClusterRequest) Reset() {
@@ -543,6 +550,7 @@ func (x *CreateClusterRequest) GetHostGroupIds() []string {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/postgresql/v1/cluster_service.proto.
 func (x *CreateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -561,6 +569,13 @@ func (x *CreateClusterRequest) GetRetentionPolicies() []*v1.BackupRetentionPolic
 func (x *CreateClusterRequest) GetDiskEncryptionKeyId() *wrapperspb.StringValue {
 	if x != nil {
 		return x.DiskEncryptionKeyId
+	}
+	return nil
+}
+
+func (x *CreateClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
 	}
 	return nil
 }
@@ -638,16 +653,24 @@ type UpdateClusterRequest struct {
 	ConfigSpec *ConfigSpec `protobuf:"bytes,5,opt,name=config_spec,json=configSpec,proto3" json:"config_spec,omitempty"`
 	// New name for the cluster.
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
-	// New maintenance window settings for the cluster.
+	// Deprecated. Use maintenance_windows instead.
+	// Writing this field alone replaces the complete schedule with the legacy window.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/postgresql/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,7,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// User security groups
 	SecurityGroupIds []string `protobuf:"bytes,8,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,9,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// ID of the network to move the cluster to.
-	NetworkId     string `protobuf:"bytes,11,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	NetworkId string `protobuf:"bytes,11,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`
+	// Maintenance windows.
+	// Replaces the complete schedule when selected in update_mask.
+	// If both maintenance fields are selected, maintenance_window must match
+	// the day and hour of the first weekly slot, or anytime for an anytime schedule.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,12,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *UpdateClusterRequest) Reset() {
@@ -722,6 +745,7 @@ func (x *UpdateClusterRequest) GetName() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/postgresql/v1/cluster_service.proto.
 func (x *UpdateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -748,6 +772,13 @@ func (x *UpdateClusterRequest) GetNetworkId() string {
 		return x.NetworkId
 	}
 	return ""
+}
+
+func (x *UpdateClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
+	}
+	return nil
 }
 
 type UpdateClusterMetadata struct {
@@ -1330,12 +1361,19 @@ type RestoreClusterRequest struct {
 	DeletionProtection bool `protobuf:"varint,13,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Host groups hosting VMs of the cluster.
 	HostGroupIds []string `protobuf:"bytes,14,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
-	// Window of maintenance operations.
+	// Deprecated. Use maintenance_windows instead.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/postgresql/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,15,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,16,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Maintenance windows.
+	// If both maintenance fields are set, maintenance_window must match
+	// the day and hour of the first weekly slot, or anytime for an anytime schedule.
+	// If neither field is set, maintenance can be scheduled anytime.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,17,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *RestoreClusterRequest) Reset() {
@@ -1466,6 +1504,7 @@ func (x *RestoreClusterRequest) GetHostGroupIds() []string {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/postgresql/v1/cluster_service.proto.
 func (x *RestoreClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -1476,6 +1515,13 @@ func (x *RestoreClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 func (x *RestoreClusterRequest) GetDiskEncryptionKeyId() *wrapperspb.StringValue {
 	if x != nil {
 		return x.DiskEncryptionKeyId
+	}
+	return nil
+}
+
+func (x *RestoreClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
 	}
 	return nil
 }
@@ -3823,7 +3869,7 @@ var File_yandex_cloud_mdb_postgresql_v1_cluster_service_proto protoreflect.FileD
 
 const file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_rawDesc = "" +
 	"\n" +
-	"4yandex/cloud/mdb/postgresql/v1/cluster_service.proto\x12\x1eyandex.cloud.mdb.postgresql.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a4yandex/cloud/mdb/operationlog/v1/operation_log.proto\x1a+yandex/cloud/mdb/postgresql/v1/backup.proto\x1a,yandex/cloud/mdb/postgresql/v1/cluster.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host11.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host12.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host13.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host13_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host14.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host14_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host15.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host15_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host16.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host16_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host17.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host17_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host18.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host18_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host19.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host19_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql11.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql12.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql13.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql13_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql14.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql14_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql15.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql15_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql16.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql16_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql17.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql17_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql18.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql18_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql19.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql19_1c.proto\x1a-yandex/cloud/mdb/postgresql/v1/database.proto\x1a0yandex/cloud/mdb/postgresql/v1/maintenance.proto\x1a)yandex/cloud/mdb/postgresql/v1/user.proto\x1a1yandex/cloud/mdb/v1/backup_retention_policy.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"@\n" +
+	"4yandex/cloud/mdb/postgresql/v1/cluster_service.proto\x12\x1eyandex.cloud.mdb.postgresql.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a4yandex/cloud/mdb/operationlog/v1/operation_log.proto\x1a+yandex/cloud/mdb/postgresql/v1/backup.proto\x1a,yandex/cloud/mdb/postgresql/v1/cluster.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host11.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host12.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host13.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host13_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host14.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host14_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host15.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host15_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host16.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host16_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host17.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host17_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host18.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host18_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host19.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host19_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql11.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql12.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql13.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql13_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql14.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql14_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql15.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql15_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql16.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql16_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql17.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql17_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql18.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql18_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql19.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql19_1c.proto\x1a-yandex/cloud/mdb/postgresql/v1/database.proto\x1a0yandex/cloud/mdb/postgresql/v1/maintenance.proto\x1a)yandex/cloud/mdb/postgresql/v1/user.proto\x1a1yandex/cloud/mdb/v1/backup_retention_policy.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"@\n" +
 	"\x11GetClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\"\xb7\x01\n" +
@@ -3837,7 +3883,8 @@ const file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"\x83\x01\n" +
 	"\x14ListClustersResponse\x12C\n" +
 	"\bclusters\x18\x01 \x03(\v2'.yandex.cloud.mdb.postgresql.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xe8\t\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc6\n" +
+	"\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -3856,17 +3903,18 @@ const file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_rawDesc = "" +
 	" \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tnetworkId\x12,\n" +
 	"\x12security_group_ids\x18\v \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\f \x01(\bR\x12deletionProtection\x12$\n" +
-	"\x0ehost_group_ids\x18\r \x03(\tR\fhostGroupIds\x12`\n" +
-	"\x12maintenance_window\x18\x0e \x01(\v21.yandex.cloud.mdb.postgresql.v1.MaintenanceWindowR\x11maintenanceWindow\x12a\n" +
+	"\x0ehost_group_ids\x18\r \x03(\tR\fhostGroupIds\x12d\n" +
+	"\x12maintenance_window\x18\x0e \x01(\v21.yandex.cloud.mdb.postgresql.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12a\n" +
 	"\x12retention_policies\x18\x0f \x03(\v2..yandex.cloud.mdb.v1.BackupRetentionPolicySpecB\x02\x18\x01R\x11retentionPolicies\x12Q\n" +
-	"\x16disk_encryption_key_id\x18\x10 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
+	"\x16disk_encryption_key_id\x18\x10 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x12X\n" +
+	"\x13maintenance_windows\x18\x11 \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8b\x01\n" +
 	"\x15CreateClusterMetadata\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12S\n" +
-	"\roperation_log\x18\x02 \x01(\v2..yandex.cloud.mdb.operationlog.v1.OperationLogR\foperationLog\"\xed\x05\n" +
+	"\roperation_log\x18\x02 \x01(\v2..yandex.cloud.mdb.operationlog.v1.OperationLogR\foperationLog\"\xcb\x06\n" +
 	"\x14UpdateClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12;\n" +
@@ -3876,12 +3924,13 @@ const file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_rawDesc = "" +
 	"\x06labels\x18\x04 \x03(\v2@.yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.LabelsEntryB;\xf2\xc71\v[-_0-9a-z]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x18\x12\x10[a-z][-_0-9a-z]*\x1a\x04<=63R\x06labels\x12K\n" +
 	"\vconfig_spec\x18\x05 \x01(\v2*.yandex.cloud.mdb.postgresql.v1.ConfigSpecR\n" +
 	"configSpec\x12.\n" +
-	"\x04name\x18\x06 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12`\n" +
-	"\x12maintenance_window\x18\a \x01(\v21.yandex.cloud.mdb.postgresql.v1.MaintenanceWindowR\x11maintenanceWindow\x12,\n" +
+	"\x04name\x18\x06 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12d\n" +
+	"\x12maintenance_window\x18\a \x01(\v21.yandex.cloud.mdb.postgresql.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12,\n" +
 	"\x12security_group_ids\x18\b \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\t \x01(\bR\x12deletionProtection\x12'\n" +
 	"\n" +
-	"network_id\x18\v \x01(\tB\b\x8a\xc81\x04<=50R\tnetworkId\x1a9\n" +
+	"network_id\x18\v \x01(\tB\b\x8a\xc81\x04<=50R\tnetworkId\x12X\n" +
+	"\x13maintenance_windows\x18\f \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\n" +
@@ -3923,7 +3972,7 @@ const file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_rawDesc = "" +
 	"\x15BackupClusterMetadata\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12\x1b\n" +
-	"\tbackup_id\x18\x02 \x01(\tR\bbackupId\"\xd5\b\n" +
+	"\tbackup_id\x18\x02 \x01(\tR\bbackupId\"\xb3\t\n" +
 	"\x15RestoreClusterRequest\x12!\n" +
 	"\tbackup_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\bbackupId\x12.\n" +
 	"\x04time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12%\n" +
@@ -3942,9 +3991,10 @@ const file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_rawDesc = "" +
 	"\tfolder_id\x18\v \x01(\tB\b\x8a\xc81\x04<=50R\bfolderId\x12,\n" +
 	"\x12security_group_ids\x18\f \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\r \x01(\bR\x12deletionProtection\x12$\n" +
-	"\x0ehost_group_ids\x18\x0e \x03(\tR\fhostGroupIds\x12`\n" +
-	"\x12maintenance_window\x18\x0f \x01(\v21.yandex.cloud.mdb.postgresql.v1.MaintenanceWindowR\x11maintenanceWindow\x12Q\n" +
-	"\x16disk_encryption_key_id\x18\x10 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
+	"\x0ehost_group_ids\x18\x0e \x03(\tR\fhostGroupIds\x12d\n" +
+	"\x12maintenance_window\x18\x0f \x01(\v21.yandex.cloud.mdb.postgresql.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12Q\n" +
+	"\x16disk_encryption_key_id\x18\x10 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x12X\n" +
+	"\x13maintenance_windows\x18\x11 \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"T\n" +
@@ -4270,58 +4320,59 @@ var file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_goTypes = []any{
 	(*MaintenanceWindow)(nil),                        // 55: yandex.cloud.mdb.postgresql.v1.MaintenanceWindow
 	(*v1.BackupRetentionPolicySpec)(nil),             // 56: yandex.cloud.mdb.v1.BackupRetentionPolicySpec
 	(*wrapperspb.StringValue)(nil),                   // 57: google.protobuf.StringValue
-	(*v11.OperationLog)(nil),                         // 58: yandex.cloud.mdb.operationlog.v1.OperationLog
-	(*fieldmaskpb.FieldMask)(nil),                    // 59: google.protobuf.FieldMask
-	(*timestamppb.Timestamp)(nil),                    // 60: google.protobuf.Timestamp
-	(*operation.Operation)(nil),                      // 61: yandex.cloud.operation.Operation
-	(*Backup)(nil),                                   // 62: yandex.cloud.mdb.postgresql.v1.Backup
-	(*Host)(nil),                                     // 63: yandex.cloud.mdb.postgresql.v1.Host
-	(*wrapperspb.Int64Value)(nil),                    // 64: google.protobuf.Int64Value
-	(*config.PostgresqlConfig11)(nil),                // 65: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig11
-	(*config.PostgresqlConfig12)(nil),                // 66: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig12
-	(*config.PostgresqlConfig13)(nil),                // 67: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig13
-	(*config.PostgresqlConfig13_1C)(nil),             // 68: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig13_1C
-	(*config.PostgresqlConfig14)(nil),                // 69: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14
-	(*config.PostgresqlConfig14_1C)(nil),             // 70: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14_1C
-	(*config.PostgresqlConfig15)(nil),                // 71: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig15
-	(*config.PostgresqlConfig15_1C)(nil),             // 72: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig15_1C
-	(*config.PostgresqlConfig16)(nil),                // 73: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig16
-	(*config.PostgresqlConfig16_1C)(nil),             // 74: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig16_1C
-	(*config.PostgresqlConfig17)(nil),                // 75: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17
-	(*config.PostgresqlConfig17_1C)(nil),             // 76: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
-	(*config.PostgresqlConfig18)(nil),                // 77: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
-	(*config.PostgresqlConfig18_1C)(nil),             // 78: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18_1C
-	(*config.PostgresqlConfig19)(nil),                // 79: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
-	(*config.PostgresqlConfig19_1C)(nil),             // 80: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19_1C
-	(*ConnectionPoolerConfig)(nil),                   // 81: yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig
-	(*Resources)(nil),                                // 82: yandex.cloud.mdb.postgresql.v1.Resources
-	(*wrapperspb.BoolValue)(nil),                     // 83: google.protobuf.BoolValue
-	(*timeofday.TimeOfDay)(nil),                      // 84: google.type.TimeOfDay
-	(*Access)(nil),                                   // 85: yandex.cloud.mdb.postgresql.v1.Access
-	(*PerformanceDiagnostics)(nil),                   // 86: yandex.cloud.mdb.postgresql.v1.PerformanceDiagnostics
-	(*DiskSizeAutoscaling)(nil),                      // 87: yandex.cloud.mdb.postgresql.v1.DiskSizeAutoscaling
-	(*v1.ClusterConnectionManager)(nil),              // 88: yandex.cloud.mdb.v1.ClusterConnectionManager
-	(*ManagedRepack)(nil),                            // 89: yandex.cloud.mdb.postgresql.v1.ManagedRepack
-	(*config.PostgresqlHostConfig11)(nil),            // 90: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig11
-	(*config.PostgresqlHostConfig12)(nil),            // 91: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig12
-	(*config.PostgresqlHostConfig13)(nil),            // 92: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13
-	(*config.PostgresqlHostConfig13_1C)(nil),         // 93: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13_1C
-	(*config.PostgresqlHostConfig14)(nil),            // 94: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14
-	(*config.PostgresqlHostConfig14_1C)(nil),         // 95: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14_1C
-	(*config.PostgresqlHostConfig15)(nil),            // 96: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15
-	(*config.PostgresqlHostConfig15_1C)(nil),         // 97: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15_1C
-	(*config.PostgresqlHostConfig16)(nil),            // 98: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16
-	(*config.PostgresqlHostConfig16_1C)(nil),         // 99: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16_1C
-	(*config.PostgresqlHostConfig17)(nil),            // 100: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17
-	(*config.PostgresqlHostConfig17_1C)(nil),         // 101: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17_1C
-	(*config.PostgresqlHostConfig18)(nil),            // 102: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18
-	(*config.PostgresqlHostConfig18_1C)(nil),         // 103: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18_1C
-	(*config.PostgresqlHostConfig19)(nil),            // 104: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19
-	(*config.PostgresqlHostConfig19_1C)(nil),         // 105: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19_1C
-	(*access.ListAccessBindingsRequest)(nil),         // 106: yandex.cloud.access.ListAccessBindingsRequest
-	(*access.SetAccessBindingsRequest)(nil),          // 107: yandex.cloud.access.SetAccessBindingsRequest
-	(*access.UpdateAccessBindingsRequest)(nil),       // 108: yandex.cloud.access.UpdateAccessBindingsRequest
-	(*access.ListAccessBindingsResponse)(nil),        // 109: yandex.cloud.access.ListAccessBindingsResponse
+	(*v1.MaintenanceWindows)(nil),                    // 58: yandex.cloud.mdb.v1.MaintenanceWindows
+	(*v11.OperationLog)(nil),                         // 59: yandex.cloud.mdb.operationlog.v1.OperationLog
+	(*fieldmaskpb.FieldMask)(nil),                    // 60: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil),                    // 61: google.protobuf.Timestamp
+	(*operation.Operation)(nil),                      // 62: yandex.cloud.operation.Operation
+	(*Backup)(nil),                                   // 63: yandex.cloud.mdb.postgresql.v1.Backup
+	(*Host)(nil),                                     // 64: yandex.cloud.mdb.postgresql.v1.Host
+	(*wrapperspb.Int64Value)(nil),                    // 65: google.protobuf.Int64Value
+	(*config.PostgresqlConfig11)(nil),                // 66: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig11
+	(*config.PostgresqlConfig12)(nil),                // 67: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig12
+	(*config.PostgresqlConfig13)(nil),                // 68: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig13
+	(*config.PostgresqlConfig13_1C)(nil),             // 69: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig13_1C
+	(*config.PostgresqlConfig14)(nil),                // 70: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14
+	(*config.PostgresqlConfig14_1C)(nil),             // 71: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14_1C
+	(*config.PostgresqlConfig15)(nil),                // 72: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig15
+	(*config.PostgresqlConfig15_1C)(nil),             // 73: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig15_1C
+	(*config.PostgresqlConfig16)(nil),                // 74: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig16
+	(*config.PostgresqlConfig16_1C)(nil),             // 75: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig16_1C
+	(*config.PostgresqlConfig17)(nil),                // 76: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17
+	(*config.PostgresqlConfig17_1C)(nil),             // 77: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
+	(*config.PostgresqlConfig18)(nil),                // 78: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
+	(*config.PostgresqlConfig18_1C)(nil),             // 79: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18_1C
+	(*config.PostgresqlConfig19)(nil),                // 80: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
+	(*config.PostgresqlConfig19_1C)(nil),             // 81: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19_1C
+	(*ConnectionPoolerConfig)(nil),                   // 82: yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig
+	(*Resources)(nil),                                // 83: yandex.cloud.mdb.postgresql.v1.Resources
+	(*wrapperspb.BoolValue)(nil),                     // 84: google.protobuf.BoolValue
+	(*timeofday.TimeOfDay)(nil),                      // 85: google.type.TimeOfDay
+	(*Access)(nil),                                   // 86: yandex.cloud.mdb.postgresql.v1.Access
+	(*PerformanceDiagnostics)(nil),                   // 87: yandex.cloud.mdb.postgresql.v1.PerformanceDiagnostics
+	(*DiskSizeAutoscaling)(nil),                      // 88: yandex.cloud.mdb.postgresql.v1.DiskSizeAutoscaling
+	(*v1.ClusterConnectionManager)(nil),              // 89: yandex.cloud.mdb.v1.ClusterConnectionManager
+	(*ManagedRepack)(nil),                            // 90: yandex.cloud.mdb.postgresql.v1.ManagedRepack
+	(*config.PostgresqlHostConfig11)(nil),            // 91: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig11
+	(*config.PostgresqlHostConfig12)(nil),            // 92: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig12
+	(*config.PostgresqlHostConfig13)(nil),            // 93: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13
+	(*config.PostgresqlHostConfig13_1C)(nil),         // 94: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13_1C
+	(*config.PostgresqlHostConfig14)(nil),            // 95: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14
+	(*config.PostgresqlHostConfig14_1C)(nil),         // 96: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14_1C
+	(*config.PostgresqlHostConfig15)(nil),            // 97: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15
+	(*config.PostgresqlHostConfig15_1C)(nil),         // 98: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15_1C
+	(*config.PostgresqlHostConfig16)(nil),            // 99: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16
+	(*config.PostgresqlHostConfig16_1C)(nil),         // 100: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16_1C
+	(*config.PostgresqlHostConfig17)(nil),            // 101: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17
+	(*config.PostgresqlHostConfig17_1C)(nil),         // 102: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17_1C
+	(*config.PostgresqlHostConfig18)(nil),            // 103: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18
+	(*config.PostgresqlHostConfig18_1C)(nil),         // 104: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18_1C
+	(*config.PostgresqlHostConfig19)(nil),            // 105: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19
+	(*config.PostgresqlHostConfig19_1C)(nil),         // 106: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19_1C
+	(*access.ListAccessBindingsRequest)(nil),         // 107: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),          // 108: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil),       // 109: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),        // 110: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_depIdxs = []int32{
 	51,  // 0: yandex.cloud.mdb.postgresql.v1.ListClustersResponse.clusters:type_name -> yandex.cloud.mdb.postgresql.v1.Cluster
@@ -4334,135 +4385,138 @@ var file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_depIdxs = []int32{
 	55,  // 7: yandex.cloud.mdb.postgresql.v1.CreateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.postgresql.v1.MaintenanceWindow
 	56,  // 8: yandex.cloud.mdb.postgresql.v1.CreateClusterRequest.retention_policies:type_name -> yandex.cloud.mdb.v1.BackupRetentionPolicySpec
 	57,  // 9: yandex.cloud.mdb.postgresql.v1.CreateClusterRequest.disk_encryption_key_id:type_name -> google.protobuf.StringValue
-	58,  // 10: yandex.cloud.mdb.postgresql.v1.CreateClusterMetadata.operation_log:type_name -> yandex.cloud.mdb.operationlog.v1.OperationLog
-	59,  // 11: yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
-	48,  // 12: yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.LabelsEntry
-	45,  // 13: yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.config_spec:type_name -> yandex.cloud.mdb.postgresql.v1.ConfigSpec
-	55,  // 14: yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.postgresql.v1.MaintenanceWindow
-	58,  // 15: yandex.cloud.mdb.postgresql.v1.UpdateClusterMetadata.operation_log:type_name -> yandex.cloud.mdb.operationlog.v1.OperationLog
-	60,  // 16: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.time:type_name -> google.protobuf.Timestamp
-	49,  // 17: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.labels:type_name -> yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.LabelsEntry
-	52,  // 18: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.environment:type_name -> yandex.cloud.mdb.postgresql.v1.Cluster.Environment
-	45,  // 19: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.config_spec:type_name -> yandex.cloud.mdb.postgresql.v1.ConfigSpec
-	44,  // 20: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.host_specs:type_name -> yandex.cloud.mdb.postgresql.v1.HostSpec
-	55,  // 21: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.postgresql.v1.MaintenanceWindow
-	57,  // 22: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.disk_encryption_key_id:type_name -> google.protobuf.StringValue
-	0,   // 23: yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceRequest.reschedule_type:type_name -> yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceRequest.RescheduleType
-	60,  // 24: yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceRequest.delayed_until:type_name -> google.protobuf.Timestamp
-	60,  // 25: yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceMetadata.delayed_until:type_name -> google.protobuf.Timestamp
-	60,  // 26: yandex.cloud.mdb.postgresql.v1.LogRecord.timestamp:type_name -> google.protobuf.Timestamp
-	50,  // 27: yandex.cloud.mdb.postgresql.v1.LogRecord.message:type_name -> yandex.cloud.mdb.postgresql.v1.LogRecord.MessageEntry
-	1,   // 28: yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest.ServiceType
-	60,  // 29: yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
-	60,  // 30: yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
-	26,  // 31: yandex.cloud.mdb.postgresql.v1.ListClusterLogsResponse.logs:type_name -> yandex.cloud.mdb.postgresql.v1.LogRecord
-	26,  // 32: yandex.cloud.mdb.postgresql.v1.StreamLogRecord.record:type_name -> yandex.cloud.mdb.postgresql.v1.LogRecord
-	2,   // 33: yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest.ServiceType
-	60,  // 34: yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
-	60,  // 35: yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
-	61,  // 36: yandex.cloud.mdb.postgresql.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	62,  // 37: yandex.cloud.mdb.postgresql.v1.ListClusterBackupsResponse.backups:type_name -> yandex.cloud.mdb.postgresql.v1.Backup
-	63,  // 38: yandex.cloud.mdb.postgresql.v1.ListClusterHostsResponse.hosts:type_name -> yandex.cloud.mdb.postgresql.v1.Host
-	44,  // 39: yandex.cloud.mdb.postgresql.v1.AddClusterHostsRequest.host_specs:type_name -> yandex.cloud.mdb.postgresql.v1.HostSpec
-	43,  // 40: yandex.cloud.mdb.postgresql.v1.UpdateClusterHostsRequest.update_host_specs:type_name -> yandex.cloud.mdb.postgresql.v1.UpdateHostSpec
-	64,  // 41: yandex.cloud.mdb.postgresql.v1.UpdateHostSpec.priority:type_name -> google.protobuf.Int64Value
-	46,  // 42: yandex.cloud.mdb.postgresql.v1.UpdateHostSpec.config_spec:type_name -> yandex.cloud.mdb.postgresql.v1.ConfigHostSpec
-	59,  // 43: yandex.cloud.mdb.postgresql.v1.UpdateHostSpec.update_mask:type_name -> google.protobuf.FieldMask
-	64,  // 44: yandex.cloud.mdb.postgresql.v1.HostSpec.priority:type_name -> google.protobuf.Int64Value
-	46,  // 45: yandex.cloud.mdb.postgresql.v1.HostSpec.config_spec:type_name -> yandex.cloud.mdb.postgresql.v1.ConfigHostSpec
-	65,  // 46: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_11:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig11
-	66,  // 47: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_12:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig12
-	67,  // 48: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_13:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig13
-	68,  // 49: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_13_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig13_1C
-	69,  // 50: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_14:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14
-	70,  // 51: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_14_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14_1C
-	71,  // 52: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_15:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig15
-	72,  // 53: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_15_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig15_1C
-	73,  // 54: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_16:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig16
-	74,  // 55: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_16_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig16_1C
-	75,  // 56: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_17:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17
-	76,  // 57: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_17_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
-	77,  // 58: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_18:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
-	78,  // 59: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_18_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18_1C
-	79,  // 60: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_19:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
-	80,  // 61: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_19_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19_1C
-	81,  // 62: yandex.cloud.mdb.postgresql.v1.ConfigSpec.pooler_config:type_name -> yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig
-	82,  // 63: yandex.cloud.mdb.postgresql.v1.ConfigSpec.resources:type_name -> yandex.cloud.mdb.postgresql.v1.Resources
-	83,  // 64: yandex.cloud.mdb.postgresql.v1.ConfigSpec.autofailover:type_name -> google.protobuf.BoolValue
-	84,  // 65: yandex.cloud.mdb.postgresql.v1.ConfigSpec.backup_window_start:type_name -> google.type.TimeOfDay
-	64,  // 66: yandex.cloud.mdb.postgresql.v1.ConfigSpec.backup_retain_period_days:type_name -> google.protobuf.Int64Value
-	85,  // 67: yandex.cloud.mdb.postgresql.v1.ConfigSpec.access:type_name -> yandex.cloud.mdb.postgresql.v1.Access
-	86,  // 68: yandex.cloud.mdb.postgresql.v1.ConfigSpec.performance_diagnostics:type_name -> yandex.cloud.mdb.postgresql.v1.PerformanceDiagnostics
-	87,  // 69: yandex.cloud.mdb.postgresql.v1.ConfigSpec.disk_size_autoscaling:type_name -> yandex.cloud.mdb.postgresql.v1.DiskSizeAutoscaling
-	88,  // 70: yandex.cloud.mdb.postgresql.v1.ConfigSpec.connection_manager:type_name -> yandex.cloud.mdb.v1.ClusterConnectionManager
-	89,  // 71: yandex.cloud.mdb.postgresql.v1.ConfigSpec.managed_repack:type_name -> yandex.cloud.mdb.postgresql.v1.ManagedRepack
-	90,  // 72: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_11:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig11
-	91,  // 73: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_12:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig12
-	92,  // 74: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_13:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13
-	93,  // 75: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_13_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13_1C
-	94,  // 76: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_14:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14
-	95,  // 77: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_14_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14_1C
-	96,  // 78: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_15:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15
-	97,  // 79: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_15_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15_1C
-	98,  // 80: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_16:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16
-	99,  // 81: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_16_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16_1C
-	100, // 82: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_17:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17
-	101, // 83: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_17_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17_1C
-	102, // 84: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_18:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18
-	103, // 85: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_18_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18_1C
-	104, // 86: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_19:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19
-	105, // 87: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_19_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19_1C
-	3,   // 88: yandex.cloud.mdb.postgresql.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.postgresql.v1.GetClusterRequest
-	4,   // 89: yandex.cloud.mdb.postgresql.v1.ClusterService.List:input_type -> yandex.cloud.mdb.postgresql.v1.ListClustersRequest
-	6,   // 90: yandex.cloud.mdb.postgresql.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.postgresql.v1.CreateClusterRequest
-	8,   // 91: yandex.cloud.mdb.postgresql.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest
-	10,  // 92: yandex.cloud.mdb.postgresql.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.postgresql.v1.DeleteClusterRequest
-	12,  // 93: yandex.cloud.mdb.postgresql.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.postgresql.v1.StartClusterRequest
-	14,  // 94: yandex.cloud.mdb.postgresql.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.postgresql.v1.StopClusterRequest
-	16,  // 95: yandex.cloud.mdb.postgresql.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.postgresql.v1.MoveClusterRequest
-	18,  // 96: yandex.cloud.mdb.postgresql.v1.ClusterService.Backup:input_type -> yandex.cloud.mdb.postgresql.v1.BackupClusterRequest
-	20,  // 97: yandex.cloud.mdb.postgresql.v1.ClusterService.Restore:input_type -> yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest
-	24,  // 98: yandex.cloud.mdb.postgresql.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceRequest
-	22,  // 99: yandex.cloud.mdb.postgresql.v1.ClusterService.StartFailover:input_type -> yandex.cloud.mdb.postgresql.v1.StartClusterFailoverRequest
-	27,  // 100: yandex.cloud.mdb.postgresql.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest
-	30,  // 101: yandex.cloud.mdb.postgresql.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest
-	31,  // 102: yandex.cloud.mdb.postgresql.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.postgresql.v1.ListClusterOperationsRequest
-	33,  // 103: yandex.cloud.mdb.postgresql.v1.ClusterService.ListBackups:input_type -> yandex.cloud.mdb.postgresql.v1.ListClusterBackupsRequest
-	35,  // 104: yandex.cloud.mdb.postgresql.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.postgresql.v1.ListClusterHostsRequest
-	37,  // 105: yandex.cloud.mdb.postgresql.v1.ClusterService.AddHosts:input_type -> yandex.cloud.mdb.postgresql.v1.AddClusterHostsRequest
-	39,  // 106: yandex.cloud.mdb.postgresql.v1.ClusterService.DeleteHosts:input_type -> yandex.cloud.mdb.postgresql.v1.DeleteClusterHostsRequest
-	41,  // 107: yandex.cloud.mdb.postgresql.v1.ClusterService.UpdateHosts:input_type -> yandex.cloud.mdb.postgresql.v1.UpdateClusterHostsRequest
-	106, // 108: yandex.cloud.mdb.postgresql.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
-	107, // 109: yandex.cloud.mdb.postgresql.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
-	108, // 110: yandex.cloud.mdb.postgresql.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
-	51,  // 111: yandex.cloud.mdb.postgresql.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.postgresql.v1.Cluster
-	5,   // 112: yandex.cloud.mdb.postgresql.v1.ClusterService.List:output_type -> yandex.cloud.mdb.postgresql.v1.ListClustersResponse
-	61,  // 113: yandex.cloud.mdb.postgresql.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
-	61,  // 114: yandex.cloud.mdb.postgresql.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
-	61,  // 115: yandex.cloud.mdb.postgresql.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
-	61,  // 116: yandex.cloud.mdb.postgresql.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
-	61,  // 117: yandex.cloud.mdb.postgresql.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
-	61,  // 118: yandex.cloud.mdb.postgresql.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
-	61,  // 119: yandex.cloud.mdb.postgresql.v1.ClusterService.Backup:output_type -> yandex.cloud.operation.Operation
-	61,  // 120: yandex.cloud.mdb.postgresql.v1.ClusterService.Restore:output_type -> yandex.cloud.operation.Operation
-	61,  // 121: yandex.cloud.mdb.postgresql.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
-	61,  // 122: yandex.cloud.mdb.postgresql.v1.ClusterService.StartFailover:output_type -> yandex.cloud.operation.Operation
-	28,  // 123: yandex.cloud.mdb.postgresql.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.postgresql.v1.ListClusterLogsResponse
-	29,  // 124: yandex.cloud.mdb.postgresql.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.postgresql.v1.StreamLogRecord
-	32,  // 125: yandex.cloud.mdb.postgresql.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.postgresql.v1.ListClusterOperationsResponse
-	34,  // 126: yandex.cloud.mdb.postgresql.v1.ClusterService.ListBackups:output_type -> yandex.cloud.mdb.postgresql.v1.ListClusterBackupsResponse
-	36,  // 127: yandex.cloud.mdb.postgresql.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.postgresql.v1.ListClusterHostsResponse
-	61,  // 128: yandex.cloud.mdb.postgresql.v1.ClusterService.AddHosts:output_type -> yandex.cloud.operation.Operation
-	61,  // 129: yandex.cloud.mdb.postgresql.v1.ClusterService.DeleteHosts:output_type -> yandex.cloud.operation.Operation
-	61,  // 130: yandex.cloud.mdb.postgresql.v1.ClusterService.UpdateHosts:output_type -> yandex.cloud.operation.Operation
-	109, // 131: yandex.cloud.mdb.postgresql.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
-	61,  // 132: yandex.cloud.mdb.postgresql.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
-	61,  // 133: yandex.cloud.mdb.postgresql.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
-	111, // [111:134] is the sub-list for method output_type
-	88,  // [88:111] is the sub-list for method input_type
-	88,  // [88:88] is the sub-list for extension type_name
-	88,  // [88:88] is the sub-list for extension extendee
-	0,   // [0:88] is the sub-list for field type_name
+	58,  // 10: yandex.cloud.mdb.postgresql.v1.CreateClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	59,  // 11: yandex.cloud.mdb.postgresql.v1.CreateClusterMetadata.operation_log:type_name -> yandex.cloud.mdb.operationlog.v1.OperationLog
+	60,  // 12: yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
+	48,  // 13: yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.LabelsEntry
+	45,  // 14: yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.config_spec:type_name -> yandex.cloud.mdb.postgresql.v1.ConfigSpec
+	55,  // 15: yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.postgresql.v1.MaintenanceWindow
+	58,  // 16: yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	59,  // 17: yandex.cloud.mdb.postgresql.v1.UpdateClusterMetadata.operation_log:type_name -> yandex.cloud.mdb.operationlog.v1.OperationLog
+	61,  // 18: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.time:type_name -> google.protobuf.Timestamp
+	49,  // 19: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.labels:type_name -> yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.LabelsEntry
+	52,  // 20: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.environment:type_name -> yandex.cloud.mdb.postgresql.v1.Cluster.Environment
+	45,  // 21: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.config_spec:type_name -> yandex.cloud.mdb.postgresql.v1.ConfigSpec
+	44,  // 22: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.host_specs:type_name -> yandex.cloud.mdb.postgresql.v1.HostSpec
+	55,  // 23: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.postgresql.v1.MaintenanceWindow
+	57,  // 24: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.disk_encryption_key_id:type_name -> google.protobuf.StringValue
+	58,  // 25: yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	0,   // 26: yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceRequest.reschedule_type:type_name -> yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceRequest.RescheduleType
+	61,  // 27: yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceRequest.delayed_until:type_name -> google.protobuf.Timestamp
+	61,  // 28: yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceMetadata.delayed_until:type_name -> google.protobuf.Timestamp
+	61,  // 29: yandex.cloud.mdb.postgresql.v1.LogRecord.timestamp:type_name -> google.protobuf.Timestamp
+	50,  // 30: yandex.cloud.mdb.postgresql.v1.LogRecord.message:type_name -> yandex.cloud.mdb.postgresql.v1.LogRecord.MessageEntry
+	1,   // 31: yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest.ServiceType
+	61,  // 32: yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
+	61,  // 33: yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
+	26,  // 34: yandex.cloud.mdb.postgresql.v1.ListClusterLogsResponse.logs:type_name -> yandex.cloud.mdb.postgresql.v1.LogRecord
+	26,  // 35: yandex.cloud.mdb.postgresql.v1.StreamLogRecord.record:type_name -> yandex.cloud.mdb.postgresql.v1.LogRecord
+	2,   // 36: yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest.ServiceType
+	61,  // 37: yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
+	61,  // 38: yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
+	62,  // 39: yandex.cloud.mdb.postgresql.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	63,  // 40: yandex.cloud.mdb.postgresql.v1.ListClusterBackupsResponse.backups:type_name -> yandex.cloud.mdb.postgresql.v1.Backup
+	64,  // 41: yandex.cloud.mdb.postgresql.v1.ListClusterHostsResponse.hosts:type_name -> yandex.cloud.mdb.postgresql.v1.Host
+	44,  // 42: yandex.cloud.mdb.postgresql.v1.AddClusterHostsRequest.host_specs:type_name -> yandex.cloud.mdb.postgresql.v1.HostSpec
+	43,  // 43: yandex.cloud.mdb.postgresql.v1.UpdateClusterHostsRequest.update_host_specs:type_name -> yandex.cloud.mdb.postgresql.v1.UpdateHostSpec
+	65,  // 44: yandex.cloud.mdb.postgresql.v1.UpdateHostSpec.priority:type_name -> google.protobuf.Int64Value
+	46,  // 45: yandex.cloud.mdb.postgresql.v1.UpdateHostSpec.config_spec:type_name -> yandex.cloud.mdb.postgresql.v1.ConfigHostSpec
+	60,  // 46: yandex.cloud.mdb.postgresql.v1.UpdateHostSpec.update_mask:type_name -> google.protobuf.FieldMask
+	65,  // 47: yandex.cloud.mdb.postgresql.v1.HostSpec.priority:type_name -> google.protobuf.Int64Value
+	46,  // 48: yandex.cloud.mdb.postgresql.v1.HostSpec.config_spec:type_name -> yandex.cloud.mdb.postgresql.v1.ConfigHostSpec
+	66,  // 49: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_11:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig11
+	67,  // 50: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_12:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig12
+	68,  // 51: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_13:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig13
+	69,  // 52: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_13_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig13_1C
+	70,  // 53: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_14:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14
+	71,  // 54: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_14_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14_1C
+	72,  // 55: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_15:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig15
+	73,  // 56: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_15_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig15_1C
+	74,  // 57: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_16:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig16
+	75,  // 58: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_16_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig16_1C
+	76,  // 59: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_17:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17
+	77,  // 60: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_17_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
+	78,  // 61: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_18:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
+	79,  // 62: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_18_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18_1C
+	80,  // 63: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_19:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
+	81,  // 64: yandex.cloud.mdb.postgresql.v1.ConfigSpec.postgresql_config_19_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19_1C
+	82,  // 65: yandex.cloud.mdb.postgresql.v1.ConfigSpec.pooler_config:type_name -> yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig
+	83,  // 66: yandex.cloud.mdb.postgresql.v1.ConfigSpec.resources:type_name -> yandex.cloud.mdb.postgresql.v1.Resources
+	84,  // 67: yandex.cloud.mdb.postgresql.v1.ConfigSpec.autofailover:type_name -> google.protobuf.BoolValue
+	85,  // 68: yandex.cloud.mdb.postgresql.v1.ConfigSpec.backup_window_start:type_name -> google.type.TimeOfDay
+	65,  // 69: yandex.cloud.mdb.postgresql.v1.ConfigSpec.backup_retain_period_days:type_name -> google.protobuf.Int64Value
+	86,  // 70: yandex.cloud.mdb.postgresql.v1.ConfigSpec.access:type_name -> yandex.cloud.mdb.postgresql.v1.Access
+	87,  // 71: yandex.cloud.mdb.postgresql.v1.ConfigSpec.performance_diagnostics:type_name -> yandex.cloud.mdb.postgresql.v1.PerformanceDiagnostics
+	88,  // 72: yandex.cloud.mdb.postgresql.v1.ConfigSpec.disk_size_autoscaling:type_name -> yandex.cloud.mdb.postgresql.v1.DiskSizeAutoscaling
+	89,  // 73: yandex.cloud.mdb.postgresql.v1.ConfigSpec.connection_manager:type_name -> yandex.cloud.mdb.v1.ClusterConnectionManager
+	90,  // 74: yandex.cloud.mdb.postgresql.v1.ConfigSpec.managed_repack:type_name -> yandex.cloud.mdb.postgresql.v1.ManagedRepack
+	91,  // 75: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_11:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig11
+	92,  // 76: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_12:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig12
+	93,  // 77: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_13:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13
+	94,  // 78: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_13_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13_1C
+	95,  // 79: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_14:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14
+	96,  // 80: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_14_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14_1C
+	97,  // 81: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_15:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15
+	98,  // 82: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_15_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15_1C
+	99,  // 83: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_16:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16
+	100, // 84: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_16_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16_1C
+	101, // 85: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_17:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17
+	102, // 86: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_17_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17_1C
+	103, // 87: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_18:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18
+	104, // 88: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_18_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18_1C
+	105, // 89: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_19:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19
+	106, // 90: yandex.cloud.mdb.postgresql.v1.ConfigHostSpec.postgresql_config_19_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19_1C
+	3,   // 91: yandex.cloud.mdb.postgresql.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.postgresql.v1.GetClusterRequest
+	4,   // 92: yandex.cloud.mdb.postgresql.v1.ClusterService.List:input_type -> yandex.cloud.mdb.postgresql.v1.ListClustersRequest
+	6,   // 93: yandex.cloud.mdb.postgresql.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.postgresql.v1.CreateClusterRequest
+	8,   // 94: yandex.cloud.mdb.postgresql.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.postgresql.v1.UpdateClusterRequest
+	10,  // 95: yandex.cloud.mdb.postgresql.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.postgresql.v1.DeleteClusterRequest
+	12,  // 96: yandex.cloud.mdb.postgresql.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.postgresql.v1.StartClusterRequest
+	14,  // 97: yandex.cloud.mdb.postgresql.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.postgresql.v1.StopClusterRequest
+	16,  // 98: yandex.cloud.mdb.postgresql.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.postgresql.v1.MoveClusterRequest
+	18,  // 99: yandex.cloud.mdb.postgresql.v1.ClusterService.Backup:input_type -> yandex.cloud.mdb.postgresql.v1.BackupClusterRequest
+	20,  // 100: yandex.cloud.mdb.postgresql.v1.ClusterService.Restore:input_type -> yandex.cloud.mdb.postgresql.v1.RestoreClusterRequest
+	24,  // 101: yandex.cloud.mdb.postgresql.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.postgresql.v1.RescheduleMaintenanceRequest
+	22,  // 102: yandex.cloud.mdb.postgresql.v1.ClusterService.StartFailover:input_type -> yandex.cloud.mdb.postgresql.v1.StartClusterFailoverRequest
+	27,  // 103: yandex.cloud.mdb.postgresql.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.postgresql.v1.ListClusterLogsRequest
+	30,  // 104: yandex.cloud.mdb.postgresql.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.postgresql.v1.StreamClusterLogsRequest
+	31,  // 105: yandex.cloud.mdb.postgresql.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.postgresql.v1.ListClusterOperationsRequest
+	33,  // 106: yandex.cloud.mdb.postgresql.v1.ClusterService.ListBackups:input_type -> yandex.cloud.mdb.postgresql.v1.ListClusterBackupsRequest
+	35,  // 107: yandex.cloud.mdb.postgresql.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.postgresql.v1.ListClusterHostsRequest
+	37,  // 108: yandex.cloud.mdb.postgresql.v1.ClusterService.AddHosts:input_type -> yandex.cloud.mdb.postgresql.v1.AddClusterHostsRequest
+	39,  // 109: yandex.cloud.mdb.postgresql.v1.ClusterService.DeleteHosts:input_type -> yandex.cloud.mdb.postgresql.v1.DeleteClusterHostsRequest
+	41,  // 110: yandex.cloud.mdb.postgresql.v1.ClusterService.UpdateHosts:input_type -> yandex.cloud.mdb.postgresql.v1.UpdateClusterHostsRequest
+	107, // 111: yandex.cloud.mdb.postgresql.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	108, // 112: yandex.cloud.mdb.postgresql.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	109, // 113: yandex.cloud.mdb.postgresql.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	51,  // 114: yandex.cloud.mdb.postgresql.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.postgresql.v1.Cluster
+	5,   // 115: yandex.cloud.mdb.postgresql.v1.ClusterService.List:output_type -> yandex.cloud.mdb.postgresql.v1.ListClustersResponse
+	62,  // 116: yandex.cloud.mdb.postgresql.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
+	62,  // 117: yandex.cloud.mdb.postgresql.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
+	62,  // 118: yandex.cloud.mdb.postgresql.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
+	62,  // 119: yandex.cloud.mdb.postgresql.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
+	62,  // 120: yandex.cloud.mdb.postgresql.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
+	62,  // 121: yandex.cloud.mdb.postgresql.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
+	62,  // 122: yandex.cloud.mdb.postgresql.v1.ClusterService.Backup:output_type -> yandex.cloud.operation.Operation
+	62,  // 123: yandex.cloud.mdb.postgresql.v1.ClusterService.Restore:output_type -> yandex.cloud.operation.Operation
+	62,  // 124: yandex.cloud.mdb.postgresql.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
+	62,  // 125: yandex.cloud.mdb.postgresql.v1.ClusterService.StartFailover:output_type -> yandex.cloud.operation.Operation
+	28,  // 126: yandex.cloud.mdb.postgresql.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.postgresql.v1.ListClusterLogsResponse
+	29,  // 127: yandex.cloud.mdb.postgresql.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.postgresql.v1.StreamLogRecord
+	32,  // 128: yandex.cloud.mdb.postgresql.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.postgresql.v1.ListClusterOperationsResponse
+	34,  // 129: yandex.cloud.mdb.postgresql.v1.ClusterService.ListBackups:output_type -> yandex.cloud.mdb.postgresql.v1.ListClusterBackupsResponse
+	36,  // 130: yandex.cloud.mdb.postgresql.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.postgresql.v1.ListClusterHostsResponse
+	62,  // 131: yandex.cloud.mdb.postgresql.v1.ClusterService.AddHosts:output_type -> yandex.cloud.operation.Operation
+	62,  // 132: yandex.cloud.mdb.postgresql.v1.ClusterService.DeleteHosts:output_type -> yandex.cloud.operation.Operation
+	62,  // 133: yandex.cloud.mdb.postgresql.v1.ClusterService.UpdateHosts:output_type -> yandex.cloud.operation.Operation
+	110, // 134: yandex.cloud.mdb.postgresql.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	62,  // 135: yandex.cloud.mdb.postgresql.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	62,  // 136: yandex.cloud.mdb.postgresql.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	114, // [114:137] is the sub-list for method output_type
+	91,  // [91:114] is the sub-list for method input_type
+	91,  // [91:91] is the sub-list for extension type_name
+	91,  // [91:91] is the sub-list for extension extendee
+	0,   // [0:91] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_postgresql_v1_cluster_service_proto_init() }

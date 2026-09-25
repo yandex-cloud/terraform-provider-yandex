@@ -487,8 +487,10 @@ type Cluster struct {
 	DeletionProtection bool `protobuf:"varint,17,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,19,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
+	IsHa          bool `protobuf:"varint,20,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Cluster) Reset() {
@@ -645,6 +647,13 @@ func (x *Cluster) GetDiskEncryptionKeyId() *wrapperspb.StringValue {
 		return x.DiskEncryptionKeyId
 	}
 	return nil
+}
+
+func (x *Cluster) GetIsHa() bool {
+	if x != nil {
+		return x.IsHa
+	}
+	return false
 }
 
 // Monitoring system metadata.
@@ -871,7 +880,9 @@ type Shard struct {
 	// ID of the cluster that the shard belongs to.
 	ClusterId string `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	// Configuration of the shard.
-	Config        *ShardConfig `protobuf:"bytes,3,opt,name=config,proto3" json:"config,omitempty"`
+	Config *ShardConfig `protobuf:"bytes,3,opt,name=config,proto3" json:"config,omitempty"`
+	// Indicates whether the shard topology is highly available as defined by the Yandex Cloud SLA for managed databases.
+	IsHa          bool `protobuf:"varint,4,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -925,6 +936,13 @@ func (x *Shard) GetConfig() *ShardConfig {
 		return x.Config
 	}
 	return nil
+}
+
+func (x *Shard) GetIsHa() bool {
+	if x != nil {
+		return x.IsHa
+	}
+	return false
 }
 
 type Shards struct {
@@ -2003,7 +2021,7 @@ var File_yandex_cloud_mdb_clickhouse_v1_cluster_proto protoreflect.FileDescripto
 
 const file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	",yandex/cloud/mdb/clickhouse/v1/cluster.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a6yandex/cloud/mdb/clickhouse/v1/config/clickhouse.proto\x1a0yandex/cloud/mdb/clickhouse/v1/maintenance.proto\x1a)yandex/cloud/mdb/clickhouse/v1/user.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a\x1dyandex/cloud/validation.proto\"\x80\v\n" +
+	",yandex/cloud/mdb/clickhouse/v1/cluster.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a6yandex/cloud/mdb/clickhouse/v1/config/clickhouse.proto\x1a0yandex/cloud/mdb/clickhouse/v1/maintenance.proto\x1a)yandex/cloud/mdb/clickhouse/v1/user.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a\x1dyandex/cloud/validation.proto\"\x95\v\n" +
 	"\aCluster\x12\x14\n" +
 	"\x02id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -2027,7 +2045,8 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_rawDesc = "" +
 	"\x11planned_operation\x18\x0f \x01(\v24.yandex.cloud.mdb.clickhouse.v1.MaintenanceOperationR\x10plannedOperation\x12,\n" +
 	"\x12security_group_ids\x18\x10 \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\x11 \x01(\bR\x12deletionProtection\x12Q\n" +
-	"\x16disk_encryption_key_id\x18\x13 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
+	"\x16disk_encryption_key_id\x18\x13 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x12\x13\n" +
+	"\x05is_ha\x18\x14 \x01(\bR\x04isHa\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"I\n" +
@@ -2080,12 +2099,13 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_rawDesc = "" +
 	"\x15disk_size_autoscaling\x18\x03 \x01(\v23.yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscalingR\x13diskSizeAutoscalingJ\x04\b\x04\x10\x05\x1a\xbd\x01\n" +
 	"\tZookeeper\x12G\n" +
 	"\tresources\x18\x01 \x01(\v2).yandex.cloud.mdb.clickhouse.v1.ResourcesR\tresources\x12g\n" +
-	"\x15disk_size_autoscaling\x18\x02 \x01(\v23.yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscalingR\x13diskSizeAutoscaling\"\x7f\n" +
+	"\x15disk_size_autoscaling\x18\x02 \x01(\v23.yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscalingR\x13diskSizeAutoscaling\"\x94\x01\n" +
 	"\x05Shard\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x02 \x01(\tR\tclusterId\x12C\n" +
-	"\x06config\x18\x03 \x01(\v2+.yandex.cloud.mdb.clickhouse.v1.ShardConfigR\x06config\"G\n" +
+	"\x06config\x18\x03 \x01(\v2+.yandex.cloud.mdb.clickhouse.v1.ShardConfigR\x06config\x12\x13\n" +
+	"\x05is_ha\x18\x04 \x01(\bR\x04isHa\"G\n" +
 	"\x06Shards\x12=\n" +
 	"\x06shards\x18\x01 \x03(\v2%.yandex.cloud.mdb.clickhouse.v1.ShardR\x06shards\"\xda\x01\n" +
 	"\n" +

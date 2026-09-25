@@ -122,6 +122,12 @@ func (m *Source) SetYandexMessenger(v *YandexMessenger) {
 	}
 }
 
+func (m *Source) SetMaxMessage(v *MaxMessage) {
+	m.Source = &Source_MaxMessage{
+		MaxMessage: v,
+	}
+}
+
 func (m *Timer) SetCronExpression(v string) {
 	m.CronExpression = v
 }
@@ -287,6 +293,18 @@ func (m *TelegramMessage) SetAllowedUpdates(v []string) {
 }
 
 func (m *TelegramMessage) SetForce(v bool) {
+	m.Force = v
+}
+
+func (m *MaxMessage) SetBotToken(v string) {
+	m.BotToken = v
+}
+
+func (m *MaxMessage) SetUpdateTypes(v []string) {
+	m.UpdateTypes = v
+}
+
+func (m *MaxMessage) SetForce(v bool) {
 	m.Force = v
 }
 

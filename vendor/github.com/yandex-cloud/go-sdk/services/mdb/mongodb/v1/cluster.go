@@ -48,6 +48,7 @@ type ClusterClient interface {
 	ListAccessBindings(context.Context, *access.ListAccessBindingsRequest, ...grpc.CallOption) (*access.ListAccessBindingsResponse, error)
 	SetAccessBindings(context.Context, *access.SetAccessBindingsRequest, ...grpc.CallOption) (*ClusterSetAccessBindingsOperation, error)
 	UpdateAccessBindings(context.Context, *access.UpdateAccessBindingsRequest, ...grpc.CallOption) (*ClusterUpdateAccessBindingsOperation, error)
+	SetBalancerStatus(context.Context, *mongodb.SetBalancerStatusRequest, ...grpc.CallOption) (*ClusterSetBalancerStatusOperation, error)
 }
 
 var _ ClusterClient = clusterClient{}
@@ -1225,6 +1226,60 @@ func (c clusterClient) UpdateAccessBindings(ctx context.Context, in *access.Upda
 	return &ClusterUpdateAccessBindingsOperation{*op}, nil
 }
 
+// ClusterSetBalancerStatusOperation is used to monitor the state of SetBalancerStatus operations.
+type ClusterSetBalancerStatusOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *ClusterSetBalancerStatusOperation) Metadata() *mongodb.SetBalancerStatusMetadata {
+	return o.Operation.Metadata().(*mongodb.SetBalancerStatusMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *ClusterSetBalancerStatusOperation) Response() *mongodb.Cluster {
+	return o.Operation.Response().(*mongodb.Cluster)
+}
+
+// Wait polls the operation until it's done.
+func (o *ClusterSetBalancerStatusOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*mongodb.Cluster, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*mongodb.Cluster)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *ClusterSetBalancerStatusOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*mongodb.Cluster, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*mongodb.Cluster)
+	return response, err
+}
+
+// SetBalancerStatus is an operation of Yandex.Cloud MongoDB Cluster service.
+// It returns an object which should be used to monitor the operation state.
+func (c clusterClient) SetBalancerStatus(ctx context.Context, in *mongodb.SetBalancerStatusRequest, opts ...grpc.CallOption) (*ClusterSetBalancerStatusOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, ClusterSetBalancerStatus, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := mongodb.NewClusterServiceClient(connection).SetBalancerStatus(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll: c.pollOperation,
+		GetResourceID: func(metadata proto.Message) string {
+			return metadata.(*mongodb.SetBalancerStatusMetadata).GetClusterId()
+		},
+		MetadataType: (*mongodb.SetBalancerStatusMetadata)(nil),
+		ResponseType: (*mongodb.Cluster)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ClusterSetBalancerStatusOperation{*op}, nil
+}
+
 // pollOperation returns the current state of the polled operation.
 func (c clusterClient) pollOperation(ctx context.Context, operationId string, opts ...grpc.CallOption) (sdkop.YCOperation, error) {
 	connection, err := c.connector.GetConnection(ctx, ClusterOperationPoller, opts...)
@@ -1265,5 +1320,6 @@ var (
 	ClusterListAccessBindings    = protoreflect.FullName("yandex.cloud.mdb.mongodb.v1.ClusterService.ListAccessBindings")
 	ClusterSetAccessBindings     = protoreflect.FullName("yandex.cloud.mdb.mongodb.v1.ClusterService.SetAccessBindings")
 	ClusterUpdateAccessBindings  = protoreflect.FullName("yandex.cloud.mdb.mongodb.v1.ClusterService.UpdateAccessBindings")
+	ClusterSetBalancerStatus     = protoreflect.FullName("yandex.cloud.mdb.mongodb.v1.ClusterService.SetBalancerStatus")
 	ClusterOperationPoller       = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
 )

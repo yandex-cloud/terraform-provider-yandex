@@ -910,6 +910,51 @@ func YandexServerlessTriggersDatasourceSchema(ctx context.Context) schema.Schema
 						Computed: true,
 					},
 
+					"max_message": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"bot_token": schema.StringAttribute{
+								MarkdownDescription: "Input only, always empty in output.\n Required on Create; on Update, changing it re-registers the subscription.",
+								Description: "Input only, always empty in output.\n Required on Create; on Update, changing it re-registers the subscription." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.max_message -> yandex.cloud.serverless.triggers.v2.MaxMessage.bot_token
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed:  true,
+								Sensitive: true,
+							},
+
+							"force": schema.BoolAttribute{
+								MarkdownDescription: "Input only. Delete all existing webhook subscriptions before registering this trigger.\n Without force, registration fails if any subscription uses a different URL.",
+								Description: "Input only. Delete all existing webhook subscriptions before registering this trigger.\n Without force, registration fails if any subscription uses a different URL." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.max_message -> yandex.cloud.serverless.triggers.v2.MaxMessage.force
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed: true,
+							},
+
+							"update_types": schema.ListAttribute{
+								ElementType:         types.StringType,
+								MarkdownDescription: "Types of MAX updates to receive. Optional, default is [\"message_created\"].",
+								Description: "Types of MAX updates to receive. Optional, default is [\"message_created\"]." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.max_message -> yandex.cloud.serverless.triggers.v2.MaxMessage.update_types
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed: true,
+							},
+						},
+						MarkdownDescription: "MAX source: fires on MAX bot updates.",
+						Description: "MAX source: fires on MAX bot updates." +
+							// proto paths: +
+							// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.max_message
+							"package: yandex.cloud.serverless.triggers.v2\n" +
+							"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+						Computed: true,
+					},
+
 					"object_storage": schema.SingleNestedAttribute{
 
 						Attributes: map[string]schema.Attribute{

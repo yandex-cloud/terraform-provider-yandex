@@ -568,6 +568,8 @@ type Cluster struct {
 	// Indicates current sharding status of the cluster.
 	Sharded bool `protobuf:"varint,13,opt,name=sharded,proto3" json:"sharded,omitempty"`
 	// Maintenance window for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,14,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Planned maintenance operation to be started for the cluster within the nearest [maintenance_window].
 	PlannedOperation *MaintenanceOperation `protobuf:"bytes,15,opt,name=planned_operation,json=plannedOperation,proto3" json:"planned_operation,omitempty"`
@@ -577,8 +579,10 @@ type Cluster struct {
 	DeletionProtection bool `protobuf:"varint,17,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,18,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
+	IsHa          bool `protobuf:"varint,19,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Cluster) Reset() {
@@ -702,6 +706,7 @@ func (x *Cluster) GetSharded() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster.proto.
 func (x *Cluster) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -735,6 +740,13 @@ func (x *Cluster) GetDiskEncryptionKeyId() *wrapperspb.StringValue {
 		return x.DiskEncryptionKeyId
 	}
 	return nil
+}
+
+func (x *Cluster) GetIsHa() bool {
+	if x != nil {
+		return x.IsHa
+	}
+	return false
 }
 
 // Monitoring system.
@@ -838,8 +850,12 @@ type ClusterConfig struct {
 	FullVersion string `protobuf:"bytes,20,opt,name=full_version,json=fullVersion,proto3" json:"full_version,omitempty"`
 	// AutoCompact config
 	AutocompactConfig *AutoCompactConfig `protobuf:"bytes,22,opt,name=autocompact_config,json=autocompactConfig,proto3" json:"autocompact_config,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Whether balancing is enabled by the user. False for non-sharded clusters.
+	// Output only; change through SetBalancerStatus. Maintenance may temporarily
+	// pause balancing.
+	BalancerEnabled bool `protobuf:"varint,23,opt,name=balancer_enabled,json=balancerEnabled,proto3" json:"balancer_enabled,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ClusterConfig) Reset() {
@@ -1030,6 +1046,13 @@ func (x *ClusterConfig) GetAutocompactConfig() *AutoCompactConfig {
 		return x.AutocompactConfig
 	}
 	return nil
+}
+
+func (x *ClusterConfig) GetBalancerEnabled() bool {
+	if x != nil {
+		return x.BalancerEnabled
+	}
+	return false
 }
 
 type isClusterConfig_Mongodb interface {
@@ -1860,7 +1883,9 @@ type Shard struct {
 	// Name of the shard.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// ID of the cluster that the shard belongs to.
-	ClusterId     string `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	ClusterId string `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Indicates whether the shard topology is highly available as defined by the Yandex Cloud SLA for managed databases.
+	IsHa          bool `protobuf:"varint,3,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1907,6 +1932,13 @@ func (x *Shard) GetClusterId() string {
 		return x.ClusterId
 	}
 	return ""
+}
+
+func (x *Shard) GetIsHa() bool {
+	if x != nil {
+		return x.IsHa
+	}
+	return false
 }
 
 type Host struct {
@@ -5115,7 +5147,7 @@ var File_yandex_cloud_mdb_mongodb_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_mongodb_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	")yandex/cloud/mdb/mongodb/v1/cluster.proto\x12\x1byandex.cloud.mdb.mongodb.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a0yandex/cloud/mdb/mongodb/v1/config/mongodb.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb3_6.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb4_0.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb4_2.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb4_4.proto\x1a>yandex/cloud/mdb/mongodb/v1/config/mongodb4_4_enterprise.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb5_0.proto\x1a>yandex/cloud/mdb/mongodb/v1/config/mongodb5_0_enterprise.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb6_0.proto\x1a>yandex/cloud/mdb/mongodb/v1/config/mongodb6_0_enterprise.proto\x1a-yandex/cloud/mdb/mongodb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xc8\n" +
+	")yandex/cloud/mdb/mongodb/v1/cluster.proto\x12\x1byandex.cloud.mdb.mongodb.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a0yandex/cloud/mdb/mongodb/v1/config/mongodb.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb3_6.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb4_0.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb4_2.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb4_4.proto\x1a>yandex/cloud/mdb/mongodb/v1/config/mongodb4_4_enterprise.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb5_0.proto\x1a>yandex/cloud/mdb/mongodb/v1/config/mongodb5_0_enterprise.proto\x1a3yandex/cloud/mdb/mongodb/v1/config/mongodb6_0.proto\x1a>yandex/cloud/mdb/mongodb/v1/config/mongodb6_0_enterprise.proto\x1a-yandex/cloud/mdb/mongodb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xe1\n" +
 	"\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
@@ -5135,12 +5167,13 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_proto_rawDesc = "" +
 	" \x01(\tR\tnetworkId\x12C\n" +
 	"\x06health\x18\v \x01(\x0e2+.yandex.cloud.mdb.mongodb.v1.Cluster.HealthR\x06health\x12C\n" +
 	"\x06status\x18\f \x01(\x0e2+.yandex.cloud.mdb.mongodb.v1.Cluster.StatusR\x06status\x12\x18\n" +
-	"\asharded\x18\r \x01(\bR\asharded\x12]\n" +
-	"\x12maintenance_window\x18\x0e \x01(\v2..yandex.cloud.mdb.mongodb.v1.MaintenanceWindowR\x11maintenanceWindow\x12^\n" +
+	"\asharded\x18\r \x01(\bR\asharded\x12a\n" +
+	"\x12maintenance_window\x18\x0e \x01(\v2..yandex.cloud.mdb.mongodb.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12^\n" +
 	"\x11planned_operation\x18\x0f \x01(\v21.yandex.cloud.mdb.mongodb.v1.MaintenanceOperationR\x10plannedOperation\x12,\n" +
 	"\x12security_group_ids\x18\x10 \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\x11 \x01(\bR\x12deletionProtection\x12Q\n" +
-	"\x16disk_encryption_key_id\x18\x12 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
+	"\x16disk_encryption_key_id\x18\x12 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x12\x13\n" +
+	"\x05is_ha\x18\x13 \x01(\bR\x04isHa\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"I\n" +
@@ -5167,7 +5200,7 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_proto_rawDesc = "" +
 	"Monitoring\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x12\n" +
-	"\x04link\x18\x03 \x01(\tR\x04link\"\xe0\v\n" +
+	"\x04link\x18\x03 \x01(\tR\x04link\"\x8b\f\n" +
 	"\rClusterConfig\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12B\n" +
 	"\x1dfeature_compatibility_version\x18\x05 \x01(\tR\x1bfeatureCompatibilityVersion\x12O\n" +
@@ -5187,7 +5220,8 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_proto_rawDesc = "" +
 	"\x06access\x18\x06 \x01(\v2#.yandex.cloud.mdb.mongodb.v1.AccessR\x06access\x12K\n" +
 	"\x0emongodb_config\x18\x13 \x01(\v2$.yandex.cloud.mdb.mongodb.v1.MongodbR\rmongodbConfig\x12!\n" +
 	"\ffull_version\x18\x14 \x01(\tR\vfullVersion\x12]\n" +
-	"\x12autocompact_config\x18\x16 \x01(\v2..yandex.cloud.mdb.mongodb.v1.AutoCompactConfigR\x11autocompactConfigB\t\n" +
+	"\x12autocompact_config\x18\x16 \x01(\v2..yandex.cloud.mdb.mongodb.v1.AutoCompactConfigR\x11autocompactConfig\x12)\n" +
+	"\x10balancer_enabled\x18\x17 \x01(\bR\x0fbalancerEnabledB\t\n" +
 	"\amongodbJ\x04\b\x10\x10\x13J\x04\b\x15\x10\x16\"\xd6\v\n" +
 	"\n" +
 	"Mongodb3_6\x12F\n" +
@@ -5444,11 +5478,12 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_proto_rawDesc = "" +
 	"\rconfig_mongos\x18\x01 \x01(\v23.yandex.cloud.mdb.mongodb.v1.config.MongosConfigSetR\fconfigMongos\x12^\n" +
 	"\x0fconfig_mongocfg\x18\x02 \x01(\v25.yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfigSetR\x0econfigMongocfg\x12D\n" +
 	"\tresources\x18\x03 \x01(\v2&.yandex.cloud.mdb.mongodb.v1.ResourcesR\tresources\x12d\n" +
-	"\x15disk_size_autoscaling\x18\x04 \x01(\v20.yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscalingR\x13diskSizeAutoscaling\":\n" +
+	"\x15disk_size_autoscaling\x18\x04 \x01(\v20.yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscalingR\x13diskSizeAutoscaling\"O\n" +
 	"\x05Shard\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x02 \x01(\tR\tclusterId\"\xb8\b\n" +
+	"cluster_id\x18\x02 \x01(\tR\tclusterId\x12\x13\n" +
+	"\x05is_ha\x18\x03 \x01(\bR\x04isHa\"\xb8\b\n" +
 	"\x04Host\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +

@@ -318,6 +318,10 @@ func (m *MongosConfig) SetOperationProfiling(v *MongosConfig_OperationProfiling)
 	m.OperationProfiling = v
 }
 
+func (m *MongosConfig) SetBalancerConfig(v *MongosConfig_BalancerConfig) {
+	m.BalancerConfig = v
+}
+
 func (m *MongosConfig_Network) SetMaxIncomingConnections(v *wrapperspb.Int64Value) {
 	m.MaxIncomingConnections = v
 }
@@ -396,6 +400,42 @@ func (m *MongosConfig_OperationProfiling) SetSlowOpThreshold(v *wrapperspb.Int64
 
 func (m *MongosConfig_OperationProfiling) SetSlowOpSampleRate(v *wrapperspb.DoubleValue) {
 	m.SlowOpSampleRate = v
+}
+
+func (m *MongosConfig_BalancerConfig) SetSecondaryThrottle(v *MongosConfig_BalancerConfig_SecondaryThrottle) {
+	m.SecondaryThrottle = v
+}
+
+func (m *MongosConfig_BalancerConfig) SetWaitForDelete(v *wrapperspb.BoolValue) {
+	m.WaitForDelete = v
+}
+
+func (m *MongosConfig_BalancerConfig) SetAttemptToBalanceJumboChunks(v *wrapperspb.BoolValue) {
+	m.AttemptToBalanceJumboChunks = v
+}
+
+func (m *MongosConfig_BalancerConfig_SecondaryThrottle) SetEnabled(v *wrapperspb.BoolValue) {
+	m.Enabled = v
+}
+
+func (m *MongosConfig_BalancerConfig_SecondaryThrottle) SetWriteConcern(v *MongosConfig_BalancerConfig_SecondaryThrottle_WriteConcern) {
+	m.WriteConcern = v
+}
+
+func (m *MongosConfig_BalancerConfig_SecondaryThrottle_WriteConcern) SetNodes(v *wrapperspb.Int64Value) {
+	m.Nodes = v
+}
+
+func (m *MongosConfig_BalancerConfig_SecondaryThrottle_WriteConcern) SetMajority(v *wrapperspb.BoolValue) {
+	m.Majority = v
+}
+
+func (m *MongosConfig_BalancerConfig_SecondaryThrottle_WriteConcern) SetJournal(v *wrapperspb.BoolValue) {
+	m.Journal = v
+}
+
+func (m *MongosConfig_BalancerConfig_SecondaryThrottle_WriteConcern) SetTimeoutMs(v *wrapperspb.Int64Value) {
+	m.TimeoutMs = v
 }
 
 func (m *MongodConfigSet) SetEffectiveConfig(v *MongodConfig) {

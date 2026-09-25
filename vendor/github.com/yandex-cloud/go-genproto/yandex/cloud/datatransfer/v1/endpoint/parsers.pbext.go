@@ -32,6 +32,12 @@ func (m *Parser) SetTskvParser(v *GenericParserCommon) {
 	}
 }
 
+func (m *Parser) SetConfluentSchemaRegistryParser(v *ConfluentSchemaRegistryParser) {
+	m.Parser = &Parser_ConfluentSchemaRegistryParser{
+		ConfluentSchemaRegistryParser: v,
+	}
+}
+
 func (m *GenericParserCommon) SetDataSchema(v *DataSchema) {
 	m.DataSchema = v
 }
@@ -46,4 +52,92 @@ func (m *GenericParserCommon) SetAddRestColumn(v bool) {
 
 func (m *GenericParserCommon) SetUnescapeStringValues(v bool) {
 	m.UnescapeStringValues = v
+}
+
+func (m *ConfluentSchemaRegistryConnection) SetSchemaRegistryUrl(v string) {
+	m.SchemaRegistryUrl = v
+}
+
+func (m *ConfluentSchemaRegistryConnection) SetTlsMode(v *TLSMode) {
+	m.TlsMode = v
+}
+
+func (m *ConfluentSchemaRegistryConnection) SetAuth(v *ConfluentSchemaRegistryAuth) {
+	m.Auth = v
+}
+
+func (m *SchemaRegistryTableNamePolicyDerived) SetJson(v SchemaRegistryTableNamePolicyDerivedJSONType) {
+	m.Json = v
+}
+
+func (m *SchemaRegistryTableNamePolicyDerived) SetProtobuf(v SchemaRegistryTableNamePolicyDerivedProtobufType) {
+	m.Protobuf = v
+}
+
+func (m *SchemaRegistryTableNamePolicyManual) SetTableName(v string) {
+	m.TableName = v
+}
+
+type SchemaRegistryTableNamePolicy_SchemaRegistryTableNamePolicy = isSchemaRegistryTableNamePolicy_SchemaRegistryTableNamePolicy
+
+func (m *SchemaRegistryTableNamePolicy) SetSchemaRegistryTableNamePolicy(v SchemaRegistryTableNamePolicy_SchemaRegistryTableNamePolicy) {
+	m.SchemaRegistryTableNamePolicy = v
+}
+
+func (m *SchemaRegistryTableNamePolicy) SetDerived(v *SchemaRegistryTableNamePolicyDerived) {
+	m.SchemaRegistryTableNamePolicy = &SchemaRegistryTableNamePolicy_Derived{
+		Derived: v,
+	}
+}
+
+func (m *SchemaRegistryTableNamePolicy) SetManual(v *SchemaRegistryTableNamePolicyManual) {
+	m.SchemaRegistryTableNamePolicy = &SchemaRegistryTableNamePolicy_Manual{
+		Manual: v,
+	}
+}
+
+type ConfluentSchemaRegistryParser_Connection = isConfluentSchemaRegistryParser_Connection
+
+func (m *ConfluentSchemaRegistryParser) SetConnection(v ConfluentSchemaRegistryParser_Connection) {
+	m.Connection = v
+}
+
+func (m *ConfluentSchemaRegistryParser) SetConfluentSchemaRegistryConnection(v *ConfluentSchemaRegistryConnection) {
+	m.Connection = &ConfluentSchemaRegistryParser_ConfluentSchemaRegistryConnection{
+		ConfluentSchemaRegistryConnection: v,
+	}
+}
+
+func (m *ConfluentSchemaRegistryParser) SetIsGenerateUpdates(v bool) {
+	m.IsGenerateUpdates = v
+}
+
+func (m *ConfluentSchemaRegistryParser) SetTableNamePolicy(v *SchemaRegistryTableNamePolicy) {
+	m.TableNamePolicy = v
+}
+
+type ConfluentSchemaRegistryAuth_ConfluentSchemaRegistryAuth = isConfluentSchemaRegistryAuth_ConfluentSchemaRegistryAuth
+
+func (m *ConfluentSchemaRegistryAuth) SetConfluentSchemaRegistryAuth(v ConfluentSchemaRegistryAuth_ConfluentSchemaRegistryAuth) {
+	m.ConfluentSchemaRegistryAuth = v
+}
+
+func (m *ConfluentSchemaRegistryAuth) SetNoAuth(v *NoAuth) {
+	m.ConfluentSchemaRegistryAuth = &ConfluentSchemaRegistryAuth_NoAuth{
+		NoAuth: v,
+	}
+}
+
+func (m *ConfluentSchemaRegistryAuth) SetBasic(v *BasicAuthSR) {
+	m.ConfluentSchemaRegistryAuth = &ConfluentSchemaRegistryAuth_Basic{
+		Basic: v,
+	}
+}
+
+func (m *BasicAuthSR) SetUser(v string) {
+	m.User = v
+}
+
+func (m *BasicAuthSR) SetPassword(v *Secret) {
+	m.Password = v
 }

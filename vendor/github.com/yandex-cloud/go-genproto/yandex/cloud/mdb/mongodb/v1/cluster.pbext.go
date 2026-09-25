@@ -81,6 +81,10 @@ func (m *Cluster) SetDiskEncryptionKeyId(v *wrapperspb.StringValue) {
 	m.DiskEncryptionKeyId = v
 }
 
+func (m *Cluster) SetIsHa(v bool) {
+	m.IsHa = v
+}
+
 func (m *Monitoring) SetName(v string) {
 	m.Name = v
 }
@@ -187,6 +191,10 @@ func (m *ClusterConfig) SetFullVersion(v string) {
 
 func (m *ClusterConfig) SetAutocompactConfig(v *AutoCompactConfig) {
 	m.AutocompactConfig = v
+}
+
+func (m *ClusterConfig) SetBalancerEnabled(v bool) {
+	m.BalancerEnabled = v
 }
 
 func (m *Mongodb3_6) SetMongod(v *Mongodb3_6_Mongod) {
@@ -875,6 +883,10 @@ func (m *Shard) SetName(v string) {
 
 func (m *Shard) SetClusterId(v string) {
 	m.ClusterId = v
+}
+
+func (m *Shard) SetIsHa(v bool) {
+	m.IsHa = v
 }
 
 func (m *Host) SetName(v string) {

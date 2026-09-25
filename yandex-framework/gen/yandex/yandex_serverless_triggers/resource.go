@@ -645,6 +645,35 @@ func (r *yandexServerlessTriggersResource) Update(ctx context.Context, req resou
 			}
 		}
 
+		if (yandexServerlessTriggersSourcePlan.MaxMessage.IsNull() || yandexServerlessTriggersSourceState.MaxMessage.IsNull()) &&
+			!(yandexServerlessTriggersSourcePlan.MaxMessage.IsNull() && yandexServerlessTriggersSourceState.MaxMessage.IsNull()) &&
+			!yandexServerlessTriggersSourcePlan.MaxMessage.IsUnknown() {
+			updatePaths = append(updatePaths, "source.max_message")
+		} else if !yandexServerlessTriggersSourcePlan.MaxMessage.IsUnknown() {
+			var yandexServerlessTriggersSourceMaxMessageState, yandexServerlessTriggersSourceMaxMessagePlan yandexServerlessTriggersSourceMaxMessageModel
+			resp.Diagnostics.Append(yandexServerlessTriggersSourcePlan.MaxMessage.As(ctx, &yandexServerlessTriggersSourceMaxMessagePlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			resp.Diagnostics.Append(yandexServerlessTriggersSourceState.MaxMessage.As(ctx, &yandexServerlessTriggersSourceMaxMessageState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			if !yandexServerlessTriggersSourceMaxMessagePlan.BotToken.IsUnknown() && !yandexServerlessTriggersSourceMaxMessagePlan.BotToken.Equal(yandexServerlessTriggersSourceMaxMessageState.BotToken) {
+				updatePaths = append(updatePaths, "source.max_message.bot_token")
+			}
+			if !yandexServerlessTriggersSourceMaxMessagePlan.Force.IsUnknown() && !yandexServerlessTriggersSourceMaxMessagePlan.Force.Equal(yandexServerlessTriggersSourceMaxMessageState.Force) {
+				updatePaths = append(updatePaths, "source.max_message.force")
+			}
+			if yandexServerlessTriggersSourceMaxMessagePlan.UpdateTypes.IsNull() {
+				yandexServerlessTriggersSourceMaxMessagePlan.UpdateTypes = types.ListNull(types.StringType)
+			}
+			if yandexServerlessTriggersSourceMaxMessageState.UpdateTypes.IsNull() {
+				yandexServerlessTriggersSourceMaxMessageState.UpdateTypes = types.ListNull(types.StringType)
+			}
+			if !yandexServerlessTriggersSourceMaxMessagePlan.UpdateTypes.IsUnknown() && !yandexServerlessTriggersSourceMaxMessagePlan.UpdateTypes.Equal(yandexServerlessTriggersSourceMaxMessageState.UpdateTypes) {
+				updatePaths = append(updatePaths, "source.max_message.update_types")
+			}
+		}
+
 		if (yandexServerlessTriggersSourcePlan.ObjectStorage.IsNull() || yandexServerlessTriggersSourceState.ObjectStorage.IsNull()) &&
 			!(yandexServerlessTriggersSourcePlan.ObjectStorage.IsNull() && yandexServerlessTriggersSourceState.ObjectStorage.IsNull()) &&
 			!yandexServerlessTriggersSourcePlan.ObjectStorage.IsUnknown() {

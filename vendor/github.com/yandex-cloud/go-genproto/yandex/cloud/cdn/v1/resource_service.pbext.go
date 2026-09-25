@@ -3,6 +3,7 @@
 package cdn
 
 import (
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -149,6 +150,10 @@ func (m *UpdateResourceRequest) SetRemoveLabels(v bool) {
 
 func (m *UpdateResourceRequest) SetTls(v *TLS) {
 	m.Tls = v
+}
+
+func (m *UpdateResourceRequest) SetUpdateMask(v *fieldmaskpb.FieldMask) {
+	m.UpdateMask = v
 }
 
 func (m *UpdateResourceMetadata) SetResourceId(v string) {

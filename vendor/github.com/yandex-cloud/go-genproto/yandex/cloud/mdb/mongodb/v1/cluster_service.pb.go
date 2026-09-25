@@ -420,6 +420,8 @@ type CreateClusterRequest struct {
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,12,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Maintenance window settings for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,13,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,14,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
@@ -543,6 +545,7 @@ func (x *CreateClusterRequest) GetDeletionProtection() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster_service.proto.
 func (x *CreateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -637,6 +640,8 @@ type UpdateClusterRequest struct {
 	// New name for the cluster.
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
 	// New maintenance window settings for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,7,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// User security groups
 	SecurityGroupIds []string `protobuf:"bytes,8,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
@@ -720,6 +725,7 @@ func (x *UpdateClusterRequest) GetName() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster_service.proto.
 func (x *UpdateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -1312,6 +1318,8 @@ type RestoreClusterRequest struct {
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,12,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Maintenance window settings for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,13,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,14,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
@@ -1435,6 +1443,7 @@ func (x *RestoreClusterRequest) GetDeletionProtection() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster_service.proto.
 func (x *RestoreClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -4909,6 +4918,106 @@ func (*ConfigSpec_MongodbSpec_5_0Enterprise) isConfigSpec_MongodbSpec() {}
 
 func (*ConfigSpec_MongodbSpec_6_0Enterprise) isConfigSpec_MongodbSpec() {}
 
+type SetBalancerStatusRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the sharded cluster.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Whether to enable balancing.
+	Enabled       *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetBalancerStatusRequest) Reset() {
+	*x = SetBalancerStatusRequest{}
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetBalancerStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetBalancerStatusRequest) ProtoMessage() {}
+
+func (x *SetBalancerStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetBalancerStatusRequest.ProtoReflect.Descriptor instead.
+func (*SetBalancerStatusRequest) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *SetBalancerStatusRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *SetBalancerStatusRequest) GetEnabled() *wrapperspb.BoolValue {
+	if x != nil {
+		return x.Enabled
+	}
+	return nil
+}
+
+type SetBalancerStatusMetadata struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the StoreDoc cluster to set the balancer status for.
+	// To get the StoreDoc cluster ID, use a [ClusterService.List] request.
+	ClusterId     string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetBalancerStatusMetadata) Reset() {
+	*x = SetBalancerStatusMetadata{}
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetBalancerStatusMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetBalancerStatusMetadata) ProtoMessage() {}
+
+func (x *SetBalancerStatusMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetBalancerStatusMetadata.ProtoReflect.Descriptor instead.
+func (*SetBalancerStatusMetadata) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *SetBalancerStatusMetadata) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
 type RestoreClusterRequest_RecoveryTargetSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Timestamp of the recovery target
@@ -4919,7 +5028,7 @@ type RestoreClusterRequest_RecoveryTargetSpec struct {
 
 func (x *RestoreClusterRequest_RecoveryTargetSpec) Reset() {
 	*x = RestoreClusterRequest_RecoveryTargetSpec{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[69]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4931,7 +5040,7 @@ func (x *RestoreClusterRequest_RecoveryTargetSpec) String() string {
 func (*RestoreClusterRequest_RecoveryTargetSpec) ProtoMessage() {}
 
 func (x *RestoreClusterRequest_RecoveryTargetSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[69]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4966,7 +5075,7 @@ type RestoreClusterRequest_PartialRestoreSpec struct {
 
 func (x *RestoreClusterRequest_PartialRestoreSpec) Reset() {
 	*x = RestoreClusterRequest_PartialRestoreSpec{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[70]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4978,7 +5087,7 @@ func (x *RestoreClusterRequest_PartialRestoreSpec) String() string {
 func (*RestoreClusterRequest_PartialRestoreSpec) ProtoMessage() {}
 
 func (x *RestoreClusterRequest_PartialRestoreSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[70]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5018,7 +5127,7 @@ type EnableClusterShardingRequest_MongoCfg struct {
 
 func (x *EnableClusterShardingRequest_MongoCfg) Reset() {
 	*x = EnableClusterShardingRequest_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[73]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5030,7 +5139,7 @@ func (x *EnableClusterShardingRequest_MongoCfg) String() string {
 func (*EnableClusterShardingRequest_MongoCfg) ProtoMessage() {}
 
 func (x *EnableClusterShardingRequest_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[73]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5063,7 +5172,7 @@ type EnableClusterShardingRequest_Mongos struct {
 
 func (x *EnableClusterShardingRequest_Mongos) Reset() {
 	*x = EnableClusterShardingRequest_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[74]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5075,7 +5184,7 @@ func (x *EnableClusterShardingRequest_Mongos) String() string {
 func (*EnableClusterShardingRequest_Mongos) ProtoMessage() {}
 
 func (x *EnableClusterShardingRequest_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[74]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5108,7 +5217,7 @@ type EnableClusterShardingRequest_MongoInfra struct {
 
 func (x *EnableClusterShardingRequest_MongoInfra) Reset() {
 	*x = EnableClusterShardingRequest_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[75]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5120,7 +5229,7 @@ func (x *EnableClusterShardingRequest_MongoInfra) String() string {
 func (*EnableClusterShardingRequest_MongoInfra) ProtoMessage() {}
 
 func (x *EnableClusterShardingRequest_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[75]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5157,7 +5266,7 @@ type MongodbSpec3_6_Mongod struct {
 
 func (x *MongodbSpec3_6_Mongod) Reset() {
 	*x = MongodbSpec3_6_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[77]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5169,7 +5278,7 @@ func (x *MongodbSpec3_6_Mongod) String() string {
 func (*MongodbSpec3_6_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec3_6_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[77]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5220,7 +5329,7 @@ type MongodbSpec3_6_MongoCfg struct {
 
 func (x *MongodbSpec3_6_MongoCfg) Reset() {
 	*x = MongodbSpec3_6_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[78]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5232,7 +5341,7 @@ func (x *MongodbSpec3_6_MongoCfg) String() string {
 func (*MongodbSpec3_6_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec3_6_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[78]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5283,7 +5392,7 @@ type MongodbSpec3_6_Mongos struct {
 
 func (x *MongodbSpec3_6_Mongos) Reset() {
 	*x = MongodbSpec3_6_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[79]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5295,7 +5404,7 @@ func (x *MongodbSpec3_6_Mongos) String() string {
 func (*MongodbSpec3_6_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec3_6_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[79]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5348,7 +5457,7 @@ type MongodbSpec3_6_MongoInfra struct {
 
 func (x *MongodbSpec3_6_MongoInfra) Reset() {
 	*x = MongodbSpec3_6_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[80]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5360,7 +5469,7 @@ func (x *MongodbSpec3_6_MongoInfra) String() string {
 func (*MongodbSpec3_6_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec3_6_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[80]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5418,7 +5527,7 @@ type MongodbSpec4_0_Mongod struct {
 
 func (x *MongodbSpec4_0_Mongod) Reset() {
 	*x = MongodbSpec4_0_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[81]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5430,7 +5539,7 @@ func (x *MongodbSpec4_0_Mongod) String() string {
 func (*MongodbSpec4_0_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec4_0_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[81]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5481,7 +5590,7 @@ type MongodbSpec4_0_MongoCfg struct {
 
 func (x *MongodbSpec4_0_MongoCfg) Reset() {
 	*x = MongodbSpec4_0_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[82]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5493,7 +5602,7 @@ func (x *MongodbSpec4_0_MongoCfg) String() string {
 func (*MongodbSpec4_0_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec4_0_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[82]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5544,7 +5653,7 @@ type MongodbSpec4_0_Mongos struct {
 
 func (x *MongodbSpec4_0_Mongos) Reset() {
 	*x = MongodbSpec4_0_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[83]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5556,7 +5665,7 @@ func (x *MongodbSpec4_0_Mongos) String() string {
 func (*MongodbSpec4_0_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec4_0_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[83]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5609,7 +5718,7 @@ type MongodbSpec4_0_MongoInfra struct {
 
 func (x *MongodbSpec4_0_MongoInfra) Reset() {
 	*x = MongodbSpec4_0_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[84]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5621,7 +5730,7 @@ func (x *MongodbSpec4_0_MongoInfra) String() string {
 func (*MongodbSpec4_0_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec4_0_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[84]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5679,7 +5788,7 @@ type MongodbSpec4_2_Mongod struct {
 
 func (x *MongodbSpec4_2_Mongod) Reset() {
 	*x = MongodbSpec4_2_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[85]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5691,7 +5800,7 @@ func (x *MongodbSpec4_2_Mongod) String() string {
 func (*MongodbSpec4_2_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec4_2_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[85]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5742,7 +5851,7 @@ type MongodbSpec4_2_MongoCfg struct {
 
 func (x *MongodbSpec4_2_MongoCfg) Reset() {
 	*x = MongodbSpec4_2_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[86]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5754,7 +5863,7 @@ func (x *MongodbSpec4_2_MongoCfg) String() string {
 func (*MongodbSpec4_2_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec4_2_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[86]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5805,7 +5914,7 @@ type MongodbSpec4_2_Mongos struct {
 
 func (x *MongodbSpec4_2_Mongos) Reset() {
 	*x = MongodbSpec4_2_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[87]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5817,7 +5926,7 @@ func (x *MongodbSpec4_2_Mongos) String() string {
 func (*MongodbSpec4_2_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec4_2_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[87]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5870,7 +5979,7 @@ type MongodbSpec4_2_MongoInfra struct {
 
 func (x *MongodbSpec4_2_MongoInfra) Reset() {
 	*x = MongodbSpec4_2_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[88]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5882,7 +5991,7 @@ func (x *MongodbSpec4_2_MongoInfra) String() string {
 func (*MongodbSpec4_2_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec4_2_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[88]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5940,7 +6049,7 @@ type MongodbSpec4_4_Mongod struct {
 
 func (x *MongodbSpec4_4_Mongod) Reset() {
 	*x = MongodbSpec4_4_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[89]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5952,7 +6061,7 @@ func (x *MongodbSpec4_4_Mongod) String() string {
 func (*MongodbSpec4_4_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec4_4_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[89]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6003,7 +6112,7 @@ type MongodbSpec4_4_MongoCfg struct {
 
 func (x *MongodbSpec4_4_MongoCfg) Reset() {
 	*x = MongodbSpec4_4_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[90]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6015,7 +6124,7 @@ func (x *MongodbSpec4_4_MongoCfg) String() string {
 func (*MongodbSpec4_4_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec4_4_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[90]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6066,7 +6175,7 @@ type MongodbSpec4_4_Mongos struct {
 
 func (x *MongodbSpec4_4_Mongos) Reset() {
 	*x = MongodbSpec4_4_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[91]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6078,7 +6187,7 @@ func (x *MongodbSpec4_4_Mongos) String() string {
 func (*MongodbSpec4_4_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec4_4_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[91]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6131,7 +6240,7 @@ type MongodbSpec4_4_MongoInfra struct {
 
 func (x *MongodbSpec4_4_MongoInfra) Reset() {
 	*x = MongodbSpec4_4_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[92]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6143,7 +6252,7 @@ func (x *MongodbSpec4_4_MongoInfra) String() string {
 func (*MongodbSpec4_4_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec4_4_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[92]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6201,7 +6310,7 @@ type MongodbSpec4_4Enterprise_Mongod struct {
 
 func (x *MongodbSpec4_4Enterprise_Mongod) Reset() {
 	*x = MongodbSpec4_4Enterprise_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[93]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6213,7 +6322,7 @@ func (x *MongodbSpec4_4Enterprise_Mongod) String() string {
 func (*MongodbSpec4_4Enterprise_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec4_4Enterprise_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[93]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6264,7 +6373,7 @@ type MongodbSpec4_4Enterprise_MongoCfg struct {
 
 func (x *MongodbSpec4_4Enterprise_MongoCfg) Reset() {
 	*x = MongodbSpec4_4Enterprise_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[94]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6276,7 +6385,7 @@ func (x *MongodbSpec4_4Enterprise_MongoCfg) String() string {
 func (*MongodbSpec4_4Enterprise_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec4_4Enterprise_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[94]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6327,7 +6436,7 @@ type MongodbSpec4_4Enterprise_Mongos struct {
 
 func (x *MongodbSpec4_4Enterprise_Mongos) Reset() {
 	*x = MongodbSpec4_4Enterprise_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[95]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6339,7 +6448,7 @@ func (x *MongodbSpec4_4Enterprise_Mongos) String() string {
 func (*MongodbSpec4_4Enterprise_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec4_4Enterprise_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[95]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6392,7 +6501,7 @@ type MongodbSpec4_4Enterprise_MongoInfra struct {
 
 func (x *MongodbSpec4_4Enterprise_MongoInfra) Reset() {
 	*x = MongodbSpec4_4Enterprise_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[96]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6404,7 +6513,7 @@ func (x *MongodbSpec4_4Enterprise_MongoInfra) String() string {
 func (*MongodbSpec4_4Enterprise_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec4_4Enterprise_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[96]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6462,7 +6571,7 @@ type MongodbSpec5_0_Mongod struct {
 
 func (x *MongodbSpec5_0_Mongod) Reset() {
 	*x = MongodbSpec5_0_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[97]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6474,7 +6583,7 @@ func (x *MongodbSpec5_0_Mongod) String() string {
 func (*MongodbSpec5_0_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec5_0_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[97]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6525,7 +6634,7 @@ type MongodbSpec5_0_MongoCfg struct {
 
 func (x *MongodbSpec5_0_MongoCfg) Reset() {
 	*x = MongodbSpec5_0_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[98]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6537,7 +6646,7 @@ func (x *MongodbSpec5_0_MongoCfg) String() string {
 func (*MongodbSpec5_0_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec5_0_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[98]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6588,7 +6697,7 @@ type MongodbSpec5_0_Mongos struct {
 
 func (x *MongodbSpec5_0_Mongos) Reset() {
 	*x = MongodbSpec5_0_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[99]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[101]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6600,7 +6709,7 @@ func (x *MongodbSpec5_0_Mongos) String() string {
 func (*MongodbSpec5_0_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec5_0_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[99]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[101]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6653,7 +6762,7 @@ type MongodbSpec5_0_MongoInfra struct {
 
 func (x *MongodbSpec5_0_MongoInfra) Reset() {
 	*x = MongodbSpec5_0_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[100]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[102]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6665,7 +6774,7 @@ func (x *MongodbSpec5_0_MongoInfra) String() string {
 func (*MongodbSpec5_0_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec5_0_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[100]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[102]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6723,7 +6832,7 @@ type MongodbSpec5_0Enterprise_Mongod struct {
 
 func (x *MongodbSpec5_0Enterprise_Mongod) Reset() {
 	*x = MongodbSpec5_0Enterprise_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[101]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[103]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6735,7 +6844,7 @@ func (x *MongodbSpec5_0Enterprise_Mongod) String() string {
 func (*MongodbSpec5_0Enterprise_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec5_0Enterprise_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[101]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[103]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6786,7 +6895,7 @@ type MongodbSpec5_0Enterprise_MongoCfg struct {
 
 func (x *MongodbSpec5_0Enterprise_MongoCfg) Reset() {
 	*x = MongodbSpec5_0Enterprise_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[102]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[104]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6798,7 +6907,7 @@ func (x *MongodbSpec5_0Enterprise_MongoCfg) String() string {
 func (*MongodbSpec5_0Enterprise_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec5_0Enterprise_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[102]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[104]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6849,7 +6958,7 @@ type MongodbSpec5_0Enterprise_Mongos struct {
 
 func (x *MongodbSpec5_0Enterprise_Mongos) Reset() {
 	*x = MongodbSpec5_0Enterprise_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[103]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[105]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6861,7 +6970,7 @@ func (x *MongodbSpec5_0Enterprise_Mongos) String() string {
 func (*MongodbSpec5_0Enterprise_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec5_0Enterprise_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[103]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[105]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6914,7 +7023,7 @@ type MongodbSpec5_0Enterprise_MongoInfra struct {
 
 func (x *MongodbSpec5_0Enterprise_MongoInfra) Reset() {
 	*x = MongodbSpec5_0Enterprise_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[104]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[106]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6926,7 +7035,7 @@ func (x *MongodbSpec5_0Enterprise_MongoInfra) String() string {
 func (*MongodbSpec5_0Enterprise_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec5_0Enterprise_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[104]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[106]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6984,7 +7093,7 @@ type MongodbSpec6_0_Mongod struct {
 
 func (x *MongodbSpec6_0_Mongod) Reset() {
 	*x = MongodbSpec6_0_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[105]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[107]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6996,7 +7105,7 @@ func (x *MongodbSpec6_0_Mongod) String() string {
 func (*MongodbSpec6_0_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec6_0_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[105]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[107]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7047,7 +7156,7 @@ type MongodbSpec6_0_MongoCfg struct {
 
 func (x *MongodbSpec6_0_MongoCfg) Reset() {
 	*x = MongodbSpec6_0_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[106]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[108]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7059,7 +7168,7 @@ func (x *MongodbSpec6_0_MongoCfg) String() string {
 func (*MongodbSpec6_0_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec6_0_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[106]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[108]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7110,7 +7219,7 @@ type MongodbSpec6_0_Mongos struct {
 
 func (x *MongodbSpec6_0_Mongos) Reset() {
 	*x = MongodbSpec6_0_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[107]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[109]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7122,7 +7231,7 @@ func (x *MongodbSpec6_0_Mongos) String() string {
 func (*MongodbSpec6_0_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec6_0_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[107]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[109]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7175,7 +7284,7 @@ type MongodbSpec6_0_MongoInfra struct {
 
 func (x *MongodbSpec6_0_MongoInfra) Reset() {
 	*x = MongodbSpec6_0_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[108]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[110]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7187,7 +7296,7 @@ func (x *MongodbSpec6_0_MongoInfra) String() string {
 func (*MongodbSpec6_0_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec6_0_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[108]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[110]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7245,7 +7354,7 @@ type MongodbSpec6_0Enterprise_Mongod struct {
 
 func (x *MongodbSpec6_0Enterprise_Mongod) Reset() {
 	*x = MongodbSpec6_0Enterprise_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[109]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[111]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7257,7 +7366,7 @@ func (x *MongodbSpec6_0Enterprise_Mongod) String() string {
 func (*MongodbSpec6_0Enterprise_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec6_0Enterprise_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[109]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[111]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7308,7 +7417,7 @@ type MongodbSpec6_0Enterprise_MongoCfg struct {
 
 func (x *MongodbSpec6_0Enterprise_MongoCfg) Reset() {
 	*x = MongodbSpec6_0Enterprise_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[110]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[112]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7320,7 +7429,7 @@ func (x *MongodbSpec6_0Enterprise_MongoCfg) String() string {
 func (*MongodbSpec6_0Enterprise_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec6_0Enterprise_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[110]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[112]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7371,7 +7480,7 @@ type MongodbSpec6_0Enterprise_Mongos struct {
 
 func (x *MongodbSpec6_0Enterprise_Mongos) Reset() {
 	*x = MongodbSpec6_0Enterprise_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[111]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[113]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7383,7 +7492,7 @@ func (x *MongodbSpec6_0Enterprise_Mongos) String() string {
 func (*MongodbSpec6_0Enterprise_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec6_0Enterprise_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[111]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[113]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7436,7 +7545,7 @@ type MongodbSpec6_0Enterprise_MongoInfra struct {
 
 func (x *MongodbSpec6_0Enterprise_MongoInfra) Reset() {
 	*x = MongodbSpec6_0Enterprise_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[112]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[114]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7448,7 +7557,7 @@ func (x *MongodbSpec6_0Enterprise_MongoInfra) String() string {
 func (*MongodbSpec6_0Enterprise_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec6_0Enterprise_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[112]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[114]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7506,7 +7615,7 @@ type MongodbSpec_Mongod struct {
 
 func (x *MongodbSpec_Mongod) Reset() {
 	*x = MongodbSpec_Mongod{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[113]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[115]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7518,7 +7627,7 @@ func (x *MongodbSpec_Mongod) String() string {
 func (*MongodbSpec_Mongod) ProtoMessage() {}
 
 func (x *MongodbSpec_Mongod) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[113]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[115]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7569,7 +7678,7 @@ type MongodbSpec_MongoCfg struct {
 
 func (x *MongodbSpec_MongoCfg) Reset() {
 	*x = MongodbSpec_MongoCfg{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[114]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[116]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7581,7 +7690,7 @@ func (x *MongodbSpec_MongoCfg) String() string {
 func (*MongodbSpec_MongoCfg) ProtoMessage() {}
 
 func (x *MongodbSpec_MongoCfg) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[114]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[116]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7632,7 +7741,7 @@ type MongodbSpec_Mongos struct {
 
 func (x *MongodbSpec_Mongos) Reset() {
 	*x = MongodbSpec_Mongos{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[115]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[117]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7644,7 +7753,7 @@ func (x *MongodbSpec_Mongos) String() string {
 func (*MongodbSpec_Mongos) ProtoMessage() {}
 
 func (x *MongodbSpec_Mongos) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[115]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[117]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7697,7 +7806,7 @@ type MongodbSpec_MongoInfra struct {
 
 func (x *MongodbSpec_MongoInfra) Reset() {
 	*x = MongodbSpec_MongoInfra{}
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[116]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[118]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7709,7 +7818,7 @@ func (x *MongodbSpec_MongoInfra) String() string {
 func (*MongodbSpec_MongoInfra) ProtoMessage() {}
 
 func (x *MongodbSpec_MongoInfra) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[116]
+	mi := &file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes[118]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7771,7 +7880,7 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"\x80\x01\n" +
 	"\x14ListClustersResponse\x12@\n" +
 	"\bclusters\x18\x01 \x03(\v2$.yandex.cloud.mdb.mongodb.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc2\t\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc6\t\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -7789,8 +7898,8 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc = "" +
 	"network_id\x18\n" +
 	" \x01(\tB\t\x8a\xc81\x05<=150R\tnetworkId\x12,\n" +
 	"\x12security_group_ids\x18\v \x03(\tR\x10securityGroupIds\x12/\n" +
-	"\x13deletion_protection\x18\f \x01(\bR\x12deletionProtection\x12]\n" +
-	"\x12maintenance_window\x18\r \x01(\v2..yandex.cloud.mdb.mongodb.v1.MaintenanceWindowR\x11maintenanceWindow\x12k\n" +
+	"\x13deletion_protection\x18\f \x01(\bR\x12deletionProtection\x12a\n" +
+	"\x12maintenance_window\x18\r \x01(\v2..yandex.cloud.mdb.mongodb.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12k\n" +
 	"\x16disk_encryption_key_id\x18\x0e \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x12]\n" +
 	"\x12retention_policies\x18\x0f \x03(\v2..yandex.cloud.mdb.v1.BackupRetentionPolicySpecR\x11retentionPolicies\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
@@ -7799,7 +7908,7 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc = "" +
 	"\x15CreateClusterMetadata\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12S\n" +
-	"\roperation_log\x18\x02 \x01(\v2..yandex.cloud.mdb.operationlog.v1.OperationLogR\foperationLog\"\xea\x05\n" +
+	"\roperation_log\x18\x02 \x01(\v2..yandex.cloud.mdb.operationlog.v1.OperationLogR\foperationLog\"\xee\x05\n" +
 	"\x14UpdateClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12;\n" +
@@ -7809,8 +7918,8 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc = "" +
 	"\x06labels\x18\x04 \x03(\v2=.yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.LabelsEntryBF\xf2\xc71\x10[-_./\\@0-9a-z]*$\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x1e\x12\x16^[a-z][-_./\\@0-9a-z]*$\x1a\x04<=63R\x06labels\x12H\n" +
 	"\vconfig_spec\x18\x05 \x01(\v2'.yandex.cloud.mdb.mongodb.v1.ConfigSpecR\n" +
 	"configSpec\x12.\n" +
-	"\x04name\x18\x06 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12]\n" +
-	"\x12maintenance_window\x18\a \x01(\v2..yandex.cloud.mdb.mongodb.v1.MaintenanceWindowR\x11maintenanceWindow\x12,\n" +
+	"\x04name\x18\x06 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12a\n" +
+	"\x12maintenance_window\x18\a \x01(\v2..yandex.cloud.mdb.mongodb.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12,\n" +
 	"\x12security_group_ids\x18\b \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\t \x01(\bR\x12deletionProtection\x12(\n" +
 	"\n" +
@@ -7855,8 +7964,7 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc = "" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\"6\n" +
 	"\x15BackupClusterMetadata\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xfe\n" +
-	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\x82\v\n" +
 	"\x15RestoreClusterRequest\x12!\n" +
 	"\tbackup_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\bbackupId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -7873,8 +7981,8 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc = "" +
 	"\x14recovery_target_spec\x18\n" +
 	" \x01(\v2E.yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.RecoveryTargetSpecR\x12recoveryTargetSpec\x12,\n" +
 	"\x12security_group_ids\x18\v \x03(\tR\x10securityGroupIds\x12/\n" +
-	"\x13deletion_protection\x18\f \x01(\bR\x12deletionProtection\x12]\n" +
-	"\x12maintenance_window\x18\r \x01(\v2..yandex.cloud.mdb.mongodb.v1.MaintenanceWindowR\x11maintenanceWindow\x12k\n" +
+	"\x13deletion_protection\x18\f \x01(\bR\x12deletionProtection\x12a\n" +
+	"\x12maintenance_window\x18\r \x01(\v2..yandex.cloud.mdb.mongodb.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12k\n" +
 	"\x16disk_encryption_key_id\x18\x0e \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x12w\n" +
 	"\x14partial_restore_spec\x18\x0f \x01(\v2E.yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.PartialRestoreSpecR\x12partialRestoreSpec\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
@@ -8406,7 +8514,14 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc = "" +
 	"\x06access\x18\x06 \x01(\v2#.yandex.cloud.mdb.mongodb.v1.AccessR\x06access\x12B\n" +
 	"\amongodb\x18\x14 \x01(\v2(.yandex.cloud.mdb.mongodb.v1.MongodbSpecR\amongodb\x12]\n" +
 	"\x12autocompact_config\x18\x16 \x01(\v2..yandex.cloud.mdb.mongodb.v1.AutoCompactConfigR\x11autocompactConfigB\x0e\n" +
-	"\fmongodb_specJ\x04\b\x10\x10\x14J\x04\b\x15\x10\x162\xa7/\n" +
+	"\fmongodb_specJ\x04\b\x10\x10\x14J\x04\b\x15\x10\x16\"{\n" +
+	"\x18SetBalancerStatusRequest\x12#\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\x12:\n" +
+	"\aenabled\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueB\x04\xe8\xc71\x01R\aenabled\":\n" +
+	"\x19SetBalancerStatusMetadata\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId2\x871\n" +
 	"\x0eClusterService\x12\x8e\x01\n" +
 	"\x03Get\x12..yandex.cloud.mdb.mongodb.v1.GetClusterRequest\x1a$.yandex.cloud.mdb.mongodb.v1.Cluster\"1\x82\xd3\xe4\x93\x02+\x12)/managed-mongodb/v1/clusters/{cluster_id}\x12\x91\x01\n" +
 	"\x04List\x120.yandex.cloud.mdb.mongodb.v1.ListClustersRequest\x1a1.yandex.cloud.mdb.mongodb.v1.ListClustersResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/managed-mongodb/v1/clusters\x12\xab\x01\n" +
@@ -8459,7 +8574,9 @@ const file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc = "" +
 	"\x11SetAccessBindings\x12-.yandex.cloud.access.SetAccessBindingsRequest\x1a!.yandex.cloud.operation.Operation\"\x93\x01\xb2\xd2*H\n" +
 	" access.SetAccessBindingsMetadata\x12$access.AccessBindingsOperationResult\x82\xd3\xe4\x93\x02A:\x01*\"</managed-mongodb/v1/clusters/{resource_id}:setAccessBindings\x12\x87\x02\n" +
 	"\x14UpdateAccessBindings\x120.yandex.cloud.access.UpdateAccessBindingsRequest\x1a!.yandex.cloud.operation.Operation\"\x99\x01\xb2\xd2*K\n" +
-	"#access.UpdateAccessBindingsMetadata\x12$access.AccessBindingsOperationResult\x82\xd3\xe4\x93\x02D:\x01*2?/managed-mongodb/v1/clusters/{resource_id}:updateAccessBindingsBj\n" +
+	"#access.UpdateAccessBindingsMetadata\x12$access.AccessBindingsOperationResult\x82\xd3\xe4\x93\x02D:\x01*2?/managed-mongodb/v1/clusters/{resource_id}:updateAccessBindings\x12\xdd\x01\n" +
+	"\x11SetBalancerStatus\x125.yandex.cloud.mdb.mongodb.v1.SetBalancerStatusRequest\x1a!.yandex.cloud.operation.Operation\"n\xb2\xd2*$\n" +
+	"\x19SetBalancerStatusMetadata\x12\aCluster\x82\xd3\xe4\x93\x02@:\x01*\";/managed-mongodb/v1/clusters/{cluster_id}:setBalancerStatusBj\n" +
 	"\x1fyandex.cloud.api.mdb.mongodb.v1ZGgithub.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1;mongodbb\x06proto3"
 
 var (
@@ -8475,7 +8592,7 @@ func file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDescGZIP() []byte
 }
 
 var file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes = make([]protoimpl.MessageInfo, 117)
+var file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_msgTypes = make([]protoimpl.MessageInfo, 119)
 var file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_goTypes = []any{
 	(RescheduleMaintenanceRequest_RescheduleType)(0), // 0: yandex.cloud.mdb.mongodb.v1.RescheduleMaintenanceRequest.RescheduleType
 	(ListClusterLogsRequest_ServiceType)(0),          // 1: yandex.cloud.mdb.mongodb.v1.ListClusterLogsRequest.ServiceType
@@ -8546,217 +8663,219 @@ var file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_goTypes = []any{
 	(*MongodbSpec6_0Enterprise)(nil),                 // 66: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise
 	(*MongodbSpec)(nil),                              // 67: yandex.cloud.mdb.mongodb.v1.MongodbSpec
 	(*ConfigSpec)(nil),                               // 68: yandex.cloud.mdb.mongodb.v1.ConfigSpec
-	nil,                                              // 69: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.LabelsEntry
-	nil,                                              // 70: yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.LabelsEntry
-	nil,                                              // 71: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.LabelsEntry
-	(*RestoreClusterRequest_RecoveryTargetSpec)(nil), // 72: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.RecoveryTargetSpec
-	(*RestoreClusterRequest_PartialRestoreSpec)(nil), // 73: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.PartialRestoreSpec
-	nil, // 74: yandex.cloud.mdb.mongodb.v1.LogRecord.MessageEntry
-	nil, // 75: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.TagsEntry
-	(*EnableClusterShardingRequest_MongoCfg)(nil),   // 76: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoCfg
-	(*EnableClusterShardingRequest_Mongos)(nil),     // 77: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.Mongos
-	(*EnableClusterShardingRequest_MongoInfra)(nil), // 78: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoInfra
-	nil,                                         // 79: yandex.cloud.mdb.mongodb.v1.HostSpec.TagsEntry
-	(*MongodbSpec3_6_Mongod)(nil),               // 80: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod
-	(*MongodbSpec3_6_MongoCfg)(nil),             // 81: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg
-	(*MongodbSpec3_6_Mongos)(nil),               // 82: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos
-	(*MongodbSpec3_6_MongoInfra)(nil),           // 83: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra
-	(*MongodbSpec4_0_Mongod)(nil),               // 84: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod
-	(*MongodbSpec4_0_MongoCfg)(nil),             // 85: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg
-	(*MongodbSpec4_0_Mongos)(nil),               // 86: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos
-	(*MongodbSpec4_0_MongoInfra)(nil),           // 87: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra
-	(*MongodbSpec4_2_Mongod)(nil),               // 88: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod
-	(*MongodbSpec4_2_MongoCfg)(nil),             // 89: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg
-	(*MongodbSpec4_2_Mongos)(nil),               // 90: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos
-	(*MongodbSpec4_2_MongoInfra)(nil),           // 91: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra
-	(*MongodbSpec4_4_Mongod)(nil),               // 92: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod
-	(*MongodbSpec4_4_MongoCfg)(nil),             // 93: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg
-	(*MongodbSpec4_4_Mongos)(nil),               // 94: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos
-	(*MongodbSpec4_4_MongoInfra)(nil),           // 95: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra
-	(*MongodbSpec4_4Enterprise_Mongod)(nil),     // 96: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod
-	(*MongodbSpec4_4Enterprise_MongoCfg)(nil),   // 97: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg
-	(*MongodbSpec4_4Enterprise_Mongos)(nil),     // 98: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos
-	(*MongodbSpec4_4Enterprise_MongoInfra)(nil), // 99: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra
-	(*MongodbSpec5_0_Mongod)(nil),               // 100: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod
-	(*MongodbSpec5_0_MongoCfg)(nil),             // 101: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg
-	(*MongodbSpec5_0_Mongos)(nil),               // 102: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos
-	(*MongodbSpec5_0_MongoInfra)(nil),           // 103: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra
-	(*MongodbSpec5_0Enterprise_Mongod)(nil),     // 104: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod
-	(*MongodbSpec5_0Enterprise_MongoCfg)(nil),   // 105: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg
-	(*MongodbSpec5_0Enterprise_Mongos)(nil),     // 106: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos
-	(*MongodbSpec5_0Enterprise_MongoInfra)(nil), // 107: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra
-	(*MongodbSpec6_0_Mongod)(nil),               // 108: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod
-	(*MongodbSpec6_0_MongoCfg)(nil),             // 109: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg
-	(*MongodbSpec6_0_Mongos)(nil),               // 110: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos
-	(*MongodbSpec6_0_MongoInfra)(nil),           // 111: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra
-	(*MongodbSpec6_0Enterprise_Mongod)(nil),     // 112: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod
-	(*MongodbSpec6_0Enterprise_MongoCfg)(nil),   // 113: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg
-	(*MongodbSpec6_0Enterprise_Mongos)(nil),     // 114: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos
-	(*MongodbSpec6_0Enterprise_MongoInfra)(nil), // 115: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra
-	(*MongodbSpec_Mongod)(nil),                  // 116: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod
-	(*MongodbSpec_MongoCfg)(nil),                // 117: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg
-	(*MongodbSpec_Mongos)(nil),                  // 118: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos
-	(*MongodbSpec_MongoInfra)(nil),              // 119: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra
-	(*Cluster)(nil),                             // 120: yandex.cloud.mdb.mongodb.v1.Cluster
-	(Cluster_Environment)(0),                    // 121: yandex.cloud.mdb.mongodb.v1.Cluster.Environment
-	(*DatabaseSpec)(nil),                        // 122: yandex.cloud.mdb.mongodb.v1.DatabaseSpec
-	(*UserSpec)(nil),                            // 123: yandex.cloud.mdb.mongodb.v1.UserSpec
-	(*MaintenanceWindow)(nil),                   // 124: yandex.cloud.mdb.mongodb.v1.MaintenanceWindow
-	(*wrapperspb.StringValue)(nil),              // 125: google.protobuf.StringValue
-	(*v1.BackupRetentionPolicySpec)(nil),        // 126: yandex.cloud.mdb.v1.BackupRetentionPolicySpec
-	(*v11.OperationLog)(nil),                    // 127: yandex.cloud.mdb.operationlog.v1.OperationLog
-	(*fieldmaskpb.FieldMask)(nil),               // 128: google.protobuf.FieldMask
-	(*timestamppb.Timestamp)(nil),               // 129: google.protobuf.Timestamp
-	(*operation.Operation)(nil),                 // 130: yandex.cloud.operation.Operation
-	(*Backup)(nil),                              // 131: yandex.cloud.mdb.mongodb.v1.Backup
-	(*Host)(nil),                                // 132: yandex.cloud.mdb.mongodb.v1.Host
-	(*wrapperspb.BoolValue)(nil),                // 133: google.protobuf.BoolValue
-	(*wrapperspb.Int64Value)(nil),               // 134: google.protobuf.Int64Value
-	(*wrapperspb.DoubleValue)(nil),              // 135: google.protobuf.DoubleValue
-	(*Shard)(nil),                               // 136: yandex.cloud.mdb.mongodb.v1.Shard
-	(Host_Type)(0),                              // 137: yandex.cloud.mdb.mongodb.v1.Host.Type
-	(*timeofday.TimeOfDay)(nil),                 // 138: google.type.TimeOfDay
-	(*PerformanceDiagnosticsConfig)(nil),        // 139: yandex.cloud.mdb.mongodb.v1.PerformanceDiagnosticsConfig
-	(*Access)(nil),                              // 140: yandex.cloud.mdb.mongodb.v1.Access
-	(*AutoCompactConfig)(nil),                   // 141: yandex.cloud.mdb.mongodb.v1.AutoCompactConfig
-	(*Resources)(nil),                           // 142: yandex.cloud.mdb.mongodb.v1.Resources
-	(*config.MongodConfig3_6)(nil),              // 143: yandex.cloud.mdb.mongodb.v1.config.MongodConfig3_6
-	(*DiskSizeAutoscaling)(nil),                 // 144: yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	(*config.MongoCfgConfig3_6)(nil),            // 145: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig3_6
-	(*config.MongosConfig3_6)(nil),              // 146: yandex.cloud.mdb.mongodb.v1.config.MongosConfig3_6
-	(*config.MongodConfig4_0)(nil),              // 147: yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_0
-	(*config.MongoCfgConfig4_0)(nil),            // 148: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_0
-	(*config.MongosConfig4_0)(nil),              // 149: yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_0
-	(*config.MongodConfig4_2)(nil),              // 150: yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_2
-	(*config.MongoCfgConfig4_2)(nil),            // 151: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_2
-	(*config.MongosConfig4_2)(nil),              // 152: yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_2
-	(*config.MongodConfig4_4)(nil),              // 153: yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_4
-	(*config.MongoCfgConfig4_4)(nil),            // 154: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4
-	(*config.MongosConfig4_4)(nil),              // 155: yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4
-	(*config.MongodConfig4_4Enterprise)(nil),    // 156: yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_4_enterprise
-	(*config.MongoCfgConfig4_4Enterprise)(nil),  // 157: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4_enterprise
-	(*config.MongosConfig4_4Enterprise)(nil),    // 158: yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4_enterprise
-	(*config.MongodConfig5_0)(nil),              // 159: yandex.cloud.mdb.mongodb.v1.config.MongodConfig5_0
-	(*config.MongoCfgConfig5_0)(nil),            // 160: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0
-	(*config.MongosConfig5_0)(nil),              // 161: yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0
-	(*config.MongodConfig5_0Enterprise)(nil),    // 162: yandex.cloud.mdb.mongodb.v1.config.MongodConfig5_0_enterprise
-	(*config.MongoCfgConfig5_0Enterprise)(nil),  // 163: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0_enterprise
-	(*config.MongosConfig5_0Enterprise)(nil),    // 164: yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0_enterprise
-	(*config.MongodConfig6_0)(nil),              // 165: yandex.cloud.mdb.mongodb.v1.config.MongodConfig6_0
-	(*config.MongoCfgConfig6_0)(nil),            // 166: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0
-	(*config.MongosConfig6_0)(nil),              // 167: yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0
-	(*config.MongodConfig6_0Enterprise)(nil),    // 168: yandex.cloud.mdb.mongodb.v1.config.MongodConfig6_0_enterprise
-	(*config.MongoCfgConfig6_0Enterprise)(nil),  // 169: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0_enterprise
-	(*config.MongosConfig6_0Enterprise)(nil),    // 170: yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0_enterprise
-	(*config.MongodConfig)(nil),                 // 171: yandex.cloud.mdb.mongodb.v1.config.MongodConfig
-	(*config.MongoCfgConfig)(nil),               // 172: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig
-	(*config.MongosConfig)(nil),                 // 173: yandex.cloud.mdb.mongodb.v1.config.MongosConfig
-	(*access.ListAccessBindingsRequest)(nil),    // 174: yandex.cloud.access.ListAccessBindingsRequest
-	(*access.SetAccessBindingsRequest)(nil),     // 175: yandex.cloud.access.SetAccessBindingsRequest
-	(*access.UpdateAccessBindingsRequest)(nil),  // 176: yandex.cloud.access.UpdateAccessBindingsRequest
-	(*access.ListAccessBindingsResponse)(nil),   // 177: yandex.cloud.access.ListAccessBindingsResponse
+	(*SetBalancerStatusRequest)(nil),                 // 69: yandex.cloud.mdb.mongodb.v1.SetBalancerStatusRequest
+	(*SetBalancerStatusMetadata)(nil),                // 70: yandex.cloud.mdb.mongodb.v1.SetBalancerStatusMetadata
+	nil,                                              // 71: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.LabelsEntry
+	nil,                                              // 72: yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.LabelsEntry
+	nil,                                              // 73: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.LabelsEntry
+	(*RestoreClusterRequest_RecoveryTargetSpec)(nil), // 74: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.RecoveryTargetSpec
+	(*RestoreClusterRequest_PartialRestoreSpec)(nil), // 75: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.PartialRestoreSpec
+	nil, // 76: yandex.cloud.mdb.mongodb.v1.LogRecord.MessageEntry
+	nil, // 77: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.TagsEntry
+	(*EnableClusterShardingRequest_MongoCfg)(nil),   // 78: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoCfg
+	(*EnableClusterShardingRequest_Mongos)(nil),     // 79: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.Mongos
+	(*EnableClusterShardingRequest_MongoInfra)(nil), // 80: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoInfra
+	nil,                                         // 81: yandex.cloud.mdb.mongodb.v1.HostSpec.TagsEntry
+	(*MongodbSpec3_6_Mongod)(nil),               // 82: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod
+	(*MongodbSpec3_6_MongoCfg)(nil),             // 83: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg
+	(*MongodbSpec3_6_Mongos)(nil),               // 84: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos
+	(*MongodbSpec3_6_MongoInfra)(nil),           // 85: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra
+	(*MongodbSpec4_0_Mongod)(nil),               // 86: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod
+	(*MongodbSpec4_0_MongoCfg)(nil),             // 87: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg
+	(*MongodbSpec4_0_Mongos)(nil),               // 88: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos
+	(*MongodbSpec4_0_MongoInfra)(nil),           // 89: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra
+	(*MongodbSpec4_2_Mongod)(nil),               // 90: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod
+	(*MongodbSpec4_2_MongoCfg)(nil),             // 91: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg
+	(*MongodbSpec4_2_Mongos)(nil),               // 92: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos
+	(*MongodbSpec4_2_MongoInfra)(nil),           // 93: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra
+	(*MongodbSpec4_4_Mongod)(nil),               // 94: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod
+	(*MongodbSpec4_4_MongoCfg)(nil),             // 95: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg
+	(*MongodbSpec4_4_Mongos)(nil),               // 96: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos
+	(*MongodbSpec4_4_MongoInfra)(nil),           // 97: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra
+	(*MongodbSpec4_4Enterprise_Mongod)(nil),     // 98: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod
+	(*MongodbSpec4_4Enterprise_MongoCfg)(nil),   // 99: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg
+	(*MongodbSpec4_4Enterprise_Mongos)(nil),     // 100: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos
+	(*MongodbSpec4_4Enterprise_MongoInfra)(nil), // 101: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra
+	(*MongodbSpec5_0_Mongod)(nil),               // 102: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod
+	(*MongodbSpec5_0_MongoCfg)(nil),             // 103: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg
+	(*MongodbSpec5_0_Mongos)(nil),               // 104: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos
+	(*MongodbSpec5_0_MongoInfra)(nil),           // 105: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra
+	(*MongodbSpec5_0Enterprise_Mongod)(nil),     // 106: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod
+	(*MongodbSpec5_0Enterprise_MongoCfg)(nil),   // 107: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg
+	(*MongodbSpec5_0Enterprise_Mongos)(nil),     // 108: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos
+	(*MongodbSpec5_0Enterprise_MongoInfra)(nil), // 109: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra
+	(*MongodbSpec6_0_Mongod)(nil),               // 110: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod
+	(*MongodbSpec6_0_MongoCfg)(nil),             // 111: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg
+	(*MongodbSpec6_0_Mongos)(nil),               // 112: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos
+	(*MongodbSpec6_0_MongoInfra)(nil),           // 113: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra
+	(*MongodbSpec6_0Enterprise_Mongod)(nil),     // 114: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod
+	(*MongodbSpec6_0Enterprise_MongoCfg)(nil),   // 115: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg
+	(*MongodbSpec6_0Enterprise_Mongos)(nil),     // 116: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos
+	(*MongodbSpec6_0Enterprise_MongoInfra)(nil), // 117: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra
+	(*MongodbSpec_Mongod)(nil),                  // 118: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod
+	(*MongodbSpec_MongoCfg)(nil),                // 119: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg
+	(*MongodbSpec_Mongos)(nil),                  // 120: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos
+	(*MongodbSpec_MongoInfra)(nil),              // 121: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra
+	(*Cluster)(nil),                             // 122: yandex.cloud.mdb.mongodb.v1.Cluster
+	(Cluster_Environment)(0),                    // 123: yandex.cloud.mdb.mongodb.v1.Cluster.Environment
+	(*DatabaseSpec)(nil),                        // 124: yandex.cloud.mdb.mongodb.v1.DatabaseSpec
+	(*UserSpec)(nil),                            // 125: yandex.cloud.mdb.mongodb.v1.UserSpec
+	(*MaintenanceWindow)(nil),                   // 126: yandex.cloud.mdb.mongodb.v1.MaintenanceWindow
+	(*wrapperspb.StringValue)(nil),              // 127: google.protobuf.StringValue
+	(*v1.BackupRetentionPolicySpec)(nil),        // 128: yandex.cloud.mdb.v1.BackupRetentionPolicySpec
+	(*v11.OperationLog)(nil),                    // 129: yandex.cloud.mdb.operationlog.v1.OperationLog
+	(*fieldmaskpb.FieldMask)(nil),               // 130: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil),               // 131: google.protobuf.Timestamp
+	(*operation.Operation)(nil),                 // 132: yandex.cloud.operation.Operation
+	(*Backup)(nil),                              // 133: yandex.cloud.mdb.mongodb.v1.Backup
+	(*Host)(nil),                                // 134: yandex.cloud.mdb.mongodb.v1.Host
+	(*wrapperspb.BoolValue)(nil),                // 135: google.protobuf.BoolValue
+	(*wrapperspb.Int64Value)(nil),               // 136: google.protobuf.Int64Value
+	(*wrapperspb.DoubleValue)(nil),              // 137: google.protobuf.DoubleValue
+	(*Shard)(nil),                               // 138: yandex.cloud.mdb.mongodb.v1.Shard
+	(Host_Type)(0),                              // 139: yandex.cloud.mdb.mongodb.v1.Host.Type
+	(*timeofday.TimeOfDay)(nil),                 // 140: google.type.TimeOfDay
+	(*PerformanceDiagnosticsConfig)(nil),        // 141: yandex.cloud.mdb.mongodb.v1.PerformanceDiagnosticsConfig
+	(*Access)(nil),                              // 142: yandex.cloud.mdb.mongodb.v1.Access
+	(*AutoCompactConfig)(nil),                   // 143: yandex.cloud.mdb.mongodb.v1.AutoCompactConfig
+	(*Resources)(nil),                           // 144: yandex.cloud.mdb.mongodb.v1.Resources
+	(*config.MongodConfig3_6)(nil),              // 145: yandex.cloud.mdb.mongodb.v1.config.MongodConfig3_6
+	(*DiskSizeAutoscaling)(nil),                 // 146: yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	(*config.MongoCfgConfig3_6)(nil),            // 147: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig3_6
+	(*config.MongosConfig3_6)(nil),              // 148: yandex.cloud.mdb.mongodb.v1.config.MongosConfig3_6
+	(*config.MongodConfig4_0)(nil),              // 149: yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_0
+	(*config.MongoCfgConfig4_0)(nil),            // 150: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_0
+	(*config.MongosConfig4_0)(nil),              // 151: yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_0
+	(*config.MongodConfig4_2)(nil),              // 152: yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_2
+	(*config.MongoCfgConfig4_2)(nil),            // 153: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_2
+	(*config.MongosConfig4_2)(nil),              // 154: yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_2
+	(*config.MongodConfig4_4)(nil),              // 155: yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_4
+	(*config.MongoCfgConfig4_4)(nil),            // 156: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4
+	(*config.MongosConfig4_4)(nil),              // 157: yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4
+	(*config.MongodConfig4_4Enterprise)(nil),    // 158: yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_4_enterprise
+	(*config.MongoCfgConfig4_4Enterprise)(nil),  // 159: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4_enterprise
+	(*config.MongosConfig4_4Enterprise)(nil),    // 160: yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4_enterprise
+	(*config.MongodConfig5_0)(nil),              // 161: yandex.cloud.mdb.mongodb.v1.config.MongodConfig5_0
+	(*config.MongoCfgConfig5_0)(nil),            // 162: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0
+	(*config.MongosConfig5_0)(nil),              // 163: yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0
+	(*config.MongodConfig5_0Enterprise)(nil),    // 164: yandex.cloud.mdb.mongodb.v1.config.MongodConfig5_0_enterprise
+	(*config.MongoCfgConfig5_0Enterprise)(nil),  // 165: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0_enterprise
+	(*config.MongosConfig5_0Enterprise)(nil),    // 166: yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0_enterprise
+	(*config.MongodConfig6_0)(nil),              // 167: yandex.cloud.mdb.mongodb.v1.config.MongodConfig6_0
+	(*config.MongoCfgConfig6_0)(nil),            // 168: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0
+	(*config.MongosConfig6_0)(nil),              // 169: yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0
+	(*config.MongodConfig6_0Enterprise)(nil),    // 170: yandex.cloud.mdb.mongodb.v1.config.MongodConfig6_0_enterprise
+	(*config.MongoCfgConfig6_0Enterprise)(nil),  // 171: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0_enterprise
+	(*config.MongosConfig6_0Enterprise)(nil),    // 172: yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0_enterprise
+	(*config.MongodConfig)(nil),                 // 173: yandex.cloud.mdb.mongodb.v1.config.MongodConfig
+	(*config.MongoCfgConfig)(nil),               // 174: yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig
+	(*config.MongosConfig)(nil),                 // 175: yandex.cloud.mdb.mongodb.v1.config.MongosConfig
+	(*access.ListAccessBindingsRequest)(nil),    // 176: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),     // 177: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil),  // 178: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),   // 179: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_depIdxs = []int32{
-	120, // 0: yandex.cloud.mdb.mongodb.v1.ListClustersResponse.clusters:type_name -> yandex.cloud.mdb.mongodb.v1.Cluster
-	69,  // 1: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.labels:type_name -> yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.LabelsEntry
-	121, // 2: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.environment:type_name -> yandex.cloud.mdb.mongodb.v1.Cluster.Environment
+	122, // 0: yandex.cloud.mdb.mongodb.v1.ListClustersResponse.clusters:type_name -> yandex.cloud.mdb.mongodb.v1.Cluster
+	71,  // 1: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.labels:type_name -> yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.LabelsEntry
+	123, // 2: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.environment:type_name -> yandex.cloud.mdb.mongodb.v1.Cluster.Environment
 	68,  // 3: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.config_spec:type_name -> yandex.cloud.mdb.mongodb.v1.ConfigSpec
-	122, // 4: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.database_specs:type_name -> yandex.cloud.mdb.mongodb.v1.DatabaseSpec
-	123, // 5: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.user_specs:type_name -> yandex.cloud.mdb.mongodb.v1.UserSpec
+	124, // 4: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.database_specs:type_name -> yandex.cloud.mdb.mongodb.v1.DatabaseSpec
+	125, // 5: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.user_specs:type_name -> yandex.cloud.mdb.mongodb.v1.UserSpec
 	57,  // 6: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.host_specs:type_name -> yandex.cloud.mdb.mongodb.v1.HostSpec
-	124, // 7: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.mongodb.v1.MaintenanceWindow
-	125, // 8: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.disk_encryption_key_id:type_name -> google.protobuf.StringValue
-	126, // 9: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.retention_policies:type_name -> yandex.cloud.mdb.v1.BackupRetentionPolicySpec
-	127, // 10: yandex.cloud.mdb.mongodb.v1.CreateClusterMetadata.operation_log:type_name -> yandex.cloud.mdb.operationlog.v1.OperationLog
-	128, // 11: yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
-	70,  // 12: yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.LabelsEntry
+	126, // 7: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.mongodb.v1.MaintenanceWindow
+	127, // 8: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.disk_encryption_key_id:type_name -> google.protobuf.StringValue
+	128, // 9: yandex.cloud.mdb.mongodb.v1.CreateClusterRequest.retention_policies:type_name -> yandex.cloud.mdb.v1.BackupRetentionPolicySpec
+	129, // 10: yandex.cloud.mdb.mongodb.v1.CreateClusterMetadata.operation_log:type_name -> yandex.cloud.mdb.operationlog.v1.OperationLog
+	130, // 11: yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
+	72,  // 12: yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.LabelsEntry
 	68,  // 13: yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.config_spec:type_name -> yandex.cloud.mdb.mongodb.v1.ConfigSpec
-	124, // 14: yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.mongodb.v1.MaintenanceWindow
-	127, // 15: yandex.cloud.mdb.mongodb.v1.UpdateClusterMetadata.operation_log:type_name -> yandex.cloud.mdb.operationlog.v1.OperationLog
-	71,  // 16: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.labels:type_name -> yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.LabelsEntry
-	121, // 17: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.environment:type_name -> yandex.cloud.mdb.mongodb.v1.Cluster.Environment
+	126, // 14: yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.mongodb.v1.MaintenanceWindow
+	129, // 15: yandex.cloud.mdb.mongodb.v1.UpdateClusterMetadata.operation_log:type_name -> yandex.cloud.mdb.operationlog.v1.OperationLog
+	73,  // 16: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.labels:type_name -> yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.LabelsEntry
+	123, // 17: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.environment:type_name -> yandex.cloud.mdb.mongodb.v1.Cluster.Environment
 	68,  // 18: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.config_spec:type_name -> yandex.cloud.mdb.mongodb.v1.ConfigSpec
 	57,  // 19: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.host_specs:type_name -> yandex.cloud.mdb.mongodb.v1.HostSpec
-	72,  // 20: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.recovery_target_spec:type_name -> yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.RecoveryTargetSpec
-	124, // 21: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.mongodb.v1.MaintenanceWindow
-	125, // 22: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.disk_encryption_key_id:type_name -> google.protobuf.StringValue
-	73,  // 23: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.partial_restore_spec:type_name -> yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.PartialRestoreSpec
+	74,  // 20: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.recovery_target_spec:type_name -> yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.RecoveryTargetSpec
+	126, // 21: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.mongodb.v1.MaintenanceWindow
+	127, // 22: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.disk_encryption_key_id:type_name -> google.protobuf.StringValue
+	75,  // 23: yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.partial_restore_spec:type_name -> yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest.PartialRestoreSpec
 	0,   // 24: yandex.cloud.mdb.mongodb.v1.RescheduleMaintenanceRequest.reschedule_type:type_name -> yandex.cloud.mdb.mongodb.v1.RescheduleMaintenanceRequest.RescheduleType
-	129, // 25: yandex.cloud.mdb.mongodb.v1.RescheduleMaintenanceRequest.delayed_until:type_name -> google.protobuf.Timestamp
-	129, // 26: yandex.cloud.mdb.mongodb.v1.RescheduleMaintenanceMetadata.delayed_until:type_name -> google.protobuf.Timestamp
-	129, // 27: yandex.cloud.mdb.mongodb.v1.LogRecord.timestamp:type_name -> google.protobuf.Timestamp
-	74,  // 28: yandex.cloud.mdb.mongodb.v1.LogRecord.message:type_name -> yandex.cloud.mdb.mongodb.v1.LogRecord.MessageEntry
+	131, // 25: yandex.cloud.mdb.mongodb.v1.RescheduleMaintenanceRequest.delayed_until:type_name -> google.protobuf.Timestamp
+	131, // 26: yandex.cloud.mdb.mongodb.v1.RescheduleMaintenanceMetadata.delayed_until:type_name -> google.protobuf.Timestamp
+	131, // 27: yandex.cloud.mdb.mongodb.v1.LogRecord.timestamp:type_name -> google.protobuf.Timestamp
+	76,  // 28: yandex.cloud.mdb.mongodb.v1.LogRecord.message:type_name -> yandex.cloud.mdb.mongodb.v1.LogRecord.MessageEntry
 	1,   // 29: yandex.cloud.mdb.mongodb.v1.ListClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.mongodb.v1.ListClusterLogsRequest.ServiceType
-	129, // 30: yandex.cloud.mdb.mongodb.v1.ListClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
-	129, // 31: yandex.cloud.mdb.mongodb.v1.ListClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
+	131, // 30: yandex.cloud.mdb.mongodb.v1.ListClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
+	131, // 31: yandex.cloud.mdb.mongodb.v1.ListClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
 	24,  // 32: yandex.cloud.mdb.mongodb.v1.ListClusterLogsResponse.logs:type_name -> yandex.cloud.mdb.mongodb.v1.LogRecord
 	24,  // 33: yandex.cloud.mdb.mongodb.v1.StreamLogRecord.record:type_name -> yandex.cloud.mdb.mongodb.v1.LogRecord
 	2,   // 34: yandex.cloud.mdb.mongodb.v1.StreamClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.mongodb.v1.StreamClusterLogsRequest.ServiceType
-	129, // 35: yandex.cloud.mdb.mongodb.v1.StreamClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
-	129, // 36: yandex.cloud.mdb.mongodb.v1.StreamClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
-	130, // 37: yandex.cloud.mdb.mongodb.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	131, // 38: yandex.cloud.mdb.mongodb.v1.ListClusterBackupsResponse.backups:type_name -> yandex.cloud.mdb.mongodb.v1.Backup
-	132, // 39: yandex.cloud.mdb.mongodb.v1.ListClusterHostsResponse.hosts:type_name -> yandex.cloud.mdb.mongodb.v1.Host
+	131, // 35: yandex.cloud.mdb.mongodb.v1.StreamClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
+	131, // 36: yandex.cloud.mdb.mongodb.v1.StreamClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
+	132, // 37: yandex.cloud.mdb.mongodb.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	133, // 38: yandex.cloud.mdb.mongodb.v1.ListClusterBackupsResponse.backups:type_name -> yandex.cloud.mdb.mongodb.v1.Backup
+	134, // 39: yandex.cloud.mdb.mongodb.v1.ListClusterHostsResponse.hosts:type_name -> yandex.cloud.mdb.mongodb.v1.Host
 	57,  // 40: yandex.cloud.mdb.mongodb.v1.AddClusterHostsRequest.host_specs:type_name -> yandex.cloud.mdb.mongodb.v1.HostSpec
 	41,  // 41: yandex.cloud.mdb.mongodb.v1.UpdateClusterHostsRequest.update_host_specs:type_name -> yandex.cloud.mdb.mongodb.v1.UpdateHostSpec
-	133, // 42: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.hidden:type_name -> google.protobuf.BoolValue
-	134, // 43: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.secondary_delay_secs:type_name -> google.protobuf.Int64Value
-	135, // 44: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.priority:type_name -> google.protobuf.DoubleValue
-	128, // 45: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.update_mask:type_name -> google.protobuf.FieldMask
-	75,  // 46: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.tags:type_name -> yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.TagsEntry
-	134, // 47: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.votes:type_name -> google.protobuf.Int64Value
-	76,  // 48: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoCfg
-	77,  // 49: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.Mongos
+	135, // 42: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.hidden:type_name -> google.protobuf.BoolValue
+	136, // 43: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.secondary_delay_secs:type_name -> google.protobuf.Int64Value
+	137, // 44: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.priority:type_name -> google.protobuf.DoubleValue
+	130, // 45: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.update_mask:type_name -> google.protobuf.FieldMask
+	77,  // 46: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.tags:type_name -> yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.TagsEntry
+	136, // 47: yandex.cloud.mdb.mongodb.v1.UpdateHostSpec.votes:type_name -> google.protobuf.Int64Value
+	78,  // 48: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoCfg
+	79,  // 49: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.Mongos
 	57,  // 50: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.host_specs:type_name -> yandex.cloud.mdb.mongodb.v1.HostSpec
-	78,  // 51: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoInfra
-	136, // 52: yandex.cloud.mdb.mongodb.v1.ListClusterShardsResponse.shards:type_name -> yandex.cloud.mdb.mongodb.v1.Shard
+	80,  // 51: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoInfra
+	138, // 52: yandex.cloud.mdb.mongodb.v1.ListClusterShardsResponse.shards:type_name -> yandex.cloud.mdb.mongodb.v1.Shard
 	57,  // 53: yandex.cloud.mdb.mongodb.v1.AddClusterShardRequest.host_specs:type_name -> yandex.cloud.mdb.mongodb.v1.HostSpec
-	137, // 54: yandex.cloud.mdb.mongodb.v1.HostSpec.type:type_name -> yandex.cloud.mdb.mongodb.v1.Host.Type
-	133, // 55: yandex.cloud.mdb.mongodb.v1.HostSpec.hidden:type_name -> google.protobuf.BoolValue
-	134, // 56: yandex.cloud.mdb.mongodb.v1.HostSpec.secondary_delay_secs:type_name -> google.protobuf.Int64Value
-	135, // 57: yandex.cloud.mdb.mongodb.v1.HostSpec.priority:type_name -> google.protobuf.DoubleValue
-	79,  // 58: yandex.cloud.mdb.mongodb.v1.HostSpec.tags:type_name -> yandex.cloud.mdb.mongodb.v1.HostSpec.TagsEntry
-	134, // 59: yandex.cloud.mdb.mongodb.v1.HostSpec.votes:type_name -> google.protobuf.Int64Value
-	80,  // 60: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod
-	81,  // 61: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg
-	82,  // 62: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos
-	83,  // 63: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra
-	84,  // 64: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod
-	85,  // 65: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg
-	86,  // 66: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos
-	87,  // 67: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra
-	88,  // 68: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod
-	89,  // 69: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg
-	90,  // 70: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos
-	91,  // 71: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra
-	92,  // 72: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod
-	93,  // 73: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg
-	94,  // 74: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos
-	95,  // 75: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra
-	96,  // 76: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod
-	97,  // 77: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg
-	98,  // 78: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos
-	99,  // 79: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra
-	100, // 80: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod
-	101, // 81: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg
-	102, // 82: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos
-	103, // 83: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra
-	104, // 84: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod
-	105, // 85: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg
-	106, // 86: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos
-	107, // 87: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra
-	108, // 88: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod
-	109, // 89: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg
-	110, // 90: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos
-	111, // 91: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra
-	112, // 92: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod
-	113, // 93: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg
-	114, // 94: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos
-	115, // 95: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra
-	116, // 96: yandex.cloud.mdb.mongodb.v1.MongodbSpec.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod
-	117, // 97: yandex.cloud.mdb.mongodb.v1.MongodbSpec.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg
-	118, // 98: yandex.cloud.mdb.mongodb.v1.MongodbSpec.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos
-	119, // 99: yandex.cloud.mdb.mongodb.v1.MongodbSpec.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra
+	139, // 54: yandex.cloud.mdb.mongodb.v1.HostSpec.type:type_name -> yandex.cloud.mdb.mongodb.v1.Host.Type
+	135, // 55: yandex.cloud.mdb.mongodb.v1.HostSpec.hidden:type_name -> google.protobuf.BoolValue
+	136, // 56: yandex.cloud.mdb.mongodb.v1.HostSpec.secondary_delay_secs:type_name -> google.protobuf.Int64Value
+	137, // 57: yandex.cloud.mdb.mongodb.v1.HostSpec.priority:type_name -> google.protobuf.DoubleValue
+	81,  // 58: yandex.cloud.mdb.mongodb.v1.HostSpec.tags:type_name -> yandex.cloud.mdb.mongodb.v1.HostSpec.TagsEntry
+	136, // 59: yandex.cloud.mdb.mongodb.v1.HostSpec.votes:type_name -> google.protobuf.Int64Value
+	82,  // 60: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod
+	83,  // 61: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg
+	84,  // 62: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos
+	85,  // 63: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra
+	86,  // 64: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod
+	87,  // 65: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg
+	88,  // 66: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos
+	89,  // 67: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra
+	90,  // 68: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod
+	91,  // 69: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg
+	92,  // 70: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos
+	93,  // 71: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra
+	94,  // 72: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod
+	95,  // 73: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg
+	96,  // 74: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos
+	97,  // 75: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra
+	98,  // 76: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod
+	99,  // 77: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg
+	100, // 78: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos
+	101, // 79: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra
+	102, // 80: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod
+	103, // 81: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg
+	104, // 82: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos
+	105, // 83: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra
+	106, // 84: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod
+	107, // 85: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg
+	108, // 86: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos
+	109, // 87: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra
+	110, // 88: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod
+	111, // 89: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg
+	112, // 90: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos
+	113, // 91: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra
+	114, // 92: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod
+	115, // 93: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg
+	116, // 94: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos
+	117, // 95: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra
+	118, // 96: yandex.cloud.mdb.mongodb.v1.MongodbSpec.mongod:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod
+	119, // 97: yandex.cloud.mdb.mongodb.v1.MongodbSpec.mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg
+	120, // 98: yandex.cloud.mdb.mongodb.v1.MongodbSpec.mongos:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos
+	121, // 99: yandex.cloud.mdb.mongodb.v1.MongodbSpec.mongoinfra:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra
 	58,  // 100: yandex.cloud.mdb.mongodb.v1.ConfigSpec.mongodb_spec_3_6:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6
 	59,  // 101: yandex.cloud.mdb.mongodb.v1.ConfigSpec.mongodb_spec_4_0:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0
 	60,  // 102: yandex.cloud.mdb.mongodb.v1.ConfigSpec.mongodb_spec_4_2:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2
@@ -8766,210 +8885,213 @@ var file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_depIdxs = []int32{
 	62,  // 106: yandex.cloud.mdb.mongodb.v1.ConfigSpec.mongodb_spec_4_4_enterprise:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise
 	64,  // 107: yandex.cloud.mdb.mongodb.v1.ConfigSpec.mongodb_spec_5_0_enterprise:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise
 	66,  // 108: yandex.cloud.mdb.mongodb.v1.ConfigSpec.mongodb_spec_6_0_enterprise:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise
-	138, // 109: yandex.cloud.mdb.mongodb.v1.ConfigSpec.backup_window_start:type_name -> google.type.TimeOfDay
-	134, // 110: yandex.cloud.mdb.mongodb.v1.ConfigSpec.backup_retain_period_days:type_name -> google.protobuf.Int64Value
-	139, // 111: yandex.cloud.mdb.mongodb.v1.ConfigSpec.performance_diagnostics:type_name -> yandex.cloud.mdb.mongodb.v1.PerformanceDiagnosticsConfig
-	140, // 112: yandex.cloud.mdb.mongodb.v1.ConfigSpec.access:type_name -> yandex.cloud.mdb.mongodb.v1.Access
+	140, // 109: yandex.cloud.mdb.mongodb.v1.ConfigSpec.backup_window_start:type_name -> google.type.TimeOfDay
+	136, // 110: yandex.cloud.mdb.mongodb.v1.ConfigSpec.backup_retain_period_days:type_name -> google.protobuf.Int64Value
+	141, // 111: yandex.cloud.mdb.mongodb.v1.ConfigSpec.performance_diagnostics:type_name -> yandex.cloud.mdb.mongodb.v1.PerformanceDiagnosticsConfig
+	142, // 112: yandex.cloud.mdb.mongodb.v1.ConfigSpec.access:type_name -> yandex.cloud.mdb.mongodb.v1.Access
 	67,  // 113: yandex.cloud.mdb.mongodb.v1.ConfigSpec.mongodb:type_name -> yandex.cloud.mdb.mongodb.v1.MongodbSpec
-	141, // 114: yandex.cloud.mdb.mongodb.v1.ConfigSpec.autocompact_config:type_name -> yandex.cloud.mdb.mongodb.v1.AutoCompactConfig
-	142, // 115: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	142, // 116: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	142, // 117: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	143, // 118: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig3_6
-	142, // 119: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 120: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	145, // 121: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig3_6
-	142, // 122: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 123: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	146, // 124: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig3_6
-	142, // 125: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 126: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	146, // 127: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig3_6
-	145, // 128: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig3_6
-	142, // 129: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 130: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	147, // 131: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_0
-	142, // 132: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 133: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	148, // 134: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_0
-	142, // 135: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 136: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	149, // 137: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_0
-	142, // 138: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 139: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	149, // 140: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_0
-	148, // 141: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_0
-	142, // 142: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 143: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	150, // 144: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_2
-	142, // 145: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 146: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	151, // 147: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_2
-	142, // 148: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 149: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	152, // 150: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_2
-	142, // 151: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 152: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	152, // 153: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_2
-	151, // 154: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_2
-	142, // 155: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 156: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	153, // 157: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_4
-	142, // 158: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 159: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	154, // 160: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4
-	142, // 161: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 162: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	155, // 163: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4
-	142, // 164: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 165: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	155, // 166: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4
-	154, // 167: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4
-	142, // 168: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 169: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	156, // 170: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_4_enterprise
-	142, // 171: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 172: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	157, // 173: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4_enterprise
-	142, // 174: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 175: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	158, // 176: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4_enterprise
-	142, // 177: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 178: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	158, // 179: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4_enterprise
-	157, // 180: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4_enterprise
-	142, // 181: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 182: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	159, // 183: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig5_0
-	142, // 184: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 185: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	160, // 186: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0
-	142, // 187: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 188: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	161, // 189: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0
-	142, // 190: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 191: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	161, // 192: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0
-	160, // 193: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0
-	142, // 194: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 195: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	162, // 196: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig5_0_enterprise
-	142, // 197: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 198: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	163, // 199: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0_enterprise
-	142, // 200: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 201: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	164, // 202: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0_enterprise
-	142, // 203: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 204: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	164, // 205: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0_enterprise
-	163, // 206: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0_enterprise
-	142, // 207: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 208: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	165, // 209: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig6_0
-	142, // 210: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 211: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	166, // 212: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0
-	142, // 213: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 214: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	167, // 215: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0
-	142, // 216: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 217: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	167, // 218: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0
-	166, // 219: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0
-	142, // 220: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 221: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	168, // 222: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig6_0_enterprise
-	142, // 223: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 224: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	169, // 225: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0_enterprise
-	142, // 226: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 227: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	170, // 228: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0_enterprise
-	142, // 229: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 230: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	170, // 231: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0_enterprise
-	169, // 232: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0_enterprise
-	142, // 233: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 234: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	171, // 235: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig
-	142, // 236: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 237: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	172, // 238: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig
-	142, // 239: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 240: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	173, // 241: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig
-	142, // 242: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 243: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	173, // 244: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig
-	172, // 245: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig
-	142, // 246: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
-	144, // 247: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
-	3,   // 248: yandex.cloud.mdb.mongodb.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.mongodb.v1.GetClusterRequest
-	4,   // 249: yandex.cloud.mdb.mongodb.v1.ClusterService.List:input_type -> yandex.cloud.mdb.mongodb.v1.ListClustersRequest
-	6,   // 250: yandex.cloud.mdb.mongodb.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.mongodb.v1.CreateClusterRequest
-	8,   // 251: yandex.cloud.mdb.mongodb.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest
-	10,  // 252: yandex.cloud.mdb.mongodb.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.mongodb.v1.DeleteClusterRequest
-	12,  // 253: yandex.cloud.mdb.mongodb.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.mongodb.v1.StartClusterRequest
-	14,  // 254: yandex.cloud.mdb.mongodb.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.mongodb.v1.StopClusterRequest
-	16,  // 255: yandex.cloud.mdb.mongodb.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.mongodb.v1.MoveClusterRequest
-	18,  // 256: yandex.cloud.mdb.mongodb.v1.ClusterService.Backup:input_type -> yandex.cloud.mdb.mongodb.v1.BackupClusterRequest
-	20,  // 257: yandex.cloud.mdb.mongodb.v1.ClusterService.Restore:input_type -> yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest
-	22,  // 258: yandex.cloud.mdb.mongodb.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.mongodb.v1.RescheduleMaintenanceRequest
-	25,  // 259: yandex.cloud.mdb.mongodb.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterLogsRequest
-	28,  // 260: yandex.cloud.mdb.mongodb.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.mongodb.v1.StreamClusterLogsRequest
-	29,  // 261: yandex.cloud.mdb.mongodb.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterOperationsRequest
-	31,  // 262: yandex.cloud.mdb.mongodb.v1.ClusterService.ListBackups:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterBackupsRequest
-	33,  // 263: yandex.cloud.mdb.mongodb.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterHostsRequest
-	35,  // 264: yandex.cloud.mdb.mongodb.v1.ClusterService.AddHosts:input_type -> yandex.cloud.mdb.mongodb.v1.AddClusterHostsRequest
-	37,  // 265: yandex.cloud.mdb.mongodb.v1.ClusterService.DeleteHosts:input_type -> yandex.cloud.mdb.mongodb.v1.DeleteClusterHostsRequest
-	39,  // 266: yandex.cloud.mdb.mongodb.v1.ClusterService.UpdateHosts:input_type -> yandex.cloud.mdb.mongodb.v1.UpdateClusterHostsRequest
-	42,  // 267: yandex.cloud.mdb.mongodb.v1.ClusterService.EnableSharding:input_type -> yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest
-	44,  // 268: yandex.cloud.mdb.mongodb.v1.ClusterService.GetShard:input_type -> yandex.cloud.mdb.mongodb.v1.GetClusterShardRequest
-	45,  // 269: yandex.cloud.mdb.mongodb.v1.ClusterService.ListShards:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterShardsRequest
-	47,  // 270: yandex.cloud.mdb.mongodb.v1.ClusterService.AddShard:input_type -> yandex.cloud.mdb.mongodb.v1.AddClusterShardRequest
-	49,  // 271: yandex.cloud.mdb.mongodb.v1.ClusterService.DeleteShard:input_type -> yandex.cloud.mdb.mongodb.v1.DeleteClusterShardRequest
-	51,  // 272: yandex.cloud.mdb.mongodb.v1.ClusterService.ResetupHosts:input_type -> yandex.cloud.mdb.mongodb.v1.ResetupHostsRequest
-	53,  // 273: yandex.cloud.mdb.mongodb.v1.ClusterService.RestartHosts:input_type -> yandex.cloud.mdb.mongodb.v1.RestartHostsRequest
-	55,  // 274: yandex.cloud.mdb.mongodb.v1.ClusterService.StepdownHosts:input_type -> yandex.cloud.mdb.mongodb.v1.StepdownHostsRequest
-	174, // 275: yandex.cloud.mdb.mongodb.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
-	175, // 276: yandex.cloud.mdb.mongodb.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
-	176, // 277: yandex.cloud.mdb.mongodb.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
-	120, // 278: yandex.cloud.mdb.mongodb.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.mongodb.v1.Cluster
-	5,   // 279: yandex.cloud.mdb.mongodb.v1.ClusterService.List:output_type -> yandex.cloud.mdb.mongodb.v1.ListClustersResponse
-	130, // 280: yandex.cloud.mdb.mongodb.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
-	130, // 281: yandex.cloud.mdb.mongodb.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
-	130, // 282: yandex.cloud.mdb.mongodb.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
-	130, // 283: yandex.cloud.mdb.mongodb.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
-	130, // 284: yandex.cloud.mdb.mongodb.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
-	130, // 285: yandex.cloud.mdb.mongodb.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
-	130, // 286: yandex.cloud.mdb.mongodb.v1.ClusterService.Backup:output_type -> yandex.cloud.operation.Operation
-	130, // 287: yandex.cloud.mdb.mongodb.v1.ClusterService.Restore:output_type -> yandex.cloud.operation.Operation
-	130, // 288: yandex.cloud.mdb.mongodb.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
-	26,  // 289: yandex.cloud.mdb.mongodb.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterLogsResponse
-	27,  // 290: yandex.cloud.mdb.mongodb.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.mongodb.v1.StreamLogRecord
-	30,  // 291: yandex.cloud.mdb.mongodb.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterOperationsResponse
-	32,  // 292: yandex.cloud.mdb.mongodb.v1.ClusterService.ListBackups:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterBackupsResponse
-	34,  // 293: yandex.cloud.mdb.mongodb.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterHostsResponse
-	130, // 294: yandex.cloud.mdb.mongodb.v1.ClusterService.AddHosts:output_type -> yandex.cloud.operation.Operation
-	130, // 295: yandex.cloud.mdb.mongodb.v1.ClusterService.DeleteHosts:output_type -> yandex.cloud.operation.Operation
-	130, // 296: yandex.cloud.mdb.mongodb.v1.ClusterService.UpdateHosts:output_type -> yandex.cloud.operation.Operation
-	130, // 297: yandex.cloud.mdb.mongodb.v1.ClusterService.EnableSharding:output_type -> yandex.cloud.operation.Operation
-	136, // 298: yandex.cloud.mdb.mongodb.v1.ClusterService.GetShard:output_type -> yandex.cloud.mdb.mongodb.v1.Shard
-	46,  // 299: yandex.cloud.mdb.mongodb.v1.ClusterService.ListShards:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterShardsResponse
-	130, // 300: yandex.cloud.mdb.mongodb.v1.ClusterService.AddShard:output_type -> yandex.cloud.operation.Operation
-	130, // 301: yandex.cloud.mdb.mongodb.v1.ClusterService.DeleteShard:output_type -> yandex.cloud.operation.Operation
-	130, // 302: yandex.cloud.mdb.mongodb.v1.ClusterService.ResetupHosts:output_type -> yandex.cloud.operation.Operation
-	130, // 303: yandex.cloud.mdb.mongodb.v1.ClusterService.RestartHosts:output_type -> yandex.cloud.operation.Operation
-	130, // 304: yandex.cloud.mdb.mongodb.v1.ClusterService.StepdownHosts:output_type -> yandex.cloud.operation.Operation
-	177, // 305: yandex.cloud.mdb.mongodb.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
-	130, // 306: yandex.cloud.mdb.mongodb.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
-	130, // 307: yandex.cloud.mdb.mongodb.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
-	278, // [278:308] is the sub-list for method output_type
-	248, // [248:278] is the sub-list for method input_type
-	248, // [248:248] is the sub-list for extension type_name
-	248, // [248:248] is the sub-list for extension extendee
-	0,   // [0:248] is the sub-list for field type_name
+	143, // 114: yandex.cloud.mdb.mongodb.v1.ConfigSpec.autocompact_config:type_name -> yandex.cloud.mdb.mongodb.v1.AutoCompactConfig
+	135, // 115: yandex.cloud.mdb.mongodb.v1.SetBalancerStatusRequest.enabled:type_name -> google.protobuf.BoolValue
+	144, // 116: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	144, // 117: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	144, // 118: yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	145, // 119: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig3_6
+	144, // 120: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 121: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	147, // 122: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig3_6
+	144, // 123: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 124: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	148, // 125: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig3_6
+	144, // 126: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 127: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	148, // 128: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig3_6
+	147, // 129: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig3_6
+	144, // 130: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 131: yandex.cloud.mdb.mongodb.v1.MongodbSpec3_6.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	149, // 132: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_0
+	144, // 133: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 134: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	150, // 135: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_0
+	144, // 136: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 137: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	151, // 138: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_0
+	144, // 139: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 140: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	151, // 141: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_0
+	150, // 142: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_0
+	144, // 143: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 144: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_0.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	152, // 145: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_2
+	144, // 146: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 147: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	153, // 148: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_2
+	144, // 149: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 150: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	154, // 151: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_2
+	144, // 152: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 153: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	154, // 154: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_2
+	153, // 155: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_2
+	144, // 156: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 157: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_2.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	155, // 158: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_4
+	144, // 159: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 160: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	156, // 161: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4
+	144, // 162: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 163: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	157, // 164: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4
+	144, // 165: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 166: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	157, // 167: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4
+	156, // 168: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4
+	144, // 169: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 170: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	158, // 171: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig4_4_enterprise
+	144, // 172: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 173: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	159, // 174: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4_enterprise
+	144, // 175: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 176: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	160, // 177: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4_enterprise
+	144, // 178: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 179: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	160, // 180: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig4_4_enterprise
+	159, // 181: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_4_enterprise
+	144, // 182: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 183: yandex.cloud.mdb.mongodb.v1.MongodbSpec4_4_enterprise.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	161, // 184: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig5_0
+	144, // 185: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 186: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	162, // 187: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0
+	144, // 188: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 189: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	163, // 190: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0
+	144, // 191: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 192: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	163, // 193: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0
+	162, // 194: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0
+	144, // 195: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 196: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	164, // 197: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig5_0_enterprise
+	144, // 198: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 199: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	165, // 200: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0_enterprise
+	144, // 201: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 202: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	166, // 203: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0_enterprise
+	144, // 204: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 205: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	166, // 206: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig5_0_enterprise
+	165, // 207: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig5_0_enterprise
+	144, // 208: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 209: yandex.cloud.mdb.mongodb.v1.MongodbSpec5_0_enterprise.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	167, // 210: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig6_0
+	144, // 211: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 212: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	168, // 213: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0
+	144, // 214: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 215: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	169, // 216: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0
+	144, // 217: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 218: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	169, // 219: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0
+	168, // 220: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0
+	144, // 221: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 222: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	170, // 223: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig6_0_enterprise
+	144, // 224: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 225: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	171, // 226: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0_enterprise
+	144, // 227: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 228: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	172, // 229: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0_enterprise
+	144, // 230: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 231: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	172, // 232: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig6_0_enterprise
+	171, // 233: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig6_0_enterprise
+	144, // 234: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 235: yandex.cloud.mdb.mongodb.v1.MongodbSpec6_0_enterprise.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	173, // 236: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongodConfig
+	144, // 237: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 238: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongod.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	174, // 239: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig
+	144, // 240: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 241: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoCfg.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	175, // 242: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos.config:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig
+	144, // 243: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 244: yandex.cloud.mdb.mongodb.v1.MongodbSpec.Mongos.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	175, // 245: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra.config_mongos:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongosConfig
+	174, // 246: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra.config_mongocfg:type_name -> yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig
+	144, // 247: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra.resources:type_name -> yandex.cloud.mdb.mongodb.v1.Resources
+	146, // 248: yandex.cloud.mdb.mongodb.v1.MongodbSpec.MongoInfra.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mongodb.v1.DiskSizeAutoscaling
+	3,   // 249: yandex.cloud.mdb.mongodb.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.mongodb.v1.GetClusterRequest
+	4,   // 250: yandex.cloud.mdb.mongodb.v1.ClusterService.List:input_type -> yandex.cloud.mdb.mongodb.v1.ListClustersRequest
+	6,   // 251: yandex.cloud.mdb.mongodb.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.mongodb.v1.CreateClusterRequest
+	8,   // 252: yandex.cloud.mdb.mongodb.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.mongodb.v1.UpdateClusterRequest
+	10,  // 253: yandex.cloud.mdb.mongodb.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.mongodb.v1.DeleteClusterRequest
+	12,  // 254: yandex.cloud.mdb.mongodb.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.mongodb.v1.StartClusterRequest
+	14,  // 255: yandex.cloud.mdb.mongodb.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.mongodb.v1.StopClusterRequest
+	16,  // 256: yandex.cloud.mdb.mongodb.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.mongodb.v1.MoveClusterRequest
+	18,  // 257: yandex.cloud.mdb.mongodb.v1.ClusterService.Backup:input_type -> yandex.cloud.mdb.mongodb.v1.BackupClusterRequest
+	20,  // 258: yandex.cloud.mdb.mongodb.v1.ClusterService.Restore:input_type -> yandex.cloud.mdb.mongodb.v1.RestoreClusterRequest
+	22,  // 259: yandex.cloud.mdb.mongodb.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.mongodb.v1.RescheduleMaintenanceRequest
+	25,  // 260: yandex.cloud.mdb.mongodb.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterLogsRequest
+	28,  // 261: yandex.cloud.mdb.mongodb.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.mongodb.v1.StreamClusterLogsRequest
+	29,  // 262: yandex.cloud.mdb.mongodb.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterOperationsRequest
+	31,  // 263: yandex.cloud.mdb.mongodb.v1.ClusterService.ListBackups:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterBackupsRequest
+	33,  // 264: yandex.cloud.mdb.mongodb.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterHostsRequest
+	35,  // 265: yandex.cloud.mdb.mongodb.v1.ClusterService.AddHosts:input_type -> yandex.cloud.mdb.mongodb.v1.AddClusterHostsRequest
+	37,  // 266: yandex.cloud.mdb.mongodb.v1.ClusterService.DeleteHosts:input_type -> yandex.cloud.mdb.mongodb.v1.DeleteClusterHostsRequest
+	39,  // 267: yandex.cloud.mdb.mongodb.v1.ClusterService.UpdateHosts:input_type -> yandex.cloud.mdb.mongodb.v1.UpdateClusterHostsRequest
+	42,  // 268: yandex.cloud.mdb.mongodb.v1.ClusterService.EnableSharding:input_type -> yandex.cloud.mdb.mongodb.v1.EnableClusterShardingRequest
+	44,  // 269: yandex.cloud.mdb.mongodb.v1.ClusterService.GetShard:input_type -> yandex.cloud.mdb.mongodb.v1.GetClusterShardRequest
+	45,  // 270: yandex.cloud.mdb.mongodb.v1.ClusterService.ListShards:input_type -> yandex.cloud.mdb.mongodb.v1.ListClusterShardsRequest
+	47,  // 271: yandex.cloud.mdb.mongodb.v1.ClusterService.AddShard:input_type -> yandex.cloud.mdb.mongodb.v1.AddClusterShardRequest
+	49,  // 272: yandex.cloud.mdb.mongodb.v1.ClusterService.DeleteShard:input_type -> yandex.cloud.mdb.mongodb.v1.DeleteClusterShardRequest
+	51,  // 273: yandex.cloud.mdb.mongodb.v1.ClusterService.ResetupHosts:input_type -> yandex.cloud.mdb.mongodb.v1.ResetupHostsRequest
+	53,  // 274: yandex.cloud.mdb.mongodb.v1.ClusterService.RestartHosts:input_type -> yandex.cloud.mdb.mongodb.v1.RestartHostsRequest
+	55,  // 275: yandex.cloud.mdb.mongodb.v1.ClusterService.StepdownHosts:input_type -> yandex.cloud.mdb.mongodb.v1.StepdownHostsRequest
+	176, // 276: yandex.cloud.mdb.mongodb.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	177, // 277: yandex.cloud.mdb.mongodb.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	178, // 278: yandex.cloud.mdb.mongodb.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	69,  // 279: yandex.cloud.mdb.mongodb.v1.ClusterService.SetBalancerStatus:input_type -> yandex.cloud.mdb.mongodb.v1.SetBalancerStatusRequest
+	122, // 280: yandex.cloud.mdb.mongodb.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.mongodb.v1.Cluster
+	5,   // 281: yandex.cloud.mdb.mongodb.v1.ClusterService.List:output_type -> yandex.cloud.mdb.mongodb.v1.ListClustersResponse
+	132, // 282: yandex.cloud.mdb.mongodb.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
+	132, // 283: yandex.cloud.mdb.mongodb.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
+	132, // 284: yandex.cloud.mdb.mongodb.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
+	132, // 285: yandex.cloud.mdb.mongodb.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
+	132, // 286: yandex.cloud.mdb.mongodb.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
+	132, // 287: yandex.cloud.mdb.mongodb.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
+	132, // 288: yandex.cloud.mdb.mongodb.v1.ClusterService.Backup:output_type -> yandex.cloud.operation.Operation
+	132, // 289: yandex.cloud.mdb.mongodb.v1.ClusterService.Restore:output_type -> yandex.cloud.operation.Operation
+	132, // 290: yandex.cloud.mdb.mongodb.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
+	26,  // 291: yandex.cloud.mdb.mongodb.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterLogsResponse
+	27,  // 292: yandex.cloud.mdb.mongodb.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.mongodb.v1.StreamLogRecord
+	30,  // 293: yandex.cloud.mdb.mongodb.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterOperationsResponse
+	32,  // 294: yandex.cloud.mdb.mongodb.v1.ClusterService.ListBackups:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterBackupsResponse
+	34,  // 295: yandex.cloud.mdb.mongodb.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterHostsResponse
+	132, // 296: yandex.cloud.mdb.mongodb.v1.ClusterService.AddHosts:output_type -> yandex.cloud.operation.Operation
+	132, // 297: yandex.cloud.mdb.mongodb.v1.ClusterService.DeleteHosts:output_type -> yandex.cloud.operation.Operation
+	132, // 298: yandex.cloud.mdb.mongodb.v1.ClusterService.UpdateHosts:output_type -> yandex.cloud.operation.Operation
+	132, // 299: yandex.cloud.mdb.mongodb.v1.ClusterService.EnableSharding:output_type -> yandex.cloud.operation.Operation
+	138, // 300: yandex.cloud.mdb.mongodb.v1.ClusterService.GetShard:output_type -> yandex.cloud.mdb.mongodb.v1.Shard
+	46,  // 301: yandex.cloud.mdb.mongodb.v1.ClusterService.ListShards:output_type -> yandex.cloud.mdb.mongodb.v1.ListClusterShardsResponse
+	132, // 302: yandex.cloud.mdb.mongodb.v1.ClusterService.AddShard:output_type -> yandex.cloud.operation.Operation
+	132, // 303: yandex.cloud.mdb.mongodb.v1.ClusterService.DeleteShard:output_type -> yandex.cloud.operation.Operation
+	132, // 304: yandex.cloud.mdb.mongodb.v1.ClusterService.ResetupHosts:output_type -> yandex.cloud.operation.Operation
+	132, // 305: yandex.cloud.mdb.mongodb.v1.ClusterService.RestartHosts:output_type -> yandex.cloud.operation.Operation
+	132, // 306: yandex.cloud.mdb.mongodb.v1.ClusterService.StepdownHosts:output_type -> yandex.cloud.operation.Operation
+	179, // 307: yandex.cloud.mdb.mongodb.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	132, // 308: yandex.cloud.mdb.mongodb.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	132, // 309: yandex.cloud.mdb.mongodb.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	132, // 310: yandex.cloud.mdb.mongodb.v1.ClusterService.SetBalancerStatus:output_type -> yandex.cloud.operation.Operation
+	280, // [280:311] is the sub-list for method output_type
+	249, // [249:280] is the sub-list for method input_type
+	249, // [249:249] is the sub-list for extension type_name
+	249, // [249:249] is the sub-list for extension extendee
+	0,   // [0:249] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_init() }
@@ -8999,7 +9121,7 @@ func file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc), len(file_yandex_cloud_mdb_mongodb_v1_cluster_service_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   117,
+			NumMessages:   119,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

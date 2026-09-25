@@ -5,8 +5,12 @@ import (
 	"strings"
 )
 
-// This file contains the credential redaction patterns used by grpcdebug so
-// the interceptor can mask credentials without an external dependency.
+// This file vendors a subset of api/pkg/antisecret into the sdk-v2 tree so the
+// grpcdebug interceptor can mask credentials in logged payloads without taking
+// an external dependency. The pattern set and redaction logic mirror
+// antisecret.DefaultPatterns / antisecret.Sanitizer at the time of vendoring;
+// keep in sync with /Users/.../cloud-go/pkg/antisecret/sanitizer.go when adding
+// new patterns.
 
 type redactMode int
 

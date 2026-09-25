@@ -271,7 +271,9 @@ type Cluster struct {
 	// Service account that will be used to access a Yandex Cloud resources.
 	ServiceAccountId string `protobuf:"bytes,29,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
 	// Cloud logging configuration.
-	Logging       *LoggingConfig `protobuf:"bytes,30,opt,name=logging,proto3" json:"logging,omitempty"`
+	Logging *LoggingConfig `protobuf:"bytes,30,opt,name=logging,proto3" json:"logging,omitempty"`
+	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
+	IsHa          bool `protobuf:"varint,31,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -507,6 +509,13 @@ func (x *Cluster) GetLogging() *LoggingConfig {
 		return x.Logging
 	}
 	return nil
+}
+
+func (x *Cluster) GetIsHa() bool {
+	if x != nil {
+		return x.IsHa
+	}
+	return false
 }
 
 // Monitoring system metadata.
@@ -1187,7 +1196,7 @@ var File_yandex_cloud_mdb_greenplum_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_greenplum_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"+yandex/cloud/mdb/greenplum/v1/cluster.proto\x12\x1dyandex.cloud.mdb.greenplum.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a*yandex/cloud/mdb/greenplum/v1/config.proto\x1a/yandex/cloud/mdb/greenplum/v1/maintenance.proto\x1a'yandex/cloud/mdb/greenplum/v1/pxf.proto\x1a\x1dyandex/cloud/validation.proto\"\xa4\x10\n" +
+	"+yandex/cloud/mdb/greenplum/v1/cluster.proto\x12\x1dyandex.cloud.mdb.greenplum.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a*yandex/cloud/mdb/greenplum/v1/config.proto\x1a/yandex/cloud/mdb/greenplum/v1/maintenance.proto\x1a'yandex/cloud/mdb/greenplum/v1/pxf.proto\x1a\x1dyandex/cloud/validation.proto\"\xb9\x10\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -1222,7 +1231,8 @@ const file_yandex_cloud_mdb_greenplum_v1_cluster_proto_rawDesc = "" +
 	"\x15master_host_group_ids\x18\x1b \x03(\tR\x12masterHostGroupIds\x123\n" +
 	"\x16segment_host_group_ids\x18\x1c \x03(\tR\x13segmentHostGroupIds\x12,\n" +
 	"\x12service_account_id\x18\x1d \x01(\tR\x10serviceAccountId\x12F\n" +
-	"\alogging\x18\x1e \x01(\v2,.yandex.cloud.mdb.greenplum.v1.LoggingConfigR\alogging\x1a9\n" +
+	"\alogging\x18\x1e \x01(\v2,.yandex.cloud.mdb.greenplum.v1.LoggingConfigR\alogging\x12\x13\n" +
+	"\x05is_ha\x18\x1f \x01(\bR\x04isHa\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"I\n" +

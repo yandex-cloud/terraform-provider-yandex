@@ -485,6 +485,8 @@ type CreateOAuthClientRequest struct {
 	FolderId string `protobuf:"bytes,4,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
 	// List of authentication methods allowed for the oauth client.
 	AuthenticationMethods []string `protobuf:"bytes,7,rep,name=authentication_methods,json=authenticationMethods,proto3" json:"authentication_methods,omitempty"`
+	// List of URIs to which users can be redirected after signing out of the oauth client.
+	PostLogoutRedirectUris []string `protobuf:"bytes,8,rep,name=post_logout_redirect_uris,json=postLogoutRedirectUris,proto3" json:"post_logout_redirect_uris,omitempty"`
 	// ID of the profile that defines the set of allowed settings for the oauth client.
 	ProfileId string `protobuf:"bytes,5,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// Whether PKCE (Proof Key for Code Exchange) is required for the oauth client during the authorization code flow.
@@ -558,6 +560,13 @@ func (x *CreateOAuthClientRequest) GetAuthenticationMethods() []string {
 	return nil
 }
 
+func (x *CreateOAuthClientRequest) GetPostLogoutRedirectUris() []string {
+	if x != nil {
+		return x.PostLogoutRedirectUris
+	}
+	return nil
+}
+
 func (x *CreateOAuthClientRequest) GetProfileId() string {
 	if x != nil {
 		return x.ProfileId
@@ -588,6 +597,8 @@ type UpdateOAuthClientRequest struct {
 	Scopes []string `protobuf:"bytes,5,rep,name=scopes,proto3" json:"scopes,omitempty"`
 	// List of authentication methods allowed for the oauth client.
 	AuthenticationMethods []string `protobuf:"bytes,7,rep,name=authentication_methods,json=authenticationMethods,proto3" json:"authentication_methods,omitempty"`
+	// List of URIs to which users can be redirected after signing out of the oauth client.
+	PostLogoutRedirectUris []string `protobuf:"bytes,8,rep,name=post_logout_redirect_uris,json=postLogoutRedirectUris,proto3" json:"post_logout_redirect_uris,omitempty"`
 	// Whether PKCE (Proof Key for Code Exchange) is required for the oauth client during the authorization code flow.
 	PkceRequired  bool `protobuf:"varint,6,opt,name=pkce_required,json=pkceRequired,proto3" json:"pkce_required,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -662,6 +673,13 @@ func (x *UpdateOAuthClientRequest) GetScopes() []string {
 func (x *UpdateOAuthClientRequest) GetAuthenticationMethods() []string {
 	if x != nil {
 		return x.AuthenticationMethods
+	}
+	return nil
+}
+
+func (x *UpdateOAuthClientRequest) GetPostLogoutRedirectUris() []string {
+	if x != nil {
+		return x.PostLogoutRedirectUris
 	}
 	return nil
 }
@@ -747,16 +765,17 @@ const file_yandex_cloud_iam_v1_oauth_client_service_proto_rawDesc = "" +
 	"\x19UpdateOAuthClientMetadata\x12&\n" +
 	"\x0foauth_client_id\x18\x01 \x01(\tR\roauthClientId\"C\n" +
 	"\x19DeleteOAuthClientMetadata\x12&\n" +
-	"\x0foauth_client_id\x18\x01 \x01(\tR\roauthClientId\"\x95\x03\n" +
+	"\x0foauth_client_id\x18\x01 \x01(\tR\roauthClientId\"\xe6\x03\n" +
 	"\x18CreateOAuthClientRequest\x12;\n" +
 	"\x04name\x18\x01 \x01(\tB'\xe8\xc71\x01\xf2\xc71\x1f[a-z]([-a-z0-9]{0,61}[a-z0-9])?R\x04name\x129\n" +
 	"\rredirect_uris\x18\x02 \x03(\tB\x14\x82\xc81\x06<=1000\x8a\xc81\x06<=1000R\fredirectUris\x12;\n" +
 	"\x06scopes\x18\x03 \x03(\tB#\xf2\xc71\f[!#-\\[\\]-~]+\x82\xc81\x06<=1000\x8a\xc81\x05<=255R\x06scopes\x12*\n" +
 	"\tfolder_id\x18\x04 \x01(\tB\r\xe8\xc71\x01\x8a\xc81\x05<=255R\bfolderId\x12J\n" +
-	"\x16authentication_methods\x18\a \x03(\tB\x13\x82\xc81\x06<=1000\x8a\xc81\x05<=255R\x15authenticationMethods\x12'\n" +
+	"\x16authentication_methods\x18\a \x03(\tB\x13\x82\xc81\x06<=1000\x8a\xc81\x05<=255R\x15authenticationMethods\x12O\n" +
+	"\x19post_logout_redirect_uris\x18\b \x03(\tB\x14\x82\xc81\x06<=1000\x8a\xc81\x06<=1000R\x16postLogoutRedirectUris\x12'\n" +
 	"\n" +
 	"profile_id\x18\x05 \x01(\tB\b\x8a\xc81\x04<=32R\tprofileId\x12#\n" +
-	"\rpkce_required\x18\x06 \x01(\bR\fpkceRequired\"\xb3\x03\n" +
+	"\rpkce_required\x18\x06 \x01(\bR\fpkceRequired\"\x84\x04\n" +
 	"\x18UpdateOAuthClientRequest\x124\n" +
 	"\x0foauth_client_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\roauthClientId\x12;\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
@@ -764,7 +783,8 @@ const file_yandex_cloud_iam_v1_oauth_client_service_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tB'\xe8\xc71\x01\xf2\xc71\x1f[a-z]([-a-z0-9]{0,61}[a-z0-9])?R\x04name\x129\n" +
 	"\rredirect_uris\x18\x04 \x03(\tB\x14\x82\xc81\x06<=1000\x8a\xc81\x06<=1000R\fredirectUris\x12;\n" +
 	"\x06scopes\x18\x05 \x03(\tB#\xf2\xc71\f[!#-\\[\\]-~]+\x82\xc81\x06<=1000\x8a\xc81\x05<=255R\x06scopes\x12J\n" +
-	"\x16authentication_methods\x18\a \x03(\tB\x13\x82\xc81\x06<=1000\x8a\xc81\x05<=255R\x15authenticationMethods\x12#\n" +
+	"\x16authentication_methods\x18\a \x03(\tB\x13\x82\xc81\x06<=1000\x8a\xc81\x05<=255R\x15authenticationMethods\x12O\n" +
+	"\x19post_logout_redirect_uris\x18\b \x03(\tB\x14\x82\xc81\x06<=1000\x8a\xc81\x06<=1000R\x16postLogoutRedirectUris\x12#\n" +
 	"\rpkce_required\x18\x06 \x01(\bR\fpkceRequired\"P\n" +
 	"\x18DeleteOAuthClientRequest\x124\n" +
 	"\x0foauth_client_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\roauthClientId2\xac\a\n" +

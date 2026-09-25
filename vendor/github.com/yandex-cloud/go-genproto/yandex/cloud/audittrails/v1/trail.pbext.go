@@ -3,6 +3,7 @@
 package audittrails
 
 import (
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -92,12 +93,22 @@ func (m *Trail_Destination) SetEventrouter(v *Trail_EventRouter) {
 	}
 }
 
+func (m *Trail_Destination) SetMonium(v *Trail_Monium) {
+	m.Destination = &Trail_Destination_Monium{
+		Monium: v,
+	}
+}
+
 func (m *Trail_ObjectStorage) SetBucketId(v string) {
 	m.BucketId = v
 }
 
 func (m *Trail_ObjectStorage) SetObjectPrefix(v string) {
 	m.ObjectPrefix = v
+}
+
+func (m *Trail_ObjectStorage) SetAggregationPeriod(v *durationpb.Duration) {
+	m.AggregationPeriod = v
 }
 
 type Trail_CloudLogging_Destination = isTrail_CloudLogging_Destination

@@ -74,6 +74,10 @@ func (m *CreateOAuthClientRequest) SetAuthenticationMethods(v []string) {
 	m.AuthenticationMethods = v
 }
 
+func (m *CreateOAuthClientRequest) SetPostLogoutRedirectUris(v []string) {
+	m.PostLogoutRedirectUris = v
+}
+
 func (m *CreateOAuthClientRequest) SetProfileId(v string) {
 	m.ProfileId = v
 }
@@ -104,6 +108,10 @@ func (m *UpdateOAuthClientRequest) SetScopes(v []string) {
 
 func (m *UpdateOAuthClientRequest) SetAuthenticationMethods(v []string) {
 	m.AuthenticationMethods = v
+}
+
+func (m *UpdateOAuthClientRequest) SetPostLogoutRedirectUris(v []string) {
+	m.PostLogoutRedirectUris = v
 }
 
 func (m *UpdateOAuthClientRequest) SetPkceRequired(v bool) {

@@ -20,12 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MigrationService_StartCloud_FullMethodName                       = "/yandex.cloud.cloudregistry.v1.MigrationService/StartCloud"
-	MigrationService_StartFolder_FullMethodName                      = "/yandex.cloud.cloudregistry.v1.MigrationService/StartFolder"
-	MigrationService_GetCloudMigrationStatusDashboard_FullMethodName = "/yandex.cloud.cloudregistry.v1.MigrationService/GetCloudMigrationStatusDashboard"
-	MigrationService_ToggleRegistryRedirects_FullMethodName          = "/yandex.cloud.cloudregistry.v1.MigrationService/ToggleRegistryRedirects"
-	MigrationService_ToggleFolderRedirects_FullMethodName            = "/yandex.cloud.cloudregistry.v1.MigrationService/ToggleFolderRedirects"
-	MigrationService_ToggleCloudRedirects_FullMethodName             = "/yandex.cloud.cloudregistry.v1.MigrationService/ToggleCloudRedirects"
+	MigrationService_StartCloud_FullMethodName                        = "/yandex.cloud.cloudregistry.v1.MigrationService/StartCloud"
+	MigrationService_StartFolder_FullMethodName                       = "/yandex.cloud.cloudregistry.v1.MigrationService/StartFolder"
+	MigrationService_GetCloudMigrationStatusDashboard_FullMethodName  = "/yandex.cloud.cloudregistry.v1.MigrationService/GetCloudMigrationStatusDashboard"
+	MigrationService_GetFolderMigrationStatusDashboard_FullMethodName = "/yandex.cloud.cloudregistry.v1.MigrationService/GetFolderMigrationStatusDashboard"
+	MigrationService_ToggleRegistryRedirects_FullMethodName           = "/yandex.cloud.cloudregistry.v1.MigrationService/ToggleRegistryRedirects"
+	MigrationService_ToggleFolderRedirects_FullMethodName             = "/yandex.cloud.cloudregistry.v1.MigrationService/ToggleFolderRedirects"
+	MigrationService_ToggleCloudRedirects_FullMethodName              = "/yandex.cloud.cloudregistry.v1.MigrationService/ToggleCloudRedirects"
 )
 
 // MigrationServiceClient is the client API for MigrationService service.
@@ -40,6 +41,8 @@ type MigrationServiceClient interface {
 	StartFolder(ctx context.Context, in *StartFolderMigrationRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Returns migration status dashboard for the specified cloud.
 	GetCloudMigrationStatusDashboard(ctx context.Context, in *GetCloudMigrationStatusDashboardRequest, opts ...grpc.CallOption) (*CloudMigrationStatusDashboard, error)
+	// Returns migration status dashboard for the specified folder.
+	GetFolderMigrationStatusDashboard(ctx context.Context, in *GetFolderMigrationStatusDashboardRequest, opts ...grpc.CallOption) (*FolderMigrationStatusDashboard, error)
 	// Toggles whether redirects are allowed for the specified registry.
 	ToggleRegistryRedirects(ctx context.Context, in *ToggleRegistryRedirectsRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Toggles whether redirects are allowed for all registries in the specified folder.
@@ -80,6 +83,16 @@ func (c *migrationServiceClient) GetCloudMigrationStatusDashboard(ctx context.Co
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CloudMigrationStatusDashboard)
 	err := c.cc.Invoke(ctx, MigrationService_GetCloudMigrationStatusDashboard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *migrationServiceClient) GetFolderMigrationStatusDashboard(ctx context.Context, in *GetFolderMigrationStatusDashboardRequest, opts ...grpc.CallOption) (*FolderMigrationStatusDashboard, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FolderMigrationStatusDashboard)
+	err := c.cc.Invoke(ctx, MigrationService_GetFolderMigrationStatusDashboard_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +141,8 @@ type MigrationServiceServer interface {
 	StartFolder(context.Context, *StartFolderMigrationRequest) (*operation.Operation, error)
 	// Returns migration status dashboard for the specified cloud.
 	GetCloudMigrationStatusDashboard(context.Context, *GetCloudMigrationStatusDashboardRequest) (*CloudMigrationStatusDashboard, error)
+	// Returns migration status dashboard for the specified folder.
+	GetFolderMigrationStatusDashboard(context.Context, *GetFolderMigrationStatusDashboardRequest) (*FolderMigrationStatusDashboard, error)
 	// Toggles whether redirects are allowed for the specified registry.
 	ToggleRegistryRedirects(context.Context, *ToggleRegistryRedirectsRequest) (*operation.Operation, error)
 	// Toggles whether redirects are allowed for all registries in the specified folder.
@@ -151,6 +166,9 @@ func (UnimplementedMigrationServiceServer) StartFolder(context.Context, *StartFo
 }
 func (UnimplementedMigrationServiceServer) GetCloudMigrationStatusDashboard(context.Context, *GetCloudMigrationStatusDashboardRequest) (*CloudMigrationStatusDashboard, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCloudMigrationStatusDashboard not implemented")
+}
+func (UnimplementedMigrationServiceServer) GetFolderMigrationStatusDashboard(context.Context, *GetFolderMigrationStatusDashboardRequest) (*FolderMigrationStatusDashboard, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFolderMigrationStatusDashboard not implemented")
 }
 func (UnimplementedMigrationServiceServer) ToggleRegistryRedirects(context.Context, *ToggleRegistryRedirectsRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method ToggleRegistryRedirects not implemented")
@@ -235,6 +253,24 @@ func _MigrationService_GetCloudMigrationStatusDashboard_Handler(srv interface{},
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MigrationService_GetFolderMigrationStatusDashboard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFolderMigrationStatusDashboardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MigrationServiceServer).GetFolderMigrationStatusDashboard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MigrationService_GetFolderMigrationStatusDashboard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MigrationServiceServer).GetFolderMigrationStatusDashboard(ctx, req.(*GetFolderMigrationStatusDashboardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MigrationService_ToggleRegistryRedirects_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ToggleRegistryRedirectsRequest)
 	if err := dec(in); err != nil {
@@ -307,6 +343,10 @@ var MigrationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCloudMigrationStatusDashboard",
 			Handler:    _MigrationService_GetCloudMigrationStatusDashboard_Handler,
+		},
+		{
+			MethodName: "GetFolderMigrationStatusDashboard",
+			Handler:    _MigrationService_GetFolderMigrationStatusDashboard_Handler,
 		},
 		{
 			MethodName: "ToggleRegistryRedirects",

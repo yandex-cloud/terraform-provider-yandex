@@ -195,6 +195,10 @@ func (m *Shard) SetClusterId(v string) {
 	m.ClusterId = v
 }
 
+func (m *Shard) SetIsHa(v bool) {
+	m.IsHa = v
+}
+
 func (m *Host) SetName(v string) {
 	m.Name = v
 }

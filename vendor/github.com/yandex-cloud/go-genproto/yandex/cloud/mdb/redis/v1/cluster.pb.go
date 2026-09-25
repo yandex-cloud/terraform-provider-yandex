@@ -513,6 +513,8 @@ type Cluster struct {
 	// Valkey cluster mode on/off.
 	Sharded bool `protobuf:"varint,13,opt,name=sharded,proto3" json:"sharded,omitempty"`
 	// Maintenance window for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,14,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Planned maintenance operation to be started for the cluster within the nearest [maintenance_window].
 	PlannedOperation *MaintenanceOperation `protobuf:"bytes,15,opt,name=planned_operation,json=plannedOperation,proto3" json:"planned_operation,omitempty"`
@@ -530,7 +532,7 @@ type Cluster struct {
 	AuthSentinel bool `protobuf:"varint,21,opt,name=auth_sentinel,json=authSentinel,proto3" json:"auth_sentinel,omitempty"`
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,22,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
-	// Indicates whether the cluster topology is highly available
+	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
 	IsHa          bool `protobuf:"varint,23,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -657,6 +659,7 @@ func (x *Cluster) GetSharded() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster.proto.
 func (x *Cluster) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -1032,7 +1035,9 @@ type Shard struct {
 	// 1-63 characters long.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// ID of the Valkey cluster the shard belongs to. The ID is assigned by MDB at creation time.
-	ClusterId     string `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	ClusterId string `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Indicates whether the shard topology is highly available as defined by the Yandex Cloud SLA for managed databases.
+	IsHa          bool `protobuf:"varint,3,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1079,6 +1084,13 @@ func (x *Shard) GetClusterId() string {
 		return x.ClusterId
 	}
 	return ""
+}
+
+func (x *Shard) GetIsHa() bool {
+	if x != nil {
+		return x.IsHa
+	}
+	return false
 }
 
 type Host struct {
@@ -1859,7 +1871,7 @@ var File_yandex_cloud_mdb_redis_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_redis_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"'yandex/cloud/mdb/redis/v1/cluster.proto\x12\x19yandex.cloud.mdb.redis.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a,yandex/cloud/mdb/redis/v1/config/redis.proto\x1a/yandex/cloud/mdb/redis/v1/config/redis5_0.proto\x1a/yandex/cloud/mdb/redis/v1/config/redis6_0.proto\x1a/yandex/cloud/mdb/redis/v1/config/redis6_2.proto\x1a/yandex/cloud/mdb/redis/v1/config/redis7_0.proto\x1a+yandex/cloud/mdb/redis/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xd6\f\n" +
+	"'yandex/cloud/mdb/redis/v1/cluster.proto\x12\x19yandex.cloud.mdb.redis.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a,yandex/cloud/mdb/redis/v1/config/redis.proto\x1a/yandex/cloud/mdb/redis/v1/config/redis5_0.proto\x1a/yandex/cloud/mdb/redis/v1/config/redis6_0.proto\x1a/yandex/cloud/mdb/redis/v1/config/redis6_2.proto\x1a/yandex/cloud/mdb/redis/v1/config/redis7_0.proto\x1a+yandex/cloud/mdb/redis/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xda\f\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -1878,8 +1890,8 @@ const file_yandex_cloud_mdb_redis_v1_cluster_proto_rawDesc = "" +
 	" \x01(\tR\tnetworkId\x12A\n" +
 	"\x06health\x18\v \x01(\x0e2).yandex.cloud.mdb.redis.v1.Cluster.HealthR\x06health\x12A\n" +
 	"\x06status\x18\f \x01(\x0e2).yandex.cloud.mdb.redis.v1.Cluster.StatusR\x06status\x12\x18\n" +
-	"\asharded\x18\r \x01(\bR\asharded\x12[\n" +
-	"\x12maintenance_window\x18\x0e \x01(\v2,.yandex.cloud.mdb.redis.v1.MaintenanceWindowR\x11maintenanceWindow\x12\\\n" +
+	"\asharded\x18\r \x01(\bR\asharded\x12_\n" +
+	"\x12maintenance_window\x18\x0e \x01(\v2,.yandex.cloud.mdb.redis.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12\\\n" +
 	"\x11planned_operation\x18\x0f \x01(\v2/.yandex.cloud.mdb.redis.v1.MaintenanceOperationR\x10plannedOperation\x12,\n" +
 	"\x12security_group_ids\x18\x10 \x03(\tR\x10securityGroupIds\x12\x1f\n" +
 	"\vtls_enabled\x18\x11 \x01(\bR\n" +
@@ -1938,11 +1950,12 @@ const file_yandex_cloud_mdb_redis_v1_cluster_proto_rawDesc = "" +
 	"\ffull_version\x18\x0f \x01(\tR\vfullVersion\x12P\n" +
 	"\x16tiered_storage_enabled\x18\x10 \x01(\v2\x1a.google.protobuf.BoolValueR\x14tieredStorageEnabled\x12q\n" +
 	"\x1ashard_autoscaling_settings\x18\x11 \x01(\v23.yandex.cloud.mdb.redis.v1.ShardAutoscalingSettingsR\x18shardAutoscalingSettingsB\x0e\n" +
-	"\fredis_configJ\x04\b\v\x10\r\":\n" +
+	"\fredis_configJ\x04\b\v\x10\r\"O\n" +
 	"\x05Shard\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x02 \x01(\tR\tclusterId\"\xf2\x04\n" +
+	"cluster_id\x18\x02 \x01(\tR\tclusterId\x12\x13\n" +
+	"\x05is_ha\x18\x03 \x01(\bR\x04isHa\"\xf2\x04\n" +
 	"\x04Host\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
