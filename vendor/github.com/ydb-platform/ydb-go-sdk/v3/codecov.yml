@@ -1,0 +1,10 @@
+# https://github.com/codecov/support/blob/master/codecov.yml
+# This codecov.yml is the default configuration for
+# all repositories on Codecov. You may adjust the settings
+# below in your own codecov.yml in your repository.
+#
+ignore:
+  - spans
+  - trace
+  - testutil
+  - examples

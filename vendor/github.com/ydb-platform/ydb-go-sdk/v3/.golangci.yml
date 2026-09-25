@@ -1,0 +1,203 @@
+version: "2"
+run:
+  issues-exit-code: 1
+  tests: true
+output:
+  formats:
+    text:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
+linters:
+  default: all
+  disable:
+    - contextcheck
+    - cyclop
+    - depguard
+    - dupl
+    - err113
+    - exhaustive
+    - exhaustruct
+    - fatcontext
+    - forbidigo
+    - gochecknoglobals
+    - gocognit
+    - gocritic
+    - godot
+    - gosec
+    - interfacebloat
+    - intrange
+    - ireturn
+    - maintidx
+    - mnd
+    - nonamedreturns
+    - paralleltest
+    - perfsprint
+    - predeclared
+    - testableexamples
+    - testifylint
+    - testpackage
+    - thelper
+    - varnamelen
+    - wrapcheck
+    - wsl
+    - recvcheck
+    - iface
+    - gosmopolitan
+    - funcorder
+  settings:
+    errcheck:
+      check-type-assertions: false
+      check-blank: false
+    goconst:
+      min-len: 2
+      min-occurrences: 2
+    gocritic:
+      disabled-checks:
+        - whyNoLint
+        - importShadow
+        - sloppyReassign
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+        - experimental
+        - opinionated
+      settings:
+        captLocal:
+          paramsOnly: false
+        elseif:
+          skipBalanced: false
+        hugeParam:
+          sizeThreshold: 70
+        nestingReduce:
+          bodyWidth: 4
+        rangeExprCopy:
+          sizeThreshold: 516
+          skipTestFuncs: false
+        rangeValCopy:
+          sizeThreshold: 32
+          skipTestFuncs: false
+        ruleguard:
+          debug: emptyDecl
+          disable: myGroupName,#myTagName
+          enable: myGroupName,#myTagName
+          failOn: dsl
+        tooManyResultsChecker:
+          maxResults: 10
+        truncateCmp:
+          skipArchDependent: false
+        underef:
+          skipRecvDeref: false
+        unnamedResult:
+          checkExported: true
+    gomoddirectives:
+      replace-allow-list:
+        - xorm.io/xorm
+      replace-local: true
+    govet:
+      enable-all: true
+      disable:
+        - shadow
+        - fieldalignment
+    misspell:
+      locale: US
+      ignore-rules:
+        - cancelled
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: exported
+        - name: if-return
+        - name: increment-decrement
+        - name: var-naming
+        - name: var-declaration
+        - name: package-comments
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: indent-error-flow
+        - name: errorf
+        - name: empty-block
+        - name: superfluous-else
+        - name: unreachable-code
+    unparam:
+      check-exported: false
+    staticcheck:
+      checks:
+        - all
+        - -ST1000
+        - -ST1003
+        - -ST1016
+        - -ST1020
+        - -ST1021
+        - -ST1022
+        - -QF1008
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - predeclared
+        path: internal/xatomic/type.go
+      - linters:
+          - forcetypeassert
+          - funlen
+          - gocritic
+          - scopelint
+          - unparam
+          - unused
+        path: _test\.go
+      - linters:
+          - staticcheck
+        path: topic/topicreader/reader_example_test.go
+      - path: _test\.go
+        text: ydb.Connection is deprecated
+      - linters:
+          - funlen
+        path: examples
+      - linters:
+          - funlen
+        path: tests/slo
+      - linters:
+          - nosnakecase
+        text: (?:_[a-z]+(?:[A-Z](?:[a-z\d]+|[A-Z\d]+))+|(?:[A-Z][a-z\d]+|[A-Z][A-Z\d]+)+_(?:(?:[A-Z][a-z\d]+|[A-Z\d][A-Z\d]+)_?)+)
+      - path: (.+)\.go$
+        text: has been deprecated since Go 1.16
+      - linters:
+          - goconst
+        path: (.+)_test\.go
+issues:
+  max-same-issues: 0
+  new: false
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/ydb-platform/ydb-go-sdk/v3)
+    gofmt:
+      simplify: true
+    gofumpt:
+      module-path: github.com/ydb-platform/ydb-go-sdk/v3
+    goimports:
+      local-prefixes:
+        - github.com/ydb-platform/ydb-go-sdk/v3
+  exclusions:
+    generated: lax

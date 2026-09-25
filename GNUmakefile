@@ -114,7 +114,7 @@ lint:
 else
 lint:
 	golangci-lint version
-	golangci-lint run --modules-download-mode mod $(LINT_PACKAGES) -v
+	golangci-lint run --modules-download-mode vendor $(LINT_PACKAGES) -v
 endif
 
 ifeq ($(INCOMPLETE_VENDOR),1)
@@ -124,7 +124,7 @@ else
 tools:
 	@echo "==> installing required tooling..."
 	go install github.com/client9/misspell/cmd/misspell
-	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.2.2
+	GOTOOLCHAIN=go1.25.10 go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.2.2
 	go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 endif
 

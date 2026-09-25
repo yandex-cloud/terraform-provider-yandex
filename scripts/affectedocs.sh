@@ -14,6 +14,7 @@ changed_lines=$(echo "$diff" | awk '
         next
     }
     /^@@ / {
+        if (file !~ /\.go$/ || file ~ /(^|\/)vendor\//) next
         range = $3
         sub(/^\+/, "", range)
         split(range, parts, ",")
