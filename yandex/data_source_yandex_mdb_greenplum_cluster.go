@@ -309,6 +309,11 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"trino": {
+							Type:        schema.TypeBool,
+							Description: "Whether access from [Managed Trino](https://yandex.cloud/services/managed-trino) is enabled.",
+							Computed:    true,
+						},
 					},
 				},
 			},

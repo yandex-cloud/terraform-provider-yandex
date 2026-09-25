@@ -454,6 +454,12 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 							Optional:    true,
 							Default:     false,
 						},
+						"trino": {
+							Type:        schema.TypeBool,
+							Description: "Allow access from [Managed Trino](https://yandex.cloud/services/managed-trino).",
+							Optional:    true,
+							Default:     false,
+						},
 						"yandex_query": {
 							Type:        schema.TypeBool,
 							Description: "Allow access for [Yandex Query](https://yandex.cloud/services/query)",

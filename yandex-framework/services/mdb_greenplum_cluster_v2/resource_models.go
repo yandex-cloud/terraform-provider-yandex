@@ -2582,6 +2582,7 @@ func expandYandexMdbGreenplumClusterV2ConfigModel(ctx context.Context, yandexMdb
 type yandexMdbGreenplumClusterV2ConfigAccessModel struct {
 	DataLens     types.Bool `tfsdk:"data_lens"`
 	DataTransfer types.Bool `tfsdk:"data_transfer"`
+	Trino        types.Bool `tfsdk:"trino"`
 	WebSql       types.Bool `tfsdk:"web_sql"`
 	YandexQuery  types.Bool `tfsdk:"yandex_query"`
 }
@@ -2591,6 +2592,9 @@ func (m *yandexMdbGreenplumClusterV2ConfigAccessModel) GetDataLens() types.Bool 
 }
 func (m *yandexMdbGreenplumClusterV2ConfigAccessModel) GetDataTransfer() types.Bool {
 	return m.DataTransfer
+}
+func (m *yandexMdbGreenplumClusterV2ConfigAccessModel) GetTrino() types.Bool {
+	return m.Trino
 }
 func (m *yandexMdbGreenplumClusterV2ConfigAccessModel) GetWebSql() types.Bool {
 	return m.WebSql
@@ -2603,6 +2607,7 @@ func NewYandexMdbGreenplumClusterV2ConfigAccessModel() yandexMdbGreenplumCluster
 	return yandexMdbGreenplumClusterV2ConfigAccessModel{
 		DataLens:     types.BoolNull(),
 		DataTransfer: types.BoolNull(),
+		Trino:        types.BoolNull(),
 		WebSql:       types.BoolNull(),
 		YandexQuery:  types.BoolNull(),
 	}
@@ -2614,6 +2619,9 @@ func yandexMdbGreenplumClusterV2ConfigAccessModelFillUnknown(target yandexMdbGre
 	}
 	if target.DataTransfer.IsUnknown() || target.DataTransfer.IsNull() {
 		target.DataTransfer = types.BoolNull()
+	}
+	if target.Trino.IsUnknown() || target.Trino.IsNull() {
+		target.Trino = types.BoolNull()
 	}
 	if target.WebSql.IsUnknown() || target.WebSql.IsNull() {
 		target.WebSql = types.BoolNull()
@@ -2628,6 +2636,7 @@ var yandexMdbGreenplumClusterV2ConfigAccessModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"data_lens":     types.BoolType,
 		"data_transfer": types.BoolType,
+		"trino":         types.BoolType,
 		"web_sql":       types.BoolType,
 		"yandex_query":  types.BoolType,
 	},
@@ -2642,6 +2651,7 @@ func flattenYandexMdbGreenplumClusterV2ConfigAccess(ctx context.Context,
 	value, diag := types.ObjectValueFrom(ctx, yandexMdbGreenplumClusterV2ConfigAccessModelType.AttrTypes, yandexMdbGreenplumClusterV2ConfigAccessModel{
 		DataLens:     types.BoolValue(yandexMdbGreenplumClusterV2ConfigAccess.GetDataLens()),
 		DataTransfer: types.BoolValue(yandexMdbGreenplumClusterV2ConfigAccess.GetDataTransfer()),
+		Trino:        types.BoolValue(yandexMdbGreenplumClusterV2ConfigAccess.GetTrino()),
 		WebSql:       types.BoolValue(yandexMdbGreenplumClusterV2ConfigAccess.GetWebSql()),
 		YandexQuery:  types.BoolValue(yandexMdbGreenplumClusterV2ConfigAccess.GetYandexQuery()),
 	})
@@ -2665,6 +2675,7 @@ func expandYandexMdbGreenplumClusterV2ConfigAccessModel(ctx context.Context, yan
 	value := &greenplum.Access{}
 	value.SetDataLens(yandexMdbGreenplumClusterV2ConfigAccessState.DataLens.ValueBool())
 	value.SetDataTransfer(yandexMdbGreenplumClusterV2ConfigAccessState.DataTransfer.ValueBool())
+	value.SetTrino(yandexMdbGreenplumClusterV2ConfigAccessState.Trino.ValueBool())
 	value.SetWebSql(yandexMdbGreenplumClusterV2ConfigAccessState.WebSql.ValueBool())
 	value.SetYandexQuery(yandexMdbGreenplumClusterV2ConfigAccessState.YandexQuery.ValueBool())
 	if diags.HasError() {

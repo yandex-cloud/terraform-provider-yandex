@@ -9,11 +9,11 @@ resource "yandex_mdb_greenplum_cluster_v2" "my_cluster" {
   environment = "PRESTABLE"
 
   segment_host_count = 2
-  segment_in_host   = 1
+  segment_in_host    = 1
 
-  user_name = "test-user"
+  user_name     = "test-user"
   user_password = "test-user-password"
-  network_id = yandex_vpc_network.foo.id
+  network_id    = yandex_vpc_network.foo.id
 
   cluster_config = {
     assign_public_ip = true
@@ -25,6 +25,9 @@ resource "yandex_mdb_greenplum_cluster_v2" "my_cluster" {
 
   config = {
     zone_id = "ru-central1-a"
+    access = {
+      trino = true
+    }
   }
 
   master_config = {

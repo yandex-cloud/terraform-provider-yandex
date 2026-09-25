@@ -134,3 +134,53 @@ func TestExpandGreenplumConfigSpecGreenplumConfig_Negative(t *testing.T) {
 		})
 	}
 }
+
+func TestGreenplumAccessRoundTrip(t *testing.T) {
+	fields := []struct {
+		name string
+		get  func(*greenplum.Access) bool
+	}{
+		{
+			name: "data_lens",
+			get:  func(access *greenplum.Access) bool { return access.GetDataLens() },
+		},
+		{
+			name: "web_sql",
+			get:  func(access *greenplum.Access) bool { return access.GetWebSql() },
+		},
+		{
+			name: "data_transfer",
+			get:  func(access *greenplum.Access) bool { return access.GetDataTransfer() },
+		},
+		{
+			name: "trino",
+			get:  func(access *greenplum.Access) bool { return access.GetTrino() },
+		},
+		{
+			name: "yandex_query",
+			get:  func(access *greenplum.Access) bool { return access.GetYandexQuery() },
+		},
+	}
+
+	for _, tt := range fields {
+		t.Run(tt.name, func(t *testing.T) {
+			rd := schema.TestResourceDataRaw(t, resourceYandexMDBGreenplumCluster().Schema, map[string]interface{}{
+				"access": []interface{}{map[string]interface{}{
+					tt.name: true,
+				}},
+			})
+
+			expanded := expandGreenplumAccess(rd)
+			require.NotNil(t, expanded)
+			for _, field := range fields {
+				assert.Equal(t, field.name == tt.name, field.get(expanded), field.name)
+			}
+
+			flattened := flattenGreenplumAccess(&greenplum.GreenplumConfig{Access: expanded})
+			require.Len(t, flattened, 1)
+			for _, field := range fields {
+				assert.Equal(t, field.name == tt.name, flattened[0][field.name], field.name)
+			}
+		})
+	}
+}

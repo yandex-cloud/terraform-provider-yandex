@@ -5,12 +5,80 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	frameworkresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 )
+
+func TestGreenplumClusterAccessRoundTrip(t *testing.T) {
+	fields := []struct {
+		name string
+		set  func(*greenplum.Access)
+		get  func(*greenplum.Access) bool
+	}{
+		{
+			name: "data_lens",
+			set:  func(access *greenplum.Access) { access.SetDataLens(true) },
+			get:  func(access *greenplum.Access) bool { return access.GetDataLens() },
+		},
+		{
+			name: "data_transfer",
+			set:  func(access *greenplum.Access) { access.SetDataTransfer(true) },
+			get:  func(access *greenplum.Access) bool { return access.GetDataTransfer() },
+		},
+		{
+			name: "trino",
+			set:  func(access *greenplum.Access) { access.SetTrino(true) },
+			get:  func(access *greenplum.Access) bool { return access.GetTrino() },
+		},
+		{
+			name: "web_sql",
+			set:  func(access *greenplum.Access) { access.SetWebSql(true) },
+			get:  func(access *greenplum.Access) bool { return access.GetWebSql() },
+		},
+		{
+			name: "yandex_query",
+			set:  func(access *greenplum.Access) { access.SetYandexQuery(true) },
+			get:  func(access *greenplum.Access) bool { return access.GetYandexQuery() },
+		},
+	}
+
+	for _, tt := range fields {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			var diags diag.Diagnostics
+			access := &greenplum.Access{}
+			tt.set(access)
+
+			flattened := flattenYandexMdbGreenplumClusterV2ConfigAccess(ctx, access, &diags)
+			if diags.HasError() {
+				t.Fatalf("flatten diagnostics: %#v", diags)
+			}
+			for _, field := range fields {
+				value, ok := flattened.Attributes()[field.name].(types.Bool)
+				if !ok || value.ValueBool() != (field.name == tt.name) {
+					t.Fatalf("flattened %s = %#v, want %t", field.name, flattened.Attributes()[field.name], field.name == tt.name)
+				}
+			}
+
+			expanded := expandYandexMdbGreenplumClusterV2ConfigAccess(ctx, flattened, &diags)
+			if diags.HasError() {
+				t.Fatalf("expand diagnostics: %#v", diags)
+			}
+			if expanded == nil {
+				t.Fatal("expanded access is nil")
+			}
+			for _, field := range fields {
+				if got, want := field.get(expanded), field.name == tt.name; got != want {
+					t.Errorf("expanded %s = %t, want %t", field.name, got, want)
+				}
+			}
+		})
+	}
+}
 
 func TestGreenplumClusterPasswordWoSchema(t *testing.T) {
 	var resp frameworkresource.SchemaResponse
