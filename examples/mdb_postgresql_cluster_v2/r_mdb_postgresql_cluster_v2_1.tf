@@ -22,7 +22,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "my_v2_cluster" {
     }
   }
 
-  maintenance_window {
+  maintenance_window = {
     type = "WEEKLY"
     day  = "SAT"
     hour = 12
