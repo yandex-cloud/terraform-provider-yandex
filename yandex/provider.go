@@ -217,6 +217,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_organizationmanager_group":                        dataSourceYandexOrganizationManagerGroup(),
 			"yandex_organizationmanager_os_login_settings":            dataSourceYandexOrganizationManagerOsLoginSettings(),
 			"yandex_organizationmanager_saml_federation":              dataSourceYandexOrganizationManagerSamlFederation(),
+			"yandex_organizationmanager_saml_federation_user":         dataSourceYandexOrganizationManagerSamlFederationUser(),
 			"yandex_organizationmanager_saml_federation_user_account": dataSourceYandexOrganizationManagerSamlFederationUserAccount(),
 			"yandex_resourcemanager_cloud":                            dataSourceYandexResourceManagerCloud(),
 			"yandex_resourcemanager_folder":                           dataSourceYandexResourceManagerFolder(),

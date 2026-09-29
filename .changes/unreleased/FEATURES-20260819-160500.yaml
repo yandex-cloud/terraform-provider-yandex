@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'organizationmanager: add `yandex_organizationmanager_saml_federation_user` data source to look up a SAML federation user and their attributes by IAM user account ID'
+time: 2026-08-19T16:05:00.000000+04:00
