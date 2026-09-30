@@ -107,6 +107,14 @@ func testAccDataSourceMDBMySQLUserAttributesCheck(datasourceName string, resourc
 				"connection_manager.connection_id",
 				"connection_manager.connection_id",
 			},
+			{
+				"user_connection_manager.#",
+				"user_connection_manager.#",
+			},
+			{
+				"user_connection_manager.0.connection_id",
+				"user_connection_manager.0.connection_id",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -178,6 +186,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 		resource_preset_id = "s2.micro"
 		disk_type_id       = "network-ssd"
 		disk_size          = 24
+	}
+
+	connection_manager {
+		enabled = true
 	}
 
 	host {

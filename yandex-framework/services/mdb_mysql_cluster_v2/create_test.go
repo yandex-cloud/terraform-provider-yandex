@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	msconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -71,6 +72,7 @@ var (
 		"backup_retain_period_days": types.Int64Type,
 		"restore":                   types.ObjectType{AttrTypes: expectedRestoreAttrTypes},
 		"mysql_config":              mdbcommon.NewSettingsMapType(msAttrProvider),
+		"connection_manager":        types.ObjectType{AttrTypes: mdbcommon.ClusterConnectionManagerAttrTypes},
 		"disk_encryption_key_id":    types.StringType,
 		"timeouts":                  timeouts.Type{},
 	}
@@ -123,6 +125,7 @@ var (
 			),
 			"innodb_print_all_deadlocks": types.BoolValue(true),
 		}),
+		ConnectionManager: types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 	}
 )
 
@@ -198,6 +201,14 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 						),
 						"innodb_print_all_deadlocks": types.BoolValue(true),
 					}),
+					"connection_manager": types.ObjectValueMust(
+						mdbcommon.ClusterConnectionManagerAttrTypes,
+						map[string]attr.Value{
+							"enabled":               types.BoolValue(true),
+							"connections_folder_id": types.StringValue("connections-folder"),
+							"secrets_folder_id":     types.StringValue("secrets-folder"),
+						},
+					),
 					"disk_encryption_key_id": types.StringValue("test-key"),
 					"timeouts":               timeouts.Value{},
 				},
@@ -219,6 +230,11 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 					},
 					BackupWindowStart: &timeofday.TimeOfDay{},
 					Access:            &mysql.Access{},
+					ConnectionManager: &mdbv1.ClusterConnectionManager{
+						Enabled:             wrapperspb.Bool(true),
+						ConnectionsFolderId: "connections-folder",
+						SecretsFolderId:     "secrets-folder",
+					},
 					MysqlConfig: &mysql.ConfigSpec_MysqlConfig_5_7{
 						MysqlConfig_5_7: &msconfig.MysqlConfig5_7{
 							MaxConnections:              wrapperspb.Int64(100),
@@ -286,6 +302,7 @@ func TestYandexProvider_MDBMySQLClusterPrepareCreateRequest(t *testing.T) {
 					}),
 					"security_group_ids":     types.SetNull(types.StringType),
 					"mysql_config":           NewMsSettingsMapNull(),
+					"connection_manager":     types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 					"disk_encryption_key_id": types.StringNull(),
 					"timeouts":               timeouts.Value{},
 				},
@@ -379,6 +396,7 @@ func TestYandexProvider_MDBMySQLClusterGetConfigSpec(t *testing.T) {
 			),
 			"innodb_print_all_deadlocks": types.BoolValue(true),
 		}),
+		ConnectionManager: types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 	}
 
 	diags := diag.Diagnostics{}
@@ -471,6 +489,7 @@ func TestYandexProvider_MDBMySQLClusterPrepareRestoreRequest(t *testing.T) {
 						),
 						"innodb_print_all_deadlocks": types.BoolValue(true),
 					}),
+					"connection_manager":     types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 					"disk_encryption_key_id": types.StringValue("test-key"),
 					"timeouts":               timeouts.Value{},
 				},
@@ -578,6 +597,7 @@ func TestYandexProvider_MDBMySQLClusterPrepareRestoreRequest(t *testing.T) {
 						),
 						"innodb_print_all_deadlocks": types.BoolValue(true),
 					}),
+					"connection_manager":     types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 					"disk_encryption_key_id": types.StringValue("test-key"),
 					"timeouts":               timeouts.Value{},
 				},
@@ -685,6 +705,7 @@ func TestYandexProvider_MDBMySQLClusterPrepareRestoreRequest(t *testing.T) {
 						),
 						"innodb_print_all_deadlocks": types.BoolValue(true),
 					}),
+					"connection_manager":     types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 					"disk_encryption_key_id": types.StringValue("test-key"),
 					"timeouts":               timeouts.Value{},
 				},

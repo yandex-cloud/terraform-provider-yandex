@@ -27,6 +27,7 @@ type Cluster struct {
 	BackupRetainPeriodDays types.Int64                `tfsdk:"backup_retain_period_days"`
 	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
 	MySQLConfig            mdbcommon.SettingsMapValue `tfsdk:"mysql_config"`
+	ConnectionManager      types.Object               `tfsdk:"connection_manager"`
 	DiskEncryptionKeyId    types.String               `tfsdk:"disk_encryption_key_id"`
 	Restore                types.Object               `tfsdk:"restore"`
 	Timeouts               timeouts.Value             `tfsdk:"timeouts"`
@@ -61,6 +62,7 @@ type Config struct {
 	BackupRetainPeriodDays types.Int64                `tfsdk:"backup_retain_period_days"`
 	BackupWindowStart      types.Object               `tfsdk:"backup_window_start"`
 	MySQLConfig            mdbcommon.SettingsMapValue `tfsdk:"mysql_config"`
+	ConnectionManager      types.Object               `tfsdk:"connection_manager"`
 }
 
 type MaintenanceWindow struct {
@@ -84,6 +86,7 @@ var ConfigAttrTypes = map[string]attr.Type{
 	"backup_retain_period_days": types.Int64Type,
 	"backup_window_start":       types.ObjectType{AttrTypes: BackupWindowStartAttrTypes},
 	"mysql_config":              mdbcommon.NewSettingsMapType(msAttrProvider),
+	"connection_manager":        types.ObjectType{AttrTypes: mdbcommon.ClusterConnectionManagerAttrTypes},
 }
 
 type Access struct {

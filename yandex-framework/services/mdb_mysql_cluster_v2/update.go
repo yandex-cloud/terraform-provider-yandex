@@ -205,6 +205,14 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 		}
 	}
 
+	if !plan.ConnectionManager.Equal(state.ConnectionManager) {
+		updConf = true
+		config.SetConnectionManager(mdbcommon.ExpandClusterConnectionManagerFramework(ctx, plan.ConnectionManager, &diags))
+		cmPaths, d := mdbcommon.ClusterConnectionManagerUpdateMaskPaths(ctx, plan.ConnectionManager, state.ConnectionManager, "config_spec.connection_manager.")
+		diags.Append(d...)
+		request.UpdateMask.Paths = append(request.UpdateMask.Paths, cmPaths...)
+	}
+
 	if updConf {
 		request.SetConfigSpec(config)
 	}

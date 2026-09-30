@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 func dataSourceYandexMDBMySQLUser() *schema.Resource {
@@ -81,11 +82,13 @@ func dataSourceYandexMDBMySQLUser() *schema.Resource {
 			"connection_manager": {
 				Type:        schema.TypeMap,
 				Description: resourceYandexMDBMySQLUser().Schema["connection_manager"].Description,
+				Deprecated:  fieldDeprecatedForAnother("connection_manager", "user_connection_manager"),
 				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
+			"user_connection_manager": mdbcommon.UserConnectionManagerDataSourceSchema(),
 		},
 	}
 }

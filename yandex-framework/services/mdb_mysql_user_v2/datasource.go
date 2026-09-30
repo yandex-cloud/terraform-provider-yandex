@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
@@ -79,10 +80,12 @@ func (d *userDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest,
 				Description: "Authentication plugin",
 			},
 			"connection_manager": schema.MapAttribute{
-				Computed:    true,
-				ElementType: types.StringType,
-				Description: "Connection Manager connection configuration",
+				MarkdownDescription: "**Deprecated**. Please use `user_connection_manager` instead. Connection Manager connection configuration. Filled in by the server automatically.",
+				DeprecationMessage:  "The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.",
+				Computed:            true,
+				ElementType:         types.StringType,
 			},
+			"user_connection_manager": mdbcommon.UserConnectionManagerFrameworkDataSourceSchema(),
 			"deletion_protection_mode": schema.StringAttribute{
 				Computed:    true,
 				Description: "Deletion Protection inhibits deletion of the user",

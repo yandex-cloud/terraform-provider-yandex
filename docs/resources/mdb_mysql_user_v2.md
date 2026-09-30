@@ -11,13 +11,17 @@ Manages a MySQL user within the Yandex Cloud. For more information, see [the off
 
 - `authentication_plugin` (String). Authentication plugin.
 - `cluster_id` (**Required**)(String). The ID of the MySQL cluster.
-- `connection_manager` (*Read-Only*) (Map Of String). Connection Manager connection configuration. Filled in by the server automatically.
+- `connection_manager` (*Read-Only*) (Map Of String). **Deprecated**. Please use `user_connection_manager` instead. Connection Manager connection configuration. Filled in by the server automatically.
 - `deletion_protection_mode` (String). Deletion Protection inhibits deletion of the user.
 - `generate_password` (Bool). Generate password using Connection Manager. Used only during creation.
 - `global_permissions` (Set Of String). List of the user's global permissions.
 - `id` (*Read-Only*) (String). The resource identifier.
 - `name` (**Required**)(String). The name of the user.
 - `password` (String). The password of the user.
+- `user_connection_manager` [Block]. Connection Manager settings for the user.
+  - `connection_folder_id` (String). ID of the folder where the connection is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
+  - `connection_id` (*Read-Only*) (String). ID of the Connection Manager connection for this user. Computed by the server.
+  - `secret_folder_id` (String). ID of the folder where the secret is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
 - `timeouts` [Block]. 
   - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
   - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
@@ -30,5 +34,3 @@ Manages a MySQL user within the Yandex Cloud. For more information, see [the off
 - `permission` [Block]. Set of permissions granted to the user.
   - `database_name` (**Required**)(String). The name of the database.
   - `roles` (List Of String). List of roles.
-
-

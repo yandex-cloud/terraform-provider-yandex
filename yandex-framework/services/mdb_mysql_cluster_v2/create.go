@@ -126,5 +126,6 @@ func getConfigSpecFromState(state *Cluster) Config {
 		BackupRetainPeriodDays: state.BackupRetainPeriodDays,
 		BackupWindowStart:      state.BackupWindowStart,
 		MySQLConfig:            state.MySQLConfig,
+		ConnectionManager:      state.ConnectionManager,
 	}
 }

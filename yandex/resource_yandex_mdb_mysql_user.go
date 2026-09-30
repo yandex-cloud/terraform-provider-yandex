@@ -35,7 +35,10 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta any) error {
-			return validateMySQLUserPasswordConflict(d)
+			if err := validateMySQLUserPasswordConflict(d); err != nil {
+				return err
+			}
+			return mdbcommon.CustomizeDiffUserConnectionManager(ctx, d, "user_connection_manager")
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -110,12 +113,14 @@ func resourceYandexMDBMySQLUser() *schema.Resource {
 			},
 			"connection_manager": {
 				Type:        schema.TypeMap,
-				Description: "Connection Manager connection configuration. Filled in by the server automatically.",
+				Description: "Connection Manager connection configuration. Populated from `user_connection_manager`.",
+				Deprecated:  fieldDeprecatedForAnother("connection_manager", "user_connection_manager"),
 				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
+			"user_connection_manager": mdbcommon.UserConnectionManagerSchema(),
 			"generate_password": {
 				Type:        schema.TypeBool,
 				Description: "Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and is ignored during updating.\n\n~> **Must specify either password or generate_password**.\n",
@@ -293,6 +298,8 @@ func expandMySQLUserSpec(d *schema.ResourceData) (*mysql.UserSpec, error) {
 		user.GeneratePassword = wrapperspb.Bool(v.(bool))
 	}
 
+	user.UserConnectionManager = mdbcommon.ExpandUserConnectionManager(d, "user_connection_manager")
+
 	return user, nil
 }
 
@@ -331,7 +338,8 @@ func resourceYandexMDBMySQLUserRead(d *schema.ResourceData, meta interface{}) er
 	if user.AuthenticationPlugin != 0 {
 		d.Set("authentication_plugin", mysql.AuthPlugin_name[int32(user.AuthenticationPlugin)])
 	}
-	d.Set("connection_manager", flattenMySQLUserConnectionManager(user.ConnectionManager))
+	d.Set("connection_manager", flattenMySQLUserConnectionManager(user.UserConnectionManager))
+	d.Set("user_connection_manager", mdbcommon.FlattenUserConnectionManager(user.UserConnectionManager))
 	return nil
 }
 

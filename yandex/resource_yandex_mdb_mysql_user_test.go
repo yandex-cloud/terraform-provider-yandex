@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -18,6 +19,7 @@ const (
 func TestAccMDBMySQLUser_full(t *testing.T) {
 	t.Parallel()
 	clusterName := acctest.RandomWithPrefix("tf-mysql")
+	folderID := getExampleFolderID()
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
@@ -32,7 +34,16 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "generate_password", "false"),
 					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "connection_manager.%", "1"),
+					resource.TestCheckResourceAttr(mysqlUserResourceJohn, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(mysqlUserResourceJohn, "user_connection_manager.0.connection_id"),
 				),
+			},
+			// Re-plan with the same config: the implicit user_connection_manager block
+			// in state must not produce a drift against the unspecified config.
+			{
+				Config:             testAccMDBMySQLUserConfigStep1(clusterName),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
 			},
 			mdbMySQLUserImportStep(mysqlUserResourceJohn),
 			{
@@ -81,6 +92,23 @@ func TestAccMDBMySQLUser_full(t *testing.T) {
 				),
 			},
 			mdbMySQLUserImportStep(mysqlUserResourceJane),
+			{
+				Config: testAccMDBMySQLUserConfigStep5(clusterName, folderID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(mysqlUserResourceMary, "user_connection_manager.#", "1"),
+					resource.TestCheckResourceAttrSet(mysqlUserResourceMary, "user_connection_manager.0.connection_id"),
+					resource.TestCheckResourceAttrSet(mysqlUserResourceMary, "user_connection_manager.0.connection_folder_id"),
+					resource.TestCheckResourceAttrSet(mysqlUserResourceMary, "user_connection_manager.0.secret_folder_id"),
+				),
+			},
+			{
+				Config:      testAccMDBMySQLUserConfigStep6(clusterName, folderID),
+				ExpectError: regexp.MustCompile(".*connection_folder_id cannot be changed after user creation.*"),
+			},
+			{
+				Config:      testAccMDBMySQLUserConfigStep7(clusterName, folderID),
+				ExpectError: regexp.MustCompile(".*secret_folder_id cannot be changed after user creation.*"),
+			},
 		},
 	})
 }
@@ -216,4 +244,79 @@ resource "yandex_mdb_mysql_user" "jane" {
     authentication_plugin = "MDB_IAMPROXY_AUTH"
 }
 `
+}
+
+func testAccMDBMySQLUserConfigStep5(clusterName, folderID string) string {
+	return testAccMDBMySQLUserConfigStep2(clusterName) + fmt.Sprintf(`
+resource "yandex_mdb_mysql_user" "mary" {
+	cluster_id = yandex_mdb_mysql_cluster.foo.id
+    name       = "mary"
+    password   = "password"
+
+    permission {
+      database_name = yandex_mdb_mysql_database.testdb.name
+      roles         = ["ALL"]
+    }
+
+    permission {
+      database_name = yandex_mdb_mysql_database.new_testdb.name
+      roles         = ["ALL"]
+    }
+
+    user_connection_manager {
+		connection_folder_id = "%s"
+		secret_folder_id     = "%s"
+	}
+}
+`, folderID, folderID)
+}
+
+func testAccMDBMySQLUserConfigStep6(clusterName, folderID string) string {
+	return testAccMDBMySQLUserConfigStep2(clusterName) + fmt.Sprintf(`
+resource "yandex_mdb_mysql_user" "mary" {
+	cluster_id = yandex_mdb_mysql_cluster.foo.id
+    name       = "mary"
+    password   = "password"
+
+    permission {
+      database_name = yandex_mdb_mysql_database.testdb.name
+      roles         = ["ALL"]
+    }
+
+    permission {
+      database_name = yandex_mdb_mysql_database.new_testdb.name
+      roles         = ["ALL"]
+    }
+
+    user_connection_manager {
+		connection_folder_id = "some-other-folder-id"
+		secret_folder_id     = "%s"
+	}
+}
+`, folderID)
+}
+
+func testAccMDBMySQLUserConfigStep7(clusterName, folderID string) string {
+	return testAccMDBMySQLUserConfigStep2(clusterName) + fmt.Sprintf(`
+resource "yandex_mdb_mysql_user" "mary" {
+	cluster_id = yandex_mdb_mysql_cluster.foo.id
+    name       = "mary"
+    password   = "password"
+
+    permission {
+      database_name = yandex_mdb_mysql_database.testdb.name
+      roles         = ["ALL"]
+    }
+
+    permission {
+      database_name = yandex_mdb_mysql_database.new_testdb.name
+      roles         = ["ALL"]
+    }
+
+    user_connection_manager {
+		connection_folder_id = "%s"
+		secret_folder_id     = "some-other-folder-id"
+	}
+}
+`, folderID)
 }

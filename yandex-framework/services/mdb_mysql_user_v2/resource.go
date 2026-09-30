@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -20,6 +21,7 @@ import (
 	mysql "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	mysqlv1sdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
@@ -34,6 +36,8 @@ const (
 type userResource struct {
 	providerConfig *provider_config.Config
 }
+
+var _ resource.ResourceWithModifyPlan = &userResource{}
 
 func NewResource() resource.Resource {
 	return &userResource{}
@@ -59,6 +63,22 @@ func (r *userResource) Configure(_ context.Context, req resource.ConfigureReques
 		return
 	}
 	r.providerConfig = providerConfig
+}
+
+func (r *userResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.State.Raw.IsNull() || req.Config.Raw.IsNull() {
+		return
+	}
+
+	ucmPath := path.Root("user_connection_manager")
+	var config, state types.Object
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, ucmPath, &config)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, ucmPath, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	mdbcommon.ValidateUserConnectionManagerNotChanged(ctx, config, state, ucmPath, &resp.Diagnostics)
 }
 
 func (r *userResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -123,10 +143,12 @@ func (r *userResource) Schema(ctx context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"connection_manager": schema.MapAttribute{
-				MarkdownDescription: "Connection Manager connection configuration. Filled in by the server automatically.",
+				MarkdownDescription: "**Deprecated**. Please use `user_connection_manager` instead. Connection Manager connection configuration. Filled in by the server automatically.",
+				DeprecationMessage:  "The 'connection_manager' field has been deprecated. Please use 'user_connection_manager' instead.",
 				Computed:            true,
 				ElementType:         types.StringType,
 			},
+			"user_connection_manager": mdbcommon.UserConnectionManagerFrameworkSchema(),
 			"deletion_protection_mode": schema.StringAttribute{
 				MarkdownDescription: "Deletion Protection inhibits deletion of the user.",
 				Optional:            true,

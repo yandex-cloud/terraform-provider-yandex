@@ -34,6 +34,9 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			return mdbcommon.CustomizeDiffClusterConnectionManager(ctx, d, "connection_manager")
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexMDBMySQLClusterDefaultTimeout),
@@ -377,6 +380,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"connection_manager": mdbcommon.ClusterConnectionManagerSchema(),
 			"access": {
 				Type:        schema.TypeList,
 				Description: "Access policy to the MySQL cluster.",
@@ -862,6 +866,9 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("mysql_config", clusterConfig); err != nil {
 		return err
 	}
+	if err := d.Set("connection_manager", mdbcommon.FlattenClusterConnectionManager(cluster.Config.ConnectionManager)); err != nil {
+		return err
+	}
 
 	access, err := flattenMySQLAccess(cluster.Config.Access)
 	if err != nil {
@@ -1035,6 +1042,14 @@ func prepareMySQLClusterUpdateRequest(d *schema.ResourceData, config *Config) (*
 			updatePaths = append(updatePaths, path)
 		}
 	}
+	for field, path := range mdbcommon.ClusterConnectionManagerUpdateFields("connection_manager", "config_spec.connection_manager.") {
+		if d.HasChange(field) {
+			updatePaths = append(updatePaths, path)
+		}
+	}
+	updatePaths = append(updatePaths, mdbcommon.ClusterConnectionManagerEnabledChangedPath(
+		d, "connection_manager", "config_spec.connection_manager.",
+	)...)
 
 	if d.HasChange("mysql_config") {
 		version := d.Get("version").(string)

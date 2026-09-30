@@ -112,5 +112,6 @@ func expandConfig(ctx context.Context, configSpec Config, diags *diag.Diagnostic
 		BackupRetainPeriodDays: mdbcommon.ExpandInt64Wrapper(ctx, configSpec.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.ExpandBackupWindow(ctx, configSpec.BackupWindowStart, diags),
 		MysqlConfig:            expandMySQLConfig(ctx, configSpec.Version.ValueString(), configSpec.MySQLConfig, diags),
+		ConnectionManager:      mdbcommon.ExpandClusterConnectionManagerFramework(ctx, configSpec.ConnectionManager, diags),
 	}
 }

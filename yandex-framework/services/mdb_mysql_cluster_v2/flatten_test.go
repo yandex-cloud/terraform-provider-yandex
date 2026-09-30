@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
@@ -365,6 +366,11 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 					Minutes: 0,
 				},
 				BackupRetainPeriodDays: wrapperspb.Int64(7),
+				ConnectionManager: &mdbv1.ClusterConnectionManager{
+					Enabled:             wrapperspb.Bool(true),
+					ConnectionsFolderId: "connections-folder",
+					SecretsFolderId:     "secrets-folder",
+				},
 			},
 			expectedVal: Config{
 				Version: types.StringValue("5.7"),
@@ -395,6 +401,14 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 				}),
 				BackupRetainPeriodDays: types.Int64Value(7),
 				MySQLConfig:            NewMsSettingsMapValueMust(map[string]attr.Value{}),
+				ConnectionManager: types.ObjectValueMust(
+					mdbcommon.ClusterConnectionManagerAttrTypes,
+					map[string]attr.Value{
+						"enabled":               types.BoolValue(true),
+						"connections_folder_id": types.StringValue("connections-folder"),
+						"secrets_folder_id":     types.StringValue("secrets-folder"),
+					},
+				),
 			},
 		},
 		{
@@ -421,6 +435,7 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 				BackupWindowStart:      types.ObjectNull(expectedBwsAttrTypes),
 				BackupRetainPeriodDays: types.Int64Null(),
 				MySQLConfig:            NewMsSettingsMapValueMust(map[string]attr.Value{}),
+				ConnectionManager:      types.ObjectNull(mdbcommon.ClusterConnectionManagerAttrTypes),
 			},
 		},
 		{

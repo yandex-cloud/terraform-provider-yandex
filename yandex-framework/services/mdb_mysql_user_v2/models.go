@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mysql "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -87,18 +88,19 @@ func supportedRoles() string {
 }
 
 type User struct {
-	Id                   types.String   `tfsdk:"id"`
-	ClusterID            types.String   `tfsdk:"cluster_id"`
-	Name                 types.String   `tfsdk:"name"`
-	Password             types.String   `tfsdk:"password"`
-	GeneratePassword     types.Bool     `tfsdk:"generate_password"`
-	Permissions          types.Set      `tfsdk:"permission"`
-	GlobalPermissions    types.Set      `tfsdk:"global_permissions"`
-	ConnectionLimits     types.List     `tfsdk:"connection_limits"`
-	AuthenticationPlugin types.String   `tfsdk:"authentication_plugin"`
-	ConnectionManager    types.Map      `tfsdk:"connection_manager"`
-	DeletionProtection   types.String   `tfsdk:"deletion_protection_mode"`
-	Timeouts             timeouts.Value `tfsdk:"timeouts"`
+	Id                    types.String   `tfsdk:"id"`
+	ClusterID             types.String   `tfsdk:"cluster_id"`
+	Name                  types.String   `tfsdk:"name"`
+	Password              types.String   `tfsdk:"password"`
+	GeneratePassword      types.Bool     `tfsdk:"generate_password"`
+	Permissions           types.Set      `tfsdk:"permission"`
+	GlobalPermissions     types.Set      `tfsdk:"global_permissions"`
+	ConnectionLimits      types.List     `tfsdk:"connection_limits"`
+	AuthenticationPlugin  types.String   `tfsdk:"authentication_plugin"`
+	ConnectionManager     types.Map      `tfsdk:"connection_manager"`
+	UserConnectionManager types.Object   `tfsdk:"user_connection_manager"`
+	DeletionProtection    types.String   `tfsdk:"deletion_protection_mode"`
+	Timeouts              timeouts.Value `tfsdk:"timeouts"`
 }
 
 type Permission struct {
@@ -174,12 +176,13 @@ func specToState(ctx context.Context, spec *mysql.User, state *User, diags *diag
 	}
 
 	cmAttrs := map[string]attr.Value{}
-	if spec.ConnectionManager != nil && spec.ConnectionManager.ConnectionId != "" {
-		cmAttrs["connection_id"] = types.StringValue(spec.ConnectionManager.ConnectionId)
+	if spec.UserConnectionManager != nil && spec.UserConnectionManager.ConnectionId != "" {
+		cmAttrs["connection_id"] = types.StringValue(spec.UserConnectionManager.ConnectionId)
 	}
 	cmMap, d := types.MapValue(types.StringType, cmAttrs)
 	diags.Append(d...)
 	state.ConnectionManager = cmMap
+	state.UserConnectionManager = mdbcommon.FlattenUserConnectionManagerFramework(ctx, spec.UserConnectionManager, diags)
 
 	state.DeletionProtection = types.StringValue(spec.DeletionProtectionMode.String())
 }
@@ -234,6 +237,8 @@ func stateToSpec(ctx context.Context, state *User, diags *diag.Diagnostics) *mys
 	if !state.GeneratePassword.IsNull() && !state.GeneratePassword.IsUnknown() {
 		spec.GeneratePassword = wrapperspb.Bool(state.GeneratePassword.ValueBool())
 	}
+
+	spec.UserConnectionManager = mdbcommon.ExpandUserConnectionManagerFramework(ctx, state.UserConnectionManager, diags)
 
 	if !state.Permissions.IsNull() && !state.Permissions.IsUnknown() {
 		var perms []Permission

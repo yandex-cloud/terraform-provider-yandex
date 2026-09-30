@@ -15,6 +15,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
@@ -1113,11 +1114,13 @@ func flattenMysqlDatabases(dbs []*mysql.Database) *schema.Set {
 	return out
 }
 
-func flattenMySQLUserConnectionManager(cm *mysql.ConnectionManager) map[string]string {
-	if cm == nil {
+// flattenMySQLUserConnectionManager produces the legacy (deprecated) connection_manager
+// attribute from the replacement API field.
+func flattenMySQLUserConnectionManager(ucm *mdbv1.UserConnectionManager) map[string]string {
+	if ucm == nil {
 		return nil
 	}
-	return map[string]string{"connection_id": cm.ConnectionId}
+	return map[string]string{"connection_id": ucm.ConnectionId}
 }
 
 var rolesMap = map[string]mysql.Permission_Privilege{
@@ -1408,6 +1411,7 @@ func expandMySQLConfigSpec(d *schema.ResourceData) (*mysql.ConfigSpec, error) {
 		PerformanceDiagnostics: expandMyPerformanceDiagnostics(d),
 		DiskSizeAutoscaling:    expandMyDiskSizeAutoscaling(d),
 		BackupRetainPeriodDays: expandMyBackupRetainPeriodDays(d),
+		ConnectionManager:      mdbcommon.ExpandClusterConnectionManager(d, "connection_manager"),
 	}
 
 	if err := expandMySQLConfigSpecSettings(d, configSpec); err != nil {

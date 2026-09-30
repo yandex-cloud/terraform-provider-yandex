@@ -88,6 +88,7 @@ func flattenConfig(
 		BackupRetainPeriodDays: mdbcommon.FlattenInt64Wrapper(ctx, c.BackupRetainPeriodDays, diags),
 		BackupWindowStart:      mdbcommon.FlattenBackupWindowStart(ctx, c.BackupWindowStart, diags),
 		MySQLConfig:            stateMSCfg,
+		ConnectionManager:      mdbcommon.FlattenClusterConnectionManagerFramework(ctx, c.GetConnectionManager(), diags),
 	}
 }
 

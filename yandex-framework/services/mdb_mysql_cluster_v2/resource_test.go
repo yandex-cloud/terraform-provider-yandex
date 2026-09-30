@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/compare"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	msconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 
@@ -514,6 +515,26 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 		hour = 5
 	`
 
+	connectionManagerEnabled := `
+		enabled = true
+	`
+
+	connectionManagerWithFolderIDs := fmt.Sprintf(`
+		enabled                = true
+		connections_folder_id = "%s"
+		secrets_folder_id     = "%s"
+	`, folderID, folderID)
+
+	connectionManagerDisabled := `
+		enabled = false
+	`
+
+	connectionManagerEnabledValue := knownvalue.ObjectExact(map[string]knownvalue.Check{
+		"enabled":               knownvalue.Bool(true),
+		"connections_folder_id": knownvalue.Null(),
+		"secrets_folder_id":     knownvalue.Null(),
+	})
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
@@ -530,6 +551,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					backupWindowStart,
 					msCfg,
 					maintenanceWindow,
+					connectionManagerEnabled,
 					backupRetainPeriodDays, true,
 					[]string{
 						"yandex_vpc_security_group.sgroup1.id",
@@ -543,6 +565,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("version"), knownvalue.StringExact(version)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(true)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("connection_manager"), connectionManagerEnabledValue),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("access"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
 							"data_lens":     knownvalue.Bool(false),
@@ -659,6 +682,35 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					),
 				),
 			},
+			// Change an unrelated attribute: connection_manager must keep its known value
+			// instead of turning into "(known after apply)".
+			{
+				Config: testAccMDBMySQLClusterFull(
+					resourceId, clusterName, descriptionUpdated,
+					environment, labels, version,
+					resources, access,
+					performanceDiagnostics,
+					diskSizeAutoscaling,
+					backupWindowStart,
+					msCfg,
+					maintenanceWindow,
+					connectionManagerEnabled,
+					backupRetainPeriodDays, true,
+					[]string{
+						"yandex_vpc_security_group.sgroup1.id",
+					},
+				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(clusterResource, plancheck.ResourceActionUpdate),
+						plancheck.ExpectKnownValue(clusterResource, tfjsonpath.New("connection_manager"), connectionManagerEnabledValue),
+					},
+				},
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("connection_manager"), connectionManagerEnabledValue),
+				},
+			},
 			mdbMySQLClusterImportStep(clusterResource),
 			{
 				Config: testAccMDBMySQLClusterFull(
@@ -669,6 +721,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					backupWindowStartUpdated,
 					msCfgUpdated,
 					maintenanceWindowUpdated,
+					connectionManagerWithFolderIDs,
 					backupRetainPeriodDaysUpdated, false,
 					[]string{
 						"yandex_vpc_security_group.sgroup2.id",
@@ -682,6 +735,11 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("version"), knownvalue.StringExact(versionUpdate)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("connection_manager"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled":               knownvalue.Bool(true),
+						"connections_folder_id": knownvalue.StringExact(folderID),
+						"secrets_folder_id":     knownvalue.StringExact(folderID),
+					})),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("access"), knownvalue.ObjectExact(
 						map[string]knownvalue.Check{
 							"data_lens":     knownvalue.Bool(true),
@@ -796,6 +854,24 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					),
 				),
 			},
+			// Disabling Connection Manager after it has been enabled is not supported.
+			{
+				Config: testAccMDBMySQLClusterFull(
+					resourceId, clusterName, descriptionUpdated,
+					environment, labelsUpdated, versionUpdate, resources, accessUpdated,
+					performanceDiagnosticsUpdated,
+					diskSizeAutoscalingUpdated,
+					backupWindowStartUpdated,
+					msCfgUpdated,
+					maintenanceWindowUpdated,
+					connectionManagerDisabled,
+					backupRetainPeriodDaysUpdated, false,
+					[]string{
+						"yandex_vpc_security_group.sgroup2.id",
+					},
+				),
+				ExpectError: regexp.MustCompile(`connection_manager\.enabled cannot be set to false, disabling Connection Manager integration is not supported`),
+			},
 			// Decrease disk size (nothing changes)
 			{
 				Config: testAccMDBMySQLClusterFull(
@@ -810,6 +886,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					backupWindowStartUpdated,
 					msCfgUpdated,
 					maintenanceWindowUpdated,
+					connectionManagerWithFolderIDs,
 					backupRetainPeriodDaysUpdated, false,
 					[]string{
 						"yandex_vpc_security_group.sgroup2.id",
@@ -1084,6 +1161,7 @@ func TestAccMDBMySQLCluster_mixed(t *testing.T) {
 				backupWindowStart,
 				"",
 				maintenanceWindow,
+				"",
 				backupRetainPeriodDays,
 				false, []string{},
 			),
@@ -1794,7 +1872,7 @@ func testAccMDBMySQLClusterFull(
 	diskSizeAutoscaling,
 	backupWindowStart,
 	mySqlCfg,
-	maintenanceWindow string, backupRetainPeriodDays int, deletionProtection bool, confSecurityGroupIds []string,
+	maintenanceWindow, connectionManager string, backupRetainPeriodDays int, deletionProtection bool, confSecurityGroupIds []string,
 ) string {
 	return fmt.Sprintf(msVPCDependencies+`
 resource "yandex_mdb_mysql_cluster_v2" "%s" {
@@ -1841,6 +1919,10 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
 	%s
   }
 
+  connection_manager = {
+	%s
+  }
+
   deletion_protection = %t
   %s
 
@@ -1850,7 +1932,7 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
 		performanceDiagnostics, diskSizeAutoscaling,
 		backupRetainPeriodDays, backupWindowStart,
 		mySqlCfg,
-		maintenanceWindow, deletionProtection, testAccMDBMySQLSecurityGroupIds(confSecurityGroupIds),
+		maintenanceWindow, connectionManager, deletionProtection, testAccMDBMySQLSecurityGroupIds(confSecurityGroupIds),
 	)
 }
 

@@ -157,6 +157,9 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 			disk_size          = 10
 			disk_type_id       = "network-ssd"
 		}
+		connection_manager {
+			enabled = true
+		}
 	}
 
 	host {

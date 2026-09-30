@@ -227,6 +227,22 @@ func testAccDataSourceMDBMysqlClusterAttributesCheck(datasourceName string, reso
 				"backup_retain_period_days",
 				"backup_retain_period_days",
 			},
+			{
+				"connection_manager.#",
+				"connection_manager.#",
+			},
+			{
+				"connection_manager.0.enabled",
+				"connection_manager.0.enabled",
+			},
+			{
+				"connection_manager.0.connections_folder_id",
+				"connection_manager.0.connections_folder_id",
+			},
+			{
+				"connection_manager.0.secrets_folder_id",
+				"connection_manager.0.secrets_folder_id",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {

@@ -41,6 +41,8 @@ type clusterResource struct {
 	providerConfig *provider_config.Config
 }
 
+var _ resource.ResourceWithValidateConfig = (*clusterResource)(nil)
+
 func NewMySQLClusterResourceV2() resource.Resource {
 	return &clusterResource{}
 }
@@ -310,6 +312,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 					},
 				},
 			},
+			"connection_manager": mdbcommon.ClusterConnectionManagerFrameworkSchema(),
 			"restore": schema.SingleNestedAttribute{
 				Description: "The cluster will be created from the specified backup or source cluster.",
 				Optional:    true,
@@ -440,6 +443,10 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			},
 		},
 	}
+}
+
+func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	mdbcommon.ValidateClusterConnectionManagerFromConfig(ctx, req.Config, path.Root("connection_manager"), &resp.Diagnostics)
 }
 
 func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -834,5 +841,6 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.BackupRetainPeriodDays = cfg.BackupRetainPeriodDays
 	state.BackupWindowStart = cfg.BackupWindowStart
 	state.MySQLConfig = cfg.MySQLConfig
+	state.ConnectionManager = cfg.ConnectionManager
 	state.DiskEncryptionKeyId = mdbcommon.FlattenStringWrapper(ctx, cluster.DiskEncryptionKeyId, respDiagnostics)
 }

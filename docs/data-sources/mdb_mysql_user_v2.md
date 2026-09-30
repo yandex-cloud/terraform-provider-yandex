@@ -11,13 +11,17 @@ Get information about a Yandex Managed MySQL user.
 
 - `authentication_plugin` (*Read-Only*) (String). Authentication plugin
 - `cluster_id` (**Required**)(String). The ID of the MySQL cluster
-- `connection_manager` (*Read-Only*) (Map Of String). Connection Manager connection configuration
+- `connection_manager` (*Read-Only*) (Map Of String). **Deprecated**. Please use `user_connection_manager` instead. Connection Manager connection configuration. Filled in by the server automatically.
 - `deletion_protection_mode` (*Read-Only*) (String). Deletion Protection inhibits deletion of the user
 - `generate_password` (*Read-Only*) (Bool). Generate password using Connection Manager
 - `global_permissions` (*Read-Only*) (Set Of String). List of the user's global permissions
 - `id` (*Read-Only*) (String). The resource identifier in format `<cluster_id>:<user_name>`
 - `name` (**Required**)(String). The name of the user
 - `password` (*Read-Only*) (String). The password of the user
+- `user_connection_manager` [Block]. Connection Manager settings for the user.
+  - `connection_folder_id` (*Read-Only*) (String). ID of the folder where the connection is created.
+  - `connection_id` (*Read-Only*) (String). ID of the Connection Manager connection for this user.
+  - `secret_folder_id` (*Read-Only*) (String). ID of the folder where the secret is created.
 - `timeouts` [Block]. 
   - `read` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Read operations occur during any refresh or planning operation when refresh is enabled.
 - `connection_limits` [Block]. User's connection limits
@@ -28,5 +32,3 @@ Get information about a Yandex Managed MySQL user.
 - `permission` [Block]. Set of permissions granted to the user
   - `database_name` (*Read-Only*) (String). The name of the database that the permission grants access to
   - `roles` (*Read-Only*) (List Of String). List of user's roles in the database
-
-

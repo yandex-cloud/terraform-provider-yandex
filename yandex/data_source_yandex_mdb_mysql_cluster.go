@@ -11,6 +11,7 @@ import (
 	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 func dataSourceYandexMDBMySQLCluster() *schema.Resource {
@@ -361,6 +362,7 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"connection_manager": mdbcommon.ClusterConnectionManagerDataSourceSchema(),
 			"deletion_protection": {
 				Type:        schema.TypeBool,
 				Description: common.ResourceDescriptions["deletion_protection"],
@@ -551,6 +553,12 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("mysql_config", clusterConfig); err != nil {
+		return err
+	}
+	if err := d.Set(
+		"connection_manager",
+		mdbcommon.FlattenClusterConnectionManager(cluster.Config.ConnectionManager),
+	); err != nil {
 		return err
 	}
 

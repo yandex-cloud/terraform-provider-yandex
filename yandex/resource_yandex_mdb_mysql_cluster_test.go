@@ -274,6 +274,40 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 	)
 }
 
+func TestAccMDBMySQLCluster_connectionManager(t *testing.T) {
+	t.Parallel()
+
+	var cluster mysql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-mysql-cm")
+	clusterResource := "yandex_mdb_mysql_cluster.test_connection_manager"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckMDBMysqlClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBMySQLClusterConfigWithConnectionManager(clusterName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(clusterResource, &cluster),
+					resource.TestCheckResourceAttr(clusterResource, "connection_manager.0.enabled", "true"),
+				),
+			},
+			// Re-plan with the same config: no drift expected on computed folder IDs.
+			{
+				Config:             testAccMDBMySQLClusterConfigWithConnectionManager(clusterName, true),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			mdbMysqlClusterImportStep(clusterResource),
+			{
+				Config:      testAccMDBMySQLClusterConfigWithConnectionManager(clusterName, false),
+				ExpectError: regexp.MustCompile(".*enabled cannot be set to false.*"),
+			},
+		},
+	})
+}
+
 func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 	t.Parallel()
 
@@ -1037,6 +1071,32 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   backup_retain_period_days = 12
 }
 `, name, desc, environment, deletionProtection)
+}
+
+func testAccMDBMySQLClusterConfigWithConnectionManager(name string, enabled bool) string {
+	return fmt.Sprintf(mysqlVPCDependencies+`
+resource "yandex_mdb_mysql_cluster" "test_connection_manager" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 10
+  }
+
+  connection_manager {
+    enabled = %t
+  }
+
+  host {
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.foo_c.id
+  }
+}
+`, name, enabled)
 }
 
 func testAccMDBMySQLClusterVersionUpdate(name, desc string) string {
