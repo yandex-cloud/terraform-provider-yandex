@@ -17,6 +17,7 @@ type Cluster struct {
 	Labels              types.Map      `tfsdk:"labels"`
 	Config              types.Object   `tfsdk:"config"`
 	HostSpecs           types.Map      `tfsdk:"hosts"`
+	MaintenanceWindows  types.Object   `tfsdk:"maintenance_windows"`
 	MaintenanceWindow   types.Object   `tfsdk:"maintenance_window"`
 	DeletionProtection  types.Bool     `tfsdk:"deletion_protection"`
 	SecurityGroupIds    types.Set      `tfsdk:"security_group_ids"`

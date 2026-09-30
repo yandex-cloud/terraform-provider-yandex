@@ -697,6 +697,66 @@ If the parameter is set to 0 (default), no hops is allowed.`,
 			MarkdownDescription: "Enables or disables adaptive timeouts for S3 requests.",
 			Optional:            true,
 		},
+		"show_data_lake_catalogs_in_system_tables": schema.BoolAttribute{
+			MarkdownDescription: "Enables or disables showing data lake catalogs in system tables.",
+			Optional:            true,
+		},
+		"max_bytes_ratio_before_external_group_by": schema.Float64Attribute{
+			MarkdownDescription: "The ratio of available memory that is allowed for GROUP BY. Once reached, external aggregation is used.",
+			Optional:            true,
+		},
+		"max_bytes_ratio_before_external_sort": schema.Float64Attribute{
+			MarkdownDescription: "The ratio of available memory that is allowed for ORDER BY. Once reached, external sort is used.",
+			Optional:            true,
+		},
+		"use_hive_partitioning": schema.BoolAttribute{
+			MarkdownDescription: "Enables Hive-style partitioning when reading from file-like table engines.",
+			Optional:            true,
+		},
+		"max_network_bytes": schema.Int64Attribute{
+			MarkdownDescription: "Limits the amount of data exchanged over the network in bytes for a query. Zero means unlimited.",
+			Optional:            true,
+		},
+		"connect_timeout_with_failover_secure": schema.Int64Attribute{
+			MarkdownDescription: "Connection timeout in milliseconds for selecting the first healthy replica for secure connections.",
+			Optional:            true,
+		},
+		"connections_with_failover_max_tries": schema.Int64Attribute{
+			MarkdownDescription: "The maximum number of connection attempts with each replica for the Distributed table engine.",
+			Optional:            true,
+		},
+		"compatibility": schema.StringAttribute{
+			MarkdownDescription: "Makes ClickHouse use the default settings of the specified previous ClickHouse version.",
+			Optional:            true,
+		},
+		"materialize_ttl_after_modify": schema.BoolAttribute{
+			MarkdownDescription: "Applies TTL to old data after an ALTER MODIFY TTL query.",
+			Optional:            true,
+		},
+		"max_remote_read_network_bandwidth": schema.Int64Attribute{
+			MarkdownDescription: "Limits the speed of remote reads over the network in bytes per second. Zero means unlimited.",
+			Optional:            true,
+		},
+		"max_remote_write_network_bandwidth": schema.Int64Attribute{
+			MarkdownDescription: "Limits the speed of remote writes over the network in bytes per second. Zero means unlimited.",
+			Optional:            true,
+		},
+		"async_socket_for_remote": schema.BoolAttribute{
+			MarkdownDescription: "Enables asynchronous reads from sockets while executing remote queries.",
+			Optional:            true,
+		},
+		"async_query_sending_for_remote": schema.BoolAttribute{
+			MarkdownDescription: "Enables asynchronous connection creation and query sending while executing remote queries.",
+			Optional:            true,
+		},
+		"allow_reorder_prewhere_conditions": schema.BoolAttribute{
+			MarkdownDescription: "Allows reordering conditions when moving them from WHERE to PREWHERE.",
+			Optional:            true,
+		},
+		"database_atomic_wait_for_drop_and_detach_synchronously": schema.BoolAttribute{
+			MarkdownDescription: "Makes DROP and DETACH queries wait for completion of table removal when using Atomic databases.",
+			Optional:            true,
+		},
 	}
 }
 

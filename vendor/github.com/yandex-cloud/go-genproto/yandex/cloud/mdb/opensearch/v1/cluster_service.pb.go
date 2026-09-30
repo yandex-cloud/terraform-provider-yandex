@@ -4318,7 +4318,7 @@ const file_yandex_cloud_mdb_opensearch_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"\x83\x01\n" +
 	"\x14ListClustersResponse\x12C\n" +
 	"\bclusters\x18\x01 \x03(\v2'.yandex.cloud.mdb.opensearch.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x94\a\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xae\a\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -4333,8 +4333,8 @@ const file_yandex_cloud_mdb_opensearch_v1_cluster_service_proto_rawDesc = "" +
 	"\x12service_account_id\x18\t \x01(\tR\x10serviceAccountId\x12/\n" +
 	"\x13deletion_protection\x18\n" +
 	" \x01(\bR\x12deletionProtection\x12`\n" +
-	"\x12maintenance_window\x18\v \x01(\v21.yandex.cloud.mdb.opensearch.v1.MaintenanceWindowR\x11maintenanceWindow\x12Q\n" +
-	"\x16disk_encryption_key_id\x18\f \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
+	"\x12maintenance_window\x18\v \x01(\v21.yandex.cloud.mdb.opensearch.v1.MaintenanceWindowR\x11maintenanceWindow\x12k\n" +
+	"\x16disk_encryption_key_id\x18\f \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8b\x01\n" +
@@ -4537,7 +4537,7 @@ const file_yandex_cloud_mdb_opensearch_v1_cluster_service_proto_rawDesc = "" +
 	"\x14DeleteBackupMetadata\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12\x1b\n" +
-	"\tbackup_id\x18\x02 \x01(\tR\bbackupId\"\xb9\a\n" +
+	"\tbackup_id\x18\x02 \x01(\tR\bbackupId\"\xd3\a\n" +
 	"\x15RestoreClusterRequest\x12!\n" +
 	"\tbackup_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\bbackupId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -4553,8 +4553,8 @@ const file_yandex_cloud_mdb_opensearch_v1_cluster_service_proto_rawDesc = "" +
 	"\x13deletion_protection\x18\n" +
 	" \x01(\bR\x12deletionProtection\x12)\n" +
 	"\tfolder_id\x18\v \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x12`\n" +
-	"\x12maintenance_window\x18\f \x01(\v21.yandex.cloud.mdb.opensearch.v1.MaintenanceWindowR\x11maintenanceWindow\x12Q\n" +
-	"\x16disk_encryption_key_id\x18\r \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x1a9\n" +
+	"\x12maintenance_window\x18\f \x01(\v21.yandex.cloud.mdb.opensearch.v1.MaintenanceWindowR\x11maintenanceWindow\x12k\n" +
+	"\x16disk_encryption_key_id\x18\r \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"T\n" +

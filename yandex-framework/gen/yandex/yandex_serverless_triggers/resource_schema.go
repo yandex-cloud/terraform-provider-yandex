@@ -751,6 +751,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -941,6 +942,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -1087,6 +1089,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -1250,6 +1253,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -1481,6 +1485,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -1672,6 +1677,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -1765,6 +1771,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -1955,6 +1962,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -2048,6 +2056,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -2111,6 +2120,125 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Validators: []validator.Object{
 							objectvalidator.ConflictsWith(
+								path.MatchRelative().AtParent().AtName("ymq"),
+								path.MatchRelative().AtParent().AtName("yds"),
+								path.MatchRelative().AtParent().AtName("mail"),
+								path.MatchRelative().AtParent().AtName("billing_budget"),
+								path.MatchRelative().AtParent().AtName("logging"),
+								path.MatchRelative().AtParent().AtName("object_storage"),
+								path.MatchRelative().AtParent().AtName("container_registry"),
+								path.MatchRelative().AtParent().AtName("iot_message"),
+								path.MatchRelative().AtParent().AtName("iot_broker_message"),
+								path.MatchRelative().AtParent().AtName("telegram_message"),
+								path.MatchRelative().AtParent().AtName("yandex_messenger"),
+								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
+							),
+						},
+					},
+
+					"yandex_forms": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"cloud_organization_id": schema.StringAttribute{
+								MarkdownDescription: "ID of the Yandex Identity Hub organization.",
+								Description: "ID of the Yandex Identity Hub organization." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.cloud_organization_id
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.cloud_organization_id
+									// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.cloud_organization_id
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+								Validators: []validator.String{
+									stringvalidator.ConflictsWith(
+										path.MatchRelative().AtParent().AtName("organization_id"),
+									),
+								},
+							},
+
+							"oauth_token": schema.StringAttribute{
+								MarkdownDescription: "OAuth token of a user with permission to modify the form's integration settings.\n Input only, always empty in output.\n Required on Create; on Update, changing it replaces the token used to manage the HTTP integration.",
+								Description: "OAuth token of a user with permission to modify the form's integration settings.\n Input only, always empty in output.\n Required on Create; on Update, changing it replaces the token used to manage the HTTP integration." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.oauth_token
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.oauth_token
+									// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.oauth_token
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Optional:  true,
+								Computed:  true,
+								Sensitive: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+							},
+
+							"organization_id": schema.StringAttribute{
+								MarkdownDescription: "ID of the Yandex 360 for Business organization.",
+								Description: "ID of the Yandex 360 for Business organization." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.organization_id
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.organization_id
+									// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.organization_id
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Optional: true,
+								Computed: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+								Validators: []validator.String{
+									stringvalidator.ConflictsWith(
+										path.MatchRelative().AtParent().AtName("cloud_organization_id"),
+									),
+								},
+							},
+
+							"survey_id": schema.StringAttribute{
+								MarkdownDescription: "ID of the Yandex Form to receive submitted responses from.",
+								Description: "ID of the Yandex Form to receive submitted responses from." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.survey_id
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.survey_id
+									// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.survey_id
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Required: true,
+
+								PlanModifiers: []planmodifier.String{
+									stringplanmodifier.UseStateForUnknown(),
+								},
+								Validators: []validator.String{
+									stringvalidator.RegexMatches(regexp.MustCompile("^([a-fA-F0-9]{24})$"), "error validating regexp"),
+								},
+							},
+						},
+						MarkdownDescription: "Yandex Forms source: fires when a response is submitted to a form.",
+						Description: "Yandex Forms source: fires when a response is submitted to a form." +
+							// proto paths: +
+							// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms
+							// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms
+							// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms
+							"package: yandex.cloud.serverless.triggers.v2\n" +
+							"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+						Optional: true,
+						Computed: true,
+
+						PlanModifiers: []planmodifier.Object{
+							objectplanmodifier.UseStateForUnknown(),
+						},
+						Validators: []validator.Object{
+							objectvalidator.ConflictsWith(
+								path.MatchRelative().AtParent().AtName("timer"),
 								path.MatchRelative().AtParent().AtName("ymq"),
 								path.MatchRelative().AtParent().AtName("yds"),
 								path.MatchRelative().AtParent().AtName("mail"),
@@ -2245,6 +2373,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("iot_broker_message"),
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -2426,6 +2555,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},
@@ -2593,6 +2723,7 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 								path.MatchRelative().AtParent().AtName("telegram_message"),
 								path.MatchRelative().AtParent().AtName("yandex_messenger"),
 								path.MatchRelative().AtParent().AtName("max_message"),
+								path.MatchRelative().AtParent().AtName("yandex_forms"),
 							),
 						},
 					},

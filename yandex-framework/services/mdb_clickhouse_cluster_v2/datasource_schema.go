@@ -1026,6 +1026,14 @@ func DataSourceMergeTreeSchema() schema.SingleNestedAttribute {
 				MarkdownDescription: "Replicated deduplication window seconds: Time during which ZooKeeper stores the hash blocks (the old ones will be deleted).",
 				Computed:            true,
 			},
+			"replicated_deduplication_window_for_async_inserts": schema.Int64Attribute{
+				MarkdownDescription: "The number of most recently asynchronously inserted blocks for which ClickHouse Keeper stores hash sums to check for duplicates.",
+				Computed:            true,
+			},
+			"replicated_deduplication_window_seconds_for_async_inserts": schema.Int64Attribute{
+				MarkdownDescription: "The number of seconds after which hash sums of asynchronous inserts are removed from ClickHouse Keeper.",
+				Computed:            true,
+			},
 			"fsync_after_insert": schema.BoolAttribute{
 				MarkdownDescription: "Do fsync for every inserted part. Significantly decreases performance of inserts, not recommended to use with wide parts.",
 				Computed:            true,
@@ -1116,6 +1124,10 @@ func DataSourceMergeTreeSchema() schema.SingleNestedAttribute {
 			},
 			"number_of_free_entries_in_pool_to_execute_mutation": schema.Int64Attribute{
 				MarkdownDescription: "When there is less than specified number of free entries in pool, do not execute part mutations. This is to leave free threads for regular merges and avoid `Too many parts`. Default value: 20.",
+				Computed:            true,
+			},
+			"number_of_free_entries_in_pool_to_execute_optimize_entire_partition": schema.Int64Attribute{
+				MarkdownDescription: "When there is less than the specified number of free entries in the pool, do not execute optimization of an entire partition in the background. Default value: 25.",
 				Computed:            true,
 			},
 			"max_avg_part_size_for_too_many_parts": schema.Int64Attribute{

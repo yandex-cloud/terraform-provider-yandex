@@ -108,6 +108,10 @@ func (m *CreateClusterRequest) SetDiskEncryptionKeyId(v *wrapperspb.StringValue)
 	m.DiskEncryptionKeyId = v
 }
 
+func (m *CreateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
+}
+
 func (m *CreateClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -158,6 +162,10 @@ func (m *UpdateClusterRequest) SetNetworkId(v string) {
 
 func (m *UpdateClusterRequest) SetAllowHostRecreation(v *wrapperspb.BoolValue) {
 	m.AllowHostRecreation = v
+}
+
+func (m *UpdateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *UpdateClusterMetadata) SetClusterId(v string) {
@@ -322,6 +330,10 @@ func (m *RestoreClusterRequest) SetDiskEncryptionKeyId(v *wrapperspb.StringValue
 
 func (m *RestoreClusterRequest) SetPartialRestore(v *PartialRestoreSpec) {
 	m.PartialRestore = v
+}
+
+func (m *RestoreClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *PartialRestoreSpec) SetIncludePatterns(v []string) {

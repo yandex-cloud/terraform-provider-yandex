@@ -1,5 +1,22 @@
 # Release notes
 
+## 0.231.0 (September 29, 2026)
+
+##### ENHANCEMENTS:
+* triggers: add `source.yandex_forms` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_forms.survey_id` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_forms.survey_id` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_forms.cloud_organization_id` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_forms.oauth_token` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_forms.cloud_organization_id` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_forms.organization_id` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_forms.organization_id` to `yandex_serverless_triggers` resource
+* triggers: add `source.yandex_forms` to `yandex_serverless_triggers` data source
+* triggers: add `source.yandex_forms.oauth_token` to `yandex_serverless_triggers` resource
+* postgresql: support multiple maintenance slots through maintenance_windows in mdb_postgresql_cluster and mdb_postgresql_cluster_v2, preserving legacy maintenance_window configuration and state while using the new API field.
+
+
+
 ## 0.230.0 (September 25, 2026)
 
 ##### FEATURES:

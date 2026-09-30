@@ -224,8 +224,9 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			},
 			// Optional nested attribute maintenance_window required all optional nested attributes
 			// But if the block is specified explicitly, then the type attribute is required
+			"maintenance_windows": maintenanceSchema(),
 			"maintenance_window": schema.SingleNestedAttribute{
-				Description: "Maintenance policy of the PostgreSQL cluster.",
+				Description: "Legacy maintenance policy. Conflicts with maintenance_windows. Weekly hour 1 means 00:00 UTC and hour 24 means 23:00 UTC; each legacy window lasts one hour and allows temporary write unavailability.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Object{
@@ -464,17 +465,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 								Description: "Threshold of storage usage (in percent) that triggers automatic scaling of the storage during the maintenance window. Zero value means disabled threshold.",
 								Optional:    true,
 								Computed:    true,
-								Validators: []validator.Int64{
-									int64validator.Any(
-										int64validator.OneOf(0),
-										int64validator.AlsoRequires(
-											path.MatchRoot("maintenance_window"),
-											path.MatchRoot("maintenance_window").AtName("type"),
-											path.MatchRoot("maintenance_window").AtName("hour"),
-											path.MatchRoot("maintenance_window").AtName("day"),
-										),
-									),
-								},
+
 								Default: int64default.StaticInt64(0),
 							},
 							"emergency_usage_threshold": schema.Int64Attribute{
@@ -530,6 +521,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 // cluster's current state. Checks live here rather than in ModifyPlan because ModifyPlan
 // returns early while the prior state is null, i.e. for the plan that creates the cluster.
 func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	validateMaintenanceConfig(ctx, req, resp)
 	mdbcommon.ValidateClusterConnectionManagerFromConfig(ctx, req.Config, path.Root("config").AtName("connection_manager"), &resp.Diagnostics)
 }
 
@@ -552,13 +544,17 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() || req.State.Raw.IsNull() {
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+	modifyMaintenancePlan(ctx, req, resp)
+	if resp.Diagnostics.HasError() || req.State.Raw.IsNull() {
 		return
 	}
 	var plan Cluster
 	var state Cluster
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(resp.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -939,12 +935,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	state.Config = flattenConfig(ctx, cfgState.PostgtgreSQLConfig, cluster.GetConfig(), respDiagnostics)
 
 	state.DeletionProtection = types.BoolValue(cluster.GetDeletionProtection())
-	state.MaintenanceWindow = mdbcommon.FlattenMaintenanceWindow[
-		postgresql.MaintenanceWindow,
-		postgresql.WeeklyMaintenanceWindow,
-		postgresql.AnytimeMaintenanceWindow,
-		postgresql.WeeklyMaintenanceWindow_WeekDay,
-	](ctx, cluster.MaintenanceWindow, respDiagnostics)
+	flattenMaintenance(ctx, state, cluster.GetMaintenanceWindows(), respDiagnostics)
 	state.SecurityGroupIds = mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
 	state.DiskEncryptionKeyId = mdbcommon.FlattenStringWrapper(ctx, cluster.DiskEncryptionKeyId, respDiagnostics)
 }

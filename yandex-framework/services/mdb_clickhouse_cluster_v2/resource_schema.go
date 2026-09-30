@@ -1661,6 +1661,20 @@ func MergeTreeSchema() schema.SingleNestedAttribute {
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
+			"replicated_deduplication_window_for_async_inserts": schema.Int64Attribute{
+				Description: "The number of most recently asynchronously inserted blocks for which ClickHouse Keeper stores hash sums to check for duplicates.",
+				Optional:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"replicated_deduplication_window_seconds_for_async_inserts": schema.Int64Attribute{
+				Description: "The number of seconds after which hash sums of asynchronous inserts are removed from ClickHouse Keeper.",
+				Optional:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
 			"fsync_after_insert": schema.BoolAttribute{
 				Description: "Do fsync for every inserted part. Significantly decreases performance of inserts, not recommended to use with wide parts.",
 				Optional:    true,
@@ -1839,6 +1853,14 @@ func MergeTreeSchema() schema.SingleNestedAttribute {
 			},
 			"number_of_free_entries_in_pool_to_execute_mutation": schema.Int64Attribute{
 				Description: "When there is less than specified number of free entries in pool, do not execute part mutations. This is to leave free threads for regular merges and avoid `Too many parts`. Default value: 20.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"number_of_free_entries_in_pool_to_execute_optimize_entire_partition": schema.Int64Attribute{
+				Description: "When there is less than the specified number of free entries in the pool, do not execute optimization of an entire partition in the background. Default value: 25.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{

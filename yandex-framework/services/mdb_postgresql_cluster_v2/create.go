@@ -23,22 +23,17 @@ func prepareCreateRequest(
 ) (*postgresql.CreateClusterRequest, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
 	request := &postgresql.CreateClusterRequest{
-		Name:               plan.Name.ValueString(),
-		Description:        plan.Description.ValueString(),
-		FolderId:           expandFolderId(ctx, plan.FolderId, providerConfig, &diags),
-		NetworkId:          plan.NetworkId.ValueString(),
-		Environment:        mdbcommon.ExpandEnvironment[postgresql.Cluster_Environment](ctx, plan.Environment, &diags),
-		Labels:             mdbcommon.ExpandLabels(ctx, plan.Labels, &diags),
-		HostSpecs:          hostSpecsSlice,
-		ConfigSpec:         expandConfig(ctx, plan.Config, &diags),
-		DeletionProtection: plan.DeletionProtection.ValueBool(),
-		SecurityGroupIds:   mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
-		MaintenanceWindow: mdbcommon.ExpandClusterMaintenanceWindow[
-			postgresql.MaintenanceWindow,
-			postgresql.WeeklyMaintenanceWindow,
-			postgresql.AnytimeMaintenanceWindow,
-			postgresql.WeeklyMaintenanceWindow_WeekDay,
-		](ctx, plan.MaintenanceWindow, &diags),
+		Name:                plan.Name.ValueString(),
+		Description:         plan.Description.ValueString(),
+		FolderId:            expandFolderId(ctx, plan.FolderId, providerConfig, &diags),
+		NetworkId:           plan.NetworkId.ValueString(),
+		Environment:         mdbcommon.ExpandEnvironment[postgresql.Cluster_Environment](ctx, plan.Environment, &diags),
+		Labels:              mdbcommon.ExpandLabels(ctx, plan.Labels, &diags),
+		HostSpecs:           hostSpecsSlice,
+		ConfigSpec:          expandConfig(ctx, plan.Config, &diags),
+		DeletionProtection:  plan.DeletionProtection.ValueBool(),
+		SecurityGroupIds:    mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
+		MaintenanceWindows:  expandMaintenance(ctx, plan.MaintenanceWindows, plan.MaintenanceWindow, &diags),
 		DiskEncryptionKeyId: mdbcommon.ExpandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags),
 	}
 	return request, diags
@@ -87,25 +82,20 @@ func prepareRestoreRequest(
 	}
 
 	request := &postgresql.RestoreClusterRequest{
-		BackupId:           restoreConf.BackupId.ValueString(),
-		Time:               timeBackup,
-		TimeInclusive:      timeInclusive,
-		Name:               plan.Name.ValueString(),
-		Description:        plan.Description.ValueString(),
-		FolderId:           expandFolderId(ctx, plan.FolderId, providerConfig, &diags),
-		NetworkId:          plan.NetworkId.ValueString(),
-		Environment:        mdbcommon.ExpandEnvironment[postgresql.Cluster_Environment](ctx, plan.Environment, &diags),
-		Labels:             mdbcommon.ExpandLabels(ctx, plan.Labels, &diags),
-		HostSpecs:          hostSpecsSlice,
-		ConfigSpec:         expandConfig(ctx, plan.Config, &diags),
-		DeletionProtection: plan.DeletionProtection.ValueBool(),
-		SecurityGroupIds:   mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
-		MaintenanceWindow: mdbcommon.ExpandClusterMaintenanceWindow[
-			postgresql.MaintenanceWindow,
-			postgresql.WeeklyMaintenanceWindow,
-			postgresql.AnytimeMaintenanceWindow,
-			postgresql.WeeklyMaintenanceWindow_WeekDay,
-		](ctx, plan.MaintenanceWindow, &diags),
+		BackupId:            restoreConf.BackupId.ValueString(),
+		Time:                timeBackup,
+		TimeInclusive:       timeInclusive,
+		Name:                plan.Name.ValueString(),
+		Description:         plan.Description.ValueString(),
+		FolderId:            expandFolderId(ctx, plan.FolderId, providerConfig, &diags),
+		NetworkId:           plan.NetworkId.ValueString(),
+		Environment:         mdbcommon.ExpandEnvironment[postgresql.Cluster_Environment](ctx, plan.Environment, &diags),
+		Labels:              mdbcommon.ExpandLabels(ctx, plan.Labels, &diags),
+		HostSpecs:           hostSpecsSlice,
+		ConfigSpec:          expandConfig(ctx, plan.Config, &diags),
+		DeletionProtection:  plan.DeletionProtection.ValueBool(),
+		SecurityGroupIds:    mdbcommon.ExpandSecurityGroupIds(ctx, plan.SecurityGroupIds, &diags),
+		MaintenanceWindows:  expandMaintenance(ctx, plan.MaintenanceWindows, plan.MaintenanceWindow, &diags),
 		DiskEncryptionKeyId: mdbcommon.ExpandStringWrapper(ctx, plan.DiskEncryptionKeyId, &diags),
 	}
 

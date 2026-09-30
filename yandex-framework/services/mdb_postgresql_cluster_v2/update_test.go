@@ -69,7 +69,7 @@ func TestYandexProvider_MDBPostgresClusterPrepateUpdateRequestBasic(t *testing.T
 		SecurityGroupIds:   []string{"test-sg-new"},
 		DeletionProtection: false,
 		UpdateMask: &fieldmaskpb.FieldMask{
-			Paths: []string{"name", "security_group_ids", "deletion_protection", "maintenance_window"},
+			Paths: []string{"name", "security_group_ids", "deletion_protection"},
 		},
 	}
 

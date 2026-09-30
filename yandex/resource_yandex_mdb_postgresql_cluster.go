@@ -154,13 +154,15 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				ForceNew:    true,
 				Elem:        resourceYandexMDBPostgreSQLClusterRestoreBlock(),
 			},
+			"maintenance_windows": pgMaintenanceWindowsSchema(),
 			"maintenance_window": {
-				Type:        schema.TypeList,
-				Description: "Maintenance policy of the PostgreSQL cluster.",
-				MaxItems:    1,
-				Optional:    true,
-				Computed:    true,
-				Elem:        resourceYandexMDBPostgreSQLClusterMaintenanceWindow(),
+				Type:          schema.TypeList,
+				Description:   "Legacy maintenance policy. Conflicts with maintenance_windows. Weekly hour 1 means 00:00 UTC and hour 24 means 23:00 UTC; the window lasts one hour and permits temporary write unavailability.",
+				ConflictsWith: []string{"maintenance_windows"},
+				MaxItems:      1,
+				Optional:      true,
+				Computed:      true,
+				Elem:          resourceYandexMDBPostgreSQLClusterMaintenanceWindow(),
 			},
 			"deletion_protection": {
 				Type:        schema.TypeBool,
@@ -743,12 +745,7 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	maintenanceWindow, err := flattenPGMaintenanceWindow(cluster.MaintenanceWindow)
-	if err != nil {
-		return err
-	}
-
-	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
+	if err := setPGMaintenanceWindowsState(d, cluster.GetMaintenanceWindows(), false); err != nil {
 		return err
 	}
 
@@ -858,16 +855,14 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 	return resourceYandexMDBPostgreSQLClusterRead(d, meta)
 }
 
-func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta interface{}, createClusterRequest *postgresql.CreateClusterRequest, backupID string) error {
-	config := meta.(*Config)
-
+func prepareRestorePostgreSQLRequest(d *schema.ResourceData, createClusterRequest *postgresql.CreateClusterRequest, backupID string) (*postgresql.RestoreClusterRequest, error) {
 	var timeBackup *timestamp.Timestamp = nil
 	timeInclusive := false
 
 	if backupTime, ok := d.GetOk("restore.0.time"); ok {
 		time, err := mdbcommon.ParseStringToTime(backupTime.(string))
 		if err != nil {
-			return fmt.Errorf("Error while parsing restore.0.time to create PostgreSQL Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
+			return nil, fmt.Errorf("Error while parsing restore.0.time to create PostgreSQL Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
 		}
 		timeBackup = &timestamp.Timestamp{
 			Seconds: time.Unix(),
@@ -878,8 +873,6 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		timeInclusive = timeInclusiveData.(bool)
 	}
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
-	defer cancel()
 	request := &postgresql.RestoreClusterRequest{
 		BackupId:            backupID,
 		Time:                timeBackup,
@@ -895,7 +888,7 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		SecurityGroupIds:    createClusterRequest.SecurityGroupIds,
 		HostGroupIds:        createClusterRequest.HostGroupIds,
 		DeletionProtection:  createClusterRequest.DeletionProtection,
-		MaintenanceWindow:   createClusterRequest.MaintenanceWindow,
+		MaintenanceWindows:  createClusterRequest.MaintenanceWindows,
 		DiskEncryptionKeyId: createClusterRequest.DiskEncryptionKeyId,
 	}
 
@@ -904,6 +897,19 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		log.Printf("[WARN] Disk encryption key ID is not set. Encryption will be disabled if present in source cluster.")
 		request.DiskEncryptionKeyId = wrapperspb.String("")
 	}
+
+	return request, nil
+}
+
+func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta interface{}, createClusterRequest *postgresql.CreateClusterRequest, backupID string) error {
+	config := meta.(*Config)
+
+	request, err := prepareRestorePostgreSQLRequest(d, createClusterRequest, backupID)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	defer cancel()
 
 	op, err := retryConflictingOperationV2(ctx, config, func() (sdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL cluster restore request: %+v", request)
@@ -998,7 +1004,7 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		return nil, fmt.Errorf("Error while expanding network id on PostgreSQL Cluster create: %s", err)
 	}
 
-	maintenanceWindow, err := expandPGMaintenanceWindow(d)
+	maintenanceWindow, err := expandPGMaintenanceWindows(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding maintenance window id on PostgreSQL Cluster create: %s", err)
 	}
@@ -1024,7 +1030,7 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		SecurityGroupIds:    securityGroupIds,
 		DeletionProtection:  d.Get("deletion_protection").(bool),
 		HostGroupIds:        hostGroupIds,
-		MaintenanceWindow:   maintenanceWindow,
+		MaintenanceWindows:  maintenanceWindow,
 		DiskEncryptionKeyId: diskEncryptionKeyId,
 	}, nil
 }
@@ -1125,7 +1131,7 @@ func prepareUpdatePostgreSQLClusterParamsRequest(d *schema.ResourceData, config 
 		return nil, fmt.Errorf("host_group_ids change is not supported yet")
 	}
 
-	maintenanceWindow, err := expandPGMaintenanceWindow(d)
+	maintenanceWindow, err := expandPGMaintenanceWindows(d)
 	if err != nil {
 		return nil, fmt.Errorf("error expanding maintenance_window while updating PostgreSQL cluster: %s", err)
 	}
@@ -1147,7 +1153,7 @@ func prepareUpdatePostgreSQLClusterParamsRequest(d *schema.ResourceData, config 
 		Labels:             labels,
 		NetworkId:          networkID,
 		ConfigSpec:         configSpec,
-		MaintenanceWindow:  maintenanceWindow,
+		MaintenanceWindows: maintenanceWindow,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		UpdateMask:         &field_mask.FieldMask{Paths: updatePaths},
@@ -1479,6 +1485,9 @@ func resourceYandexMDBPostgreSQLClusterDelete(d *schema.ResourceData, meta inter
 }
 
 func resourceYandexMDBPostgreSQLClusterCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	if err := customizePGMaintenanceWindowsDiff(d); err != nil {
+		return err
+	}
 	postgresqlConfig, ok := d.GetOkExists("config.0.postgresql_config")
 	if !ok {
 		return nil

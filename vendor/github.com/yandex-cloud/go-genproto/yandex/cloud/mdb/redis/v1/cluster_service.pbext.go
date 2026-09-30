@@ -4,6 +4,7 @@ package redis
 
 import (
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -119,6 +120,10 @@ func (m *CreateClusterRequest) SetDiskEncryptionKeyId(v *wrapperspb.StringValue)
 	m.DiskEncryptionKeyId = v
 }
 
+func (m *CreateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
+}
+
 func (m *CreateClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -173,6 +178,10 @@ func (m *UpdateClusterRequest) SetAnnounceHostnames(v bool) {
 
 func (m *UpdateClusterRequest) SetAuthSentinel(v bool) {
 	m.AuthSentinel = v
+}
+
+func (m *UpdateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *UpdateClusterMetadata) SetClusterId(v string) {
@@ -321,6 +330,10 @@ func (m *RestoreClusterRequest) SetDiskEncryptionKeyId(v *wrapperspb.StringValue
 
 func (m *RestoreClusterRequest) SetUserSpecs(v []*UserSpec) {
 	m.UserSpecs = v
+}
+
+func (m *RestoreClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *RestoreClusterMetadata) SetClusterId(v string) {

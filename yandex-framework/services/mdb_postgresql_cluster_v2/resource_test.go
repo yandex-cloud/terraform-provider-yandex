@@ -3,7 +3,6 @@ package mdb_postgresql_cluster_v2_test
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 	"log"
 	"math/rand"
 	"reflect"
@@ -25,13 +24,17 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	pconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
 	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
+	"github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/kms_symmetric_key"
+	"google.golang.org/genproto/googleapis/type/dayofweek"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -1917,10 +1920,14 @@ func testAccCheckClusterDiskSizeAutoscalingExact(r *postgresql.Cluster, expected
 
 func testAccCheckClusterMaintenanceWindow(r *postgresql.Cluster, expected *postgresql.MaintenanceWindow) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if reflect.DeepEqual(r.GetMaintenanceWindow(), expected) {
+		modern := &mdbv1.MaintenanceWindows{Policy: &mdbv1.MaintenanceWindows_Anytime{Anytime: &mdbv1.AnytimeMaintenanceWindow{}}}
+		if weekly := expected.GetWeeklyMaintenanceWindow(); weekly != nil {
+			modern.Policy = &mdbv1.MaintenanceWindows_WeeklyMaintenanceSchedule{WeeklyMaintenanceSchedule: &mdbv1.WeeklyMaintenanceSchedule{Slots: []*mdbv1.MaintenanceWindowSlot{{Day: dayofweek.DayOfWeek(weekly.Day), StartTime: &timeofday.TimeOfDay{Hours: int32(weekly.Hour - 1)}, Duration: durationpb.New(time.Hour), AllowTemporaryUnavailability: true}}}}
+		}
+		if proto.Equal(r.GetMaintenanceWindows(), modern) {
 			return nil
 		}
-		return fmt.Errorf("Cluster %s has mismatched maintenance_window.\nActual:   %+v\nExpected: %+v", r.Name, r.GetMaintenanceWindow(), expected)
+		return fmt.Errorf("Cluster %s has mismatched maintenance_windows. Actual: %+v Expected: %+v", r.Name, r.GetMaintenanceWindows(), modern)
 	}
 }
 

@@ -1,14 +1,19 @@
-# A release is published when the release pipeline adds one versioned changelog
-# to master. Other pushes to master are successful no-ops.
+# The release pipeline pushes a version tag after Piglet delivers the release commit.
 name: release
+run-name: release ${{ github.ref }} ${{ github.sha }}
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
+
+concurrency:
+  group: terraform-provider-release
+  queue: max
+  cancel-in-progress: false
 
 jobs:
   goreleaser:
@@ -22,68 +27,62 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.sha }}
 
-      - name: Detect release changelog
+      - name: Validate release tag and changelog
         id: release
         shell: bash
         env:
-          BEFORE_SHA: ${{ github.event.before }}
+          RELEASE_REF: ${{ github.ref }}
           RELEASE_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
 
-          if [[ ! "$BEFORE_SHA" =~ ^[0-9a-f]{40}$ || "$BEFORE_SHA" =~ ^0+$ ]]; then
-            echo "The push event does not contain a usable before commit: $BEFORE_SHA" >&2
+          if [[ ! "$RELEASE_REF" =~ ^refs/tags/v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "Expected a version tag, got $RELEASE_REF" >&2
             exit 1
           fi
+          version="${BASH_REMATCH[1]}"
+          tag="v$version"
           if [[ ! "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
             echo "The push event does not contain a usable release commit: $RELEASE_SHA" >&2
             exit 1
           fi
           if [[ "$(git rev-parse HEAD)" != "$RELEASE_SHA" ]]; then
-            echo "Checkout is not at the pushed commit $RELEASE_SHA" >&2
+            echo "Checkout is not at the tagged commit $RELEASE_SHA" >&2
             exit 1
           fi
-          git cat-file -e "${BEFORE_SHA}^{commit}"
+          parent="$(git rev-parse HEAD^)"
 
-          changed_paths="$(git diff --diff-filter=A --name-only "$BEFORE_SHA" "$RELEASE_SHA" -- .changes)"
+          changed_paths="$(git diff --diff-filter=A --name-only "$parent" "$RELEASE_SHA" -- .changes)"
           changelogs=()
           while IFS= read -r path; do
-            if [[ "$path" =~ ^\.changes/[^/]+\.md$ ]]; then
+            if [[ "$path" =~ ^\.changes/[0-9]+\.[0-9]+\.[0-9]+\.md$ ]]; then
               changelogs+=("$path")
             fi
           done <<< "$changed_paths"
 
-          if (( ${#changelogs[@]} == 0 )); then
-            echo "No versioned changelog was added; there is nothing to publish."
-            echo "release=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
           if (( ${#changelogs[@]} != 1 )); then
-            echo "Expected at most one new versioned changelog, found ${#changelogs[@]}:" >&2
+            echo "Expected one new versioned changelog, found ${#changelogs[@]}:" >&2
             printf '  %s\n' "${changelogs[@]}" >&2
             exit 1
           fi
 
           changelog="${changelogs[0]}"
-          if [[ ! "$changelog" =~ ^\.changes/([0-9]+\.[0-9]+\.[0-9]+)\.md$ ]]; then
-            echo "Malformed versioned changelog path: $changelog" >&2
+          if [[ "$changelog" != ".changes/$version.md" ]]; then
+            echo "Tag $tag does not match the new changelog $changelog" >&2
             exit 1
           fi
-          version="${BASH_REMATCH[1]}"
           if ! grep -Eq "^## ${version//./\\.}( \\(|$)" "$changelog"; then
             echo "$changelog does not start a section for version $version" >&2
             exit 1
           fi
 
           {
-            echo "release=true"
             echo "version=$version"
-            echo "tag=v$version"
+            echo "tag=$tag"
           } >> "$GITHUB_OUTPUT"
 
       - name: Inspect release and tag
         id: state
-        if: steps.release.outputs.release == 'true'
         shell: bash
         env:
           RELEASE_SHA: ${{ github.sha }}
@@ -105,38 +104,46 @@ jobs:
           fi
           rm -f "$api_error"
 
-          tag_commit=""
-          remote_tag="$(git ls-remote --tags origin "refs/tags/$RELEASE_TAG")"
-          if [[ -n "$remote_tag" ]]; then
-            git fetch --force origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
-            tag_commit="$(git rev-parse "$RELEASE_TAG^{commit}")"
-            if [[ "$tag_commit" != "$RELEASE_SHA" ]]; then
-              echo "Tag $RELEASE_TAG points to $tag_commit instead of $RELEASE_SHA" >&2
-              exit 1
-            fi
+          remote_tag="$(git ls-remote --tags origin "refs/tags/$RELEASE_TAG" "refs/tags/$RELEASE_TAG^{}")"
+          tag_commit="$(printf '%s\n' "$remote_tag" | awk -v ref="refs/tags/$RELEASE_TAG^{}" '$2 == ref {print $1}')"
+          if [[ -z "$tag_commit" ]]; then
+            tag_commit="$(printf '%s\n' "$remote_tag" | awk -v ref="refs/tags/$RELEASE_TAG" '$2 == ref {print $1}')"
+          fi
+          if [[ ! "$tag_commit" =~ ^[0-9a-f]{40}$ || "$tag_commit" != "$RELEASE_SHA" ]]; then
+            echo "Tag $RELEASE_TAG does not point to the release commit $RELEASE_SHA" >&2
+            exit 1
           fi
 
           if [[ "$release_state" == "published" ]]; then
-            if [[ -z "$tag_commit" ]]; then
-              echo "Published GitHub release $RELEASE_TAG has no matching remote tag" >&2
-              exit 1
-            fi
+            assets="$(gh api "/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '.assets[] | select(.state == "uploaded" and .size > 0) | .name')"
+            checksum="terraform-provider-yandex_${RELEASE_TAG#v}_SHA256SUMS"
+            expected=("$checksum" "$checksum.sig")
+            for goos in freebsd windows linux darwin; do
+              for arch in amd64 386 arm arm64; do
+                if [[ "$goos:$arch" == "darwin:386" || "$goos:$arch" == "darwin:arm" || "$goos:$arch" == "windows:arm64" ]]; then
+                  continue
+                fi
+                expected+=("terraform-provider-yandex_${RELEASE_TAG#v}_${goos}_${arch}.zip")
+              done
+            done
+            for name in "${expected[@]}"; do
+              if ! grep -Fxq "$name" <<< "$assets"; then
+                echo "Published release $RELEASE_TAG is incomplete: missing $name" >&2
+                exit 1
+              fi
+            done
+            release_dir="$(mktemp -d)"
+            trap 'rm -rf "$release_dir"' EXIT
+            gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "$checksum" --dir "$release_dir"
+            for name in "${expected[@]:2}"; do
+              if ! awk -v name="$name" '$2 == name && length($1) == 64 && $1 ~ /^[0-9a-fA-F]+$/ {found++} END {exit found != 1}' "$release_dir/$checksum"; then
+                echo "Published release $RELEASE_TAG has no valid checksum for $name" >&2
+                exit 1
+              fi
+            done
             echo "GitHub release $RELEASE_TAG is already published at $RELEASE_SHA."
             echo "publish=false" >> "$GITHUB_OUTPUT"
             exit 0
-          fi
-
-          if [[ -z "$tag_commit" ]]; then
-            git tag "$RELEASE_TAG" "$RELEASE_SHA"
-            if ! git push origin "refs/tags/$RELEASE_TAG"; then
-              git tag -d "$RELEASE_TAG"
-              git fetch --force origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
-              tag_commit="$(git rev-parse "$RELEASE_TAG^{commit}")"
-              if [[ "$tag_commit" != "$RELEASE_SHA" ]]; then
-                echo "Concurrent tag $RELEASE_TAG points to $tag_commit instead of $RELEASE_SHA" >&2
-                exit 1
-              fi
-            fi
           fi
 
           echo "publish=true" >> "$GITHUB_OUTPUT"

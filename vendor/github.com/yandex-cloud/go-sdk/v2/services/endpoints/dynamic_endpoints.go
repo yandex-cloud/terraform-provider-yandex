@@ -8,6 +8,7 @@ import (
 var DynamicEndpoints = map[protoreflect.FullName]string{
 	protoreflect.FullName("speechkit.stt.v3"):                                                                "ai-stt",
 	protoreflect.FullName("speechkit.tts.v3"):                                                                "ai-tts",
+	protoreflect.FullName("yandex.cloud.adviser.v1"):                                                         "adviser",
 	protoreflect.FullName("yandex.cloud.ai.assistants.v1"):                                                   "ai-assistants",
 	protoreflect.FullName("yandex.cloud.ai.dataset.v1"):                                                      "ai-fomo-dataset",
 	protoreflect.FullName("yandex.cloud.ai.files.v1"):                                                        "ai-files",

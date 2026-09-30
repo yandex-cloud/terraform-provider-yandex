@@ -133,6 +133,13 @@ subcategory: "Serverless Triggers"
     - `cron_expression` (**Required**)(String). Cron expression defining the trigger schedule.
  See http://man7.org/linux/man-pages/man5/crontab.5.html for the format; some limitations apply.
     - `payload` (String). Payload passed to the invoked target on each firing.
+  - `yandex_forms` [Block]. Yandex Forms source: fires when a response is submitted to a form.
+    - `cloud_organization_id` (String). ID of the Yandex Identity Hub organization.
+    - `oauth_token` (String). OAuth token of a user with permission to modify the form's integration settings.
+ Input only, always empty in output.
+ Required on Create; on Update, changing it replaces the token used to manage the HTTP integration.
+    - `organization_id` (String). ID of the Yandex 360 for Business organization.
+    - `survey_id` (**Required**)(String). ID of the Yandex Form to receive submitted responses from.
   - `yandex_messenger` [Block]. Yandex Messenger source: fires on Yandex Messenger bot updates.
     - `bot_display_name` (String). Display name of the bot the token belongs to. output only.
     - `bot_id` (String). ID of the bot the token belongs to. output only.

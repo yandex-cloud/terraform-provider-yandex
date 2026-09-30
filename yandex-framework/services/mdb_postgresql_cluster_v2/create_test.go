@@ -49,6 +49,7 @@ var (
 		"labels":                 types.MapType{ElemType: types.StringType},
 		"environment":            types.StringType,
 		"network_id":             types.StringType,
+		"maintenance_windows":    types.ObjectType{AttrTypes: maintenanceTypes},
 		"maintenance_window":     types.ObjectType{AttrTypes: mdbcommon.MaintenanceWindowType.AttrTypes},
 		"security_group_ids":     types.SetType{ElemType: types.StringType},
 		"restore":                types.ObjectType{AttrTypes: expectedRestoreAttrTypes},
@@ -138,8 +139,9 @@ func TestYandexProvider_MDBPostgresClusterPrepareCreateRequest(t *testing.T) {
 					"labels": types.MapValueMust(types.StringType, map[string]attr.Value{
 						"key": types.StringValue("value"),
 					}),
-					"environment": types.StringValue("PRESTABLE"),
-					"network_id":  types.StringValue("test-network"),
+					"environment":         types.StringValue("PRESTABLE"),
+					"network_id":          types.StringValue("test-network"),
+					"maintenance_windows": types.ObjectNull(maintenanceTypes),
 					"maintenance_window": types.ObjectValueMust(
 						mdbcommon.MaintenanceWindowType.AttrTypes,
 						map[string]attr.Value{
@@ -194,14 +196,10 @@ func TestYandexProvider_MDBPostgresClusterPrepareCreateRequest(t *testing.T) {
 						EmergencyUsageThreshold: 20,
 					},
 				},
-				SecurityGroupIds:   []string{"test-sg"},
-				DeletionProtection: true,
-				FolderId:           "test-folder",
-				MaintenanceWindow: &postgresql.MaintenanceWindow{
-					Policy: &postgresql.MaintenanceWindow_Anytime{
-						Anytime: &postgresql.AnytimeMaintenanceWindow{},
-					},
-				},
+				SecurityGroupIds:    []string{"test-sg"},
+				DeletionProtection:  true,
+				FolderId:            "test-folder",
+				MaintenanceWindows:  maintenanceAnytime(),
 				DiskEncryptionKeyId: wrapperspb.String("test-key"),
 			},
 		},
@@ -222,6 +220,7 @@ func TestYandexProvider_MDBPostgresClusterPrepareCreateRequest(t *testing.T) {
 					"environment":         types.StringValue("PRODUCTION"),
 					"network_id":          types.StringValue("test-network"),
 					"config":              baseConfig,
+					"maintenance_windows": types.ObjectNull(maintenanceTypes),
 					"maintenance_window":  types.ObjectNull(mdbcommon.MaintenanceWindowType.AttrTypes),
 					"deletion_protection": types.BoolNull(),
 					"security_group_ids":  types.SetNull(types.StringType),
@@ -329,8 +328,9 @@ func TestYandexProvider_MDBPostgresClusterPrepareRestoreRequest(t *testing.T) {
 					"labels": types.MapValueMust(types.StringType, map[string]attr.Value{
 						"key": types.StringValue("value"),
 					}),
-					"environment": types.StringValue("PRESTABLE"),
-					"network_id":  types.StringValue("test-network"),
+					"environment":         types.StringValue("PRESTABLE"),
+					"network_id":          types.StringValue("test-network"),
+					"maintenance_windows": types.ObjectNull(maintenanceTypes),
 					"maintenance_window": types.ObjectValueMust(
 						mdbcommon.MaintenanceWindowType.AttrTypes,
 						map[string]attr.Value{
@@ -388,14 +388,10 @@ func TestYandexProvider_MDBPostgresClusterPrepareRestoreRequest(t *testing.T) {
 						EmergencyUsageThreshold: 20,
 					},
 				},
-				SecurityGroupIds:   []string{"test-sg"},
-				DeletionProtection: true,
-				FolderId:           "test-folder",
-				MaintenanceWindow: &postgresql.MaintenanceWindow{
-					Policy: &postgresql.MaintenanceWindow_Anytime{
-						Anytime: &postgresql.AnytimeMaintenanceWindow{},
-					},
-				},
+				SecurityGroupIds:    []string{"test-sg"},
+				DeletionProtection:  true,
+				FolderId:            "test-folder",
+				MaintenanceWindows:  maintenanceAnytime(),
 				DiskEncryptionKeyId: wrapperspb.String("test-key"),
 			},
 		},

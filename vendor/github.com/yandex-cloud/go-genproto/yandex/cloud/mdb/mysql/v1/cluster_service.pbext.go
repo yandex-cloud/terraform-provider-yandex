@@ -104,6 +104,10 @@ func (m *CreateClusterRequest) SetRetentionPolicies(v []*v1.BackupRetentionPolic
 	m.RetentionPolicies = v
 }
 
+func (m *CreateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
+}
+
 func (m *CreateClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -146,6 +150,10 @@ func (m *UpdateClusterRequest) SetDeletionProtection(v bool) {
 
 func (m *UpdateClusterRequest) SetNetworkId(v string) {
 	m.NetworkId = v
+}
+
+func (m *UpdateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *UpdateClusterMetadata) SetClusterId(v string) {
@@ -234,6 +242,10 @@ func (m *RestoreClusterRequest) SetDiskEncryptionKeyId(v *wrapperspb.StringValue
 
 func (m *RestoreClusterRequest) SetSourceClusterId(v string) {
 	m.SourceClusterId = v
+}
+
+func (m *RestoreClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *RestoreClusterMetadata) SetClusterId(v string) {

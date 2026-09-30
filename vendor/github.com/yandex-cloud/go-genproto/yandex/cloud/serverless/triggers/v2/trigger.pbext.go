@@ -128,6 +128,12 @@ func (m *Source) SetMaxMessage(v *MaxMessage) {
 	}
 }
 
+func (m *Source) SetYandexForms(v *YandexForms) {
+	m.Source = &Source_YandexForms{
+		YandexForms: v,
+	}
+}
+
 func (m *Timer) SetCronExpression(v string) {
 	m.CronExpression = v
 }
@@ -326,6 +332,32 @@ func (m *YandexMessenger) SetBotLogin(v string) {
 
 func (m *YandexMessenger) SetBotDisplayName(v string) {
 	m.BotDisplayName = v
+}
+
+type YandexForms_Organization = isYandexForms_Organization
+
+func (m *YandexForms) SetOrganization(v YandexForms_Organization) {
+	m.Organization = v
+}
+
+func (m *YandexForms) SetSurveyId(v string) {
+	m.SurveyId = v
+}
+
+func (m *YandexForms) SetOauthToken(v string) {
+	m.OauthToken = v
+}
+
+func (m *YandexForms) SetOrganizationId(v string) {
+	m.Organization = &YandexForms_OrganizationId{
+		OrganizationId: v,
+	}
+}
+
+func (m *YandexForms) SetCloudOrganizationId(v string) {
+	m.Organization = &YandexForms_CloudOrganizationId{
+		CloudOrganizationId: v,
+	}
 }
 
 type Action_Action = isAction_Action

@@ -13,6 +13,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/proto"
 )
 
 func prepareVersionUpdateRequest(state, plan *Cluster) (*postgresql.UpdateClusterRequest, diag.Diagnostics) {
@@ -97,14 +98,16 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*postgresq
 		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "security_group_ids")
 	}
 
-	if !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) {
-		request.SetMaintenanceWindow(mdbcommon.ExpandClusterMaintenanceWindow[
-			postgresql.MaintenanceWindow,
-			postgresql.WeeklyMaintenanceWindow,
-			postgresql.AnytimeMaintenanceWindow,
-			postgresql.WeeklyMaintenanceWindow_WeekDay,
-		](ctx, plan.MaintenanceWindow, &diags))
-		request.UpdateMask.Paths = append(request.UpdateMask.Paths, "maintenance_window")
+	if !plan.MaintenanceWindow.Equal(state.MaintenanceWindow) || !plan.MaintenanceWindows.Equal(state.MaintenanceWindows) {
+		target := expandMaintenance(ctx, plan.MaintenanceWindows, plan.MaintenanceWindow, &diags)
+		var priorDiagnostics diag.Diagnostics
+		prior := expandMaintenance(ctx, state.MaintenanceWindows, state.MaintenanceWindow, &priorDiagnostics)
+		// Flattened drift may be valid API data outside today's input rules.
+		// A changed representation still writes the full explicitly planned schedule.
+		if target != nil && (priorDiagnostics.HasError() || !proto.Equal(prior, target)) {
+			request.MaintenanceWindows = target
+			request.UpdateMask.Paths = append(request.UpdateMask.Paths, "maintenance_windows")
+		}
 	}
 
 	return request, diags

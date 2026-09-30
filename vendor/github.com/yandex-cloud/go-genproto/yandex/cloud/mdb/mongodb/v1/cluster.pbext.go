@@ -4,6 +4,7 @@ package mongodb
 
 import (
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1/config"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -83,6 +84,10 @@ func (m *Cluster) SetDiskEncryptionKeyId(v *wrapperspb.StringValue) {
 
 func (m *Cluster) SetIsHa(v bool) {
 	m.IsHa = v
+}
+
+func (m *Cluster) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *Monitoring) SetName(v string) {

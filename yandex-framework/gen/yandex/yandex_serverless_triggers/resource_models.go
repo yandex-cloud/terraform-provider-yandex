@@ -1248,6 +1248,7 @@ type yandexServerlessTriggersSourceModel struct {
 	ObjectStorage     types.Object `tfsdk:"object_storage"`
 	TelegramMessage   types.Object `tfsdk:"telegram_message"`
 	Timer             types.Object `tfsdk:"timer"`
+	YandexForms       types.Object `tfsdk:"yandex_forms"`
 	YandexMessenger   types.Object `tfsdk:"yandex_messenger"`
 	Yds               types.Object `tfsdk:"yds"`
 	Ymq               types.Object `tfsdk:"ymq"`
@@ -1282,6 +1283,9 @@ func (m *yandexServerlessTriggersSourceModel) GetTelegramMessage() types.Object 
 }
 func (m *yandexServerlessTriggersSourceModel) GetTimer() types.Object {
 	return m.Timer
+}
+func (m *yandexServerlessTriggersSourceModel) GetYandexForms() types.Object {
+	return m.YandexForms
 }
 func (m *yandexServerlessTriggersSourceModel) GetYandexMessenger() types.Object {
 	return m.YandexMessenger
@@ -1323,6 +1327,9 @@ func (m *yandexServerlessTriggersSourceModel) SetTelegramMessage(target types.Ob
 func (m *yandexServerlessTriggersSourceModel) SetTimer(target types.Object) {
 	m.Timer = target
 }
+func (m *yandexServerlessTriggersSourceModel) SetYandexForms(target types.Object) {
+	m.YandexForms = target
+}
 func (m *yandexServerlessTriggersSourceModel) SetYandexMessenger(target types.Object) {
 	m.YandexMessenger = target
 }
@@ -1345,6 +1352,7 @@ func NewYandexServerlessTriggersSourceModel() yandexServerlessTriggersSourceMode
 		ObjectStorage:     types.ObjectNull(yandexServerlessTriggersSourceObjectStorageModelType.AttrTypes),
 		TelegramMessage:   types.ObjectNull(yandexServerlessTriggersSourceTelegramMessageModelType.AttrTypes),
 		Timer:             types.ObjectNull(yandexServerlessTriggersSourceTimerModelType.AttrTypes),
+		YandexForms:       types.ObjectNull(yandexServerlessTriggersSourceYandexFormsModelType.AttrTypes),
 		YandexMessenger:   types.ObjectNull(yandexServerlessTriggersSourceYandexMessengerModelType.AttrTypes),
 		Yds:               types.ObjectNull(yandexServerlessTriggersSourceYdsModelType.AttrTypes),
 		Ymq:               types.ObjectNull(yandexServerlessTriggersSourceYmqModelType.AttrTypes),
@@ -1382,6 +1390,9 @@ func yandexServerlessTriggersSourceModelFillUnknown(target yandexServerlessTrigg
 	if target.Timer.IsUnknown() || target.Timer.IsNull() {
 		target.Timer = types.ObjectNull(yandexServerlessTriggersSourceTimerModelType.AttrTypes)
 	}
+	if target.YandexForms.IsUnknown() || target.YandexForms.IsNull() {
+		target.YandexForms = types.ObjectNull(yandexServerlessTriggersSourceYandexFormsModelType.AttrTypes)
+	}
 	if target.YandexMessenger.IsUnknown() || target.YandexMessenger.IsNull() {
 		target.YandexMessenger = types.ObjectNull(yandexServerlessTriggersSourceYandexMessengerModelType.AttrTypes)
 	}
@@ -1406,6 +1417,7 @@ var yandexServerlessTriggersSourceModelType = types.ObjectType{
 		"object_storage":     yandexServerlessTriggersSourceObjectStorageModelType,
 		"telegram_message":   yandexServerlessTriggersSourceTelegramMessageModelType,
 		"timer":              yandexServerlessTriggersSourceTimerModelType,
+		"yandex_forms":       yandexServerlessTriggersSourceYandexFormsModelType,
 		"yandex_messenger":   yandexServerlessTriggersSourceYandexMessengerModelType,
 		"yds":                yandexServerlessTriggersSourceYdsModelType,
 		"ymq":                yandexServerlessTriggersSourceYmqModelType,
@@ -1430,6 +1442,7 @@ func flattenYandexServerlessTriggersSource(ctx context.Context,
 		ObjectStorage:     flattenYandexServerlessTriggersSourceObjectStorage(ctx, yandexServerlessTriggersSource.GetObjectStorage(), converter.ExpandObject(ctx, state.ObjectStorage, yandexServerlessTriggersSourceObjectStorageModel{}, diags).(yandexServerlessTriggersSourceObjectStorageModel), diags),
 		TelegramMessage:   flattenYandexServerlessTriggersSourceTelegramMessage(ctx, yandexServerlessTriggersSource.GetTelegramMessage(), converter.ExpandObject(ctx, state.TelegramMessage, yandexServerlessTriggersSourceTelegramMessageModel{}, diags).(yandexServerlessTriggersSourceTelegramMessageModel), diags),
 		Timer:             flattenYandexServerlessTriggersSourceTimer(ctx, yandexServerlessTriggersSource.GetTimer(), diags),
+		YandexForms:       flattenYandexServerlessTriggersSourceYandexForms(ctx, yandexServerlessTriggersSource.GetYandexForms(), converter.ExpandObject(ctx, state.YandexForms, yandexServerlessTriggersSourceYandexFormsModel{}, diags).(yandexServerlessTriggersSourceYandexFormsModel), diags),
 		YandexMessenger:   flattenYandexServerlessTriggersSourceYandexMessenger(ctx, yandexServerlessTriggersSource.GetYandexMessenger(), converter.ExpandObject(ctx, state.YandexMessenger, yandexServerlessTriggersSourceYandexMessengerModel{}, diags).(yandexServerlessTriggersSourceYandexMessengerModel), diags),
 		Yds:               flattenYandexServerlessTriggersSourceYds(ctx, yandexServerlessTriggersSource.GetYds(), converter.ExpandObject(ctx, state.Yds, yandexServerlessTriggersSourceYdsModel{}, diags).(yandexServerlessTriggersSourceYdsModel), diags),
 		Ymq:               flattenYandexServerlessTriggersSourceYmq(ctx, yandexServerlessTriggersSource.GetYmq(), converter.ExpandObject(ctx, state.Ymq, yandexServerlessTriggersSourceYmqModel{}, diags).(yandexServerlessTriggersSourceYmqModel), diags),
@@ -1481,6 +1494,9 @@ func expandYandexServerlessTriggersSourceModel(ctx context.Context, yandexServer
 	}
 	if !(yandexServerlessTriggersSourceState.Timer.IsNull() || yandexServerlessTriggersSourceState.Timer.IsUnknown() || yandexServerlessTriggersSourceState.Timer.Equal(types.Object{})) {
 		value.SetTimer(expandYandexServerlessTriggersSourceTimer(ctx, yandexServerlessTriggersSourceState.Timer, diags))
+	}
+	if !(yandexServerlessTriggersSourceState.YandexForms.IsNull() || yandexServerlessTriggersSourceState.YandexForms.IsUnknown() || yandexServerlessTriggersSourceState.YandexForms.Equal(types.Object{})) {
+		value.SetYandexForms(expandYandexServerlessTriggersSourceYandexForms(ctx, yandexServerlessTriggersSourceState.YandexForms, diags))
 	}
 	if !(yandexServerlessTriggersSourceState.YandexMessenger.IsNull() || yandexServerlessTriggersSourceState.YandexMessenger.IsUnknown() || yandexServerlessTriggersSourceState.YandexMessenger.Equal(types.Object{})) {
 		value.SetYandexMessenger(expandYandexServerlessTriggersSourceYandexMessenger(ctx, yandexServerlessTriggersSourceState.YandexMessenger, diags))
@@ -3452,6 +3468,118 @@ func expandYandexServerlessTriggersSourceTimerModel(ctx context.Context, yandexS
 	value := &triggers.Timer{}
 	value.SetCronExpression(yandexServerlessTriggersSourceTimerState.CronExpression.ValueString())
 	value.SetPayload(yandexServerlessTriggersSourceTimerState.Payload.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexServerlessTriggersSourceYandexFormsModel struct {
+	CloudOrganizationId types.String `tfsdk:"cloud_organization_id"`
+	OauthToken          types.String `tfsdk:"oauth_token"`
+	OrganizationId      types.String `tfsdk:"organization_id"`
+	SurveyId            types.String `tfsdk:"survey_id"`
+}
+
+func (m *yandexServerlessTriggersSourceYandexFormsModel) GetCloudOrganizationId() types.String {
+	return m.CloudOrganizationId
+}
+func (m *yandexServerlessTriggersSourceYandexFormsModel) GetOauthToken() types.String {
+	return m.OauthToken
+}
+func (m *yandexServerlessTriggersSourceYandexFormsModel) GetOrganizationId() types.String {
+	return m.OrganizationId
+}
+func (m *yandexServerlessTriggersSourceYandexFormsModel) GetSurveyId() types.String {
+	return m.SurveyId
+}
+
+func (m *yandexServerlessTriggersSourceYandexFormsModel) SetCloudOrganizationId(target types.String) {
+	m.CloudOrganizationId = target
+}
+func (m *yandexServerlessTriggersSourceYandexFormsModel) SetOauthToken(target types.String) {
+	m.OauthToken = target
+}
+func (m *yandexServerlessTriggersSourceYandexFormsModel) SetOrganizationId(target types.String) {
+	m.OrganizationId = target
+}
+func (m *yandexServerlessTriggersSourceYandexFormsModel) SetSurveyId(target types.String) {
+	m.SurveyId = target
+}
+
+func NewYandexServerlessTriggersSourceYandexFormsModel() yandexServerlessTriggersSourceYandexFormsModel {
+	return yandexServerlessTriggersSourceYandexFormsModel{
+		CloudOrganizationId: types.StringNull(),
+		OauthToken:          types.StringNull(),
+		OrganizationId:      types.StringNull(),
+		SurveyId:            types.StringNull(),
+	}
+}
+
+func yandexServerlessTriggersSourceYandexFormsModelFillUnknown(target yandexServerlessTriggersSourceYandexFormsModel) yandexServerlessTriggersSourceYandexFormsModel {
+	if target.CloudOrganizationId.IsUnknown() || target.CloudOrganizationId.IsNull() {
+		target.CloudOrganizationId = types.StringNull()
+	}
+	if target.OauthToken.IsUnknown() || target.OauthToken.IsNull() {
+		target.OauthToken = types.StringNull()
+	}
+	if target.OrganizationId.IsUnknown() || target.OrganizationId.IsNull() {
+		target.OrganizationId = types.StringNull()
+	}
+	if target.SurveyId.IsUnknown() || target.SurveyId.IsNull() {
+		target.SurveyId = types.StringNull()
+	}
+	return target
+}
+
+var yandexServerlessTriggersSourceYandexFormsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"cloud_organization_id": types.StringType,
+		"oauth_token":           types.StringType,
+		"organization_id":       types.StringType,
+		"survey_id":             types.StringType,
+	},
+}
+
+func flattenYandexServerlessTriggersSourceYandexForms(ctx context.Context,
+	yandexServerlessTriggersSourceYandexForms *triggers.YandexForms,
+	state yandexServerlessTriggersSourceYandexFormsModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexServerlessTriggersSourceYandexForms == nil {
+		return types.ObjectNull(yandexServerlessTriggersSourceYandexFormsModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexServerlessTriggersSourceYandexFormsModelType.AttrTypes, yandexServerlessTriggersSourceYandexFormsModel{
+		CloudOrganizationId: types.StringValue(yandexServerlessTriggersSourceYandexForms.GetCloudOrganizationId()),
+		OauthToken:          converter.SetUnknownStringValue(state.OauthToken),
+		OrganizationId:      types.StringValue(yandexServerlessTriggersSourceYandexForms.GetOrganizationId()),
+		SurveyId:            types.StringValue(yandexServerlessTriggersSourceYandexForms.GetSurveyId()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexServerlessTriggersSourceYandexForms(ctx context.Context, yandexServerlessTriggersSourceYandexFormsState types.Object, diags *diag.Diagnostics) *triggers.YandexForms {
+	if yandexServerlessTriggersSourceYandexFormsState.IsNull() || yandexServerlessTriggersSourceYandexFormsState.IsUnknown() {
+		return nil
+	}
+	var yandexServerlessTriggersSourceYandexForms yandexServerlessTriggersSourceYandexFormsModel
+	diags.Append(yandexServerlessTriggersSourceYandexFormsState.As(ctx, &yandexServerlessTriggersSourceYandexForms, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexServerlessTriggersSourceYandexFormsModel(ctx, yandexServerlessTriggersSourceYandexForms, diags)
+}
+
+func expandYandexServerlessTriggersSourceYandexFormsModel(ctx context.Context, yandexServerlessTriggersSourceYandexFormsState yandexServerlessTriggersSourceYandexFormsModel, diags *diag.Diagnostics) *triggers.YandexForms {
+	value := &triggers.YandexForms{}
+	if !(yandexServerlessTriggersSourceYandexFormsState.CloudOrganizationId.IsNull() || yandexServerlessTriggersSourceYandexFormsState.CloudOrganizationId.IsUnknown() || yandexServerlessTriggersSourceYandexFormsState.CloudOrganizationId.Equal(types.StringValue(""))) {
+		value.SetCloudOrganizationId(yandexServerlessTriggersSourceYandexFormsState.CloudOrganizationId.ValueString())
+	}
+	value.SetOauthToken(yandexServerlessTriggersSourceYandexFormsState.OauthToken.ValueString())
+	if !(yandexServerlessTriggersSourceYandexFormsState.OrganizationId.IsNull() || yandexServerlessTriggersSourceYandexFormsState.OrganizationId.IsUnknown() || yandexServerlessTriggersSourceYandexFormsState.OrganizationId.Equal(types.StringValue(""))) {
+		value.SetOrganizationId(yandexServerlessTriggersSourceYandexFormsState.OrganizationId.ValueString())
+	}
+	value.SetSurveyId(yandexServerlessTriggersSourceYandexFormsState.SurveyId.ValueString())
 	if diags.HasError() {
 		return nil
 	}

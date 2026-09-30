@@ -105,6 +105,7 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Set:         schema.HashString,
 			},
+			"maintenance_windows": pgMaintenanceWindowsDataSourceSchema(),
 			"maintenance_window": {
 				Type:        schema.TypeList,
 				Description: resourceYandexMDBPostgreSQLCluster().Schema["maintenance_window"].Description,
@@ -588,12 +589,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	maintenanceWindow, err := flattenPGMaintenanceWindow(cluster.MaintenanceWindow)
-	if err != nil {
-		return err
-	}
-
-	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
+	if err := setPGMaintenanceWindowsState(d, cluster.GetMaintenanceWindows(), true); err != nil {
 		return err
 	}
 

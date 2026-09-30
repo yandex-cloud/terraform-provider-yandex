@@ -1130,6 +1130,60 @@ func YandexServerlessTriggersDatasourceSchema(ctx context.Context) schema.Schema
 						Computed: true,
 					},
 
+					"yandex_forms": schema.SingleNestedAttribute{
+
+						Attributes: map[string]schema.Attribute{
+
+							"cloud_organization_id": schema.StringAttribute{
+								MarkdownDescription: "ID of the Yandex Identity Hub organization.",
+								Description: "ID of the Yandex Identity Hub organization." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.cloud_organization_id
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed: true,
+							},
+
+							"oauth_token": schema.StringAttribute{
+								MarkdownDescription: "OAuth token of a user with permission to modify the form's integration settings.\n Input only, always empty in output.\n Required on Create; on Update, changing it replaces the token used to manage the HTTP integration.",
+								Description: "OAuth token of a user with permission to modify the form's integration settings.\n Input only, always empty in output.\n Required on Create; on Update, changing it replaces the token used to manage the HTTP integration." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.oauth_token
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed:  true,
+								Sensitive: true,
+							},
+
+							"organization_id": schema.StringAttribute{
+								MarkdownDescription: "ID of the Yandex 360 for Business organization.",
+								Description: "ID of the Yandex 360 for Business organization." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.organization_id
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed: true,
+							},
+
+							"survey_id": schema.StringAttribute{
+								MarkdownDescription: "ID of the Yandex Form to receive submitted responses from.",
+								Description: "ID of the Yandex Form to receive submitted responses from." +
+									// proto paths: +
+									// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms -> yandex.cloud.serverless.triggers.v2.YandexForms.survey_id
+									"package: yandex.cloud.serverless.triggers.v2\n" +
+									"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+								Computed: true,
+							},
+						},
+						MarkdownDescription: "Yandex Forms source: fires when a response is submitted to a form.",
+						Description: "Yandex Forms source: fires when a response is submitted to a form." +
+							// proto paths: +
+							// -> yandex.cloud.serverless.triggers.v2.Trigger.source -> yandex.cloud.serverless.triggers.v2.Source.yandex_forms
+							"package: yandex.cloud.serverless.triggers.v2\n" +
+							"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+						Computed: true,
+					},
+
 					"yandex_messenger": schema.SingleNestedAttribute{
 
 						Attributes: map[string]schema.Attribute{

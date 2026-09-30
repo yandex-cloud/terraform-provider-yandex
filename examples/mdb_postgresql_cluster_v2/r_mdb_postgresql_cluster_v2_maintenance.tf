@@ -1,7 +1,7 @@
 //
 // Create a new MDB PostgreSQL Cluster (v2).
 //
-resource "yandex_mdb_postgresql_cluster_v2" "my_v2_cluster" {
+resource "yandex_mdb_postgresql_cluster_v2" "scheduled_v2_cluster" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
@@ -22,10 +22,22 @@ resource "yandex_mdb_postgresql_cluster_v2" "my_v2_cluster" {
     }
   }
 
-  maintenance_window = {
+  maintenance_windows = {
     type = "WEEKLY"
-    day  = "SAT"
-    hour = 12
+    slot = [
+      {
+        day                            = "MON"
+        start_time                     = "02:30:00"
+        duration                       = "3h"
+        allow_temporary_unavailability = true
+      },
+      {
+        day                            = "THU"
+        start_time                     = "01:30:00"
+        duration                       = "2h"
+        allow_temporary_unavailability = false
+      },
+    ]
   }
 
   hosts = {

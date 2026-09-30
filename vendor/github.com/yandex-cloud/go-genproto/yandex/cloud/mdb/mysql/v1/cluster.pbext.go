@@ -86,6 +86,10 @@ func (m *Cluster) SetIsHa(v bool) {
 	m.IsHa = v
 }
 
+func (m *Cluster) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
+}
+
 func (m *Monitoring) SetName(v string) {
 	m.Name = v
 }

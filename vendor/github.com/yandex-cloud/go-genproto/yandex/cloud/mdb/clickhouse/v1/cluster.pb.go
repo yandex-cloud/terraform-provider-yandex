@@ -488,9 +488,11 @@ type Cluster struct {
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,19,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
 	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
-	IsHa          bool `protobuf:"varint,20,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	IsHa bool `protobuf:"varint,20,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
+	// Maintenance windows.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,21,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Cluster) Reset() {
@@ -654,6 +656,13 @@ func (x *Cluster) GetIsHa() bool {
 		return x.IsHa
 	}
 	return false
+}
+
+func (x *Cluster) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
+	}
+	return nil
 }
 
 // Monitoring system metadata.
@@ -2021,7 +2030,7 @@ var File_yandex_cloud_mdb_clickhouse_v1_cluster_proto protoreflect.FileDescripto
 
 const file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	",yandex/cloud/mdb/clickhouse/v1/cluster.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a6yandex/cloud/mdb/clickhouse/v1/config/clickhouse.proto\x1a0yandex/cloud/mdb/clickhouse/v1/maintenance.proto\x1a)yandex/cloud/mdb/clickhouse/v1/user.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a\x1dyandex/cloud/validation.proto\"\x95\v\n" +
+	",yandex/cloud/mdb/clickhouse/v1/cluster.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a6yandex/cloud/mdb/clickhouse/v1/config/clickhouse.proto\x1a0yandex/cloud/mdb/clickhouse/v1/maintenance.proto\x1a)yandex/cloud/mdb/clickhouse/v1/user.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xef\v\n" +
 	"\aCluster\x12\x14\n" +
 	"\x02id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -2046,7 +2055,8 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_rawDesc = "" +
 	"\x12security_group_ids\x18\x10 \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\x11 \x01(\bR\x12deletionProtection\x12Q\n" +
 	"\x16disk_encryption_key_id\x18\x13 \x01(\v2\x1c.google.protobuf.StringValueR\x13diskEncryptionKeyId\x12\x13\n" +
-	"\x05is_ha\x18\x14 \x01(\bR\x04isHa\x1a9\n" +
+	"\x05is_ha\x18\x14 \x01(\bR\x04isHa\x12X\n" +
+	"\x13maintenance_windows\x18\x15 \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"I\n" +
@@ -2258,14 +2268,15 @@ var file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_goTypes = []any{
 	(*MaintenanceWindow)(nil),           // 28: yandex.cloud.mdb.clickhouse.v1.MaintenanceWindow
 	(*MaintenanceOperation)(nil),        // 29: yandex.cloud.mdb.clickhouse.v1.MaintenanceOperation
 	(*wrapperspb.StringValue)(nil),      // 30: google.protobuf.StringValue
-	(*timeofday.TimeOfDay)(nil),         // 31: google.type.TimeOfDay
-	(*wrapperspb.BoolValue)(nil),        // 32: google.protobuf.BoolValue
-	(*wrapperspb.Int64Value)(nil),       // 33: google.protobuf.Int64Value
-	(*v1.ClusterConnectionManager)(nil), // 34: yandex.cloud.mdb.v1.ClusterConnectionManager
-	(*wrapperspb.DoubleValue)(nil),      // 35: google.protobuf.DoubleValue
-	(*durationpb.Duration)(nil),         // 36: google.protobuf.Duration
-	(*config.ClickhouseConfigSet)(nil),  // 37: yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
-	(*UserSettings)(nil),                // 38: yandex.cloud.mdb.clickhouse.v1.UserSettings
+	(*v1.MaintenanceWindows)(nil),       // 31: yandex.cloud.mdb.v1.MaintenanceWindows
+	(*timeofday.TimeOfDay)(nil),         // 32: google.type.TimeOfDay
+	(*wrapperspb.BoolValue)(nil),        // 33: google.protobuf.BoolValue
+	(*wrapperspb.Int64Value)(nil),       // 34: google.protobuf.Int64Value
+	(*v1.ClusterConnectionManager)(nil), // 35: yandex.cloud.mdb.v1.ClusterConnectionManager
+	(*wrapperspb.DoubleValue)(nil),      // 36: google.protobuf.DoubleValue
+	(*durationpb.Duration)(nil),         // 37: google.protobuf.Duration
+	(*config.ClickhouseConfigSet)(nil),  // 38: yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
+	(*UserSettings)(nil),                // 39: yandex.cloud.mdb.clickhouse.v1.UserSettings
 }
 var file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_depIdxs = []int32{
 	27, // 0: yandex.cloud.mdb.clickhouse.v1.Cluster.created_at:type_name -> google.protobuf.Timestamp
@@ -2278,56 +2289,57 @@ var file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_depIdxs = []int32{
 	28, // 7: yandex.cloud.mdb.clickhouse.v1.Cluster.maintenance_window:type_name -> yandex.cloud.mdb.clickhouse.v1.MaintenanceWindow
 	29, // 8: yandex.cloud.mdb.clickhouse.v1.Cluster.planned_operation:type_name -> yandex.cloud.mdb.clickhouse.v1.MaintenanceOperation
 	30, // 9: yandex.cloud.mdb.clickhouse.v1.Cluster.disk_encryption_key_id:type_name -> google.protobuf.StringValue
-	23, // 10: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.clickhouse:type_name -> yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse
-	24, // 11: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.zookeeper:type_name -> yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper
-	31, // 12: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.backup_window_start:type_name -> google.type.TimeOfDay
-	18, // 13: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.access:type_name -> yandex.cloud.mdb.clickhouse.v1.Access
-	19, // 14: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.cloud_storage:type_name -> yandex.cloud.mdb.clickhouse.v1.CloudStorage
-	32, // 15: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.sql_database_management:type_name -> google.protobuf.BoolValue
-	32, // 16: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.sql_user_management:type_name -> google.protobuf.BoolValue
-	32, // 17: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.embedded_keeper:type_name -> google.protobuf.BoolValue
-	33, // 18: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.backup_retain_period_days:type_name -> google.protobuf.Int64Value
-	21, // 19: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.performance_diagnostics:type_name -> yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics
-	34, // 20: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.connection_manager:type_name -> yandex.cloud.mdb.v1.ClusterConnectionManager
-	13, // 21: yandex.cloud.mdb.clickhouse.v1.Shard.config:type_name -> yandex.cloud.mdb.clickhouse.v1.ShardConfig
-	10, // 22: yandex.cloud.mdb.clickhouse.v1.Shards.shards:type_name -> yandex.cloud.mdb.clickhouse.v1.Shard
-	14, // 23: yandex.cloud.mdb.clickhouse.v1.ShardGroup.external_shards:type_name -> yandex.cloud.mdb.clickhouse.v1.ExternalShard
-	25, // 24: yandex.cloud.mdb.clickhouse.v1.ShardConfig.clickhouse:type_name -> yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse
-	33, // 25: yandex.cloud.mdb.clickhouse.v1.ExternalShard.weight:type_name -> google.protobuf.Int64Value
-	26, // 26: yandex.cloud.mdb.clickhouse.v1.ExternalShard.replicas:type_name -> yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica
-	3,  // 27: yandex.cloud.mdb.clickhouse.v1.Host.type:type_name -> yandex.cloud.mdb.clickhouse.v1.Host.Type
-	17, // 28: yandex.cloud.mdb.clickhouse.v1.Host.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
-	4,  // 29: yandex.cloud.mdb.clickhouse.v1.Host.health:type_name -> yandex.cloud.mdb.clickhouse.v1.Host.Health
-	16, // 30: yandex.cloud.mdb.clickhouse.v1.Host.services:type_name -> yandex.cloud.mdb.clickhouse.v1.Service
-	5,  // 31: yandex.cloud.mdb.clickhouse.v1.Service.type:type_name -> yandex.cloud.mdb.clickhouse.v1.Service.Type
-	6,  // 32: yandex.cloud.mdb.clickhouse.v1.Service.health:type_name -> yandex.cloud.mdb.clickhouse.v1.Service.Health
-	35, // 33: yandex.cloud.mdb.clickhouse.v1.CloudStorage.move_factor:type_name -> google.protobuf.DoubleValue
-	32, // 34: yandex.cloud.mdb.clickhouse.v1.CloudStorage.data_cache_enabled:type_name -> google.protobuf.BoolValue
-	33, // 35: yandex.cloud.mdb.clickhouse.v1.CloudStorage.data_cache_max_size:type_name -> google.protobuf.Int64Value
-	32, // 36: yandex.cloud.mdb.clickhouse.v1.CloudStorage.prefer_not_to_merge:type_name -> google.protobuf.BoolValue
-	33, // 37: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.planned_usage_threshold:type_name -> google.protobuf.Int64Value
-	33, // 38: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.emergency_usage_threshold:type_name -> google.protobuf.Int64Value
-	33, // 39: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.disk_size_limit:type_name -> google.protobuf.Int64Value
-	32, // 40: yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics.enabled:type_name -> google.protobuf.BoolValue
-	36, // 41: yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics.processes_refresh_interval:type_name -> google.protobuf.Duration
-	37, // 42: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.config:type_name -> yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
-	38, // 43: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.default_user_settings:type_name -> yandex.cloud.mdb.clickhouse.v1.UserSettings
-	17, // 44: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
-	20, // 45: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
-	17, // 46: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
-	20, // 47: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
-	37, // 48: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.config:type_name -> yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
-	17, // 49: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
-	33, // 50: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.weight:type_name -> google.protobuf.Int64Value
-	20, // 51: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
-	33, // 52: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.port:type_name -> google.protobuf.Int64Value
-	32, // 53: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.secure:type_name -> google.protobuf.BoolValue
-	33, // 54: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.priority:type_name -> google.protobuf.Int64Value
-	55, // [55:55] is the sub-list for method output_type
-	55, // [55:55] is the sub-list for method input_type
-	55, // [55:55] is the sub-list for extension type_name
-	55, // [55:55] is the sub-list for extension extendee
-	0,  // [0:55] is the sub-list for field type_name
+	31, // 10: yandex.cloud.mdb.clickhouse.v1.Cluster.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	23, // 11: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.clickhouse:type_name -> yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse
+	24, // 12: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.zookeeper:type_name -> yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper
+	32, // 13: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.backup_window_start:type_name -> google.type.TimeOfDay
+	18, // 14: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.access:type_name -> yandex.cloud.mdb.clickhouse.v1.Access
+	19, // 15: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.cloud_storage:type_name -> yandex.cloud.mdb.clickhouse.v1.CloudStorage
+	33, // 16: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.sql_database_management:type_name -> google.protobuf.BoolValue
+	33, // 17: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.sql_user_management:type_name -> google.protobuf.BoolValue
+	33, // 18: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.embedded_keeper:type_name -> google.protobuf.BoolValue
+	34, // 19: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.backup_retain_period_days:type_name -> google.protobuf.Int64Value
+	21, // 20: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.performance_diagnostics:type_name -> yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics
+	35, // 21: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.connection_manager:type_name -> yandex.cloud.mdb.v1.ClusterConnectionManager
+	13, // 22: yandex.cloud.mdb.clickhouse.v1.Shard.config:type_name -> yandex.cloud.mdb.clickhouse.v1.ShardConfig
+	10, // 23: yandex.cloud.mdb.clickhouse.v1.Shards.shards:type_name -> yandex.cloud.mdb.clickhouse.v1.Shard
+	14, // 24: yandex.cloud.mdb.clickhouse.v1.ShardGroup.external_shards:type_name -> yandex.cloud.mdb.clickhouse.v1.ExternalShard
+	25, // 25: yandex.cloud.mdb.clickhouse.v1.ShardConfig.clickhouse:type_name -> yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse
+	34, // 26: yandex.cloud.mdb.clickhouse.v1.ExternalShard.weight:type_name -> google.protobuf.Int64Value
+	26, // 27: yandex.cloud.mdb.clickhouse.v1.ExternalShard.replicas:type_name -> yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica
+	3,  // 28: yandex.cloud.mdb.clickhouse.v1.Host.type:type_name -> yandex.cloud.mdb.clickhouse.v1.Host.Type
+	17, // 29: yandex.cloud.mdb.clickhouse.v1.Host.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
+	4,  // 30: yandex.cloud.mdb.clickhouse.v1.Host.health:type_name -> yandex.cloud.mdb.clickhouse.v1.Host.Health
+	16, // 31: yandex.cloud.mdb.clickhouse.v1.Host.services:type_name -> yandex.cloud.mdb.clickhouse.v1.Service
+	5,  // 32: yandex.cloud.mdb.clickhouse.v1.Service.type:type_name -> yandex.cloud.mdb.clickhouse.v1.Service.Type
+	6,  // 33: yandex.cloud.mdb.clickhouse.v1.Service.health:type_name -> yandex.cloud.mdb.clickhouse.v1.Service.Health
+	36, // 34: yandex.cloud.mdb.clickhouse.v1.CloudStorage.move_factor:type_name -> google.protobuf.DoubleValue
+	33, // 35: yandex.cloud.mdb.clickhouse.v1.CloudStorage.data_cache_enabled:type_name -> google.protobuf.BoolValue
+	34, // 36: yandex.cloud.mdb.clickhouse.v1.CloudStorage.data_cache_max_size:type_name -> google.protobuf.Int64Value
+	33, // 37: yandex.cloud.mdb.clickhouse.v1.CloudStorage.prefer_not_to_merge:type_name -> google.protobuf.BoolValue
+	34, // 38: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.planned_usage_threshold:type_name -> google.protobuf.Int64Value
+	34, // 39: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.emergency_usage_threshold:type_name -> google.protobuf.Int64Value
+	34, // 40: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.disk_size_limit:type_name -> google.protobuf.Int64Value
+	33, // 41: yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics.enabled:type_name -> google.protobuf.BoolValue
+	37, // 42: yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics.processes_refresh_interval:type_name -> google.protobuf.Duration
+	38, // 43: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.config:type_name -> yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
+	39, // 44: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.default_user_settings:type_name -> yandex.cloud.mdb.clickhouse.v1.UserSettings
+	17, // 45: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
+	20, // 46: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
+	17, // 47: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
+	20, // 48: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
+	38, // 49: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.config:type_name -> yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
+	17, // 50: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
+	34, // 51: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.weight:type_name -> google.protobuf.Int64Value
+	20, // 52: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
+	34, // 53: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.port:type_name -> google.protobuf.Int64Value
+	33, // 54: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.secure:type_name -> google.protobuf.BoolValue
+	34, // 55: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.priority:type_name -> google.protobuf.Int64Value
+	56, // [56:56] is the sub-list for method output_type
+	56, // [56:56] is the sub-list for method input_type
+	56, // [56:56] is the sub-list for extension type_name
+	56, // [56:56] is the sub-list for extension extendee
+	0,  // [0:56] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_init() }

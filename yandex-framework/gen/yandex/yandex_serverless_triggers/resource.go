@@ -777,6 +777,32 @@ func (r *yandexServerlessTriggersResource) Update(ctx context.Context, req resou
 			}
 		}
 
+		if (yandexServerlessTriggersSourcePlan.YandexForms.IsNull() || yandexServerlessTriggersSourceState.YandexForms.IsNull()) &&
+			!(yandexServerlessTriggersSourcePlan.YandexForms.IsNull() && yandexServerlessTriggersSourceState.YandexForms.IsNull()) &&
+			!yandexServerlessTriggersSourcePlan.YandexForms.IsUnknown() {
+			updatePaths = append(updatePaths, "source.yandex_forms")
+		} else if !yandexServerlessTriggersSourcePlan.YandexForms.IsUnknown() {
+			var yandexServerlessTriggersSourceYandexFormsState, yandexServerlessTriggersSourceYandexFormsPlan yandexServerlessTriggersSourceYandexFormsModel
+			resp.Diagnostics.Append(yandexServerlessTriggersSourcePlan.YandexForms.As(ctx, &yandexServerlessTriggersSourceYandexFormsPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			resp.Diagnostics.Append(yandexServerlessTriggersSourceState.YandexForms.As(ctx, &yandexServerlessTriggersSourceYandexFormsState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			if !yandexServerlessTriggersSourceYandexFormsPlan.CloudOrganizationId.IsUnknown() && !yandexServerlessTriggersSourceYandexFormsPlan.CloudOrganizationId.Equal(yandexServerlessTriggersSourceYandexFormsState.CloudOrganizationId) {
+				updatePaths = append(updatePaths, "source.yandex_forms.cloud_organization_id")
+			}
+			if !yandexServerlessTriggersSourceYandexFormsPlan.OauthToken.IsUnknown() && !yandexServerlessTriggersSourceYandexFormsPlan.OauthToken.Equal(yandexServerlessTriggersSourceYandexFormsState.OauthToken) {
+				updatePaths = append(updatePaths, "source.yandex_forms.oauth_token")
+			}
+			if !yandexServerlessTriggersSourceYandexFormsPlan.OrganizationId.IsUnknown() && !yandexServerlessTriggersSourceYandexFormsPlan.OrganizationId.Equal(yandexServerlessTriggersSourceYandexFormsState.OrganizationId) {
+				updatePaths = append(updatePaths, "source.yandex_forms.organization_id")
+			}
+			if !yandexServerlessTriggersSourceYandexFormsPlan.SurveyId.IsUnknown() && !yandexServerlessTriggersSourceYandexFormsPlan.SurveyId.Equal(yandexServerlessTriggersSourceYandexFormsState.SurveyId) {
+				updatePaths = append(updatePaths, "source.yandex_forms.survey_id")
+			}
+		}
+
 		if (yandexServerlessTriggersSourcePlan.YandexMessenger.IsNull() || yandexServerlessTriggersSourceState.YandexMessenger.IsNull()) &&
 			!(yandexServerlessTriggersSourcePlan.YandexMessenger.IsNull() && yandexServerlessTriggersSourceState.YandexMessenger.IsNull()) &&
 			!yandexServerlessTriggersSourcePlan.YandexMessenger.IsUnknown() {

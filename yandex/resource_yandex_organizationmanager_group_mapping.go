@@ -43,6 +43,7 @@ func resourceYandexOrganizationManagerGroupMapping() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Set \"true\" to enable organization manager group mapping.",
 				Optional:    true,
+				Computed:    true,
 			},
 
 			"federation_id": {
