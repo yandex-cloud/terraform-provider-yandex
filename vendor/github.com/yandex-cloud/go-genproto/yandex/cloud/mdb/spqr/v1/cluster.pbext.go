@@ -3,6 +3,7 @@
 package spqr
 
 import (
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
@@ -74,6 +75,10 @@ func (m *Cluster) SetDeletionProtection(v bool) {
 
 func (m *Cluster) SetHostGroupIds(v []string) {
 	m.HostGroupIds = v
+}
+
+func (m *Cluster) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *Cluster) SetIsHa(v bool) {

@@ -92,6 +92,10 @@ func (m *UpdateUserRequest) SetUserConnectionManager(v *v1.UserConnectionManager
 	m.UserConnectionManager = v
 }
 
+func (m *UpdateUserRequest) SetDeletionProtectionMode(v DeletionProtectionMode) {
+	m.DeletionProtectionMode = v
+}
+
 func (m *UpdateUserMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }

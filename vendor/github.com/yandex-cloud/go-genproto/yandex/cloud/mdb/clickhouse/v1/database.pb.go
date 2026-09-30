@@ -82,9 +82,12 @@ type Database struct {
 	// ID of the ClickHouse cluster that the database belongs to.
 	ClusterId string `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	// Database engine. For details, see [ClickHouse documentation](https://clickhouse.com/docs/engines/database-engines).
-	Engine        DatabaseEngine `protobuf:"varint,3,opt,name=engine,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DatabaseEngine" json:"engine,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Engine DatabaseEngine `protobuf:"varint,3,opt,name=engine,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DatabaseEngine" json:"engine,omitempty"`
+	// Deletion protection mode.
+	// Default value: `DELETION_PROTECTION_MODE_INHERITED` (inherits the cluster's deletion protection setting).
+	DeletionProtectionMode DeletionProtectionMode `protobuf:"varint,4,opt,name=deletion_protection_mode,json=deletionProtectionMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode" json:"deletion_protection_mode,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *Database) Reset() {
@@ -138,14 +141,24 @@ func (x *Database) GetEngine() DatabaseEngine {
 	return DatabaseEngine_DATABASE_ENGINE_UNSPECIFIED
 }
 
+func (x *Database) GetDeletionProtectionMode() DeletionProtectionMode {
+	if x != nil {
+		return x.DeletionProtectionMode
+	}
+	return DeletionProtectionMode_DELETION_PROTECTION_MODE_UNSPECIFIED
+}
+
 type DatabaseSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Name of the ClickHouse database. 1-63 characters long.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Database engine. For details, see [ClickHouse documentation](https://clickhouse.com/docs/engines/database-engines).
-	Engine        DatabaseEngine `protobuf:"varint,2,opt,name=engine,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DatabaseEngine" json:"engine,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Engine DatabaseEngine `protobuf:"varint,2,opt,name=engine,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DatabaseEngine" json:"engine,omitempty"`
+	// Deletion protection mode.
+	// Default value: `DELETION_PROTECTION_MODE_INHERITED` (inherits the cluster's deletion protection setting).
+	DeletionProtectionMode DeletionProtectionMode `protobuf:"varint,3,opt,name=deletion_protection_mode,json=deletionProtectionMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode" json:"deletion_protection_mode,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *DatabaseSpec) Reset() {
@@ -192,19 +205,28 @@ func (x *DatabaseSpec) GetEngine() DatabaseEngine {
 	return DatabaseEngine_DATABASE_ENGINE_UNSPECIFIED
 }
 
+func (x *DatabaseSpec) GetDeletionProtectionMode() DeletionProtectionMode {
+	if x != nil {
+		return x.DeletionProtectionMode
+	}
+	return DeletionProtectionMode_DELETION_PROTECTION_MODE_UNSPECIFIED
+}
+
 var File_yandex_cloud_mdb_clickhouse_v1_database_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_clickhouse_v1_database_proto_rawDesc = "" +
 	"\n" +
-	"-yandex/cloud/mdb/clickhouse/v1/database.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1dyandex/cloud/validation.proto\"\x91\x01\n" +
+	"-yandex/cloud/mdb/clickhouse/v1/database.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a8yandex/cloud/mdb/clickhouse/v1/deletion_protection.proto\x1a\x1dyandex/cloud/validation.proto\"\x83\x02\n" +
 	"\bDatabase\x12\x18\n" +
 	"\x04name\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\x04name\x12#\n" +
 	"\n" +
 	"cluster_id\x18\x02 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\x12F\n" +
-	"\x06engine\x18\x03 \x01(\x0e2..yandex.cloud.mdb.clickhouse.v1.DatabaseEngineR\x06engine\"\x96\x01\n" +
+	"\x06engine\x18\x03 \x01(\x0e2..yandex.cloud.mdb.clickhouse.v1.DatabaseEngineR\x06engine\x12p\n" +
+	"\x18deletion_protection_mode\x18\x04 \x01(\x0e26.yandex.cloud.mdb.clickhouse.v1.DeletionProtectionModeR\x16deletionProtectionMode\"\x88\x02\n" +
 	"\fDatabaseSpec\x12>\n" +
 	"\x04name\x18\x01 \x01(\tB*\xe8\xc71\x01\xf2\xc71\x1a[a-zA-Z0-9_][a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12F\n" +
-	"\x06engine\x18\x02 \x01(\x0e2..yandex.cloud.mdb.clickhouse.v1.DatabaseEngineR\x06engine*m\n" +
+	"\x06engine\x18\x02 \x01(\x0e2..yandex.cloud.mdb.clickhouse.v1.DatabaseEngineR\x06engine\x12p\n" +
+	"\x18deletion_protection_mode\x18\x03 \x01(\x0e26.yandex.cloud.mdb.clickhouse.v1.DeletionProtectionModeR\x16deletionProtectionMode*m\n" +
 	"\x0eDatabaseEngine\x12\x1f\n" +
 	"\x1bDATABASE_ENGINE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16DATABASE_ENGINE_ATOMIC\x10\x01\x12\x1e\n" +
@@ -226,18 +248,21 @@ func file_yandex_cloud_mdb_clickhouse_v1_database_proto_rawDescGZIP() []byte {
 var file_yandex_cloud_mdb_clickhouse_v1_database_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_yandex_cloud_mdb_clickhouse_v1_database_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_yandex_cloud_mdb_clickhouse_v1_database_proto_goTypes = []any{
-	(DatabaseEngine)(0),  // 0: yandex.cloud.mdb.clickhouse.v1.DatabaseEngine
-	(*Database)(nil),     // 1: yandex.cloud.mdb.clickhouse.v1.Database
-	(*DatabaseSpec)(nil), // 2: yandex.cloud.mdb.clickhouse.v1.DatabaseSpec
+	(DatabaseEngine)(0),         // 0: yandex.cloud.mdb.clickhouse.v1.DatabaseEngine
+	(*Database)(nil),            // 1: yandex.cloud.mdb.clickhouse.v1.Database
+	(*DatabaseSpec)(nil),        // 2: yandex.cloud.mdb.clickhouse.v1.DatabaseSpec
+	(DeletionProtectionMode)(0), // 3: yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode
 }
 var file_yandex_cloud_mdb_clickhouse_v1_database_proto_depIdxs = []int32{
 	0, // 0: yandex.cloud.mdb.clickhouse.v1.Database.engine:type_name -> yandex.cloud.mdb.clickhouse.v1.DatabaseEngine
-	0, // 1: yandex.cloud.mdb.clickhouse.v1.DatabaseSpec.engine:type_name -> yandex.cloud.mdb.clickhouse.v1.DatabaseEngine
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 1: yandex.cloud.mdb.clickhouse.v1.Database.deletion_protection_mode:type_name -> yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode
+	0, // 2: yandex.cloud.mdb.clickhouse.v1.DatabaseSpec.engine:type_name -> yandex.cloud.mdb.clickhouse.v1.DatabaseEngine
+	3, // 3: yandex.cloud.mdb.clickhouse.v1.DatabaseSpec.deletion_protection_mode:type_name -> yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_clickhouse_v1_database_proto_init() }
@@ -245,6 +270,7 @@ func file_yandex_cloud_mdb_clickhouse_v1_database_proto_init() {
 	if File_yandex_cloud_mdb_clickhouse_v1_database_proto != nil {
 		return
 	}
+	file_yandex_cloud_mdb_clickhouse_v1_deletion_protection_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

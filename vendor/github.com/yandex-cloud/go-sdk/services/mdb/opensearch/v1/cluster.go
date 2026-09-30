@@ -48,6 +48,8 @@ type ClusterClient interface {
 	ListAccessBindings(context.Context, *access.ListAccessBindingsRequest, ...grpc.CallOption) (*access.ListAccessBindingsResponse, error)
 	SetAccessBindings(context.Context, *access.SetAccessBindingsRequest, ...grpc.CallOption) (*ClusterSetAccessBindingsOperation, error)
 	UpdateAccessBindings(context.Context, *access.UpdateAccessBindingsRequest, ...grpc.CallOption) (*ClusterUpdateAccessBindingsOperation, error)
+	DisableProtection(context.Context, *opensearch.DisableProtectionRequest, ...grpc.CallOption) (*ClusterDisableProtectionOperation, error)
+	EnableProtection(context.Context, *opensearch.EnableProtectionRequest, ...grpc.CallOption) (*ClusterEnableProtectionOperation, error)
 }
 
 var _ ClusterClient = clusterClient{}
@@ -1270,6 +1272,114 @@ func (c clusterClient) UpdateAccessBindings(ctx context.Context, in *access.Upda
 	return &ClusterUpdateAccessBindingsOperation{*op}, nil
 }
 
+// ClusterDisableProtectionOperation is used to monitor the state of DisableProtection operations.
+type ClusterDisableProtectionOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *ClusterDisableProtectionOperation) Metadata() *opensearch.DisableProtectionMetadata {
+	return o.Operation.Metadata().(*opensearch.DisableProtectionMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *ClusterDisableProtectionOperation) Response() *emptypb.Empty {
+	return o.Operation.Response().(*emptypb.Empty)
+}
+
+// Wait polls the operation until it's done.
+func (o *ClusterDisableProtectionOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*emptypb.Empty)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *ClusterDisableProtectionOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*emptypb.Empty)
+	return response, err
+}
+
+// DisableProtection is an operation of Yandex.Cloud Opensearch Cluster service.
+// It returns an object which should be used to monitor the operation state.
+func (c clusterClient) DisableProtection(ctx context.Context, in *opensearch.DisableProtectionRequest, opts ...grpc.CallOption) (*ClusterDisableProtectionOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, ClusterDisableProtection, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := opensearch.NewClusterServiceClient(connection).DisableProtection(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll: c.pollOperation,
+		GetResourceID: func(metadata proto.Message) string {
+			return metadata.(*opensearch.DisableProtectionMetadata).GetClusterId()
+		},
+		MetadataType: (*opensearch.DisableProtectionMetadata)(nil),
+		ResponseType: (*emptypb.Empty)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ClusterDisableProtectionOperation{*op}, nil
+}
+
+// ClusterEnableProtectionOperation is used to monitor the state of EnableProtection operations.
+type ClusterEnableProtectionOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *ClusterEnableProtectionOperation) Metadata() *opensearch.EnableProtectionMetadata {
+	return o.Operation.Metadata().(*opensearch.EnableProtectionMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *ClusterEnableProtectionOperation) Response() *emptypb.Empty {
+	return o.Operation.Response().(*emptypb.Empty)
+}
+
+// Wait polls the operation until it's done.
+func (o *ClusterEnableProtectionOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*emptypb.Empty)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *ClusterEnableProtectionOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*emptypb.Empty)
+	return response, err
+}
+
+// EnableProtection is an operation of Yandex.Cloud Opensearch Cluster service.
+// It returns an object which should be used to monitor the operation state.
+func (c clusterClient) EnableProtection(ctx context.Context, in *opensearch.EnableProtectionRequest, opts ...grpc.CallOption) (*ClusterEnableProtectionOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, ClusterEnableProtection, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := opensearch.NewClusterServiceClient(connection).EnableProtection(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll: c.pollOperation,
+		GetResourceID: func(metadata proto.Message) string {
+			return metadata.(*opensearch.EnableProtectionMetadata).GetClusterId()
+		},
+		MetadataType: (*opensearch.EnableProtectionMetadata)(nil),
+		ResponseType: (*emptypb.Empty)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ClusterEnableProtectionOperation{*op}, nil
+}
+
 // pollOperation returns the current state of the polled operation.
 func (c clusterClient) pollOperation(ctx context.Context, operationId string, opts ...grpc.CallOption) (sdkop.YCOperation, error) {
 	connection, err := c.connector.GetConnection(ctx, ClusterOperationPoller, opts...)
@@ -1310,5 +1420,7 @@ var (
 	ClusterListAccessBindings        = protoreflect.FullName("yandex.cloud.mdb.opensearch.v1.ClusterService.ListAccessBindings")
 	ClusterSetAccessBindings         = protoreflect.FullName("yandex.cloud.mdb.opensearch.v1.ClusterService.SetAccessBindings")
 	ClusterUpdateAccessBindings      = protoreflect.FullName("yandex.cloud.mdb.opensearch.v1.ClusterService.UpdateAccessBindings")
+	ClusterDisableProtection         = protoreflect.FullName("yandex.cloud.mdb.opensearch.v1.ClusterService.DisableProtection")
+	ClusterEnableProtection          = protoreflect.FullName("yandex.cloud.mdb.opensearch.v1.ClusterService.EnableProtection")
 	ClusterOperationPoller           = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
 )

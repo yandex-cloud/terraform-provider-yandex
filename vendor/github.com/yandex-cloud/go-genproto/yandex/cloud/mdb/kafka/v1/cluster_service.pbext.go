@@ -3,6 +3,7 @@
 package kafka
 
 import (
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -97,6 +98,10 @@ func (m *CreateClusterRequest) SetDiskEncryptionKeyId(v *wrapperspb.StringValue)
 	m.DiskEncryptionKeyId = v
 }
 
+func (m *CreateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
+}
+
 func (m *CreateClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -143,6 +148,10 @@ func (m *UpdateClusterRequest) SetNetworkId(v string) {
 
 func (m *UpdateClusterRequest) SetSubnetIds(v []string) {
 	m.SubnetIds = v
+}
+
+func (m *UpdateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *UpdateClusterMetadata) SetClusterId(v string) {

@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb_clickhouse: add new user settings to yandex_mdb_clickhouse_user and default_user_settings in yandex_mdb_clickhouse_cluster_v2; add MergeTree settings for asynchronous insert deduplication and whole-partition optimization'
-time: 2026-09-29T18:56:00.021073+05:00

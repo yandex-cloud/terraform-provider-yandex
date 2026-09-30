@@ -3,6 +3,7 @@
 package greenplum
 
 import (
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -117,6 +118,10 @@ func (m *CreateClusterRequest) SetCloudStorage(v *CloudStorage) {
 	m.CloudStorage = v
 }
 
+func (m *CreateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
+}
+
 func (m *CreateClusterRequest) SetMasterHostGroupIds(v []string) {
 	m.MasterHostGroupIds = v
 }
@@ -199,6 +204,10 @@ func (m *UpdateClusterRequest) SetConfigSpec(v *ConfigSpec) {
 
 func (m *UpdateClusterRequest) SetCloudStorage(v *CloudStorage) {
 	m.CloudStorage = v
+}
+
+func (m *UpdateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *UpdateClusterRequest) SetServiceAccountId(v string) {
@@ -571,6 +580,10 @@ func (m *RestoreClusterRequest) SetSegmentHostCount(v int64) {
 
 func (m *RestoreClusterRequest) SetSegmentInHost(v int64) {
 	m.SegmentInHost = v
+}
+
+func (m *RestoreClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *RestoreClusterRequest) SetRestoreOnly(v []string) {

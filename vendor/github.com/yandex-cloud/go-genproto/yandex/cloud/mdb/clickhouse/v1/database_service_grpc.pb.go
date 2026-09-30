@@ -23,6 +23,7 @@ const (
 	DatabaseService_Get_FullMethodName    = "/yandex.cloud.mdb.clickhouse.v1.DatabaseService/Get"
 	DatabaseService_List_FullMethodName   = "/yandex.cloud.mdb.clickhouse.v1.DatabaseService/List"
 	DatabaseService_Create_FullMethodName = "/yandex.cloud.mdb.clickhouse.v1.DatabaseService/Create"
+	DatabaseService_Update_FullMethodName = "/yandex.cloud.mdb.clickhouse.v1.DatabaseService/Update"
 	DatabaseService_Delete_FullMethodName = "/yandex.cloud.mdb.clickhouse.v1.DatabaseService/Delete"
 )
 
@@ -40,6 +41,8 @@ type DatabaseServiceClient interface {
 	List(ctx context.Context, in *ListDatabasesRequest, opts ...grpc.CallOption) (*ListDatabasesResponse, error)
 	// Creates a new ClickHouse database in the specified cluster.
 	Create(ctx context.Context, in *CreateDatabaseRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Updates the specified ClickHouse database.
+	Update(ctx context.Context, in *UpdateDatabaseRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Deletes the specified ClickHouse database.
 	Delete(ctx context.Context, in *DeleteDatabaseRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 }
@@ -82,6 +85,16 @@ func (c *databaseServiceClient) Create(ctx context.Context, in *CreateDatabaseRe
 	return out, nil
 }
 
+func (c *databaseServiceClient) Update(ctx context.Context, in *UpdateDatabaseRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, DatabaseService_Update_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *databaseServiceClient) Delete(ctx context.Context, in *DeleteDatabaseRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(operation.Operation)
@@ -106,6 +119,8 @@ type DatabaseServiceServer interface {
 	List(context.Context, *ListDatabasesRequest) (*ListDatabasesResponse, error)
 	// Creates a new ClickHouse database in the specified cluster.
 	Create(context.Context, *CreateDatabaseRequest) (*operation.Operation, error)
+	// Updates the specified ClickHouse database.
+	Update(context.Context, *UpdateDatabaseRequest) (*operation.Operation, error)
 	// Deletes the specified ClickHouse database.
 	Delete(context.Context, *DeleteDatabaseRequest) (*operation.Operation, error)
 }
@@ -125,6 +140,9 @@ func (UnimplementedDatabaseServiceServer) List(context.Context, *ListDatabasesRe
 }
 func (UnimplementedDatabaseServiceServer) Create(context.Context, *CreateDatabaseRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedDatabaseServiceServer) Update(context.Context, *UpdateDatabaseRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
 }
 func (UnimplementedDatabaseServiceServer) Delete(context.Context, *DeleteDatabaseRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
@@ -203,6 +221,24 @@ func _DatabaseService_Create_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DatabaseService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDatabaseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DatabaseServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DatabaseService_Update_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DatabaseServiceServer).Update(ctx, req.(*UpdateDatabaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _DatabaseService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteDatabaseRequest)
 	if err := dec(in); err != nil {
@@ -239,6 +275,10 @@ var DatabaseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _DatabaseService_Create_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _DatabaseService_Update_Handler,
 		},
 		{
 			MethodName: "Delete",

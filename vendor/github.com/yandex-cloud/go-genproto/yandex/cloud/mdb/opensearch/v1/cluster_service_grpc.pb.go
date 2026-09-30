@@ -51,6 +51,8 @@ const (
 	ClusterService_ListAccessBindings_FullMethodName        = "/yandex.cloud.mdb.opensearch.v1.ClusterService/ListAccessBindings"
 	ClusterService_SetAccessBindings_FullMethodName         = "/yandex.cloud.mdb.opensearch.v1.ClusterService/SetAccessBindings"
 	ClusterService_UpdateAccessBindings_FullMethodName      = "/yandex.cloud.mdb.opensearch.v1.ClusterService/UpdateAccessBindings"
+	ClusterService_DisableProtection_FullMethodName         = "/yandex.cloud.mdb.opensearch.v1.ClusterService/DisableProtection"
+	ClusterService_EnableProtection_FullMethodName          = "/yandex.cloud.mdb.opensearch.v1.ClusterService/EnableProtection"
 )
 
 // ClusterServiceClient is the client API for ClusterService service.
@@ -130,6 +132,10 @@ type ClusterServiceClient interface {
 	SetAccessBindings(ctx context.Context, in *access.SetAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Updates access bindings for the specified OpenSearch cluster.
 	UpdateAccessBindings(ctx context.Context, in *access.UpdateAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Disables high-availability protection for the cluster on behalf of its owner.
+	DisableProtection(ctx context.Context, in *DisableProtectionRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Restores high-availability protection for the cluster if it passes an availability impact analysis.
+	EnableProtection(ctx context.Context, in *EnableProtectionRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 }
 
 type clusterServiceClient struct {
@@ -449,6 +455,26 @@ func (c *clusterServiceClient) UpdateAccessBindings(ctx context.Context, in *acc
 	return out, nil
 }
 
+func (c *clusterServiceClient) DisableProtection(ctx context.Context, in *DisableProtectionRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, ClusterService_DisableProtection_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clusterServiceClient) EnableProtection(ctx context.Context, in *EnableProtectionRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, ClusterService_EnableProtection_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClusterServiceServer is the server API for ClusterService service.
 // All implementations should embed UnimplementedClusterServiceServer
 // for forward compatibility.
@@ -526,6 +552,10 @@ type ClusterServiceServer interface {
 	SetAccessBindings(context.Context, *access.SetAccessBindingsRequest) (*operation.Operation, error)
 	// Updates access bindings for the specified OpenSearch cluster.
 	UpdateAccessBindings(context.Context, *access.UpdateAccessBindingsRequest) (*operation.Operation, error)
+	// Disables high-availability protection for the cluster on behalf of its owner.
+	DisableProtection(context.Context, *DisableProtectionRequest) (*operation.Operation, error)
+	// Restores high-availability protection for the cluster if it passes an availability impact analysis.
+	EnableProtection(context.Context, *EnableProtectionRequest) (*operation.Operation, error)
 }
 
 // UnimplementedClusterServiceServer should be embedded to have
@@ -624,6 +654,12 @@ func (UnimplementedClusterServiceServer) SetAccessBindings(context.Context, *acc
 }
 func (UnimplementedClusterServiceServer) UpdateAccessBindings(context.Context, *access.UpdateAccessBindingsRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateAccessBindings not implemented")
+}
+func (UnimplementedClusterServiceServer) DisableProtection(context.Context, *DisableProtectionRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method DisableProtection not implemented")
+}
+func (UnimplementedClusterServiceServer) EnableProtection(context.Context, *EnableProtectionRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method EnableProtection not implemented")
 }
 func (UnimplementedClusterServiceServer) testEmbeddedByValue() {}
 
@@ -1178,6 +1214,42 @@ func _ClusterService_UpdateAccessBindings_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClusterService_DisableProtection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DisableProtectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServiceServer).DisableProtection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClusterService_DisableProtection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServiceServer).DisableProtection(ctx, req.(*DisableProtectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClusterService_EnableProtection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EnableProtectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServiceServer).EnableProtection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClusterService_EnableProtection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServiceServer).EnableProtection(ctx, req.(*EnableProtectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClusterService_ServiceDesc is the grpc.ServiceDesc for ClusterService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1300,6 +1372,14 @@ var ClusterService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAccessBindings",
 			Handler:    _ClusterService_UpdateAccessBindings_Handler,
+		},
+		{
+			MethodName: "DisableProtection",
+			Handler:    _ClusterService_DisableProtection_Handler,
+		},
+		{
+			MethodName: "EnableProtection",
+			Handler:    _ClusterService_EnableProtection_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

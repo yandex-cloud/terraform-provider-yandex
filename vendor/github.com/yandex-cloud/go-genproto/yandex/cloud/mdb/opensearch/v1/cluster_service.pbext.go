@@ -11,6 +11,22 @@ import (
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
+func (m *DisableProtectionRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *DisableProtectionMetadata) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *EnableProtectionRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *EnableProtectionMetadata) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
 func (m *GetClusterRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }

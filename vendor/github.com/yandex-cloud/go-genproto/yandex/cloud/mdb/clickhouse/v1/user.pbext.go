@@ -39,6 +39,10 @@ func (m *User) SetUserConnectionManager(v *v1.UserConnectionManager) {
 	m.UserConnectionManager = v
 }
 
+func (m *User) SetDeletionProtectionMode(v DeletionProtectionMode) {
+	m.DeletionProtectionMode = v
+}
+
 func (m *Permission) SetDatabaseName(v string) {
 	m.DatabaseName = v
 }
@@ -853,4 +857,8 @@ func (m *UserSpec) SetAuthMethod(v AuthMethod) {
 
 func (m *UserSpec) SetUserConnectionManager(v *v1.UserConnectionManager) {
 	m.UserConnectionManager = v
+}
+
+func (m *UserSpec) SetDeletionProtectionMode(v DeletionProtectionMode) {
+	m.DeletionProtectionMode = v
 }

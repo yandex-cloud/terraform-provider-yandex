@@ -3,6 +3,7 @@
 package spqr
 
 import (
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -94,6 +95,10 @@ func (m *CreateClusterRequest) SetShardSpecs(v []*ShardSpec) {
 	m.ShardSpecs = v
 }
 
+func (m *CreateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
+}
+
 func (m *CreateClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -136,6 +141,10 @@ func (m *UpdateClusterRequest) SetDeletionProtection(v bool) {
 
 func (m *UpdateClusterRequest) SetNetworkId(v string) {
 	m.NetworkId = v
+}
+
+func (m *UpdateClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *UpdateClusterMetadata) SetClusterId(v string) {
@@ -244,6 +253,10 @@ func (m *RestoreClusterRequest) SetTime(v *timestamppb.Timestamp) {
 
 func (m *RestoreClusterRequest) SetTimeInclusive(v bool) {
 	m.TimeInclusive = v
+}
+
+func (m *RestoreClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *RestoreClusterMetadata) SetClusterId(v string) {

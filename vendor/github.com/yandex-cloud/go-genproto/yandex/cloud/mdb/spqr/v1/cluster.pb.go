@@ -7,6 +7,7 @@
 package spqr
 
 import (
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -236,6 +237,8 @@ type Cluster struct {
 	// Current state of the cluster.
 	Status Cluster_Status `protobuf:"varint,12,opt,name=status,proto3,enum=yandex.cloud.mdb.spqr.v1.Cluster_Status" json:"status,omitempty"`
 	// Maintenance window for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/spqr/v1/cluster.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,13,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Planned maintenance operation to be started for the cluster within the nearest [maintenance_window].
 	PlannedOperation *MaintenanceOperation `protobuf:"bytes,14,opt,name=planned_operation,json=plannedOperation,proto3" json:"planned_operation,omitempty"`
@@ -245,6 +248,8 @@ type Cluster struct {
 	DeletionProtection bool `protobuf:"varint,16,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Host groups hosting VMs of the cluster.
 	HostGroupIds []string `protobuf:"bytes,17,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
+	// Maintenance windows for the cluster.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,19,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
 	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
 	IsHa          bool `protobuf:"varint,18,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -365,6 +370,7 @@ func (x *Cluster) GetStatus() Cluster_Status {
 	return Cluster_STATUS_UNKNOWN
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/spqr/v1/cluster.proto.
 func (x *Cluster) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -396,6 +402,13 @@ func (x *Cluster) GetDeletionProtection() bool {
 func (x *Cluster) GetHostGroupIds() []string {
 	if x != nil {
 		return x.HostGroupIds
+	}
+	return nil
+}
+
+func (x *Cluster) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
 	}
 	return nil
 }
@@ -629,7 +642,8 @@ var File_yandex_cloud_mdb_spqr_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_spqr_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"&yandex/cloud/mdb/spqr/v1/cluster.proto\x12\x18yandex.cloud.mdb.spqr.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a%yandex/cloud/mdb/spqr/v1/config.proto\x1a*yandex/cloud/mdb/spqr/v1/maintenance.proto\"\xfe\t\n" +
+	"&yandex/cloud/mdb/spqr/v1/cluster.proto\x12\x18yandex.cloud.mdb.spqr.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a%yandex/cloud/mdb/spqr/v1/config.proto\x1a*yandex/cloud/mdb/spqr/v1/maintenance.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\"\xdc\n" +
+	"\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -647,12 +661,13 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_proto_rawDesc = "" +
 	"network_id\x18\n" +
 	" \x01(\tR\tnetworkId\x12@\n" +
 	"\x06health\x18\v \x01(\x0e2(.yandex.cloud.mdb.spqr.v1.Cluster.HealthR\x06health\x12@\n" +
-	"\x06status\x18\f \x01(\x0e2(.yandex.cloud.mdb.spqr.v1.Cluster.StatusR\x06status\x12Z\n" +
-	"\x12maintenance_window\x18\r \x01(\v2+.yandex.cloud.mdb.spqr.v1.MaintenanceWindowR\x11maintenanceWindow\x12[\n" +
+	"\x06status\x18\f \x01(\x0e2(.yandex.cloud.mdb.spqr.v1.Cluster.StatusR\x06status\x12^\n" +
+	"\x12maintenance_window\x18\r \x01(\v2+.yandex.cloud.mdb.spqr.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12[\n" +
 	"\x11planned_operation\x18\x0e \x01(\v2..yandex.cloud.mdb.spqr.v1.MaintenanceOperationR\x10plannedOperation\x12,\n" +
 	"\x12security_group_ids\x18\x0f \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\x10 \x01(\bR\x12deletionProtection\x12$\n" +
-	"\x0ehost_group_ids\x18\x11 \x03(\tR\fhostGroupIds\x12\x13\n" +
+	"\x0ehost_group_ids\x18\x11 \x03(\tR\fhostGroupIds\x12X\n" +
+	"\x13maintenance_windows\x18\x13 \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x12\x13\n" +
 	"\x05is_ha\x18\x12 \x01(\bR\x04isHa\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -723,10 +738,11 @@ var file_yandex_cloud_mdb_spqr_v1_cluster_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 	(*MaintenanceWindow)(nil),     // 9: yandex.cloud.mdb.spqr.v1.MaintenanceWindow
 	(*MaintenanceOperation)(nil),  // 10: yandex.cloud.mdb.spqr.v1.MaintenanceOperation
-	(*SPQRConfig)(nil),            // 11: yandex.cloud.mdb.spqr.v1.SPQRConfig
-	(*timeofday.TimeOfDay)(nil),   // 12: google.type.TimeOfDay
-	(*wrapperspb.Int64Value)(nil), // 13: google.protobuf.Int64Value
-	(*wrapperspb.BoolValue)(nil),  // 14: google.protobuf.BoolValue
+	(*v1.MaintenanceWindows)(nil), // 11: yandex.cloud.mdb.v1.MaintenanceWindows
+	(*SPQRConfig)(nil),            // 12: yandex.cloud.mdb.spqr.v1.SPQRConfig
+	(*timeofday.TimeOfDay)(nil),   // 13: google.type.TimeOfDay
+	(*wrapperspb.Int64Value)(nil), // 14: google.protobuf.Int64Value
+	(*wrapperspb.BoolValue)(nil),  // 15: google.protobuf.BoolValue
 }
 var file_yandex_cloud_mdb_spqr_v1_cluster_proto_depIdxs = []int32{
 	8,  // 0: yandex.cloud.mdb.spqr.v1.Cluster.created_at:type_name -> google.protobuf.Timestamp
@@ -738,16 +754,17 @@ var file_yandex_cloud_mdb_spqr_v1_cluster_proto_depIdxs = []int32{
 	2,  // 6: yandex.cloud.mdb.spqr.v1.Cluster.status:type_name -> yandex.cloud.mdb.spqr.v1.Cluster.Status
 	9,  // 7: yandex.cloud.mdb.spqr.v1.Cluster.maintenance_window:type_name -> yandex.cloud.mdb.spqr.v1.MaintenanceWindow
 	10, // 8: yandex.cloud.mdb.spqr.v1.Cluster.planned_operation:type_name -> yandex.cloud.mdb.spqr.v1.MaintenanceOperation
-	11, // 9: yandex.cloud.mdb.spqr.v1.ClusterConfig.spqr_config:type_name -> yandex.cloud.mdb.spqr.v1.SPQRConfig
-	12, // 10: yandex.cloud.mdb.spqr.v1.ClusterConfig.backup_window_start:type_name -> google.type.TimeOfDay
-	13, // 11: yandex.cloud.mdb.spqr.v1.ClusterConfig.backup_retain_period_days:type_name -> google.protobuf.Int64Value
-	6,  // 12: yandex.cloud.mdb.spqr.v1.ClusterConfig.access:type_name -> yandex.cloud.mdb.spqr.v1.Access
-	14, // 13: yandex.cloud.mdb.spqr.v1.ClusterConfig.sox_audit:type_name -> google.protobuf.BoolValue
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	11, // 9: yandex.cloud.mdb.spqr.v1.Cluster.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	12, // 10: yandex.cloud.mdb.spqr.v1.ClusterConfig.spqr_config:type_name -> yandex.cloud.mdb.spqr.v1.SPQRConfig
+	13, // 11: yandex.cloud.mdb.spqr.v1.ClusterConfig.backup_window_start:type_name -> google.type.TimeOfDay
+	14, // 12: yandex.cloud.mdb.spqr.v1.ClusterConfig.backup_retain_period_days:type_name -> google.protobuf.Int64Value
+	6,  // 13: yandex.cloud.mdb.spqr.v1.ClusterConfig.access:type_name -> yandex.cloud.mdb.spqr.v1.Access
+	15, // 14: yandex.cloud.mdb.spqr.v1.ClusterConfig.sox_audit:type_name -> google.protobuf.BoolValue
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_spqr_v1_cluster_proto_init() }

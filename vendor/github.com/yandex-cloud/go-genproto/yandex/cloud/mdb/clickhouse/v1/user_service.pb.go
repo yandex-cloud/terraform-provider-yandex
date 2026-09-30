@@ -341,8 +341,10 @@ type UpdateUserRequest struct {
 	AuthMethod AuthMethod `protobuf:"varint,9,opt,name=auth_method,json=authMethod,proto3,enum=yandex.cloud.mdb.clickhouse.v1.AuthMethod" json:"auth_method,omitempty"`
 	// Connection Manager connection and settings associated with the user.
 	UserConnectionManager *v1.UserConnectionManager `protobuf:"bytes,10,opt,name=user_connection_manager,json=userConnectionManager,proto3" json:"user_connection_manager,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// Deletion protection mode.
+	DeletionProtectionMode DeletionProtectionMode `protobuf:"varint,11,opt,name=deletion_protection_mode,json=deletionProtectionMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode" json:"deletion_protection_mode,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *UpdateUserRequest) Reset() {
@@ -443,6 +445,13 @@ func (x *UpdateUserRequest) GetUserConnectionManager() *v1.UserConnectionManager
 		return x.UserConnectionManager
 	}
 	return nil
+}
+
+func (x *UpdateUserRequest) GetDeletionProtectionMode() DeletionProtectionMode {
+	if x != nil {
+		return x.DeletionProtectionMode
+	}
+	return DeletionProtectionMode_DELETION_PROTECTION_MODE_UNSPECIFIED
 }
 
 type UpdateUserMetadata struct {
@@ -851,7 +860,7 @@ var File_yandex_cloud_mdb_clickhouse_v1_user_service_proto protoreflect.FileDesc
 
 const file_yandex_cloud_mdb_clickhouse_v1_user_service_proto_rawDesc = "" +
 	"\n" +
-	"1yandex/cloud/mdb/clickhouse/v1/user_service.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a yandex/cloud/api/operation.proto\x1a)yandex/cloud/mdb/clickhouse/v1/user.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"h\n" +
+	"1yandex/cloud/mdb/clickhouse/v1/user_service.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a yandex/cloud/api/operation.proto\x1a8yandex/cloud/mdb/clickhouse/v1/deletion_protection.proto\x1a)yandex/cloud/mdb/clickhouse/v1/user.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"h\n" +
 	"\x0eGetUserRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12)\n" +
@@ -873,7 +882,7 @@ const file_yandex_cloud_mdb_clickhouse_v1_user_service_proto_rawDesc = "" +
 	"\x12CreateUserMetadata\x12#\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\x12!\n" +
-	"\tuser_name\x18\x02 \x01(\tB\x04\xe8\xc71\x01R\buserName\"\xa4\x05\n" +
+	"\tuser_name\x18\x02 \x01(\tB\x04\xe8\xc71\x01R\buserName\"\x96\x06\n" +
 	"\x11UpdateUserRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12)\n" +
@@ -888,7 +897,8 @@ const file_yandex_cloud_mdb_clickhouse_v1_user_service_proto_rawDesc = "" +
 	"\vauth_method\x18\t \x01(\x0e2*.yandex.cloud.mdb.clickhouse.v1.AuthMethodR\n" +
 	"authMethod\x12b\n" +
 	"\x17user_connection_manager\x18\n" +
-	" \x01(\v2*.yandex.cloud.mdb.v1.UserConnectionManagerR\x15userConnectionManager\"\\\n" +
+	" \x01(\v2*.yandex.cloud.mdb.v1.UserConnectionManagerR\x15userConnectionManager\x12p\n" +
+	"\x18deletion_protection_mode\x18\v \x01(\x0e26.yandex.cloud.mdb.clickhouse.v1.DeletionProtectionModeR\x16deletionProtectionMode\"\\\n" +
 	"\x12UpdateUserMetadata\x12#\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\x12!\n" +
@@ -972,7 +982,8 @@ var file_yandex_cloud_mdb_clickhouse_v1_user_service_proto_goTypes = []any{
 	(*wrapperspb.BoolValue)(nil),         // 19: google.protobuf.BoolValue
 	(AuthMethod)(0),                      // 20: yandex.cloud.mdb.clickhouse.v1.AuthMethod
 	(*v1.UserConnectionManager)(nil),     // 21: yandex.cloud.mdb.v1.UserConnectionManager
-	(*operation.Operation)(nil),          // 22: yandex.cloud.operation.Operation
+	(DeletionProtectionMode)(0),          // 22: yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode
+	(*operation.Operation)(nil),          // 23: yandex.cloud.operation.Operation
 }
 var file_yandex_cloud_mdb_clickhouse_v1_user_service_proto_depIdxs = []int32{
 	13, // 0: yandex.cloud.mdb.clickhouse.v1.ListUsersResponse.users:type_name -> yandex.cloud.mdb.clickhouse.v1.User
@@ -984,26 +995,27 @@ var file_yandex_cloud_mdb_clickhouse_v1_user_service_proto_depIdxs = []int32{
 	19, // 6: yandex.cloud.mdb.clickhouse.v1.UpdateUserRequest.generate_password:type_name -> google.protobuf.BoolValue
 	20, // 7: yandex.cloud.mdb.clickhouse.v1.UpdateUserRequest.auth_method:type_name -> yandex.cloud.mdb.clickhouse.v1.AuthMethod
 	21, // 8: yandex.cloud.mdb.clickhouse.v1.UpdateUserRequest.user_connection_manager:type_name -> yandex.cloud.mdb.v1.UserConnectionManager
-	16, // 9: yandex.cloud.mdb.clickhouse.v1.GrantUserPermissionRequest.permission:type_name -> yandex.cloud.mdb.clickhouse.v1.Permission
-	0,  // 10: yandex.cloud.mdb.clickhouse.v1.UserService.Get:input_type -> yandex.cloud.mdb.clickhouse.v1.GetUserRequest
-	1,  // 11: yandex.cloud.mdb.clickhouse.v1.UserService.List:input_type -> yandex.cloud.mdb.clickhouse.v1.ListUsersRequest
-	3,  // 12: yandex.cloud.mdb.clickhouse.v1.UserService.Create:input_type -> yandex.cloud.mdb.clickhouse.v1.CreateUserRequest
-	5,  // 13: yandex.cloud.mdb.clickhouse.v1.UserService.Update:input_type -> yandex.cloud.mdb.clickhouse.v1.UpdateUserRequest
-	7,  // 14: yandex.cloud.mdb.clickhouse.v1.UserService.Delete:input_type -> yandex.cloud.mdb.clickhouse.v1.DeleteUserRequest
-	9,  // 15: yandex.cloud.mdb.clickhouse.v1.UserService.GrantPermission:input_type -> yandex.cloud.mdb.clickhouse.v1.GrantUserPermissionRequest
-	11, // 16: yandex.cloud.mdb.clickhouse.v1.UserService.RevokePermission:input_type -> yandex.cloud.mdb.clickhouse.v1.RevokeUserPermissionRequest
-	13, // 17: yandex.cloud.mdb.clickhouse.v1.UserService.Get:output_type -> yandex.cloud.mdb.clickhouse.v1.User
-	2,  // 18: yandex.cloud.mdb.clickhouse.v1.UserService.List:output_type -> yandex.cloud.mdb.clickhouse.v1.ListUsersResponse
-	22, // 19: yandex.cloud.mdb.clickhouse.v1.UserService.Create:output_type -> yandex.cloud.operation.Operation
-	22, // 20: yandex.cloud.mdb.clickhouse.v1.UserService.Update:output_type -> yandex.cloud.operation.Operation
-	22, // 21: yandex.cloud.mdb.clickhouse.v1.UserService.Delete:output_type -> yandex.cloud.operation.Operation
-	22, // 22: yandex.cloud.mdb.clickhouse.v1.UserService.GrantPermission:output_type -> yandex.cloud.operation.Operation
-	22, // 23: yandex.cloud.mdb.clickhouse.v1.UserService.RevokePermission:output_type -> yandex.cloud.operation.Operation
-	17, // [17:24] is the sub-list for method output_type
-	10, // [10:17] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	22, // 9: yandex.cloud.mdb.clickhouse.v1.UpdateUserRequest.deletion_protection_mode:type_name -> yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode
+	16, // 10: yandex.cloud.mdb.clickhouse.v1.GrantUserPermissionRequest.permission:type_name -> yandex.cloud.mdb.clickhouse.v1.Permission
+	0,  // 11: yandex.cloud.mdb.clickhouse.v1.UserService.Get:input_type -> yandex.cloud.mdb.clickhouse.v1.GetUserRequest
+	1,  // 12: yandex.cloud.mdb.clickhouse.v1.UserService.List:input_type -> yandex.cloud.mdb.clickhouse.v1.ListUsersRequest
+	3,  // 13: yandex.cloud.mdb.clickhouse.v1.UserService.Create:input_type -> yandex.cloud.mdb.clickhouse.v1.CreateUserRequest
+	5,  // 14: yandex.cloud.mdb.clickhouse.v1.UserService.Update:input_type -> yandex.cloud.mdb.clickhouse.v1.UpdateUserRequest
+	7,  // 15: yandex.cloud.mdb.clickhouse.v1.UserService.Delete:input_type -> yandex.cloud.mdb.clickhouse.v1.DeleteUserRequest
+	9,  // 16: yandex.cloud.mdb.clickhouse.v1.UserService.GrantPermission:input_type -> yandex.cloud.mdb.clickhouse.v1.GrantUserPermissionRequest
+	11, // 17: yandex.cloud.mdb.clickhouse.v1.UserService.RevokePermission:input_type -> yandex.cloud.mdb.clickhouse.v1.RevokeUserPermissionRequest
+	13, // 18: yandex.cloud.mdb.clickhouse.v1.UserService.Get:output_type -> yandex.cloud.mdb.clickhouse.v1.User
+	2,  // 19: yandex.cloud.mdb.clickhouse.v1.UserService.List:output_type -> yandex.cloud.mdb.clickhouse.v1.ListUsersResponse
+	23, // 20: yandex.cloud.mdb.clickhouse.v1.UserService.Create:output_type -> yandex.cloud.operation.Operation
+	23, // 21: yandex.cloud.mdb.clickhouse.v1.UserService.Update:output_type -> yandex.cloud.operation.Operation
+	23, // 22: yandex.cloud.mdb.clickhouse.v1.UserService.Delete:output_type -> yandex.cloud.operation.Operation
+	23, // 23: yandex.cloud.mdb.clickhouse.v1.UserService.GrantPermission:output_type -> yandex.cloud.operation.Operation
+	23, // 24: yandex.cloud.mdb.clickhouse.v1.UserService.RevokePermission:output_type -> yandex.cloud.operation.Operation
+	18, // [18:25] is the sub-list for method output_type
+	11, // [11:18] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_clickhouse_v1_user_service_proto_init() }
@@ -1011,6 +1023,7 @@ func file_yandex_cloud_mdb_clickhouse_v1_user_service_proto_init() {
 	if File_yandex_cloud_mdb_clickhouse_v1_user_service_proto != nil {
 		return
 	}
+	file_yandex_cloud_mdb_clickhouse_v1_deletion_protection_proto_init()
 	file_yandex_cloud_mdb_clickhouse_v1_user_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{

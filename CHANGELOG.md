@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.232.0 (September 30, 2026)
+
+##### ENHANCEMENTS:
+* mdb_clickhouse: add new user settings to yandex_mdb_clickhouse_user and default_user_settings in yandex_mdb_clickhouse_cluster_v2; add MergeTree settings for asynchronous insert deduplication and whole-partition optimization
+
+
+
 ## 0.231.0 (September 29, 2026)
 
 ##### ENHANCEMENTS:

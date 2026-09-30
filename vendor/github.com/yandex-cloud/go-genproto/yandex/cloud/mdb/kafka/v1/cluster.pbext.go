@@ -3,6 +3,7 @@
 package kafka
 
 import (
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -85,6 +86,10 @@ func (m *Cluster) SetKafkaUi(v *Cluster_KafkaUI) {
 
 func (m *Cluster) SetDiskEncryptionKeyId(v *wrapperspb.StringValue) {
 	m.DiskEncryptionKeyId = v
+}
+
+func (m *Cluster) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *Cluster_KafkaUI) SetUrl(v string) {

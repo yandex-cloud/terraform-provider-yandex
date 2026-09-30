@@ -8,6 +8,7 @@ package greenplum
 
 import (
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -249,6 +250,8 @@ type Cluster struct {
 	// Current state of the cluster.
 	Status Cluster_Status `protobuf:"varint,17,opt,name=status,proto3,enum=yandex.cloud.mdb.greenplum.v1.Cluster_Status" json:"status,omitempty"`
 	// A Greenplum® cluster maintenance window. Should be defined by either one of the two options.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/greenplum/v1/cluster.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,18,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Maintenance operation planned at nearest [maintenance_window].
 	PlannedOperation *MaintenanceOperation `protobuf:"bytes,19,opt,name=planned_operation,json=plannedOperation,proto3" json:"planned_operation,omitempty"`
@@ -273,9 +276,11 @@ type Cluster struct {
 	// Cloud logging configuration.
 	Logging *LoggingConfig `protobuf:"bytes,30,opt,name=logging,proto3" json:"logging,omitempty"`
 	// Indicates whether the cluster topology is highly available as defined by the Yandex Cloud SLA for managed databases.
-	IsHa          bool `protobuf:"varint,31,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	IsHa bool `protobuf:"varint,31,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
+	// Maintenance windows.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,32,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Cluster) Reset() {
@@ -427,6 +432,7 @@ func (x *Cluster) GetStatus() Cluster_Status {
 	return Cluster_STATUS_UNKNOWN
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/greenplum/v1/cluster.proto.
 func (x *Cluster) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -516,6 +522,13 @@ func (x *Cluster) GetIsHa() bool {
 		return x.IsHa
 	}
 	return false
+}
+
+func (x *Cluster) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
+	}
+	return nil
 }
 
 // Monitoring system metadata.
@@ -1196,7 +1209,7 @@ var File_yandex_cloud_mdb_greenplum_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_greenplum_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"+yandex/cloud/mdb/greenplum/v1/cluster.proto\x12\x1dyandex.cloud.mdb.greenplum.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a*yandex/cloud/mdb/greenplum/v1/config.proto\x1a/yandex/cloud/mdb/greenplum/v1/maintenance.proto\x1a'yandex/cloud/mdb/greenplum/v1/pxf.proto\x1a\x1dyandex/cloud/validation.proto\"\xb9\x10\n" +
+	"+yandex/cloud/mdb/greenplum/v1/cluster.proto\x12\x1dyandex.cloud.mdb.greenplum.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a*yandex/cloud/mdb/greenplum/v1/config.proto\x1a/yandex/cloud/mdb/greenplum/v1/maintenance.proto\x1a'yandex/cloud/mdb/greenplum/v1/pxf.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\x97\x11\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -1219,8 +1232,8 @@ const file_yandex_cloud_mdb_greenplum_v1_cluster_proto_rawDesc = "" +
 	"\n" +
 	"network_id\x18\x0f \x01(\tR\tnetworkId\x12E\n" +
 	"\x06health\x18\x10 \x01(\x0e2-.yandex.cloud.mdb.greenplum.v1.Cluster.HealthR\x06health\x12E\n" +
-	"\x06status\x18\x11 \x01(\x0e2-.yandex.cloud.mdb.greenplum.v1.Cluster.StatusR\x06status\x12_\n" +
-	"\x12maintenance_window\x18\x12 \x01(\v20.yandex.cloud.mdb.greenplum.v1.MaintenanceWindowR\x11maintenanceWindow\x12`\n" +
+	"\x06status\x18\x11 \x01(\x0e2-.yandex.cloud.mdb.greenplum.v1.Cluster.StatusR\x06status\x12c\n" +
+	"\x12maintenance_window\x18\x12 \x01(\v20.yandex.cloud.mdb.greenplum.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12`\n" +
 	"\x11planned_operation\x18\x13 \x01(\v23.yandex.cloud.mdb.greenplum.v1.MaintenanceOperationR\x10plannedOperation\x12,\n" +
 	"\x12security_group_ids\x18\x14 \x03(\tR\x10securityGroupIds\x12\x1b\n" +
 	"\tuser_name\x18\x15 \x01(\tR\buserName\x12/\n" +
@@ -1232,7 +1245,8 @@ const file_yandex_cloud_mdb_greenplum_v1_cluster_proto_rawDesc = "" +
 	"\x16segment_host_group_ids\x18\x1c \x03(\tR\x13segmentHostGroupIds\x12,\n" +
 	"\x12service_account_id\x18\x1d \x01(\tR\x10serviceAccountId\x12F\n" +
 	"\alogging\x18\x1e \x01(\v2,.yandex.cloud.mdb.greenplum.v1.LoggingConfigR\alogging\x12\x13\n" +
-	"\x05is_ha\x18\x1f \x01(\bR\x04isHa\x1a9\n" +
+	"\x05is_ha\x18\x1f \x01(\bR\x04isHa\x12X\n" +
+	"\x13maintenance_windows\x18  \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"I\n" +
@@ -1342,13 +1356,14 @@ var file_yandex_cloud_mdb_greenplum_v1_cluster_proto_goTypes = []any{
 	(*SegmentSubclusterConfig)(nil),    // 15: yandex.cloud.mdb.greenplum.v1.SegmentSubclusterConfig
 	(*MaintenanceWindow)(nil),          // 16: yandex.cloud.mdb.greenplum.v1.MaintenanceWindow
 	(*MaintenanceOperation)(nil),       // 17: yandex.cloud.mdb.greenplum.v1.MaintenanceOperation
-	(*timeofday.TimeOfDay)(nil),        // 18: google.type.TimeOfDay
-	(*wrapperspb.Int64Value)(nil),      // 19: google.protobuf.Int64Value
-	(*GreenplumConfigSet6)(nil),        // 20: yandex.cloud.mdb.greenplum.v1.GreenplumConfigSet6
-	(*DBMSConfigSet)(nil),              // 21: yandex.cloud.mdb.greenplum.v1.DBMSConfigSet
-	(*ConnectionPoolerConfigSet)(nil),  // 22: yandex.cloud.mdb.greenplum.v1.ConnectionPoolerConfigSet
-	(*BackgroundActivitiesConfig)(nil), // 23: yandex.cloud.mdb.greenplum.v1.BackgroundActivitiesConfig
-	(*PXFConfigSet)(nil),               // 24: yandex.cloud.mdb.greenplum.v1.PXFConfigSet
+	(*v1.MaintenanceWindows)(nil),      // 18: yandex.cloud.mdb.v1.MaintenanceWindows
+	(*timeofday.TimeOfDay)(nil),        // 19: google.type.TimeOfDay
+	(*wrapperspb.Int64Value)(nil),      // 20: google.protobuf.Int64Value
+	(*GreenplumConfigSet6)(nil),        // 21: yandex.cloud.mdb.greenplum.v1.GreenplumConfigSet6
+	(*DBMSConfigSet)(nil),              // 22: yandex.cloud.mdb.greenplum.v1.DBMSConfigSet
+	(*ConnectionPoolerConfigSet)(nil),  // 23: yandex.cloud.mdb.greenplum.v1.ConnectionPoolerConfigSet
+	(*BackgroundActivitiesConfig)(nil), // 24: yandex.cloud.mdb.greenplum.v1.BackgroundActivitiesConfig
+	(*PXFConfigSet)(nil),               // 25: yandex.cloud.mdb.greenplum.v1.PXFConfigSet
 }
 var file_yandex_cloud_mdb_greenplum_v1_cluster_proto_depIdxs = []int32{
 	13, // 0: yandex.cloud.mdb.greenplum.v1.Cluster.created_at:type_name -> google.protobuf.Timestamp
@@ -1365,21 +1380,22 @@ var file_yandex_cloud_mdb_greenplum_v1_cluster_proto_depIdxs = []int32{
 	6,  // 11: yandex.cloud.mdb.greenplum.v1.Cluster.cluster_config:type_name -> yandex.cloud.mdb.greenplum.v1.ClusterConfigSet
 	10, // 12: yandex.cloud.mdb.greenplum.v1.Cluster.cloud_storage:type_name -> yandex.cloud.mdb.greenplum.v1.CloudStorage
 	11, // 13: yandex.cloud.mdb.greenplum.v1.Cluster.logging:type_name -> yandex.cloud.mdb.greenplum.v1.LoggingConfig
-	18, // 14: yandex.cloud.mdb.greenplum.v1.GreenplumConfig.backup_window_start:type_name -> google.type.TimeOfDay
-	19, // 15: yandex.cloud.mdb.greenplum.v1.GreenplumConfig.backup_retain_period_days:type_name -> google.protobuf.Int64Value
-	8,  // 16: yandex.cloud.mdb.greenplum.v1.GreenplumConfig.access:type_name -> yandex.cloud.mdb.greenplum.v1.Access
-	20, // 17: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.greenplum_config_set_6:type_name -> yandex.cloud.mdb.greenplum.v1.GreenplumConfigSet6
-	21, // 18: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.dbms_config_set:type_name -> yandex.cloud.mdb.greenplum.v1.DBMSConfigSet
-	22, // 19: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.pool:type_name -> yandex.cloud.mdb.greenplum.v1.ConnectionPoolerConfigSet
-	23, // 20: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.background_activities:type_name -> yandex.cloud.mdb.greenplum.v1.BackgroundActivitiesConfig
-	24, // 21: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.pxf_config:type_name -> yandex.cloud.mdb.greenplum.v1.PXFConfigSet
-	18, // 22: yandex.cloud.mdb.greenplum.v1.GreenplumRestoreConfig.backup_window_start:type_name -> google.type.TimeOfDay
-	8,  // 23: yandex.cloud.mdb.greenplum.v1.GreenplumRestoreConfig.access:type_name -> yandex.cloud.mdb.greenplum.v1.Access
-	24, // [24:24] is the sub-list for method output_type
-	24, // [24:24] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	18, // 14: yandex.cloud.mdb.greenplum.v1.Cluster.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	19, // 15: yandex.cloud.mdb.greenplum.v1.GreenplumConfig.backup_window_start:type_name -> google.type.TimeOfDay
+	20, // 16: yandex.cloud.mdb.greenplum.v1.GreenplumConfig.backup_retain_period_days:type_name -> google.protobuf.Int64Value
+	8,  // 17: yandex.cloud.mdb.greenplum.v1.GreenplumConfig.access:type_name -> yandex.cloud.mdb.greenplum.v1.Access
+	21, // 18: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.greenplum_config_set_6:type_name -> yandex.cloud.mdb.greenplum.v1.GreenplumConfigSet6
+	22, // 19: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.dbms_config_set:type_name -> yandex.cloud.mdb.greenplum.v1.DBMSConfigSet
+	23, // 20: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.pool:type_name -> yandex.cloud.mdb.greenplum.v1.ConnectionPoolerConfigSet
+	24, // 21: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.background_activities:type_name -> yandex.cloud.mdb.greenplum.v1.BackgroundActivitiesConfig
+	25, // 22: yandex.cloud.mdb.greenplum.v1.ClusterConfigSet.pxf_config:type_name -> yandex.cloud.mdb.greenplum.v1.PXFConfigSet
+	19, // 23: yandex.cloud.mdb.greenplum.v1.GreenplumRestoreConfig.backup_window_start:type_name -> google.type.TimeOfDay
+	8,  // 24: yandex.cloud.mdb.greenplum.v1.GreenplumRestoreConfig.access:type_name -> yandex.cloud.mdb.greenplum.v1.Access
+	25, // [25:25] is the sub-list for method output_type
+	25, // [25:25] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_greenplum_v1_cluster_proto_init() }

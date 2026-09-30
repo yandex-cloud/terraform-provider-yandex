@@ -2,6 +2,10 @@
 
 package clickhouse
 
+import (
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+)
+
 func (m *GetDatabaseRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -43,6 +47,30 @@ func (m *CreateDatabaseMetadata) SetClusterId(v string) {
 }
 
 func (m *CreateDatabaseMetadata) SetDatabaseName(v string) {
+	m.DatabaseName = v
+}
+
+func (m *UpdateDatabaseRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *UpdateDatabaseRequest) SetDatabaseName(v string) {
+	m.DatabaseName = v
+}
+
+func (m *UpdateDatabaseRequest) SetUpdateMask(v *fieldmaskpb.FieldMask) {
+	m.UpdateMask = v
+}
+
+func (m *UpdateDatabaseRequest) SetDeletionProtectionMode(v DeletionProtectionMode) {
+	m.DeletionProtectionMode = v
+}
+
+func (m *UpdateDatabaseMetadata) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *UpdateDatabaseMetadata) SetDatabaseName(v string) {
 	m.DatabaseName = v
 }
 

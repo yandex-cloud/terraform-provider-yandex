@@ -13,6 +13,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -314,6 +315,134 @@ func (x *CreateDatabaseMetadata) GetDatabaseName() string {
 	return ""
 }
 
+type UpdateDatabaseRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the ClickHouse cluster to update a database in.
+	// To get the cluster ID, use a [ClusterService.List] request.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Name of the database to update.
+	// To get the name of the database, use a [DatabaseService.List] request.
+	DatabaseName string `protobuf:"bytes,2,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
+	// Field mask that specifies which fields of the Database resource should be updated.
+	UpdateMask *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	// Deletion protection mode for the database.
+	DeletionProtectionMode DeletionProtectionMode `protobuf:"varint,4,opt,name=deletion_protection_mode,json=deletionProtectionMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode" json:"deletion_protection_mode,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *UpdateDatabaseRequest) Reset() {
+	*x = UpdateDatabaseRequest{}
+	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateDatabaseRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateDatabaseRequest) ProtoMessage() {}
+
+func (x *UpdateDatabaseRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateDatabaseRequest.ProtoReflect.Descriptor instead.
+func (*UpdateDatabaseRequest) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateDatabaseRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *UpdateDatabaseRequest) GetDatabaseName() string {
+	if x != nil {
+		return x.DatabaseName
+	}
+	return ""
+}
+
+func (x *UpdateDatabaseRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
+func (x *UpdateDatabaseRequest) GetDeletionProtectionMode() DeletionProtectionMode {
+	if x != nil {
+		return x.DeletionProtectionMode
+	}
+	return DeletionProtectionMode_DELETION_PROTECTION_MODE_UNSPECIFIED
+}
+
+type UpdateDatabaseMetadata struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the ClickHouse cluster where a database is being updated.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Name of the ClickHouse database that is being updated.
+	DatabaseName  string `protobuf:"bytes,2,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateDatabaseMetadata) Reset() {
+	*x = UpdateDatabaseMetadata{}
+	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateDatabaseMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateDatabaseMetadata) ProtoMessage() {}
+
+func (x *UpdateDatabaseMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateDatabaseMetadata.ProtoReflect.Descriptor instead.
+func (*UpdateDatabaseMetadata) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateDatabaseMetadata) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *UpdateDatabaseMetadata) GetDatabaseName() string {
+	if x != nil {
+		return x.DatabaseName
+	}
+	return ""
+}
+
 type DeleteDatabaseRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the ClickHouse cluster to delete a database in.
@@ -328,7 +457,7 @@ type DeleteDatabaseRequest struct {
 
 func (x *DeleteDatabaseRequest) Reset() {
 	*x = DeleteDatabaseRequest{}
-	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[5]
+	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -340,7 +469,7 @@ func (x *DeleteDatabaseRequest) String() string {
 func (*DeleteDatabaseRequest) ProtoMessage() {}
 
 func (x *DeleteDatabaseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[5]
+	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -353,7 +482,7 @@ func (x *DeleteDatabaseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteDatabaseRequest.ProtoReflect.Descriptor instead.
 func (*DeleteDatabaseRequest) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDescGZIP(), []int{5}
+	return file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteDatabaseRequest) GetClusterId() string {
@@ -382,7 +511,7 @@ type DeleteDatabaseMetadata struct {
 
 func (x *DeleteDatabaseMetadata) Reset() {
 	*x = DeleteDatabaseMetadata{}
-	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[6]
+	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -394,7 +523,7 @@ func (x *DeleteDatabaseMetadata) String() string {
 func (*DeleteDatabaseMetadata) ProtoMessage() {}
 
 func (x *DeleteDatabaseMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[6]
+	mi := &file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -407,7 +536,7 @@ func (x *DeleteDatabaseMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteDatabaseMetadata.ProtoReflect.Descriptor instead.
 func (*DeleteDatabaseMetadata) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDescGZIP(), []int{6}
+	return file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteDatabaseMetadata) GetClusterId() string {
@@ -428,7 +557,7 @@ var File_yandex_cloud_mdb_clickhouse_v1_database_service_proto protoreflect.File
 
 const file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDesc = "" +
 	"\n" +
-	"5yandex/cloud/mdb/clickhouse/v1/database_service.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1cgoogle/api/annotations.proto\x1a yandex/cloud/api/operation.proto\x1a-yandex/cloud/mdb/clickhouse/v1/database.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"t\n" +
+	"5yandex/cloud/mdb/clickhouse/v1/database_service.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a yandex/cloud/api/operation.proto\x1a-yandex/cloud/mdb/clickhouse/v1/database.proto\x1a8yandex/cloud/mdb/clickhouse/v1/deletion_protection.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"t\n" +
 	"\x12GetDatabaseRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x121\n" +
@@ -450,6 +579,17 @@ const file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDesc = "" +
 	"\x16CreateDatabaseMetadata\x12#\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\x121\n" +
+	"\rdatabase_name\x18\x02 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=63R\fdatabaseName\"\xa6\x02\n" +
+	"\x15UpdateDatabaseRequest\x12+\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x121\n" +
+	"\rdatabase_name\x18\x02 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=63R\fdatabaseName\x12;\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\x12p\n" +
+	"\x18deletion_protection_mode\x18\x04 \x01(\x0e26.yandex.cloud.mdb.clickhouse.v1.DeletionProtectionModeR\x16deletionProtectionMode\"p\n" +
+	"\x16UpdateDatabaseMetadata\x12#\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\x121\n" +
 	"\rdatabase_name\x18\x02 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=63R\fdatabaseName\"w\n" +
 	"\x15DeleteDatabaseRequest\x12+\n" +
 	"\n" +
@@ -458,12 +598,14 @@ const file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDesc = "" +
 	"\x16DeleteDatabaseMetadata\x12#\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\x12)\n" +
-	"\rdatabase_name\x18\x02 \x01(\tB\x04\xe8\xc71\x01R\fdatabaseName2\xb4\x06\n" +
+	"\rdatabase_name\x18\x02 \x01(\tB\x04\xe8\xc71\x01R\fdatabaseName2\x92\b\n" +
 	"\x0fDatabaseService\x12\xb3\x01\n" +
 	"\x03Get\x122.yandex.cloud.mdb.clickhouse.v1.GetDatabaseRequest\x1a(.yandex.cloud.mdb.clickhouse.v1.Database\"N\x82\xd3\xe4\x93\x02H\x12F/managed-clickhouse/v1/clusters/{cluster_id}/databases/{database_name}\x12\xb3\x01\n" +
 	"\x04List\x124.yandex.cloud.mdb.clickhouse.v1.ListDatabasesRequest\x1a5.yandex.cloud.mdb.clickhouse.v1.ListDatabasesResponse\">\x82\xd3\xe4\x93\x028\x126/managed-clickhouse/v1/clusters/{cluster_id}/databases\x12\xcb\x01\n" +
 	"\x06Create\x125.yandex.cloud.mdb.clickhouse.v1.CreateDatabaseRequest\x1a!.yandex.cloud.operation.Operation\"g\xb2\xd2*\"\n" +
-	"\x16CreateDatabaseMetadata\x12\bDatabase\x82\xd3\xe4\x93\x02;:\x01*\"6/managed-clickhouse/v1/clusters/{cluster_id}/databases\x12\xe6\x01\n" +
+	"\x16CreateDatabaseMetadata\x12\bDatabase\x82\xd3\xe4\x93\x02;:\x01*\"6/managed-clickhouse/v1/clusters/{cluster_id}/databases\x12\xdb\x01\n" +
+	"\x06Update\x125.yandex.cloud.mdb.clickhouse.v1.UpdateDatabaseRequest\x1a!.yandex.cloud.operation.Operation\"w\xb2\xd2*\"\n" +
+	"\x16UpdateDatabaseMetadata\x12\bDatabase\x82\xd3\xe4\x93\x02K:\x01*2F/managed-clickhouse/v1/clusters/{cluster_id}/databases/{database_name}\x12\xe6\x01\n" +
 	"\x06Delete\x125.yandex.cloud.mdb.clickhouse.v1.DeleteDatabaseRequest\x1a!.yandex.cloud.operation.Operation\"\x81\x01\xb2\xd2*/\n" +
 	"\x16DeleteDatabaseMetadata\x12\x15google.protobuf.Empty\x82\xd3\xe4\x93\x02H*F/managed-clickhouse/v1/clusters/{cluster_id}/databases/{database_name}Bs\n" +
 	"\"yandex.cloud.api.mdb.clickhouse.v1ZMgithub.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1;clickhouseb\x06proto3"
@@ -480,35 +622,43 @@ func file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDescGZIP() []
 	return file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDescData
 }
 
-var file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_goTypes = []any{
 	(*GetDatabaseRequest)(nil),     // 0: yandex.cloud.mdb.clickhouse.v1.GetDatabaseRequest
 	(*ListDatabasesRequest)(nil),   // 1: yandex.cloud.mdb.clickhouse.v1.ListDatabasesRequest
 	(*ListDatabasesResponse)(nil),  // 2: yandex.cloud.mdb.clickhouse.v1.ListDatabasesResponse
 	(*CreateDatabaseRequest)(nil),  // 3: yandex.cloud.mdb.clickhouse.v1.CreateDatabaseRequest
 	(*CreateDatabaseMetadata)(nil), // 4: yandex.cloud.mdb.clickhouse.v1.CreateDatabaseMetadata
-	(*DeleteDatabaseRequest)(nil),  // 5: yandex.cloud.mdb.clickhouse.v1.DeleteDatabaseRequest
-	(*DeleteDatabaseMetadata)(nil), // 6: yandex.cloud.mdb.clickhouse.v1.DeleteDatabaseMetadata
-	(*Database)(nil),               // 7: yandex.cloud.mdb.clickhouse.v1.Database
-	(*DatabaseSpec)(nil),           // 8: yandex.cloud.mdb.clickhouse.v1.DatabaseSpec
-	(*operation.Operation)(nil),    // 9: yandex.cloud.operation.Operation
+	(*UpdateDatabaseRequest)(nil),  // 5: yandex.cloud.mdb.clickhouse.v1.UpdateDatabaseRequest
+	(*UpdateDatabaseMetadata)(nil), // 6: yandex.cloud.mdb.clickhouse.v1.UpdateDatabaseMetadata
+	(*DeleteDatabaseRequest)(nil),  // 7: yandex.cloud.mdb.clickhouse.v1.DeleteDatabaseRequest
+	(*DeleteDatabaseMetadata)(nil), // 8: yandex.cloud.mdb.clickhouse.v1.DeleteDatabaseMetadata
+	(*Database)(nil),               // 9: yandex.cloud.mdb.clickhouse.v1.Database
+	(*DatabaseSpec)(nil),           // 10: yandex.cloud.mdb.clickhouse.v1.DatabaseSpec
+	(*fieldmaskpb.FieldMask)(nil),  // 11: google.protobuf.FieldMask
+	(DeletionProtectionMode)(0),    // 12: yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode
+	(*operation.Operation)(nil),    // 13: yandex.cloud.operation.Operation
 }
 var file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_depIdxs = []int32{
-	7, // 0: yandex.cloud.mdb.clickhouse.v1.ListDatabasesResponse.databases:type_name -> yandex.cloud.mdb.clickhouse.v1.Database
-	8, // 1: yandex.cloud.mdb.clickhouse.v1.CreateDatabaseRequest.database_spec:type_name -> yandex.cloud.mdb.clickhouse.v1.DatabaseSpec
-	0, // 2: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Get:input_type -> yandex.cloud.mdb.clickhouse.v1.GetDatabaseRequest
-	1, // 3: yandex.cloud.mdb.clickhouse.v1.DatabaseService.List:input_type -> yandex.cloud.mdb.clickhouse.v1.ListDatabasesRequest
-	3, // 4: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Create:input_type -> yandex.cloud.mdb.clickhouse.v1.CreateDatabaseRequest
-	5, // 5: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Delete:input_type -> yandex.cloud.mdb.clickhouse.v1.DeleteDatabaseRequest
-	7, // 6: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Get:output_type -> yandex.cloud.mdb.clickhouse.v1.Database
-	2, // 7: yandex.cloud.mdb.clickhouse.v1.DatabaseService.List:output_type -> yandex.cloud.mdb.clickhouse.v1.ListDatabasesResponse
-	9, // 8: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Create:output_type -> yandex.cloud.operation.Operation
-	9, // 9: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Delete:output_type -> yandex.cloud.operation.Operation
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	9,  // 0: yandex.cloud.mdb.clickhouse.v1.ListDatabasesResponse.databases:type_name -> yandex.cloud.mdb.clickhouse.v1.Database
+	10, // 1: yandex.cloud.mdb.clickhouse.v1.CreateDatabaseRequest.database_spec:type_name -> yandex.cloud.mdb.clickhouse.v1.DatabaseSpec
+	11, // 2: yandex.cloud.mdb.clickhouse.v1.UpdateDatabaseRequest.update_mask:type_name -> google.protobuf.FieldMask
+	12, // 3: yandex.cloud.mdb.clickhouse.v1.UpdateDatabaseRequest.deletion_protection_mode:type_name -> yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode
+	0,  // 4: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Get:input_type -> yandex.cloud.mdb.clickhouse.v1.GetDatabaseRequest
+	1,  // 5: yandex.cloud.mdb.clickhouse.v1.DatabaseService.List:input_type -> yandex.cloud.mdb.clickhouse.v1.ListDatabasesRequest
+	3,  // 6: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Create:input_type -> yandex.cloud.mdb.clickhouse.v1.CreateDatabaseRequest
+	5,  // 7: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Update:input_type -> yandex.cloud.mdb.clickhouse.v1.UpdateDatabaseRequest
+	7,  // 8: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Delete:input_type -> yandex.cloud.mdb.clickhouse.v1.DeleteDatabaseRequest
+	9,  // 9: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Get:output_type -> yandex.cloud.mdb.clickhouse.v1.Database
+	2,  // 10: yandex.cloud.mdb.clickhouse.v1.DatabaseService.List:output_type -> yandex.cloud.mdb.clickhouse.v1.ListDatabasesResponse
+	13, // 11: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Create:output_type -> yandex.cloud.operation.Operation
+	13, // 12: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Update:output_type -> yandex.cloud.operation.Operation
+	13, // 13: yandex.cloud.mdb.clickhouse.v1.DatabaseService.Delete:output_type -> yandex.cloud.operation.Operation
+	9,  // [9:14] is the sub-list for method output_type
+	4,  // [4:9] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_init() }
@@ -517,13 +667,14 @@ func file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_init() {
 		return
 	}
 	file_yandex_cloud_mdb_clickhouse_v1_database_proto_init()
+	file_yandex_cloud_mdb_clickhouse_v1_deletion_protection_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDesc), len(file_yandex_cloud_mdb_clickhouse_v1_database_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

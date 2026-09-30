@@ -10,6 +10,7 @@ import (
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud"
 	access "github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud/api"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -293,11 +294,15 @@ type CreateClusterRequest struct {
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,14,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Window of maintenance operations.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/kafka/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,15,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// ID of the key to encrypt cluster disks.
 	DiskEncryptionKeyId *wrapperspb.StringValue `protobuf:"bytes,16,opt,name=disk_encryption_key_id,json=diskEncryptionKeyId,proto3" json:"disk_encryption_key_id,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Maintenance windows.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,17,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CreateClusterRequest) Reset() {
@@ -421,6 +426,7 @@ func (x *CreateClusterRequest) GetDeletionProtection() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/kafka/v1/cluster_service.proto.
 func (x *CreateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -431,6 +437,13 @@ func (x *CreateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 func (x *CreateClusterRequest) GetDiskEncryptionKeyId() *wrapperspb.StringValue {
 	if x != nil {
 		return x.DiskEncryptionKeyId
+	}
+	return nil
+}
+
+func (x *CreateClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
 	}
 	return nil
 }
@@ -504,13 +517,17 @@ type UpdateClusterRequest struct {
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,8,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// New maintenance window settings for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/kafka/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,9,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// ID of the network to move the cluster to.
 	NetworkId string `protobuf:"bytes,10,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`
 	// IDs of subnets where the hosts are located or a new host is being created
-	SubnetIds     []string `protobuf:"bytes,11,rep,name=subnet_ids,json=subnetIds,proto3" json:"subnet_ids,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SubnetIds []string `protobuf:"bytes,11,rep,name=subnet_ids,json=subnetIds,proto3" json:"subnet_ids,omitempty"`
+	// Maintenance windows.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,12,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *UpdateClusterRequest) Reset() {
@@ -599,6 +616,7 @@ func (x *UpdateClusterRequest) GetDeletionProtection() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/kafka/v1/cluster_service.proto.
 func (x *UpdateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -616,6 +634,13 @@ func (x *UpdateClusterRequest) GetNetworkId() string {
 func (x *UpdateClusterRequest) GetSubnetIds() []string {
 	if x != nil {
 		return x.SubnetIds
+	}
+	return nil
+}
+
+func (x *UpdateClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
 	}
 	return nil
 }
@@ -1817,7 +1842,7 @@ var File_yandex_cloud_mdb_kafka_v1_cluster_service_proto protoreflect.FileDescri
 
 const file_yandex_cloud_mdb_kafka_v1_cluster_service_proto_rawDesc = "" +
 	"\n" +
-	"/yandex/cloud/mdb/kafka/v1/cluster_service.proto\x12\x19yandex.cloud.mdb.kafka.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a'yandex/cloud/mdb/kafka/v1/cluster.proto\x1a+yandex/cloud/mdb/kafka/v1/maintenance.proto\x1a%yandex/cloud/mdb/kafka/v1/topic.proto\x1a$yandex/cloud/mdb/kafka/v1/user.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"@\n" +
+	"/yandex/cloud/mdb/kafka/v1/cluster_service.proto\x12\x19yandex.cloud.mdb.kafka.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a'yandex/cloud/mdb/kafka/v1/cluster.proto\x1a+yandex/cloud/mdb/kafka/v1/maintenance.proto\x1a%yandex/cloud/mdb/kafka/v1/topic.proto\x1a$yandex/cloud/mdb/kafka/v1/user.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"@\n" +
 	"\x11GetClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\"\xb7\x01\n" +
@@ -1831,7 +1856,7 @@ const file_yandex_cloud_mdb_kafka_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"~\n" +
 	"\x14ListClustersResponse\x12>\n" +
 	"\bclusters\x18\x01 \x03(\v2\".yandex.cloud.mdb.kafka.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xb8\b\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x96\t\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -1850,16 +1875,17 @@ const file_yandex_cloud_mdb_kafka_v1_cluster_service_proto_rawDesc = "" +
 	"\tsubnet_id\x18\v \x03(\tR\bsubnetId\x12,\n" +
 	"\x12security_group_ids\x18\f \x03(\tR\x10securityGroupIds\x12$\n" +
 	"\x0ehost_group_ids\x18\r \x03(\tR\fhostGroupIds\x12/\n" +
-	"\x13deletion_protection\x18\x0e \x01(\bR\x12deletionProtection\x12[\n" +
-	"\x12maintenance_window\x18\x0f \x01(\v2,.yandex.cloud.mdb.kafka.v1.MaintenanceWindowR\x11maintenanceWindow\x12k\n" +
-	"\x16disk_encryption_key_id\x18\x10 \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x1a9\n" +
+	"\x13deletion_protection\x18\x0e \x01(\bR\x12deletionProtection\x12_\n" +
+	"\x12maintenance_window\x18\x0f \x01(\v2,.yandex.cloud.mdb.kafka.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12k\n" +
+	"\x16disk_encryption_key_id\x18\x10 \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x12X\n" +
+	"\x13maintenance_windows\x18\x11 \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\t\x10\n" +
 	"\"6\n" +
 	"\x15CreateClusterMetadata\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xff\x05\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xdd\x06\n" +
 	"\x14UpdateClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12;\n" +
@@ -1871,13 +1897,14 @@ const file_yandex_cloud_mdb_kafka_v1_cluster_service_proto_rawDesc = "" +
 	"configSpec\x12.\n" +
 	"\x04name\x18\x06 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12,\n" +
 	"\x12security_group_ids\x18\a \x03(\tR\x10securityGroupIds\x12/\n" +
-	"\x13deletion_protection\x18\b \x01(\bR\x12deletionProtection\x12[\n" +
-	"\x12maintenance_window\x18\t \x01(\v2,.yandex.cloud.mdb.kafka.v1.MaintenanceWindowR\x11maintenanceWindow\x12'\n" +
+	"\x13deletion_protection\x18\b \x01(\bR\x12deletionProtection\x12_\n" +
+	"\x12maintenance_window\x18\t \x01(\v2,.yandex.cloud.mdb.kafka.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12'\n" +
 	"\n" +
 	"network_id\x18\n" +
 	" \x01(\tB\b\x8a\xc81\x04<=50R\tnetworkId\x12\x1d\n" +
 	"\n" +
-	"subnet_ids\x18\v \x03(\tR\tsubnetIds\x1a9\n" +
+	"subnet_ids\x18\v \x03(\tR\tsubnetIds\x12X\n" +
+	"\x13maintenance_windows\x18\f \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"6\n" +
@@ -2063,14 +2090,15 @@ var file_yandex_cloud_mdb_kafka_v1_cluster_service_proto_goTypes = []any{
 	(*UserSpec)(nil),                                 // 34: yandex.cloud.mdb.kafka.v1.UserSpec
 	(*MaintenanceWindow)(nil),                        // 35: yandex.cloud.mdb.kafka.v1.MaintenanceWindow
 	(*wrapperspb.StringValue)(nil),                   // 36: google.protobuf.StringValue
-	(*fieldmaskpb.FieldMask)(nil),                    // 37: google.protobuf.FieldMask
-	(*timestamppb.Timestamp)(nil),                    // 38: google.protobuf.Timestamp
-	(*operation.Operation)(nil),                      // 39: yandex.cloud.operation.Operation
-	(*Host)(nil),                                     // 40: yandex.cloud.mdb.kafka.v1.Host
-	(*access.ListAccessBindingsRequest)(nil),         // 41: yandex.cloud.access.ListAccessBindingsRequest
-	(*access.SetAccessBindingsRequest)(nil),          // 42: yandex.cloud.access.SetAccessBindingsRequest
-	(*access.UpdateAccessBindingsRequest)(nil),       // 43: yandex.cloud.access.UpdateAccessBindingsRequest
-	(*access.ListAccessBindingsResponse)(nil),        // 44: yandex.cloud.access.ListAccessBindingsResponse
+	(*v1.MaintenanceWindows)(nil),                    // 37: yandex.cloud.mdb.v1.MaintenanceWindows
+	(*fieldmaskpb.FieldMask)(nil),                    // 38: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil),                    // 39: google.protobuf.Timestamp
+	(*operation.Operation)(nil),                      // 40: yandex.cloud.operation.Operation
+	(*Host)(nil),                                     // 41: yandex.cloud.mdb.kafka.v1.Host
+	(*access.ListAccessBindingsRequest)(nil),         // 42: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),          // 43: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil),       // 44: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),        // 45: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_mdb_kafka_v1_cluster_service_proto_depIdxs = []int32{
 	30, // 0: yandex.cloud.mdb.kafka.v1.ListClustersResponse.clusters:type_name -> yandex.cloud.mdb.kafka.v1.Cluster
@@ -2081,60 +2109,62 @@ var file_yandex_cloud_mdb_kafka_v1_cluster_service_proto_depIdxs = []int32{
 	34, // 5: yandex.cloud.mdb.kafka.v1.CreateClusterRequest.user_specs:type_name -> yandex.cloud.mdb.kafka.v1.UserSpec
 	35, // 6: yandex.cloud.mdb.kafka.v1.CreateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.kafka.v1.MaintenanceWindow
 	36, // 7: yandex.cloud.mdb.kafka.v1.CreateClusterRequest.disk_encryption_key_id:type_name -> google.protobuf.StringValue
-	37, // 8: yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
-	28, // 9: yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.LabelsEntry
-	32, // 10: yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.config_spec:type_name -> yandex.cloud.mdb.kafka.v1.ConfigSpec
-	35, // 11: yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.kafka.v1.MaintenanceWindow
-	38, // 12: yandex.cloud.mdb.kafka.v1.ListClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
-	38, // 13: yandex.cloud.mdb.kafka.v1.ListClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
-	38, // 14: yandex.cloud.mdb.kafka.v1.LogRecord.timestamp:type_name -> google.protobuf.Timestamp
-	29, // 15: yandex.cloud.mdb.kafka.v1.LogRecord.message:type_name -> yandex.cloud.mdb.kafka.v1.LogRecord.MessageEntry
-	11, // 16: yandex.cloud.mdb.kafka.v1.ListClusterLogsResponse.logs:type_name -> yandex.cloud.mdb.kafka.v1.LogRecord
-	11, // 17: yandex.cloud.mdb.kafka.v1.StreamLogRecord.record:type_name -> yandex.cloud.mdb.kafka.v1.LogRecord
-	38, // 18: yandex.cloud.mdb.kafka.v1.StreamClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
-	38, // 19: yandex.cloud.mdb.kafka.v1.StreamClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
-	39, // 20: yandex.cloud.mdb.kafka.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	40, // 21: yandex.cloud.mdb.kafka.v1.ListClusterHostsResponse.hosts:type_name -> yandex.cloud.mdb.kafka.v1.Host
-	0,  // 22: yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceRequest.reschedule_type:type_name -> yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceRequest.RescheduleType
-	38, // 23: yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceRequest.delayed_until:type_name -> google.protobuf.Timestamp
-	38, // 24: yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceMetadata.delayed_until:type_name -> google.protobuf.Timestamp
-	1,  // 25: yandex.cloud.mdb.kafka.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.kafka.v1.GetClusterRequest
-	2,  // 26: yandex.cloud.mdb.kafka.v1.ClusterService.List:input_type -> yandex.cloud.mdb.kafka.v1.ListClustersRequest
-	4,  // 27: yandex.cloud.mdb.kafka.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.kafka.v1.CreateClusterRequest
-	6,  // 28: yandex.cloud.mdb.kafka.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.kafka.v1.UpdateClusterRequest
-	8,  // 29: yandex.cloud.mdb.kafka.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.kafka.v1.DeleteClusterRequest
-	19, // 30: yandex.cloud.mdb.kafka.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.kafka.v1.MoveClusterRequest
-	21, // 31: yandex.cloud.mdb.kafka.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.kafka.v1.StartClusterRequest
-	23, // 32: yandex.cloud.mdb.kafka.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.kafka.v1.StopClusterRequest
-	25, // 33: yandex.cloud.mdb.kafka.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceRequest
-	10, // 34: yandex.cloud.mdb.kafka.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.kafka.v1.ListClusterLogsRequest
-	14, // 35: yandex.cloud.mdb.kafka.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.kafka.v1.StreamClusterLogsRequest
-	15, // 36: yandex.cloud.mdb.kafka.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.kafka.v1.ListClusterOperationsRequest
-	17, // 37: yandex.cloud.mdb.kafka.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.kafka.v1.ListClusterHostsRequest
-	41, // 38: yandex.cloud.mdb.kafka.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
-	42, // 39: yandex.cloud.mdb.kafka.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
-	43, // 40: yandex.cloud.mdb.kafka.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
-	30, // 41: yandex.cloud.mdb.kafka.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.kafka.v1.Cluster
-	3,  // 42: yandex.cloud.mdb.kafka.v1.ClusterService.List:output_type -> yandex.cloud.mdb.kafka.v1.ListClustersResponse
-	39, // 43: yandex.cloud.mdb.kafka.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
-	39, // 44: yandex.cloud.mdb.kafka.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
-	39, // 45: yandex.cloud.mdb.kafka.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
-	39, // 46: yandex.cloud.mdb.kafka.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
-	39, // 47: yandex.cloud.mdb.kafka.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
-	39, // 48: yandex.cloud.mdb.kafka.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
-	39, // 49: yandex.cloud.mdb.kafka.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
-	12, // 50: yandex.cloud.mdb.kafka.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.kafka.v1.ListClusterLogsResponse
-	13, // 51: yandex.cloud.mdb.kafka.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.kafka.v1.StreamLogRecord
-	16, // 52: yandex.cloud.mdb.kafka.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.kafka.v1.ListClusterOperationsResponse
-	18, // 53: yandex.cloud.mdb.kafka.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.kafka.v1.ListClusterHostsResponse
-	44, // 54: yandex.cloud.mdb.kafka.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
-	39, // 55: yandex.cloud.mdb.kafka.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
-	39, // 56: yandex.cloud.mdb.kafka.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
-	41, // [41:57] is the sub-list for method output_type
-	25, // [25:41] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	37, // 8: yandex.cloud.mdb.kafka.v1.CreateClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	38, // 9: yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
+	28, // 10: yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.LabelsEntry
+	32, // 11: yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.config_spec:type_name -> yandex.cloud.mdb.kafka.v1.ConfigSpec
+	35, // 12: yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.kafka.v1.MaintenanceWindow
+	37, // 13: yandex.cloud.mdb.kafka.v1.UpdateClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	39, // 14: yandex.cloud.mdb.kafka.v1.ListClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
+	39, // 15: yandex.cloud.mdb.kafka.v1.ListClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
+	39, // 16: yandex.cloud.mdb.kafka.v1.LogRecord.timestamp:type_name -> google.protobuf.Timestamp
+	29, // 17: yandex.cloud.mdb.kafka.v1.LogRecord.message:type_name -> yandex.cloud.mdb.kafka.v1.LogRecord.MessageEntry
+	11, // 18: yandex.cloud.mdb.kafka.v1.ListClusterLogsResponse.logs:type_name -> yandex.cloud.mdb.kafka.v1.LogRecord
+	11, // 19: yandex.cloud.mdb.kafka.v1.StreamLogRecord.record:type_name -> yandex.cloud.mdb.kafka.v1.LogRecord
+	39, // 20: yandex.cloud.mdb.kafka.v1.StreamClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
+	39, // 21: yandex.cloud.mdb.kafka.v1.StreamClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
+	40, // 22: yandex.cloud.mdb.kafka.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	41, // 23: yandex.cloud.mdb.kafka.v1.ListClusterHostsResponse.hosts:type_name -> yandex.cloud.mdb.kafka.v1.Host
+	0,  // 24: yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceRequest.reschedule_type:type_name -> yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceRequest.RescheduleType
+	39, // 25: yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceRequest.delayed_until:type_name -> google.protobuf.Timestamp
+	39, // 26: yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceMetadata.delayed_until:type_name -> google.protobuf.Timestamp
+	1,  // 27: yandex.cloud.mdb.kafka.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.kafka.v1.GetClusterRequest
+	2,  // 28: yandex.cloud.mdb.kafka.v1.ClusterService.List:input_type -> yandex.cloud.mdb.kafka.v1.ListClustersRequest
+	4,  // 29: yandex.cloud.mdb.kafka.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.kafka.v1.CreateClusterRequest
+	6,  // 30: yandex.cloud.mdb.kafka.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.kafka.v1.UpdateClusterRequest
+	8,  // 31: yandex.cloud.mdb.kafka.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.kafka.v1.DeleteClusterRequest
+	19, // 32: yandex.cloud.mdb.kafka.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.kafka.v1.MoveClusterRequest
+	21, // 33: yandex.cloud.mdb.kafka.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.kafka.v1.StartClusterRequest
+	23, // 34: yandex.cloud.mdb.kafka.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.kafka.v1.StopClusterRequest
+	25, // 35: yandex.cloud.mdb.kafka.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.kafka.v1.RescheduleMaintenanceRequest
+	10, // 36: yandex.cloud.mdb.kafka.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.kafka.v1.ListClusterLogsRequest
+	14, // 37: yandex.cloud.mdb.kafka.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.kafka.v1.StreamClusterLogsRequest
+	15, // 38: yandex.cloud.mdb.kafka.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.kafka.v1.ListClusterOperationsRequest
+	17, // 39: yandex.cloud.mdb.kafka.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.kafka.v1.ListClusterHostsRequest
+	42, // 40: yandex.cloud.mdb.kafka.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	43, // 41: yandex.cloud.mdb.kafka.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	44, // 42: yandex.cloud.mdb.kafka.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	30, // 43: yandex.cloud.mdb.kafka.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.kafka.v1.Cluster
+	3,  // 44: yandex.cloud.mdb.kafka.v1.ClusterService.List:output_type -> yandex.cloud.mdb.kafka.v1.ListClustersResponse
+	40, // 45: yandex.cloud.mdb.kafka.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
+	40, // 46: yandex.cloud.mdb.kafka.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
+	40, // 47: yandex.cloud.mdb.kafka.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
+	40, // 48: yandex.cloud.mdb.kafka.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
+	40, // 49: yandex.cloud.mdb.kafka.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
+	40, // 50: yandex.cloud.mdb.kafka.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
+	40, // 51: yandex.cloud.mdb.kafka.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
+	12, // 52: yandex.cloud.mdb.kafka.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.kafka.v1.ListClusterLogsResponse
+	13, // 53: yandex.cloud.mdb.kafka.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.kafka.v1.StreamLogRecord
+	16, // 54: yandex.cloud.mdb.kafka.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.kafka.v1.ListClusterOperationsResponse
+	18, // 55: yandex.cloud.mdb.kafka.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.kafka.v1.ListClusterHostsResponse
+	45, // 56: yandex.cloud.mdb.kafka.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	40, // 57: yandex.cloud.mdb.kafka.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	40, // 58: yandex.cloud.mdb.kafka.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	43, // [43:59] is the sub-list for method output_type
+	27, // [27:43] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_kafka_v1_cluster_service_proto_init() }

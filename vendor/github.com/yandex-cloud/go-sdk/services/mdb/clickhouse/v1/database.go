@@ -19,6 +19,7 @@ type DatabaseClient interface {
 	Get(context.Context, *clickhouse.GetDatabaseRequest, ...grpc.CallOption) (*clickhouse.Database, error)
 	List(context.Context, *clickhouse.ListDatabasesRequest, ...grpc.CallOption) (*clickhouse.ListDatabasesResponse, error)
 	Create(context.Context, *clickhouse.CreateDatabaseRequest, ...grpc.CallOption) (*DatabaseCreateOperation, error)
+	Update(context.Context, *clickhouse.UpdateDatabaseRequest, ...grpc.CallOption) (*DatabaseUpdateOperation, error)
 	Delete(context.Context, *clickhouse.DeleteDatabaseRequest, ...grpc.CallOption) (*DatabaseDeleteOperation, error)
 }
 
@@ -102,6 +103,57 @@ func (c databaseClient) Create(ctx context.Context, in *clickhouse.CreateDatabas
 	return &DatabaseCreateOperation{*op}, nil
 }
 
+// DatabaseUpdateOperation is used to monitor the state of Update operations.
+type DatabaseUpdateOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *DatabaseUpdateOperation) Metadata() *clickhouse.UpdateDatabaseMetadata {
+	return o.Operation.Metadata().(*clickhouse.UpdateDatabaseMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *DatabaseUpdateOperation) Response() *clickhouse.Database {
+	return o.Operation.Response().(*clickhouse.Database)
+}
+
+// Wait polls the operation until it's done.
+func (o *DatabaseUpdateOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*clickhouse.Database, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*clickhouse.Database)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *DatabaseUpdateOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*clickhouse.Database, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*clickhouse.Database)
+	return response, err
+}
+
+// Update is an operation of Yandex.Cloud Clickhouse Database service.
+// It returns an object which should be used to monitor the operation state.
+func (c databaseClient) Update(ctx context.Context, in *clickhouse.UpdateDatabaseRequest, opts ...grpc.CallOption) (*DatabaseUpdateOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, DatabaseUpdate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := clickhouse.NewDatabaseServiceClient(connection).Update(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll:         c.pollOperation,
+		MetadataType: (*clickhouse.UpdateDatabaseMetadata)(nil),
+		ResponseType: (*clickhouse.Database)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &DatabaseUpdateOperation{*op}, nil
+}
+
 // DatabaseDeleteOperation is used to monitor the state of Delete operations.
 type DatabaseDeleteOperation struct {
 	sdkop.Operation
@@ -166,6 +218,7 @@ var (
 	DatabaseGet             = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.DatabaseService.Get")
 	DatabaseList            = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.DatabaseService.List")
 	DatabaseCreate          = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.DatabaseService.Create")
+	DatabaseUpdate          = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.DatabaseService.Update")
 	DatabaseDelete          = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.DatabaseService.Delete")
 	DatabaseOperationPoller = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
 )

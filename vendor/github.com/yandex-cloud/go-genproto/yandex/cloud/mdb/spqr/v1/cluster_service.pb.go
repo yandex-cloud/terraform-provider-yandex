@@ -10,6 +10,7 @@ import (
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud"
 	access "github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud/api"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
@@ -409,11 +410,15 @@ type CreateClusterRequest struct {
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,12,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// New maintenance window settings for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/spqr/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,13,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Descriptions of shards to be created in the SPQR cluster.
-	ShardSpecs    []*ShardSpec `protobuf:"bytes,14,rep,name=shard_specs,json=shardSpecs,proto3" json:"shard_specs,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ShardSpecs []*ShardSpec `protobuf:"bytes,14,rep,name=shard_specs,json=shardSpecs,proto3" json:"shard_specs,omitempty"`
+	// Maintenance windows for the cluster.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,15,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CreateClusterRequest) Reset() {
@@ -530,6 +535,7 @@ func (x *CreateClusterRequest) GetDeletionProtection() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/spqr/v1/cluster_service.proto.
 func (x *CreateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -540,6 +546,13 @@ func (x *CreateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 func (x *CreateClusterRequest) GetShardSpecs() []*ShardSpec {
 	if x != nil {
 		return x.ShardSpecs
+	}
+	return nil
+}
+
+func (x *CreateClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
 	}
 	return nil
 }
@@ -608,15 +621,19 @@ type UpdateClusterRequest struct {
 	// New configuration and resources for hosts in the cluster.
 	ConfigSpec *ConfigSpec `protobuf:"bytes,6,opt,name=config_spec,json=configSpec,proto3" json:"config_spec,omitempty"`
 	// New maintenance window settings for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/spqr/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,7,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// User security groups
 	SecurityGroupIds []string `protobuf:"bytes,8,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,9,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// ID of the network to move the cluster to.
-	NetworkId     string `protobuf:"bytes,10,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	NetworkId string `protobuf:"bytes,10,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`
+	// New maintenance windows for the cluster.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,11,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *UpdateClusterRequest) Reset() {
@@ -691,6 +708,7 @@ func (x *UpdateClusterRequest) GetConfigSpec() *ConfigSpec {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/spqr/v1/cluster_service.proto.
 func (x *UpdateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -717,6 +735,13 @@ func (x *UpdateClusterRequest) GetNetworkId() string {
 		return x.NetworkId
 	}
 	return ""
+}
+
+func (x *UpdateClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
+	}
+	return nil
 }
 
 type UpdateClusterMetadata struct {
@@ -1279,8 +1304,10 @@ type RestoreClusterRequest struct {
 	// * false (default) - the restore point refers to the first backup moment before [time].
 	// * true - the restore point refers to the first backup point after [time].
 	TimeInclusive bool `protobuf:"varint,14,opt,name=time_inclusive,json=timeInclusive,proto3" json:"time_inclusive,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Maintenance windows for the cluster.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,15,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *RestoreClusterRequest) Reset() {
@@ -1402,6 +1429,13 @@ func (x *RestoreClusterRequest) GetTimeInclusive() bool {
 		return x.TimeInclusive
 	}
 	return false
+}
+
+func (x *RestoreClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
+	}
+	return nil
 }
 
 type RestoreClusterMetadata struct {
@@ -3810,7 +3844,7 @@ var File_yandex_cloud_mdb_spqr_v1_cluster_service_proto protoreflect.FileDescrip
 
 const file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_rawDesc = "" +
 	"\n" +
-	".yandex/cloud/mdb/spqr/v1/cluster_service.proto\x12\x18yandex.cloud.mdb.spqr.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a%yandex/cloud/mdb/spqr/v1/backup.proto\x1a&yandex/cloud/mdb/spqr/v1/cluster.proto\x1a%yandex/cloud/mdb/spqr/v1/config.proto\x1a'yandex/cloud/mdb/spqr/v1/database.proto\x1a#yandex/cloud/mdb/spqr/v1/host.proto\x1a*yandex/cloud/mdb/spqr/v1/maintenance.proto\x1a$yandex/cloud/mdb/spqr/v1/shard.proto\x1a#yandex/cloud/mdb/spqr/v1/user.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"@\n" +
+	".yandex/cloud/mdb/spqr/v1/cluster_service.proto\x12\x18yandex.cloud.mdb.spqr.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a%yandex/cloud/mdb/spqr/v1/backup.proto\x1a&yandex/cloud/mdb/spqr/v1/cluster.proto\x1a%yandex/cloud/mdb/spqr/v1/config.proto\x1a'yandex/cloud/mdb/spqr/v1/database.proto\x1a#yandex/cloud/mdb/spqr/v1/host.proto\x1a*yandex/cloud/mdb/spqr/v1/maintenance.proto\x1a$yandex/cloud/mdb/spqr/v1/shard.proto\x1a#yandex/cloud/mdb/spqr/v1/user.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"@\n" +
 	"\x11GetClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\"\xb7\x01\n" +
@@ -3824,7 +3858,7 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"}\n" +
 	"\x14ListClustersResponse\x12=\n" +
 	"\bclusters\x18\x01 \x03(\v2!.yandex.cloud.mdb.spqr.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xa7\b\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x85\t\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -3842,16 +3876,17 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_rawDesc = "" +
 	"network_id\x18\n" +
 	" \x01(\tB\r\xe8\xc71\x01\x8a\xc81\x05<=150R\tnetworkId\x12,\n" +
 	"\x12security_group_ids\x18\v \x03(\tR\x10securityGroupIds\x12/\n" +
-	"\x13deletion_protection\x18\f \x01(\bR\x12deletionProtection\x12Z\n" +
-	"\x12maintenance_window\x18\r \x01(\v2+.yandex.cloud.mdb.spqr.v1.MaintenanceWindowR\x11maintenanceWindow\x12D\n" +
+	"\x13deletion_protection\x18\f \x01(\bR\x12deletionProtection\x12^\n" +
+	"\x12maintenance_window\x18\r \x01(\v2+.yandex.cloud.mdb.spqr.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12D\n" +
 	"\vshard_specs\x18\x0e \x03(\v2#.yandex.cloud.mdb.spqr.v1.ShardSpecR\n" +
-	"shardSpecs\x1a9\n" +
+	"shardSpecs\x12X\n" +
+	"\x13maintenance_windows\x18\x0f \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"6\n" +
 	"\x15CreateClusterMetadata\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xde\x05\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xbc\x06\n" +
 	"\x14UpdateClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12;\n" +
@@ -3861,13 +3896,14 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_rawDesc = "" +
 	"\vdescription\x18\x04 \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x12\x97\x01\n" +
 	"\x06labels\x18\x05 \x03(\v2:.yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.LabelsEntryBC\xf2\xc71\x0f[-_./\\@0-9a-z]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x1c\x12\x14[a-z][-_./\\@0-9a-z]*\x1a\x041-63R\x06labels\x12E\n" +
 	"\vconfig_spec\x18\x06 \x01(\v2$.yandex.cloud.mdb.spqr.v1.ConfigSpecR\n" +
-	"configSpec\x12Z\n" +
-	"\x12maintenance_window\x18\a \x01(\v2+.yandex.cloud.mdb.spqr.v1.MaintenanceWindowR\x11maintenanceWindow\x12,\n" +
+	"configSpec\x12^\n" +
+	"\x12maintenance_window\x18\a \x01(\v2+.yandex.cloud.mdb.spqr.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12,\n" +
 	"\x12security_group_ids\x18\b \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\t \x01(\bR\x12deletionProtection\x12(\n" +
 	"\n" +
 	"network_id\x18\n" +
-	" \x01(\tB\t\x8a\xc81\x05<=150R\tnetworkId\x1a9\n" +
+	" \x01(\tB\t\x8a\xc81\x05<=150R\tnetworkId\x12X\n" +
+	"\x13maintenance_windows\x18\v \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"6\n" +
@@ -3906,7 +3942,7 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_rawDesc = "" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\"6\n" +
 	"\x15BackupClusterMetadata\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xf1\x06\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xcb\a\n" +
 	"\x15RestoreClusterRequest\x12!\n" +
 	"\tbackup_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\bbackupId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -3923,7 +3959,8 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_rawDesc = "" +
 	"\x12security_group_ids\x18\v \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\f \x01(\bR\x12deletionProtection\x12.\n" +
 	"\x04time\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12%\n" +
-	"\x0etime_inclusive\x18\x0e \x01(\bR\rtimeInclusive\x1a9\n" +
+	"\x0etime_inclusive\x18\x0e \x01(\bR\rtimeInclusive\x12X\n" +
+	"\x13maintenance_windows\x18\x0f \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\n" +
@@ -4293,26 +4330,27 @@ var file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_goTypes = []any{
 	(*HostSpec)(nil),                                 // 67: yandex.cloud.mdb.spqr.v1.HostSpec
 	(*MaintenanceWindow)(nil),                        // 68: yandex.cloud.mdb.spqr.v1.MaintenanceWindow
 	(*ShardSpec)(nil),                                // 69: yandex.cloud.mdb.spqr.v1.ShardSpec
-	(*fieldmaskpb.FieldMask)(nil),                    // 70: google.protobuf.FieldMask
-	(*timestamppb.Timestamp)(nil),                    // 71: google.protobuf.Timestamp
-	(*operation.Operation)(nil),                      // 72: yandex.cloud.operation.Operation
-	(*Backup)(nil),                                   // 73: yandex.cloud.mdb.spqr.v1.Backup
-	(LogLevel)(0),                                    // 74: yandex.cloud.mdb.spqr.v1.LogLevel
-	(*BalancerSettings)(nil),                         // 75: yandex.cloud.mdb.spqr.v1.BalancerSettings
-	(*wrapperspb.BoolValue)(nil),                     // 76: google.protobuf.BoolValue
-	(*timeofday.TimeOfDay)(nil),                      // 77: google.type.TimeOfDay
-	(*wrapperspb.Int64Value)(nil),                    // 78: google.protobuf.Int64Value
-	(*Access)(nil),                                   // 79: yandex.cloud.mdb.spqr.v1.Access
-	(*Host)(nil),                                     // 80: yandex.cloud.mdb.spqr.v1.Host
-	(*Shard)(nil),                                    // 81: yandex.cloud.mdb.spqr.v1.Shard
-	(*Resources)(nil),                                // 82: yandex.cloud.mdb.spqr.v1.Resources
-	(*RouterSettings)(nil),                           // 83: yandex.cloud.mdb.spqr.v1.RouterSettings
-	(*CoordinatorSettings)(nil),                      // 84: yandex.cloud.mdb.spqr.v1.CoordinatorSettings
-	(*PostgreSQLSettings)(nil),                       // 85: yandex.cloud.mdb.spqr.v1.PostgreSQLSettings
-	(*access.ListAccessBindingsRequest)(nil),         // 86: yandex.cloud.access.ListAccessBindingsRequest
-	(*access.SetAccessBindingsRequest)(nil),          // 87: yandex.cloud.access.SetAccessBindingsRequest
-	(*access.UpdateAccessBindingsRequest)(nil),       // 88: yandex.cloud.access.UpdateAccessBindingsRequest
-	(*access.ListAccessBindingsResponse)(nil),        // 89: yandex.cloud.access.ListAccessBindingsResponse
+	(*v1.MaintenanceWindows)(nil),                    // 70: yandex.cloud.mdb.v1.MaintenanceWindows
+	(*fieldmaskpb.FieldMask)(nil),                    // 71: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil),                    // 72: google.protobuf.Timestamp
+	(*operation.Operation)(nil),                      // 73: yandex.cloud.operation.Operation
+	(*Backup)(nil),                                   // 74: yandex.cloud.mdb.spqr.v1.Backup
+	(LogLevel)(0),                                    // 75: yandex.cloud.mdb.spqr.v1.LogLevel
+	(*BalancerSettings)(nil),                         // 76: yandex.cloud.mdb.spqr.v1.BalancerSettings
+	(*wrapperspb.BoolValue)(nil),                     // 77: google.protobuf.BoolValue
+	(*timeofday.TimeOfDay)(nil),                      // 78: google.type.TimeOfDay
+	(*wrapperspb.Int64Value)(nil),                    // 79: google.protobuf.Int64Value
+	(*Access)(nil),                                   // 80: yandex.cloud.mdb.spqr.v1.Access
+	(*Host)(nil),                                     // 81: yandex.cloud.mdb.spqr.v1.Host
+	(*Shard)(nil),                                    // 82: yandex.cloud.mdb.spqr.v1.Shard
+	(*Resources)(nil),                                // 83: yandex.cloud.mdb.spqr.v1.Resources
+	(*RouterSettings)(nil),                           // 84: yandex.cloud.mdb.spqr.v1.RouterSettings
+	(*CoordinatorSettings)(nil),                      // 85: yandex.cloud.mdb.spqr.v1.CoordinatorSettings
+	(*PostgreSQLSettings)(nil),                       // 86: yandex.cloud.mdb.spqr.v1.PostgreSQLSettings
+	(*access.ListAccessBindingsRequest)(nil),         // 87: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),          // 88: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil),       // 89: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),        // 90: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_depIdxs = []int32{
 	63, // 0: yandex.cloud.mdb.spqr.v1.ListClustersResponse.clusters:type_name -> yandex.cloud.mdb.spqr.v1.Cluster
@@ -4324,123 +4362,126 @@ var file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_depIdxs = []int32{
 	67, // 6: yandex.cloud.mdb.spqr.v1.CreateClusterRequest.host_specs:type_name -> yandex.cloud.mdb.spqr.v1.HostSpec
 	68, // 7: yandex.cloud.mdb.spqr.v1.CreateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.spqr.v1.MaintenanceWindow
 	69, // 8: yandex.cloud.mdb.spqr.v1.CreateClusterRequest.shard_specs:type_name -> yandex.cloud.mdb.spqr.v1.ShardSpec
-	70, // 9: yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
-	56, // 10: yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.LabelsEntry
-	35, // 11: yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.config_spec:type_name -> yandex.cloud.mdb.spqr.v1.ConfigSpec
-	68, // 12: yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.spqr.v1.MaintenanceWindow
-	57, // 13: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.labels:type_name -> yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.LabelsEntry
-	64, // 14: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.environment:type_name -> yandex.cloud.mdb.spqr.v1.Cluster.Environment
-	35, // 15: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.config_spec:type_name -> yandex.cloud.mdb.spqr.v1.ConfigSpec
-	67, // 16: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.host_specs:type_name -> yandex.cloud.mdb.spqr.v1.HostSpec
-	71, // 17: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.time:type_name -> google.protobuf.Timestamp
-	0,  // 18: yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceRequest.reschedule_type:type_name -> yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceRequest.RescheduleType
-	71, // 19: yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceRequest.delayed_until:type_name -> google.protobuf.Timestamp
-	71, // 20: yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceMetadata.delayed_until:type_name -> google.protobuf.Timestamp
-	71, // 21: yandex.cloud.mdb.spqr.v1.LogRecord.timestamp:type_name -> google.protobuf.Timestamp
-	58, // 22: yandex.cloud.mdb.spqr.v1.LogRecord.message:type_name -> yandex.cloud.mdb.spqr.v1.LogRecord.MessageEntry
-	1,  // 23: yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest.ServiceType
-	71, // 24: yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
-	71, // 25: yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
-	24, // 26: yandex.cloud.mdb.spqr.v1.ListClusterLogsResponse.logs:type_name -> yandex.cloud.mdb.spqr.v1.LogRecord
-	24, // 27: yandex.cloud.mdb.spqr.v1.StreamLogRecord.record:type_name -> yandex.cloud.mdb.spqr.v1.LogRecord
-	2,  // 28: yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest.ServiceType
-	71, // 29: yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
-	71, // 30: yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
-	72, // 31: yandex.cloud.mdb.spqr.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	71, // 32: yandex.cloud.mdb.spqr.v1.BackupListFilter.start_time:type_name -> google.protobuf.Timestamp
-	71, // 33: yandex.cloud.mdb.spqr.v1.BackupListFilter.end_time:type_name -> google.protobuf.Timestamp
-	73, // 34: yandex.cloud.mdb.spqr.v1.ListClusterBackupsResponse.backups:type_name -> yandex.cloud.mdb.spqr.v1.Backup
-	59, // 35: yandex.cloud.mdb.spqr.v1.SpqrSpec.router:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec.Router
-	60, // 36: yandex.cloud.mdb.spqr.v1.SpqrSpec.coordinator:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec.Coordinator
-	61, // 37: yandex.cloud.mdb.spqr.v1.SpqrSpec.postgresql:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec.PostgreSQL
-	62, // 38: yandex.cloud.mdb.spqr.v1.SpqrSpec.infra:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec.Infra
-	74, // 39: yandex.cloud.mdb.spqr.v1.SpqrSpec.log_level:type_name -> yandex.cloud.mdb.spqr.v1.LogLevel
-	75, // 40: yandex.cloud.mdb.spqr.v1.SpqrSpec.balancer:type_name -> yandex.cloud.mdb.spqr.v1.BalancerSettings
-	76, // 41: yandex.cloud.mdb.spqr.v1.SpqrSpec.use_spqrguard:type_name -> google.protobuf.BoolValue
-	76, // 42: yandex.cloud.mdb.spqr.v1.SpqrSpec.forbid_direct_shard_queries:type_name -> google.protobuf.BoolValue
-	34, // 43: yandex.cloud.mdb.spqr.v1.ConfigSpec.spqr_spec:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec
-	77, // 44: yandex.cloud.mdb.spqr.v1.ConfigSpec.backup_window_start:type_name -> google.type.TimeOfDay
-	78, // 45: yandex.cloud.mdb.spqr.v1.ConfigSpec.backup_retain_period_days:type_name -> google.protobuf.Int64Value
-	79, // 46: yandex.cloud.mdb.spqr.v1.ConfigSpec.access:type_name -> yandex.cloud.mdb.spqr.v1.Access
-	76, // 47: yandex.cloud.mdb.spqr.v1.ConfigSpec.sox_audit:type_name -> google.protobuf.BoolValue
-	80, // 48: yandex.cloud.mdb.spqr.v1.ListClusterHostsResponse.hosts:type_name -> yandex.cloud.mdb.spqr.v1.Host
-	67, // 49: yandex.cloud.mdb.spqr.v1.AddClusterHostsRequest.host_specs:type_name -> yandex.cloud.mdb.spqr.v1.HostSpec
-	42, // 50: yandex.cloud.mdb.spqr.v1.UpdateClusterHostsRequest.update_host_specs:type_name -> yandex.cloud.mdb.spqr.v1.UpdateHostSpec
-	70, // 51: yandex.cloud.mdb.spqr.v1.UpdateHostSpec.update_mask:type_name -> google.protobuf.FieldMask
-	81, // 52: yandex.cloud.mdb.spqr.v1.ListClusterShardsResponse.shards:type_name -> yandex.cloud.mdb.spqr.v1.Shard
-	69, // 53: yandex.cloud.mdb.spqr.v1.AddClusterShardRequest.shard_spec:type_name -> yandex.cloud.mdb.spqr.v1.ShardSpec
-	67, // 54: yandex.cloud.mdb.spqr.v1.AddSubclusterRequest.host_specs:type_name -> yandex.cloud.mdb.spqr.v1.HostSpec
-	82, // 55: yandex.cloud.mdb.spqr.v1.AddSubclusterRequest.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
-	83, // 56: yandex.cloud.mdb.spqr.v1.SpqrSpec.Router.config:type_name -> yandex.cloud.mdb.spqr.v1.RouterSettings
-	82, // 57: yandex.cloud.mdb.spqr.v1.SpqrSpec.Router.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
-	84, // 58: yandex.cloud.mdb.spqr.v1.SpqrSpec.Coordinator.config:type_name -> yandex.cloud.mdb.spqr.v1.CoordinatorSettings
-	82, // 59: yandex.cloud.mdb.spqr.v1.SpqrSpec.Coordinator.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
-	85, // 60: yandex.cloud.mdb.spqr.v1.SpqrSpec.PostgreSQL.config:type_name -> yandex.cloud.mdb.spqr.v1.PostgreSQLSettings
-	82, // 61: yandex.cloud.mdb.spqr.v1.SpqrSpec.PostgreSQL.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
-	82, // 62: yandex.cloud.mdb.spqr.v1.SpqrSpec.Infra.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
-	83, // 63: yandex.cloud.mdb.spqr.v1.SpqrSpec.Infra.router:type_name -> yandex.cloud.mdb.spqr.v1.RouterSettings
-	84, // 64: yandex.cloud.mdb.spqr.v1.SpqrSpec.Infra.coordinator:type_name -> yandex.cloud.mdb.spqr.v1.CoordinatorSettings
-	3,  // 65: yandex.cloud.mdb.spqr.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.spqr.v1.GetClusterRequest
-	4,  // 66: yandex.cloud.mdb.spqr.v1.ClusterService.List:input_type -> yandex.cloud.mdb.spqr.v1.ListClustersRequest
-	6,  // 67: yandex.cloud.mdb.spqr.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.spqr.v1.CreateClusterRequest
-	8,  // 68: yandex.cloud.mdb.spqr.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.spqr.v1.UpdateClusterRequest
-	10, // 69: yandex.cloud.mdb.spqr.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.spqr.v1.DeleteClusterRequest
-	54, // 70: yandex.cloud.mdb.spqr.v1.ClusterService.AddSubcluster:input_type -> yandex.cloud.mdb.spqr.v1.AddSubclusterRequest
-	12, // 71: yandex.cloud.mdb.spqr.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.spqr.v1.StartClusterRequest
-	14, // 72: yandex.cloud.mdb.spqr.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.spqr.v1.StopClusterRequest
-	16, // 73: yandex.cloud.mdb.spqr.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.spqr.v1.MoveClusterRequest
-	18, // 74: yandex.cloud.mdb.spqr.v1.ClusterService.Backup:input_type -> yandex.cloud.mdb.spqr.v1.BackupClusterRequest
-	20, // 75: yandex.cloud.mdb.spqr.v1.ClusterService.Restore:input_type -> yandex.cloud.mdb.spqr.v1.RestoreClusterRequest
-	22, // 76: yandex.cloud.mdb.spqr.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceRequest
-	25, // 77: yandex.cloud.mdb.spqr.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest
-	28, // 78: yandex.cloud.mdb.spqr.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest
-	29, // 79: yandex.cloud.mdb.spqr.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterOperationsRequest
-	32, // 80: yandex.cloud.mdb.spqr.v1.ClusterService.ListBackups:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterBackupsRequest
-	36, // 81: yandex.cloud.mdb.spqr.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterHostsRequest
-	38, // 82: yandex.cloud.mdb.spqr.v1.ClusterService.AddHosts:input_type -> yandex.cloud.mdb.spqr.v1.AddClusterHostsRequest
-	40, // 83: yandex.cloud.mdb.spqr.v1.ClusterService.UpdateHosts:input_type -> yandex.cloud.mdb.spqr.v1.UpdateClusterHostsRequest
-	43, // 84: yandex.cloud.mdb.spqr.v1.ClusterService.DeleteHosts:input_type -> yandex.cloud.mdb.spqr.v1.DeleteClusterHostsRequest
-	45, // 85: yandex.cloud.mdb.spqr.v1.ClusterService.ResetupHosts:input_type -> yandex.cloud.mdb.spqr.v1.ResetupHostsRequest
-	47, // 86: yandex.cloud.mdb.spqr.v1.ClusterService.GetShard:input_type -> yandex.cloud.mdb.spqr.v1.GetClusterShardRequest
-	48, // 87: yandex.cloud.mdb.spqr.v1.ClusterService.ListShards:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterShardsRequest
-	50, // 88: yandex.cloud.mdb.spqr.v1.ClusterService.AddShard:input_type -> yandex.cloud.mdb.spqr.v1.AddClusterShardRequest
-	52, // 89: yandex.cloud.mdb.spqr.v1.ClusterService.DeleteShard:input_type -> yandex.cloud.mdb.spqr.v1.DeleteClusterShardRequest
-	86, // 90: yandex.cloud.mdb.spqr.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
-	87, // 91: yandex.cloud.mdb.spqr.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
-	88, // 92: yandex.cloud.mdb.spqr.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
-	63, // 93: yandex.cloud.mdb.spqr.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.spqr.v1.Cluster
-	5,  // 94: yandex.cloud.mdb.spqr.v1.ClusterService.List:output_type -> yandex.cloud.mdb.spqr.v1.ListClustersResponse
-	72, // 95: yandex.cloud.mdb.spqr.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
-	72, // 96: yandex.cloud.mdb.spqr.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
-	72, // 97: yandex.cloud.mdb.spqr.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
-	72, // 98: yandex.cloud.mdb.spqr.v1.ClusterService.AddSubcluster:output_type -> yandex.cloud.operation.Operation
-	72, // 99: yandex.cloud.mdb.spqr.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
-	72, // 100: yandex.cloud.mdb.spqr.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
-	72, // 101: yandex.cloud.mdb.spqr.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
-	72, // 102: yandex.cloud.mdb.spqr.v1.ClusterService.Backup:output_type -> yandex.cloud.operation.Operation
-	72, // 103: yandex.cloud.mdb.spqr.v1.ClusterService.Restore:output_type -> yandex.cloud.operation.Operation
-	72, // 104: yandex.cloud.mdb.spqr.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
-	26, // 105: yandex.cloud.mdb.spqr.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterLogsResponse
-	27, // 106: yandex.cloud.mdb.spqr.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.spqr.v1.StreamLogRecord
-	30, // 107: yandex.cloud.mdb.spqr.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterOperationsResponse
-	33, // 108: yandex.cloud.mdb.spqr.v1.ClusterService.ListBackups:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterBackupsResponse
-	37, // 109: yandex.cloud.mdb.spqr.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterHostsResponse
-	72, // 110: yandex.cloud.mdb.spqr.v1.ClusterService.AddHosts:output_type -> yandex.cloud.operation.Operation
-	72, // 111: yandex.cloud.mdb.spqr.v1.ClusterService.UpdateHosts:output_type -> yandex.cloud.operation.Operation
-	72, // 112: yandex.cloud.mdb.spqr.v1.ClusterService.DeleteHosts:output_type -> yandex.cloud.operation.Operation
-	72, // 113: yandex.cloud.mdb.spqr.v1.ClusterService.ResetupHosts:output_type -> yandex.cloud.operation.Operation
-	81, // 114: yandex.cloud.mdb.spqr.v1.ClusterService.GetShard:output_type -> yandex.cloud.mdb.spqr.v1.Shard
-	49, // 115: yandex.cloud.mdb.spqr.v1.ClusterService.ListShards:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterShardsResponse
-	72, // 116: yandex.cloud.mdb.spqr.v1.ClusterService.AddShard:output_type -> yandex.cloud.operation.Operation
-	72, // 117: yandex.cloud.mdb.spqr.v1.ClusterService.DeleteShard:output_type -> yandex.cloud.operation.Operation
-	89, // 118: yandex.cloud.mdb.spqr.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
-	72, // 119: yandex.cloud.mdb.spqr.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
-	72, // 120: yandex.cloud.mdb.spqr.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
-	93, // [93:121] is the sub-list for method output_type
-	65, // [65:93] is the sub-list for method input_type
-	65, // [65:65] is the sub-list for extension type_name
-	65, // [65:65] is the sub-list for extension extendee
-	0,  // [0:65] is the sub-list for field type_name
+	70, // 9: yandex.cloud.mdb.spqr.v1.CreateClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	71, // 10: yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
+	56, // 11: yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.LabelsEntry
+	35, // 12: yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.config_spec:type_name -> yandex.cloud.mdb.spqr.v1.ConfigSpec
+	68, // 13: yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.mdb.spqr.v1.MaintenanceWindow
+	70, // 14: yandex.cloud.mdb.spqr.v1.UpdateClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	57, // 15: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.labels:type_name -> yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.LabelsEntry
+	64, // 16: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.environment:type_name -> yandex.cloud.mdb.spqr.v1.Cluster.Environment
+	35, // 17: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.config_spec:type_name -> yandex.cloud.mdb.spqr.v1.ConfigSpec
+	67, // 18: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.host_specs:type_name -> yandex.cloud.mdb.spqr.v1.HostSpec
+	72, // 19: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.time:type_name -> google.protobuf.Timestamp
+	70, // 20: yandex.cloud.mdb.spqr.v1.RestoreClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	0,  // 21: yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceRequest.reschedule_type:type_name -> yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceRequest.RescheduleType
+	72, // 22: yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceRequest.delayed_until:type_name -> google.protobuf.Timestamp
+	72, // 23: yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceMetadata.delayed_until:type_name -> google.protobuf.Timestamp
+	72, // 24: yandex.cloud.mdb.spqr.v1.LogRecord.timestamp:type_name -> google.protobuf.Timestamp
+	58, // 25: yandex.cloud.mdb.spqr.v1.LogRecord.message:type_name -> yandex.cloud.mdb.spqr.v1.LogRecord.MessageEntry
+	1,  // 26: yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest.ServiceType
+	72, // 27: yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
+	72, // 28: yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
+	24, // 29: yandex.cloud.mdb.spqr.v1.ListClusterLogsResponse.logs:type_name -> yandex.cloud.mdb.spqr.v1.LogRecord
+	24, // 30: yandex.cloud.mdb.spqr.v1.StreamLogRecord.record:type_name -> yandex.cloud.mdb.spqr.v1.LogRecord
+	2,  // 31: yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest.service_type:type_name -> yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest.ServiceType
+	72, // 32: yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest.from_time:type_name -> google.protobuf.Timestamp
+	72, // 33: yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest.to_time:type_name -> google.protobuf.Timestamp
+	73, // 34: yandex.cloud.mdb.spqr.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	72, // 35: yandex.cloud.mdb.spqr.v1.BackupListFilter.start_time:type_name -> google.protobuf.Timestamp
+	72, // 36: yandex.cloud.mdb.spqr.v1.BackupListFilter.end_time:type_name -> google.protobuf.Timestamp
+	74, // 37: yandex.cloud.mdb.spqr.v1.ListClusterBackupsResponse.backups:type_name -> yandex.cloud.mdb.spqr.v1.Backup
+	59, // 38: yandex.cloud.mdb.spqr.v1.SpqrSpec.router:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec.Router
+	60, // 39: yandex.cloud.mdb.spqr.v1.SpqrSpec.coordinator:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec.Coordinator
+	61, // 40: yandex.cloud.mdb.spqr.v1.SpqrSpec.postgresql:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec.PostgreSQL
+	62, // 41: yandex.cloud.mdb.spqr.v1.SpqrSpec.infra:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec.Infra
+	75, // 42: yandex.cloud.mdb.spqr.v1.SpqrSpec.log_level:type_name -> yandex.cloud.mdb.spqr.v1.LogLevel
+	76, // 43: yandex.cloud.mdb.spqr.v1.SpqrSpec.balancer:type_name -> yandex.cloud.mdb.spqr.v1.BalancerSettings
+	77, // 44: yandex.cloud.mdb.spqr.v1.SpqrSpec.use_spqrguard:type_name -> google.protobuf.BoolValue
+	77, // 45: yandex.cloud.mdb.spqr.v1.SpqrSpec.forbid_direct_shard_queries:type_name -> google.protobuf.BoolValue
+	34, // 46: yandex.cloud.mdb.spqr.v1.ConfigSpec.spqr_spec:type_name -> yandex.cloud.mdb.spqr.v1.SpqrSpec
+	78, // 47: yandex.cloud.mdb.spqr.v1.ConfigSpec.backup_window_start:type_name -> google.type.TimeOfDay
+	79, // 48: yandex.cloud.mdb.spqr.v1.ConfigSpec.backup_retain_period_days:type_name -> google.protobuf.Int64Value
+	80, // 49: yandex.cloud.mdb.spqr.v1.ConfigSpec.access:type_name -> yandex.cloud.mdb.spqr.v1.Access
+	77, // 50: yandex.cloud.mdb.spqr.v1.ConfigSpec.sox_audit:type_name -> google.protobuf.BoolValue
+	81, // 51: yandex.cloud.mdb.spqr.v1.ListClusterHostsResponse.hosts:type_name -> yandex.cloud.mdb.spqr.v1.Host
+	67, // 52: yandex.cloud.mdb.spqr.v1.AddClusterHostsRequest.host_specs:type_name -> yandex.cloud.mdb.spqr.v1.HostSpec
+	42, // 53: yandex.cloud.mdb.spqr.v1.UpdateClusterHostsRequest.update_host_specs:type_name -> yandex.cloud.mdb.spqr.v1.UpdateHostSpec
+	71, // 54: yandex.cloud.mdb.spqr.v1.UpdateHostSpec.update_mask:type_name -> google.protobuf.FieldMask
+	82, // 55: yandex.cloud.mdb.spqr.v1.ListClusterShardsResponse.shards:type_name -> yandex.cloud.mdb.spqr.v1.Shard
+	69, // 56: yandex.cloud.mdb.spqr.v1.AddClusterShardRequest.shard_spec:type_name -> yandex.cloud.mdb.spqr.v1.ShardSpec
+	67, // 57: yandex.cloud.mdb.spqr.v1.AddSubclusterRequest.host_specs:type_name -> yandex.cloud.mdb.spqr.v1.HostSpec
+	83, // 58: yandex.cloud.mdb.spqr.v1.AddSubclusterRequest.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
+	84, // 59: yandex.cloud.mdb.spqr.v1.SpqrSpec.Router.config:type_name -> yandex.cloud.mdb.spqr.v1.RouterSettings
+	83, // 60: yandex.cloud.mdb.spqr.v1.SpqrSpec.Router.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
+	85, // 61: yandex.cloud.mdb.spqr.v1.SpqrSpec.Coordinator.config:type_name -> yandex.cloud.mdb.spqr.v1.CoordinatorSettings
+	83, // 62: yandex.cloud.mdb.spqr.v1.SpqrSpec.Coordinator.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
+	86, // 63: yandex.cloud.mdb.spqr.v1.SpqrSpec.PostgreSQL.config:type_name -> yandex.cloud.mdb.spqr.v1.PostgreSQLSettings
+	83, // 64: yandex.cloud.mdb.spqr.v1.SpqrSpec.PostgreSQL.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
+	83, // 65: yandex.cloud.mdb.spqr.v1.SpqrSpec.Infra.resources:type_name -> yandex.cloud.mdb.spqr.v1.Resources
+	84, // 66: yandex.cloud.mdb.spqr.v1.SpqrSpec.Infra.router:type_name -> yandex.cloud.mdb.spqr.v1.RouterSettings
+	85, // 67: yandex.cloud.mdb.spqr.v1.SpqrSpec.Infra.coordinator:type_name -> yandex.cloud.mdb.spqr.v1.CoordinatorSettings
+	3,  // 68: yandex.cloud.mdb.spqr.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.spqr.v1.GetClusterRequest
+	4,  // 69: yandex.cloud.mdb.spqr.v1.ClusterService.List:input_type -> yandex.cloud.mdb.spqr.v1.ListClustersRequest
+	6,  // 70: yandex.cloud.mdb.spqr.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.spqr.v1.CreateClusterRequest
+	8,  // 71: yandex.cloud.mdb.spqr.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.spqr.v1.UpdateClusterRequest
+	10, // 72: yandex.cloud.mdb.spqr.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.spqr.v1.DeleteClusterRequest
+	54, // 73: yandex.cloud.mdb.spqr.v1.ClusterService.AddSubcluster:input_type -> yandex.cloud.mdb.spqr.v1.AddSubclusterRequest
+	12, // 74: yandex.cloud.mdb.spqr.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.spqr.v1.StartClusterRequest
+	14, // 75: yandex.cloud.mdb.spqr.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.spqr.v1.StopClusterRequest
+	16, // 76: yandex.cloud.mdb.spqr.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.spqr.v1.MoveClusterRequest
+	18, // 77: yandex.cloud.mdb.spqr.v1.ClusterService.Backup:input_type -> yandex.cloud.mdb.spqr.v1.BackupClusterRequest
+	20, // 78: yandex.cloud.mdb.spqr.v1.ClusterService.Restore:input_type -> yandex.cloud.mdb.spqr.v1.RestoreClusterRequest
+	22, // 79: yandex.cloud.mdb.spqr.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.spqr.v1.RescheduleMaintenanceRequest
+	25, // 80: yandex.cloud.mdb.spqr.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterLogsRequest
+	28, // 81: yandex.cloud.mdb.spqr.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.spqr.v1.StreamClusterLogsRequest
+	29, // 82: yandex.cloud.mdb.spqr.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterOperationsRequest
+	32, // 83: yandex.cloud.mdb.spqr.v1.ClusterService.ListBackups:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterBackupsRequest
+	36, // 84: yandex.cloud.mdb.spqr.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterHostsRequest
+	38, // 85: yandex.cloud.mdb.spqr.v1.ClusterService.AddHosts:input_type -> yandex.cloud.mdb.spqr.v1.AddClusterHostsRequest
+	40, // 86: yandex.cloud.mdb.spqr.v1.ClusterService.UpdateHosts:input_type -> yandex.cloud.mdb.spqr.v1.UpdateClusterHostsRequest
+	43, // 87: yandex.cloud.mdb.spqr.v1.ClusterService.DeleteHosts:input_type -> yandex.cloud.mdb.spqr.v1.DeleteClusterHostsRequest
+	45, // 88: yandex.cloud.mdb.spqr.v1.ClusterService.ResetupHosts:input_type -> yandex.cloud.mdb.spqr.v1.ResetupHostsRequest
+	47, // 89: yandex.cloud.mdb.spqr.v1.ClusterService.GetShard:input_type -> yandex.cloud.mdb.spqr.v1.GetClusterShardRequest
+	48, // 90: yandex.cloud.mdb.spqr.v1.ClusterService.ListShards:input_type -> yandex.cloud.mdb.spqr.v1.ListClusterShardsRequest
+	50, // 91: yandex.cloud.mdb.spqr.v1.ClusterService.AddShard:input_type -> yandex.cloud.mdb.spqr.v1.AddClusterShardRequest
+	52, // 92: yandex.cloud.mdb.spqr.v1.ClusterService.DeleteShard:input_type -> yandex.cloud.mdb.spqr.v1.DeleteClusterShardRequest
+	87, // 93: yandex.cloud.mdb.spqr.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	88, // 94: yandex.cloud.mdb.spqr.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	89, // 95: yandex.cloud.mdb.spqr.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	63, // 96: yandex.cloud.mdb.spqr.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.spqr.v1.Cluster
+	5,  // 97: yandex.cloud.mdb.spqr.v1.ClusterService.List:output_type -> yandex.cloud.mdb.spqr.v1.ListClustersResponse
+	73, // 98: yandex.cloud.mdb.spqr.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
+	73, // 99: yandex.cloud.mdb.spqr.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
+	73, // 100: yandex.cloud.mdb.spqr.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
+	73, // 101: yandex.cloud.mdb.spqr.v1.ClusterService.AddSubcluster:output_type -> yandex.cloud.operation.Operation
+	73, // 102: yandex.cloud.mdb.spqr.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
+	73, // 103: yandex.cloud.mdb.spqr.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
+	73, // 104: yandex.cloud.mdb.spqr.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
+	73, // 105: yandex.cloud.mdb.spqr.v1.ClusterService.Backup:output_type -> yandex.cloud.operation.Operation
+	73, // 106: yandex.cloud.mdb.spqr.v1.ClusterService.Restore:output_type -> yandex.cloud.operation.Operation
+	73, // 107: yandex.cloud.mdb.spqr.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
+	26, // 108: yandex.cloud.mdb.spqr.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterLogsResponse
+	27, // 109: yandex.cloud.mdb.spqr.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.spqr.v1.StreamLogRecord
+	30, // 110: yandex.cloud.mdb.spqr.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterOperationsResponse
+	33, // 111: yandex.cloud.mdb.spqr.v1.ClusterService.ListBackups:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterBackupsResponse
+	37, // 112: yandex.cloud.mdb.spqr.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterHostsResponse
+	73, // 113: yandex.cloud.mdb.spqr.v1.ClusterService.AddHosts:output_type -> yandex.cloud.operation.Operation
+	73, // 114: yandex.cloud.mdb.spqr.v1.ClusterService.UpdateHosts:output_type -> yandex.cloud.operation.Operation
+	73, // 115: yandex.cloud.mdb.spqr.v1.ClusterService.DeleteHosts:output_type -> yandex.cloud.operation.Operation
+	73, // 116: yandex.cloud.mdb.spqr.v1.ClusterService.ResetupHosts:output_type -> yandex.cloud.operation.Operation
+	82, // 117: yandex.cloud.mdb.spqr.v1.ClusterService.GetShard:output_type -> yandex.cloud.mdb.spqr.v1.Shard
+	49, // 118: yandex.cloud.mdb.spqr.v1.ClusterService.ListShards:output_type -> yandex.cloud.mdb.spqr.v1.ListClusterShardsResponse
+	73, // 119: yandex.cloud.mdb.spqr.v1.ClusterService.AddShard:output_type -> yandex.cloud.operation.Operation
+	73, // 120: yandex.cloud.mdb.spqr.v1.ClusterService.DeleteShard:output_type -> yandex.cloud.operation.Operation
+	90, // 121: yandex.cloud.mdb.spqr.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	73, // 122: yandex.cloud.mdb.spqr.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	73, // 123: yandex.cloud.mdb.spqr.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	96, // [96:124] is the sub-list for method output_type
+	68, // [68:96] is the sub-list for method input_type
+	68, // [68:68] is the sub-list for extension type_name
+	68, // [68:68] is the sub-list for extension extendee
+	0,  // [0:68] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_init() }
