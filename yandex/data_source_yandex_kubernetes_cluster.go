@@ -71,6 +71,18 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				Description: resourceYandexKubernetesCluster().Schema["cluster_ipv6_range"].Description,
 				Computed:    true,
 			},
+			"cluster_ipv4_ranges": {
+				Type:        schema.TypeList,
+				Description: resourceYandexKubernetesCluster().Schema["cluster_ipv4_ranges"].Description,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"cluster_ipv6_ranges": {
+				Type:        schema.TypeList,
+				Description: resourceYandexKubernetesCluster().Schema["cluster_ipv6_ranges"].Description,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"node_ipv4_cidr_mask_size": {
 				Type:        schema.TypeInt,
 				Description: resourceYandexKubernetesCluster().Schema["node_ipv4_cidr_mask_size"].Description,

@@ -176,6 +176,31 @@ func TestAccKubernetesClusterZonalScalePolicy_autoScale(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesClusterZonal_clusterIpv4Ranges(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonal_clusterIpv4Ranges", true)
+	clusterResource.ServiceIPv4Range = "10.21.0.0/16"
+	clusterResource.ClusterIPv4Ranges = []string{"10.20.0.0/16", "10.22.0.0/16"}
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProviderFactoriesV6,
+		CheckDestroy:             testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKubernetesClusterZonalWLI_basic(t *testing.T) {
 	clusterResource := clusterInfoWLI("testAccKubernetesClusterZonalWLI_basic", true)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
@@ -367,6 +392,8 @@ func TestAccKubernetesClusterRegional_externalIPv6Address(t *testing.T) {
 
 func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesClusterZonalConfig_basic", true)
+	clusterResource.ClusterIPv4Ranges = []string{"10.20.0.0/16"}
+	clusterResource.ServiceIPv4Range = "10.21.0.0/16"
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 
 	clusterUpdatedResource := clusterResource
@@ -408,6 +435,9 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 
 	clusterUpdatedResourceWithWLI := clusterUpdatedResourceWithMasterAutoScale
 	clusterUpdatedResourceWithWLI.WorkloadIdentityFederation = true
+
+	clusterUpdatedResourceWithIPv4Ranges := clusterUpdatedResourceWithWLI
+	clusterUpdatedResourceWithIPv4Ranges.ClusterIPv4Ranges = []string{"10.20.0.0/16", "10.22.0.0/16"}
 
 	var cluster k8s.Cluster
 
@@ -496,12 +526,22 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 					testAccCheckCreatedAtAttr(clusterResourceFullName),
 				),
 			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResourceWithIPv4Ranges),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWithIPv4Ranges, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
 		},
 	})
 }
 
 func TestAccKubernetesClusterRegional_update(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesClusterRegionalConfig_basic", false)
+	clusterResource.ClusterIPv4Ranges = []string{"10.20.0.0/16"}
+	clusterResource.ServiceIPv4Range = "10.21.0.0/16"
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 
 	clusterUpdatedResource := clusterResource
@@ -521,6 +561,9 @@ func TestAccKubernetesClusterRegional_update(t *testing.T) {
 
 	clusterUpdatedResourceWLI := clusterUpdatedResourceAutoScaled
 	clusterUpdatedResourceWLI.WorkloadIdentityFederation = true
+
+	clusterUpdatedResourceWithIPv4Ranges := clusterUpdatedResourceWLI
+	clusterUpdatedResourceWithIPv4Ranges.ClusterIPv4Ranges = []string{"10.20.0.0/16", "10.22.0.0/16"}
 
 	var cluster k8s.Cluster
 
@@ -558,6 +601,14 @@ func TestAccKubernetesClusterRegional_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
 					checkClusterAttributes(&cluster, &clusterUpdatedResourceWLI, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterRegionalConfig_update(clusterResource, clusterUpdatedResourceWithIPv4Ranges),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWithIPv4Ranges, true),
 					testAccCheckCreatedAtAttr(clusterResourceFullName),
 				),
 			},
@@ -988,6 +1039,9 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 				"service_ipv6_range", cluster.GetIpAllocationPolicy().GetServiceIpv6CidrBlock()),
 		}
 
+		checkFuncsAr = append(checkFuncsAr, testAccCheckStringListAttr(resourceFullName, "cluster_ipv4_ranges", cluster.GetIpAllocationPolicy().GetClusterIpv4CidrBlocks())...)
+		checkFuncsAr = append(checkFuncsAr, testAccCheckStringListAttr(resourceFullName, "cluster_ipv6_ranges", cluster.GetIpAllocationPolicy().GetClusterIpv6CidrBlocks())...)
+
 		if !clusterVPCDepsPrecreated(info) {
 			resource.TestCheckResourceAttr(resourceFullName, "network_id", ids.networkResourceID)
 		}
@@ -1144,6 +1198,18 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 	}
 }
 
+func testAccCheckStringListAttr(resourceFullName, attr string, values []string) []resource.TestCheckFunc {
+	checks := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(resourceFullName, attr+".#", strconv.Itoa(len(values))),
+	}
+
+	for i, value := range values {
+		checks = append(checks, resource.TestCheckResourceAttr(resourceFullName, fmt.Sprintf("%s.%d", attr, i), value))
+	}
+
+	return checks
+}
+
 func testAccCheckClusterLabel(cluster *k8s.Cluster, info *resourceClusterInfo, rs bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(cluster.Labels) != 1 {
@@ -1248,10 +1314,12 @@ type resourceClusterInfo struct {
 	SecurityGroups    string
 	SecurityGroupName string
 
-	ClusterIPv4Range string
-	ClusterIPv6Range string
-	ServiceIPv4Range string
-	ServiceIPv6Range string
+	ClusterIPv4Range  string
+	ClusterIPv6Range  string
+	ClusterIPv4Ranges []string
+	ClusterIPv6Ranges []string
+	ServiceIPv4Range  string
+	ServiceIPv6Range  string
 
 	// For dual stack clusters and clusters with external ipv6.
 	NetworkFolderID     string
@@ -1505,6 +1573,18 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   {{if .ClusterIPv6Range}}
   cluster_ipv6_range = "{{.ClusterIPv6Range}}"
   {{end}}
+  {{if .ClusterIPv4Ranges}}
+  cluster_ipv4_ranges = [
+    {{range .ClusterIPv4Ranges}}"{{.}}",
+    {{end}}
+  ]
+  {{end}}
+  {{if .ClusterIPv6Ranges}}
+  cluster_ipv6_ranges = [
+    {{range .ClusterIPv6Ranges}}"{{.}}",
+    {{end}}
+  ]
+  {{end}}
   {{if .ServiceIPv4Range}}
   service_ipv4_range = "{{.ServiceIPv4Range}}"
   {{end}}
@@ -1607,6 +1687,30 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   kms_provider {
     key_id = "${yandex_kms_symmetric_key.{{.KMSKeyResourceName}}.id}"
   }
+  {{if .ClusterIPv4Range}}
+  cluster_ipv4_range = "{{.ClusterIPv4Range}}"
+  {{end}}
+  {{if .ClusterIPv6Range}}
+  cluster_ipv6_range = "{{.ClusterIPv6Range}}"
+  {{end}}
+  {{if .ClusterIPv4Ranges}}
+  cluster_ipv4_ranges = [
+    {{range .ClusterIPv4Ranges}}"{{.}}",
+    {{end}}
+  ]
+  {{end}}
+  {{if .ClusterIPv6Ranges}}
+  cluster_ipv6_ranges = [
+    {{range .ClusterIPv6Ranges}}"{{.}}",
+    {{end}}
+  ]
+  {{end}}
+  {{if .ServiceIPv4Range}}
+  service_ipv4_range = "{{.ServiceIPv4Range}}"
+  {{end}}
+  {{if .ServiceIPv6Range}}
+  service_ipv6_range = "{{.ServiceIPv6Range}}"
+  {{end}}
 
   {{if .WorkloadIdentityFederation}}
   workload_identity_federation {

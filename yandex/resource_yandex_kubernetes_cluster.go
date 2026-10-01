@@ -413,20 +413,46 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 				Computed:    true,
 			},
 			"cluster_ipv4_range": {
-				Type:         schema.TypeString,
-				Description:  "CIDR block. IP range for allocating pod addresses. It should not overlap with any subnet in the network the Kubernetes cluster located in. Static routes will be set up for this CIDR blocks in node subnets.",
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validateCidrBlocks,
+				Type:          schema.TypeString,
+				Description:   "CIDR block. IP range for allocating pod addresses. It should not overlap with any subnet in the network the Kubernetes cluster located in. Static routes will be set up for this CIDR blocks in node subnets.",
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				Deprecated:    "Use cluster_ipv4_ranges instead.",
+				ConflictsWith: []string{"cluster_ipv4_ranges"},
+				ValidateFunc:  validateCidrBlocks,
 			},
 			"cluster_ipv6_range": {
-				Type:         schema.TypeString,
-				Description:  "Identical to `cluster_ipv4_range` but for IPv6 protocol.",
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validateCidrBlocks,
+				Type:          schema.TypeString,
+				Description:   "Identical to `cluster_ipv4_range` but for IPv6 protocol.",
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				Deprecated:    "Use cluster_ipv6_ranges instead.",
+				ConflictsWith: []string{"cluster_ipv6_ranges"},
+				ValidateFunc:  validateCidrBlocks,
+			},
+			"cluster_ipv4_ranges": {
+				Type:          schema.TypeList,
+				Description:   "CIDR blocks for allocating pod IPv4 addresses. Cannot be set together with `cluster_ipv4_range`. Updates are append-only: keep existing CIDRs and add new ones at the end. At most 8 CIDRs.",
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"cluster_ipv4_range"},
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validateCidrBlocks,
+				},
+			},
+			"cluster_ipv6_ranges": {
+				Type:          schema.TypeList,
+				Description:   "Identical to `cluster_ipv4_ranges` but for IPv6 protocol.",
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"cluster_ipv6_range"},
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validateCidrBlocks,
+				},
 			},
 			"node_ipv4_cidr_mask_size": {
 				Type:        schema.TypeInt,
@@ -618,6 +644,8 @@ var updateKubernetesClusterFieldsMap = map[string]string{
 	"master.0.master_location":     "master_spec.locations",
 	"master.0.scale_policy":        "master_spec.scale_policy",
 	"workload_identity_federation": "workload_identity_federation",
+	"cluster_ipv4_ranges":          "ip_allocation_policy.cluster_ipv4_cidr_blocks",
+	"cluster_ipv6_ranges":          "ip_allocation_policy.cluster_ipv6_cidr_blocks",
 }
 
 func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -710,6 +738,7 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 			Locations:         getKubernetesClusterLocations(d),
 		},
 		WorkloadIdentityFederation: wif,
+		IpAllocationPolicy:         getIPAllocationPolicy(d),
 	}
 
 	return req, nil
@@ -803,14 +832,39 @@ func prepareCreateKubernetesClusterRequest(d *schema.ResourceData, meta *Config)
 
 func getIPAllocationPolicy(d *schema.ResourceData) *k8s.IPAllocationPolicy {
 	p := &k8s.IPAllocationPolicy{
-		ClusterIpv4CidrBlock: d.Get("cluster_ipv4_range").(string),
 		NodeIpv4CidrMaskSize: int64(d.Get("node_ipv4_cidr_mask_size").(int)),
 		ServiceIpv4CidrBlock: d.Get("service_ipv4_range").(string),
-		ClusterIpv6CidrBlock: d.Get("cluster_ipv6_range").(string),
 		ServiceIpv6CidrBlock: d.Get("service_ipv6_range").(string),
 	}
 
+	if ranges, ok := expandOptionalStringList(d, "cluster_ipv4_ranges"); ok {
+		p.ClusterIpv4CidrBlocks = ranges
+	} else {
+		p.ClusterIpv4CidrBlock = d.Get("cluster_ipv4_range").(string)
+	}
+
+	if ranges, ok := expandOptionalStringList(d, "cluster_ipv6_ranges"); ok {
+		p.ClusterIpv6CidrBlocks = ranges
+	} else {
+		p.ClusterIpv6CidrBlock = d.Get("cluster_ipv6_range").(string)
+	}
+
 	return p
+}
+
+func expandOptionalStringList(d *schema.ResourceData, key string) ([]string, bool) {
+	v, ok := d.GetOk(key)
+	if !ok {
+		return nil, false
+	}
+
+	items := v.([]interface{})
+	ranges := make([]string, 0, len(items))
+	for _, item := range items {
+		ranges = append(ranges, item.(string))
+	}
+
+	return ranges, true
 }
 
 func getKubernetesClusterReleaseChannels() string {
@@ -1135,6 +1189,8 @@ func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.Resource
 	d.Set("release_channel", cluster.ReleaseChannel.String())
 	d.Set("cluster_ipv4_range", cluster.GetIpAllocationPolicy().GetClusterIpv4CidrBlock())
 	d.Set("cluster_ipv6_range", cluster.GetIpAllocationPolicy().GetClusterIpv6CidrBlock())
+	d.Set("cluster_ipv4_ranges", convertStringArrToInterface(cluster.GetIpAllocationPolicy().GetClusterIpv4CidrBlocks()))
+	d.Set("cluster_ipv6_ranges", convertStringArrToInterface(cluster.GetIpAllocationPolicy().GetClusterIpv6CidrBlocks()))
 	d.Set("node_ipv4_cidr_mask_size", cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize())
 	d.Set("service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock())
 	d.Set("service_ipv6_range", cluster.GetIpAllocationPolicy().GetServiceIpv6CidrBlock())
