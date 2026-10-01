@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'ydb: add the `yandex_ydb_database_iam_member` resource'
+time: 2026-09-30T13:15:00+03:00

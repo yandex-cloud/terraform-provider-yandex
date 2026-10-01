@@ -137,6 +137,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_trino_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_trino_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ydb_database_iam_binding"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ydb_database_iam_member"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_ytsaurus_cluster"
 )
 
@@ -211,6 +212,7 @@ func init() {
 		yandex_resourcemanager_folder_iam_member.NewResource,
 		yandex_resource_manager_folder_iam_policy_binding.NewResource,
 		yandex_ydb_database_iam_binding.NewResource,
+		yandex_ydb_database_iam_member.NewResource,
 		yandex_airflow_cluster_change_freeze.NewResource,
 		yandex_airflow_cluster_iam_binding.NewResource,
 		yandex_cm_certificate_iam_binding.NewResource,
