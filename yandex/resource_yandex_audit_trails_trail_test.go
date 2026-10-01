@@ -89,12 +89,13 @@ func TestAccResourceAuditTrailsTrail_storage(t *testing.T) {
 
 	// base config describes required resources for this test - we will reuse it to check only trail update logic
 	tfBaseConfig := auditTrailsServiceAccountConfig(saName) + auditTrailsStorageResourceConfig(bucketTestName) + auditTrailsStorageResourceConfig(updatedBucketTestName)
-	initialTrail := auditTrailsStorageConfig(trailTestName, bucketTestName, saName)
+	initialTrail := auditTrailsStorageConfig(trailTestName, bucketTestName, saName, "300s")
 
 	updatedTrail := initialTrail
 	updatedTrail.StorageDestination = trailStorageDestination{
-		BucketName:   updatedBucketTestName,
-		ObjectPrefix: "some-prefix",
+		BucketName:        updatedBucketTestName,
+		ObjectPrefix:      "some-prefix",
+		AggregationPeriod: "1m",
 	}
 	updatedTrail.FilteringPolicy.DataEventFilters[1].DnsFilter.IncludeNonrecursiveQueries = false
 
@@ -269,6 +270,10 @@ func checkTrail(trail yandexAuditTrailsTrail, dataSourceCheck bool) resource.Tes
 			"storage_destination.0.bucket_name", storageConfig.BucketName))
 		checks = append(checks, resource.TestCheckResourceAttr(resourceName,
 			"storage_destination.0.object_prefix", storageConfig.ObjectPrefix))
+		if storageConfig.AggregationPeriod != "" {
+			checks = append(checks, testAccCheckDuration(resourceName,
+				"storage_destination.0.aggregation_period", storageConfig.AggregationPeriod))
+		}
 	} else {
 		checks = append(checks, resource.TestCheckResourceAttr(resourceName, "storage_destination.#", "0"))
 	}
@@ -655,7 +660,7 @@ func auditTrailsLoggingConfig(trailResourceName, logGroupName, saName string) ya
 	}
 }
 
-func auditTrailsStorageConfig(trailResourceName, bucketName, saName string) yandexAuditTrailsTrail {
+func auditTrailsStorageConfig(trailResourceName, bucketName, saName, aggregationPeriod string) yandexAuditTrailsTrail {
 	return yandexAuditTrailsTrail{
 		Name:               trailResourceName,
 		FolderID:           getExampleFolderID(),
@@ -663,7 +668,8 @@ func auditTrailsStorageConfig(trailResourceName, bucketName, saName string) yand
 		Labels:             map[string]string{"a": "b"},
 		ServiceAccountName: saName,
 		StorageDestination: trailStorageDestination{
-			BucketName: bucketName,
+			BucketName:        bucketName,
+			AggregationPeriod: aggregationPeriod,
 		},
 		FilteringPolicy: trailFilteringPolicy{
 			ManagementFilter: trailManagementFilter{
@@ -868,6 +874,9 @@ resource "yandex_audit_trails_trail" "{{.Name}}" {
  {{with .StorageDestination}}
  storage_destination {
     bucket_name = "{{.BucketName}}"
+    {{if .AggregationPeriod}}
+    aggregation_period = "{{.AggregationPeriod}}"
+    {{end}}
     {{if .ObjectPrefix}}
     {{with .ObjectPrefix}}
     object_prefix = "{{.}}"
@@ -1001,8 +1010,9 @@ type trailDataStreamDestination struct {
 }
 
 type trailStorageDestination struct {
-	BucketName   string
-	ObjectPrefix string
+	BucketName        string
+	ObjectPrefix      string
+	AggregationPeriod string
 }
 
 type trailManagementFilter struct {

@@ -209,6 +209,11 @@ func dataSourceYandexAuditTrailsTrail() *schema.Resource {
 							Description: "Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.",
 							Computed:    true,
 						},
+						"aggregation_period": {
+							Type:        schema.TypeString,
+							Description: "Target interval between starts of event exports to Object Storage, as a duration string.",
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -448,8 +453,9 @@ func unpackProtoTrailIntoResourceData(trail *audittrails.Trail, data *schema.Res
 
 	if storageDestination := trail.GetDestination().GetObjectStorage(); storageDestination != nil {
 		bucket := map[string]string{
-			"bucket_name":   storageDestination.GetBucketId(),
-			"object_prefix": storageDestination.GetObjectPrefix(),
+			"bucket_name":        storageDestination.GetBucketId(),
+			"object_prefix":      storageDestination.GetObjectPrefix(),
+			"aggregation_period": formatDuration(storageDestination.GetAggregationPeriod()),
 		}
 		result = setAndAppendError(data, "storage_destination", []interface{}{bucket}, result)
 	} else {

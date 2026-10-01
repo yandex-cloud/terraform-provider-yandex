@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: "audit_trails: support duration strings in storage_destination.aggregation_period for yandex_audit_trails_trail resources and data sources."
+time: 2026-09-30T12:00:00Z

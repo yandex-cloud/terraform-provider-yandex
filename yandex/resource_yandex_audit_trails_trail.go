@@ -159,6 +159,13 @@ func resourceYandexAuditTrailsTrail() *schema.Resource {
 							Description: "Additional prefix of the uploaded objects. If not specified, objects will be uploaded with prefix equal to `trail_id`.",
 							Optional:    true,
 						},
+						"aggregation_period": {
+							Type:             schema.TypeString,
+							Description:      "Target interval between starts of event exports to Object Storage, as a duration string (for example, `1m`, `300s`, or `1h`). Must be between `1m` and `1h`, inclusive. If omitted on creation, the server uses `5m`.",
+							Optional:         true,
+							ValidateFunc:     validateParsableValue(parseDuration),
+							DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
+						},
 					},
 				},
 			},
@@ -508,13 +515,18 @@ func updateTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
+	destination, err := packResourceDataIntoDestination(data)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	req := &audittrails.UpdateTrailRequest{
 		TrailId:          data.Id(),
 		Name:             data.Get("name").(string),
 		Description:      data.Get("description").(string),
 		Labels:           labels,
 		ServiceAccountId: data.Get("service_account_id").(string),
-		Destination:      packResourceDataIntoDestination(data),
+		Destination:      destination,
 		FilteringPolicy:  filteringPolicy,
 		UpdateMask: &fieldmaskpb.FieldMask{
 			Paths: []string{"name", "description", "labels", "service_account_id", "destination", "filtering_policy", "filter"},
@@ -570,13 +582,18 @@ func createTrailResource(ctx context.Context, data *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
+	destination, err := packResourceDataIntoDestination(data)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	req := &audittrails.CreateTrailRequest{
 		FolderId:         folderID,
 		Name:             data.Get("name").(string),
 		Description:      data.Get("description").(string),
 		Labels:           labels,
 		ServiceAccountId: data.Get("service_account_id").(string),
-		Destination:      packResourceDataIntoDestination(data),
+		Destination:      destination,
 		FilteringPolicy:  filteringPolicy,
 	}
 
@@ -853,16 +870,22 @@ func packResourceDataIntoResource(data *schema.ResourceData, namespace string) *
 	}
 }
 
-func packResourceDataIntoDestination(data *schema.ResourceData) *audittrails.Trail_Destination {
+func packResourceDataIntoDestination(data *schema.ResourceData) (*audittrails.Trail_Destination, error) {
 	if _, exists := data.GetOk("storage_destination"); exists {
+		aggregationPeriod, err := parseDuration(data.Get("storage_destination.0.aggregation_period").(string))
+		if err != nil {
+			return nil, fmt.Errorf("invalid storage destination aggregation period: %w", err)
+		}
+
 		return &audittrails.Trail_Destination{
 			Destination: &audittrails.Trail_Destination_ObjectStorage{
 				ObjectStorage: &audittrails.Trail_ObjectStorage{
-					BucketId:     data.Get("storage_destination.0.bucket_name").(string),
-					ObjectPrefix: data.Get("storage_destination.0.object_prefix").(string),
+					BucketId:          data.Get("storage_destination.0.bucket_name").(string),
+					ObjectPrefix:      data.Get("storage_destination.0.object_prefix").(string),
+					AggregationPeriod: aggregationPeriod,
 				},
 			},
-		}
+		}, nil
 	}
 
 	if _, exists := data.GetOk("logging_destination"); exists {
@@ -874,7 +897,7 @@ func packResourceDataIntoDestination(data *schema.ResourceData) *audittrails.Tra
 					},
 				},
 			},
-		}
+		}, nil
 	}
 
 	if _, exists := data.GetOk("data_stream_destination"); exists {
@@ -886,7 +909,7 @@ func packResourceDataIntoDestination(data *schema.ResourceData) *audittrails.Tra
 					Codec:      audittrails.Trail_Codec(audittrails.Trail_Codec_value[data.Get("data_stream_destination.0.codec").(string)]),
 				},
 			},
-		}
+		}, nil
 	}
 
 	panic("This shouldn't happen due to ExactlyOneOf validation")

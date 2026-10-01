@@ -16,7 +16,7 @@ func TestAccDataSourceAuditTrailsTrail_storageByID(t *testing.T) {
 	trailTestName := acctest.RandomWithPrefix("tf-data-acc-trail")
 
 	tfBaseConfig := auditTrailsServiceAccountConfig(saName) + auditTrailsStorageResourceConfig(bucketTestName)
-	trailConfig := auditTrailsStorageConfig(trailTestName, bucketTestName, saName)
+	trailConfig := auditTrailsStorageConfig(trailTestName, bucketTestName, saName, "1m")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
