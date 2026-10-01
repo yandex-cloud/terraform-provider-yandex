@@ -18,14 +18,14 @@ Manages a MySQL user within the Yandex Cloud. For more information, see [the off
 - `id` (*Read-Only*) (String). The resource identifier.
 - `name` (**Required**)(String). The name of the user.
 - `password` (String). The password of the user.
-- `user_connection_manager` [Block]. Connection Manager settings for the user.
-  - `connection_folder_id` (String). ID of the folder where the connection is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
-  - `connection_id` (*Read-Only*) (String). ID of the Connection Manager connection for this user. Computed by the server.
-  - `secret_folder_id` (String). ID of the folder where the secret is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
 - `timeouts` [Block]. 
   - `create` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
   - `delete` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
   - `update` (String). A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+- `user_connection_manager` [Block]. Connection Manager settings for the user.
+  - `connection_folder_id` (String). ID of the folder where the connection is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
+  - `connection_id` (*Read-Only*) (String). ID of the Connection Manager connection for this user. Computed by the server.
+  - `secret_folder_id` (String). ID of the folder where the secret is created. Defaults to the cluster's folder if not specified. Cannot be changed after user creation.
 - `connection_limits` [Block]. User's connection limits.
   - `max_connections_per_hour` (Number). Max connections per hour.
   - `max_questions_per_hour` (Number). Max questions per hour.
@@ -34,3 +34,5 @@ Manages a MySQL user within the Yandex Cloud. For more information, see [the off
 - `permission` [Block]. Set of permissions granted to the user.
   - `database_name` (**Required**)(String). The name of the database.
   - `roles` (List Of String). List of roles.
+
+

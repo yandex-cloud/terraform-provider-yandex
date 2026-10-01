@@ -194,6 +194,10 @@ func (m *MongodConfig_SetParameter) SetRedactClientLogData(v *wrapperspb.BoolVal
 	m.RedactClientLogData = v
 }
 
+func (m *MongodConfig_SetParameter) SetAllowDiskUseByDefault(v *wrapperspb.BoolValue) {
+	m.AllowDiskUseByDefault = v
+}
+
 func (m *MongodConfig_SetParameter_MirrorReads) SetSamplingRate(v *wrapperspb.DoubleValue) {
 	m.SamplingRate = v
 }
