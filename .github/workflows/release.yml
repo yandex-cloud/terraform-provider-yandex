@@ -1,6 +1,6 @@
 # The release pipeline pushes a version tag after Piglet delivers the release commit.
 name: release
-run-name: release ${{ github.ref }} ${{ github.sha }}
+run-name: Release ${{ github.ref_name }}
 
 on:
   push:
