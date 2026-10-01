@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
@@ -58,7 +60,7 @@ func (r *bindingResource) Configure(_ context.Context,
 
 func getSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		MarkdownDescription: "Manages a Greenplum resource group within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-greenplum/).",
+		MarkdownDescription: "Manages a Greenplum or Apache Cloudberry resource group within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-greenplum/).",
 		Attributes: map[string]schema.Attribute{
 			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
 				Create: true,
@@ -111,6 +113,25 @@ func getSchema(ctx context.Context) schema.Schema {
 				Description: "The memory usage threshold for memory-intensive transactions. When a transaction reaches this threshold, it spills to disk.",
 				Optional:    true,
 			},
+			"cpu_max_percent": schema.Int64Attribute{
+				MarkdownDescription: "Apache Cloudberry: the maximum percentage of CPU resources the group can use.",
+				Optional:            true,
+				Validators:          []validator.Int64{int64validator.Between(-1, 100)},
+			},
+			"cpu_weight": schema.Int64Attribute{
+				MarkdownDescription: "Apache Cloudberry: the scheduling priority of the resource group.",
+				Optional:            true,
+				Validators:          []validator.Int64{int64validator.Between(1, 500)},
+			},
+			"memory_quota": schema.Int64Attribute{
+				MarkdownDescription: "Apache Cloudberry: the memory limit in MB for the resource group.",
+				Optional:            true,
+				Validators:          []validator.Int64{int64validator.AtLeast(-1)},
+			},
+			"min_cost": schema.Int64Attribute{
+				MarkdownDescription: "Apache Cloudberry: the minimum cost of a query plan to be included in the resource group.",
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -134,7 +155,7 @@ func (r *bindingResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	resourceGroupToState(rg, &state)
+	resourceGroupToState(ctx, rg, &state, &resp.Diagnostics)
 
 	state.Id = types.StringValue(resourceid.Construct(cid, rgName))
 	diags = resp.State.Set(ctx, &state)
@@ -158,7 +179,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
-	rgPlan := resourceGroupFromState(ctx, &plan)
+	rgPlan := resourceGroupFromState(&plan)
 
 	createResourceGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, rgPlan)
 	if resp.Diagnostics.HasError() {
@@ -168,7 +189,7 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resourceGroupToState(created, &plan)
+	resourceGroupToState(ctx, created, &plan, &resp.Diagnostics)
 
 	plan.Id = types.StringValue(resourceid.Construct(cid, rgPlan.Name))
 	diags = resp.State.Set(ctx, plan)
@@ -207,6 +228,18 @@ func getUpdatePaths(plan, state *greenplum.ResourceGroup) ([]string, diag.Diagno
 	if isWrapperInt64NotEqual(state.MemorySpillRatio, plan.MemorySpillRatio) {
 		updatePaths = append(updatePaths, "resource_group.memory_spill_ratio")
 	}
+	if isWrapperInt64NotEqual(state.CpuMaxPercent, plan.CpuMaxPercent) {
+		updatePaths = append(updatePaths, "resource_group.cpu_max_percent")
+	}
+	if isWrapperInt64NotEqual(state.CpuWeight, plan.CpuWeight) {
+		updatePaths = append(updatePaths, "resource_group.cpu_weight")
+	}
+	if isWrapperInt64NotEqual(state.MemoryQuota, plan.MemoryQuota) {
+		updatePaths = append(updatePaths, "resource_group.memory_quota")
+	}
+	if isWrapperInt64NotEqual(state.MinCost, plan.MinCost) {
+		updatePaths = append(updatePaths, "resource_group.min_cost")
+	}
 	return updatePaths, diags
 }
 
@@ -228,9 +261,13 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	defer cancel()
 
 	cid := plan.ClusterID.ValueString()
-	rgState := resourceGroupFromState(ctx, &state)
-	rgPlan := resourceGroupFromState(ctx, &plan)
+	rgState := resourceGroupFromState(&state)
+	rgPlan := resourceGroupFromState(&plan)
 	updatePaths, diags := getUpdatePaths(rgPlan, rgState)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	if len(updatePaths) > 0 {
 		updateResourceGroup(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, cid, rgPlan, updatePaths)
@@ -242,11 +279,10 @@ func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resourceGroupToState(updated, &plan)
+	resourceGroupToState(ctx, updated, &plan, &resp.Diagnostics)
 
 	plan.Id = types.StringValue(resourceid.Construct(cid, rgPlan.Name))
-	diags.Append(resp.State.Set(ctx, plan)...)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
 func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -284,7 +320,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 		return
 	}
 	var state ResourceGroup
-	resourceGroupToState(rg, &state)
+	resourceGroupToState(ctx, rg, &state, &resp.Diagnostics)
 	state.Id = types.StringValue(req.ID)
 	state.ClusterID = types.StringValue(clusterId)
 

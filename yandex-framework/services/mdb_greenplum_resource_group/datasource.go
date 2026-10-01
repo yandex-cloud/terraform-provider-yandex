@@ -43,7 +43,7 @@ func (d *bindingDataSource) Configure(_ context.Context, req datasource.Configur
 
 func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Get information about a greenplum resource group.",
+		MarkdownDescription: "Get information about a Greenplum or Apache Cloudberry resource group.",
 		Attributes: map[string]schema.Attribute{
 			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
 				Create: true,
@@ -86,6 +86,22 @@ func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaReque
 				MarkdownDescription: getSchema(ctx).Attributes["memory_spill_ratio"].GetMarkdownDescription(),
 				Computed:            true,
 			},
+			"cpu_max_percent": schema.Int64Attribute{
+				MarkdownDescription: getSchema(ctx).Attributes["cpu_max_percent"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"cpu_weight": schema.Int64Attribute{
+				MarkdownDescription: getSchema(ctx).Attributes["cpu_weight"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"memory_quota": schema.Int64Attribute{
+				MarkdownDescription: getSchema(ctx).Attributes["memory_quota"].GetMarkdownDescription(),
+				Computed:            true,
+			},
+			"min_cost": schema.Int64Attribute{
+				MarkdownDescription: getSchema(ctx).Attributes["min_cost"].GetMarkdownDescription(),
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -105,7 +121,7 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 	state.Id = types.StringValue(resourceid.Construct(cid, rgName))
 
-	resourceGroupToState(rg, &state)
+	resourceGroupToState(ctx, rg, &state, &resp.Diagnostics)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

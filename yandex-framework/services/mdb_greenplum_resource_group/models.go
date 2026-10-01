@@ -4,9 +4,11 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
-	"google.golang.org/protobuf/types/known/wrapperspb"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
 type ResourceGroup struct {
@@ -16,60 +18,48 @@ type ResourceGroup struct {
 
 	IsUserDefined types.Bool `tfsdk:"is_user_defined"`
 
-	Concurrency       types.Int64    `tfsdk:"concurrency"`
-	CpuRateLimit      types.Int64    `tfsdk:"cpu_rate_limit"`
-	MemoryLimit       types.Int64    `tfsdk:"memory_limit"`
-	MemorySharedQuota types.Int64    `tfsdk:"memory_shared_quota"`
-	MemorySpillRatio  types.Int64    `tfsdk:"memory_spill_ratio"`
-	Timeouts          timeouts.Value `tfsdk:"timeouts"`
+	Concurrency       types.Int64 `tfsdk:"concurrency"`
+	CpuRateLimit      types.Int64 `tfsdk:"cpu_rate_limit"`
+	MemoryLimit       types.Int64 `tfsdk:"memory_limit"`
+	MemorySharedQuota types.Int64 `tfsdk:"memory_shared_quota"`
+	MemorySpillRatio  types.Int64 `tfsdk:"memory_spill_ratio"`
+
+	CpuMaxPercent types.Int64 `tfsdk:"cpu_max_percent"`
+	CpuWeight     types.Int64 `tfsdk:"cpu_weight"`
+	MemoryQuota   types.Int64 `tfsdk:"memory_quota"`
+	MinCost       types.Int64 `tfsdk:"min_cost"`
+
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
 }
 
-func resourceGroupToState(resourceGroup *greenplum.ResourceGroup, state *ResourceGroup) {
+func resourceGroupToState(ctx context.Context, resourceGroup *greenplum.ResourceGroup, state *ResourceGroup, diags *diag.Diagnostics) {
 	state.Name = types.StringValue(resourceGroup.Name)
 
 	state.IsUserDefined = types.BoolValue(resourceGroup.IsUserDefined.GetValue())
 
-	if resourceGroup.GetConcurrency() != nil {
-		state.Concurrency = types.Int64Value(resourceGroup.Concurrency.GetValue())
-	}
-	if resourceGroup.GetCpuRateLimit() != nil {
-		state.CpuRateLimit = types.Int64Value(resourceGroup.CpuRateLimit.GetValue())
-	}
-	if resourceGroup.GetMemoryLimit() != nil {
-		state.MemoryLimit = types.Int64Value(resourceGroup.MemoryLimit.GetValue())
-	}
-	if resourceGroup.GetMemorySharedQuota() != nil {
-		state.MemorySharedQuota = types.Int64Value(resourceGroup.MemorySharedQuota.GetValue())
-	}
-	if resourceGroup.GetMemorySpillRatio() != nil {
-		state.MemorySpillRatio = types.Int64Value(resourceGroup.MemorySpillRatio.GetValue())
-	}
+	state.Concurrency = mdbcommon.FlattenInt64Wrapper(ctx, resourceGroup.GetConcurrency(), diags)
+	state.CpuRateLimit = mdbcommon.FlattenInt64Wrapper(ctx, resourceGroup.GetCpuRateLimit(), diags)
+	state.MemoryLimit = mdbcommon.FlattenInt64Wrapper(ctx, resourceGroup.GetMemoryLimit(), diags)
+	state.MemorySharedQuota = mdbcommon.FlattenInt64Wrapper(ctx, resourceGroup.GetMemorySharedQuota(), diags)
+	state.MemorySpillRatio = mdbcommon.FlattenInt64Wrapper(ctx, resourceGroup.GetMemorySpillRatio(), diags)
+	state.CpuMaxPercent = mdbcommon.FlattenInt64Wrapper(ctx, resourceGroup.GetCpuMaxPercent(), diags)
+	state.CpuWeight = mdbcommon.FlattenInt64Wrapper(ctx, resourceGroup.GetCpuWeight(), diags)
+	state.MemoryQuota = mdbcommon.FlattenInt64Wrapper(ctx, resourceGroup.GetMemoryQuota(), diags)
+	state.MinCost = mdbcommon.FlattenInt64Wrapper(ctx, resourceGroup.GetMinCost(), diags)
 }
 
-func resourceGroupFromState(ctx context.Context, state *ResourceGroup) *greenplum.ResourceGroup {
-	rg := &greenplum.ResourceGroup{
-		Name: state.Name.ValueString(),
+func resourceGroupFromState(state *ResourceGroup) *greenplum.ResourceGroup {
+	return &greenplum.ResourceGroup{
+		Name:              state.Name.ValueString(),
+		IsUserDefined:     converter.WrappedBool(state.IsUserDefined),
+		Concurrency:       converter.WrappedInt64(state.Concurrency),
+		CpuRateLimit:      converter.WrappedInt64(state.CpuRateLimit),
+		MemoryLimit:       converter.WrappedInt64(state.MemoryLimit),
+		MemorySharedQuota: converter.WrappedInt64(state.MemorySharedQuota),
+		MemorySpillRatio:  converter.WrappedInt64(state.MemorySpillRatio),
+		CpuMaxPercent:     converter.WrappedInt64(state.CpuMaxPercent),
+		CpuWeight:         converter.WrappedInt64(state.CpuWeight),
+		MemoryQuota:       converter.WrappedInt64(state.MemoryQuota),
+		MinCost:           converter.WrappedInt64(state.MinCost),
 	}
-
-	if !state.IsUserDefined.IsUnknown() && !state.IsUserDefined.IsNull() {
-		rg.IsUserDefined = wrapperspb.Bool(state.IsUserDefined.ValueBool())
-	}
-
-	if !state.Concurrency.IsUnknown() && !state.Concurrency.IsNull() {
-		rg.Concurrency = wrapperspb.Int64(state.Concurrency.ValueInt64())
-	}
-	if !state.CpuRateLimit.IsUnknown() && !state.CpuRateLimit.IsNull() {
-		rg.CpuRateLimit = wrapperspb.Int64(state.CpuRateLimit.ValueInt64())
-	}
-	if !state.MemoryLimit.IsUnknown() && !state.MemoryLimit.IsNull() {
-		rg.MemoryLimit = wrapperspb.Int64(state.MemoryLimit.ValueInt64())
-	}
-	if !state.MemorySharedQuota.IsUnknown() && !state.MemorySharedQuota.IsNull() {
-		rg.MemorySharedQuota = wrapperspb.Int64(state.MemorySharedQuota.ValueInt64())
-	}
-	if !state.MemorySpillRatio.IsUnknown() && !state.MemorySpillRatio.IsNull() {
-		rg.MemorySpillRatio = wrapperspb.Int64(state.MemorySpillRatio.ValueInt64())
-	}
-
-	return rg
 }

@@ -1,24 +1,10 @@
-//
-// Create a new MDB Greenplum database resource group.
-//
-resource "yandex_mdb_greenplum_resource_group" "my_resource_group" {
-  cluster_id     = yandex_mdb_greenplum_cluster.my_cluster.id
-  name           = "alice"
-  password       = "password"
-  resource_group = "default_group"
-}
-
-resource "yandex_mdb_greenplum_cluster" "my_cluster" {
-  name        = "test"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-}
-
-// Auxiliary resources
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-d"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.5.0.0/24"]
+// Create a resource group in an existing Apache Cloudberry cluster.
+resource "yandex_mdb_greenplum_resource_group" "analytics" {
+  cluster_id      = "<cloudberry-cluster-id>"
+  name            = "analytics"
+  concurrency     = 10
+  cpu_max_percent = 80
+  cpu_weight      = 100
+  memory_quota    = 1024
+  min_cost        = 100
 }
