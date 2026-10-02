@@ -478,6 +478,8 @@ type Cluster struct {
 	// ID of the service account used for access to Object Storage.
 	ServiceAccountId string `protobuf:"bytes,13,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
 	// Maintenance window for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,14,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Planned maintenance operation to be started for the cluster within the nearest [maintenance_window].
 	PlannedOperation *MaintenanceOperation `protobuf:"bytes,15,opt,name=planned_operation,json=plannedOperation,proto3" json:"planned_operation,omitempty"`
@@ -616,6 +618,7 @@ func (x *Cluster) GetServiceAccountId() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster.proto.
 func (x *Cluster) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -2030,7 +2033,7 @@ var File_yandex_cloud_mdb_clickhouse_v1_cluster_proto protoreflect.FileDescripto
 
 const file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	",yandex/cloud/mdb/clickhouse/v1/cluster.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a6yandex/cloud/mdb/clickhouse/v1/config/clickhouse.proto\x1a0yandex/cloud/mdb/clickhouse/v1/maintenance.proto\x1a)yandex/cloud/mdb/clickhouse/v1/user.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xef\v\n" +
+	",yandex/cloud/mdb/clickhouse/v1/cluster.proto\x12\x1eyandex.cloud.mdb.clickhouse.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a6yandex/cloud/mdb/clickhouse/v1/config/clickhouse.proto\x1a0yandex/cloud/mdb/clickhouse/v1/maintenance.proto\x1a)yandex/cloud/mdb/clickhouse/v1/user.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xf3\v\n" +
 	"\aCluster\x12\x14\n" +
 	"\x02id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -2049,8 +2052,8 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_rawDesc = "" +
 	" \x01(\tR\tnetworkId\x12F\n" +
 	"\x06health\x18\v \x01(\x0e2..yandex.cloud.mdb.clickhouse.v1.Cluster.HealthR\x06health\x12F\n" +
 	"\x06status\x18\f \x01(\x0e2..yandex.cloud.mdb.clickhouse.v1.Cluster.StatusR\x06status\x12,\n" +
-	"\x12service_account_id\x18\r \x01(\tR\x10serviceAccountId\x12`\n" +
-	"\x12maintenance_window\x18\x0e \x01(\v21.yandex.cloud.mdb.clickhouse.v1.MaintenanceWindowR\x11maintenanceWindow\x12a\n" +
+	"\x12service_account_id\x18\r \x01(\tR\x10serviceAccountId\x12d\n" +
+	"\x12maintenance_window\x18\x0e \x01(\v21.yandex.cloud.mdb.clickhouse.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12a\n" +
 	"\x11planned_operation\x18\x0f \x01(\v24.yandex.cloud.mdb.clickhouse.v1.MaintenanceOperationR\x10plannedOperation\x12,\n" +
 	"\x12security_group_ids\x18\x10 \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\x11 \x01(\bR\x12deletionProtection\x12Q\n" +

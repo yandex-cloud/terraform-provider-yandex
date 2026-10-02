@@ -404,6 +404,8 @@ type CreateClusterRequest struct {
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,14,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Window of maintenance operations.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,15,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Configuration(s) of the shard(s) to be created.
 	ShardSpecs []*ShardSpec `protobuf:"bytes,16,rep,name=shard_specs,json=shardSpecs,proto3" json:"shard_specs,omitempty"`
@@ -543,6 +545,7 @@ func (x *CreateClusterRequest) GetDeletionProtection() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster_service.proto.
 func (x *CreateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -637,6 +640,8 @@ type UpdateClusterRequest struct {
 	// ID of the service account used for access to Object Storage.
 	ServiceAccountId string `protobuf:"bytes,7,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
 	// New maintenance window settings for the cluster.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,8,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// User security groups
 	SecurityGroupIds []string `protobuf:"bytes,9,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
@@ -733,6 +738,7 @@ func (x *UpdateClusterRequest) GetServiceAccountId() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster_service.proto.
 func (x *UpdateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -1568,6 +1574,8 @@ type RestoreClusterRequest struct {
 	// User security groups
 	SecurityGroupIds []string `protobuf:"bytes,11,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
 	// Window of maintenance operations.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,18,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,14,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
@@ -1697,6 +1705,7 @@ func (x *RestoreClusterRequest) GetSecurityGroupIds() []string {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster_service.proto.
 func (x *RestoreClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -5624,7 +5633,7 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"\x83\x01\n" +
 	"\x14ListClustersResponse\x12C\n" +
 	"\bclusters\x18\x01 \x03(\v2'.yandex.cloud.mdb.clickhouse.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x84\v\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x88\v\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x12;\n" +
 	"\x04name\x18\x02 \x01(\tB'\xe8\xc71\x01\xf2\xc71\x17[a-zA-Z_][a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -5645,8 +5654,8 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"shard_name\x18\v \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\tshardName\x12,\n" +
 	"\x12service_account_id\x18\f \x01(\tR\x10serviceAccountId\x12,\n" +
 	"\x12security_group_ids\x18\r \x03(\tR\x10securityGroupIds\x12/\n" +
-	"\x13deletion_protection\x18\x0e \x01(\bR\x12deletionProtection\x12`\n" +
-	"\x12maintenance_window\x18\x0f \x01(\v21.yandex.cloud.mdb.clickhouse.v1.MaintenanceWindowR\x11maintenanceWindow\x12J\n" +
+	"\x13deletion_protection\x18\x0e \x01(\bR\x12deletionProtection\x12d\n" +
+	"\x12maintenance_window\x18\x0f \x01(\v21.yandex.cloud.mdb.clickhouse.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12J\n" +
 	"\vshard_specs\x18\x10 \x03(\v2).yandex.cloud.mdb.clickhouse.v1.ShardSpecR\n" +
 	"shardSpecs\x12k\n" +
 	"\x16disk_encryption_key_id\x18\x12 \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x12X\n" +
@@ -5656,7 +5665,7 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x11\x10\x12\"<\n" +
 	"\x15CreateClusterMetadata\x12#\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\"\xc6\a\n" +
+	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\"\xca\a\n" +
 	"\x14UpdateClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12;\n" +
@@ -5667,8 +5676,8 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"\vconfig_spec\x18\x05 \x01(\v2*.yandex.cloud.mdb.clickhouse.v1.ConfigSpecR\n" +
 	"configSpec\x12.\n" +
 	"\x04name\x18\x06 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12,\n" +
-	"\x12service_account_id\x18\a \x01(\tR\x10serviceAccountId\x12`\n" +
-	"\x12maintenance_window\x18\b \x01(\v21.yandex.cloud.mdb.clickhouse.v1.MaintenanceWindowR\x11maintenanceWindow\x12,\n" +
+	"\x12service_account_id\x18\a \x01(\tR\x10serviceAccountId\x12d\n" +
+	"\x12maintenance_window\x18\b \x01(\v21.yandex.cloud.mdb.clickhouse.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12,\n" +
 	"\x12security_group_ids\x18\t \x03(\tR\x10securityGroupIds\x12/\n" +
 	"\x13deletion_protection\x18\n" +
 	" \x01(\bR\x12deletionProtection\x12(\n" +
@@ -5734,7 +5743,7 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\"<\n" +
 	"\x15BackupClusterMetadata\x12#\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\"\xc8\n" +
+	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\"\xcc\n" +
 	"\n" +
 	"\x15RestoreClusterRequest\x12!\n" +
 	"\tbackup_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\bbackupId\x122\n" +
@@ -5752,8 +5761,8 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"\tfolder_id\x18\t \x01(\tB\b\x8a\xc81\x04<=50R\bfolderId\x12,\n" +
 	"\x12service_account_id\x18\n" +
 	" \x01(\tR\x10serviceAccountId\x12,\n" +
-	"\x12security_group_ids\x18\v \x03(\tR\x10securityGroupIds\x12`\n" +
-	"\x12maintenance_window\x18\x12 \x01(\v21.yandex.cloud.mdb.clickhouse.v1.MaintenanceWindowR\x11maintenanceWindow\x12/\n" +
+	"\x12security_group_ids\x18\v \x03(\tR\x10securityGroupIds\x12d\n" +
+	"\x12maintenance_window\x18\x12 \x01(\v21.yandex.cloud.mdb.clickhouse.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12/\n" +
 	"\x13deletion_protection\x18\x0e \x01(\bR\x12deletionProtection\x12J\n" +
 	"\vshard_specs\x18\x0f \x03(\v2).yandex.cloud.mdb.clickhouse.v1.ShardSpecR\n" +
 	"shardSpecs\x12k\n" +
