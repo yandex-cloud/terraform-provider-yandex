@@ -110,7 +110,7 @@ func TestMain(m *testing.M) {
 	resource.TestMain(m)
 }
 
-func TestAccResourceYandexMdbGreenplumClusterV2_full(t *testing.T) {
+func TestAccMDBGreenplumClusterV2_full(t *testing.T) {
 	t.Parallel()
 
 	clusterName := acctest.RandomWithPrefix("tf-greenplum-cluster")
@@ -146,7 +146,7 @@ func TestAccResourceYandexMdbGreenplumClusterV2_full(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "cluster_config.background_activities.analyze_and_vacuum.analyze_timeout", "10800"),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "cluster_config.background_activities.analyze_and_vacuum.vacuum_timeout", "10800"),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "config.access.trino", "false"),
-					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "segment_host_count", "3"),
+					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "segment_host_count", "4"),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "segment_in_host", "2"),
 				),
 			},
@@ -230,7 +230,7 @@ resource "yandex_mdb_greenplum_cluster_v2" "test" {
   folder_id   = "%s"
   environment = "PRESTABLE"
 
-  segment_host_count = 3
+  segment_host_count = 4
   segment_in_host   = 2
 
   user_name = "testuser"

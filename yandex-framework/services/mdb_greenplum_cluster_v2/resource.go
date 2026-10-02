@@ -544,18 +544,8 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		updatePaths = append(updatePaths, "config_spec.background_activities.analyze_and_vacuum.analyze_timeout")
 	}
 
-	var yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumStartState, yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumStartPlan yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumStartModel
-	resp.Diagnostics.Append(yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumPlan.Start.As(ctx, &yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumStartPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumState.Start.As(ctx, &yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumStartState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if !yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumStartPlan.Hours.Equal(yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumStartState.Hours) {
-		updatePaths = append(updatePaths, "config_spec.background_activities.analyze_and_vacuum.start.hours")
-	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumStartPlan.Minutes.Equal(yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumStartState.Minutes) {
-		updatePaths = append(updatePaths, "config_spec.background_activities.analyze_and_vacuum.start.minutes")
+	if !yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumPlan.Start.Equal(yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumState.Start) {
+		updatePaths = append(updatePaths, "config_spec.background_activities.analyze_and_vacuum.start")
 	}
 	if !yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumPlan.VacuumTimeout.Equal(yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesAnalyzeAndVacuumState.VacuumTimeout) {
 		updatePaths = append(updatePaths, "config_spec.background_activities.analyze_and_vacuum.vacuum_timeout")
@@ -921,6 +911,9 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 	if !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
+	}
+	if !plan.SecurityGroupIds.IsUnknown() && !plan.SecurityGroupIds.Equal(state.SecurityGroupIds) {
+		updatePaths = append(updatePaths, "security_group_ids")
 	}
 
 	var yandexMdbGreenplumClusterV2SegmentConfigState, yandexMdbGreenplumClusterV2SegmentConfigPlan yandexMdbGreenplumClusterV2SegmentConfigModel

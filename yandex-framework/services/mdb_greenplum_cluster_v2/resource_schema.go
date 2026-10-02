@@ -1700,7 +1700,7 @@ func YandexMdbGreenplumClusterV2ResourceSchema(ctx context.Context) schema.Schem
 				Computed: true,
 
 				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.RequiresReplace(),
+					setplanmodifier.RequiresReplaceIfConfigured(),
 					setplanmodifier.UseStateForUnknown(),
 					planmodifiers.NilRelaxedSet(),
 				},
@@ -2099,7 +2099,7 @@ func YandexMdbGreenplumClusterV2ResourceSchema(ctx context.Context) schema.Schem
 				Computed: true,
 
 				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.RequiresReplace(),
+					setplanmodifier.RequiresReplaceIfConfigured(),
 					setplanmodifier.UseStateForUnknown(),
 					planmodifiers.NilRelaxedSet(),
 				},
@@ -2240,7 +2240,6 @@ func YandexMdbGreenplumClusterV2ResourceSchema(ctx context.Context) schema.Schem
 				Computed: true,
 
 				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.RequiresReplace(),
 					setplanmodifier.UseStateForUnknown(),
 					planmodifiers.NilRelaxedSet(),
 				},
