@@ -491,7 +491,7 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"keep_alive_timeout": schema.Int64Attribute{
 				Description: "The number of seconds that ClickHouse waits for incoming requests for HTTP protocol before closing the connection.",
 				Optional:    true,
-				// Computed:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -539,7 +539,7 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"geobase_enabled": schema.BoolAttribute{
 				Description: "Enable or disable geobase.",
 				Optional:    true,
-				// Computed:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -603,7 +603,7 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"metric_log_enabled": schema.BoolAttribute{
 				Description: "Enable or disable metric_log system table.",
 				Optional:    true,
-				// Computed:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -627,7 +627,7 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"trace_log_enabled": schema.BoolAttribute{
 				Description: "Enable or disable trace_log system table.",
 				Optional:    true,
-				// Computed:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -747,7 +747,7 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"session_log_enabled": schema.BoolAttribute{
 				Description: "Enable or disable session_log system table.",
 				Optional:    true,
-				// Computed:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -755,7 +755,7 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"session_log_retention_size": schema.Int64Attribute{
 				Description: "The maximum size that session_log can grow to before old data will be removed.",
 				Optional:    true,
-				// Computed:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -819,7 +819,7 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"processors_profile_log_enabled": schema.BoolAttribute{
 				Description: "Enables or disables processors_profile_log system table.",
 				Optional:    true,
-				// Computed:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -916,7 +916,7 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"background_fetches_pool_size": schema.Int64Attribute{
 				Description: "The maximum number of threads that will be used for fetching data parts from another replica for MergeTree-engine tables in a background.",
 				Optional:    true,
-				// Computed:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -1020,7 +1020,7 @@ func ClickHouseConfigSchema() schema.SingleNestedAttribute {
 			"dictionaries_lazy_load": schema.BoolAttribute{
 				Description: "Lazy loading of dictionaries. If true, then each dictionary is loaded on the first use.",
 				Optional:    true,
-				// Computed:    true,
+				Computed:    true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
