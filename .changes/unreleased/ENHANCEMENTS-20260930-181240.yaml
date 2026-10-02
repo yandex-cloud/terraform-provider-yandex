@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb_greenplum_cluster_v2: update security groups in place and avoid unintended cluster replacement for host group values.'
-time: 2026-09-30T18:12:40.007714+05:00

@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mdb_clickhouse: fix inconsistent result after apply in `yandex_mdb_clickhouse_cluster_v2` when `clickhouse.config` is set'
-time: 2026-09-24T15:36:29.464284+03:00

@@ -246,7 +246,9 @@ type MigrationCounters struct {
 	// Number of scheduled migration records.
 	Scheduled int64 `protobuf:"varint,5,opt,name=scheduled,proto3" json:"scheduled,omitempty"`
 	// Number of failed migration records.
-	Failed        int64 `protobuf:"varint,6,opt,name=failed,proto3" json:"failed,omitempty"`
+	Failed int64 `protobuf:"varint,6,opt,name=failed,proto3" json:"failed,omitempty"`
+	// Number of migration records whose source resource was not found.
+	NotFound      int64 `protobuf:"varint,8,opt,name=not_found,json=notFound,proto3" json:"not_found,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -319,6 +321,13 @@ func (x *MigrationCounters) GetScheduled() int64 {
 func (x *MigrationCounters) GetFailed() int64 {
 	if x != nil {
 		return x.Failed
+	}
+	return 0
+}
+
+func (x *MigrationCounters) GetNotFound() int64 {
+	if x != nil {
+		return x.NotFound
 	}
 	return 0
 }
@@ -493,7 +502,7 @@ const file_yandex_cloud_cloudregistry_v1_migration_proto_rawDesc = "" +
 	"\x1ctop_in_progress_repositories\x18\x06 \x03(\v28.yandex.cloud.cloudregistry.v1.RepositoryMigrationStatusR\x19topInProgressRepositories\"\xb7\x01\n" +
 	"\x19MigrationProgressCounters\x12T\n" +
 	"\frepositories\x18\x01 \x01(\v20.yandex.cloud.cloudregistry.v1.MigrationCountersR\frepositories\x12D\n" +
-	"\x04tags\x18\x02 \x01(\v20.yandex.cloud.cloudregistry.v1.MigrationCountersR\x04tags\"\xb8\x01\n" +
+	"\x04tags\x18\x02 \x01(\v20.yandex.cloud.cloudregistry.v1.MigrationCountersR\x04tags\"\xdb\x01\n" +
 	"\x11MigrationCounters\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12\x1c\n" +
 	"\tcompleted\x18\x02 \x01(\x03R\tcompleted\x12\x1f\n" +
@@ -501,7 +510,8 @@ const file_yandex_cloud_cloudregistry_v1_migration_proto_rawDesc = "" +
 	"inProgress\x12\x18\n" +
 	"\acreated\x18\x04 \x01(\x03R\acreated\x12\x1c\n" +
 	"\tscheduled\x18\x05 \x01(\x03R\tscheduled\x12\x16\n" +
-	"\x06failed\x18\x06 \x01(\x03R\x06failed\"\xd0\x01\n" +
+	"\x06failed\x18\x06 \x01(\x03R\x06failed\x12\x1b\n" +
+	"\tnot_found\x18\b \x01(\x03R\bnotFoundJ\x04\b\a\x10\b\"\xd0\x01\n" +
 	"\x19RepositoryMigrationStatus\x12'\n" +
 	"\x0frepository_name\x18\x01 \x01(\tR\x0erepositoryName\x12F\n" +
 	"\x06status\x18\x02 \x01(\x0e2..yandex.cloud.cloudregistry.v1.MigrationStatusR\x06status\x12\x1d\n" +

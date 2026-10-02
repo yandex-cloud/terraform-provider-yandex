@@ -58,6 +58,10 @@ func (m *MigrationCounters) SetFailed(v int64) {
 	m.Failed = v
 }
 
+func (m *MigrationCounters) SetNotFound(v int64) {
+	m.NotFound = v
+}
+
 func (m *RepositoryMigrationStatus) SetRepositoryName(v string) {
 	m.RepositoryName = v
 }
