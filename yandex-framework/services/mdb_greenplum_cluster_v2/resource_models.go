@@ -697,7 +697,7 @@ func flattenYandexMdbGreenplumClusterV2ClusterConfig(ctx context.Context,
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexMdbGreenplumClusterV2ClusterConfigModelType.AttrTypes, yandexMdbGreenplumClusterV2ClusterConfigModel{
 		BackgroundActivities: flattenYandexMdbGreenplumClusterV2ClusterConfigBackgroundActivities(ctx, yandexMdbGreenplumClusterV2ClusterConfig.GetBackgroundActivities(), converter.ExpandObject(ctx, state.BackgroundActivities, yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesModel{}, diags).(yandexMdbGreenplumClusterV2ClusterConfigBackgroundActivitiesModel), diags),
-		GreenplumConfig6:     flattenYandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6(ctx, yandexMdbGreenplumClusterV2ClusterConfig.GetGreenplumConfigSet_6(), diags),
+		GreenplumConfig6:     flattenDbmsConfigSet(ctx, yandexMdbGreenplumClusterV2ClusterConfig.GetDbmsConfigSet(), diags),
 		Pool:                 flattenYandexMdbGreenplumClusterV2ClusterConfigPool(ctx, yandexMdbGreenplumClusterV2ClusterConfig.GetPool(), converter.ExpandObject(ctx, state.Pool, yandexMdbGreenplumClusterV2ClusterConfigPoolModel{}, diags).(yandexMdbGreenplumClusterV2ClusterConfigPoolModel), diags),
 		PxfConfig:            flattenYandexMdbGreenplumClusterV2ClusterConfigPxfConfig(ctx, yandexMdbGreenplumClusterV2ClusterConfig.GetPxfConfig(), converter.ExpandObject(ctx, state.PxfConfig, yandexMdbGreenplumClusterV2ClusterConfigPxfConfigModel{}, diags).(yandexMdbGreenplumClusterV2ClusterConfigPxfConfigModel), diags),
 	})
@@ -732,7 +732,7 @@ func expandYandexMdbGreenplumClusterV2ClusterConfigModel_create(ctx context.Cont
 	value := &greenplum.ConfigSpec{}
 	value.SetBackgroundActivities(expandYandexMdbGreenplumClusterV2ClusterConfigBackgroundActivities(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.BackgroundActivities, diags))
 	if !(yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6.IsNull() || yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6.IsUnknown() || yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6.Equal(types.Object{})) {
-		value.SetGreenplumConfig_6(expandYandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6, diags))
+		value.SetDbmsConfig(expandDbmsConfig(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6, diags))
 	}
 	value.SetPool(expandYandexMdbGreenplumClusterV2ClusterConfigPool_create(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.Pool, diags))
 	value.SetPxfConfig(expandYandexMdbGreenplumClusterV2ClusterConfigPxfConfig_create(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.PxfConfig, diags))
@@ -745,7 +745,7 @@ func expandYandexMdbGreenplumClusterV2ClusterConfigModel_update(ctx context.Cont
 	value := &greenplum.ConfigSpec{}
 	value.SetBackgroundActivities(expandYandexMdbGreenplumClusterV2ClusterConfigBackgroundActivities(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.BackgroundActivities, diags))
 	if !(yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6.IsNull() || yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6.IsUnknown() || yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6.Equal(types.Object{})) {
-		value.SetGreenplumConfig_6(expandYandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6, diags))
+		value.SetDbmsConfig(expandDbmsConfig(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6, diags))
 	}
 	value.SetPool(expandYandexMdbGreenplumClusterV2ClusterConfigPool_update(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.Pool, diags))
 	value.SetPxfConfig(expandYandexMdbGreenplumClusterV2ClusterConfigPxfConfig_update(ctx, yandexMdbGreenplumClusterV2ClusterConfigState.PxfConfig, diags))
@@ -1765,7 +1765,7 @@ var yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6ModelType = types.Ob
 	},
 }
 
-func expandYandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6(ctx context.Context, yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State types.Object, diags *diag.Diagnostics) *greenplum.GreenplumConfig6 {
+func expandDbmsConfig(ctx context.Context, yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State types.Object, diags *diag.Diagnostics) *greenplum.DBMSConfig {
 	if yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.IsNull() || yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.IsUnknown() {
 		return nil
 	}
@@ -1774,11 +1774,11 @@ func expandYandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6(ctx context.
 	if diags.HasError() {
 		return nil
 	}
-	return expandYandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Model(ctx, yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6, diags)
+	return expandDbmsConfigModel(ctx, yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6, diags)
 }
 
-func expandYandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Model(ctx context.Context, yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Model, diags *diag.Diagnostics) *greenplum.GreenplumConfig6 {
-	value := &greenplum.GreenplumConfig6{}
+func expandDbmsConfigModel(ctx context.Context, yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Model, diags *diag.Diagnostics) *greenplum.DBMSConfig {
+	value := &greenplum.DBMSConfig{}
 	value.SetGpAddColumnInheritsTableSetting(expandBoolWrapper(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpAddColumnInheritsTableSetting))
 	value.SetGpAutostatsMode(greenplum.GPAutostatsMode(greenplum.GPAutostatsMode_value[yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpAutostatsMode.ValueString()]))
 	value.SetGpAutostatsOnChangeThreshold(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpAutostatsOnChangeThreshold))
@@ -1808,8 +1808,8 @@ func expandYandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Model(ctx con
 	return value
 }
 
-func flattenYandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6(ctx context.Context,
-	yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfigSet6 *greenplum.GreenplumConfigSet6,
+func flattenDbmsConfigSet(ctx context.Context,
+	yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfigSet6 *greenplum.DBMSConfigSet,
 	diags *diag.Diagnostics) types.Object {
 	if yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfigSet6 == nil {
 		return types.ObjectNull(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6ModelType.AttrTypes)

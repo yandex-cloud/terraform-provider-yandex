@@ -133,6 +133,7 @@ func TestAccMDBGreenplumClusterV2_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_mdb_greenplum_cluster_v2.test", "created_at"),
 					testAccCheckYandexMdbGreenplumClusterV2HasCloudStorage("yandex_mdb_greenplum_cluster_v2.test", true),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "config.access.trino", "true"),
+					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "cluster_config.greenplum_config.log_statement", "MOD"),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "segment_host_count", "2"),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "segment_in_host", "1"),
 				),
@@ -146,6 +147,7 @@ func TestAccMDBGreenplumClusterV2_full(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "cluster_config.background_activities.analyze_and_vacuum.analyze_timeout", "10800"),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "cluster_config.background_activities.analyze_and_vacuum.vacuum_timeout", "10800"),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "config.access.trino", "false"),
+					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "cluster_config.greenplum_config.log_statement", "ALL"),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "segment_host_count", "4"),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "segment_in_host", "2"),
 				),
@@ -187,6 +189,9 @@ resource "yandex_mdb_greenplum_cluster_v2" "test" {
     backup_window_start = {
       hours   = 1
       minutes = 30
+    }
+    greenplum_config = {
+      log_statement = "MOD"
     }
   }
 
@@ -242,6 +247,9 @@ resource "yandex_mdb_greenplum_cluster_v2" "test" {
     backup_window_start = {
       hours   = 1
       minutes = 30
+    }
+    greenplum_config = {
+      log_statement = "ALL"
     }
     
     background_activities = {

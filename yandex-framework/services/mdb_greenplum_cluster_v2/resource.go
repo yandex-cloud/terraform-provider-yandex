@@ -644,81 +644,81 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		updatePaths = append(updatePaths, "config_spec.background_activities.table_sizes.starts")
 	}
 
-	var yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State, yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Model
-	resp.Diagnostics.Append(yandexMdbGreenplumClusterV2ClusterConfigPlan.GreenplumConfig6.As(ctx, &yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-	resp.Diagnostics.Append(yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6.As(ctx, &yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	var dbmsConfigState, dbmsConfigPlan yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Model
+	resp.Diagnostics.Append(yandexMdbGreenplumClusterV2ClusterConfigPlan.GreenplumConfig6.As(ctx, &dbmsConfigPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	resp.Diagnostics.Append(yandexMdbGreenplumClusterV2ClusterConfigState.GreenplumConfig6.As(ctx, &dbmsConfigState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpAddColumnInheritsTableSetting.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpAddColumnInheritsTableSetting) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_add_column_inherits_table_setting")
+	if !dbmsConfigPlan.GpAddColumnInheritsTableSetting.Equal(dbmsConfigState.GpAddColumnInheritsTableSetting) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_add_column_inherits_table_setting")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpAutostatsMode.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpAutostatsMode) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_autostats_mode")
+	if !dbmsConfigPlan.GpAutostatsMode.Equal(dbmsConfigState.GpAutostatsMode) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_autostats_mode")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpAutostatsOnChangeThreshold.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpAutostatsOnChangeThreshold) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_autostats_on_change_threshold")
+	if !dbmsConfigPlan.GpAutostatsOnChangeThreshold.Equal(dbmsConfigState.GpAutostatsOnChangeThreshold) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_autostats_on_change_threshold")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpCachedSegworkersThreshold.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpCachedSegworkersThreshold) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_cached_segworkers_threshold")
+	if !dbmsConfigPlan.GpCachedSegworkersThreshold.Equal(dbmsConfigState.GpCachedSegworkersThreshold) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_cached_segworkers_threshold")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpEnableGlobalDeadlockDetector.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpEnableGlobalDeadlockDetector) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_enable_global_deadlock_detector")
+	if !dbmsConfigPlan.GpEnableGlobalDeadlockDetector.Equal(dbmsConfigState.GpEnableGlobalDeadlockDetector) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_enable_global_deadlock_detector")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpEnableZstdMemoryAccounting.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpEnableZstdMemoryAccounting) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_enable_zstd_memory_accounting")
+	if !dbmsConfigPlan.GpEnableZstdMemoryAccounting.Equal(dbmsConfigState.GpEnableZstdMemoryAccounting) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_enable_zstd_memory_accounting")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpGlobalDeadlockDetectorPeriod.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpGlobalDeadlockDetectorPeriod) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_global_deadlock_detector_period")
+	if !dbmsConfigPlan.GpGlobalDeadlockDetectorPeriod.Equal(dbmsConfigState.GpGlobalDeadlockDetectorPeriod) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_global_deadlock_detector_period")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpMaxPlanSize.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpMaxPlanSize) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_max_plan_size")
+	if !dbmsConfigPlan.GpMaxPlanSize.Equal(dbmsConfigState.GpMaxPlanSize) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_max_plan_size")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpMaxSlices.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpMaxSlices) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_max_slices")
+	if !dbmsConfigPlan.GpMaxSlices.Equal(dbmsConfigState.GpMaxSlices) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_max_slices")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpResourceGroupMemoryLimit.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpResourceGroupMemoryLimit) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_resource_group_memory_limit")
+	if !dbmsConfigPlan.GpResourceGroupMemoryLimit.Equal(dbmsConfigState.GpResourceGroupMemoryLimit) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_resource_group_memory_limit")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpVmemProtectSegworkerCacheLimit.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpVmemProtectSegworkerCacheLimit) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_vmem_protect_segworker_cache_limit")
+	if !dbmsConfigPlan.GpVmemProtectSegworkerCacheLimit.Equal(dbmsConfigState.GpVmemProtectSegworkerCacheLimit) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_vmem_protect_segworker_cache_limit")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpWorkfileCompression.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpWorkfileCompression) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_workfile_compression")
+	if !dbmsConfigPlan.GpWorkfileCompression.Equal(dbmsConfigState.GpWorkfileCompression) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_workfile_compression")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpWorkfileLimitFilesPerQuery.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpWorkfileLimitFilesPerQuery) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_workfile_limit_files_per_query")
+	if !dbmsConfigPlan.GpWorkfileLimitFilesPerQuery.Equal(dbmsConfigState.GpWorkfileLimitFilesPerQuery) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_workfile_limit_files_per_query")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpWorkfileLimitPerQuery.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpWorkfileLimitPerQuery) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_workfile_limit_per_query")
+	if !dbmsConfigPlan.GpWorkfileLimitPerQuery.Equal(dbmsConfigState.GpWorkfileLimitPerQuery) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_workfile_limit_per_query")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.GpWorkfileLimitPerSegment.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.GpWorkfileLimitPerSegment) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.gp_workfile_limit_per_segment")
+	if !dbmsConfigPlan.GpWorkfileLimitPerSegment.Equal(dbmsConfigState.GpWorkfileLimitPerSegment) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.gp_workfile_limit_per_segment")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.IdleInTransactionSessionTimeout.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.IdleInTransactionSessionTimeout) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.idle_in_transaction_session_timeout")
+	if !dbmsConfigPlan.IdleInTransactionSessionTimeout.Equal(dbmsConfigState.IdleInTransactionSessionTimeout) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.idle_in_transaction_session_timeout")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.LockTimeout.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.LockTimeout) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.lock_timeout")
+	if !dbmsConfigPlan.LockTimeout.Equal(dbmsConfigState.LockTimeout) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.lock_timeout")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.LogStatement.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.LogStatement) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.log_statement")
+	if !dbmsConfigPlan.LogStatement.Equal(dbmsConfigState.LogStatement) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.log_statement")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.MaxConnections.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.MaxConnections) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.max_connections")
+	if !dbmsConfigPlan.MaxConnections.Equal(dbmsConfigState.MaxConnections) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.max_connections")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.MaxPreparedTransactions.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.MaxPreparedTransactions) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.max_prepared_transactions")
+	if !dbmsConfigPlan.MaxPreparedTransactions.Equal(dbmsConfigState.MaxPreparedTransactions) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.max_prepared_transactions")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.MaxSlotWalKeepSize.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.MaxSlotWalKeepSize) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.max_slot_wal_keep_size")
+	if !dbmsConfigPlan.MaxSlotWalKeepSize.Equal(dbmsConfigState.MaxSlotWalKeepSize) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.max_slot_wal_keep_size")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.MaxStatementMem.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.MaxStatementMem) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.max_statement_mem")
+	if !dbmsConfigPlan.MaxStatementMem.Equal(dbmsConfigState.MaxStatementMem) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.max_statement_mem")
 	}
-	if !yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6Plan.RunawayDetectorActivationPercent.Equal(yandexMdbGreenplumClusterV2ClusterConfigGreenplumConfig6State.RunawayDetectorActivationPercent) {
-		updatePaths = append(updatePaths, "config_spec.greenplum_config_6.runaway_detector_activation_percent")
+	if !dbmsConfigPlan.RunawayDetectorActivationPercent.Equal(dbmsConfigState.RunawayDetectorActivationPercent) {
+		updatePaths = append(updatePaths, "config_spec.dbms_config.runaway_detector_activation_percent")
 	}
 
 	var yandexMdbGreenplumClusterV2ClusterConfigPoolState, yandexMdbGreenplumClusterV2ClusterConfigPoolPlan yandexMdbGreenplumClusterV2ClusterConfigPoolModel
