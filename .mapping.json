@@ -10828,6 +10828,7 @@
   "yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy/resource_models.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy/resource_models.go",
   "yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy/resource_schema.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy/resource_schema.go",
   "yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy/resource_test.go",
+  "yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy/resource_update_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudregistry_scan_policy/resource_update_test.go",
   "yandex-framework/gen/yandex/yandex_cloudrouter_routing_instance/datasource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudrouter_routing_instance/datasource.go",
   "yandex-framework/gen/yandex/yandex_cloudrouter_routing_instance/datasource_models.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudrouter_routing_instance/datasource_models.go",
   "yandex-framework/gen/yandex/yandex_cloudrouter_routing_instance/datasource_schema.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_cloudrouter_routing_instance/datasource_schema.go",

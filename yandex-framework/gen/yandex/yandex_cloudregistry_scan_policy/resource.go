@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cloudregistry "github.com/yandex-cloud/go-genproto/yandex/cloud/cloudregistry/v1"
 	cloudregistryv1sdk "github.com/yandex-cloud/go-sdk/services/cloudregistry/v1"
@@ -321,53 +320,8 @@ func (r *yandexCloudregistryScanPolicyResource) Update(ctx context.Context, req 
 	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-
-	if (plan.Rules.IsNull() || state.Rules.IsNull()) &&
-		!(plan.Rules.IsNull() && state.Rules.IsNull()) &&
-		!plan.Rules.IsUnknown() {
+	if !plan.Rules.IsUnknown() && !plan.Rules.Equal(state.Rules) {
 		updatePaths = append(updatePaths, "rules")
-	} else if !plan.Rules.IsUnknown() {
-		var yandexCloudregistryScanPolicyRulesState, yandexCloudregistryScanPolicyRulesPlan yandexCloudregistryScanPolicyRulesModel
-		resp.Diagnostics.Append(plan.Rules.As(ctx, &yandexCloudregistryScanPolicyRulesPlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-		resp.Diagnostics.Append(state.Rules.As(ctx, &yandexCloudregistryScanPolicyRulesState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-
-		if (yandexCloudregistryScanPolicyRulesPlan.PushRule.IsNull() || yandexCloudregistryScanPolicyRulesState.PushRule.IsNull()) &&
-			!(yandexCloudregistryScanPolicyRulesPlan.PushRule.IsNull() && yandexCloudregistryScanPolicyRulesState.PushRule.IsNull()) &&
-			!yandexCloudregistryScanPolicyRulesPlan.PushRule.IsUnknown() {
-			updatePaths = append(updatePaths, "rules.push_rule")
-		} else if !yandexCloudregistryScanPolicyRulesPlan.PushRule.IsUnknown() {
-			var yandexCloudregistryScanPolicyRulesPushRuleState, yandexCloudregistryScanPolicyRulesPushRulePlan yandexCloudregistryScanPolicyRulesPushRuleModel
-			resp.Diagnostics.Append(yandexCloudregistryScanPolicyRulesPlan.PushRule.As(ctx, &yandexCloudregistryScanPolicyRulesPushRulePlan, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-			resp.Diagnostics.Append(yandexCloudregistryScanPolicyRulesState.PushRule.As(ctx, &yandexCloudregistryScanPolicyRulesPushRuleState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-
-			if !yandexCloudregistryScanPolicyRulesPushRulePlan.Disabled.IsUnknown() && !yandexCloudregistryScanPolicyRulesPushRulePlan.Disabled.Equal(yandexCloudregistryScanPolicyRulesPushRuleState.Disabled) {
-				updatePaths = append(updatePaths, "rules.push_rule.disabled")
-			}
-			if yandexCloudregistryScanPolicyRulesPushRulePlan.Paths.IsNull() {
-				yandexCloudregistryScanPolicyRulesPushRulePlan.Paths = types.ListNull(types.StringType)
-			}
-			if yandexCloudregistryScanPolicyRulesPushRuleState.Paths.IsNull() {
-				yandexCloudregistryScanPolicyRulesPushRuleState.Paths = types.ListNull(types.StringType)
-			}
-			if !yandexCloudregistryScanPolicyRulesPushRulePlan.Paths.IsUnknown() && !yandexCloudregistryScanPolicyRulesPushRulePlan.Paths.Equal(yandexCloudregistryScanPolicyRulesPushRuleState.Paths) {
-				updatePaths = append(updatePaths, "rules.push_rule.paths")
-			}
-		}
-		if yandexCloudregistryScanPolicyRulesPlan.ScheduleRules.IsNull() {
-			yandexCloudregistryScanPolicyRulesPlan.ScheduleRules = types.ListNull(yandexCloudregistryScanPolicyRulesScheduledRuleStructModelType)
-		}
-		if yandexCloudregistryScanPolicyRulesState.ScheduleRules.IsNull() {
-			yandexCloudregistryScanPolicyRulesState.ScheduleRules = types.ListNull(yandexCloudregistryScanPolicyRulesScheduledRuleStructModelType)
-		}
-		if !yandexCloudregistryScanPolicyRulesPlan.ScheduleRules.IsUnknown() && !yandexCloudregistryScanPolicyRulesPlan.ScheduleRules.Equal(yandexCloudregistryScanPolicyRulesState.ScheduleRules) {
-			updatePaths = append(updatePaths, "rules.schedule_rules")
-		}
 	}
 	if !plan.ScanLangPackages.IsUnknown() && !plan.ScanLangPackages.Equal(state.ScanLangPackages) {
 		updatePaths = append(updatePaths, "scan_lang_packages")
