@@ -372,9 +372,6 @@ func (r *yandexCloudregistryScanPolicyResource) Update(ctx context.Context, req 
 	if !plan.ScanLangPackages.IsUnknown() && !plan.ScanLangPackages.Equal(state.ScanLangPackages) {
 		updatePaths = append(updatePaths, "scan_lang_packages")
 	}
-	if !plan.ScanPolicyId.IsUnknown() && !plan.ScanPolicyId.Equal(state.ScanPolicyId) {
-		updatePaths = append(updatePaths, "scan_policy_id")
-	}
 	if len(updatePaths) != 0 {
 
 		updateReq := &cloudregistry.UpdateScanPolicyRequest{}

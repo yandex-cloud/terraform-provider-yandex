@@ -118,14 +118,10 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 					// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.policy_id
 					"package: yandex.cloud.cloudregistry.v1\n" +
 					"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy_service.proto\n",
-				Optional: true,
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 
@@ -139,14 +135,10 @@ func YandexCloudregistryLifecyclePolicyResourceSchema(ctx context.Context) schem
 					// -> yandex.cloud.cloudregistry.v1.UpdateLifecyclePolicyRequest.policy_id
 					"package: yandex.cloud.cloudregistry.v1\n" +
 					"filename: yandex/cloud/cloudregistry/v1/lifecycle_policy_service.proto\n",
-				Optional: true,
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 

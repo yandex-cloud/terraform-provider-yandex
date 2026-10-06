@@ -329,14 +329,10 @@ func YandexCloudregistryScanPolicyResourceSchema(ctx context.Context) schema.Sch
 					// -> yandex.cloud.cloudregistry.v1.UpdateScanPolicyRequest.scan_policy_id
 					"package: yandex.cloud.cloudregistry.v1\n" +
 					"filename: yandex/cloud/cloudregistry/v1/scan_policy_service.proto\n",
-				Optional: true,
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 
@@ -350,14 +346,10 @@ func YandexCloudregistryScanPolicyResourceSchema(ctx context.Context) schema.Sch
 					// -> yandex.cloud.cloudregistry.v1.UpdateScanPolicyRequest.scan_policy_id
 					"package: yandex.cloud.cloudregistry.v1\n" +
 					"filename: yandex/cloud/cloudregistry/v1/scan_policy_service.proto\n",
-				Optional: true,
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 

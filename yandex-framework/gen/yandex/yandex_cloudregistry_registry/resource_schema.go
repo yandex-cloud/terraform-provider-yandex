@@ -263,14 +263,10 @@ func YandexCloudregistryRegistryResourceSchema(ctx context.Context) schema.Schem
 					// -> yandex.cloud.cloudregistry.v1.UpdateRegistryRequest.registry_id
 					"package: yandex.cloud.cloudregistry.v1\n" +
 					"filename: yandex/cloud/cloudregistry/v1/registry_service.proto\n",
-				Optional: true,
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 
@@ -284,14 +280,10 @@ func YandexCloudregistryRegistryResourceSchema(ctx context.Context) schema.Schem
 					// -> yandex.cloud.cloudregistry.v1.UpdateRegistryRequest.registry_id
 					"package: yandex.cloud.cloudregistry.v1\n" +
 					"filename: yandex/cloud/cloudregistry/v1/registry_service.proto\n",
-				Optional: true,
 				Computed: true,
 
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.LengthBetween(0, 50),
 				},
 			},
 

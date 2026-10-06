@@ -404,9 +404,6 @@ func (r *yandexCloudregistryRegistryResource) Update(ctx context.Context, req re
 	if !plan.Properties.IsUnknown() && !plan.Properties.Equal(state.Properties) {
 		updatePaths = append(updatePaths, "properties")
 	}
-	if !plan.RegistryId.IsUnknown() && !plan.RegistryId.Equal(state.RegistryId) {
-		updatePaths = append(updatePaths, "registry_id")
-	}
 	if len(updatePaths) != 0 {
 
 		updateReq := &cloudregistry.UpdateRegistryRequest{}

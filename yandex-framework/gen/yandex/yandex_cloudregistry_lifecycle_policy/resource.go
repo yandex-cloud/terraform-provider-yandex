@@ -316,9 +316,6 @@ func (r *yandexCloudregistryLifecyclePolicyResource) Update(ctx context.Context,
 	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
-	if !plan.PolicyId.IsUnknown() && !plan.PolicyId.Equal(state.PolicyId) {
-		updatePaths = append(updatePaths, "policy_id")
-	}
 	if plan.Rules.IsNull() {
 		plan.Rules = types.ListNull(yandexCloudregistryLifecyclePolicyLifecycleRuleStructModelType)
 	}
