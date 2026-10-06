@@ -41,3 +41,7 @@ func (m *UserSettingsConfig) SetPoolClientIdleTimeout(v *wrapperspb.Int64Value) 
 func (m *UserSettingsConfig) SetPoolIdleInTransactionTimeout(v *wrapperspb.Int64Value) {
 	m.PoolIdleInTransactionTimeout = v
 }
+
+func (m *UserSettingsConfig) SetPoolDiscard(v *wrapperspb.BoolValue) {
+	m.PoolDiscard = v
+}

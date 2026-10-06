@@ -176,8 +176,11 @@ type UserSettingsConfig struct {
 	// Set to zero to disable.
 	// If not set, uses the cluster-level pool.idle_in_transaction_timeout setting.
 	PoolIdleInTransactionTimeout *wrapperspb.Int64Value `protobuf:"bytes,4,opt,name=pool_idle_in_transaction_timeout,json=poolIdleInTransactionTimeout,proto3" json:"pool_idle_in_transaction_timeout,omitempty"`
-	unknownFields                protoimpl.UnknownFields
-	sizeCache                    protoimpl.SizeCache
+	// Enables cleanup of server connections when they are returned to the connection pool.
+	// If not set, uses the cluster-level pool.pool_discard setting.
+	PoolDiscard   *wrapperspb.BoolValue `protobuf:"bytes,5,opt,name=pool_discard,json=poolDiscard,proto3" json:"pool_discard,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UserSettingsConfig) Reset() {
@@ -238,6 +241,13 @@ func (x *UserSettingsConfig) GetPoolIdleInTransactionTimeout() *wrapperspb.Int64
 	return nil
 }
 
+func (x *UserSettingsConfig) GetPoolDiscard() *wrapperspb.BoolValue {
+	if x != nil {
+		return x.PoolDiscard
+	}
+	return nil
+}
+
 var File_yandex_cloud_mdb_greenplum_v1_user_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_greenplum_v1_user_proto_rawDesc = "" +
@@ -248,12 +258,13 @@ const file_yandex_cloud_mdb_greenplum_v1_user_proto_rawDesc = "" +
 	"\bpassword\x18\x02 \x01(\tB\t\x8a\xc81\x05<=128R\bpassword\x120\n" +
 	"\x05login\x18\x04 \x01(\v2\x1a.google.protobuf.BoolValueR\x05login\x12@\n" +
 	"\x0eresource_group\x18\x03 \x01(\tB\x19\xf2\xc71\x15^([^\\|/*?.,;\"'<>]+|)$R\rresourceGroup\x12M\n" +
-	"\bsettings\x18\t \x01(\v21.yandex.cloud.mdb.greenplum.v1.UserSettingsConfigR\bsettingsJ\x04\b\x05\x10\t\"\xc2\x03\n" +
+	"\bsettings\x18\t \x01(\v21.yandex.cloud.mdb.greenplum.v1.UserSettingsConfigR\bsettingsJ\x04\b\x05\x10\t\"\x81\x04\n" +
 	"\x12UserSettingsConfig\x12W\n" +
 	"\tpool_mode\x18\x01 \x01(\x0e2:.yandex.cloud.mdb.greenplum.v1.UserSettingsConfig.PoolModeR\bpoolMode\x12A\n" +
 	"\tpool_size\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueB\a\xfa\xc71\x03>=0R\bpoolSize\x12]\n" +
 	"\x18pool_client_idle_timeout\x18\x03 \x01(\v2\x1b.google.protobuf.Int64ValueB\a\xfa\xc71\x03>=0R\x15poolClientIdleTimeout\x12l\n" +
-	" pool_idle_in_transaction_timeout\x18\x04 \x01(\v2\x1b.google.protobuf.Int64ValueB\a\xfa\xc71\x03>=0R\x1cpoolIdleInTransactionTimeout\"C\n" +
+	" pool_idle_in_transaction_timeout\x18\x04 \x01(\v2\x1b.google.protobuf.Int64ValueB\a\xfa\xc71\x03>=0R\x1cpoolIdleInTransactionTimeout\x12=\n" +
+	"\fpool_discard\x18\x05 \x01(\v2\x1a.google.protobuf.BoolValueR\vpoolDiscard\"C\n" +
 	"\bPoolMode\x12\x19\n" +
 	"\x15POOL_MODE_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aSESSION\x10\x01\x12\x0f\n" +
@@ -288,11 +299,12 @@ var file_yandex_cloud_mdb_greenplum_v1_user_proto_depIdxs = []int32{
 	4, // 3: yandex.cloud.mdb.greenplum.v1.UserSettingsConfig.pool_size:type_name -> google.protobuf.Int64Value
 	4, // 4: yandex.cloud.mdb.greenplum.v1.UserSettingsConfig.pool_client_idle_timeout:type_name -> google.protobuf.Int64Value
 	4, // 5: yandex.cloud.mdb.greenplum.v1.UserSettingsConfig.pool_idle_in_transaction_timeout:type_name -> google.protobuf.Int64Value
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	3, // 6: yandex.cloud.mdb.greenplum.v1.UserSettingsConfig.pool_discard:type_name -> google.protobuf.BoolValue
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_greenplum_v1_user_proto_init() }
