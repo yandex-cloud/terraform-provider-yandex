@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
@@ -11,7 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
+	grpcdns "google.golang.org/grpc/resolver/dns"
 )
+
+// Keep DNS lookups within the 20-second endpoint discovery deadline.
+const grpcDNSResolvingTimeout = 10 * time.Second
 
 func NewMuxProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer, error) {
 
@@ -36,6 +41,8 @@ func NewMuxProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer,
 }
 
 func main() {
+	grpcdns.SetResolvingTimeout(grpcDNSResolvingTimeout)
+
 	ctx := context.Background()
 	var debug bool
 	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
