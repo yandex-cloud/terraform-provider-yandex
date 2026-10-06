@@ -16,6 +16,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/compare"
+	testconfig "github.com/hashicorp/terraform-plugin-testing/config"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -1455,8 +1456,11 @@ func TestAccMDBMySQLCluster_HostSpecialCaseTests(t *testing.T) {
 func TestAccMDBMySQLCluster_restoreFromSourceCluster(t *testing.T) {
 	t.Parallel()
 
+	restoreVariables := testconfig.Variables{}
+
 	var cluster mysql.Cluster
-	clusterResource := "yandex_mdb_mysql_cluster_v2.restore_from_source_cluster_test"
+	const clusterResourceName = "restore_from_source_cluster_test"
+	clusterResource := "yandex_mdb_mysql_cluster_v2." + clusterResourceName
 	clusterName := acctest.RandomWithPrefix("mysql-restored-form-source-cluster-cluster")
 
 	resource.Test(t, resource.TestCase{
@@ -1465,10 +1469,17 @@ func TestAccMDBMySQLCluster_restoreFromSourceCluster(t *testing.T) {
 		CheckDestroy:             testAccCheckMDBMySQLClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBMySQLClusterConfigRestoreFromSourceCluster(clusterName, msSourceClusterId),
+				PreConfig: func() {
+					backup := latestMySQLBackup(t, msSourceClusterId)
+					restoreVariables["name"] = testconfig.StringVariable(clusterName)
+					restoreVariables["source_cluster_id"] = testconfig.StringVariable(msSourceClusterId)
+					restoreVariables["restore_time"] = testconfig.StringVariable(resolvePITRTime(backup.GetCreatedAt().AsTime()))
+				},
+				Config:          testAccMDBMySQLClusterConfigRestore(clusterResourceName),
+				ConfigVariables: restoreVariables,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact("MySQL Cluster Restore From Source Cluster Test")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact("MySQL Cluster Restore Test")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
@@ -1487,8 +1498,11 @@ func TestAccMDBMySQLCluster_restoreFromSourceCluster(t *testing.T) {
 func TestAccMDBMySQLCluster_restore(t *testing.T) {
 	t.Parallel()
 
+	restoreVariables := testconfig.Variables{}
+
 	var cluster mysql.Cluster
-	clusterResource := "yandex_mdb_mysql_cluster_v2.restore_test"
+	const clusterResourceName = "restore_test"
+	clusterResource := "yandex_mdb_mysql_cluster_v2." + clusterResourceName
 	clusterName := acctest.RandomWithPrefix("mysql-restored-cluster")
 
 	resource.Test(t, resource.TestCase{
@@ -1497,7 +1511,15 @@ func TestAccMDBMySQLCluster_restore(t *testing.T) {
 		CheckDestroy:             testAccCheckMDBMySQLClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBMySQLClusterConfigRestore(clusterName, msRestoreBackupId, true),
+				PreConfig: func() {
+					backup := latestMySQLBackup(t, msSourceClusterId)
+					restoreVariables["name"] = testconfig.StringVariable(clusterName)
+					restoreVariables["deletion_protection"] = testconfig.BoolVariable(true)
+					restoreVariables["backup_id"] = testconfig.StringVariable(backup.GetId())
+					restoreVariables["restore_time"] = testconfig.StringVariable(resolvePITRTime(backup.GetCreatedAt().AsTime()))
+				},
+				Config:          testAccMDBMySQLClusterConfigRestore(clusterResourceName),
+				ConfigVariables: restoreVariables,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact("MySQL Cluster Restore Test")),
@@ -1513,7 +1535,11 @@ func TestAccMDBMySQLCluster_restore(t *testing.T) {
 			},
 			// Uncheck deletion_protection
 			{
-				Config: testAccMDBMySQLClusterConfigRestore(clusterName, msRestoreBackupId, false),
+				PreConfig: func() {
+					restoreVariables["deletion_protection"] = testconfig.BoolVariable(false)
+				},
+				Config:          testAccMDBMySQLClusterConfigRestore(clusterResourceName),
+				ConfigVariables: restoreVariables,
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 				},
@@ -1567,9 +1593,12 @@ func TestAccMDBMySQLCluster_diskEncryption(t *testing.T) {
 func TestAccMDBMySQLCluster_dropDiskEncryption(t *testing.T) {
 	t.Parallel()
 
+	restoreVariables := testconfig.Variables{}
+
 	var cluster mysql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-mysql-drop-disk-encryption")
-	clusterResource := "yandex_mdb_mysql_cluster_v2.restore_with_encryption_test"
+	const clusterResourceName = "restore_with_encryption_test"
+	clusterResource := "yandex_mdb_mysql_cluster_v2." + clusterResourceName
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -1580,7 +1609,14 @@ func TestAccMDBMySQLCluster_dropDiskEncryption(t *testing.T) {
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBMySQLClusterConfigRestoreDropEncryption(clusterName),
+				PreConfig: func() {
+					restoreVariables["name"] = testconfig.StringVariable(clusterName)
+					restoreVariables["deletion_protection"] = testconfig.BoolVariable(false)
+					restoreVariables["backup_id"] = testconfig.StringVariable(msRestoreBackupIdEncrypted)
+					restoreVariables["disk_encryption"] = testconfig.BoolVariable(false)
+				},
+				Config:          testAccMDBMySQLClusterConfigRestore(clusterResourceName),
+				ConfigVariables: restoreVariables,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
 					resource.TestCheckNoResourceAttr(clusterResource, "disk_encryption_key_id"),
@@ -1594,9 +1630,12 @@ func TestAccMDBMySQLCluster_dropDiskEncryption(t *testing.T) {
 func TestAccMDBMySQLCluster_addDiskEncryption(t *testing.T) {
 	t.Parallel()
 
+	restoreVariables := testconfig.Variables{}
+
 	var cluster mysql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-mysql-add-disk-encryption")
-	clusterResource := "yandex_mdb_mysql_cluster_v2.restore_with_encryption_test"
+	const clusterResourceName = "restore_with_encryption_test"
+	clusterResource := "yandex_mdb_mysql_cluster_v2." + clusterResourceName
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -1607,7 +1646,14 @@ func TestAccMDBMySQLCluster_addDiskEncryption(t *testing.T) {
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBMySQLClusterConfigRestoreAddEncryption(clusterName),
+				PreConfig: func() {
+					restoreVariables["name"] = testconfig.StringVariable(clusterName)
+					restoreVariables["deletion_protection"] = testconfig.BoolVariable(false)
+					restoreVariables["backup_id"] = testconfig.StringVariable(msRestoreBackupId)
+					restoreVariables["disk_encryption"] = testconfig.BoolVariable(true)
+				},
+				Config:          testAccMDBMySQLClusterConfigRestore(clusterResourceName),
+				ConfigVariables: restoreVariables,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttrSet(clusterResource, "disk_encryption_key_id"),
@@ -1615,6 +1661,48 @@ func TestAccMDBMySQLCluster_addDiskEncryption(t *testing.T) {
 			},
 		},
 	})
+}
+
+func latestMySQLBackup(t *testing.T, clusterID string) *mysql.Backup {
+	t.Helper()
+
+	config, err := test.ConfigForSweepers()
+	if err != nil {
+		t.Fatalf("creating MySQL client: %s", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	it := mysqlsdk.NewClusterClient(config.SDKv2).BackupsIterator(ctx, &mysql.ListClusterBackupsRequest{
+		ClusterId: clusterID,
+		PageSize:  defaultMDBPageSize,
+	})
+	var latest *mysql.Backup
+	for it.Next() {
+		backup := it.Value()
+		if backup.GetStatus() != mysql.Backup_DONE || backup.GetType() != mysql.Backup_AUTOMATED || backup.GetCreatedAt() == nil {
+			continue
+		}
+		if latest == nil || backup.GetCreatedAt().AsTime().After(latest.GetCreatedAt().AsTime()) {
+			latest = backup
+		}
+	}
+	if err := it.Error(); err != nil {
+		t.Fatalf("listing MySQL backups for cluster %q: %s", clusterID, err)
+	}
+	if latest == nil {
+		t.Fatalf("no completed automatic MySQL backup found for cluster %q", clusterID)
+	}
+
+	return latest
+}
+
+func resolvePITRTime(finishedAt time.Time) string {
+	pitrTime := finishedAt.Add(5 * time.Minute)
+	if now := time.Now().UTC(); pitrTime.After(now) {
+		pitrTime = now
+	}
+	return pitrTime.UTC().Format("2006-01-02T15:04:05")
 }
 
 func testAccCheckMDBMySQLClusterDestroy(s *terraform.State) error {
@@ -2129,50 +2217,57 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
 `, resourceId, name, description, version)
 }
 
-func testAccMDBMySQLClusterConfigRestoreFromSourceCluster(name, sourceClusterId string) string {
+func testAccMDBMySQLClusterConfigRestore(resourceName string) string {
 	return fmt.Sprintf(msVPCDependencies+`
-resource "yandex_mdb_mysql_cluster_v2" "restore_from_source_cluster_test" {
-  name        = "%s"
-  description = "MySQL Cluster Restore From Source Cluster Test"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.mdb-ms-test-net.id
-
-  version = "8.0"
-
-  restore = {
-	source_cluster_id = "%s"
-	time = "2025-08-26T14:04:05"
-  }
-
-  hosts = {
-    "host" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-a.id
-    }
-  }
-
-  resources {
-	resource_preset_id = "s2.micro"
-	disk_size          = 10
-	disk_type_id       = "network-ssd"
-  }
-}
-`, name, sourceClusterId)
+variable "name" {
+  type = string
 }
 
-func testAccMDBMySQLClusterConfigRestore(name, backupId string, deleteProtection bool) string {
-	return fmt.Sprintf(msVPCDependencies+`
-resource "yandex_mdb_mysql_cluster_v2" "restore_test" {
-  name        = "%s"
+variable "backup_id" {
+  type = string
+  default = null
+}
+
+variable "source_cluster_id" {
+  type = string
+  default = null
+}
+
+variable "restore_time" {
+  type = string
+  default = null
+}
+
+variable "disk_size" {
+  type = number
+  default = 10
+}
+
+variable "disk_encryption" {
+  type = bool
+  default = false
+}
+
+variable "deletion_protection" {
+  type = bool
+  default = null
+}
+
+resource "yandex_kms_symmetric_key" "disk_encrypt" {
+  count = var.disk_encryption ? 1 : 0
+}
+
+resource "yandex_mdb_mysql_cluster_v2" "%s" {
+  name        = var.name
   description = "MySQL Cluster Restore Test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.mdb-ms-test-net.id
+  version     = "8.0"
 
-  version = "8.0"
-
-  restore = {
-	backup_id = "%s"
-	time = "2025-08-26T14:04:05"
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = var.disk_size
   }
 
   hosts = {
@@ -2182,58 +2277,16 @@ resource "yandex_mdb_mysql_cluster_v2" "restore_test" {
     }
   }
 
-  resources {
-	resource_preset_id = "s2.micro"
-	disk_size          = 10
-	disk_type_id       = "network-ssd"
-  }
-
-  deletion_protection = %t
-}
-`, name, backupId, deleteProtection)
-}
-
-func testAccMDBMySQLClusterConfigRestoreWithEncryption(name string, backupId, diskEncryption string) string {
-	return fmt.Sprintf(msVPCDependencies+`	  
-resource "yandex_mdb_mysql_cluster_v2" "restore_with_encryption_test" {
-  name        = "%s"
-  description = "MySQL Cluster Restore With Encryption Test"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.mdb-ms-test-net.id
-
-  version = "8.0"
-
   restore = {
-	backup_id = "%s"
-	time = "2025-08-26T14:04:05"
+    backup_id         = var.backup_id
+    source_cluster_id = var.source_cluster_id
+    time              = var.restore_time
   }
 
-  hosts = {
-    "host" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-a.id
-    }
-  }
-
-  resources {
-	resource_preset_id = "s2.micro"
-	disk_size          = 10
-	disk_type_id       = "network-ssd"
-  }
-
-  deletion_protection = false
-  %s
+  disk_encryption_key_id = var.disk_encryption ? yandex_kms_symmetric_key.disk_encrypt[0].id : null
+  deletion_protection   = var.deletion_protection
 }
-`, name, backupId, diskEncryption)
-}
-
-func testAccMDBMySQLClusterConfigRestoreDropEncryption(clusterName string) string {
-	return testAccMDBMySQLClusterConfigRestoreWithEncryption(clusterName, msRestoreBackupIdEncrypted, "")
-}
-
-func testAccMDBMySQLClusterConfigRestoreAddEncryption(clusterName string) string {
-	return diskEncryptionKeyResource + testAccMDBMySQLClusterConfigRestoreWithEncryption(
-		clusterName, msRestoreBackupId, "disk_encryption_key_id = \"${yandex_kms_symmetric_key.disk_encrypt.id}\"")
+`, resourceName)
 }
 
 // func testAccMDBMySQLClusterConfigHANamedSwitchMaster(name, version string) string
