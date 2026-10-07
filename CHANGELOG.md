@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.237.0 (October 7, 2026)
+
+##### BUG FIXES:
+* provider: limit gRPC DNS resolution to 10 seconds to leave time for endpoint discovery requests
+
+
+
 ## 0.236.0 (October 6, 2026)
 
 ##### ENHANCEMENTS:

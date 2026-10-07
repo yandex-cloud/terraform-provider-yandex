@@ -1030,7 +1030,7 @@ type User struct {
 	AuthMethod AuthMethod `protobuf:"varint,7,opt,name=auth_method,json=authMethod,proto3,enum=yandex.cloud.mdb.clickhouse.v1.AuthMethod" json:"auth_method,omitempty"`
 	// Connection Manager connection and settings associated with the user.
 	UserConnectionManager *v1.UserConnectionManager `protobuf:"bytes,8,opt,name=user_connection_manager,json=userConnectionManager,proto3" json:"user_connection_manager,omitempty"`
-	// Deletion protection mode. Default value is `DELETION_PROTECTION_MODE_INHERITED` (inherits the cluster's deletion protection setting).
+	// Deletion protection mode. Default value is `DELETION_PROTECTION_MODE_DISABLED`.
 	DeletionProtectionMode DeletionProtectionMode `protobuf:"varint,9,opt,name=deletion_protection_mode,json=deletionProtectionMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode" json:"deletion_protection_mode,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -3993,7 +3993,7 @@ type UserSpec struct {
 	AuthMethod AuthMethod `protobuf:"varint,7,opt,name=auth_method,json=authMethod,proto3,enum=yandex.cloud.mdb.clickhouse.v1.AuthMethod" json:"auth_method,omitempty"`
 	// Connection Manager connection and settings associated with the user.
 	UserConnectionManager *v1.UserConnectionManager `protobuf:"bytes,8,opt,name=user_connection_manager,json=userConnectionManager,proto3" json:"user_connection_manager,omitempty"`
-	// Deletion protection mode. Default value is `DELETION_PROTECTION_MODE_INHERITED` (inherits the cluster's deletion protection setting).
+	// Deletion protection mode. Default value is `DELETION_PROTECTION_MODE_DISABLED`.
 	DeletionProtectionMode DeletionProtectionMode `protobuf:"varint,9,opt,name=deletion_protection_mode,json=deletionProtectionMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode" json:"deletion_protection_mode,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache

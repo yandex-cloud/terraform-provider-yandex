@@ -84,7 +84,7 @@ type Database struct {
 	// Database engine. For details, see [ClickHouse documentation](https://clickhouse.com/docs/engines/database-engines).
 	Engine DatabaseEngine `protobuf:"varint,3,opt,name=engine,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DatabaseEngine" json:"engine,omitempty"`
 	// Deletion protection mode.
-	// Default value: `DELETION_PROTECTION_MODE_INHERITED` (inherits the cluster's deletion protection setting).
+	// Default value: `DELETION_PROTECTION_MODE_DISABLED`.
 	DeletionProtectionMode DeletionProtectionMode `protobuf:"varint,4,opt,name=deletion_protection_mode,json=deletionProtectionMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode" json:"deletion_protection_mode,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -155,7 +155,7 @@ type DatabaseSpec struct {
 	// Database engine. For details, see [ClickHouse documentation](https://clickhouse.com/docs/engines/database-engines).
 	Engine DatabaseEngine `protobuf:"varint,2,opt,name=engine,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DatabaseEngine" json:"engine,omitempty"`
 	// Deletion protection mode.
-	// Default value: `DELETION_PROTECTION_MODE_INHERITED` (inherits the cluster's deletion protection setting).
+	// Default value: `DELETION_PROTECTION_MODE_DISABLED`.
 	DeletionProtectionMode DeletionProtectionMode `protobuf:"varint,3,opt,name=deletion_protection_mode,json=deletionProtectionMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.DeletionProtectionMode" json:"deletion_protection_mode,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache

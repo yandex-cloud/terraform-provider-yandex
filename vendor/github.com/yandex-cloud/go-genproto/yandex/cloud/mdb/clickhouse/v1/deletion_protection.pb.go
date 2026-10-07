@@ -24,7 +24,7 @@ const (
 type DeletionProtectionMode int32
 
 const (
-	// Deletion protection mode is not specified. Treated as `DELETION_PROTECTION_MODE_INHERITED`.
+	// Deletion protection mode is not specified. Treated as `DELETION_PROTECTION_MODE_DISABLED`.
 	DeletionProtectionMode_DELETION_PROTECTION_MODE_UNSPECIFIED DeletionProtectionMode = 0
 	// Deletion protection is disabled.
 	DeletionProtectionMode_DELETION_PROTECTION_MODE_DISABLED DeletionProtectionMode = 1

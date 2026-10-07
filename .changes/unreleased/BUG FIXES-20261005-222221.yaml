@@ -1,4 +1,0 @@
-kind: BUG FIXES
-body: 'provider: limit gRPC DNS resolution to 10 seconds to leave time for endpoint
-  discovery requests'
-time: 2026-10-05T22:22:21.747124+02:00
