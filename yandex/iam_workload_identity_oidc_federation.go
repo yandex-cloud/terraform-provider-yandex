@@ -54,7 +54,7 @@ func (u *WorkloadIdentityOidcFederationIamUpdater) SetResourceIamPolicy(ctx cont
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.Context(), 1*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Minute)
 	defer cancel()
 
 	client := oidcsdk.NewFederationClient(u.Config.SDK)
