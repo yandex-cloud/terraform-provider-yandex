@@ -70,6 +70,113 @@ func TestDetectKeeperMigration(t *testing.T) {
 	}
 }
 
+func TestValidateNewClusterCoordinator(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		hostTypes map[string]string
+		wantError bool
+	}{
+		{
+			name:      "single ClickHouse host",
+			hostTypes: map[string]string{"ha": "CLICKHOUSE"},
+		},
+		{
+			name:      "HA cluster without coordinator hosts",
+			hostTypes: map[string]string{"ha": "CLICKHOUSE", "hb": "CLICKHOUSE", "hd": "CLICKHOUSE"},
+		},
+		{
+			name:      "dedicated Keeper hosts",
+			hostTypes: map[string]string{"ha": "CLICKHOUSE", "za": "KEEPER", "zb": "KEEPER", "zd": "KEEPER"},
+		},
+		{
+			name:      "dedicated ZooKeeper hosts",
+			hostTypes: map[string]string{"ha": "CLICKHOUSE", "za": "ZOOKEEPER", "zb": "ZOOKEEPER", "zd": "ZOOKEEPER"},
+			wantError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			hosts := makeHostMap(t, ctx, tt.hostTypes)
+			var diags diag.Diagnostics
+
+			validateNewClusterCoordinator(ctx, hosts, &diags)
+			if diags.HasError() != tt.wantError {
+				t.Fatalf("validateNewClusterCoordinator() diagnostics error = %v, want %v: %v", diags.HasError(), tt.wantError, diags)
+			}
+		})
+	}
+}
+
+func TestValidateNewClusterCoordinatorSkipsUnknownHosts(t *testing.T) {
+	t.Parallel()
+
+	var diags diag.Diagnostics
+	validateNewClusterCoordinator(context.Background(), types.MapUnknown(models.HostType), &diags)
+	if diags.HasError() {
+		t.Fatalf("validateNewClusterCoordinator() returned diagnostics for unknown hosts: %v", diags)
+	}
+}
+
+func TestValidateAddedCoordinator(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		stateTypes map[string]string
+		planTypes  map[string]string
+		wantError  bool
+	}{
+		{
+			name:       "ZooKeeper added to cluster without coordinator hosts",
+			stateTypes: map[string]string{"ha": "CLICKHOUSE"},
+			planTypes:  map[string]string{"ha": "CLICKHOUSE", "hb": "CLICKHOUSE", "za": "ZOOKEEPER", "zb": "ZOOKEEPER", "zd": "ZOOKEEPER"},
+			wantError:  true,
+		},
+		{
+			name:       "Keeper added to cluster without coordinator hosts",
+			stateTypes: map[string]string{"ha": "CLICKHOUSE"},
+			planTypes:  map[string]string{"ha": "CLICKHOUSE", "hb": "CLICKHOUSE", "za": "KEEPER", "zb": "KEEPER", "zd": "KEEPER"},
+		},
+		{
+			name:       "ClickHouse host added to cluster without coordinator hosts",
+			stateTypes: map[string]string{"ha": "CLICKHOUSE"},
+			planTypes:  map[string]string{"ha": "CLICKHOUSE", "hb": "CLICKHOUSE"},
+		},
+		{
+			name:       "ZooKeeper host added to cluster with ZooKeeper",
+			stateTypes: map[string]string{"ha": "CLICKHOUSE", "za": "ZOOKEEPER", "zb": "ZOOKEEPER", "zd": "ZOOKEEPER"},
+			planTypes:  map[string]string{"ha": "CLICKHOUSE", "za": "ZOOKEEPER", "zb": "ZOOKEEPER", "zd": "ZOOKEEPER", "zc": "ZOOKEEPER"},
+		},
+		{
+			name:       "ZooKeeper to Keeper migration",
+			stateTypes: map[string]string{"ha": "CLICKHOUSE", "za": "ZOOKEEPER", "zb": "ZOOKEEPER", "zd": "ZOOKEEPER"},
+			planTypes:  map[string]string{"ha": "CLICKHOUSE", "za": "KEEPER", "zb": "KEEPER", "zd": "KEEPER"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			state := makeHostMap(t, ctx, tt.stateTypes)
+			plan := makeHostMap(t, ctx, tt.planTypes)
+			var diags diag.Diagnostics
+
+			validateAddedCoordinator(ctx, state, plan, &diags)
+			if diags.HasError() != tt.wantError {
+				t.Fatalf("validateAddedCoordinator() diagnostics error = %v, want %v: %v", diags.HasError(), tt.wantError, diags)
+			}
+		})
+	}
+}
+
 func TestMarkKeeperFQDNsUnknown(t *testing.T) {
 	t.Parallel()
 

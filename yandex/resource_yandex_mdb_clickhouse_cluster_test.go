@@ -620,9 +620,21 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 					testAccCheckCreatedAtAttr(chResourceFoo)),
 			},
 			mdbClickHouseClusterImportStep(chResourceFoo),
-			// Add host, creates implicit ZooKeeper subclusters
+			// Add host without coordinator hosts, implicit ZooKeeper is forbidden
 			{
-				Config: testAccMDBClickHouseClusterResourceZookeepers(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chVersion, thirdStepCluster, thirdStepZookeeper),
+				Config:      testAccMDBClickHouseClusterResourceCoordinators(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chVersion, thirdStepCluster, thirdStepZookeeper, ""),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`requires\s+a\s+coordinator:\s+add\s+KEEPER\s+hosts`),
+			},
+			// Add ZooKeeper hosts, forbidden for cluster without coordinator
+			{
+				Config:      testAccMDBClickHouseClusterResourceCoordinators(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chVersion, thirdStepCluster, thirdStepZookeeper, "ZOOKEEPER"),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`ZooKeeper\s+cannot\s+be\s+added\s+to\s+a\s+ClickHouse\s+cluster`),
+			},
+			// Add host with Keeper hosts
+			{
+				Config: testAccMDBClickHouseClusterResourceCoordinators(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chVersion, thirdStepCluster, thirdStepZookeeper, "KEEPER"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResourceFoo, &r, 5),
 					resource.TestCheckResourceAttr(chResourceFoo, "name", chName),
@@ -2826,7 +2838,30 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 `, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl)
 }
 
-func testAccMDBClickHouseClusterResourceZookeepers(name, desc, bucket string, randInt int, version string, resourcesCluster, resourcesZookeeper *clickhouse.Resources) string {
+func testAccMDBClickHouseClusterResourceCoordinators(name, desc, bucket string, randInt int, version string, resourcesCluster, resourcesZookeeper *clickhouse.Resources, coordinatorType string) string {
+	coordinatorHosts := ""
+	if coordinatorType != "" {
+		coordinatorHosts = fmt.Sprintf(`
+  host {
+    type      = "%[1]s"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+
+  host {
+    type      = "%[1]s"
+    zone      = "ru-central1-b"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
+  }
+
+  host {
+    type      = "%[1]s"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
+  }
+`, coordinatorType)
+	}
+
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
   name                     = "%s"
@@ -2873,30 +2908,13 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     zone      = "ru-central1-b"
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
   }
-
-  host {
-    type      = "ZOOKEEPER"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
-  }
-
-  host {
-    type      = "ZOOKEEPER"
-    zone      = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
-  }
-
-  host {
-    type      = "ZOOKEEPER"
-    zone      = "ru-central1-d"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
-  }
-
+%s
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 }
 `, name, desc, version,
 		buildResources(resourcesCluster),
-		buildResources(resourcesZookeeper))
+		buildResources(resourcesZookeeper),
+		coordinatorHosts)
 }
 
 func testAccMDBClickHouseClusterConfigSharded(name string, clusterDiskSize int, firstShardDiskSize, secondShardDiskSize int, bucket string, randInt int) string {

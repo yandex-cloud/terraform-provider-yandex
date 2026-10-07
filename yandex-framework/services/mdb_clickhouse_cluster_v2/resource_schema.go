@@ -240,7 +240,7 @@ func HostsSchema() schema.MapNestedAttribute {
 					},
 				},
 				"type": schema.StringAttribute{
-					Description: "The type of the host to be deployed. Can be `CLICKHOUSE`, `ZOOKEEPER`, or `KEEPER`.",
+					Description: "The type of the host to be deployed. Can be `CLICKHOUSE`, `ZOOKEEPER`, or `KEEPER`. `ZOOKEEPER` is deprecated: it cannot be used for new clusters or added to clusters without coordinator hosts.",
 					Required:    true,
 					Validators: []validator.String{
 						stringvalidator.OneOf("CLICKHOUSE", "ZOOKEEPER", "KEEPER"),

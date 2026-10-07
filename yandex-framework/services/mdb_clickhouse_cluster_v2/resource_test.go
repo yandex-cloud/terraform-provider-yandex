@@ -176,7 +176,7 @@ extension {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseCluster_basic(clusterName, bucketName, randInt, basicConfig),
+				Config: testAccMDBClickHouseCluster_basic(clusterName, bucketName, randInt, basicConfig, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 1),
 					resource.TestCheckResourceAttr(chResource, "name", clusterName),
@@ -213,9 +213,15 @@ extension {
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
+			// Plan should fail when ZooKeeper hosts are added to the cluster without a coordinator
+			{
+				Config:      testAccMDBClickHouseCluster_basic(clusterName, bucketName, randInt, basicConfig, testAccMDBClickHouseClusterCoordinatorHosts("ZOOKEEPER")),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("ZooKeeper cannot be added to a ClickHouse cluster"),
+			},
 			// Update ClickHouse Cluster with weekly maintenance_window
 			{
-				Config: testAccMDBClickHouseCluster_basic(clusterName, bucketName, randInt, updatedConfig),
+				Config: testAccMDBClickHouseCluster_basic(clusterName, bucketName, randInt, updatedConfig, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &cluster, 1),
 					resource.TestCheckResourceAttr(chResource, "name", clusterName),
@@ -1648,22 +1654,35 @@ func TestAccMDBClickHouseCluster_migrateToKeeper(t *testing.T) {
 	clusterName := acctest.RandomWithPrefix("tf-clickhouse-migrate-keeper")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { test.AccPreCheck(t) },
-		ProtoV6ProviderFactories: test.AccProviderFactories,
-		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
+		PreCheck:     func() { test.AccPreCheck(t) },
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
+			// New clusters with ZooKeeper can be created only by provider versions released before MDB-49457.
 			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"yandex": {
+						VersionConstraint: "0.230.0",
+						Source:            "yandex-cloud/yandex",
+					},
+				},
 				Config: testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "ZOOKEEPER", false),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBClickHouseClusterExists(chResourceMigrateKeeper, &cluster, 4),
 					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "hosts.za.type", "ZOOKEEPER"),
 					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "hosts.zb.type", "ZOOKEEPER"),
 					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "hosts.zd.type", "ZOOKEEPER"),
+				),
+			},
+			{
+				ProtoV6ProviderFactories: test.AccProviderFactories,
+				Config:                   testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "ZOOKEEPER", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceMigrateKeeper, &cluster, 4),
 					testAccCheckMDBClickHouseCoordinatorHosts(chResourceMigrateKeeper, clickhouse.Host_ZOOKEEPER, 3),
 				),
 			},
 			{
-				Config: testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "KEEPER", true),
+				ProtoV6ProviderFactories: test.AccProviderFactories,
+				Config:                   testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "KEEPER", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResourceMigrateKeeper, &cluster, 4),
 					resource.TestCheckResourceAttr(chResourceMigrateKeeper, "allow_degradation_to_read_only", "true"),
@@ -1677,9 +1696,29 @@ func TestAccMDBClickHouseCluster_migrateToKeeper(t *testing.T) {
 				),
 			},
 			{
-				Config:             testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "KEEPER", true),
-				PlanOnly:           true,
-				ExpectNonEmptyPlan: false,
+				ProtoV6ProviderFactories: test.AccProviderFactories,
+				Config:                   testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "KEEPER", true),
+				PlanOnly:                 true,
+				ExpectNonEmptyPlan:       false,
+			},
+		},
+	})
+}
+
+// Test that a new ClickHouse cluster cannot be created with dedicated ZooKeeper hosts.
+func TestAccMDBClickHouseCluster_zooKeeperForbiddenForNewCluster(t *testing.T) {
+	t.Parallel()
+
+	clusterName := acctest.RandomWithPrefix("tf-clickhouse-zookeeper-forbidden")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccMDBClickHouseClusterMigrateToKeeper(clusterName, "ZOOKEEPER", false),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("ZooKeeper is not supported for new ClickHouse clusters"),
 			},
 		},
 	})
@@ -1849,7 +1888,7 @@ func TestAccMDBClickHouseCluster_restore(t *testing.T) {
 
 // Test HCL configs
 
-func testAccMDBClickHouseCluster_basic(name string, bucket string, randInt int, changeableConf string) string {
+func testAccMDBClickHouseCluster_basic(name string, bucket string, randInt int, changeableConf, extraHosts string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+clickhouseObjectStorageDependencies(bucket, randInt)+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           	  = "%s"
@@ -1872,7 +1911,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 	  zone       = "ru-central1-a"
 	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
 	  shard_name = "shard1"
-    }
+    }%s
   }
 
   shards = {
@@ -1885,6 +1924,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 `,
 		name,
 		chVersion,
+		extraHosts,
 		changeableConf,
 	)
 }
@@ -2261,6 +2301,25 @@ resource "yandex_mdb_clickhouse_cluster_v2" "migrate_to_keeper" {
 		maintenanceWindowAnytime,
 		allowDegradationConfig,
 	)
+}
+
+func testAccMDBClickHouseClusterCoordinatorHosts(coordinatorType string) string {
+	return fmt.Sprintf(`
+    "za" = {
+      type      = "%[1]s"
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-a.id
+    }
+    "zb" = {
+      type      = "%[1]s"
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-b.id
+    }
+    "zd" = {
+      type      = "%[1]s"
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-d.id
+    }`, coordinatorType)
 }
 
 func testAccMDBClickHouseCluster_cloud_storage(name, desc, bucket, cloudStorage string, randInt int) string {

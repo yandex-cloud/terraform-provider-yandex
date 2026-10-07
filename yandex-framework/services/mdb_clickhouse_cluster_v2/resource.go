@@ -502,7 +502,18 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 // - shards[*].<resources|disk_size_autoscaling> changed  => clickhouse.<resources|disk_size_autoscaling> = Unknown
 // - version changed                                      => clickhouse.config.<absent in config>         = Unknown
 func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() || req.Config.Raw.IsNull() || req.State.Raw.IsNull() {
+	if req.Plan.Raw.IsNull() || req.Config.Raw.IsNull() {
+		return
+	}
+
+	if req.State.Raw.IsNull() {
+		var planHosts types.Map
+		resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("hosts"), &planHosts)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		validateNewClusterCoordinator(ctx, planHosts, &resp.Diagnostics)
 		return
 	}
 
@@ -531,6 +542,11 @@ func (r *clusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 	}
 
 	migrateToKeeper := detectKeeperMigration(ctx, state.HostSpecs, plan.HostSpecs, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	validateAddedCoordinator(ctx, state.HostSpecs, plan.HostSpecs, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
@@ -48,6 +49,32 @@ func detectKeeperMigration(ctx context.Context, stateHosts, planHosts types.Map,
 	}
 
 	return stateTypes.hasZooKeeper && planTypes.hasKeeper
+}
+
+func validateNewClusterCoordinator(ctx context.Context, planHosts types.Map, diags *diag.Diagnostics) {
+	if !getCoordinatorHostTypes(ctx, planHosts, diags).hasZooKeeper {
+		return
+	}
+
+	diags.AddAttributeError(
+		path.Root("hosts"),
+		"ZooKeeper is not supported for new ClickHouse clusters",
+		"The ZooKeeper coordination service is deprecated. Use KEEPER hosts or set embedded_keeper = true. Existing clusters with ZooKeeper hosts remain supported.",
+	)
+}
+
+func validateAddedCoordinator(ctx context.Context, stateHosts, planHosts types.Map, diags *diag.Diagnostics) {
+	stateTypes := getCoordinatorHostTypes(ctx, stateHosts, diags)
+	planTypes := getCoordinatorHostTypes(ctx, planHosts, diags)
+	if diags.HasError() || stateTypes.hasZooKeeper || stateTypes.hasKeeper || !planTypes.hasZooKeeper {
+		return
+	}
+
+	diags.AddAttributeError(
+		path.Root("hosts"),
+		"ZooKeeper cannot be added to a ClickHouse cluster",
+		"The ZooKeeper coordination service is deprecated. Use KEEPER hosts to add a coordinator to the cluster. Existing clusters with ZooKeeper hosts remain supported.",
+	)
 }
 
 func getCoordinatorHostTypes(ctx context.Context, hosts types.Map, diags *diag.Diagnostics) coordinatorHostTypes {

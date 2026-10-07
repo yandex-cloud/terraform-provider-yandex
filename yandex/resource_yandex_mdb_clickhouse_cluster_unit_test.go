@@ -107,6 +107,111 @@ func TestValidateClickHouseClusterAdminPasswordConflict(t *testing.T) {
 	}
 }
 
+func TestValidateClickHouseNewClusterHosts(t *testing.T) {
+	tests := []struct {
+		name      string
+		hostTypes []string
+		wantError bool
+	}{
+		{name: "single ClickHouse host", hostTypes: []string{"CLICKHOUSE"}},
+		{name: "HA cluster without coordinator hosts", hostTypes: []string{"CLICKHOUSE", "CLICKHOUSE"}},
+		{name: "dedicated Keeper hosts", hostTypes: []string{"CLICKHOUSE", "CLICKHOUSE", "KEEPER", "KEEPER", "KEEPER"}},
+		{name: "dedicated ZooKeeper hosts", hostTypes: []string{"CLICKHOUSE", "CLICKHOUSE", "ZOOKEEPER", "ZOOKEEPER", "ZOOKEEPER"}, wantError: true},
+		{name: "unknown host type", hostTypes: []string{"CLICKHOUSE", ""}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hosts := make([]interface{}, 0, len(tt.hostTypes))
+			for _, hostType := range tt.hostTypes {
+				hosts = append(hosts, map[string]interface{}{"type": hostType, "zone": "ru-central1-a"})
+			}
+
+			err := validateClickHouseNewClusterHosts(hosts)
+			if gotError := err != nil; gotError != tt.wantError {
+				t.Fatalf("validateClickHouseNewClusterHosts() error = %v, wantError %t", err, tt.wantError)
+			}
+		})
+	}
+}
+
+type testClickHouseClusterChanges map[string]any
+
+func (c testClickHouseClusterChanges) GetChange(key string) (any, any) {
+	return c[key], c[key]
+}
+
+func TestClickHouseClusterHasCoordinator(t *testing.T) {
+	tests := []struct {
+		name    string
+		changes testClickHouseClusterChanges
+		want    bool
+	}{
+		{
+			name:    "no coordinator",
+			changes: testClickHouseClusterChanges{"zookeeper.0.resources.0.resource_preset_id": "", "embedded_keeper": false},
+		},
+		{
+			name:    "dedicated coordinator",
+			changes: testClickHouseClusterChanges{"zookeeper.0.resources.0.resource_preset_id": "b3-c1-m4", "embedded_keeper": false},
+			want:    true,
+		},
+		{
+			name:    "embedded Keeper",
+			changes: testClickHouseClusterChanges{"zookeeper.0.resources.0.resource_preset_id": "", "embedded_keeper": true},
+			want:    true,
+		},
+		{
+			name:    "no coordinator attributes in state",
+			changes: testClickHouseClusterChanges{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := clickHouseClusterHasCoordinator(tt.changes); got != tt.want {
+				t.Fatalf("clickHouseClusterHasCoordinator() = %t, want %t", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestValidateClickHouseClusterWithoutCoordinatorHosts(t *testing.T) {
+	tests := []struct {
+		name      string
+		hosts     [][2]string
+		wantError bool
+	}{
+		{name: "single ClickHouse host", hosts: [][2]string{{"CLICKHOUSE", ""}}},
+		{name: "ClickHouse hosts in different shards", hosts: [][2]string{{"CLICKHOUSE", "shard1"}, {"CLICKHOUSE", "shard2"}}},
+		{name: "second ClickHouse host without coordinator hosts", hosts: [][2]string{{"CLICKHOUSE", ""}, {"CLICKHOUSE", ""}}, wantError: true},
+		{name: "second ClickHouse host in default shard", hosts: [][2]string{{"CLICKHOUSE", ""}, {"CLICKHOUSE", "shard1"}}, wantError: true},
+		{
+			name:  "second ClickHouse host with Keeper hosts",
+			hosts: [][2]string{{"CLICKHOUSE", ""}, {"CLICKHOUSE", ""}, {"KEEPER", ""}, {"KEEPER", ""}, {"KEEPER", ""}},
+		},
+		{
+			name:      "ZooKeeper hosts",
+			hosts:     [][2]string{{"CLICKHOUSE", ""}, {"ZOOKEEPER", ""}, {"ZOOKEEPER", ""}, {"ZOOKEEPER", ""}},
+			wantError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hosts := make([]interface{}, 0, len(tt.hosts))
+			for _, host := range tt.hosts {
+				hosts = append(hosts, map[string]interface{}{"type": host[0], "shard_name": host[1], "zone": "ru-central1-a"})
+			}
+
+			err := validateClickHouseClusterWithoutCoordinatorHosts(hosts)
+			if gotError := err != nil; gotError != tt.wantError {
+				t.Fatalf("validateClickHouseClusterWithoutCoordinatorHosts() error = %v, wantError %t", err, tt.wantError)
+			}
+		})
+	}
+}
+
 func TestValidateClickHouseClusterAdminPasswordPair(t *testing.T) {
 	tests := []struct {
 		name      string

@@ -330,7 +330,19 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta any) error {
-			return validateClickHouseClusterAdminPasswordConflict(d)
+			if err := validateClickHouseClusterAdminPasswordConflict(d); err != nil {
+				return err
+			}
+
+			if d.Id() == "" {
+				return validateClickHouseNewClusterHosts(d.Get("host").([]interface{}))
+			}
+
+			if clickHouseClusterHasCoordinator(d) {
+				return nil
+			}
+
+			return validateClickHouseClusterWithoutCoordinatorHosts(d.Get("host").([]interface{}))
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -715,7 +727,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 						},
 						"type": {
 							Type:         schema.TypeString,
-							Description:  "The type of the host to be deployed. Can be either `CLICKHOUSE` or `ZOOKEEPER`.",
+							Description:  "The type of the host to be deployed. Can be `CLICKHOUSE`, `ZOOKEEPER`, or `KEEPER`. `ZOOKEEPER` is deprecated: it cannot be used for new clusters or added to clusters without coordinator hosts. To add a second host to a shard of a cluster without coordinator hosts, add `KEEPER` hosts.",
 							Required:     true,
 							ValidateFunc: validateParsableValue(parseClickHouseHostType),
 						},
@@ -1130,6 +1142,66 @@ func validateClickHouseClusterAdminPasswordConflict(d mdbcommon.RawConfigProvide
 		return fmt.Errorf("only one of `admin_password` or `admin_password_wo` can be specified")
 	}
 	return nil
+}
+
+func validateClickHouseNewClusterHosts(hosts []interface{}) error {
+	for _, h := range hosts {
+		host, ok := h.(map[string]interface{})
+		if ok && host["type"] == clickhouse.Host_ZOOKEEPER.String() {
+			return fmt.Errorf("ZooKeeper is not supported for new ClickHouse clusters: the ZooKeeper coordination service is deprecated. Use KEEPER hosts or set embedded_keeper = true. Existing clusters with ZooKeeper hosts remain supported")
+		}
+	}
+	return nil
+}
+
+type clickHouseClusterChangeProvider interface {
+	GetChange(string) (any, any)
+}
+
+func clickHouseClusterHasCoordinator(d clickHouseClusterChangeProvider) bool {
+	oldPresetID, _ := d.GetChange("zookeeper.0.resources.0.resource_preset_id")
+	oldEmbeddedKeeper, _ := d.GetChange("embedded_keeper")
+	presetID, _ := oldPresetID.(string)
+	embeddedKeeper, _ := oldEmbeddedKeeper.(bool)
+	return presetID != "" || embeddedKeeper
+}
+
+func validateClickHouseClusterWithoutCoordinatorHosts(hosts []interface{}) error {
+	hasKeeper := false
+	clickHouseHostsByShard := map[string]int{}
+	for _, h := range hosts {
+		host, ok := h.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		switch host["type"] {
+		case clickhouse.Host_ZOOKEEPER.String():
+			return fmt.Errorf("ZooKeeper cannot be added to a ClickHouse cluster: the ZooKeeper coordination service is deprecated. Use KEEPER hosts to add a coordinator to the cluster. Existing clusters with ZooKeeper hosts remain supported")
+		case clickhouse.Host_KEEPER.String():
+			hasKeeper = true
+		case clickhouse.Host_CLICKHOUSE.String():
+			clickHouseHostsByShard[clickHouseHostShardName(host)]++
+		}
+	}
+
+	if hasKeeper {
+		return nil
+	}
+
+	for _, count := range clickHouseHostsByShard {
+		if count > 1 {
+			return fmt.Errorf("a ClickHouse cluster with more than one host in a shard requires a coordinator: add KEEPER hosts to the cluster. ZooKeeper is no longer created implicitly because the ZooKeeper coordination service is deprecated")
+		}
+	}
+	return nil
+}
+
+func clickHouseHostShardName(host map[string]interface{}) string {
+	if shardName, _ := host["shard_name"].(string); shardName != "" {
+		return shardName
+	}
+	return "shard1"
 }
 
 func validateClickHouseClusterAdminPasswordPair(d mdbcommon.RawConfigProvider) error {
