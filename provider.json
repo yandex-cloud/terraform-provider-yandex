@@ -1,0 +1,10 @@
+{
+  "protocols": ["4.0", "5.1"],
+  "platforms": [
+    {
+      "os": "linux",
+      "arch": "amd64",
+      "download_url": "https://nexus.faberlic.com/repository/binary/terraform-provider-yandex",
+    }
+  ]
+}
