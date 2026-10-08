@@ -477,6 +477,7 @@ type Cluster struct {
 	Status Cluster_Status `protobuf:"varint,12,opt,name=status,proto3,enum=yandex.cloud.mdb.clickhouse.v1.Cluster_Status" json:"status,omitempty"`
 	// ID of the service account used for access to Object Storage.
 	ServiceAccountId string `protobuf:"bytes,13,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Maintenance window for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster.proto.

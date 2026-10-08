@@ -283,8 +283,8 @@ func YandexOrganizationmanagerIdpUserResourceSchema(ctx context.Context) schema.
 				Attributes: map[string]schema.Attribute{
 
 					"created_at": schema.StringAttribute{
-						MarkdownDescription: "Timestamp when the password was created.\n For synchronized passwords, use the time when the password was last set in the source directory.\n If omitted, the current time is used.\n Used by [CreateUserRequest] and [SetPasswordHashRequest].\n This value is ignored if [CreateUserRequest.password_change_required] or [SetPasswordHashRequest.need_change] is true.",
-						Description: "Timestamp when the password was created.\n For synchronized passwords, use the time when the password was last set in the source directory.\n If omitted, the current time is used.\n Used by [CreateUserRequest] and [SetPasswordHashRequest].\n This value is ignored if [CreateUserRequest.password_change_required] or [SetPasswordHashRequest.need_change] is true." +
+						MarkdownDescription: "Timestamp when the password was created.\n For synchronized passwords, use the time when the password was last set in the source directory.\n If omitted, the current time is used.\n Used by [CreateUserRequest] and [SetPasswordHashRequest].",
+						Description: "Timestamp when the password was created.\n For synchronized passwords, use the time when the password was last set in the source directory.\n If omitted, the current time is used.\n Used by [CreateUserRequest] and [SetPasswordHashRequest]." +
 							// proto paths: +
 							// -> yandex.cloud.organizationmanager.v1.idp.CreateUserRequest.password_hash -> yandex.cloud.organizationmanager.v1.idp.PasswordHash.created_at
 							"package: yandex.cloud.organizationmanager.v1.idp\n" +

@@ -293,6 +293,7 @@ type CreateClusterRequest struct {
 	HostGroupIds []string `protobuf:"bytes,13,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,14,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/kafka/v1/cluster_service.proto.
@@ -516,6 +517,7 @@ type UpdateClusterRequest struct {
 	SecurityGroupIds []string `protobuf:"bytes,7,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,8,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// New maintenance window settings for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/kafka/v1/cluster_service.proto.

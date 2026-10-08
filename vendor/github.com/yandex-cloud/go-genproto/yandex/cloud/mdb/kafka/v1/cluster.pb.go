@@ -356,6 +356,7 @@ type Cluster struct {
 	HostGroupIds []string `protobuf:"bytes,14,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,15,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/kafka/v1/cluster.proto.

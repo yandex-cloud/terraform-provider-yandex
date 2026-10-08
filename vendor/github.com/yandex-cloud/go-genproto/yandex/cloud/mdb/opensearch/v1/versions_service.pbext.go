@@ -3,7 +3,7 @@
 package opensearch
 
 import (
-	v11 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 )
 
 func (m *ListVersionsRequest) SetPageSize(v int64) {
@@ -14,7 +14,7 @@ func (m *ListVersionsRequest) SetPageToken(v string) {
 	m.PageToken = v
 }
 
-func (m *ListVersionsResponse) SetVersion(v []*v11.Version) {
+func (m *ListVersionsResponse) SetVersion(v []*v1.Version) {
 	m.Version = v
 }
 

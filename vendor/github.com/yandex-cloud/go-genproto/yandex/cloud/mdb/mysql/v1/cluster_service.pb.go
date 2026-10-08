@@ -415,6 +415,7 @@ type CreateClusterRequest struct {
 	DeletionProtection bool `protobuf:"varint,12,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Host groups hosting VMs of the cluster.
 	HostGroupIds []string `protobuf:"bytes,13,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mysql/v1/cluster_service.proto.
@@ -641,6 +642,7 @@ type UpdateClusterRequest struct {
 	ConfigSpec *ConfigSpec `protobuf:"bytes,5,opt,name=config_spec,json=configSpec,proto3" json:"config_spec,omitempty"`
 	// New name of the cluster.
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Configuration of a maintenance window in an MySQL cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mysql/v1/cluster_service.proto.
@@ -1030,6 +1032,7 @@ type RestoreClusterRequest struct {
 	DeletionProtection bool `protobuf:"varint,13,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Host groups hosting VMs of the cluster.
 	HostGroupIds []string `protobuf:"bytes,14,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mysql/v1/cluster_service.proto.

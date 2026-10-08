@@ -409,6 +409,7 @@ type CreateClusterRequest struct {
 	SecurityGroupIds []string `protobuf:"bytes,11,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,12,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// New maintenance window settings for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/spqr/v1/cluster_service.proto.
@@ -620,6 +621,7 @@ type UpdateClusterRequest struct {
 	Labels map[string]string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// New configuration and resources for hosts in the cluster.
 	ConfigSpec *ConfigSpec `protobuf:"bytes,6,opt,name=config_spec,json=configSpec,proto3" json:"config_spec,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// New maintenance window settings for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/spqr/v1/cluster_service.proto.

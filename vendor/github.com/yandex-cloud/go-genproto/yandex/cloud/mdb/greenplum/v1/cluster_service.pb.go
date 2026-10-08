@@ -414,6 +414,7 @@ type CreateClusterRequest struct {
 	DeletionProtection bool `protobuf:"varint,16,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Host groups to place VMs of the cluster in.
 	HostGroupIds []string `protobuf:"bytes,17,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// A Greenplum® cluster maintenance window. Should be defined by either one of the two options.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/greenplum/v1/cluster_service.proto.
@@ -722,6 +723,7 @@ type UpdateClusterRequest struct {
 	UserPassword string `protobuf:"bytes,13,opt,name=user_password,json=userPassword,proto3" json:"user_password,omitempty"`
 	// ID of the network to move the cluster to.
 	NetworkId string `protobuf:"bytes,14,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// The Greenplum® cluster maintenance window. Should be defined by either one of the two options.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/greenplum/v1/cluster_service.proto.
@@ -2694,6 +2696,7 @@ type RestoreClusterRequest struct {
 	DeletionProtection bool `protobuf:"varint,12,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Host groups to place VMs of cluster on.
 	HostGroupIds []string `protobuf:"bytes,13,rep,name=host_group_ids,json=hostGroupIds,proto3" json:"host_group_ids,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// A Greenplum® cluster maintenance window. Should be defined by either one of the two options.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/greenplum/v1/cluster_service.proto.

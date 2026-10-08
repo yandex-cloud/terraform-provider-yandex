@@ -249,6 +249,7 @@ type Cluster struct {
 	Health Cluster_Health `protobuf:"varint,16,opt,name=health,proto3,enum=yandex.cloud.mdb.greenplum.v1.Cluster_Health" json:"health,omitempty"`
 	// Current state of the cluster.
 	Status Cluster_Status `protobuf:"varint,17,opt,name=status,proto3,enum=yandex.cloud.mdb.greenplum.v1.Cluster_Status" json:"status,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// A Greenplum® cluster maintenance window. Should be defined by either one of the two options.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/greenplum/v1/cluster.proto.

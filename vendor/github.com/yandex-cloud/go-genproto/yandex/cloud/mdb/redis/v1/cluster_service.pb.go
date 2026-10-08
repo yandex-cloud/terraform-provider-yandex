@@ -548,6 +548,7 @@ type CreateClusterRequest struct {
 	PersistenceMode Cluster_PersistenceMode `protobuf:"varint,15,opt,name=persistence_mode,json=persistenceMode,proto3,enum=yandex.cloud.mdb.redis.v1.Cluster_PersistenceMode" json:"persistence_mode,omitempty"`
 	// Enable FQDN instead of ip
 	AnnounceHostnames bool `protobuf:"varint,16,opt,name=announce_hostnames,json=announceHostnames,proto3" json:"announce_hostnames,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
@@ -791,6 +792,7 @@ type UpdateClusterRequest struct {
 	ConfigSpec *ConfigSpec `protobuf:"bytes,5,opt,name=config_spec,json=configSpec,proto3" json:"config_spec,omitempty"`
 	// New name for the cluster.
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// New maintenance window settings for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
@@ -1609,6 +1611,7 @@ type RestoreClusterRequest struct {
 	DeletionProtection bool `protobuf:"varint,13,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Enable FQDN instead of ip
 	AnnounceHostnames bool `protobuf:"varint,14,opt,name=announce_hostnames,json=announceHostnames,proto3" json:"announce_hostnames,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.

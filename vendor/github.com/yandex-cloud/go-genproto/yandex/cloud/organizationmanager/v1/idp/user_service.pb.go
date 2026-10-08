@@ -1874,7 +1874,6 @@ type PasswordHash struct {
 	// For synchronized passwords, use the time when the password was last set in the source directory.
 	// If omitted, the current time is used.
 	// Used by [CreateUserRequest] and [SetPasswordHashRequest].
-	// This value is ignored if [CreateUserRequest.password_change_required] or [SetPasswordHashRequest.need_change] is true.
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

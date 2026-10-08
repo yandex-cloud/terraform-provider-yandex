@@ -236,6 +236,7 @@ type Cluster struct {
 	Health Cluster_Health `protobuf:"varint,11,opt,name=health,proto3,enum=yandex.cloud.mdb.spqr.v1.Cluster_Health" json:"health,omitempty"`
 	// Current state of the cluster.
 	Status Cluster_Status `protobuf:"varint,12,opt,name=status,proto3,enum=yandex.cloud.mdb.spqr.v1.Cluster_Status" json:"status,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Maintenance window for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/spqr/v1/cluster.proto.

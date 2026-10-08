@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'clickhouse: yandex_mdb_clickhouse_cluster no longer creates ZooKeeper implicitly, add KEEPER hosts to add a second host to a shard of a cluster without coordinator hosts'
-time: 2026-10-02T13:23:41+03:00

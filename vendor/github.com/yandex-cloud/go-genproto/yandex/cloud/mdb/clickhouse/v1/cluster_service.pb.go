@@ -403,6 +403,7 @@ type CreateClusterRequest struct {
 	SecurityGroupIds []string `protobuf:"bytes,13,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,14,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster_service.proto.
@@ -639,6 +640,7 @@ type UpdateClusterRequest struct {
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
 	// ID of the service account used for access to Object Storage.
 	ServiceAccountId string `protobuf:"bytes,7,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// New maintenance window settings for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster_service.proto.
@@ -1573,6 +1575,7 @@ type RestoreClusterRequest struct {
 	ServiceAccountId string `protobuf:"bytes,10,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
 	// User security groups
 	SecurityGroupIds []string `protobuf:"bytes,11,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/clickhouse/v1/cluster_service.proto.

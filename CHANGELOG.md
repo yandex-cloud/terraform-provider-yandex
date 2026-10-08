@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.238.0 (October 8, 2026)
+
+##### WARNING:
+* clickhouse: forbid creating new clusters with ZooKeeper hosts and adding ZooKeeper hosts to clusters without coordinator hosts in yandex_mdb_clickhouse_cluster and yandex_mdb_clickhouse_cluster_v2, use ClickHouse Keeper instead
+* clickhouse: yandex_mdb_clickhouse_cluster no longer creates ZooKeeper implicitly, add KEEPER hosts to add a second host to a shard of a cluster without coordinator hosts
+
+
+
 ## 0.237.0 (October 7, 2026)
 
 ##### BUG FIXES:

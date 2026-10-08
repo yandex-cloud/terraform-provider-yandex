@@ -234,6 +234,14 @@ func (m *ClickhouseConfig) SetQueryMetricLogRetentionTime(v *wrapperspb.Int64Val
 	m.QueryMetricLogRetentionTime = v
 }
 
+func (m *ClickhouseConfig) SetAutomaticallyDetachedDataPartsRetentionTime(v *wrapperspb.Int64Value) {
+	m.AutomaticallyDetachedDataPartsRetentionTime = v
+}
+
+func (m *ClickhouseConfig) SetManuallyDetachedDataPartsRetentionTime(v *wrapperspb.Int64Value) {
+	m.ManuallyDetachedDataPartsRetentionTime = v
+}
+
 func (m *ClickhouseConfig) SetAccessControlImprovements(v *ClickhouseConfig_AccessControlImprovements) {
 	m.AccessControlImprovements = v
 }
@@ -630,6 +638,12 @@ func (m *ClickhouseConfig_ExternalDictionary) SetPostgresqlSourceV2(v *Clickhous
 	}
 }
 
+func (m *ClickhouseConfig_ExternalDictionary) SetYtSourceV2(v *ClickhouseConfig_ExternalDictionary_YtSourceV2) {
+	m.Source = &ClickhouseConfig_ExternalDictionary_YtSourceV2_{
+		YtSourceV2: v,
+	}
+}
+
 func (m *ClickhouseConfig_ExternalDictionary_Structure) SetId(v *ClickhouseConfig_ExternalDictionary_Structure_Id) {
 	m.Id = v
 }
@@ -980,6 +994,18 @@ func (m *ClickhouseConfig_ExternalDictionary_PostgresqlSourceV2_Replica) SetUser
 
 func (m *ClickhouseConfig_ExternalDictionary_PostgresqlSourceV2_Replica) SetPassword(v string) {
 	m.Password = v
+}
+
+func (m *ClickhouseConfig_ExternalDictionary_YtSourceV2) SetHttpProxyUrls(v []string) {
+	m.HttpProxyUrls = v
+}
+
+func (m *ClickhouseConfig_ExternalDictionary_YtSourceV2) SetCypressPath(v string) {
+	m.CypressPath = v
+}
+
+func (m *ClickhouseConfig_ExternalDictionary_YtSourceV2) SetOauthToken(v string) {
+	m.OauthToken = v
 }
 
 func (m *ClickhouseConfig_GraphiteRollup) SetName(v string) {

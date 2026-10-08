@@ -419,6 +419,7 @@ type CreateClusterRequest struct {
 	SecurityGroupIds []string `protobuf:"bytes,11,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,12,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Maintenance window settings for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster_service.proto.
@@ -648,6 +649,7 @@ type UpdateClusterRequest struct {
 	ConfigSpec *ConfigSpec `protobuf:"bytes,5,opt,name=config_spec,json=configSpec,proto3" json:"config_spec,omitempty"`
 	// New name for the cluster.
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// New maintenance window settings for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster_service.proto.
@@ -1335,6 +1337,7 @@ type RestoreClusterRequest struct {
 	SecurityGroupIds []string `protobuf:"bytes,11,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
 	// Deletion Protection inhibits deletion of the cluster
 	DeletionProtection bool `protobuf:"varint,12,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Maintenance window settings for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster_service.proto.

@@ -568,6 +568,7 @@ type Cluster struct {
 	Status Cluster_Status `protobuf:"varint,12,opt,name=status,proto3,enum=yandex.cloud.mdb.mongodb.v1.Cluster_Status" json:"status,omitempty"`
 	// Indicates current sharding status of the cluster.
 	Sharded bool `protobuf:"varint,13,opt,name=sharded,proto3" json:"sharded,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Maintenance window for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/mongodb/v1/cluster.proto.
