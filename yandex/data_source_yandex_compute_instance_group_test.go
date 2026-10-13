@@ -152,6 +152,7 @@ var baseAttrsToTest = []string{
 	"deploy_policy.#",
 	"deploy_policy.0.startup_duration",
 	"deploy_policy.0.strategy",
+	"deploy_policy.0.minimal_action",
 	"scale_policy.#",
 	"allocation_policy.#",
 	"allocation_policy.0.zones.#",
