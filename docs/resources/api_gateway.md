@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Logging"
+subcategory: "Serverless Cloud Functions"
 ---
 
 # yandex_api_gateway (Resource)
