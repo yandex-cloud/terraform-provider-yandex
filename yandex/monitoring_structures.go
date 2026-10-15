@@ -103,7 +103,7 @@ func expandDashboardWidgetsSlice(d *schema.ResourceData) ([]*monitoring.Widget, 
 	slice := make([]*monitoring.Widget, count)
 
 	for i := 0; i < count; i++ {
-		widgets, err := expandDashboardWidgets(d, i)
+		widgets, err := expandDashboardWidgets(d, fmt.Sprintf("widgets.%d", i))
 		if err != nil {
 			return nil, err
 		}
@@ -114,11 +114,11 @@ func expandDashboardWidgetsSlice(d *schema.ResourceData) ([]*monitoring.Widget, 
 	return slice, nil
 }
 
-func expandDashboardWidgets(d *schema.ResourceData, indexes ...interface{}) (*monitoring.Widget, error) {
+func expandDashboardWidgets(d *schema.ResourceData, widgetPrefix string) (*monitoring.Widget, error) {
 	val := new(monitoring.Widget)
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.position", indexes...)); ok {
-		position, err := expandDashboardWidgetsPosition(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".position"); ok {
+		position, err := expandDashboardWidgetsPosition(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -126,8 +126,8 @@ func expandDashboardWidgets(d *schema.ResourceData, indexes ...interface{}) (*mo
 		val.SetPosition(position)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.text", indexes...)); ok {
-		text, err := expandDashboardWidgetsText(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".text"); ok {
+		text, err := expandDashboardWidgetsText(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -135,8 +135,8 @@ func expandDashboardWidgets(d *schema.ResourceData, indexes ...interface{}) (*mo
 		val.SetText(text)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.title", indexes...)); ok {
-		title, err := expandDashboardWidgetsTitle(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".title"); ok {
+		title, err := expandDashboardWidgetsTitle(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -144,8 +144,8 @@ func expandDashboardWidgets(d *schema.ResourceData, indexes ...interface{}) (*mo
 		val.SetTitle(title)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart", indexes...)); ok {
-		chart, err := expandDashboardWidgetsChart(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart"); ok {
+		chart, err := expandDashboardWidgetsChart(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -153,49 +153,58 @@ func expandDashboardWidgets(d *schema.ResourceData, indexes ...interface{}) (*mo
 		val.SetChart(chart)
 	}
 
+	if _, ok := d.GetOk(widgetPrefix + ".group"); ok {
+		group, err := expandDashboardWidgetsGroup(d, widgetPrefix)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetGroup(group)
+	}
+
 	return val, nil
 }
 
-func expandDashboardWidgetsPosition(d *schema.ResourceData, indexes ...interface{}) (*monitoring.Widget_LayoutPosition, error) {
+func expandDashboardWidgetsPosition(d *schema.ResourceData, widgetPrefix string) (*monitoring.Widget_LayoutPosition, error) {
 	val := new(monitoring.Widget_LayoutPosition)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.position.0.x", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".position.0.x"); ok {
 		val.SetX(int64(v.(int)))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.position.0.y", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".position.0.y"); ok {
 		val.SetY(int64(v.(int)))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.position.0.w", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".position.0.w"); ok {
 		val.SetW(int64(v.(int)))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.position.0.h", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".position.0.h"); ok {
 		val.SetH(int64(v.(int)))
 	}
 
 	return val, nil
 }
 
-func expandDashboardWidgetsText(d *schema.ResourceData, indexes ...interface{}) (*monitoring.TextWidget, error) {
+func expandDashboardWidgetsText(d *schema.ResourceData, widgetPrefix string) (*monitoring.TextWidget, error) {
 	val := new(monitoring.TextWidget)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.text.0.text", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".text.0.text"); ok {
 		val.SetText(v.(string))
 	}
 
 	return val, nil
 }
 
-func expandDashboardWidgetsTitle(d *schema.ResourceData, indexes ...interface{}) (*monitoring.TitleWidget, error) {
+func expandDashboardWidgetsTitle(d *schema.ResourceData, widgetPrefix string) (*monitoring.TitleWidget, error) {
 	val := new(monitoring.TitleWidget)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.title.0.text", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".title.0.text"); ok {
 		val.SetText(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.title.0.size", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".title.0.size"); ok {
 		titleSize, err := parseMonitoringTitleWidgetXTitleSize(v.(string))
 		if err != nil {
 			return nil, err
@@ -207,11 +216,11 @@ func expandDashboardWidgetsTitle(d *schema.ResourceData, indexes ...interface{})
 	return val, nil
 }
 
-func expandDashboardWidgetsChart(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget, error) {
+func expandDashboardWidgetsChart(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget, error) {
 	val := new(monitoring.ChartWidget)
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries", indexes...)); ok {
-		queries, err := expandDashboardWidgetsChartQueries(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.queries"); ok {
+		queries, err := expandDashboardWidgetsChartQueries(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -219,8 +228,8 @@ func expandDashboardWidgetsChart(d *schema.ResourceData, indexes ...interface{})
 		val.SetQueries(queries)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings", indexes...)); ok {
-		visualizationSettings, err := expandDashboardWidgetsChartVisualizationSettings(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings"); ok {
+		visualizationSettings, err := expandDashboardWidgetsChartVisualizationSettings(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -228,8 +237,8 @@ func expandDashboardWidgetsChart(d *schema.ResourceData, indexes ...interface{})
 		val.SetVisualizationSettings(visualizationSettings)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides", indexes...)); ok {
-		seriesOverrides, err := expandDashboardWidgetsChartSeriesOverridesSlice(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.series_overrides"); ok {
+		seriesOverrides, err := expandDashboardWidgetsChartSeriesOverridesSlice(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -237,8 +246,8 @@ func expandDashboardWidgetsChart(d *schema.ResourceData, indexes ...interface{})
 		val.SetSeriesOverrides(seriesOverrides)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.name_hiding_settings", indexes...)); ok {
-		nameHidingSettings, err := expandDashboardWidgetsChartNameHidingSettings(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.name_hiding_settings"); ok {
+		nameHidingSettings, err := expandDashboardWidgetsChartNameHidingSettings(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -246,23 +255,23 @@ func expandDashboardWidgetsChart(d *schema.ResourceData, indexes ...interface{})
 		val.SetNameHidingSettings(nameHidingSettings)
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.description", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.description"); ok {
 		val.SetDescription(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.chart_id", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.chart_id"); ok {
 		val.SetId(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.title", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.title"); ok {
 		val.SetTitle(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.display_legend", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.display_legend"); ok {
 		val.SetDisplayLegend(v.(bool))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.freeze", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.freeze"); ok {
 		freezeDuration, err := parseMonitoringChartWidgetXFreezeDuration(v.(string))
 		if err != nil {
 			return nil, err
@@ -274,11 +283,11 @@ func expandDashboardWidgetsChart(d *schema.ResourceData, indexes ...interface{})
 	return val, nil
 }
 
-func expandDashboardWidgetsChartQueries(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_Queries, error) {
+func expandDashboardWidgetsChartQueries(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget_Queries, error) {
 	val := new(monitoring.ChartWidget_Queries)
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.target", indexes...)); ok {
-		targets, err := expandDashboardWidgetsChartQueriesTargetsSlice(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.queries.0.target"); ok {
+		targets, err := expandDashboardWidgetsChartQueriesTargetsSlice(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -286,8 +295,8 @@ func expandDashboardWidgetsChartQueries(d *schema.ResourceData, indexes ...inter
 		val.SetTargets(targets)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.downsampling", indexes...)); ok {
-		downsampling, err := expandDashboardWidgetsChartQueriesDownsampling(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.queries.0.downsampling"); ok {
+		downsampling, err := expandDashboardWidgetsChartQueriesDownsampling(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -298,12 +307,12 @@ func expandDashboardWidgetsChartQueries(d *schema.ResourceData, indexes ...inter
 	return val, nil
 }
 
-func expandDashboardWidgetsChartQueriesTargetsSlice(d *schema.ResourceData, indexes ...interface{}) ([]*monitoring.ChartWidget_Queries_Target, error) {
-	count := d.Get(fmt.Sprintf("widgets.%d.chart.0.queries.0.target.#", indexes...)).(int)
+func expandDashboardWidgetsChartQueriesTargetsSlice(d *schema.ResourceData, widgetPrefix string) ([]*monitoring.ChartWidget_Queries_Target, error) {
+	count := d.Get(widgetPrefix + ".chart.0.queries.0.target.#").(int)
 	slice := make([]*monitoring.ChartWidget_Queries_Target, count)
 
 	for i := 0; i < count; i++ {
-		targets, err := expandDashboardWidgetsChartQueriesTargets(d, append(indexes, i)...)
+		targets, err := expandDashboardWidgetsChartQueriesTargets(d, widgetPrefix, i)
 		if err != nil {
 			return nil, err
 		}
@@ -314,40 +323,40 @@ func expandDashboardWidgetsChartQueriesTargetsSlice(d *schema.ResourceData, inde
 	return slice, nil
 }
 
-func expandDashboardWidgetsChartQueriesTargets(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_Queries_Target, error) {
+func expandDashboardWidgetsChartQueriesTargets(d *schema.ResourceData, widgetPrefix string, i int) (*monitoring.ChartWidget_Queries_Target, error) {
 	val := new(monitoring.ChartWidget_Queries_Target)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.target.%d.query", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.queries.0.target.%d.query", widgetPrefix, i)); ok {
 		val.SetQuery(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.target.%d.text_mode", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.queries.0.target.%d.text_mode", widgetPrefix, i)); ok {
 		val.SetTextMode(v.(bool))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.target.%d.hidden", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.queries.0.target.%d.hidden", widgetPrefix, i)); ok {
 		val.SetHidden(v.(bool))
 	}
 
 	return val, nil
 }
 
-func expandDashboardWidgetsChartQueriesDownsampling(d *schema.ResourceData, indexes ...interface{}) (*monitoring.Downsampling, error) {
+func expandDashboardWidgetsChartQueriesDownsampling(d *schema.ResourceData, widgetPrefix string) (*monitoring.Downsampling, error) {
 	val := new(monitoring.Downsampling)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.downsampling.0.max_points", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.queries.0.downsampling.0.max_points"); ok {
 		val.SetMaxPoints(int64(v.(int)))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.downsampling.0.grid_interval", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.queries.0.downsampling.0.grid_interval"); ok {
 		val.SetGridInterval(int64(v.(int)))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.downsampling.0.disabled", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.queries.0.downsampling.0.disabled"); ok {
 		val.SetDisabled(v.(bool))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.downsampling.0.grid_aggregation", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.queries.0.downsampling.0.grid_aggregation"); ok {
 		gridAggregation, err := parseMonitoringDownsamplingXGridAggregation(v.(string))
 		if err != nil {
 			return nil, err
@@ -356,7 +365,7 @@ func expandDashboardWidgetsChartQueriesDownsampling(d *schema.ResourceData, inde
 		val.SetGridAggregation(gridAggregation)
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.queries.0.downsampling.0.gap_filling", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.queries.0.downsampling.0.gap_filling"); ok {
 		gapFilling, err := parseMonitoringDownsamplingXGapFilling(v.(string))
 		if err != nil {
 			return nil, err
@@ -368,10 +377,10 @@ func expandDashboardWidgetsChartQueriesDownsampling(d *schema.ResourceData, inde
 	return val, nil
 }
 
-func expandDashboardWidgetsChartVisualizationSettings(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_VisualizationSettings, error) {
+func expandDashboardWidgetsChartVisualizationSettings(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget_VisualizationSettings, error) {
 	val := new(monitoring.ChartWidget_VisualizationSettings)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.type", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.type"); ok {
 		visualizationType, err := parseMonitoringChartWidgetXVisualizationSettingsXVisualizationType(v.(string))
 		if err != nil {
 			return nil, err
@@ -380,11 +389,11 @@ func expandDashboardWidgetsChartVisualizationSettings(d *schema.ResourceData, in
 		val.SetType(visualizationType)
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.normalize", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.normalize"); ok {
 		val.SetNormalize(v.(bool))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.interpolate", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.interpolate"); ok {
 		interpolate, err := parseMonitoringChartWidgetXVisualizationSettingsXInterpolate(v.(string))
 		if err != nil {
 			return nil, err
@@ -393,7 +402,7 @@ func expandDashboardWidgetsChartVisualizationSettings(d *schema.ResourceData, in
 		val.SetInterpolate(interpolate)
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.aggregation", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.aggregation"); ok {
 		seriesAggregation, err := parseMonitoringChartWidgetXVisualizationSettingsXSeriesAggregation(v.(string))
 		if err != nil {
 			return nil, err
@@ -402,8 +411,8 @@ func expandDashboardWidgetsChartVisualizationSettings(d *schema.ResourceData, in
 		val.SetAggregation(seriesAggregation)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.color_scheme_settings", indexes...)); ok {
-		colorSchemeSettings, err := expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettings(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.color_scheme_settings"); ok {
+		colorSchemeSettings, err := expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettings(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -411,8 +420,8 @@ func expandDashboardWidgetsChartVisualizationSettings(d *schema.ResourceData, in
 		val.SetColorSchemeSettings(colorSchemeSettings)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.heatmap_settings", indexes...)); ok {
-		heatmapSettings, err := expandDashboardWidgetsChartVisualizationSettingsHeatmapSettings(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.heatmap_settings"); ok {
+		heatmapSettings, err := expandDashboardWidgetsChartVisualizationSettingsHeatmapSettings(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -420,8 +429,8 @@ func expandDashboardWidgetsChartVisualizationSettings(d *schema.ResourceData, in
 		val.SetHeatmapSettings(heatmapSettings)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings", indexes...)); ok {
-		yaxisSettings, err := expandDashboardWidgetsChartVisualizationSettingsYaxisSettings(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings"); ok {
+		yaxisSettings, err := expandDashboardWidgetsChartVisualizationSettingsYaxisSettings(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -429,21 +438,21 @@ func expandDashboardWidgetsChartVisualizationSettings(d *schema.ResourceData, in
 		val.SetYaxisSettings(yaxisSettings)
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.title", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.title"); ok {
 		val.SetTitle(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.show_labels", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.show_labels"); ok {
 		val.SetShowLabels(v.(bool))
 	}
 
 	return val, nil
 }
 
-func expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettings(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_VisualizationSettings_ColorSchemeSettings, error) {
+func expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettings(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget_VisualizationSettings_ColorSchemeSettings, error) {
 	val := new(monitoring.ChartWidget_VisualizationSettings_ColorSchemeSettings)
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.color_scheme_settings.0.automatic", indexes...)); ok {
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.color_scheme_settings.0.automatic"); ok {
 		automatic, err := expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettingsAutomatic()
 		if err != nil {
 			return nil, err
@@ -452,7 +461,7 @@ func expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettings(d *sche
 		val.SetAutomatic(automatic)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.color_scheme_settings.0.standard", indexes...)); ok {
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.color_scheme_settings.0.standard"); ok {
 		standard, err := expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettingsStandard()
 		if err != nil {
 			return nil, err
@@ -461,8 +470,8 @@ func expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettings(d *sche
 		val.SetStandard(standard)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.color_scheme_settings.0.gradient", indexes...)); ok {
-		gradient, err := expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettingsGradient(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.color_scheme_settings.0.gradient"); ok {
+		gradient, err := expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettingsGradient(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -483,55 +492,55 @@ func expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettingsStandard
 	return val, nil
 }
 
-func expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettingsGradient(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_VisualizationSettings_ColorSchemeSettings_GradientColorScheme, error) {
+func expandDashboardWidgetsChartVisualizationSettingsColorSchemeSettingsGradient(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget_VisualizationSettings_ColorSchemeSettings_GradientColorScheme, error) {
 	val := new(monitoring.ChartWidget_VisualizationSettings_ColorSchemeSettings_GradientColorScheme)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.color_scheme_settings.0.gradient.0.green_value", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.color_scheme_settings.0.gradient.0.green_value"); ok {
 		val.SetGreenValue(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.color_scheme_settings.0.gradient.0.yellow_value", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.color_scheme_settings.0.gradient.0.yellow_value"); ok {
 		val.SetYellowValue(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.color_scheme_settings.0.gradient.0.red_value", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.color_scheme_settings.0.gradient.0.red_value"); ok {
 		val.SetRedValue(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.color_scheme_settings.0.gradient.0.violet_value", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.color_scheme_settings.0.gradient.0.violet_value"); ok {
 		val.SetVioletValue(v.(string))
 	}
 
 	return val, nil
 }
 
-func expandDashboardWidgetsChartVisualizationSettingsHeatmapSettings(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_VisualizationSettings_HeatmapSettings, error) {
+func expandDashboardWidgetsChartVisualizationSettingsHeatmapSettings(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget_VisualizationSettings_HeatmapSettings, error) {
 	val := new(monitoring.ChartWidget_VisualizationSettings_HeatmapSettings)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.heatmap_settings.0.green_value", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.heatmap_settings.0.green_value"); ok {
 		val.SetGreenValue(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.heatmap_settings.0.yellow_value", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.heatmap_settings.0.yellow_value"); ok {
 		val.SetYellowValue(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.heatmap_settings.0.red_value", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.heatmap_settings.0.red_value"); ok {
 		val.SetRedValue(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.heatmap_settings.0.violet_value", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.heatmap_settings.0.violet_value"); ok {
 		val.SetVioletValue(v.(string))
 	}
 
 	return val, nil
 }
 
-func expandDashboardWidgetsChartVisualizationSettingsYaxisSettings(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_VisualizationSettings_YaxisSettings, error) {
+func expandDashboardWidgetsChartVisualizationSettingsYaxisSettings(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget_VisualizationSettings_YaxisSettings, error) {
 	val := new(monitoring.ChartWidget_VisualizationSettings_YaxisSettings)
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.left", indexes...)); ok {
-		left, err := expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsLeft(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.left"); ok {
+		left, err := expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsLeft(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -539,8 +548,8 @@ func expandDashboardWidgetsChartVisualizationSettingsYaxisSettings(d *schema.Res
 		val.SetLeft(left)
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.right", indexes...)); ok {
-		right, err := expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsRight(d, indexes...)
+	if _, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.right"); ok {
+		right, err := expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsRight(d, widgetPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -551,10 +560,10 @@ func expandDashboardWidgetsChartVisualizationSettingsYaxisSettings(d *schema.Res
 	return val, nil
 }
 
-func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsLeft(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_VisualizationSettings_Yaxis, error) {
+func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsLeft(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget_VisualizationSettings_Yaxis, error) {
 	val := new(monitoring.ChartWidget_VisualizationSettings_Yaxis)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.left.0.type", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.left.0.type"); ok {
 		yaxisType, err := parseMonitoringChartWidgetXVisualizationSettingsXYaxisType(v.(string))
 		if err != nil {
 			return nil, err
@@ -563,19 +572,19 @@ func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsLeft(d *schema
 		val.SetType(yaxisType)
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.left.0.title", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.left.0.title"); ok {
 		val.SetTitle(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.left.0.min", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.left.0.min"); ok {
 		val.SetMin(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.left.0.max", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.left.0.max"); ok {
 		val.SetMax(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.left.0.unit_format", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.left.0.unit_format"); ok {
 		unitFormat, err := parseMonitoringUnitFormat(v.(string))
 		if err != nil {
 			return nil, err
@@ -584,7 +593,7 @@ func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsLeft(d *schema
 		val.SetUnitFormat(unitFormat)
 	}
 
-	if v, ok := d.GetOkExists(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.left.0.precision", indexes...)); ok {
+	if v, ok := d.GetOkExists(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.left.0.precision"); ok {
 		val.SetPrecision(&wrapperspb.Int64Value{
 			Value: int64(v.(int)),
 		})
@@ -593,10 +602,10 @@ func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsLeft(d *schema
 	return val, nil
 }
 
-func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsRight(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_VisualizationSettings_Yaxis, error) {
+func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsRight(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget_VisualizationSettings_Yaxis, error) {
 	val := new(monitoring.ChartWidget_VisualizationSettings_Yaxis)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.right.0.type", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.right.0.type"); ok {
 		yaxisType, err := parseMonitoringChartWidgetXVisualizationSettingsXYaxisType(v.(string))
 		if err != nil {
 			return nil, err
@@ -605,19 +614,19 @@ func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsRight(d *schem
 		val.SetType(yaxisType)
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.right.0.title", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.right.0.title"); ok {
 		val.SetTitle(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.right.0.min", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.right.0.min"); ok {
 		val.SetMin(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.right.0.max", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.right.0.max"); ok {
 		val.SetMax(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.right.0.unit_format", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.right.0.unit_format"); ok {
 		unitFormat, err := parseMonitoringUnitFormat(v.(string))
 		if err != nil {
 			return nil, err
@@ -626,7 +635,7 @@ func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsRight(d *schem
 		val.SetUnitFormat(unitFormat)
 	}
 
-	if v, ok := d.GetOkExists(fmt.Sprintf("widgets.%d.chart.0.visualization_settings.0.yaxis_settings.0.right.0.precision", indexes...)); ok {
+	if v, ok := d.GetOkExists(widgetPrefix + ".chart.0.visualization_settings.0.yaxis_settings.0.right.0.precision"); ok {
 		val.SetPrecision(&wrapperspb.Int64Value{
 			Value: int64(v.(int)),
 		})
@@ -635,12 +644,12 @@ func expandDashboardWidgetsChartVisualizationSettingsYaxisSettingsRight(d *schem
 	return val, nil
 }
 
-func expandDashboardWidgetsChartSeriesOverridesSlice(d *schema.ResourceData, indexes ...interface{}) ([]*monitoring.ChartWidget_SeriesOverrides, error) {
-	count := d.Get(fmt.Sprintf("widgets.%d.chart.0.series_overrides.#", indexes...)).(int)
+func expandDashboardWidgetsChartSeriesOverridesSlice(d *schema.ResourceData, widgetPrefix string) ([]*monitoring.ChartWidget_SeriesOverrides, error) {
+	count := d.Get(widgetPrefix + ".chart.0.series_overrides.#").(int)
 	slice := make([]*monitoring.ChartWidget_SeriesOverrides, count)
 
 	for i := 0; i < count; i++ {
-		seriesOverrides, err := expandDashboardWidgetsChartSeriesOverrides(d, append(indexes, i)...)
+		seriesOverrides, err := expandDashboardWidgetsChartSeriesOverrides(d, widgetPrefix, i)
 		if err != nil {
 			return nil, err
 		}
@@ -651,19 +660,19 @@ func expandDashboardWidgetsChartSeriesOverridesSlice(d *schema.ResourceData, ind
 	return slice, nil
 }
 
-func expandDashboardWidgetsChartSeriesOverrides(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_SeriesOverrides, error) {
+func expandDashboardWidgetsChartSeriesOverrides(d *schema.ResourceData, widgetPrefix string, i int) (*monitoring.ChartWidget_SeriesOverrides, error) {
 	val := new(monitoring.ChartWidget_SeriesOverrides)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides.%d.name", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.series_overrides.%d.name", widgetPrefix, i)); ok {
 		val.SetName(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides.%d.target_index", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.series_overrides.%d.target_index", widgetPrefix, i)); ok {
 		val.SetTargetIndex(v.(string))
 	}
 
-	if _, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides.%d.settings", indexes...)); ok {
-		settings, err := expandDashboardWidgetsChartSeriesOverridesSettings(d, indexes...)
+	if _, ok := d.GetOk(fmt.Sprintf("%s.chart.0.series_overrides.%d.settings", widgetPrefix, i)); ok {
+		settings, err := expandDashboardWidgetsChartSeriesOverridesSettings(d, widgetPrefix, i)
 		if err != nil {
 			return nil, err
 		}
@@ -674,18 +683,18 @@ func expandDashboardWidgetsChartSeriesOverrides(d *schema.ResourceData, indexes 
 	return val, nil
 }
 
-func expandDashboardWidgetsChartSeriesOverridesSettings(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_SeriesOverrides_SeriesOverrideSettings, error) {
+func expandDashboardWidgetsChartSeriesOverridesSettings(d *schema.ResourceData, widgetPrefix string, i int) (*monitoring.ChartWidget_SeriesOverrides_SeriesOverrideSettings, error) {
 	val := new(monitoring.ChartWidget_SeriesOverrides_SeriesOverrideSettings)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides.%d.settings.0.name", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.series_overrides.%d.settings.0.name", widgetPrefix, i)); ok {
 		val.SetName(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides.%d.settings.0.color", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.series_overrides.%d.settings.0.color", widgetPrefix, i)); ok {
 		val.SetColor(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides.%d.settings.0.type", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.series_overrides.%d.settings.0.type", widgetPrefix, i)); ok {
 		seriesVisualizationType, err := parseMonitoringChartWidgetXSeriesOverridesXSeriesVisualizationType(v.(string))
 		if err != nil {
 			return nil, err
@@ -694,15 +703,15 @@ func expandDashboardWidgetsChartSeriesOverridesSettings(d *schema.ResourceData, 
 		val.SetType(seriesVisualizationType)
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides.%d.settings.0.stack_name", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.series_overrides.%d.settings.0.stack_name", widgetPrefix, i)); ok {
 		val.SetStackName(v.(string))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides.%d.settings.0.grow_down", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.series_overrides.%d.settings.0.grow_down", widgetPrefix, i)); ok {
 		val.SetGrowDown(v.(bool))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.series_overrides.%d.settings.0.yaxis_position", indexes...)); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("%s.chart.0.series_overrides.%d.settings.0.yaxis_position", widgetPrefix, i)); ok {
 		yaxisPosition, err := parseMonitoringChartWidgetXSeriesOverridesXYaxisPosition(v.(string))
 		if err != nil {
 			return nil, err
@@ -714,16 +723,133 @@ func expandDashboardWidgetsChartSeriesOverridesSettings(d *schema.ResourceData, 
 	return val, nil
 }
 
-func expandDashboardWidgetsChartNameHidingSettings(d *schema.ResourceData, indexes ...interface{}) (*monitoring.ChartWidget_NameHidingSettings, error) {
+func expandDashboardWidgetsChartNameHidingSettings(d *schema.ResourceData, widgetPrefix string) (*monitoring.ChartWidget_NameHidingSettings, error) {
 	val := new(monitoring.ChartWidget_NameHidingSettings)
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.name_hiding_settings.0.positive", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.name_hiding_settings.0.positive"); ok {
 		val.SetPositive(v.(bool))
 	}
 
-	if v, ok := d.GetOk(fmt.Sprintf("widgets.%d.chart.0.name_hiding_settings.0.names", indexes...)); ok {
+	if v, ok := d.GetOk(widgetPrefix + ".chart.0.name_hiding_settings.0.names"); ok {
 		names := expandStringSlice(v.([]interface{}))
 		val.SetNames(names)
+	}
+
+	return val, nil
+}
+
+func expandDashboardWidgetsGroup(d *schema.ResourceData, widgetPrefix string) (*monitoring.GroupWidget, error) {
+	val := new(monitoring.GroupWidget)
+
+	if v, ok := d.GetOk(widgetPrefix + ".group.0.group_id"); ok {
+		val.SetId(v.(string))
+	}
+
+	if v, ok := d.GetOk(widgetPrefix + ".group.0.title"); ok {
+		val.SetTitle(v.(string))
+	}
+
+	if v, ok := d.GetOk(widgetPrefix + ".group.0.collapsed"); ok {
+		val.SetCollapsed(v.(bool))
+	}
+
+	if _, ok := d.GetOk(widgetPrefix + ".group.0.repeat_settings"); ok {
+		repeatSettings := new(monitoring.GroupWidget_RepeatSettings)
+		if v, ok := d.GetOk(widgetPrefix + ".group.0.repeat_settings.0.repeat_by"); ok {
+			repeatSettings.SetRepeatBy(expandStringSlice(v.([]interface{})))
+		}
+
+		val.SetRepeatSettings(repeatSettings)
+	}
+
+	widgets, err := expandDashboardGroupWidgetsSlice(d, widgetPrefix+".group.0.widgets")
+	if err != nil {
+		return nil, err
+	}
+	val.SetWidgets(widgets)
+
+	return val, nil
+}
+
+func expandDashboardGroupWidgetsSlice(d *schema.ResourceData, listPrefix string) ([]*monitoring.GroupWidget_ChildWidget, error) {
+	count := d.Get(listPrefix + ".#").(int)
+	slice := make([]*monitoring.GroupWidget_ChildWidget, count)
+
+	for i := 0; i < count; i++ {
+		widget, err := expandDashboardGroupWidgets(d, fmt.Sprintf("%s.%d", listPrefix, i))
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = widget
+	}
+
+	return slice, nil
+}
+
+func expandDashboardGroupWidgets(d *schema.ResourceData, widgetPrefix string) (*monitoring.GroupWidget_ChildWidget, error) {
+	val := new(monitoring.GroupWidget_ChildWidget)
+
+	if v, ok := d.GetOk(widgetPrefix + ".widget_id"); ok {
+		val.SetId(v.(string))
+	}
+
+	if _, ok := d.GetOk(widgetPrefix + ".position"); ok {
+		position, err := expandDashboardGroupWidgetsPosition(d, widgetPrefix)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetPosition(position)
+	}
+
+	if _, ok := d.GetOk(widgetPrefix + ".text"); ok {
+		text, err := expandDashboardWidgetsText(d, widgetPrefix)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetText(text)
+	}
+
+	if _, ok := d.GetOk(widgetPrefix + ".title"); ok {
+		title, err := expandDashboardWidgetsTitle(d, widgetPrefix)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTitle(title)
+	}
+
+	if _, ok := d.GetOk(widgetPrefix + ".chart"); ok {
+		chart, err := expandDashboardWidgetsChart(d, widgetPrefix)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetChart(chart)
+	}
+
+	return val, nil
+}
+
+func expandDashboardGroupWidgetsPosition(d *schema.ResourceData, widgetPrefix string) (*monitoring.GroupWidget_LayoutPosition, error) {
+	val := new(monitoring.GroupWidget_LayoutPosition)
+
+	if v, ok := d.GetOk(widgetPrefix + ".position.0.x"); ok {
+		val.SetX(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(widgetPrefix + ".position.0.y"); ok {
+		val.SetY(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(widgetPrefix + ".position.0.w"); ok {
+		val.SetW(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk(widgetPrefix + ".position.0.h"); ok {
+		val.SetH(int64(v.(int)))
 	}
 
 	return val, nil
@@ -1100,6 +1226,11 @@ func flattenMonitoringWidget(v *monitoring.Widget) ([]map[string]interface{}, er
 		return nil, err
 	}
 	m["title"] = title
+	group, err := flattenMonitoringGroupWidget(v.GetGroup())
+	if err != nil {
+		return nil, err
+	}
+	m["group"] = group
 
 	return []map[string]interface{}{m}, nil
 }
@@ -1459,6 +1590,106 @@ func flattenMonitoringTitleWidget(v *monitoring.TitleWidget) ([]map[string]inter
 
 	m["size"] = v.Size.String()
 	m["text"] = v.Text
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenMonitoringGroupWidget(v *monitoring.GroupWidget) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["group_id"] = v.Id
+	m["title"] = v.Title
+	m["collapsed"] = v.Collapsed
+	repeatSettings, err := flattenMonitoringGroupWidgetRepeatSettings(v.RepeatSettings)
+	if err != nil {
+		return nil, err
+	}
+	m["repeat_settings"] = repeatSettings
+	widgets, err := flattenMonitoringGroupChildWidgetSlice(v.Widgets)
+	if err != nil {
+		return nil, err
+	}
+	m["widgets"] = widgets
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenMonitoringGroupWidgetRepeatSettings(v *monitoring.GroupWidget_RepeatSettings) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["repeat_by"] = v.RepeatBy
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenMonitoringGroupChildWidgetSlice(vs []*monitoring.GroupWidget_ChildWidget) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(vs))
+
+	for _, v := range vs {
+		widget, err := flattenMonitoringGroupChildWidget(v)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(widget) != 0 {
+			s = append(s, widget[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenMonitoringGroupChildWidget(v *monitoring.GroupWidget_ChildWidget) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["widget_id"] = v.Id
+	chart, err := flattenMonitoringChartWidget(v.GetChart())
+	if err != nil {
+		return nil, err
+	}
+	m["chart"] = chart
+	position, err := flattenMonitoringGroupWidgetLayoutPosition(v.Position)
+	if err != nil {
+		return nil, err
+	}
+	m["position"] = position
+	text, err := flattenMonitoringTextWidget(v.GetText())
+	if err != nil {
+		return nil, err
+	}
+	m["text"] = text
+	title, err := flattenMonitoringTitleWidget(v.GetTitle())
+	if err != nil {
+		return nil, err
+	}
+	m["title"] = title
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenMonitoringGroupWidgetLayoutPosition(v *monitoring.GroupWidget_LayoutPosition) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["h"] = v.H
+	m["w"] = v.W
+	m["x"] = v.X
+	m["y"] = v.Y
 
 	return []map[string]interface{}{m}, nil
 }
