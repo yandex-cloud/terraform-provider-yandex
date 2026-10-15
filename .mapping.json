@@ -128,6 +128,7 @@
   ".changes/0.236.0.md":"opensource/terraform-provider-yandex-mirror/.changes/0.236.0.md",
   ".changes/0.237.0.md":"opensource/terraform-provider-yandex-mirror/.changes/0.237.0.md",
   ".changes/0.238.0.md":"opensource/terraform-provider-yandex-mirror/.changes/0.238.0.md",
+  ".changes/0.239.0.md":"opensource/terraform-provider-yandex-mirror/.changes/0.239.0.md",
   ".changes/header.tpl.md":"opensource/terraform-provider-yandex-mirror/.changes/header.tpl.md",
   ".changes/unreleased/.gitkeep":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/.gitkeep",
   ".changie.yaml":"opensource/terraform-provider-yandex-mirror/.changie.yaml",

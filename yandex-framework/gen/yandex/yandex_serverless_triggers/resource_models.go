@@ -17,6 +17,7 @@ import (
 )
 
 type yandexServerlessTriggersActionStructModel struct {
+	AgentRuntimeCall          types.Object `tfsdk:"agent_runtime_call"`
 	DeadLetter                types.Object `tfsdk:"dead_letter"`
 	Filter                    types.Object `tfsdk:"filter"`
 	GatewayWebsocketBroadcast types.Object `tfsdk:"gateway_websocket_broadcast"`
@@ -27,6 +28,9 @@ type yandexServerlessTriggersActionStructModel struct {
 	Transformer               types.Object `tfsdk:"transformer"`
 }
 
+func (m *yandexServerlessTriggersActionStructModel) GetAgentRuntimeCall() types.Object {
+	return m.AgentRuntimeCall
+}
 func (m *yandexServerlessTriggersActionStructModel) GetDeadLetter() types.Object {
 	return m.DeadLetter
 }
@@ -52,6 +56,9 @@ func (m *yandexServerlessTriggersActionStructModel) GetTransformer() types.Objec
 	return m.Transformer
 }
 
+func (m *yandexServerlessTriggersActionStructModel) SetAgentRuntimeCall(target types.Object) {
+	m.AgentRuntimeCall = target
+}
 func (m *yandexServerlessTriggersActionStructModel) SetDeadLetter(target types.Object) {
 	m.DeadLetter = target
 }
@@ -79,6 +86,7 @@ func (m *yandexServerlessTriggersActionStructModel) SetTransformer(target types.
 
 func NewYandexServerlessTriggersActionStructModel() yandexServerlessTriggersActionStructModel {
 	return yandexServerlessTriggersActionStructModel{
+		AgentRuntimeCall:          types.ObjectNull(yandexServerlessTriggersActionStructAgentRuntimeCallModelType.AttrTypes),
 		DeadLetter:                types.ObjectNull(yandexServerlessTriggersActionStructDeadLetterModelType.AttrTypes),
 		Filter:                    types.ObjectNull(yandexServerlessTriggersActionStructFilterModelType.AttrTypes),
 		GatewayWebsocketBroadcast: types.ObjectNull(yandexServerlessTriggersActionStructGatewayWebsocketBroadcastModelType.AttrTypes),
@@ -91,6 +99,9 @@ func NewYandexServerlessTriggersActionStructModel() yandexServerlessTriggersActi
 }
 
 func yandexServerlessTriggersActionStructModelFillUnknown(target yandexServerlessTriggersActionStructModel) yandexServerlessTriggersActionStructModel {
+	if target.AgentRuntimeCall.IsUnknown() || target.AgentRuntimeCall.IsNull() {
+		target.AgentRuntimeCall = types.ObjectNull(yandexServerlessTriggersActionStructAgentRuntimeCallModelType.AttrTypes)
+	}
 	if target.DeadLetter.IsUnknown() || target.DeadLetter.IsNull() {
 		target.DeadLetter = types.ObjectNull(yandexServerlessTriggersActionStructDeadLetterModelType.AttrTypes)
 	}
@@ -120,6 +131,7 @@ func yandexServerlessTriggersActionStructModelFillUnknown(target yandexServerles
 
 var yandexServerlessTriggersActionStructModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"agent_runtime_call":          yandexServerlessTriggersActionStructAgentRuntimeCallModelType,
 		"dead_letter":                 yandexServerlessTriggersActionStructDeadLetterModelType,
 		"filter":                      yandexServerlessTriggersActionStructFilterModelType,
 		"gateway_websocket_broadcast": yandexServerlessTriggersActionStructGatewayWebsocketBroadcastModelType,
@@ -139,6 +151,7 @@ func flattenYandexServerlessTriggersActionStruct(ctx context.Context,
 		return types.ObjectNull(yandexServerlessTriggersActionStructModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexServerlessTriggersActionStructModelType.AttrTypes, yandexServerlessTriggersActionStructModel{
+		AgentRuntimeCall:          flattenYandexServerlessTriggersActionStructAgentRuntimeCall(ctx, yandexServerlessTriggersActionStruct.GetAgentRuntimeCall(), converter.ExpandObject(ctx, state.AgentRuntimeCall, yandexServerlessTriggersActionStructAgentRuntimeCallModel{}, diags).(yandexServerlessTriggersActionStructAgentRuntimeCallModel), diags),
 		DeadLetter:                flattenYandexServerlessTriggersActionStructDeadLetter(ctx, yandexServerlessTriggersActionStruct.GetDeadLetter(), converter.ExpandObject(ctx, state.DeadLetter, yandexServerlessTriggersActionStructDeadLetterModel{}, diags).(yandexServerlessTriggersActionStructDeadLetterModel), diags),
 		Filter:                    flattenYandexServerlessTriggersActionStructFilter(ctx, yandexServerlessTriggersActionStruct.GetFilter(), diags),
 		GatewayWebsocketBroadcast: flattenYandexServerlessTriggersActionStructGatewayWebsocketBroadcast(ctx, yandexServerlessTriggersActionStruct.GetGatewayWebsocketBroadcast(), diags),
@@ -166,6 +179,9 @@ func expandYandexServerlessTriggersActionStruct(ctx context.Context, yandexServe
 
 func expandYandexServerlessTriggersActionStructModel(ctx context.Context, yandexServerlessTriggersActionStructState yandexServerlessTriggersActionStructModel, diags *diag.Diagnostics) *triggers.Action {
 	value := &triggers.Action{}
+	if !(yandexServerlessTriggersActionStructState.AgentRuntimeCall.IsNull() || yandexServerlessTriggersActionStructState.AgentRuntimeCall.IsUnknown() || yandexServerlessTriggersActionStructState.AgentRuntimeCall.Equal(types.Object{})) {
+		value.SetAgentRuntimeCall(expandYandexServerlessTriggersActionStructAgentRuntimeCall(ctx, yandexServerlessTriggersActionStructState.AgentRuntimeCall, diags))
+	}
 	value.SetDeadLetter(expandYandexServerlessTriggersActionStructDeadLetter(ctx, yandexServerlessTriggersActionStructState.DeadLetter, diags))
 	value.SetFilter(expandYandexServerlessTriggersActionStructFilter(ctx, yandexServerlessTriggersActionStructState.Filter, diags))
 	if !(yandexServerlessTriggersActionStructState.GatewayWebsocketBroadcast.IsNull() || yandexServerlessTriggersActionStructState.GatewayWebsocketBroadcast.IsUnknown() || yandexServerlessTriggersActionStructState.GatewayWebsocketBroadcast.Equal(types.Object{})) {
@@ -186,6 +202,165 @@ func expandYandexServerlessTriggersActionStructModel(ctx context.Context, yandex
 		return nil
 	}
 	return value
+}
+
+type yandexServerlessTriggersActionStructAgentRuntimeCallModel struct {
+	AgentVersionId types.String `tfsdk:"agent_version_id"`
+	Attributes     types.Map    `tfsdk:"attributes"`
+	ChannelId      types.String `tfsdk:"channel_id"`
+	CloudId        types.String `tfsdk:"cloud_id"`
+	FolderId       types.String `tfsdk:"folder_id"`
+}
+
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) GetAgentVersionId() types.String {
+	return m.AgentVersionId
+}
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) GetAttributes() types.Map {
+	return m.Attributes
+}
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) GetChannelId() types.String {
+	return m.ChannelId
+}
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) GetCloudId() types.String {
+	return m.CloudId
+}
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) GetFolderId() types.String {
+	return m.FolderId
+}
+
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) SetAgentVersionId(target types.String) {
+	m.AgentVersionId = target
+}
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) SetAttributes(target types.Map) {
+	m.Attributes = target
+}
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) SetChannelId(target types.String) {
+	m.ChannelId = target
+}
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) SetCloudId(target types.String) {
+	m.CloudId = target
+}
+func (m *yandexServerlessTriggersActionStructAgentRuntimeCallModel) SetFolderId(target types.String) {
+	m.FolderId = target
+}
+
+func NewYandexServerlessTriggersActionStructAgentRuntimeCallModel() yandexServerlessTriggersActionStructAgentRuntimeCallModel {
+	return yandexServerlessTriggersActionStructAgentRuntimeCallModel{
+		AgentVersionId: types.StringNull(),
+		Attributes:     types.MapNull(types.StringType),
+		ChannelId:      types.StringNull(),
+		CloudId:        types.StringNull(),
+		FolderId:       types.StringNull(),
+	}
+}
+
+func yandexServerlessTriggersActionStructAgentRuntimeCallModelFillUnknown(target yandexServerlessTriggersActionStructAgentRuntimeCallModel) yandexServerlessTriggersActionStructAgentRuntimeCallModel {
+	if target.AgentVersionId.IsUnknown() || target.AgentVersionId.IsNull() {
+		target.AgentVersionId = types.StringNull()
+	}
+	if target.Attributes.IsUnknown() || target.Attributes.IsNull() {
+		target.Attributes = types.MapNull(types.StringType)
+	}
+	if target.ChannelId.IsUnknown() || target.ChannelId.IsNull() {
+		target.ChannelId = types.StringNull()
+	}
+	if target.CloudId.IsUnknown() || target.CloudId.IsNull() {
+		target.CloudId = types.StringNull()
+	}
+	if target.FolderId.IsUnknown() || target.FolderId.IsNull() {
+		target.FolderId = types.StringNull()
+	}
+	return target
+}
+
+var yandexServerlessTriggersActionStructAgentRuntimeCallModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"agent_version_id": types.StringType,
+		"attributes":       types.MapType{ElemType: types.StringType},
+		"channel_id":       types.StringType,
+		"cloud_id":         types.StringType,
+		"folder_id":        types.StringType,
+	},
+}
+
+func flattenYandexServerlessTriggersActionStructAgentRuntimeCall(ctx context.Context,
+	yandexServerlessTriggersActionStructAgentRuntimeCall *triggers.AgentRuntimeCall,
+	state yandexServerlessTriggersActionStructAgentRuntimeCallModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexServerlessTriggersActionStructAgentRuntimeCall == nil {
+		return types.ObjectNull(yandexServerlessTriggersActionStructAgentRuntimeCallModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexServerlessTriggersActionStructAgentRuntimeCallModelType.AttrTypes, yandexServerlessTriggersActionStructAgentRuntimeCallModel{
+		AgentVersionId: types.StringValue(yandexServerlessTriggersActionStructAgentRuntimeCall.GetAgentVersionId()),
+		Attributes:     flattenYandexServerlessTriggersActionStructAgentRuntimeCallAttributes(ctx, yandexServerlessTriggersActionStructAgentRuntimeCall.GetAttributes(), state.Attributes, diags),
+		ChannelId:      types.StringValue(yandexServerlessTriggersActionStructAgentRuntimeCall.GetChannelId()),
+		CloudId:        types.StringValue(yandexServerlessTriggersActionStructAgentRuntimeCall.GetCloudId()),
+		FolderId:       types.StringValue(yandexServerlessTriggersActionStructAgentRuntimeCall.GetFolderId()),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexServerlessTriggersActionStructAgentRuntimeCall(ctx context.Context, yandexServerlessTriggersActionStructAgentRuntimeCallState types.Object, diags *diag.Diagnostics) *triggers.AgentRuntimeCall {
+	if yandexServerlessTriggersActionStructAgentRuntimeCallState.IsNull() || yandexServerlessTriggersActionStructAgentRuntimeCallState.IsUnknown() {
+		return nil
+	}
+	var yandexServerlessTriggersActionStructAgentRuntimeCall yandexServerlessTriggersActionStructAgentRuntimeCallModel
+	diags.Append(yandexServerlessTriggersActionStructAgentRuntimeCallState.As(ctx, &yandexServerlessTriggersActionStructAgentRuntimeCall, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexServerlessTriggersActionStructAgentRuntimeCallModel(ctx, yandexServerlessTriggersActionStructAgentRuntimeCall, diags)
+}
+
+func expandYandexServerlessTriggersActionStructAgentRuntimeCallModel(ctx context.Context, yandexServerlessTriggersActionStructAgentRuntimeCallState yandexServerlessTriggersActionStructAgentRuntimeCallModel, diags *diag.Diagnostics) *triggers.AgentRuntimeCall {
+	value := &triggers.AgentRuntimeCall{}
+	value.SetAgentVersionId(yandexServerlessTriggersActionStructAgentRuntimeCallState.AgentVersionId.ValueString())
+	value.SetAttributes(expandYandexServerlessTriggersActionStructAgentRuntimeCallAttributes(ctx, yandexServerlessTriggersActionStructAgentRuntimeCallState.Attributes, diags))
+	value.SetChannelId(yandexServerlessTriggersActionStructAgentRuntimeCallState.ChannelId.ValueString())
+	value.SetCloudId(yandexServerlessTriggersActionStructAgentRuntimeCallState.CloudId.ValueString())
+	value.SetFolderId(yandexServerlessTriggersActionStructAgentRuntimeCallState.FolderId.ValueString())
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexServerlessTriggersActionStructAgentRuntimeCallAttributes(ctx context.Context, yandexServerlessTriggersActionStructAgentRuntimeCallAttributes map[string]string, listState types.Map, diags *diag.Diagnostics) types.Map {
+	if yandexServerlessTriggersActionStructAgentRuntimeCallAttributes == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.MapNull(types.StringType)
+	}
+	yandexServerlessTriggersActionStructAgentRuntimeCallAttributesValues := make(map[string]attr.Value)
+	for k, elem := range yandexServerlessTriggersActionStructAgentRuntimeCallAttributes {
+		val := types.StringValue(elem)
+		yandexServerlessTriggersActionStructAgentRuntimeCallAttributesValues[k] = val
+	}
+
+	value, diag := types.MapValue(types.StringType, yandexServerlessTriggersActionStructAgentRuntimeCallAttributesValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexServerlessTriggersActionStructAgentRuntimeCallAttributes(ctx context.Context, yandexServerlessTriggersActionStructAgentRuntimeCallAttributesState types.Map, diags *diag.Diagnostics) map[string]string {
+	if yandexServerlessTriggersActionStructAgentRuntimeCallAttributesState.IsNull() || yandexServerlessTriggersActionStructAgentRuntimeCallAttributesState.IsUnknown() {
+		return nil
+	}
+	if len(yandexServerlessTriggersActionStructAgentRuntimeCallAttributesState.Elements()) == 0 {
+		return map[string]string{}
+	}
+	yandexServerlessTriggersActionStructAgentRuntimeCallAttributesRes := make(map[string]string)
+	yandexServerlessTriggersActionStructAgentRuntimeCallAttributesType := make(map[string]types.String)
+	diags.Append(yandexServerlessTriggersActionStructAgentRuntimeCallAttributesState.ElementsAs(ctx, &yandexServerlessTriggersActionStructAgentRuntimeCallAttributesType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for k, elem := range yandexServerlessTriggersActionStructAgentRuntimeCallAttributesType {
+		yandexServerlessTriggersActionStructAgentRuntimeCallAttributesRes[k] = elem.ValueString()
+	}
+	return yandexServerlessTriggersActionStructAgentRuntimeCallAttributesRes
 }
 
 type yandexServerlessTriggersActionStructDeadLetterModel struct {

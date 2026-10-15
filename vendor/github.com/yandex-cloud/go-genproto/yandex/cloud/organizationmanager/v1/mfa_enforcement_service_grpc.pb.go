@@ -44,8 +44,12 @@ type MfaEnforcementServiceClient interface {
 	// updates the specified MFA enforcement
 	Update(ctx context.Context, in *UpdateMfaEnforcementRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// activates the specified MFA enforcement
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
+	// (-- api-linter: yc::1702::method-verb-prefix=disabled --)
 	Activate(ctx context.Context, in *ActivateMfaEnforcementRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// deactivates the specified MFA enforcement
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
+	// (-- api-linter: yc::1702::method-verb-prefix=disabled --)
 	Deactivate(ctx context.Context, in *DeactivateMfaEnforcementRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// deletes the specified MFA enforcement
 	Delete(ctx context.Context, in *DeleteMfaEnforcementRequest, opts ...grpc.CallOption) (*operation.Operation, error)
@@ -54,10 +58,12 @@ type MfaEnforcementServiceClient interface {
 	// returns MFA enforcements for the specified organization
 	List(ctx context.Context, in *ListMfaEnforcementsRequest, opts ...grpc.CallOption) (*ListMfaEnforcementsResponse, error)
 	// updates specified MFA enforcement's audience
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
 	UpdateAudience(ctx context.Context, in *UpdateAudienceRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// returns specified MFA enforcement's audience
 	ListAudience(ctx context.Context, in *ListAudienceRequest, opts ...grpc.CallOption) (*ListAudienceResponse, error)
 	// updates specified MFA enforcement's excluded audience
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
 	UpdateExcludedAudience(ctx context.Context, in *UpdateExcludedAudienceRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// returns specified MFA enforcement's excluded audience
 	ListExcludedAudience(ctx context.Context, in *ListExcludedAudienceRequest, opts ...grpc.CallOption) (*ListExcludedAudienceResponse, error)
@@ -192,8 +198,12 @@ type MfaEnforcementServiceServer interface {
 	// updates the specified MFA enforcement
 	Update(context.Context, *UpdateMfaEnforcementRequest) (*operation.Operation, error)
 	// activates the specified MFA enforcement
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
+	// (-- api-linter: yc::1702::method-verb-prefix=disabled --)
 	Activate(context.Context, *ActivateMfaEnforcementRequest) (*operation.Operation, error)
 	// deactivates the specified MFA enforcement
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
+	// (-- api-linter: yc::1702::method-verb-prefix=disabled --)
 	Deactivate(context.Context, *DeactivateMfaEnforcementRequest) (*operation.Operation, error)
 	// deletes the specified MFA enforcement
 	Delete(context.Context, *DeleteMfaEnforcementRequest) (*operation.Operation, error)
@@ -202,10 +212,12 @@ type MfaEnforcementServiceServer interface {
 	// returns MFA enforcements for the specified organization
 	List(context.Context, *ListMfaEnforcementsRequest) (*ListMfaEnforcementsResponse, error)
 	// updates specified MFA enforcement's audience
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
 	UpdateAudience(context.Context, *UpdateAudienceRequest) (*operation.Operation, error)
 	// returns specified MFA enforcement's audience
 	ListAudience(context.Context, *ListAudienceRequest) (*ListAudienceResponse, error)
 	// updates specified MFA enforcement's excluded audience
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
 	UpdateExcludedAudience(context.Context, *UpdateExcludedAudienceRequest) (*operation.Operation, error)
 	// returns specified MFA enforcement's excluded audience
 	ListExcludedAudience(context.Context, *ListExcludedAudienceRequest) (*ListExcludedAudienceResponse, error)

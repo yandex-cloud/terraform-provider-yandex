@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	organizationmanager "github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 )
@@ -116,6 +117,17 @@ func YandexOrganizationmanagerMfaEnforcementDatasourceSchema(ctx context.Context
 				Description: "organization id of the MFA enforcement" +
 					// proto paths: +
 					// -> yandex.cloud.organizationmanager.v1.MfaEnforcement.organization_id
+					"package: yandex.cloud.organizationmanager.v1\n" +
+					"filename: yandex/cloud/organizationmanager/v1/mfa_enforcement.proto\n",
+				Computed: true,
+			},
+
+			"sspr_policies": schema.ListAttribute{
+				ElementType:         types.StringType,
+				MarkdownDescription: "sspr_policies for the MFA enforcement. Accepted values: 'mfa', 'two-any',\n specification https://yandex.cloud/en/docs/organization/concepts/sspr",
+				Description: "sspr_policies for the MFA enforcement. Accepted values: 'mfa', 'two-any',\n specification https://yandex.cloud/en/docs/organization/concepts/sspr" +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.MfaEnforcement.sspr_policies
 					"package: yandex.cloud.organizationmanager.v1\n" +
 					"filename: yandex/cloud/organizationmanager/v1/mfa_enforcement.proto\n",
 				Computed: true,

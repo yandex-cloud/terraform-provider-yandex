@@ -3,6 +3,7 @@
 package airflow
 
 import (
+	v11 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -79,6 +80,10 @@ func (m *CreateClusterRequest) SetMaintenanceWindow(v *MaintenanceWindow) {
 	m.MaintenanceWindow = v
 }
 
+func (m *CreateClusterRequest) SetMaintenanceWindows(v *v11.MaintenanceWindows) {
+	m.MaintenanceWindows = v
+}
+
 func (m *CreateClusterRequest) SetAdminPassword(v string) {
 	m.AdminPassword = v
 }
@@ -135,6 +140,10 @@ func (m *UpdateNetworkConfigSpec) SetSecurityGroupIds(v []string) {
 	m.SecurityGroupIds = v
 }
 
+func (m *UpdateNetworkConfigSpec) SetSubnetIds(v []string) {
+	m.SubnetIds = v
+}
+
 func (m *UpdateClusterRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -181,6 +190,10 @@ func (m *UpdateClusterRequest) SetLogging(v *LoggingConfig) {
 
 func (m *UpdateClusterRequest) SetMaintenanceWindow(v *MaintenanceWindow) {
 	m.MaintenanceWindow = v
+}
+
+func (m *UpdateClusterRequest) SetMaintenanceWindows(v *v11.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *UpdateClusterMetadata) SetClusterId(v string) {

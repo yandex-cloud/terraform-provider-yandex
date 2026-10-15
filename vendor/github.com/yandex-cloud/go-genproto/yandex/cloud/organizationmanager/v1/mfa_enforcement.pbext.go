@@ -46,3 +46,7 @@ func (m *MfaEnforcement) SetDescription(v string) {
 func (m *MfaEnforcement) SetCreatedAt(v *timestamppb.Timestamp) {
 	m.CreatedAt = v
 }
+
+func (m *MfaEnforcement) SetSsprPolicies(v []string) {
+	m.SsprPolicies = v
+}

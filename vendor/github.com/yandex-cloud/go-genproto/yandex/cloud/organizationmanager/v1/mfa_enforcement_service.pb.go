@@ -203,7 +203,10 @@ type CreateMfaEnforcementRequest struct {
 	// the MFA enforcement name
 	Name string `protobuf:"bytes,7,opt,name=name,proto3" json:"name,omitempty"`
 	// the MFA enforcement description
-	Description   string `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`
+	Description string `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`
+	// sspr_policies for the MFA enforcement. Accepted values: 'mfa', 'two-any',
+	// specification https://yandex.cloud/en/docs/organization/concepts/sspr
+	SsprPolicies  []string `protobuf:"bytes,12,rep,name=sspr_policies,json=ssprPolicies,proto3" json:"sspr_policies,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -294,6 +297,13 @@ func (x *CreateMfaEnforcementRequest) GetDescription() string {
 	return ""
 }
 
+func (x *CreateMfaEnforcementRequest) GetSsprPolicies() []string {
+	if x != nil {
+		return x.SsprPolicies
+	}
+	return nil
+}
+
 type CreateMfaEnforcementMetadata struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// organization id of the MFA enforcement
@@ -369,7 +379,10 @@ type UpdateMfaEnforcementRequest struct {
 	// the MFA enforcement name
 	Name string `protobuf:"bytes,8,opt,name=name,proto3" json:"name,omitempty"`
 	// the MFA enforcement description
-	Description   string `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
+	Description string `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
+	// sspr_policies for the MFA enforcement. Accepted values: 'mfa', 'two-any',
+	// specification https://yandex.cloud/en/docs/organization/concepts/sspr
+	SsprPolicies  []string `protobuf:"bytes,12,rep,name=sspr_policies,json=ssprPolicies,proto3" json:"sspr_policies,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -465,6 +478,13 @@ func (x *UpdateMfaEnforcementRequest) GetDescription() string {
 		return x.Description
 	}
 	return ""
+}
+
+func (x *UpdateMfaEnforcementRequest) GetSsprPolicies() []string {
+	if x != nil {
+		return x.SsprPolicies
+	}
+	return nil
 }
 
 type UpdateMfaEnforcementMetadata struct {
@@ -1650,7 +1670,7 @@ var File_yandex_cloud_organizationmanager_v1_mfa_enforcement_service_proto proto
 
 const file_yandex_cloud_organizationmanager_v1_mfa_enforcement_service_proto_rawDesc = "" +
 	"\n" +
-	"Ayandex/cloud/organizationmanager/v1/mfa_enforcement_service.proto\x12#yandex.cloud.organizationmanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a yandex/cloud/api/operation.proto\x1a&yandex/cloud/operation/operation.proto\x1a9yandex/cloud/organizationmanager/v1/mfa_enforcement.proto\x1a\x1dyandex/cloud/validation.proto\"\x95\x05\n" +
+	"Ayandex/cloud/organizationmanager/v1/mfa_enforcement_service.proto\x12#yandex.cloud.organizationmanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a yandex/cloud/api/operation.proto\x1a&yandex/cloud/operation/operation.proto\x1a9yandex/cloud/organizationmanager/v1/mfa_enforcement.proto\x1a\x1dyandex/cloud/validation.proto\"\xd6\x05\n" +
 	"\x1bCreateMfaEnforcementRequest\x125\n" +
 	"\x0forganization_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\x0eorganizationId\x12#\n" +
 	"\x06acr_id\x18\x02 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\x05acrId\x12=\n" +
@@ -1659,14 +1679,15 @@ const file_yandex_cloud_organizationmanager_v1_mfa_enforcement_service_proto_raw
 	"\bapply_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB7\xfa\xc71319700101T000000.000000000-21051231T235959.999999999R\aapplyAt\x12P\n" +
 	"\renroll_window\x18\x06 \x01(\v2\x19.google.protobuf.DurationB\x10\xe8\xc71\x01\xfa\xc71\b5m-8760hR\fenrollWindow\x12;\n" +
 	"\x04name\x18\a \x01(\tB'\xe8\xc71\x01\xf2\xc71\x1f[a-z]([-a-z0-9]{0,61}[a-z0-9])?R\x04name\x12+\n" +
-	"\vdescription\x18\b \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\"H\n" +
+	"\vdescription\x18\b \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x129\n" +
+	"\rsspr_policies\x18\f \x03(\tB\x14\x82\xc81\x040-10\x8a\xc81\x04<=50\x90\xc81\x01R\fssprPolicies\"H\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTATUS_ACTIVE\x10\x01\x12\x13\n" +
-	"\x0fSTATUS_INACTIVE\x10\x02\"{\n" +
+	"\x0fSTATUS_INACTIVE\x10\x02J\x04\b\t\x10\f\"{\n" +
 	"\x1cCreateMfaEnforcementMetadata\x12'\n" +
 	"\x0forganization_id\x18\x02 \x01(\tR\x0eorganizationId\x12,\n" +
-	"\x12mfa_enforcement_id\x18\x03 \x01(\tR\x10mfaEnforcementIdJ\x04\b\x01\x10\x02\"\xc2\x05\n" +
+	"\x12mfa_enforcement_id\x18\x03 \x01(\tR\x10mfaEnforcementIdJ\x04\b\x01\x10\x02\"\x83\x06\n" +
 	"\x1bUpdateMfaEnforcementRequest\x12:\n" +
 	"\x12mfa_enforcement_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\x10mfaEnforcementId\x12\x1f\n" +
 	"\x06acr_id\x18\x02 \x01(\tB\b\x8a\xc81\x04<=50R\x05acrId\x129\n" +
@@ -1677,11 +1698,13 @@ const file_yandex_cloud_organizationmanager_v1_mfa_enforcement_service_proto_raw
 	"\vupdate_mask\x18\a \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\x128\n" +
 	"\x04name\x18\b \x01(\tB$\xf2\xc71 |[a-z]([-a-z0-9]{0,61}[a-z0-9])?R\x04name\x12+\n" +
-	"\vdescription\x18\t \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\"H\n" +
+	"\vdescription\x18\t \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x129\n" +
+	"\rsspr_policies\x18\f \x03(\tB\x14\x82\xc81\x040-10\x8a\xc81\x04<=50\x90\xc81\x01R\fssprPolicies\"H\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTATUS_ACTIVE\x10\x01\x12\x13\n" +
-	"\x0fSTATUS_INACTIVE\x10\x02\"R\n" +
+	"\x0fSTATUS_INACTIVE\x10\x02J\x04\b\n" +
+	"\x10\f\"R\n" +
 	"\x1cUpdateMfaEnforcementMetadata\x12,\n" +
 	"\x12mfa_enforcement_id\x18\x02 \x01(\tR\x10mfaEnforcementIdJ\x04\b\x01\x10\x02\"[\n" +
 	"\x1dActivateMfaEnforcementRequest\x12:\n" +

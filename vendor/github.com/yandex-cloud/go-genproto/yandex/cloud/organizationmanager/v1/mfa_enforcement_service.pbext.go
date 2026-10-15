@@ -40,6 +40,10 @@ func (m *CreateMfaEnforcementRequest) SetDescription(v string) {
 	m.Description = v
 }
 
+func (m *CreateMfaEnforcementRequest) SetSsprPolicies(v []string) {
+	m.SsprPolicies = v
+}
+
 func (m *CreateMfaEnforcementMetadata) SetOrganizationId(v string) {
 	m.OrganizationId = v
 }
@@ -82,6 +86,10 @@ func (m *UpdateMfaEnforcementRequest) SetName(v string) {
 
 func (m *UpdateMfaEnforcementRequest) SetDescription(v string) {
 	m.Description = v
+}
+
+func (m *UpdateMfaEnforcementRequest) SetSsprPolicies(v []string) {
+	m.SsprPolicies = v
 }
 
 func (m *UpdateMfaEnforcementMetadata) SetMfaEnforcementId(v string) {

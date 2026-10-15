@@ -41,6 +41,126 @@ func YandexServerlessTriggersResourceSchema(ctx context.Context) schema.Schema {
 
 					Attributes: map[string]schema.Attribute{
 
+						"agent_runtime_call": schema.SingleNestedAttribute{
+
+							Attributes: map[string]schema.Attribute{
+
+								"agent_version_id": schema.StringAttribute{
+									MarkdownDescription: "ID of the agent version to call.",
+									Description: "ID of the agent version to call." +
+										// proto paths: +
+										// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.agent_version_id
+										// -> yandex.cloud.serverless.triggers.v2.Trigger.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.agent_version_id
+										// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.agent_version_id
+										"package: yandex.cloud.serverless.triggers.v2\n" +
+										"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+									Required: true,
+
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+									Validators: []validator.String{
+										stringvalidator.LengthBetween(1, 50),
+									},
+								},
+
+								"attributes": schema.MapAttribute{
+									ElementType:         types.StringType,
+									MarkdownDescription: "Additional attributes passed to the agent call.",
+									Description: "Additional attributes passed to the agent call." +
+										// proto paths: +
+										// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.attributes
+										// -> yandex.cloud.serverless.triggers.v2.Trigger.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.attributes
+										// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.attributes
+										"package: yandex.cloud.serverless.triggers.v2\n" +
+										"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+									Optional: true,
+									Computed: true,
+
+									PlanModifiers: []planmodifier.Map{
+										mapplanmodifier.UseStateForUnknown(),
+										planmodifiers.NilRelaxedMap(),
+									},
+									Validators: []validator.Map{
+										mapvalidator.ValueStringsAre(),
+									},
+								},
+
+								"channel_id": schema.StringAttribute{
+									MarkdownDescription: "ID of the Agent Runtime channel to call.",
+									Description: "ID of the Agent Runtime channel to call." +
+										// proto paths: +
+										// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.channel_id
+										// -> yandex.cloud.serverless.triggers.v2.Trigger.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.channel_id
+										// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.channel_id
+										"package: yandex.cloud.serverless.triggers.v2\n" +
+										"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+									Required: true,
+
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+									Validators: []validator.String{
+										stringvalidator.LengthBetween(1, 50),
+									},
+								},
+
+								"cloud_id": schema.StringAttribute{
+									MarkdownDescription: "ID of the cloud that the agent belongs to.",
+									Description: "ID of the cloud that the agent belongs to." +
+										// proto paths: +
+										// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.cloud_id
+										// -> yandex.cloud.serverless.triggers.v2.Trigger.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.cloud_id
+										// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.cloud_id
+										"package: yandex.cloud.serverless.triggers.v2\n" +
+										"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+									Optional: true,
+									Computed: true,
+
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+									Validators: []validator.String{
+										stringvalidator.LengthBetween(0, 50),
+									},
+								},
+
+								"folder_id": schema.StringAttribute{
+									MarkdownDescription: "ID of the folder that the agent belongs to.",
+									Description: "ID of the folder that the agent belongs to." +
+										// proto paths: +
+										// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.folder_id
+										// -> yandex.cloud.serverless.triggers.v2.Trigger.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.folder_id
+										// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call -> yandex.cloud.serverless.triggers.v2.AgentRuntimeCall.folder_id
+										"package: yandex.cloud.serverless.triggers.v2\n" +
+										"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+									Optional: true,
+									Computed: true,
+
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
+									Validators: []validator.String{
+										stringvalidator.LengthBetween(0, 50),
+									},
+								},
+							},
+							MarkdownDescription: "Call an Agent Runtime agent.",
+							Description: "Call an Agent Runtime agent." +
+								// proto paths: +
+								// -> yandex.cloud.serverless.triggers.v2.CreateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call
+								// -> yandex.cloud.serverless.triggers.v2.Trigger.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call
+								// -> yandex.cloud.serverless.triggers.v2.UpdateTriggerRequest.action -> yandex.cloud.serverless.triggers.v2.Action.agent_runtime_call
+								"package: yandex.cloud.serverless.triggers.v2\n" +
+								"filename: yandex/cloud/serverless/triggers/v2/trigger.proto\n",
+							Optional: true,
+							Computed: true,
+
+							PlanModifiers: []planmodifier.Object{
+								objectplanmodifier.UseStateForUnknown(),
+							},
+						},
+
 						"dead_letter": schema.SingleNestedAttribute{
 
 							Attributes: map[string]schema.Attribute{

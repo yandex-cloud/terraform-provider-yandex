@@ -24,6 +24,7 @@ type yandexOrganizationmanagerMfaEnforcementDatasourceModel struct {
 	ID               types.String   `tfsdk:"id"`
 	Name             types.String   `tfsdk:"name"`
 	OrganizationId   types.String   `tfsdk:"organization_id"`
+	SsprPolicies     types.List     `tfsdk:"sspr_policies"`
 	Status           types.String   `tfsdk:"status"`
 	Ttl              types.String   `tfsdk:"ttl"`
 	Timeouts         timeouts.Value `tfsdk:"timeouts"`
@@ -55,6 +56,9 @@ func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) GetName() types
 }
 func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) GetOrganizationId() types.String {
 	return m.OrganizationId
+}
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) GetSsprPolicies() types.List {
+	return m.SsprPolicies
 }
 func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) GetStatus() types.String {
 	return m.Status
@@ -90,6 +94,9 @@ func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetName(target 
 func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetOrganizationId(target types.String) {
 	m.OrganizationId = target
 }
+func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetSsprPolicies(target types.List) {
+	m.SsprPolicies = target
+}
 func (m *yandexOrganizationmanagerMfaEnforcementDatasourceModel) SetStatus(target types.String) {
 	m.Status = target
 }
@@ -108,6 +115,7 @@ func NewYandexOrganizationmanagerMfaEnforcementDatasourceModel() yandexOrganizat
 		ID:               types.StringNull(),
 		Name:             types.StringNull(),
 		OrganizationId:   types.StringNull(),
+		SsprPolicies:     types.ListNull(types.StringType),
 		Status:           types.StringNull(),
 		Ttl:              types.StringNull(),
 	}
@@ -141,6 +149,9 @@ func yandexOrganizationmanagerMfaEnforcementDatasourceModelFillUnknown(target ya
 	if target.OrganizationId.IsUnknown() || target.OrganizationId.IsNull() {
 		target.OrganizationId = types.StringNull()
 	}
+	if target.SsprPolicies.IsUnknown() || target.SsprPolicies.IsNull() {
+		target.SsprPolicies = types.ListNull(types.StringType)
+	}
 	if target.Status.IsUnknown() || target.Status.IsNull() {
 		target.Status = types.StringNull()
 	}
@@ -161,6 +172,7 @@ var yandexOrganizationmanagerMfaEnforcementDatasourceModelType = types.ObjectTyp
 		"id":                 types.StringType,
 		"name":               types.StringType,
 		"organization_id":    types.StringType,
+		"sspr_policies":      types.ListType{ElemType: types.StringType},
 		"status":             types.StringType,
 		"ttl":                types.StringType,
 		"timeouts":           timeouts.AttributesAll(context.Background()).GetType(),
@@ -185,6 +197,7 @@ func flattenYandexOrganizationmanagerMfaEnforcementDatasource(ctx context.Contex
 		ID:               types.StringValue(yandexOrganizationmanagerMfaEnforcementDatasource.GetId()),
 		Name:             types.StringValue(yandexOrganizationmanagerMfaEnforcementDatasource.GetName()),
 		OrganizationId:   types.StringValue(yandexOrganizationmanagerMfaEnforcementDatasource.GetOrganizationId()),
+		SsprPolicies:     flattenYandexOrganizationmanagerMfaEnforcementSsprPolicies(ctx, yandexOrganizationmanagerMfaEnforcementDatasource.GetSsprPolicies(), state.SsprPolicies, diags),
 		Status:           types.StringValue(yandexOrganizationmanagerMfaEnforcementDatasource.GetStatus().String()),
 		Ttl:              types.StringValue(converter.GetDuration(yandexOrganizationmanagerMfaEnforcementDatasource.GetTtl(), state.Ttl.ValueString(), diags)),
 		Timeouts:         to,

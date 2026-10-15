@@ -27,9 +27,12 @@ type MfaEnforcementStatus int32
 
 const (
 	MfaEnforcementStatus_MFA_ENFORCEMENT_STATUS_UNSPECIFIED MfaEnforcementStatus = 0
-	MfaEnforcementStatus_MFA_ENFORCEMENT_STATUS_ACTIVE      MfaEnforcementStatus = 1
-	MfaEnforcementStatus_MFA_ENFORCEMENT_STATUS_INACTIVE    MfaEnforcementStatus = 2
-	MfaEnforcementStatus_MFA_ENFORCEMENT_STATUS_DELETING    MfaEnforcementStatus = 3
+	// MFA is activated.
+	MfaEnforcementStatus_MFA_ENFORCEMENT_STATUS_ACTIVE MfaEnforcementStatus = 1
+	// MFA is inactive.
+	MfaEnforcementStatus_MFA_ENFORCEMENT_STATUS_INACTIVE MfaEnforcementStatus = 2
+	// MFA is deleting.
+	MfaEnforcementStatus_MFA_ENFORCEMENT_STATUS_DELETING MfaEnforcementStatus = 3
 )
 
 // Enum value maps for MfaEnforcementStatus.
@@ -101,7 +104,10 @@ type MfaEnforcement struct {
 	// description of the MFA enforcement
 	Description string `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
 	// creation timestamp
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// sspr_policies for the MFA enforcement. Accepted values: 'mfa', 'two-any',
+	// specification https://yandex.cloud/en/docs/organization/concepts/sspr
+	SsprPolicies  []string `protobuf:"bytes,12,rep,name=sspr_policies,json=ssprPolicies,proto3" json:"sspr_policies,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -206,11 +212,18 @@ func (x *MfaEnforcement) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *MfaEnforcement) GetSsprPolicies() []string {
+	if x != nil {
+		return x.SsprPolicies
+	}
+	return nil
+}
+
 var File_yandex_cloud_organizationmanager_v1_mfa_enforcement_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_organizationmanager_v1_mfa_enforcement_proto_rawDesc = "" +
 	"\n" +
-	"9yandex/cloud/organizationmanager/v1/mfa_enforcement.proto\x12#yandex.cloud.organizationmanager.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc8\x03\n" +
+	"9yandex/cloud/organizationmanager/v1/mfa_enforcement.proto\x12#yandex.cloud.organizationmanager.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf3\x03\n" +
 	"\x0eMfaEnforcement\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0forganization_id\x18\x02 \x01(\tR\x0eorganizationId\x12\x15\n" +
@@ -223,7 +236,8 @@ const file_yandex_cloud_organizationmanager_v1_mfa_enforcement_proto_rawDesc = "
 	"\vdescription\x18\t \x01(\tR\vdescription\x129\n" +
 	"\n" +
 	"created_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt*\xab\x01\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12#\n" +
+	"\rsspr_policies\x18\f \x03(\tR\fssprPoliciesJ\x04\b\v\x10\f*\xab\x01\n" +
 	"\x14MfaEnforcementStatus\x12&\n" +
 	"\"MFA_ENFORCEMENT_STATUS_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dMFA_ENFORCEMENT_STATUS_ACTIVE\x10\x01\x12#\n" +

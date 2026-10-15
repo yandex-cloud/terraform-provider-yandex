@@ -25,6 +25,7 @@ type yandexOrganizationmanagerMfaEnforcementModel struct {
 	ID               types.String   `tfsdk:"id"`
 	Name             types.String   `tfsdk:"name"`
 	OrganizationId   types.String   `tfsdk:"organization_id"`
+	SsprPolicies     types.List     `tfsdk:"sspr_policies"`
 	Status           types.String   `tfsdk:"status"`
 	Ttl              types.String   `tfsdk:"ttl"`
 	Timeouts         timeouts.Value `tfsdk:"timeouts"`
@@ -56,6 +57,9 @@ func (m *yandexOrganizationmanagerMfaEnforcementModel) GetName() types.String {
 }
 func (m *yandexOrganizationmanagerMfaEnforcementModel) GetOrganizationId() types.String {
 	return m.OrganizationId
+}
+func (m *yandexOrganizationmanagerMfaEnforcementModel) GetSsprPolicies() types.List {
+	return m.SsprPolicies
 }
 func (m *yandexOrganizationmanagerMfaEnforcementModel) GetStatus() types.String {
 	return m.Status
@@ -91,6 +95,9 @@ func (m *yandexOrganizationmanagerMfaEnforcementModel) SetName(target types.Stri
 func (m *yandexOrganizationmanagerMfaEnforcementModel) SetOrganizationId(target types.String) {
 	m.OrganizationId = target
 }
+func (m *yandexOrganizationmanagerMfaEnforcementModel) SetSsprPolicies(target types.List) {
+	m.SsprPolicies = target
+}
 func (m *yandexOrganizationmanagerMfaEnforcementModel) SetStatus(target types.String) {
 	m.Status = target
 }
@@ -109,6 +116,7 @@ func NewYandexOrganizationmanagerMfaEnforcementModel() yandexOrganizationmanager
 		ID:               types.StringNull(),
 		Name:             types.StringNull(),
 		OrganizationId:   types.StringNull(),
+		SsprPolicies:     types.ListNull(types.StringType),
 		Status:           types.StringNull(),
 		Ttl:              types.StringNull(),
 	}
@@ -142,6 +150,9 @@ func yandexOrganizationmanagerMfaEnforcementModelFillUnknown(target yandexOrgani
 	if target.OrganizationId.IsUnknown() || target.OrganizationId.IsNull() {
 		target.OrganizationId = types.StringNull()
 	}
+	if target.SsprPolicies.IsUnknown() || target.SsprPolicies.IsNull() {
+		target.SsprPolicies = types.ListNull(types.StringType)
+	}
 	if target.Status.IsUnknown() || target.Status.IsNull() {
 		target.Status = types.StringNull()
 	}
@@ -162,6 +173,7 @@ var yandexOrganizationmanagerMfaEnforcementModelType = types.ObjectType{
 		"id":                 types.StringType,
 		"name":               types.StringType,
 		"organization_id":    types.StringType,
+		"sspr_policies":      types.ListType{ElemType: types.StringType},
 		"status":             types.StringType,
 		"ttl":                types.StringType,
 		"timeouts":           timeouts.AttributesAll(context.Background()).GetType(),
@@ -186,6 +198,7 @@ func flattenYandexOrganizationmanagerMfaEnforcement(ctx context.Context,
 		ID:               types.StringValue(yandexOrganizationmanagerMfaEnforcement.GetId()),
 		Name:             types.StringValue(yandexOrganizationmanagerMfaEnforcement.GetName()),
 		OrganizationId:   types.StringValue(yandexOrganizationmanagerMfaEnforcement.GetOrganizationId()),
+		SsprPolicies:     flattenYandexOrganizationmanagerMfaEnforcementSsprPolicies(ctx, yandexOrganizationmanagerMfaEnforcement.GetSsprPolicies(), state.SsprPolicies, diags),
 		Status:           types.StringValue(yandexOrganizationmanagerMfaEnforcement.GetStatus().String()),
 		Ttl:              types.StringValue(converter.GetDuration(yandexOrganizationmanagerMfaEnforcement.GetTtl(), state.Ttl.ValueString(), diags)),
 		Timeouts:         to,
@@ -216,10 +229,48 @@ func expandYandexOrganizationmanagerMfaEnforcementModel(ctx context.Context, yan
 	value.SetId(yandexOrganizationmanagerMfaEnforcementState.MfaEnforcementId.ValueString())
 	value.SetName(yandexOrganizationmanagerMfaEnforcementState.Name.ValueString())
 	value.SetOrganizationId(yandexOrganizationmanagerMfaEnforcementState.OrganizationId.ValueString())
+	value.SetSsprPolicies(expandYandexOrganizationmanagerMfaEnforcementSsprPolicies(ctx, yandexOrganizationmanagerMfaEnforcementState.SsprPolicies, diags))
 	value.SetStatus(organizationmanager.MfaEnforcementStatus(organizationmanager.MfaEnforcementStatus_value[yandexOrganizationmanagerMfaEnforcementState.Status.ValueString()]))
 	value.SetTtl(converter.ParseDuration(yandexOrganizationmanagerMfaEnforcementState.Ttl.ValueString(), diags))
 	if diags.HasError() {
 		return nil
 	}
 	return value
+}
+
+func flattenYandexOrganizationmanagerMfaEnforcementSsprPolicies(ctx context.Context, yandexOrganizationmanagerMfaEnforcementSsprPolicies []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexOrganizationmanagerMfaEnforcementSsprPolicies == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexOrganizationmanagerMfaEnforcementSsprPoliciesValues []attr.Value
+	for _, elem := range yandexOrganizationmanagerMfaEnforcementSsprPolicies {
+		val := types.StringValue(elem)
+		yandexOrganizationmanagerMfaEnforcementSsprPoliciesValues = append(yandexOrganizationmanagerMfaEnforcementSsprPoliciesValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexOrganizationmanagerMfaEnforcementSsprPoliciesValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexOrganizationmanagerMfaEnforcementSsprPolicies(ctx context.Context, yandexOrganizationmanagerMfaEnforcementSsprPoliciesState types.List, diags *diag.Diagnostics) []string {
+	if yandexOrganizationmanagerMfaEnforcementSsprPoliciesState.IsNull() || yandexOrganizationmanagerMfaEnforcementSsprPoliciesState.IsUnknown() {
+		return nil
+	}
+	if len(yandexOrganizationmanagerMfaEnforcementSsprPoliciesState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexOrganizationmanagerMfaEnforcementSsprPoliciesRes := make([]string, 0, len(yandexOrganizationmanagerMfaEnforcementSsprPoliciesState.Elements()))
+	yandexOrganizationmanagerMfaEnforcementSsprPoliciesType := make([]types.String, 0, len(yandexOrganizationmanagerMfaEnforcementSsprPoliciesState.Elements()))
+	diags.Append(yandexOrganizationmanagerMfaEnforcementSsprPoliciesState.ElementsAs(ctx, &yandexOrganizationmanagerMfaEnforcementSsprPoliciesType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexOrganizationmanagerMfaEnforcementSsprPoliciesType {
+		yandexOrganizationmanagerMfaEnforcementSsprPoliciesRes = append(yandexOrganizationmanagerMfaEnforcementSsprPoliciesRes, elem.ValueString())
+	}
+	return yandexOrganizationmanagerMfaEnforcementSsprPoliciesRes
 }

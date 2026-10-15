@@ -7,11 +7,14 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	organizationmanager "github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
@@ -184,6 +187,30 @@ func YandexOrganizationmanagerMfaEnforcementResourceSchema(ctx context.Context) 
 				},
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 50),
+				},
+			},
+
+			"sspr_policies": schema.ListAttribute{
+				ElementType:         types.StringType,
+				MarkdownDescription: "sspr_policies for the MFA enforcement. Accepted values: 'mfa', 'two-any',\n specification https://yandex.cloud/en/docs/organization/concepts/sspr",
+				Description: "sspr_policies for the MFA enforcement. Accepted values: 'mfa', 'two-any',\n specification https://yandex.cloud/en/docs/organization/concepts/sspr" +
+					// proto paths: +
+					// -> yandex.cloud.organizationmanager.v1.CreateMfaEnforcementRequest.sspr_policies
+					// -> yandex.cloud.organizationmanager.v1.MfaEnforcement.sspr_policies
+					// -> yandex.cloud.organizationmanager.v1.UpdateMfaEnforcementRequest.sspr_policies
+					"package: yandex.cloud.organizationmanager.v1\n" +
+					"filename: yandex/cloud/organizationmanager/v1/mfa_enforcement.proto\n",
+				Optional: true,
+				Computed: true,
+
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedList(),
+				},
+				Validators: []validator.List{
+					listvalidator.ValueStringsAre(
+						stringvalidator.LengthBetween(0, 50),
+					),
 				},
 			},
 

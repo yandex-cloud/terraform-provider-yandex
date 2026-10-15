@@ -157,6 +157,7 @@ func (r *yandexOrganizationmanagerMfaEnforcementResource) Create(ctx context.Con
 	createReq.SetEnrollWindow(converter.ParseDuration(plan.EnrollWindow.ValueString(), &diags))
 	createReq.SetName(plan.Name.ValueString())
 	createReq.SetDescription(plan.Description.ValueString())
+	createReq.SetSsprPolicies(expandYandexOrganizationmanagerMfaEnforcementSsprPolicies(ctx, plan.SsprPolicies, &diags))
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -335,6 +336,15 @@ func (r *yandexOrganizationmanagerMfaEnforcementResource) Update(ctx context.Con
 	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		updatePaths = append(updatePaths, "name")
 	}
+	if plan.SsprPolicies.IsNull() {
+		plan.SsprPolicies = types.ListNull(types.StringType)
+	}
+	if state.SsprPolicies.IsNull() {
+		state.SsprPolicies = types.ListNull(types.StringType)
+	}
+	if !plan.SsprPolicies.IsUnknown() && !plan.SsprPolicies.Equal(state.SsprPolicies) {
+		updatePaths = append(updatePaths, "sspr_policies")
+	}
 	if !plan.Ttl.IsUnknown() && !plan.Ttl.Equal(state.Ttl) {
 		updatePaths = append(updatePaths, "ttl")
 	}
@@ -351,6 +361,7 @@ func (r *yandexOrganizationmanagerMfaEnforcementResource) Update(ctx context.Con
 	updateReq.SetEnrollWindow(converter.ParseDuration(plan.EnrollWindow.ValueString(), &diags))
 	updateReq.SetName(plan.Name.ValueString())
 	updateReq.SetDescription(plan.Description.ValueString())
+	updateReq.SetSsprPolicies(expandYandexOrganizationmanagerMfaEnforcementSsprPolicies(ctx, plan.SsprPolicies, &diags))
 	updateReq.SetUpdateMask(&field_mask.FieldMask{Paths: updatePaths})
 
 	resp.Diagnostics.Append(diags...)
