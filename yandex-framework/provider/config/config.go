@@ -155,7 +155,7 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 		return diags
 	}
 
-	diags.Append(c.initYcTool(ctx, terraformVersion, version.ProviderVersion)...)
+	// diags.Append(c.initYcTool(ctx, terraformVersion, version.ProviderVersion)...)
 	if diags.HasError() {
 		return diags
 	}
