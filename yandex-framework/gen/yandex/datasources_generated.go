@@ -4,6 +4,11 @@ package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cic_partner"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cic_point_of_presence"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cic_private_connection"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cic_public_connection"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cic_trunk_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_folder"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_lifecycle_policy"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cloudregistry_registry"
@@ -64,6 +69,11 @@ func init() {
 		yandex_organizationmanager_idp_userpool.NewDataSource,
 		yandex_organizationmanager_mfa_enforcement.NewDataSource,
 		yandex_organizationmanager_user_ssh_key.NewDataSource,
+		yandex_cic_partner.NewDataSource,
+		yandex_cic_point_of_presence.NewDataSource,
+		yandex_cic_private_connection.NewDataSource,
+		yandex_cic_public_connection.NewDataSource,
+		yandex_cic_trunk_connection.NewDataSource,
 		yandex_cloudregistry_folder.NewDataSource,
 		yandex_cloudregistry_lifecycle_policy.NewDataSource,
 		yandex_cloudregistry_registry.NewDataSource,

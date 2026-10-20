@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	yandex_gen "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing_cloud_binding"
@@ -297,7 +296,7 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 	resp.DataSourceData = p.config
 }
 
-func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
+func (p *Provider) Resources(ctx context.Context) []func() resource.Resource {
 	return append([]func() resource.Resource{
 		func() resource.Resource {
 			return billing_cloud_binding.NewResource(
@@ -351,10 +350,10 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		cloud_desktops_desktop.NewResource,
 		mdb_clickhouse_cluster_v2.NewClickHouseClusterResourceV2,
 		datalens_connection.NewResource,
-	}, yandex_gen.GetProviderResources()...)
+	}, generatedResourcesWithCICLogging(ctx)...)
 }
 
-func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource {
+func (p *Provider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return append([]func() datasource.DataSource{
 		func() datasource.DataSource {
 			return billing_cloud_binding.NewDataSource(
@@ -389,7 +388,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		cloud_desktops_desktop.NewDatasource,
 		mdb_clickhouse_cluster_v2.NewDataSource,
 		datalens_connection.NewDataSource,
-	}, yandex_gen.GetProviderDataSources()...)
+	}, generatedDataSourcesWithCICLogging(ctx)...)
 }
 
 func (p *Provider) GetConfig() provider_config.Config {

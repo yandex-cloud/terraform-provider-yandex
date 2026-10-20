@@ -655,8 +655,10 @@ github.com/hashicorp/terraform-plugin-go/tftypes
 ## explicit; go 1.19
 github.com/hashicorp/terraform-plugin-log/internal/fieldutils
 github.com/hashicorp/terraform-plugin-log/internal/hclogutils
+github.com/hashicorp/terraform-plugin-log/internal/loggertest
 github.com/hashicorp/terraform-plugin-log/internal/logging
 github.com/hashicorp/terraform-plugin-log/tflog
+github.com/hashicorp/terraform-plugin-log/tflogtest
 github.com/hashicorp/terraform-plugin-log/tfsdklog
 # github.com/hashicorp/terraform-plugin-mux v0.18.0
 ## explicit; go 1.22.0
@@ -1189,6 +1191,8 @@ github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/billing/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/cdn/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1
+github.com/yandex-cloud/go-genproto/yandex/cloud/cic/v1
+github.com/yandex-cloud/go-genproto/yandex/cloud/cic/v1/common
 github.com/yandex-cloud/go-genproto/yandex/cloud/clouddesktop/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/cloudregistry/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/cloudrouter/v1
@@ -1290,6 +1294,9 @@ github.com/yandex-cloud/go-sdk/services/cdn/v1
 # github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/certificatemanager/v1
+# github.com/yandex-cloud/go-sdk/services/cic v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
+## explicit; go 1.25.10
+github.com/yandex-cloud/go-sdk/services/cic/v1
 # github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
 ## explicit; go 1.25.10
 github.com/yandex-cloud/go-sdk/services/clouddesktop/v1/api

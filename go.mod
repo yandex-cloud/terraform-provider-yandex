@@ -47,6 +47,7 @@ require (
 	github.com/yandex-cloud/go-sdk/services/billing v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
 	github.com/yandex-cloud/go-sdk/services/cdn v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
+	github.com/yandex-cloud/go-sdk/services/cic v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
 	github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
 	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
 	github.com/yandex-cloud/go-sdk/services/cloudrouter v0.0.0-tf.a5171b2ce0e414395cef07533e1edf28cc4e98f6
