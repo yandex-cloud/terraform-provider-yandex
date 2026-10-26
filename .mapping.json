@@ -11013,7 +11013,6 @@
   "yandex-framework/gen/yandex/yandex_datacatalog_catalog/resource_models.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_datacatalog_catalog/resource_models.go",
   "yandex-framework/gen/yandex/yandex_datacatalog_catalog/resource_schema.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_datacatalog_catalog/resource_schema.go",
   "yandex-framework/gen/yandex/yandex_datacatalog_catalog/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_datacatalog_catalog/resource_test.go",
-  "yandex-framework/gen/yandex/yandex_dataproc_cluster_change_freeze/lifecycle.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_dataproc_cluster_change_freeze/lifecycle.go",
   "yandex-framework/gen/yandex/yandex_dataproc_cluster_iam_binding/resource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_dataproc_cluster_iam_binding/resource.go",
   "yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding/resource.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding/resource.go",
   "yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding/resource_test.go":"opensource/terraform-provider-yandex-mirror/yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding/resource_test.go",
