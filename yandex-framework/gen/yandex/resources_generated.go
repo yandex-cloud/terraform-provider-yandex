@@ -39,7 +39,6 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_container_repository_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datacatalog_catalog"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dataproc_cluster_change_freeze"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_dataproc_cluster_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_community_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_datasphere_project_iam_binding"
@@ -148,7 +147,6 @@ func init() {
 		yandex_container_registry_iam_binding.NewResource,
 		yandex_container_repository.NewResource,
 		yandex_container_repository_iam_binding.NewResource,
-		yandex_dataproc_cluster_change_freeze.NewResource,
 		yandex_dataproc_cluster_iam_binding.NewResource,
 		yandex_iam_workload_identity_oidc_federation.NewResource,
 		yandex_iam_workload_identity_oidc_federation_iam_binding.NewResource,

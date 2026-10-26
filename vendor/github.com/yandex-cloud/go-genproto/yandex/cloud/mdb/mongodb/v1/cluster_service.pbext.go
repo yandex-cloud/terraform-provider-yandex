@@ -1521,6 +1521,10 @@ func (m *ConfigSpec) SetAutocompactConfig(v *AutoCompactConfig) {
 	m.AutocompactConfig = v
 }
 
+func (m *ConfigSpec) SetMoniumLogs(v *MoniumLogs) {
+	m.MoniumLogs = v
+}
+
 func (m *SetBalancerStatusRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }

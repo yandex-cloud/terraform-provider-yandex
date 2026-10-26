@@ -161,8 +161,20 @@ type RedisConfig struct {
 	AuditLog *wrapperspb.BoolValue `protobuf:"bytes,25,opt,name=audit_log,json=auditLog,proto3" json:"audit_log,omitempty"`
 	// Enables automatic slot rebalancing when shards are added or deleted.
 	RebalanceEnabled *wrapperspb.BoolValue `protobuf:"bytes,26,opt,name=rebalance_enabled,json=rebalanceEnabled,proto3" json:"rebalance_enabled,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Controls max number of entries in hash before conversion from memory-efficient listpack to CPU-efficient hash table.
+	HashMaxListpackEntries *wrapperspb.Int64Value `protobuf:"bytes,27,opt,name=hash_max_listpack_entries,json=hashMaxListpackEntries,proto3" json:"hash_max_listpack_entries,omitempty"`
+	// Controls max value size in hash before conversion from memory-efficient listpack to CPU-efficient hash table.
+	HashMaxListpackValue *wrapperspb.Int64Value `protobuf:"bytes,28,opt,name=hash_max_listpack_value,json=hashMaxListpackValue,proto3" json:"hash_max_listpack_value,omitempty"`
+	// Controls max size of a listpack in list before creating a new listpack node.
+	ListMaxListpackSize *wrapperspb.Int64Value `protobuf:"bytes,29,opt,name=list_max_listpack_size,json=listMaxListpackSize,proto3" json:"list_max_listpack_size,omitempty"`
+	// Controls max number of entries in set before conversion from memory-efficient listpack to CPU-efficient hash table.
+	SetMaxListpackEntries *wrapperspb.Int64Value `protobuf:"bytes,30,opt,name=set_max_listpack_entries,json=setMaxListpackEntries,proto3" json:"set_max_listpack_entries,omitempty"`
+	// Controls max value size in set before conversion from memory-efficient listpack to CPU-efficient hash table.
+	SetMaxListpackValue *wrapperspb.Int64Value `protobuf:"bytes,31,opt,name=set_max_listpack_value,json=setMaxListpackValue,proto3" json:"set_max_listpack_value,omitempty"`
+	// Controls max value size in zset before conversion from memory-efficient listpack to CPU-efficient hash table and skiplist.
+	ZsetMaxListpackValue *wrapperspb.Int64Value `protobuf:"bytes,32,opt,name=zset_max_listpack_value,json=zsetMaxListpackValue,proto3" json:"zset_max_listpack_value,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *RedisConfig) Reset() {
@@ -377,6 +389,48 @@ func (x *RedisConfig) GetRebalanceEnabled() *wrapperspb.BoolValue {
 	return nil
 }
 
+func (x *RedisConfig) GetHashMaxListpackEntries() *wrapperspb.Int64Value {
+	if x != nil {
+		return x.HashMaxListpackEntries
+	}
+	return nil
+}
+
+func (x *RedisConfig) GetHashMaxListpackValue() *wrapperspb.Int64Value {
+	if x != nil {
+		return x.HashMaxListpackValue
+	}
+	return nil
+}
+
+func (x *RedisConfig) GetListMaxListpackSize() *wrapperspb.Int64Value {
+	if x != nil {
+		return x.ListMaxListpackSize
+	}
+	return nil
+}
+
+func (x *RedisConfig) GetSetMaxListpackEntries() *wrapperspb.Int64Value {
+	if x != nil {
+		return x.SetMaxListpackEntries
+	}
+	return nil
+}
+
+func (x *RedisConfig) GetSetMaxListpackValue() *wrapperspb.Int64Value {
+	if x != nil {
+		return x.SetMaxListpackValue
+	}
+	return nil
+}
+
+func (x *RedisConfig) GetZsetMaxListpackValue() *wrapperspb.Int64Value {
+	if x != nil {
+		return x.ZsetMaxListpackValue
+	}
+	return nil
+}
+
 type RedisConfigSet struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Effective settings for a Valkey cluster (a combination of settings
@@ -508,7 +562,7 @@ var File_yandex_cloud_mdb_redis_v1_config_redis_proto protoreflect.FileDescripto
 
 const file_yandex_cloud_mdb_redis_v1_config_redis_proto_rawDesc = "" +
 	"\n" +
-	",yandex/cloud/mdb/redis/v1/config/redis.proto\x12 yandex.cloud.mdb.redis.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\x8b\x15\n" +
+	",yandex/cloud/mdb/redis/v1/config/redis.proto\x12 yandex.cloud.mdb.redis.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\xce\x19\n" +
 	"\vRedisConfig\x12h\n" +
 	"\x10maxmemory_policy\x18\x01 \x01(\x0e2=.yandex.cloud.mdb.redis.v1.config.RedisConfig.MaxmemoryPolicyR\x0fmaxmemoryPolicy\x125\n" +
 	"\atimeout\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueR\atimeout\x12C\n" +
@@ -539,7 +593,18 @@ const file_yandex_cloud_mdb_redis_v1_config_redis_proto_rawDesc = "" +
 	"\x14aof_max_size_percent\x18\x17 \x01(\v2\x1b.google.protobuf.Int64ValueB\b\xfa\xc71\x041-99R\x11aofMaxSizePercent\x12>\n" +
 	"\factivedefrag\x18\x18 \x01(\v2\x1a.google.protobuf.BoolValueR\factivedefrag\x127\n" +
 	"\taudit_log\x18\x19 \x01(\v2\x1a.google.protobuf.BoolValueR\bauditLog\x12G\n" +
-	"\x11rebalance_enabled\x18\x1a \x01(\v2\x1a.google.protobuf.BoolValueR\x10rebalanceEnabled\x1a\xf8\x01\n" +
+	"\x11rebalance_enabled\x18\x1a \x01(\v2\x1a.google.protobuf.BoolValueR\x10rebalanceEnabled\x12b\n" +
+	"\x19hash_max_listpack_entries\x18\x1b \x01(\v2\x1b.google.protobuf.Int64ValueB\n" +
+	"\xfa\xc71\x060-2048R\x16hashMaxListpackEntries\x12^\n" +
+	"\x17hash_max_listpack_value\x18\x1c \x01(\v2\x1b.google.protobuf.Int64ValueB\n" +
+	"\xfa\xc71\x060-2048R\x14hashMaxListpackValue\x12]\n" +
+	"\x16list_max_listpack_size\x18\x1d \x01(\v2\x1b.google.protobuf.Int64ValueB\v\xfa\xc71\a-5-2048R\x13listMaxListpackSize\x12`\n" +
+	"\x18set_max_listpack_entries\x18\x1e \x01(\v2\x1b.google.protobuf.Int64ValueB\n" +
+	"\xfa\xc71\x060-2048R\x15setMaxListpackEntries\x12\\\n" +
+	"\x16set_max_listpack_value\x18\x1f \x01(\v2\x1b.google.protobuf.Int64ValueB\n" +
+	"\xfa\xc71\x060-2048R\x13setMaxListpackValue\x12^\n" +
+	"\x17zset_max_listpack_value\x18  \x01(\v2\x1b.google.protobuf.Int64ValueB\n" +
+	"\xfa\xc71\x060-2048R\x14zsetMaxListpackValue\x1a\xf8\x01\n" +
 	"\x17ClientOutputBufferLimit\x12C\n" +
 	"\n" +
 	"hard_limit\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\a\xfa\xc71\x03>=0R\thardLimit\x12C\n" +
@@ -611,17 +676,23 @@ var file_yandex_cloud_mdb_redis_v1_config_redis_proto_depIdxs = []int32{
 	5,  // 21: yandex.cloud.mdb.redis.v1.config.RedisConfig.activedefrag:type_name -> google.protobuf.BoolValue
 	5,  // 22: yandex.cloud.mdb.redis.v1.config.RedisConfig.audit_log:type_name -> google.protobuf.BoolValue
 	5,  // 23: yandex.cloud.mdb.redis.v1.config.RedisConfig.rebalance_enabled:type_name -> google.protobuf.BoolValue
-	1,  // 24: yandex.cloud.mdb.redis.v1.config.RedisConfigSet.effective_config:type_name -> yandex.cloud.mdb.redis.v1.config.RedisConfig
-	1,  // 25: yandex.cloud.mdb.redis.v1.config.RedisConfigSet.user_config:type_name -> yandex.cloud.mdb.redis.v1.config.RedisConfig
-	1,  // 26: yandex.cloud.mdb.redis.v1.config.RedisConfigSet.default_config:type_name -> yandex.cloud.mdb.redis.v1.config.RedisConfig
-	4,  // 27: yandex.cloud.mdb.redis.v1.config.RedisConfig.ClientOutputBufferLimit.hard_limit:type_name -> google.protobuf.Int64Value
-	4,  // 28: yandex.cloud.mdb.redis.v1.config.RedisConfig.ClientOutputBufferLimit.soft_limit:type_name -> google.protobuf.Int64Value
-	4,  // 29: yandex.cloud.mdb.redis.v1.config.RedisConfig.ClientOutputBufferLimit.soft_seconds:type_name -> google.protobuf.Int64Value
-	30, // [30:30] is the sub-list for method output_type
-	30, // [30:30] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	4,  // 24: yandex.cloud.mdb.redis.v1.config.RedisConfig.hash_max_listpack_entries:type_name -> google.protobuf.Int64Value
+	4,  // 25: yandex.cloud.mdb.redis.v1.config.RedisConfig.hash_max_listpack_value:type_name -> google.protobuf.Int64Value
+	4,  // 26: yandex.cloud.mdb.redis.v1.config.RedisConfig.list_max_listpack_size:type_name -> google.protobuf.Int64Value
+	4,  // 27: yandex.cloud.mdb.redis.v1.config.RedisConfig.set_max_listpack_entries:type_name -> google.protobuf.Int64Value
+	4,  // 28: yandex.cloud.mdb.redis.v1.config.RedisConfig.set_max_listpack_value:type_name -> google.protobuf.Int64Value
+	4,  // 29: yandex.cloud.mdb.redis.v1.config.RedisConfig.zset_max_listpack_value:type_name -> google.protobuf.Int64Value
+	1,  // 30: yandex.cloud.mdb.redis.v1.config.RedisConfigSet.effective_config:type_name -> yandex.cloud.mdb.redis.v1.config.RedisConfig
+	1,  // 31: yandex.cloud.mdb.redis.v1.config.RedisConfigSet.user_config:type_name -> yandex.cloud.mdb.redis.v1.config.RedisConfig
+	1,  // 32: yandex.cloud.mdb.redis.v1.config.RedisConfigSet.default_config:type_name -> yandex.cloud.mdb.redis.v1.config.RedisConfig
+	4,  // 33: yandex.cloud.mdb.redis.v1.config.RedisConfig.ClientOutputBufferLimit.hard_limit:type_name -> google.protobuf.Int64Value
+	4,  // 34: yandex.cloud.mdb.redis.v1.config.RedisConfig.ClientOutputBufferLimit.soft_limit:type_name -> google.protobuf.Int64Value
+	4,  // 35: yandex.cloud.mdb.redis.v1.config.RedisConfig.ClientOutputBufferLimit.soft_seconds:type_name -> google.protobuf.Int64Value
+	36, // [36:36] is the sub-list for method output_type
+	36, // [36:36] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_redis_v1_config_redis_proto_init() }

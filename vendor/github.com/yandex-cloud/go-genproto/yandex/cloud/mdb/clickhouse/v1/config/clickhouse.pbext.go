@@ -42,6 +42,10 @@ func (m *ClickhouseConfig) SetBackgroundCommonPoolSize(v *wrapperspb.Int64Value)
 	m.BackgroundCommonPoolSize = v
 }
 
+func (m *ClickhouseConfig) SetMaxBackupsIoThreadPoolSize(v *wrapperspb.Int64Value) {
+	m.MaxBackupsIoThreadPoolSize = v
+}
+
 func (m *ClickhouseConfig) SetDictionariesLazyLoad(v *wrapperspb.BoolValue) {
 	m.DictionariesLazyLoad = v
 }
@@ -232,6 +236,18 @@ func (m *ClickhouseConfig) SetQueryMetricLogRetentionSize(v *wrapperspb.Int64Val
 
 func (m *ClickhouseConfig) SetQueryMetricLogRetentionTime(v *wrapperspb.Int64Value) {
 	m.QueryMetricLogRetentionTime = v
+}
+
+func (m *ClickhouseConfig) SetS3QueueLogEnabled(v *wrapperspb.BoolValue) {
+	m.S3QueueLogEnabled = v
+}
+
+func (m *ClickhouseConfig) SetS3QueueLogRetentionSize(v *wrapperspb.Int64Value) {
+	m.S3QueueLogRetentionSize = v
+}
+
+func (m *ClickhouseConfig) SetS3QueueLogRetentionTime(v *wrapperspb.Int64Value) {
+	m.S3QueueLogRetentionTime = v
 }
 
 func (m *ClickhouseConfig) SetAutomaticallyDetachedDataPartsRetentionTime(v *wrapperspb.Int64Value) {

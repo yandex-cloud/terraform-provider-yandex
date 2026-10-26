@@ -705,6 +705,8 @@ type RouterSettings struct {
 	DefaultCommitStrategy        RouterSettings_CommitStrategy       `protobuf:"varint,8,opt,name=default_commit_strategy,json=defaultCommitStrategy,proto3,enum=yandex.cloud.mdb.spqr.v1.RouterSettings_CommitStrategy" json:"default_commit_strategy,omitempty"`
 	AllowPostprocessing          *wrapperspb.BoolValue               `protobuf:"bytes,9,opt,name=allow_postprocessing,json=allowPostprocessing,proto3" json:"allow_postprocessing,omitempty"`
 	AutoRouteRoOnStandby         *wrapperspb.BoolValue               `protobuf:"bytes,10,opt,name=auto_route_ro_on_standby,json=autoRouteRoOnStandby,proto3" json:"auto_route_ro_on_standby,omitempty"`
+	AllowTwoPhaseCommit          *wrapperspb.BoolValue               `protobuf:"bytes,11,opt,name=allow_two_phase_commit,json=allowTwoPhaseCommit,proto3" json:"allow_two_phase_commit,omitempty"`
+	AllowAutoprotectTwoPhase     *wrapperspb.BoolValue               `protobuf:"bytes,12,opt,name=allow_autoprotect_two_phase,json=allowAutoprotectTwoPhase,proto3" json:"allow_autoprotect_two_phase,omitempty"`
 	unknownFields                protoimpl.UnknownFields
 	sizeCache                    protoimpl.SizeCache
 }
@@ -798,6 +800,20 @@ func (x *RouterSettings) GetAllowPostprocessing() *wrapperspb.BoolValue {
 func (x *RouterSettings) GetAutoRouteRoOnStandby() *wrapperspb.BoolValue {
 	if x != nil {
 		return x.AutoRouteRoOnStandby
+	}
+	return nil
+}
+
+func (x *RouterSettings) GetAllowTwoPhaseCommit() *wrapperspb.BoolValue {
+	if x != nil {
+		return x.AllowTwoPhaseCommit
+	}
+	return nil
+}
+
+func (x *RouterSettings) GetAllowAutoprotectTwoPhase() *wrapperspb.BoolValue {
+	if x != nil {
+		return x.AllowAutoprotectTwoPhase
 	}
 	return nil
 }
@@ -1031,7 +1047,8 @@ const file_yandex_cloud_mdb_spqr_v1_config_proto_rawDesc = "" +
 	"\x11stat_interval_sec\x18\x03 \x01(\v2\x1b.google.protobuf.Int64ValueR\x0fstatIntervalSec\x12A\n" +
 	"\x0emax_move_count\x18\x04 \x01(\v2\x1b.google.protobuf.Int64ValueR\fmaxMoveCount\x12?\n" +
 	"\rkeys_per_move\x18\x05 \x01(\v2\x1b.google.protobuf.Int64ValueR\vkeysPerMove\x125\n" +
-	"\atimeout\x18\x06 \x01(\v2\x1b.google.protobuf.Int64ValueR\atimeout\"\x94\t\n" +
+	"\atimeout\x18\x06 \x01(\v2\x1b.google.protobuf.Int64ValueR\atimeout\"\xc0\n" +
+	"\n" +
 	"\x0eRouterSettings\x12L\n" +
 	"\x14show_notice_messages\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x12showNoticeMessages\x12%\n" +
 	"\x0etime_quantiles\x18\x02 \x03(\x01R\rtimeQuantiles\x12s\n" +
@@ -1042,7 +1059,9 @@ const file_yandex_cloud_mdb_spqr_v1_config_proto_rawDesc = "" +
 	"\x17default_commit_strategy\x18\b \x01(\x0e27.yandex.cloud.mdb.spqr.v1.RouterSettings.CommitStrategyR\x15defaultCommitStrategy\x12M\n" +
 	"\x14allow_postprocessing\x18\t \x01(\v2\x1a.google.protobuf.BoolValueR\x13allowPostprocessing\x12R\n" +
 	"\x18auto_route_ro_on_standby\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.BoolValueR\x14autoRouteRoOnStandby\"T\n" +
+	" \x01(\v2\x1a.google.protobuf.BoolValueR\x14autoRouteRoOnStandby\x12O\n" +
+	"\x16allow_two_phase_commit\x18\v \x01(\v2\x1a.google.protobuf.BoolValueR\x13allowTwoPhaseCommit\x12Y\n" +
+	"\x1ballow_autoprotect_two_phase\x18\f \x01(\v2\x1a.google.protobuf.BoolValueR\x18allowAutoprotectTwoPhase\"T\n" +
 	"\x14DefaultRouteBehavior\x12&\n" +
 	"\"DEFAULT_ROUTE_BEHAVIOR_UNSPECIFIED\x10\x00\x12\t\n" +
 	"\x05BLOCK\x10\x01\x12\t\n" +
@@ -1151,17 +1170,19 @@ var file_yandex_cloud_mdb_spqr_v1_config_proto_depIdxs = []int32{
 	3,  // 28: yandex.cloud.mdb.spqr.v1.RouterSettings.default_commit_strategy:type_name -> yandex.cloud.mdb.spqr.v1.RouterSettings.CommitStrategy
 	15, // 29: yandex.cloud.mdb.spqr.v1.RouterSettings.allow_postprocessing:type_name -> google.protobuf.BoolValue
 	15, // 30: yandex.cloud.mdb.spqr.v1.RouterSettings.auto_route_ro_on_standby:type_name -> google.protobuf.BoolValue
-	18, // 31: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.iteration_timeout:type_name -> google.protobuf.Duration
-	18, // 32: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.lock_iteration_timeout:type_name -> google.protobuf.Duration
-	18, // 33: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.router_keepalive_time:type_name -> google.protobuf.Duration
-	18, // 34: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.router_keepalive_timeout:type_name -> google.protobuf.Duration
-	17, // 35: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.etcd_max_send_bytes:type_name -> google.protobuf.Int64Value
-	17, // 36: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.etcd_max_txn_ops:type_name -> google.protobuf.Int64Value
-	37, // [37:37] is the sub-list for method output_type
-	37, // [37:37] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	15, // 31: yandex.cloud.mdb.spqr.v1.RouterSettings.allow_two_phase_commit:type_name -> google.protobuf.BoolValue
+	15, // 32: yandex.cloud.mdb.spqr.v1.RouterSettings.allow_autoprotect_two_phase:type_name -> google.protobuf.BoolValue
+	18, // 33: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.iteration_timeout:type_name -> google.protobuf.Duration
+	18, // 34: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.lock_iteration_timeout:type_name -> google.protobuf.Duration
+	18, // 35: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.router_keepalive_time:type_name -> google.protobuf.Duration
+	18, // 36: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.router_keepalive_timeout:type_name -> google.protobuf.Duration
+	17, // 37: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.etcd_max_send_bytes:type_name -> google.protobuf.Int64Value
+	17, // 38: yandex.cloud.mdb.spqr.v1.CoordinatorSettings.etcd_max_txn_ops:type_name -> google.protobuf.Int64Value
+	39, // [39:39] is the sub-list for method output_type
+	39, // [39:39] is the sub-list for method input_type
+	39, // [39:39] is the sub-list for extension type_name
+	39, // [39:39] is the sub-list for extension extendee
+	0,  // [0:39] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_spqr_v1_config_proto_init() }

@@ -139,6 +139,14 @@ func (m *RouterSettings) SetAutoRouteRoOnStandby(v *wrapperspb.BoolValue) {
 	m.AutoRouteRoOnStandby = v
 }
 
+func (m *RouterSettings) SetAllowTwoPhaseCommit(v *wrapperspb.BoolValue) {
+	m.AllowTwoPhaseCommit = v
+}
+
+func (m *RouterSettings) SetAllowAutoprotectTwoPhase(v *wrapperspb.BoolValue) {
+	m.AllowAutoprotectTwoPhase = v
+}
+
 func (m *CoordinatorSettings) SetIterationTimeout(v *durationpb.Duration) {
 	m.IterationTimeout = v
 }

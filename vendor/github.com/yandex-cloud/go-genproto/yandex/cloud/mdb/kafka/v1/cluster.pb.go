@@ -1962,7 +1962,9 @@ func (*ConfigSpec_Kafka_KafkaConfig_4) isConfigSpec_Kafka_KafkaConfig() {}
 type ConfigSpec_Zookeeper struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Resources allocated to ZooKeeper hosts.
-	Resources     *Resources `protobuf:"bytes,1,opt,name=resources,proto3" json:"resources,omitempty"`
+	Resources *Resources `protobuf:"bytes,1,opt,name=resources,proto3" json:"resources,omitempty"`
+	// ZooKeeper availability zones.
+	ZoneIds       []string `protobuf:"bytes,2,rep,name=zone_ids,json=zoneIds,proto3" json:"zone_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2004,10 +2006,19 @@ func (x *ConfigSpec_Zookeeper) GetResources() *Resources {
 	return nil
 }
 
+func (x *ConfigSpec_Zookeeper) GetZoneIds() []string {
+	if x != nil {
+		return x.ZoneIds
+	}
+	return nil
+}
+
 type ConfigSpec_KRaft struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Resources allocated to KRaft controller hosts.
-	Resources     *Resources `protobuf:"bytes,1,opt,name=resources,proto3" json:"resources,omitempty"`
+	Resources *Resources `protobuf:"bytes,1,opt,name=resources,proto3" json:"resources,omitempty"`
+	// Controller availability zones.
+	ZoneIds       []string `protobuf:"bytes,2,rep,name=zone_ids,json=zoneIds,proto3" json:"zone_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2045,6 +2056,13 @@ func (*ConfigSpec_KRaft) Descriptor() ([]byte, []int) {
 func (x *ConfigSpec_KRaft) GetResources() *Resources {
 	if x != nil {
 		return x.Resources
+	}
+	return nil
+}
+
+func (x *ConfigSpec_KRaft) GetZoneIds() []string {
+	if x != nil {
+		return x.ZoneIds
 	}
 	return nil
 }
@@ -2199,7 +2217,7 @@ const file_yandex_cloud_mdb_kafka_v1_cluster_proto_rawDesc = "" +
 	"Monitoring\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x12\n" +
-	"\x04link\x18\x03 \x01(\tR\x04link\"\xaa\v\n" +
+	"\x04link\x18\x03 \x01(\tR\x04link\"\xe0\v\n" +
 	"\n" +
 	"ConfigSpec\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12A\n" +
@@ -2222,11 +2240,13 @@ const file_yandex_cloud_mdb_kafka_v1_cluster_proto_rawDesc = "" +
 	"\x10kafka_config_2_8\x18\x04 \x01(\v2).yandex.cloud.mdb.kafka.v1.KafkaConfig2_8H\x00R\x0fkafkaConfig_2_8\x12P\n" +
 	"\x0ekafka_config_3\x18\x05 \x01(\v2'.yandex.cloud.mdb.kafka.v1.KafkaConfig3H\x00R\rkafkaConfig_3\x12P\n" +
 	"\x0ekafka_config_4\x18\x06 \x01(\v2'.yandex.cloud.mdb.kafka.v1.KafkaConfig4H\x00R\rkafkaConfig_4B\x0e\n" +
-	"\fkafka_configJ\x04\b\x02\x10\x04\x1aO\n" +
+	"\fkafka_configJ\x04\b\x02\x10\x04\x1aj\n" +
 	"\tZookeeper\x12B\n" +
-	"\tresources\x18\x01 \x01(\v2$.yandex.cloud.mdb.kafka.v1.ResourcesR\tresources\x1aK\n" +
+	"\tresources\x18\x01 \x01(\v2$.yandex.cloud.mdb.kafka.v1.ResourcesR\tresources\x12\x19\n" +
+	"\bzone_ids\x18\x02 \x03(\tR\azoneIds\x1af\n" +
 	"\x05KRaft\x12B\n" +
-	"\tresources\x18\x01 \x01(\v2$.yandex.cloud.mdb.kafka.v1.ResourcesR\tresources\x1a)\n" +
+	"\tresources\x18\x01 \x01(\v2$.yandex.cloud.mdb.kafka.v1.ResourcesR\tresources\x12\x19\n" +
+	"\bzone_ids\x18\x02 \x03(\tR\azoneIds\x1a)\n" +
 	"\rRestAPIConfig\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x1a)\n" +
 	"\rKafkaUIConfig\x12\x18\n" +

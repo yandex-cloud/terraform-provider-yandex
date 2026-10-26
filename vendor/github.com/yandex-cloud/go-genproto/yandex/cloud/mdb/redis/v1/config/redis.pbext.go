@@ -110,6 +110,30 @@ func (m *RedisConfig) SetRebalanceEnabled(v *wrapperspb.BoolValue) {
 	m.RebalanceEnabled = v
 }
 
+func (m *RedisConfig) SetHashMaxListpackEntries(v *wrapperspb.Int64Value) {
+	m.HashMaxListpackEntries = v
+}
+
+func (m *RedisConfig) SetHashMaxListpackValue(v *wrapperspb.Int64Value) {
+	m.HashMaxListpackValue = v
+}
+
+func (m *RedisConfig) SetListMaxListpackSize(v *wrapperspb.Int64Value) {
+	m.ListMaxListpackSize = v
+}
+
+func (m *RedisConfig) SetSetMaxListpackEntries(v *wrapperspb.Int64Value) {
+	m.SetMaxListpackEntries = v
+}
+
+func (m *RedisConfig) SetSetMaxListpackValue(v *wrapperspb.Int64Value) {
+	m.SetMaxListpackValue = v
+}
+
+func (m *RedisConfig) SetZsetMaxListpackValue(v *wrapperspb.Int64Value) {
+	m.ZsetMaxListpackValue = v
+}
+
 func (m *RedisConfig_ClientOutputBufferLimit) SetHardLimit(v *wrapperspb.Int64Value) {
 	m.HardLimit = v
 }

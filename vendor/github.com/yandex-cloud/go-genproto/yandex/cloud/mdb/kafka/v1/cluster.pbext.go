@@ -196,8 +196,16 @@ func (m *ConfigSpec_Zookeeper) SetResources(v *Resources) {
 	m.Resources = v
 }
 
+func (m *ConfigSpec_Zookeeper) SetZoneIds(v []string) {
+	m.ZoneIds = v
+}
+
 func (m *ConfigSpec_KRaft) SetResources(v *Resources) {
 	m.Resources = v
+}
+
+func (m *ConfigSpec_KRaft) SetZoneIds(v []string) {
+	m.ZoneIds = v
 }
 
 func (m *ConfigSpec_RestAPIConfig) SetEnabled(v bool) {

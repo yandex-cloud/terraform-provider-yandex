@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.240.0 (October 26, 2026)
+
+##### WARNING:
+* dataproc: remove `yandex_dataproc_cluster_change_freeze` resource
+
+
+
 ## 0.239.0 (October 15, 2026)
 
 ##### ENHANCEMENTS:

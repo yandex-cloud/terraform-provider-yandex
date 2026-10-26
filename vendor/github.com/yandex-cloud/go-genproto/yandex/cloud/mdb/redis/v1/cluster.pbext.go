@@ -192,6 +192,10 @@ func (m *ClusterConfig) SetShardAutoscalingSettings(v *ShardAutoscalingSettings)
 	m.ShardAutoscalingSettings = v
 }
 
+func (m *ClusterConfig) SetMoniumLogs(v *MoniumLogs) {
+	m.MoniumLogs = v
+}
+
 func (m *Shard) SetName(v string) {
 	m.Name = v
 }
@@ -362,4 +366,12 @@ func (m *ShardAutoscalingSettings) SetMemoryThreshold(v *ShardAutoscalingThresho
 
 func (m *ShardAutoscalingSettings) SetNetworkThreshold(v *ShardAutoscalingThreshold) {
 	m.NetworkThreshold = v
+}
+
+func (m *MoniumLogs) SetEnabled(v *wrapperspb.BoolValue) {
+	m.Enabled = v
+}
+
+func (m *MoniumLogs) SetProject(v string) {
+	m.Project = v
 }

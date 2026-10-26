@@ -753,3 +753,7 @@ func (m *ConfigSpec) SetTieredStorageEnabled(v *wrapperspb.BoolValue) {
 func (m *ConfigSpec) SetShardAutoscalingSettings(v *ShardAutoscalingSettings) {
 	m.ShardAutoscalingSettings = v
 }
+
+func (m *ConfigSpec) SetMoniumLogs(v *MoniumLogs) {
+	m.MoniumLogs = v
+}

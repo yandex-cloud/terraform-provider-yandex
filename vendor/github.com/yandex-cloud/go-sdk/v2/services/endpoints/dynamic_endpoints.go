@@ -101,6 +101,7 @@ var DynamicEndpoints = map[protoreflect.FullName]string{
 	protoreflect.FullName("yandex.cloud.mdb.postgresql.v1"):                                                  "managed-postgresql",
 	protoreflect.FullName("yandex.cloud.mdb.redis.v1"):                                                       "managed-redis",
 	protoreflect.FullName("yandex.cloud.mdb.spqr.v1"):                                                        "managed-spqr",
+	protoreflect.FullName("yandex.cloud.mdb.zonalshift.v1"):                                                  "managed-zonalshift",
 	protoreflect.FullName("yandex.cloud.metastore.v1"):                                                       "managed-metastore",
 	protoreflect.FullName("yandex.cloud.monitoring.v1alpha"):                                                 "monitoring",
 	protoreflect.FullName("yandex.cloud.monitoring.v2"):                                                      "monitoring",

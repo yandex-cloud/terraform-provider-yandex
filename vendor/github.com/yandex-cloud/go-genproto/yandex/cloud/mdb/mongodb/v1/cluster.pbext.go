@@ -202,6 +202,10 @@ func (m *ClusterConfig) SetBalancerEnabled(v bool) {
 	m.BalancerEnabled = v
 }
 
+func (m *ClusterConfig) SetMoniumLogs(v *MoniumLogs) {
+	m.MoniumLogs = v
+}
+
 func (m *Mongodb3_6) SetMongod(v *Mongodb3_6_Mongod) {
 	m.Mongod = v
 }
@@ -1024,4 +1028,12 @@ func (m *AutoCompactConfig) SetBloatPercent(v *wrapperspb.DoubleValue) {
 
 func (m *AutoCompactConfig) SetCompactionType(v AutoCompactConfig_CompactionType) {
 	m.CompactionType = v
+}
+
+func (m *MoniumLogs) SetEnabled(v *wrapperspb.BoolValue) {
+	m.Enabled = v
+}
+
+func (m *MoniumLogs) SetProject(v string) {
+	m.Project = v
 }

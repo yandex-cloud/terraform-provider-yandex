@@ -548,7 +548,6 @@ type CreateClusterRequest struct {
 	PersistenceMode Cluster_PersistenceMode `protobuf:"varint,15,opt,name=persistence_mode,json=persistenceMode,proto3,enum=yandex.cloud.mdb.redis.v1.Cluster_PersistenceMode" json:"persistence_mode,omitempty"`
 	// Enable FQDN instead of ip
 	AnnounceHostnames bool `protobuf:"varint,16,opt,name=announce_hostnames,json=announceHostnames,proto3" json:"announce_hostnames,omitempty"`
-	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
@@ -792,7 +791,6 @@ type UpdateClusterRequest struct {
 	ConfigSpec *ConfigSpec `protobuf:"bytes,5,opt,name=config_spec,json=configSpec,proto3" json:"config_spec,omitempty"`
 	// New name for the cluster.
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
-	// Deprecated. Use maintenance_windows instead.
 	// New maintenance window settings for the cluster.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
@@ -1611,7 +1609,6 @@ type RestoreClusterRequest struct {
 	DeletionProtection bool `protobuf:"varint,13,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Enable FQDN instead of ip
 	AnnounceHostnames bool `protobuf:"varint,14,opt,name=announce_hostnames,json=announceHostnames,proto3" json:"announce_hostnames,omitempty"`
-	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
 	//
 	// Deprecated: Marked as deprecated in yandex/cloud/mdb/redis/v1/cluster_service.proto.
@@ -3817,8 +3814,10 @@ type ConfigSpec struct {
 	TieredStorageEnabled *wrapperspb.BoolValue `protobuf:"bytes,15,opt,name=tiered_storage_enabled,json=tieredStorageEnabled,proto3" json:"tiered_storage_enabled,omitempty"`
 	// Shard autoscaling settings for the cluster.
 	ShardAutoscalingSettings *ShardAutoscalingSettings `protobuf:"bytes,16,opt,name=shard_autoscaling_settings,json=shardAutoscalingSettings,proto3" json:"shard_autoscaling_settings,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// Monium logs shipping settings
+	MoniumLogs    *MoniumLogs `protobuf:"bytes,17,opt,name=monium_logs,json=moniumLogs,proto3" json:"monium_logs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConfigSpec) Reset() {
@@ -3964,6 +3963,13 @@ func (x *ConfigSpec) GetTieredStorageEnabled() *wrapperspb.BoolValue {
 func (x *ConfigSpec) GetShardAutoscalingSettings() *ShardAutoscalingSettings {
 	if x != nil {
 		return x.ShardAutoscalingSettings
+	}
+	return nil
+}
+
+func (x *ConfigSpec) GetMoniumLogs() *MoniumLogs {
+	if x != nil {
+		return x.MoniumLogs
 	}
 	return nil
 }
@@ -4354,7 +4360,7 @@ const file_yandex_cloud_mdb_redis_v1_cluster_service_proto_rawDesc = "" +
 	"\n" +
 	"shard_name\x18\x03 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\tshardName\x12F\n" +
 	"\x10replica_priority\x18\x04 \x01(\v2\x1b.google.protobuf.Int64ValueR\x0freplicaPriority\x12(\n" +
-	"\x10assign_public_ip\x18\x05 \x01(\bR\x0eassignPublicIp\"\xa1\t\n" +
+	"\x10assign_public_ip\x18\x05 \x01(\bR\x0eassignPublicIp\"\xe9\t\n" +
 	"\n" +
 	"ConfigSpec\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12a\n" +
@@ -4370,7 +4376,9 @@ const file_yandex_cloud_mdb_redis_v1_cluster_service_proto_rawDesc = "" +
 	"\x19backup_retain_period_days\x18\r \x01(\v2\x1b.google.protobuf.Int64ValueB\b\xfa\xc71\x047-60R\x16backupRetainPeriodDays\x12B\n" +
 	"\amodules\x18\x0e \x01(\v2(.yandex.cloud.mdb.redis.v1.ValkeyModulesR\amodules\x12P\n" +
 	"\x16tiered_storage_enabled\x18\x0f \x01(\v2\x1a.google.protobuf.BoolValueR\x14tieredStorageEnabled\x12q\n" +
-	"\x1ashard_autoscaling_settings\x18\x10 \x01(\v23.yandex.cloud.mdb.redis.v1.ShardAutoscalingSettingsR\x18shardAutoscalingSettingsB\f\n" +
+	"\x1ashard_autoscaling_settings\x18\x10 \x01(\v23.yandex.cloud.mdb.redis.v1.ShardAutoscalingSettingsR\x18shardAutoscalingSettings\x12F\n" +
+	"\vmonium_logs\x18\x11 \x01(\v2%.yandex.cloud.mdb.redis.v1.MoniumLogsR\n" +
+	"moniumLogsB\f\n" +
 	"\n" +
 	"redis_specJ\x04\b\t\x10\v2\xae,\n" +
 	"\x0eClusterService\x12\x88\x01\n" +
@@ -4529,10 +4537,11 @@ var file_yandex_cloud_mdb_redis_v1_cluster_service_proto_goTypes = []any{
 	(*DiskSizeAutoscaling)(nil),                      // 85: yandex.cloud.mdb.redis.v1.DiskSizeAutoscaling
 	(*ValkeyModules)(nil),                            // 86: yandex.cloud.mdb.redis.v1.ValkeyModules
 	(*ShardAutoscalingSettings)(nil),                 // 87: yandex.cloud.mdb.redis.v1.ShardAutoscalingSettings
-	(*access.ListAccessBindingsRequest)(nil),         // 88: yandex.cloud.access.ListAccessBindingsRequest
-	(*access.SetAccessBindingsRequest)(nil),          // 89: yandex.cloud.access.SetAccessBindingsRequest
-	(*access.UpdateAccessBindingsRequest)(nil),       // 90: yandex.cloud.access.UpdateAccessBindingsRequest
-	(*access.ListAccessBindingsResponse)(nil),        // 91: yandex.cloud.access.ListAccessBindingsResponse
+	(*MoniumLogs)(nil),                               // 88: yandex.cloud.mdb.redis.v1.MoniumLogs
+	(*access.ListAccessBindingsRequest)(nil),         // 89: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),          // 90: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil),       // 91: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),        // 92: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_mdb_redis_v1_cluster_service_proto_depIdxs = []int32{
 	62, // 0: yandex.cloud.mdb.redis.v1.ListClustersResponse.clusters:type_name -> yandex.cloud.mdb.redis.v1.Cluster
@@ -4599,69 +4608,70 @@ var file_yandex_cloud_mdb_redis_v1_cluster_service_proto_depIdxs = []int32{
 	86, // 61: yandex.cloud.mdb.redis.v1.ConfigSpec.modules:type_name -> yandex.cloud.mdb.redis.v1.ValkeyModules
 	64, // 62: yandex.cloud.mdb.redis.v1.ConfigSpec.tiered_storage_enabled:type_name -> google.protobuf.BoolValue
 	87, // 63: yandex.cloud.mdb.redis.v1.ConfigSpec.shard_autoscaling_settings:type_name -> yandex.cloud.mdb.redis.v1.ShardAutoscalingSettings
-	6,  // 64: yandex.cloud.mdb.redis.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.redis.v1.GetClusterRequest
-	7,  // 65: yandex.cloud.mdb.redis.v1.ClusterService.List:input_type -> yandex.cloud.mdb.redis.v1.ListClustersRequest
-	9,  // 66: yandex.cloud.mdb.redis.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.redis.v1.CreateClusterRequest
-	11, // 67: yandex.cloud.mdb.redis.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.redis.v1.UpdateClusterRequest
-	13, // 68: yandex.cloud.mdb.redis.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.redis.v1.DeleteClusterRequest
-	15, // 69: yandex.cloud.mdb.redis.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.redis.v1.StartClusterRequest
-	17, // 70: yandex.cloud.mdb.redis.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.redis.v1.StopClusterRequest
-	19, // 71: yandex.cloud.mdb.redis.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.redis.v1.MoveClusterRequest
-	23, // 72: yandex.cloud.mdb.redis.v1.ClusterService.Backup:input_type -> yandex.cloud.mdb.redis.v1.BackupClusterRequest
-	25, // 73: yandex.cloud.mdb.redis.v1.ClusterService.Restore:input_type -> yandex.cloud.mdb.redis.v1.RestoreClusterRequest
-	27, // 74: yandex.cloud.mdb.redis.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.redis.v1.RescheduleMaintenanceRequest
-	29, // 75: yandex.cloud.mdb.redis.v1.ClusterService.StartFailover:input_type -> yandex.cloud.mdb.redis.v1.StartClusterFailoverRequest
-	32, // 76: yandex.cloud.mdb.redis.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.redis.v1.ListClusterLogsRequest
-	35, // 77: yandex.cloud.mdb.redis.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.redis.v1.StreamClusterLogsRequest
-	36, // 78: yandex.cloud.mdb.redis.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.redis.v1.ListClusterOperationsRequest
-	38, // 79: yandex.cloud.mdb.redis.v1.ClusterService.ListBackups:input_type -> yandex.cloud.mdb.redis.v1.ListClusterBackupsRequest
-	40, // 80: yandex.cloud.mdb.redis.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.redis.v1.ListClusterHostsRequest
-	42, // 81: yandex.cloud.mdb.redis.v1.ClusterService.AddHosts:input_type -> yandex.cloud.mdb.redis.v1.AddClusterHostsRequest
-	44, // 82: yandex.cloud.mdb.redis.v1.ClusterService.DeleteHosts:input_type -> yandex.cloud.mdb.redis.v1.DeleteClusterHostsRequest
-	21, // 83: yandex.cloud.mdb.redis.v1.ClusterService.UpdateHosts:input_type -> yandex.cloud.mdb.redis.v1.UpdateClusterHostsRequest
-	46, // 84: yandex.cloud.mdb.redis.v1.ClusterService.GetShard:input_type -> yandex.cloud.mdb.redis.v1.GetClusterShardRequest
-	47, // 85: yandex.cloud.mdb.redis.v1.ClusterService.ListShards:input_type -> yandex.cloud.mdb.redis.v1.ListClusterShardsRequest
-	49, // 86: yandex.cloud.mdb.redis.v1.ClusterService.AddShard:input_type -> yandex.cloud.mdb.redis.v1.AddClusterShardRequest
-	51, // 87: yandex.cloud.mdb.redis.v1.ClusterService.DeleteShard:input_type -> yandex.cloud.mdb.redis.v1.DeleteClusterShardRequest
-	53, // 88: yandex.cloud.mdb.redis.v1.ClusterService.Rebalance:input_type -> yandex.cloud.mdb.redis.v1.RebalanceClusterRequest
-	5,  // 89: yandex.cloud.mdb.redis.v1.ClusterService.EnableSharding:input_type -> yandex.cloud.mdb.redis.v1.EnableShardingClusterRequest
-	88, // 90: yandex.cloud.mdb.redis.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
-	89, // 91: yandex.cloud.mdb.redis.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
-	90, // 92: yandex.cloud.mdb.redis.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
-	62, // 93: yandex.cloud.mdb.redis.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.redis.v1.Cluster
-	8,  // 94: yandex.cloud.mdb.redis.v1.ClusterService.List:output_type -> yandex.cloud.mdb.redis.v1.ListClustersResponse
-	72, // 95: yandex.cloud.mdb.redis.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
-	72, // 96: yandex.cloud.mdb.redis.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
-	72, // 97: yandex.cloud.mdb.redis.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
-	72, // 98: yandex.cloud.mdb.redis.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
-	72, // 99: yandex.cloud.mdb.redis.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
-	72, // 100: yandex.cloud.mdb.redis.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
-	72, // 101: yandex.cloud.mdb.redis.v1.ClusterService.Backup:output_type -> yandex.cloud.operation.Operation
-	72, // 102: yandex.cloud.mdb.redis.v1.ClusterService.Restore:output_type -> yandex.cloud.operation.Operation
-	72, // 103: yandex.cloud.mdb.redis.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
-	72, // 104: yandex.cloud.mdb.redis.v1.ClusterService.StartFailover:output_type -> yandex.cloud.operation.Operation
-	33, // 105: yandex.cloud.mdb.redis.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.redis.v1.ListClusterLogsResponse
-	34, // 106: yandex.cloud.mdb.redis.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.redis.v1.StreamLogRecord
-	37, // 107: yandex.cloud.mdb.redis.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.redis.v1.ListClusterOperationsResponse
-	39, // 108: yandex.cloud.mdb.redis.v1.ClusterService.ListBackups:output_type -> yandex.cloud.mdb.redis.v1.ListClusterBackupsResponse
-	41, // 109: yandex.cloud.mdb.redis.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.redis.v1.ListClusterHostsResponse
-	72, // 110: yandex.cloud.mdb.redis.v1.ClusterService.AddHosts:output_type -> yandex.cloud.operation.Operation
-	72, // 111: yandex.cloud.mdb.redis.v1.ClusterService.DeleteHosts:output_type -> yandex.cloud.operation.Operation
-	72, // 112: yandex.cloud.mdb.redis.v1.ClusterService.UpdateHosts:output_type -> yandex.cloud.operation.Operation
-	75, // 113: yandex.cloud.mdb.redis.v1.ClusterService.GetShard:output_type -> yandex.cloud.mdb.redis.v1.Shard
-	48, // 114: yandex.cloud.mdb.redis.v1.ClusterService.ListShards:output_type -> yandex.cloud.mdb.redis.v1.ListClusterShardsResponse
-	72, // 115: yandex.cloud.mdb.redis.v1.ClusterService.AddShard:output_type -> yandex.cloud.operation.Operation
-	72, // 116: yandex.cloud.mdb.redis.v1.ClusterService.DeleteShard:output_type -> yandex.cloud.operation.Operation
-	72, // 117: yandex.cloud.mdb.redis.v1.ClusterService.Rebalance:output_type -> yandex.cloud.operation.Operation
-	72, // 118: yandex.cloud.mdb.redis.v1.ClusterService.EnableSharding:output_type -> yandex.cloud.operation.Operation
-	91, // 119: yandex.cloud.mdb.redis.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
-	72, // 120: yandex.cloud.mdb.redis.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
-	72, // 121: yandex.cloud.mdb.redis.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
-	93, // [93:122] is the sub-list for method output_type
-	64, // [64:93] is the sub-list for method input_type
-	64, // [64:64] is the sub-list for extension type_name
-	64, // [64:64] is the sub-list for extension extendee
-	0,  // [0:64] is the sub-list for field type_name
+	88, // 64: yandex.cloud.mdb.redis.v1.ConfigSpec.monium_logs:type_name -> yandex.cloud.mdb.redis.v1.MoniumLogs
+	6,  // 65: yandex.cloud.mdb.redis.v1.ClusterService.Get:input_type -> yandex.cloud.mdb.redis.v1.GetClusterRequest
+	7,  // 66: yandex.cloud.mdb.redis.v1.ClusterService.List:input_type -> yandex.cloud.mdb.redis.v1.ListClustersRequest
+	9,  // 67: yandex.cloud.mdb.redis.v1.ClusterService.Create:input_type -> yandex.cloud.mdb.redis.v1.CreateClusterRequest
+	11, // 68: yandex.cloud.mdb.redis.v1.ClusterService.Update:input_type -> yandex.cloud.mdb.redis.v1.UpdateClusterRequest
+	13, // 69: yandex.cloud.mdb.redis.v1.ClusterService.Delete:input_type -> yandex.cloud.mdb.redis.v1.DeleteClusterRequest
+	15, // 70: yandex.cloud.mdb.redis.v1.ClusterService.Start:input_type -> yandex.cloud.mdb.redis.v1.StartClusterRequest
+	17, // 71: yandex.cloud.mdb.redis.v1.ClusterService.Stop:input_type -> yandex.cloud.mdb.redis.v1.StopClusterRequest
+	19, // 72: yandex.cloud.mdb.redis.v1.ClusterService.Move:input_type -> yandex.cloud.mdb.redis.v1.MoveClusterRequest
+	23, // 73: yandex.cloud.mdb.redis.v1.ClusterService.Backup:input_type -> yandex.cloud.mdb.redis.v1.BackupClusterRequest
+	25, // 74: yandex.cloud.mdb.redis.v1.ClusterService.Restore:input_type -> yandex.cloud.mdb.redis.v1.RestoreClusterRequest
+	27, // 75: yandex.cloud.mdb.redis.v1.ClusterService.RescheduleMaintenance:input_type -> yandex.cloud.mdb.redis.v1.RescheduleMaintenanceRequest
+	29, // 76: yandex.cloud.mdb.redis.v1.ClusterService.StartFailover:input_type -> yandex.cloud.mdb.redis.v1.StartClusterFailoverRequest
+	32, // 77: yandex.cloud.mdb.redis.v1.ClusterService.ListLogs:input_type -> yandex.cloud.mdb.redis.v1.ListClusterLogsRequest
+	35, // 78: yandex.cloud.mdb.redis.v1.ClusterService.StreamLogs:input_type -> yandex.cloud.mdb.redis.v1.StreamClusterLogsRequest
+	36, // 79: yandex.cloud.mdb.redis.v1.ClusterService.ListOperations:input_type -> yandex.cloud.mdb.redis.v1.ListClusterOperationsRequest
+	38, // 80: yandex.cloud.mdb.redis.v1.ClusterService.ListBackups:input_type -> yandex.cloud.mdb.redis.v1.ListClusterBackupsRequest
+	40, // 81: yandex.cloud.mdb.redis.v1.ClusterService.ListHosts:input_type -> yandex.cloud.mdb.redis.v1.ListClusterHostsRequest
+	42, // 82: yandex.cloud.mdb.redis.v1.ClusterService.AddHosts:input_type -> yandex.cloud.mdb.redis.v1.AddClusterHostsRequest
+	44, // 83: yandex.cloud.mdb.redis.v1.ClusterService.DeleteHosts:input_type -> yandex.cloud.mdb.redis.v1.DeleteClusterHostsRequest
+	21, // 84: yandex.cloud.mdb.redis.v1.ClusterService.UpdateHosts:input_type -> yandex.cloud.mdb.redis.v1.UpdateClusterHostsRequest
+	46, // 85: yandex.cloud.mdb.redis.v1.ClusterService.GetShard:input_type -> yandex.cloud.mdb.redis.v1.GetClusterShardRequest
+	47, // 86: yandex.cloud.mdb.redis.v1.ClusterService.ListShards:input_type -> yandex.cloud.mdb.redis.v1.ListClusterShardsRequest
+	49, // 87: yandex.cloud.mdb.redis.v1.ClusterService.AddShard:input_type -> yandex.cloud.mdb.redis.v1.AddClusterShardRequest
+	51, // 88: yandex.cloud.mdb.redis.v1.ClusterService.DeleteShard:input_type -> yandex.cloud.mdb.redis.v1.DeleteClusterShardRequest
+	53, // 89: yandex.cloud.mdb.redis.v1.ClusterService.Rebalance:input_type -> yandex.cloud.mdb.redis.v1.RebalanceClusterRequest
+	5,  // 90: yandex.cloud.mdb.redis.v1.ClusterService.EnableSharding:input_type -> yandex.cloud.mdb.redis.v1.EnableShardingClusterRequest
+	89, // 91: yandex.cloud.mdb.redis.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	90, // 92: yandex.cloud.mdb.redis.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	91, // 93: yandex.cloud.mdb.redis.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	62, // 94: yandex.cloud.mdb.redis.v1.ClusterService.Get:output_type -> yandex.cloud.mdb.redis.v1.Cluster
+	8,  // 95: yandex.cloud.mdb.redis.v1.ClusterService.List:output_type -> yandex.cloud.mdb.redis.v1.ListClustersResponse
+	72, // 96: yandex.cloud.mdb.redis.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
+	72, // 97: yandex.cloud.mdb.redis.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
+	72, // 98: yandex.cloud.mdb.redis.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
+	72, // 99: yandex.cloud.mdb.redis.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
+	72, // 100: yandex.cloud.mdb.redis.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
+	72, // 101: yandex.cloud.mdb.redis.v1.ClusterService.Move:output_type -> yandex.cloud.operation.Operation
+	72, // 102: yandex.cloud.mdb.redis.v1.ClusterService.Backup:output_type -> yandex.cloud.operation.Operation
+	72, // 103: yandex.cloud.mdb.redis.v1.ClusterService.Restore:output_type -> yandex.cloud.operation.Operation
+	72, // 104: yandex.cloud.mdb.redis.v1.ClusterService.RescheduleMaintenance:output_type -> yandex.cloud.operation.Operation
+	72, // 105: yandex.cloud.mdb.redis.v1.ClusterService.StartFailover:output_type -> yandex.cloud.operation.Operation
+	33, // 106: yandex.cloud.mdb.redis.v1.ClusterService.ListLogs:output_type -> yandex.cloud.mdb.redis.v1.ListClusterLogsResponse
+	34, // 107: yandex.cloud.mdb.redis.v1.ClusterService.StreamLogs:output_type -> yandex.cloud.mdb.redis.v1.StreamLogRecord
+	37, // 108: yandex.cloud.mdb.redis.v1.ClusterService.ListOperations:output_type -> yandex.cloud.mdb.redis.v1.ListClusterOperationsResponse
+	39, // 109: yandex.cloud.mdb.redis.v1.ClusterService.ListBackups:output_type -> yandex.cloud.mdb.redis.v1.ListClusterBackupsResponse
+	41, // 110: yandex.cloud.mdb.redis.v1.ClusterService.ListHosts:output_type -> yandex.cloud.mdb.redis.v1.ListClusterHostsResponse
+	72, // 111: yandex.cloud.mdb.redis.v1.ClusterService.AddHosts:output_type -> yandex.cloud.operation.Operation
+	72, // 112: yandex.cloud.mdb.redis.v1.ClusterService.DeleteHosts:output_type -> yandex.cloud.operation.Operation
+	72, // 113: yandex.cloud.mdb.redis.v1.ClusterService.UpdateHosts:output_type -> yandex.cloud.operation.Operation
+	75, // 114: yandex.cloud.mdb.redis.v1.ClusterService.GetShard:output_type -> yandex.cloud.mdb.redis.v1.Shard
+	48, // 115: yandex.cloud.mdb.redis.v1.ClusterService.ListShards:output_type -> yandex.cloud.mdb.redis.v1.ListClusterShardsResponse
+	72, // 116: yandex.cloud.mdb.redis.v1.ClusterService.AddShard:output_type -> yandex.cloud.operation.Operation
+	72, // 117: yandex.cloud.mdb.redis.v1.ClusterService.DeleteShard:output_type -> yandex.cloud.operation.Operation
+	72, // 118: yandex.cloud.mdb.redis.v1.ClusterService.Rebalance:output_type -> yandex.cloud.operation.Operation
+	72, // 119: yandex.cloud.mdb.redis.v1.ClusterService.EnableSharding:output_type -> yandex.cloud.operation.Operation
+	92, // 120: yandex.cloud.mdb.redis.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	72, // 121: yandex.cloud.mdb.redis.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	72, // 122: yandex.cloud.mdb.redis.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	94, // [94:123] is the sub-list for method output_type
+	65, // [65:94] is the sub-list for method input_type
+	65, // [65:65] is the sub-list for extension type_name
+	65, // [65:65] is the sub-list for extension extendee
+	0,  // [0:65] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_redis_v1_cluster_service_proto_init() }
