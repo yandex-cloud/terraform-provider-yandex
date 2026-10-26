@@ -9,12 +9,17 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-log/tflogtest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	cic "github.com/yandex-cloud/go-genproto/yandex/cloud/cic/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/anypb"
 )
+
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
 
 func TestMaskContext(t *testing.T) {
 	for i, secret := range []string{"secret-marker", "secret-marker\"\\\n\t雪"} {

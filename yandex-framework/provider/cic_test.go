@@ -8,10 +8,15 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	testresource "github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	yandex_gen "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cic_private_connection"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_cic_public_connection"
 )
+
+func TestMain(m *testing.M) {
+	testresource.TestMain(m)
+}
 
 func TestCICResourceRegistration(t *testing.T) {
 	ctx := context.Background()

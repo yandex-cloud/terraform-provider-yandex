@@ -7,9 +7,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/stretchr/testify/require"
 	yandexframework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
+
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
 
 func TestResourceIDValidation(t *testing.T) {
 	ctx := context.Background()
