@@ -1050,7 +1050,6 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]
 		"labels":                                "labels",
 		"network_id":                            "network_id",
 		"config.0.version":                      "config_spec.version",
-		"config.0.autofailover":                 "config_spec.autofailover",
 		"config.0.pooler_config.0.pooling_mode": "config_spec.pooler_config.pooling_mode",
 		"config.0.pooler_config.0.pool_discard": "config_spec.pooler_config.pool_discard",
 		"config.0.pooler_config.0.pooler_pool_discard":                    "config_spec.pooler_config.pool_discard",
