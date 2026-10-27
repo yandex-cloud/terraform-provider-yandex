@@ -16,8 +16,8 @@ import (
 
 func YandexMdbRedisClusterChangeFreezeResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
-		Description:         "",
-		MarkdownDescription: "",
+		Description:         "Change freezes temporarily prevent maintenance operations for a specific resource over the time period specified. Use them during business-critical events or periods with limited operational support.",
+		MarkdownDescription: "Change freezes temporarily prevent maintenance operations for a specific resource over the time period specified. Use them during business-critical events or periods with limited operational support.",
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
 
