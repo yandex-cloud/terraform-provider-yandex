@@ -44,10 +44,6 @@ func prepareConfigChange(ctx context.Context, plan, state *Config) (*spqr.Config
 	a := protobuf_adapter.NewProtobufMapDataAdapter()
 
 	if !plan.SPQRConfig.Common.Equal(state.SPQRConfig.Common) {
-		if _, ok := plan.SPQRConfig.Common.PrimitiveElements(ctx, &diags)["console_password"]; ok {
-			diags.AddWarning(`console_password is deprecated`, ConsolePasswordDeprecatedMsg)
-		}
-
 		a.FillWithDepth(ctx, config.SpqrSpec, plan.SPQRConfig.Common.PrimitiveElements(ctx, &diags), &diags, 1)
 		updateMaskPaths = append(updateMaskPaths, appendSettingsToUpdateMask(ctx, &diags, "", &state.SPQRConfig.Common, &plan.SPQRConfig.Common)...)
 	}

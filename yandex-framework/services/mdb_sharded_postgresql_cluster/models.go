@@ -7,8 +7,6 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
-const ConsolePasswordDeprecatedMsg = `console_password is DEPRECATED. Grant "admin" role to a user to get access to console.`
-
 type Cluster struct {
 	Id                 types.String   `tfsdk:"id"`
 	FolderId           types.String   `tfsdk:"folder_id"`

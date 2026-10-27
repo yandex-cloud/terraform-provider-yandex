@@ -49,9 +49,6 @@ func expandSPQRConfig(
 
 	if !config.Common.IsNull() && !config.Common.IsUnknown() {
 		attrs := config.Common.PrimitiveElements(ctx, diags)
-		if _, ok := attrs["console_password"]; ok {
-			diags.AddWarning(`console_password is deprecated`, ConsolePasswordDeprecatedMsg)
-		}
 		a.FillWithDepth(ctx, conf, attrs, diags, 1)
 	}
 

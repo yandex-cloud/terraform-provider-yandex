@@ -141,7 +141,6 @@ resource "yandex_mdb_sharded_postgresql_cluster" "default" {
     backup_retain_period_days = 10
     sharded_postgresql_config = {
         common = {
-            console_password = "password"
             log_level = "INFO"
         }
         router = {

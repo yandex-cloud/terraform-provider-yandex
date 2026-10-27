@@ -120,9 +120,6 @@ func flattenSPQRConfig(ctx context.Context, cfgState Config, c *spqr.SPQRConfig,
 	}
 
 	cfgElements := flattenComponentConfig(ctx, c, diags).PrimitiveElements(ctx, diags)
-	if v, ok := cfgState.SPQRConfig.Common.PrimitiveElements(ctx, diags)["console_password"]; ok {
-		cfgElements["console_password"] = v
-	}
 	cfg.Common = mdbcommon.NewSettingsMapValueMust(cfgElements, attrProvider)
 
 	return cfg
