@@ -221,6 +221,7 @@ func (x *Resource) GetType() string {
 	return ""
 }
 
+// Change freezes temporarily prevent maintenance operations for a specific resource over the time period specified. Use them during business-critical events or periods with limited operational support.
 type ChangeFreeze struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the change freeze.

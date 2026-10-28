@@ -216,10 +216,6 @@ func (m *ClusterConfig) SetResources(v *Resources) {
 	m.Resources = v
 }
 
-func (m *ClusterConfig) SetAutofailover(v *wrapperspb.BoolValue) {
-	m.Autofailover = v
-}
-
 func (m *ClusterConfig) SetBackupWindowStart(v *timeofday.TimeOfDay) {
 	m.BackupWindowStart = v
 }

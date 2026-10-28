@@ -695,10 +695,6 @@ func (m *ConfigSpec) SetResources(v *Resources) {
 	m.Resources = v
 }
 
-func (m *ConfigSpec) SetAutofailover(v *wrapperspb.BoolValue) {
-	m.Autofailover = v
-}
-
 func (m *ConfigSpec) SetBackupWindowStart(v *timeofday.TimeOfDay) {
 	m.BackupWindowStart = v
 }
