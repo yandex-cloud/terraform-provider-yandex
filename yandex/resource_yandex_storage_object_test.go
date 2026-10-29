@@ -14,12 +14,10 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	awsS3 "github.com/aws/aws-sdk-go/service/s3"
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/storage/s3"
 )
 
@@ -34,50 +32,21 @@ func init() {
 func testSweepStorageObject(_ string) error {
 	conf, err := configForSweepers()
 	if err != nil {
-		return fmt.Errorf("error getting client: %s", err)
+		return fmt.Errorf("error getting client: %w", err)
 	}
 
-	result := &multierror.Error{}
-	s3Client, err := getS3ClientByKeys(context.TODO(), "", "", conf)
+	ctx := context.Background()
+	s3Client, err := getS3ClientByKeys(ctx, "", "", conf)
 	if err != nil {
-		result = multierror.Append(result, fmt.Errorf("error creating storage client: %s", err))
-		return result.ErrorOrNil()
+		return fmt.Errorf("error creating storage client: %w", err)
 	}
 
-	buckets, err := s3Client.S3().ListBuckets(&awsS3.ListBucketsInput{})
+	buckets, err := s3Client.S3().ListBucketsWithContext(ctx, &awsS3.ListBucketsInput{})
 	if err != nil {
-		result = multierror.Append(result, fmt.Errorf("failed to list storage buckets: %s", err))
-		return result.ErrorOrNil()
+		return fmt.Errorf("failed to list storage buckets: %w", err)
 	}
 
-	for _, b := range buckets.Buckets {
-		res, err := s3Client.S3().ListObjectVersions(&awsS3.ListObjectVersionsInput{
-			Bucket: b.Name,
-		})
-
-		if err != nil {
-			result = multierror.Append(
-				result,
-				fmt.Errorf("failed to list objects in bucket: %s, error: %s", *b.Name, err),
-			)
-		}
-
-		for _, o := range res.Versions {
-			_, err := s3Client.S3().DeleteObject(&awsS3.DeleteObjectInput{
-				Bucket:    b.Name,
-				Key:       o.Key,
-				VersionId: o.VersionId,
-			})
-			if err != nil {
-				result = multierror.Append(
-					result,
-					fmt.Errorf("failed to delete object %s in bucket: %s, error: %s", *o.Key, *b.Name, err),
-				)
-			}
-		}
-	}
-
-	return result.ErrorOrNil()
+	return sweepStorageObjects(ctx, buckets.Buckets, s3Client.S3())
 }
 
 func TestAccStorageObject_source(t *testing.T) {
