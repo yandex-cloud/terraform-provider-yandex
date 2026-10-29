@@ -27,6 +27,7 @@ const (
 	ImageService_Create_FullMethodName               = "/yandex.cloud.compute.v1.ImageService/Create"
 	ImageService_Update_FullMethodName               = "/yandex.cloud.compute.v1.ImageService/Update"
 	ImageService_Delete_FullMethodName               = "/yandex.cloud.compute.v1.ImageService/Delete"
+	ImageService_Export_FullMethodName               = "/yandex.cloud.compute.v1.ImageService/Export"
 	ImageService_ListOperations_FullMethodName       = "/yandex.cloud.compute.v1.ImageService/ListOperations"
 	ImageService_ListAccessBindings_FullMethodName   = "/yandex.cloud.compute.v1.ImageService/ListAccessBindings"
 	ImageService_SetAccessBindings_FullMethodName    = "/yandex.cloud.compute.v1.ImageService/SetAccessBindings"
@@ -55,6 +56,8 @@ type ImageServiceClient interface {
 	// Deletes the specified image.
 	// Deleting an image removes its data permanently and is irreversible.
 	Delete(ctx context.Context, in *DeleteImageRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Exports the specified image to an S3-compatible storage.
+	Export(ctx context.Context, in *ExportImageRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Lists operations for the specified image.
 	ListOperations(ctx context.Context, in *ListImageOperationsRequest, opts ...grpc.CallOption) (*ListImageOperationsResponse, error)
 	// Lists access bindings for the image.
@@ -133,6 +136,16 @@ func (c *imageServiceClient) Delete(ctx context.Context, in *DeleteImageRequest,
 	return out, nil
 }
 
+func (c *imageServiceClient) Export(ctx context.Context, in *ExportImageRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, ImageService_Export_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *imageServiceClient) ListOperations(ctx context.Context, in *ListImageOperationsRequest, opts ...grpc.CallOption) (*ListImageOperationsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListImageOperationsResponse)
@@ -195,6 +208,8 @@ type ImageServiceServer interface {
 	// Deletes the specified image.
 	// Deleting an image removes its data permanently and is irreversible.
 	Delete(context.Context, *DeleteImageRequest) (*operation.Operation, error)
+	// Exports the specified image to an S3-compatible storage.
+	Export(context.Context, *ExportImageRequest) (*operation.Operation, error)
 	// Lists operations for the specified image.
 	ListOperations(context.Context, *ListImageOperationsRequest) (*ListImageOperationsResponse, error)
 	// Lists access bindings for the image.
@@ -229,6 +244,9 @@ func (UnimplementedImageServiceServer) Update(context.Context, *UpdateImageReque
 }
 func (UnimplementedImageServiceServer) Delete(context.Context, *DeleteImageRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedImageServiceServer) Export(context.Context, *ExportImageRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method Export not implemented")
 }
 func (UnimplementedImageServiceServer) ListOperations(context.Context, *ListImageOperationsRequest) (*ListImageOperationsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListOperations not implemented")
@@ -370,6 +388,24 @@ func _ImageService_Delete_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ImageService_Export_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExportImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImageServiceServer).Export(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ImageService_Export_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImageServiceServer).Export(ctx, req.(*ExportImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ImageService_ListOperations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListImageOperationsRequest)
 	if err := dec(in); err != nil {
@@ -472,6 +508,10 @@ var ImageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _ImageService_Delete_Handler,
+		},
+		{
+			MethodName: "Export",
+			Handler:    _ImageService_Export_Handler,
 		},
 		{
 			MethodName: "ListOperations",

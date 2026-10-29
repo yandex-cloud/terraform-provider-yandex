@@ -23,6 +23,7 @@ type SnapshotClient interface {
 	Create(context.Context, *compute.CreateSnapshotRequest, ...grpc.CallOption) (*SnapshotCreateOperation, error)
 	Update(context.Context, *compute.UpdateSnapshotRequest, ...grpc.CallOption) (*SnapshotUpdateOperation, error)
 	Delete(context.Context, *compute.DeleteSnapshotRequest, ...grpc.CallOption) (*SnapshotDeleteOperation, error)
+	Export(context.Context, *compute.ExportSnapshotRequest, ...grpc.CallOption) (*SnapshotExportOperation, error)
 	ListOperations(context.Context, *compute.ListSnapshotOperationsRequest, ...grpc.CallOption) (*compute.ListSnapshotOperationsResponse, error)
 	ListAccessBindings(context.Context, *access.ListAccessBindingsRequest, ...grpc.CallOption) (*access.ListAccessBindingsResponse, error)
 	SetAccessBindings(context.Context, *access.SetAccessBindingsRequest, ...grpc.CallOption) (*SnapshotSetAccessBindingsOperation, error)
@@ -220,6 +221,60 @@ func (c snapshotClient) Delete(ctx context.Context, in *compute.DeleteSnapshotRe
 	return &SnapshotDeleteOperation{*op}, nil
 }
 
+// SnapshotExportOperation is used to monitor the state of Export operations.
+type SnapshotExportOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *SnapshotExportOperation) Metadata() *compute.ExportSnapshotMetadata {
+	return o.Operation.Metadata().(*compute.ExportSnapshotMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *SnapshotExportOperation) Response() *compute.ExportResponse {
+	return o.Operation.Response().(*compute.ExportResponse)
+}
+
+// Wait polls the operation until it's done.
+func (o *SnapshotExportOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*compute.ExportResponse, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*compute.ExportResponse)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *SnapshotExportOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*compute.ExportResponse, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*compute.ExportResponse)
+	return response, err
+}
+
+// Export is an operation of Yandex.Cloud Compute Snapshot service.
+// It returns an object which should be used to monitor the operation state.
+func (c snapshotClient) Export(ctx context.Context, in *compute.ExportSnapshotRequest, opts ...grpc.CallOption) (*SnapshotExportOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, SnapshotExport, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := compute.NewSnapshotServiceClient(connection).Export(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll: c.pollOperation,
+		GetResourceID: func(metadata proto.Message) string {
+			return metadata.(*compute.ExportSnapshotMetadata).GetSnapshotId()
+		},
+		MetadataType: (*compute.ExportSnapshotMetadata)(nil),
+		ResponseType: (*compute.ExportResponse)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &SnapshotExportOperation{*op}, nil
+}
+
 // ListOperations is an operation of Yandex.Cloud Compute Snapshot service.
 func (c snapshotClient) ListOperations(ctx context.Context, in *compute.ListSnapshotOperationsRequest, opts ...grpc.CallOption) (*compute.ListSnapshotOperationsResponse, error) {
 	connection, err := c.connector.GetConnection(ctx, SnapshotListOperations, opts...)
@@ -355,6 +410,7 @@ var (
 	SnapshotCreate               = protoreflect.FullName("yandex.cloud.compute.v1.SnapshotService.Create")
 	SnapshotUpdate               = protoreflect.FullName("yandex.cloud.compute.v1.SnapshotService.Update")
 	SnapshotDelete               = protoreflect.FullName("yandex.cloud.compute.v1.SnapshotService.Delete")
+	SnapshotExport               = protoreflect.FullName("yandex.cloud.compute.v1.SnapshotService.Export")
 	SnapshotListOperations       = protoreflect.FullName("yandex.cloud.compute.v1.SnapshotService.ListOperations")
 	SnapshotListAccessBindings   = protoreflect.FullName("yandex.cloud.compute.v1.SnapshotService.ListAccessBindings")
 	SnapshotSetAccessBindings    = protoreflect.FullName("yandex.cloud.compute.v1.SnapshotService.SetAccessBindings")

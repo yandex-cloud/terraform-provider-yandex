@@ -663,7 +663,7 @@ type MasterUpdateSpec struct {
 	MaintenancePolicy *MasterMaintenancePolicy `protobuf:"bytes,2,opt,name=maintenance_policy,json=maintenancePolicy,proto3" json:"maintenance_policy,omitempty"`
 	// Master security groups.
 	SecurityGroupIds []string `protobuf:"bytes,3,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
-	// Cloud Logging for master components.
+	// Export configuration of master logs.
 	MasterLogging *MasterLogging `protobuf:"bytes,4,opt,name=master_logging,json=masterLogging,proto3" json:"master_logging,omitempty"`
 	// Update master instance locations.
 	Locations []*LocationSpec `protobuf:"bytes,5,rep,name=locations,proto3" json:"locations,omitempty"`
@@ -1581,7 +1581,7 @@ type MasterSpec struct {
 	ScalePolicy *MasterScalePolicySpec `protobuf:"bytes,12,opt,name=scale_policy,json=scalePolicy,proto3" json:"scale_policy,omitempty"`
 	// Master security groups.
 	SecurityGroupIds []string `protobuf:"bytes,6,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
-	// Cloud Logging for master components.
+	// Export configuration of master logs.
 	MasterLogging *MasterLogging `protobuf:"bytes,7,opt,name=master_logging,json=masterLogging,proto3" json:"master_logging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

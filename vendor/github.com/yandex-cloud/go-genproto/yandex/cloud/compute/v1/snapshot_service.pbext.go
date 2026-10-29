@@ -103,6 +103,22 @@ func (m *DeleteSnapshotMetadata) SetSnapshotId(v string) {
 	m.SnapshotId = v
 }
 
+func (m *ExportSnapshotRequest) SetSnapshotId(v string) {
+	m.SnapshotId = v
+}
+
+func (m *ExportSnapshotRequest) SetDestination(v *ExportDestination) {
+	m.Destination = v
+}
+
+func (m *ExportSnapshotRequest) SetCredentials(v *ExportS3Credentials) {
+	m.Credentials = v
+}
+
+func (m *ExportSnapshotMetadata) SetSnapshotId(v string) {
+	m.SnapshotId = v
+}
+
 func (m *ListSnapshotOperationsRequest) SetSnapshotId(v string) {
 	m.SnapshotId = v
 }

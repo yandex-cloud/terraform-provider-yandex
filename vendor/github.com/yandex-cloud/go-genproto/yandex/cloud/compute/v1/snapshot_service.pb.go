@@ -621,6 +621,117 @@ func (x *DeleteSnapshotMetadata) GetSnapshotId() string {
 	return ""
 }
 
+type ExportSnapshotRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the snapshot to export.
+	// To get the snapshot ID, use a [SnapshotService.List] request.
+	// The length must be less than or equal to 50.
+	// This field is required.
+	SnapshotId string `protobuf:"bytes,1,opt,name=snapshot_id,json=snapshotId,proto3" json:"snapshot_id,omitempty"`
+	// Destination of the export.
+	Destination *ExportDestination `protobuf:"bytes,2,opt,name=destination,proto3" json:"destination,omitempty"`
+	// Credentials used to access the destination storage.
+	Credentials   *ExportS3Credentials `protobuf:"bytes,3,opt,name=credentials,proto3" json:"credentials,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportSnapshotRequest) Reset() {
+	*x = ExportSnapshotRequest{}
+	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportSnapshotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportSnapshotRequest) ProtoMessage() {}
+
+func (x *ExportSnapshotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportSnapshotRequest.ProtoReflect.Descriptor instead.
+func (*ExportSnapshotRequest) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_compute_v1_snapshot_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ExportSnapshotRequest) GetSnapshotId() string {
+	if x != nil {
+		return x.SnapshotId
+	}
+	return ""
+}
+
+func (x *ExportSnapshotRequest) GetDestination() *ExportDestination {
+	if x != nil {
+		return x.Destination
+	}
+	return nil
+}
+
+func (x *ExportSnapshotRequest) GetCredentials() *ExportS3Credentials {
+	if x != nil {
+		return x.Credentials
+	}
+	return nil
+}
+
+type ExportSnapshotMetadata struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the snapshot that is being exported.
+	SnapshotId    string `protobuf:"bytes,1,opt,name=snapshot_id,json=snapshotId,proto3" json:"snapshot_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportSnapshotMetadata) Reset() {
+	*x = ExportSnapshotMetadata{}
+	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportSnapshotMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportSnapshotMetadata) ProtoMessage() {}
+
+func (x *ExportSnapshotMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportSnapshotMetadata.ProtoReflect.Descriptor instead.
+func (*ExportSnapshotMetadata) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_compute_v1_snapshot_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ExportSnapshotMetadata) GetSnapshotId() string {
+	if x != nil {
+		return x.SnapshotId
+	}
+	return ""
+}
+
 type ListSnapshotOperationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the Snapshot resource to list operations for.
@@ -642,7 +753,7 @@ type ListSnapshotOperationsRequest struct {
 
 func (x *ListSnapshotOperationsRequest) Reset() {
 	*x = ListSnapshotOperationsRequest{}
-	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[9]
+	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -654,7 +765,7 @@ func (x *ListSnapshotOperationsRequest) String() string {
 func (*ListSnapshotOperationsRequest) ProtoMessage() {}
 
 func (x *ListSnapshotOperationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[9]
+	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -667,7 +778,7 @@ func (x *ListSnapshotOperationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSnapshotOperationsRequest.ProtoReflect.Descriptor instead.
 func (*ListSnapshotOperationsRequest) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_compute_v1_snapshot_service_proto_rawDescGZIP(), []int{9}
+	return file_yandex_cloud_compute_v1_snapshot_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListSnapshotOperationsRequest) GetSnapshotId() string {
@@ -706,7 +817,7 @@ type ListSnapshotOperationsResponse struct {
 
 func (x *ListSnapshotOperationsResponse) Reset() {
 	*x = ListSnapshotOperationsResponse{}
-	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[10]
+	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -718,7 +829,7 @@ func (x *ListSnapshotOperationsResponse) String() string {
 func (*ListSnapshotOperationsResponse) ProtoMessage() {}
 
 func (x *ListSnapshotOperationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[10]
+	mi := &file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -731,7 +842,7 @@ func (x *ListSnapshotOperationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSnapshotOperationsResponse.ProtoReflect.Descriptor instead.
 func (*ListSnapshotOperationsResponse) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_compute_v1_snapshot_service_proto_rawDescGZIP(), []int{10}
+	return file_yandex_cloud_compute_v1_snapshot_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListSnapshotOperationsResponse) GetOperations() []*operation.Operation {
@@ -752,7 +863,7 @@ var File_yandex_cloud_compute_v1_snapshot_service_proto protoreflect.FileDescrip
 
 const file_yandex_cloud_compute_v1_snapshot_service_proto_rawDesc = "" +
 	"\n" +
-	".yandex/cloud/compute/v1/snapshot_service.proto\x12\x17yandex.cloud.compute.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a1yandex/cloud/compute/v1/hardware_generation.proto\x1a&yandex/cloud/compute/v1/snapshot.proto\x1a&yandex/cloud/operation/operation.proto\"5\n" +
+	".yandex/cloud/compute/v1/snapshot_service.proto\x12\x17yandex.cloud.compute.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a$yandex/cloud/compute/v1/export.proto\x1a1yandex/cloud/compute/v1/hardware_generation.proto\x1a&yandex/cloud/compute/v1/snapshot.proto\x1a&yandex/cloud/operation/operation.proto\"5\n" +
 	"\x12GetSnapshotRequest\x12\x1f\n" +
 	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
 	"snapshotId\"\xa2\x01\n" +
@@ -799,6 +910,14 @@ const file_yandex_cloud_compute_v1_snapshot_service_proto_rawDesc = "" +
 	"snapshotId\"9\n" +
 	"\x16DeleteSnapshotMetadata\x12\x1f\n" +
 	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
+	"snapshotId\"\xd6\x01\n" +
+	"\x15ExportSnapshotRequest\x12\x1f\n" +
+	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
+	"snapshotId\x12L\n" +
+	"\vdestination\x18\x02 \x01(\v2*.yandex.cloud.compute.v1.ExportDestinationR\vdestination\x12N\n" +
+	"\vcredentials\x18\x03 \x01(\v2,.yandex.cloud.compute.v1.ExportS3CredentialsR\vcredentials\"9\n" +
+	"\x16ExportSnapshotMetadata\x12\x1f\n" +
+	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
 	"snapshotId\"|\n" +
 	"\x1dListSnapshotOperationsRequest\x12\x1f\n" +
 	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
@@ -810,7 +929,7 @@ const file_yandex_cloud_compute_v1_snapshot_service_proto_rawDesc = "" +
 	"\n" +
 	"operations\x18\x01 \x03(\v2!.yandex.cloud.operation.OperationR\n" +
 	"operations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xa3\r\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xaf\x0e\n" +
 	"\x0fSnapshotService\x12\x82\x01\n" +
 	"\x03Get\x12+.yandex.cloud.compute.v1.GetSnapshotRequest\x1a!.yandex.cloud.compute.v1.Snapshot\"+\x82\xd3\xe4\x93\x02%\x12#/compute/v1/snapshots/{snapshot_id}\x12\x84\x01\n" +
 	"\x04List\x12-.yandex.cloud.compute.v1.ListSnapshotsRequest\x1a..yandex.cloud.compute.v1.ListSnapshotsResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/compute/v1/snapshots\x12\xa3\x01\n" +
@@ -819,7 +938,9 @@ const file_yandex_cloud_compute_v1_snapshot_service_proto_rawDesc = "" +
 	"\x06Update\x12..yandex.cloud.compute.v1.UpdateSnapshotRequest\x1a!.yandex.cloud.operation.Operation\"T\xb2\xd2*\"\n" +
 	"\x16UpdateSnapshotMetadata\x12\bSnapshot\x82\xd3\xe4\x93\x02(:\x01*2#/compute/v1/snapshots/{snapshot_id}\x12\xbb\x01\n" +
 	"\x06Delete\x12..yandex.cloud.compute.v1.DeleteSnapshotRequest\x1a!.yandex.cloud.operation.Operation\"^\xb2\xd2*/\n" +
-	"\x16DeleteSnapshotMetadata\x12\x15google.protobuf.Empty\x82\xd3\xe4\x93\x02%*#/compute/v1/snapshots/{snapshot_id}\x12\xb9\x01\n" +
+	"\x16DeleteSnapshotMetadata\x12\x15google.protobuf.Empty\x82\xd3\xe4\x93\x02%*#/compute/v1/snapshots/{snapshot_id}\x12\x89\x01\n" +
+	"\x06Export\x12..yandex.cloud.compute.v1.ExportSnapshotRequest\x1a!.yandex.cloud.operation.Operation\",\xb2\xd2*(\n" +
+	"\x16ExportSnapshotMetadata\x12\x0eExportResponse\x12\xb9\x01\n" +
 	"\x0eListOperations\x126.yandex.cloud.compute.v1.ListSnapshotOperationsRequest\x1a7.yandex.cloud.compute.v1.ListSnapshotOperationsResponse\"6\x82\xd3\xe4\x93\x020\x12./compute/v1/snapshots/{snapshot_id}/operations\x12\xb5\x01\n" +
 	"\x12ListAccessBindings\x12..yandex.cloud.access.ListAccessBindingsRequest\x1a/.yandex.cloud.access.ListAccessBindingsResponse\">\x82\xd3\xe4\x93\x028\x126/compute/v1/snapshots/{resource_id}:listAccessBindings\x12\xf4\x01\n" +
 	"\x11SetAccessBindings\x12-.yandex.cloud.access.SetAccessBindingsRequest\x1a!.yandex.cloud.operation.Operation\"\x8c\x01\xb2\xd2*H\n" +
@@ -840,7 +961,7 @@ func file_yandex_cloud_compute_v1_snapshot_service_proto_rawDescGZIP() []byte {
 	return file_yandex_cloud_compute_v1_snapshot_service_proto_rawDescData
 }
 
-var file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_yandex_cloud_compute_v1_snapshot_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_yandex_cloud_compute_v1_snapshot_service_proto_goTypes = []any{
 	(*GetSnapshotRequest)(nil),                 // 0: yandex.cloud.compute.v1.GetSnapshotRequest
 	(*ListSnapshotsRequest)(nil),               // 1: yandex.cloud.compute.v1.ListSnapshotsRequest
@@ -851,49 +972,57 @@ var file_yandex_cloud_compute_v1_snapshot_service_proto_goTypes = []any{
 	(*UpdateSnapshotMetadata)(nil),             // 6: yandex.cloud.compute.v1.UpdateSnapshotMetadata
 	(*DeleteSnapshotRequest)(nil),              // 7: yandex.cloud.compute.v1.DeleteSnapshotRequest
 	(*DeleteSnapshotMetadata)(nil),             // 8: yandex.cloud.compute.v1.DeleteSnapshotMetadata
-	(*ListSnapshotOperationsRequest)(nil),      // 9: yandex.cloud.compute.v1.ListSnapshotOperationsRequest
-	(*ListSnapshotOperationsResponse)(nil),     // 10: yandex.cloud.compute.v1.ListSnapshotOperationsResponse
-	nil,                                        // 11: yandex.cloud.compute.v1.CreateSnapshotRequest.LabelsEntry
-	nil,                                        // 12: yandex.cloud.compute.v1.UpdateSnapshotRequest.LabelsEntry
-	(*Snapshot)(nil),                           // 13: yandex.cloud.compute.v1.Snapshot
-	(*HardwareGeneration)(nil),                 // 14: yandex.cloud.compute.v1.HardwareGeneration
-	(*fieldmaskpb.FieldMask)(nil),              // 15: google.protobuf.FieldMask
-	(*operation.Operation)(nil),                // 16: yandex.cloud.operation.Operation
-	(*access.ListAccessBindingsRequest)(nil),   // 17: yandex.cloud.access.ListAccessBindingsRequest
-	(*access.SetAccessBindingsRequest)(nil),    // 18: yandex.cloud.access.SetAccessBindingsRequest
-	(*access.UpdateAccessBindingsRequest)(nil), // 19: yandex.cloud.access.UpdateAccessBindingsRequest
-	(*access.ListAccessBindingsResponse)(nil),  // 20: yandex.cloud.access.ListAccessBindingsResponse
+	(*ExportSnapshotRequest)(nil),              // 9: yandex.cloud.compute.v1.ExportSnapshotRequest
+	(*ExportSnapshotMetadata)(nil),             // 10: yandex.cloud.compute.v1.ExportSnapshotMetadata
+	(*ListSnapshotOperationsRequest)(nil),      // 11: yandex.cloud.compute.v1.ListSnapshotOperationsRequest
+	(*ListSnapshotOperationsResponse)(nil),     // 12: yandex.cloud.compute.v1.ListSnapshotOperationsResponse
+	nil,                                        // 13: yandex.cloud.compute.v1.CreateSnapshotRequest.LabelsEntry
+	nil,                                        // 14: yandex.cloud.compute.v1.UpdateSnapshotRequest.LabelsEntry
+	(*Snapshot)(nil),                           // 15: yandex.cloud.compute.v1.Snapshot
+	(*HardwareGeneration)(nil),                 // 16: yandex.cloud.compute.v1.HardwareGeneration
+	(*fieldmaskpb.FieldMask)(nil),              // 17: google.protobuf.FieldMask
+	(*ExportDestination)(nil),                  // 18: yandex.cloud.compute.v1.ExportDestination
+	(*ExportS3Credentials)(nil),                // 19: yandex.cloud.compute.v1.ExportS3Credentials
+	(*operation.Operation)(nil),                // 20: yandex.cloud.operation.Operation
+	(*access.ListAccessBindingsRequest)(nil),   // 21: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),    // 22: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil), // 23: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),  // 24: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_compute_v1_snapshot_service_proto_depIdxs = []int32{
-	13, // 0: yandex.cloud.compute.v1.ListSnapshotsResponse.snapshots:type_name -> yandex.cloud.compute.v1.Snapshot
-	11, // 1: yandex.cloud.compute.v1.CreateSnapshotRequest.labels:type_name -> yandex.cloud.compute.v1.CreateSnapshotRequest.LabelsEntry
-	14, // 2: yandex.cloud.compute.v1.CreateSnapshotRequest.hardware_generation:type_name -> yandex.cloud.compute.v1.HardwareGeneration
-	15, // 3: yandex.cloud.compute.v1.UpdateSnapshotRequest.update_mask:type_name -> google.protobuf.FieldMask
-	12, // 4: yandex.cloud.compute.v1.UpdateSnapshotRequest.labels:type_name -> yandex.cloud.compute.v1.UpdateSnapshotRequest.LabelsEntry
-	16, // 5: yandex.cloud.compute.v1.ListSnapshotOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	0,  // 6: yandex.cloud.compute.v1.SnapshotService.Get:input_type -> yandex.cloud.compute.v1.GetSnapshotRequest
-	1,  // 7: yandex.cloud.compute.v1.SnapshotService.List:input_type -> yandex.cloud.compute.v1.ListSnapshotsRequest
-	3,  // 8: yandex.cloud.compute.v1.SnapshotService.Create:input_type -> yandex.cloud.compute.v1.CreateSnapshotRequest
-	5,  // 9: yandex.cloud.compute.v1.SnapshotService.Update:input_type -> yandex.cloud.compute.v1.UpdateSnapshotRequest
-	7,  // 10: yandex.cloud.compute.v1.SnapshotService.Delete:input_type -> yandex.cloud.compute.v1.DeleteSnapshotRequest
-	9,  // 11: yandex.cloud.compute.v1.SnapshotService.ListOperations:input_type -> yandex.cloud.compute.v1.ListSnapshotOperationsRequest
-	17, // 12: yandex.cloud.compute.v1.SnapshotService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
-	18, // 13: yandex.cloud.compute.v1.SnapshotService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
-	19, // 14: yandex.cloud.compute.v1.SnapshotService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
-	13, // 15: yandex.cloud.compute.v1.SnapshotService.Get:output_type -> yandex.cloud.compute.v1.Snapshot
-	2,  // 16: yandex.cloud.compute.v1.SnapshotService.List:output_type -> yandex.cloud.compute.v1.ListSnapshotsResponse
-	16, // 17: yandex.cloud.compute.v1.SnapshotService.Create:output_type -> yandex.cloud.operation.Operation
-	16, // 18: yandex.cloud.compute.v1.SnapshotService.Update:output_type -> yandex.cloud.operation.Operation
-	16, // 19: yandex.cloud.compute.v1.SnapshotService.Delete:output_type -> yandex.cloud.operation.Operation
-	10, // 20: yandex.cloud.compute.v1.SnapshotService.ListOperations:output_type -> yandex.cloud.compute.v1.ListSnapshotOperationsResponse
-	20, // 21: yandex.cloud.compute.v1.SnapshotService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
-	16, // 22: yandex.cloud.compute.v1.SnapshotService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
-	16, // 23: yandex.cloud.compute.v1.SnapshotService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
-	15, // [15:24] is the sub-list for method output_type
-	6,  // [6:15] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	15, // 0: yandex.cloud.compute.v1.ListSnapshotsResponse.snapshots:type_name -> yandex.cloud.compute.v1.Snapshot
+	13, // 1: yandex.cloud.compute.v1.CreateSnapshotRequest.labels:type_name -> yandex.cloud.compute.v1.CreateSnapshotRequest.LabelsEntry
+	16, // 2: yandex.cloud.compute.v1.CreateSnapshotRequest.hardware_generation:type_name -> yandex.cloud.compute.v1.HardwareGeneration
+	17, // 3: yandex.cloud.compute.v1.UpdateSnapshotRequest.update_mask:type_name -> google.protobuf.FieldMask
+	14, // 4: yandex.cloud.compute.v1.UpdateSnapshotRequest.labels:type_name -> yandex.cloud.compute.v1.UpdateSnapshotRequest.LabelsEntry
+	18, // 5: yandex.cloud.compute.v1.ExportSnapshotRequest.destination:type_name -> yandex.cloud.compute.v1.ExportDestination
+	19, // 6: yandex.cloud.compute.v1.ExportSnapshotRequest.credentials:type_name -> yandex.cloud.compute.v1.ExportS3Credentials
+	20, // 7: yandex.cloud.compute.v1.ListSnapshotOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	0,  // 8: yandex.cloud.compute.v1.SnapshotService.Get:input_type -> yandex.cloud.compute.v1.GetSnapshotRequest
+	1,  // 9: yandex.cloud.compute.v1.SnapshotService.List:input_type -> yandex.cloud.compute.v1.ListSnapshotsRequest
+	3,  // 10: yandex.cloud.compute.v1.SnapshotService.Create:input_type -> yandex.cloud.compute.v1.CreateSnapshotRequest
+	5,  // 11: yandex.cloud.compute.v1.SnapshotService.Update:input_type -> yandex.cloud.compute.v1.UpdateSnapshotRequest
+	7,  // 12: yandex.cloud.compute.v1.SnapshotService.Delete:input_type -> yandex.cloud.compute.v1.DeleteSnapshotRequest
+	9,  // 13: yandex.cloud.compute.v1.SnapshotService.Export:input_type -> yandex.cloud.compute.v1.ExportSnapshotRequest
+	11, // 14: yandex.cloud.compute.v1.SnapshotService.ListOperations:input_type -> yandex.cloud.compute.v1.ListSnapshotOperationsRequest
+	21, // 15: yandex.cloud.compute.v1.SnapshotService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	22, // 16: yandex.cloud.compute.v1.SnapshotService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	23, // 17: yandex.cloud.compute.v1.SnapshotService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	15, // 18: yandex.cloud.compute.v1.SnapshotService.Get:output_type -> yandex.cloud.compute.v1.Snapshot
+	2,  // 19: yandex.cloud.compute.v1.SnapshotService.List:output_type -> yandex.cloud.compute.v1.ListSnapshotsResponse
+	20, // 20: yandex.cloud.compute.v1.SnapshotService.Create:output_type -> yandex.cloud.operation.Operation
+	20, // 21: yandex.cloud.compute.v1.SnapshotService.Update:output_type -> yandex.cloud.operation.Operation
+	20, // 22: yandex.cloud.compute.v1.SnapshotService.Delete:output_type -> yandex.cloud.operation.Operation
+	20, // 23: yandex.cloud.compute.v1.SnapshotService.Export:output_type -> yandex.cloud.operation.Operation
+	12, // 24: yandex.cloud.compute.v1.SnapshotService.ListOperations:output_type -> yandex.cloud.compute.v1.ListSnapshotOperationsResponse
+	24, // 25: yandex.cloud.compute.v1.SnapshotService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	20, // 26: yandex.cloud.compute.v1.SnapshotService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	20, // 27: yandex.cloud.compute.v1.SnapshotService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	18, // [18:28] is the sub-list for method output_type
+	8,  // [8:18] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_compute_v1_snapshot_service_proto_init() }
@@ -901,6 +1030,7 @@ func file_yandex_cloud_compute_v1_snapshot_service_proto_init() {
 	if File_yandex_cloud_compute_v1_snapshot_service_proto != nil {
 		return
 	}
+	file_yandex_cloud_compute_v1_export_proto_init()
 	file_yandex_cloud_compute_v1_hardware_generation_proto_init()
 	file_yandex_cloud_compute_v1_snapshot_proto_init()
 	type x struct{}
@@ -909,7 +1039,7 @@ func file_yandex_cloud_compute_v1_snapshot_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_compute_v1_snapshot_service_proto_rawDesc), len(file_yandex_cloud_compute_v1_snapshot_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

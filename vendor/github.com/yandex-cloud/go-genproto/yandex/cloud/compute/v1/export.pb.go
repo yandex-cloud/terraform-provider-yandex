@@ -10,6 +10,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
+	sync "sync"
 	unsafe "unsafe"
 )
 
@@ -20,14 +21,224 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Destination of an export to an S3-compatible storage.
+type ExportDestination struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// HTTP(S) endpoint of an S3-compatible storage.
+	Endpoint string `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	// Signing region; empty when the storage does not use one.
+	Region string `protobuf:"bytes,2,opt,name=region,proto3" json:"region,omitempty"`
+	// The bucket must exist.
+	Bucket string `protobuf:"bytes,3,opt,name=bucket,proto3" json:"bucket,omitempty"`
+	// Optional prefix of the exported objects.
+	Prefix        string `protobuf:"bytes,4,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportDestination) Reset() {
+	*x = ExportDestination{}
+	mi := &file_yandex_cloud_compute_v1_export_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportDestination) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportDestination) ProtoMessage() {}
+
+func (x *ExportDestination) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_compute_v1_export_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportDestination.ProtoReflect.Descriptor instead.
+func (*ExportDestination) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_compute_v1_export_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ExportDestination) GetEndpoint() string {
+	if x != nil {
+		return x.Endpoint
+	}
+	return ""
+}
+
+func (x *ExportDestination) GetRegion() string {
+	if x != nil {
+		return x.Region
+	}
+	return ""
+}
+
+func (x *ExportDestination) GetBucket() string {
+	if x != nil {
+		return x.Bucket
+	}
+	return ""
+}
+
+func (x *ExportDestination) GetPrefix() string {
+	if x != nil {
+		return x.Prefix
+	}
+	return ""
+}
+
+// Credentials used to access the destination storage.
+type ExportS3Credentials struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// S3 Access Key ID
+	AccessKeyId string `protobuf:"bytes,1,opt,name=access_key_id,json=accessKeyId,proto3" json:"access_key_id,omitempty"`
+	// S3 Secret Access Key
+	SecretAccessKey string `protobuf:"bytes,2,opt,name=secret_access_key,json=secretAccessKey,proto3" json:"secret_access_key,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ExportS3Credentials) Reset() {
+	*x = ExportS3Credentials{}
+	mi := &file_yandex_cloud_compute_v1_export_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportS3Credentials) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportS3Credentials) ProtoMessage() {}
+
+func (x *ExportS3Credentials) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_compute_v1_export_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportS3Credentials.ProtoReflect.Descriptor instead.
+func (*ExportS3Credentials) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_compute_v1_export_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ExportS3Credentials) GetAccessKeyId() string {
+	if x != nil {
+		return x.AccessKeyId
+	}
+	return ""
+}
+
+func (x *ExportS3Credentials) GetSecretAccessKey() string {
+	if x != nil {
+		return x.SecretAccessKey
+	}
+	return ""
+}
+
+type ExportResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The bucket where image is exported to
+	Bucket string `protobuf:"bytes,1,opt,name=bucket,proto3" json:"bucket,omitempty"`
+	// File with resulting manifest in S3
+	ManifestKey   string `protobuf:"bytes,2,opt,name=manifest_key,json=manifestKey,proto3" json:"manifest_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportResponse) Reset() {
+	*x = ExportResponse{}
+	mi := &file_yandex_cloud_compute_v1_export_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportResponse) ProtoMessage() {}
+
+func (x *ExportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_compute_v1_export_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportResponse.ProtoReflect.Descriptor instead.
+func (*ExportResponse) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_compute_v1_export_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ExportResponse) GetBucket() string {
+	if x != nil {
+		return x.Bucket
+	}
+	return ""
+}
+
+func (x *ExportResponse) GetManifestKey() string {
+	if x != nil {
+		return x.ManifestKey
+	}
+	return ""
+}
+
 var File_yandex_cloud_compute_v1_export_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_compute_v1_export_proto_rawDesc = "" +
 	"\n" +
-	"$yandex/cloud/compute/v1/export.proto\x12\x17yandex.cloud.compute.v1Bb\n" +
+	"$yandex/cloud/compute/v1/export.proto\x12\x17yandex.cloud.compute.v1\"w\n" +
+	"\x11ExportDestination\x12\x1a\n" +
+	"\bendpoint\x18\x01 \x01(\tR\bendpoint\x12\x16\n" +
+	"\x06region\x18\x02 \x01(\tR\x06region\x12\x16\n" +
+	"\x06bucket\x18\x03 \x01(\tR\x06bucket\x12\x16\n" +
+	"\x06prefix\x18\x04 \x01(\tR\x06prefix\"e\n" +
+	"\x13ExportS3Credentials\x12\"\n" +
+	"\raccess_key_id\x18\x01 \x01(\tR\vaccessKeyId\x12*\n" +
+	"\x11secret_access_key\x18\x02 \x01(\tR\x0fsecretAccessKey\"K\n" +
+	"\x0eExportResponse\x12\x16\n" +
+	"\x06bucket\x18\x01 \x01(\tR\x06bucket\x12!\n" +
+	"\fmanifest_key\x18\x02 \x01(\tR\vmanifestKeyBb\n" +
 	"\x1byandex.cloud.api.compute.v1ZCgithub.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1;computeb\x06proto3"
 
-var file_yandex_cloud_compute_v1_export_proto_goTypes = []any{}
+var (
+	file_yandex_cloud_compute_v1_export_proto_rawDescOnce sync.Once
+	file_yandex_cloud_compute_v1_export_proto_rawDescData []byte
+)
+
+func file_yandex_cloud_compute_v1_export_proto_rawDescGZIP() []byte {
+	file_yandex_cloud_compute_v1_export_proto_rawDescOnce.Do(func() {
+		file_yandex_cloud_compute_v1_export_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_yandex_cloud_compute_v1_export_proto_rawDesc), len(file_yandex_cloud_compute_v1_export_proto_rawDesc)))
+	})
+	return file_yandex_cloud_compute_v1_export_proto_rawDescData
+}
+
+var file_yandex_cloud_compute_v1_export_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_yandex_cloud_compute_v1_export_proto_goTypes = []any{
+	(*ExportDestination)(nil),   // 0: yandex.cloud.compute.v1.ExportDestination
+	(*ExportS3Credentials)(nil), // 1: yandex.cloud.compute.v1.ExportS3Credentials
+	(*ExportResponse)(nil),      // 2: yandex.cloud.compute.v1.ExportResponse
+}
 var file_yandex_cloud_compute_v1_export_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
@@ -47,12 +258,13 @@ func file_yandex_cloud_compute_v1_export_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_compute_v1_export_proto_rawDesc), len(file_yandex_cloud_compute_v1_export_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   0,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_yandex_cloud_compute_v1_export_proto_goTypes,
 		DependencyIndexes: file_yandex_cloud_compute_v1_export_proto_depIdxs,
+		MessageInfos:      file_yandex_cloud_compute_v1_export_proto_msgTypes,
 	}.Build()
 	File_yandex_cloud_compute_v1_export_proto = out.File
 	file_yandex_cloud_compute_v1_export_proto_goTypes = nil

@@ -26,6 +26,7 @@ const (
 	SnapshotService_Create_FullMethodName               = "/yandex.cloud.compute.v1.SnapshotService/Create"
 	SnapshotService_Update_FullMethodName               = "/yandex.cloud.compute.v1.SnapshotService/Update"
 	SnapshotService_Delete_FullMethodName               = "/yandex.cloud.compute.v1.SnapshotService/Delete"
+	SnapshotService_Export_FullMethodName               = "/yandex.cloud.compute.v1.SnapshotService/Export"
 	SnapshotService_ListOperations_FullMethodName       = "/yandex.cloud.compute.v1.SnapshotService/ListOperations"
 	SnapshotService_ListAccessBindings_FullMethodName   = "/yandex.cloud.compute.v1.SnapshotService/ListAccessBindings"
 	SnapshotService_SetAccessBindings_FullMethodName    = "/yandex.cloud.compute.v1.SnapshotService/SetAccessBindings"
@@ -51,6 +52,8 @@ type SnapshotServiceClient interface {
 	// Deletes the specified snapshot.
 	// Deleting a snapshot removes its data permanently and is irreversible.
 	Delete(ctx context.Context, in *DeleteSnapshotRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Exports the specified snapshot to an S3-compatible storage.
+	Export(ctx context.Context, in *ExportSnapshotRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Lists operations for the specified snapshot.
 	ListOperations(ctx context.Context, in *ListSnapshotOperationsRequest, opts ...grpc.CallOption) (*ListSnapshotOperationsResponse, error)
 	// Lists access bindings for the snapshot.
@@ -119,6 +122,16 @@ func (c *snapshotServiceClient) Delete(ctx context.Context, in *DeleteSnapshotRe
 	return out, nil
 }
 
+func (c *snapshotServiceClient) Export(ctx context.Context, in *ExportSnapshotRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, SnapshotService_Export_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *snapshotServiceClient) ListOperations(ctx context.Context, in *ListSnapshotOperationsRequest, opts ...grpc.CallOption) (*ListSnapshotOperationsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListSnapshotOperationsResponse)
@@ -178,6 +191,8 @@ type SnapshotServiceServer interface {
 	// Deletes the specified snapshot.
 	// Deleting a snapshot removes its data permanently and is irreversible.
 	Delete(context.Context, *DeleteSnapshotRequest) (*operation.Operation, error)
+	// Exports the specified snapshot to an S3-compatible storage.
+	Export(context.Context, *ExportSnapshotRequest) (*operation.Operation, error)
 	// Lists operations for the specified snapshot.
 	ListOperations(context.Context, *ListSnapshotOperationsRequest) (*ListSnapshotOperationsResponse, error)
 	// Lists access bindings for the snapshot.
@@ -209,6 +224,9 @@ func (UnimplementedSnapshotServiceServer) Update(context.Context, *UpdateSnapsho
 }
 func (UnimplementedSnapshotServiceServer) Delete(context.Context, *DeleteSnapshotRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedSnapshotServiceServer) Export(context.Context, *ExportSnapshotRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method Export not implemented")
 }
 func (UnimplementedSnapshotServiceServer) ListOperations(context.Context, *ListSnapshotOperationsRequest) (*ListSnapshotOperationsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListOperations not implemented")
@@ -332,6 +350,24 @@ func _SnapshotService_Delete_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SnapshotService_Export_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExportSnapshotRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SnapshotServiceServer).Export(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SnapshotService_Export_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SnapshotServiceServer).Export(ctx, req.(*ExportSnapshotRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SnapshotService_ListOperations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListSnapshotOperationsRequest)
 	if err := dec(in); err != nil {
@@ -430,6 +466,10 @@ var SnapshotService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _SnapshotService_Delete_Handler,
+		},
+		{
+			MethodName: "Export",
+			Handler:    _SnapshotService_Export_Handler,
 		},
 		{
 			MethodName: "ListOperations",

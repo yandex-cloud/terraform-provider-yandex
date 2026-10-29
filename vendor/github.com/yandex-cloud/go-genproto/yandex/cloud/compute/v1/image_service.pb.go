@@ -815,6 +815,117 @@ func (x *DeleteImageMetadata) GetImageId() string {
 	return ""
 }
 
+type ExportImageRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the image to export.
+	// To get the image ID, use a [ImageService.List] request.
+	// The length must be less than or equal to 50.
+	// This field is required.
+	ImageId string `protobuf:"bytes,1,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`
+	// Destination of the export.
+	Destination *ExportDestination `protobuf:"bytes,2,opt,name=destination,proto3" json:"destination,omitempty"`
+	// Credentials used to access the destination storage.
+	Credentials   *ExportS3Credentials `protobuf:"bytes,3,opt,name=credentials,proto3" json:"credentials,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportImageRequest) Reset() {
+	*x = ExportImageRequest{}
+	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportImageRequest) ProtoMessage() {}
+
+func (x *ExportImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportImageRequest.ProtoReflect.Descriptor instead.
+func (*ExportImageRequest) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_compute_v1_image_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ExportImageRequest) GetImageId() string {
+	if x != nil {
+		return x.ImageId
+	}
+	return ""
+}
+
+func (x *ExportImageRequest) GetDestination() *ExportDestination {
+	if x != nil {
+		return x.Destination
+	}
+	return nil
+}
+
+func (x *ExportImageRequest) GetCredentials() *ExportS3Credentials {
+	if x != nil {
+		return x.Credentials
+	}
+	return nil
+}
+
+type ExportImageMetadata struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the image that is being exported.
+	ImageId       string `protobuf:"bytes,1,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExportImageMetadata) Reset() {
+	*x = ExportImageMetadata{}
+	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExportImageMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExportImageMetadata) ProtoMessage() {}
+
+func (x *ExportImageMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExportImageMetadata.ProtoReflect.Descriptor instead.
+func (*ExportImageMetadata) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_compute_v1_image_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ExportImageMetadata) GetImageId() string {
+	if x != nil {
+		return x.ImageId
+	}
+	return ""
+}
+
 type ListImageOperationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the Image resource to list operations for.
@@ -836,7 +947,7 @@ type ListImageOperationsRequest struct {
 
 func (x *ListImageOperationsRequest) Reset() {
 	*x = ListImageOperationsRequest{}
-	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[10]
+	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -848,7 +959,7 @@ func (x *ListImageOperationsRequest) String() string {
 func (*ListImageOperationsRequest) ProtoMessage() {}
 
 func (x *ListImageOperationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[10]
+	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -861,7 +972,7 @@ func (x *ListImageOperationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListImageOperationsRequest.ProtoReflect.Descriptor instead.
 func (*ListImageOperationsRequest) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_compute_v1_image_service_proto_rawDescGZIP(), []int{10}
+	return file_yandex_cloud_compute_v1_image_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListImageOperationsRequest) GetImageId() string {
@@ -900,7 +1011,7 @@ type ListImageOperationsResponse struct {
 
 func (x *ListImageOperationsResponse) Reset() {
 	*x = ListImageOperationsResponse{}
-	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[11]
+	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -912,7 +1023,7 @@ func (x *ListImageOperationsResponse) String() string {
 func (*ListImageOperationsResponse) ProtoMessage() {}
 
 func (x *ListImageOperationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[11]
+	mi := &file_yandex_cloud_compute_v1_image_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -925,7 +1036,7 @@ func (x *ListImageOperationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListImageOperationsResponse.ProtoReflect.Descriptor instead.
 func (*ListImageOperationsResponse) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_compute_v1_image_service_proto_rawDescGZIP(), []int{11}
+	return file_yandex_cloud_compute_v1_image_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListImageOperationsResponse) GetOperations() []*operation.Operation {
@@ -946,7 +1057,7 @@ var File_yandex_cloud_compute_v1_image_service_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_compute_v1_image_service_proto_rawDesc = "" +
 	"\n" +
-	"+yandex/cloud/compute/v1/image_service.proto\x12\x17yandex.cloud.compute.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a1yandex/cloud/compute/v1/hardware_generation.proto\x1a#yandex/cloud/compute/v1/image.proto\x1a&yandex/cloud/operation/operation.proto\",\n" +
+	"+yandex/cloud/compute/v1/image_service.proto\x12\x17yandex.cloud.compute.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a$yandex/cloud/compute/v1/export.proto\x1a1yandex/cloud/compute/v1/hardware_generation.proto\x1a#yandex/cloud/compute/v1/image.proto\x1a&yandex/cloud/operation/operation.proto\",\n" +
 	"\x0fGetImageRequest\x12\x19\n" +
 	"\bimage_id\x18\x01 \x01(\tR\aimageId\"T\n" +
 	"\x1dGetImageLatestByFamilyRequest\x12\x1b\n" +
@@ -1002,6 +1113,12 @@ const file_yandex_cloud_compute_v1_image_service_proto_rawDesc = "" +
 	"\x12DeleteImageRequest\x12\x19\n" +
 	"\bimage_id\x18\x01 \x01(\tR\aimageId\"0\n" +
 	"\x13DeleteImageMetadata\x12\x19\n" +
+	"\bimage_id\x18\x01 \x01(\tR\aimageId\"\xcd\x01\n" +
+	"\x12ExportImageRequest\x12\x19\n" +
+	"\bimage_id\x18\x01 \x01(\tR\aimageId\x12L\n" +
+	"\vdestination\x18\x02 \x01(\v2*.yandex.cloud.compute.v1.ExportDestinationR\vdestination\x12N\n" +
+	"\vcredentials\x18\x03 \x01(\v2,.yandex.cloud.compute.v1.ExportS3CredentialsR\vcredentials\"0\n" +
+	"\x13ExportImageMetadata\x12\x19\n" +
 	"\bimage_id\x18\x01 \x01(\tR\aimageId\"s\n" +
 	"\x1aListImageOperationsRequest\x12\x19\n" +
 	"\bimage_id\x18\x01 \x01(\tR\aimageId\x12\x1b\n" +
@@ -1012,7 +1129,7 @@ const file_yandex_cloud_compute_v1_image_service_proto_rawDesc = "" +
 	"\n" +
 	"operations\x18\x01 \x03(\v2!.yandex.cloud.operation.OperationR\n" +
 	"operations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xe6\r\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xec\x0e\n" +
 	"\fImageService\x12v\n" +
 	"\x03Get\x12(.yandex.cloud.compute.v1.GetImageRequest\x1a\x1e.yandex.cloud.compute.v1.Image\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/compute/v1/images/{image_id}\x12\x96\x01\n" +
 	"\x11GetLatestByFamily\x126.yandex.cloud.compute.v1.GetImageLatestByFamilyRequest\x1a\x1e.yandex.cloud.compute.v1.Image\")\x82\xd3\xe4\x93\x02#\x12!/compute/v1/images:latestByFamily\x12{\n" +
@@ -1022,7 +1139,9 @@ const file_yandex_cloud_compute_v1_image_service_proto_rawDesc = "" +
 	"\x06Update\x12+.yandex.cloud.compute.v1.UpdateImageRequest\x1a!.yandex.cloud.operation.Operation\"H\xb2\xd2*\x1c\n" +
 	"\x13UpdateImageMetadata\x12\x05Image\x82\xd3\xe4\x93\x02\":\x01*2\x1d/compute/v1/images/{image_id}\x12\xaf\x01\n" +
 	"\x06Delete\x12+.yandex.cloud.compute.v1.DeleteImageRequest\x1a!.yandex.cloud.operation.Operation\"U\xb2\xd2*,\n" +
-	"\x13DeleteImageMetadata\x12\x15google.protobuf.Empty\x82\xd3\xe4\x93\x02\x1f*\x1d/compute/v1/images/{image_id}\x12\xad\x01\n" +
+	"\x13DeleteImageMetadata\x12\x15google.protobuf.Empty\x82\xd3\xe4\x93\x02\x1f*\x1d/compute/v1/images/{image_id}\x12\x83\x01\n" +
+	"\x06Export\x12+.yandex.cloud.compute.v1.ExportImageRequest\x1a!.yandex.cloud.operation.Operation\")\xb2\xd2*%\n" +
+	"\x13ExportImageMetadata\x12\x0eExportResponse\x12\xad\x01\n" +
 	"\x0eListOperations\x123.yandex.cloud.compute.v1.ListImageOperationsRequest\x1a4.yandex.cloud.compute.v1.ListImageOperationsResponse\"0\x82\xd3\xe4\x93\x02*\x12(/compute/v1/images/{image_id}/operations\x12\xb2\x01\n" +
 	"\x12ListAccessBindings\x12..yandex.cloud.access.ListAccessBindingsRequest\x1a/.yandex.cloud.access.ListAccessBindingsResponse\";\x82\xd3\xe4\x93\x025\x123/compute/v1/images/{resource_id}:listAccessBindings\x12\xf1\x01\n" +
 	"\x11SetAccessBindings\x12-.yandex.cloud.access.SetAccessBindingsRequest\x1a!.yandex.cloud.operation.Operation\"\x89\x01\xb2\xd2*H\n" +
@@ -1043,7 +1162,7 @@ func file_yandex_cloud_compute_v1_image_service_proto_rawDescGZIP() []byte {
 	return file_yandex_cloud_compute_v1_image_service_proto_rawDescData
 }
 
-var file_yandex_cloud_compute_v1_image_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_yandex_cloud_compute_v1_image_service_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_yandex_cloud_compute_v1_image_service_proto_goTypes = []any{
 	(*GetImageRequest)(nil),                    // 0: yandex.cloud.compute.v1.GetImageRequest
 	(*GetImageLatestByFamilyRequest)(nil),      // 1: yandex.cloud.compute.v1.GetImageLatestByFamilyRequest
@@ -1055,53 +1174,61 @@ var file_yandex_cloud_compute_v1_image_service_proto_goTypes = []any{
 	(*UpdateImageMetadata)(nil),                // 7: yandex.cloud.compute.v1.UpdateImageMetadata
 	(*DeleteImageRequest)(nil),                 // 8: yandex.cloud.compute.v1.DeleteImageRequest
 	(*DeleteImageMetadata)(nil),                // 9: yandex.cloud.compute.v1.DeleteImageMetadata
-	(*ListImageOperationsRequest)(nil),         // 10: yandex.cloud.compute.v1.ListImageOperationsRequest
-	(*ListImageOperationsResponse)(nil),        // 11: yandex.cloud.compute.v1.ListImageOperationsResponse
-	nil,                                        // 12: yandex.cloud.compute.v1.CreateImageRequest.LabelsEntry
-	nil,                                        // 13: yandex.cloud.compute.v1.UpdateImageRequest.LabelsEntry
-	(*Image)(nil),                              // 14: yandex.cloud.compute.v1.Image
-	(*Os)(nil),                                 // 15: yandex.cloud.compute.v1.Os
-	(*HardwareGeneration)(nil),                 // 16: yandex.cloud.compute.v1.HardwareGeneration
-	(*fieldmaskpb.FieldMask)(nil),              // 17: google.protobuf.FieldMask
-	(*operation.Operation)(nil),                // 18: yandex.cloud.operation.Operation
-	(*access.ListAccessBindingsRequest)(nil),   // 19: yandex.cloud.access.ListAccessBindingsRequest
-	(*access.SetAccessBindingsRequest)(nil),    // 20: yandex.cloud.access.SetAccessBindingsRequest
-	(*access.UpdateAccessBindingsRequest)(nil), // 21: yandex.cloud.access.UpdateAccessBindingsRequest
-	(*access.ListAccessBindingsResponse)(nil),  // 22: yandex.cloud.access.ListAccessBindingsResponse
+	(*ExportImageRequest)(nil),                 // 10: yandex.cloud.compute.v1.ExportImageRequest
+	(*ExportImageMetadata)(nil),                // 11: yandex.cloud.compute.v1.ExportImageMetadata
+	(*ListImageOperationsRequest)(nil),         // 12: yandex.cloud.compute.v1.ListImageOperationsRequest
+	(*ListImageOperationsResponse)(nil),        // 13: yandex.cloud.compute.v1.ListImageOperationsResponse
+	nil,                                        // 14: yandex.cloud.compute.v1.CreateImageRequest.LabelsEntry
+	nil,                                        // 15: yandex.cloud.compute.v1.UpdateImageRequest.LabelsEntry
+	(*Image)(nil),                              // 16: yandex.cloud.compute.v1.Image
+	(*Os)(nil),                                 // 17: yandex.cloud.compute.v1.Os
+	(*HardwareGeneration)(nil),                 // 18: yandex.cloud.compute.v1.HardwareGeneration
+	(*fieldmaskpb.FieldMask)(nil),              // 19: google.protobuf.FieldMask
+	(*ExportDestination)(nil),                  // 20: yandex.cloud.compute.v1.ExportDestination
+	(*ExportS3Credentials)(nil),                // 21: yandex.cloud.compute.v1.ExportS3Credentials
+	(*operation.Operation)(nil),                // 22: yandex.cloud.operation.Operation
+	(*access.ListAccessBindingsRequest)(nil),   // 23: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),    // 24: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil), // 25: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),  // 26: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_compute_v1_image_service_proto_depIdxs = []int32{
-	14, // 0: yandex.cloud.compute.v1.ListImagesResponse.images:type_name -> yandex.cloud.compute.v1.Image
-	12, // 1: yandex.cloud.compute.v1.CreateImageRequest.labels:type_name -> yandex.cloud.compute.v1.CreateImageRequest.LabelsEntry
-	15, // 2: yandex.cloud.compute.v1.CreateImageRequest.os:type_name -> yandex.cloud.compute.v1.Os
-	16, // 3: yandex.cloud.compute.v1.CreateImageRequest.hardware_generation:type_name -> yandex.cloud.compute.v1.HardwareGeneration
-	17, // 4: yandex.cloud.compute.v1.UpdateImageRequest.update_mask:type_name -> google.protobuf.FieldMask
-	13, // 5: yandex.cloud.compute.v1.UpdateImageRequest.labels:type_name -> yandex.cloud.compute.v1.UpdateImageRequest.LabelsEntry
-	18, // 6: yandex.cloud.compute.v1.ListImageOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	0,  // 7: yandex.cloud.compute.v1.ImageService.Get:input_type -> yandex.cloud.compute.v1.GetImageRequest
-	1,  // 8: yandex.cloud.compute.v1.ImageService.GetLatestByFamily:input_type -> yandex.cloud.compute.v1.GetImageLatestByFamilyRequest
-	2,  // 9: yandex.cloud.compute.v1.ImageService.List:input_type -> yandex.cloud.compute.v1.ListImagesRequest
-	4,  // 10: yandex.cloud.compute.v1.ImageService.Create:input_type -> yandex.cloud.compute.v1.CreateImageRequest
-	6,  // 11: yandex.cloud.compute.v1.ImageService.Update:input_type -> yandex.cloud.compute.v1.UpdateImageRequest
-	8,  // 12: yandex.cloud.compute.v1.ImageService.Delete:input_type -> yandex.cloud.compute.v1.DeleteImageRequest
-	10, // 13: yandex.cloud.compute.v1.ImageService.ListOperations:input_type -> yandex.cloud.compute.v1.ListImageOperationsRequest
-	19, // 14: yandex.cloud.compute.v1.ImageService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
-	20, // 15: yandex.cloud.compute.v1.ImageService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
-	21, // 16: yandex.cloud.compute.v1.ImageService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
-	14, // 17: yandex.cloud.compute.v1.ImageService.Get:output_type -> yandex.cloud.compute.v1.Image
-	14, // 18: yandex.cloud.compute.v1.ImageService.GetLatestByFamily:output_type -> yandex.cloud.compute.v1.Image
-	3,  // 19: yandex.cloud.compute.v1.ImageService.List:output_type -> yandex.cloud.compute.v1.ListImagesResponse
-	18, // 20: yandex.cloud.compute.v1.ImageService.Create:output_type -> yandex.cloud.operation.Operation
-	18, // 21: yandex.cloud.compute.v1.ImageService.Update:output_type -> yandex.cloud.operation.Operation
-	18, // 22: yandex.cloud.compute.v1.ImageService.Delete:output_type -> yandex.cloud.operation.Operation
-	11, // 23: yandex.cloud.compute.v1.ImageService.ListOperations:output_type -> yandex.cloud.compute.v1.ListImageOperationsResponse
-	22, // 24: yandex.cloud.compute.v1.ImageService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
-	18, // 25: yandex.cloud.compute.v1.ImageService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
-	18, // 26: yandex.cloud.compute.v1.ImageService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
-	17, // [17:27] is the sub-list for method output_type
-	7,  // [7:17] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	16, // 0: yandex.cloud.compute.v1.ListImagesResponse.images:type_name -> yandex.cloud.compute.v1.Image
+	14, // 1: yandex.cloud.compute.v1.CreateImageRequest.labels:type_name -> yandex.cloud.compute.v1.CreateImageRequest.LabelsEntry
+	17, // 2: yandex.cloud.compute.v1.CreateImageRequest.os:type_name -> yandex.cloud.compute.v1.Os
+	18, // 3: yandex.cloud.compute.v1.CreateImageRequest.hardware_generation:type_name -> yandex.cloud.compute.v1.HardwareGeneration
+	19, // 4: yandex.cloud.compute.v1.UpdateImageRequest.update_mask:type_name -> google.protobuf.FieldMask
+	15, // 5: yandex.cloud.compute.v1.UpdateImageRequest.labels:type_name -> yandex.cloud.compute.v1.UpdateImageRequest.LabelsEntry
+	20, // 6: yandex.cloud.compute.v1.ExportImageRequest.destination:type_name -> yandex.cloud.compute.v1.ExportDestination
+	21, // 7: yandex.cloud.compute.v1.ExportImageRequest.credentials:type_name -> yandex.cloud.compute.v1.ExportS3Credentials
+	22, // 8: yandex.cloud.compute.v1.ListImageOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	0,  // 9: yandex.cloud.compute.v1.ImageService.Get:input_type -> yandex.cloud.compute.v1.GetImageRequest
+	1,  // 10: yandex.cloud.compute.v1.ImageService.GetLatestByFamily:input_type -> yandex.cloud.compute.v1.GetImageLatestByFamilyRequest
+	2,  // 11: yandex.cloud.compute.v1.ImageService.List:input_type -> yandex.cloud.compute.v1.ListImagesRequest
+	4,  // 12: yandex.cloud.compute.v1.ImageService.Create:input_type -> yandex.cloud.compute.v1.CreateImageRequest
+	6,  // 13: yandex.cloud.compute.v1.ImageService.Update:input_type -> yandex.cloud.compute.v1.UpdateImageRequest
+	8,  // 14: yandex.cloud.compute.v1.ImageService.Delete:input_type -> yandex.cloud.compute.v1.DeleteImageRequest
+	10, // 15: yandex.cloud.compute.v1.ImageService.Export:input_type -> yandex.cloud.compute.v1.ExportImageRequest
+	12, // 16: yandex.cloud.compute.v1.ImageService.ListOperations:input_type -> yandex.cloud.compute.v1.ListImageOperationsRequest
+	23, // 17: yandex.cloud.compute.v1.ImageService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	24, // 18: yandex.cloud.compute.v1.ImageService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	25, // 19: yandex.cloud.compute.v1.ImageService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	16, // 20: yandex.cloud.compute.v1.ImageService.Get:output_type -> yandex.cloud.compute.v1.Image
+	16, // 21: yandex.cloud.compute.v1.ImageService.GetLatestByFamily:output_type -> yandex.cloud.compute.v1.Image
+	3,  // 22: yandex.cloud.compute.v1.ImageService.List:output_type -> yandex.cloud.compute.v1.ListImagesResponse
+	22, // 23: yandex.cloud.compute.v1.ImageService.Create:output_type -> yandex.cloud.operation.Operation
+	22, // 24: yandex.cloud.compute.v1.ImageService.Update:output_type -> yandex.cloud.operation.Operation
+	22, // 25: yandex.cloud.compute.v1.ImageService.Delete:output_type -> yandex.cloud.operation.Operation
+	22, // 26: yandex.cloud.compute.v1.ImageService.Export:output_type -> yandex.cloud.operation.Operation
+	13, // 27: yandex.cloud.compute.v1.ImageService.ListOperations:output_type -> yandex.cloud.compute.v1.ListImageOperationsResponse
+	26, // 28: yandex.cloud.compute.v1.ImageService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	22, // 29: yandex.cloud.compute.v1.ImageService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	22, // 30: yandex.cloud.compute.v1.ImageService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	20, // [20:31] is the sub-list for method output_type
+	9,  // [9:20] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_compute_v1_image_service_proto_init() }
@@ -1109,6 +1236,7 @@ func file_yandex_cloud_compute_v1_image_service_proto_init() {
 	if File_yandex_cloud_compute_v1_image_service_proto != nil {
 		return
 	}
+	file_yandex_cloud_compute_v1_export_proto_init()
 	file_yandex_cloud_compute_v1_hardware_generation_proto_init()
 	file_yandex_cloud_compute_v1_image_proto_init()
 	file_yandex_cloud_compute_v1_image_service_proto_msgTypes[4].OneofWrappers = []any{
@@ -1123,7 +1251,7 @@ func file_yandex_cloud_compute_v1_image_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_compute_v1_image_service_proto_rawDesc), len(file_yandex_cloud_compute_v1_image_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

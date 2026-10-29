@@ -42,6 +42,7 @@ type ClusterClient interface {
 	GetShard(context.Context, *spqr.GetClusterShardRequest, ...grpc.CallOption) (*spqr.Shard, error)
 	ListShards(context.Context, *spqr.ListClusterShardsRequest, ...grpc.CallOption) (*spqr.ListClusterShardsResponse, error)
 	AddShard(context.Context, *spqr.AddClusterShardRequest, ...grpc.CallOption) (*ClusterAddShardOperation, error)
+	UpdateShard(context.Context, *spqr.UpdateClusterShardRequest, ...grpc.CallOption) (*ClusterUpdateShardOperation, error)
 	DeleteShard(context.Context, *spqr.DeleteClusterShardRequest, ...grpc.CallOption) (*ClusterDeleteShardOperation, error)
 	ListAccessBindings(context.Context, *access.ListAccessBindingsRequest, ...grpc.CallOption) (*access.ListAccessBindingsResponse, error)
 	SetAccessBindings(context.Context, *access.SetAccessBindingsRequest, ...grpc.CallOption) (*ClusterSetAccessBindingsOperation, error)
@@ -950,6 +951,60 @@ func (c clusterClient) AddShard(ctx context.Context, in *spqr.AddClusterShardReq
 	return &ClusterAddShardOperation{*op}, nil
 }
 
+// ClusterUpdateShardOperation is used to monitor the state of UpdateShard operations.
+type ClusterUpdateShardOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *ClusterUpdateShardOperation) Metadata() *spqr.UpdateClusterShardMetadata {
+	return o.Operation.Metadata().(*spqr.UpdateClusterShardMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *ClusterUpdateShardOperation) Response() *spqr.Shard {
+	return o.Operation.Response().(*spqr.Shard)
+}
+
+// Wait polls the operation until it's done.
+func (o *ClusterUpdateShardOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*spqr.Shard, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*spqr.Shard)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *ClusterUpdateShardOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*spqr.Shard, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*spqr.Shard)
+	return response, err
+}
+
+// UpdateShard is an operation of Yandex.Cloud Spqr Cluster service.
+// It returns an object which should be used to monitor the operation state.
+func (c clusterClient) UpdateShard(ctx context.Context, in *spqr.UpdateClusterShardRequest, opts ...grpc.CallOption) (*ClusterUpdateShardOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, ClusterUpdateShard, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := spqr.NewClusterServiceClient(connection).UpdateShard(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll: c.pollOperation,
+		GetResourceID: func(metadata proto.Message) string {
+			return metadata.(*spqr.UpdateClusterShardMetadata).GetClusterId()
+		},
+		MetadataType: (*spqr.UpdateClusterShardMetadata)(nil),
+		ResponseType: (*spqr.Shard)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ClusterUpdateShardOperation{*op}, nil
+}
+
 // ClusterDeleteShardOperation is used to monitor the state of DeleteShard operations.
 type ClusterDeleteShardOperation struct {
 	sdkop.Operation
@@ -1149,6 +1204,7 @@ var (
 	ClusterGetShard              = protoreflect.FullName("yandex.cloud.mdb.spqr.v1.ClusterService.GetShard")
 	ClusterListShards            = protoreflect.FullName("yandex.cloud.mdb.spqr.v1.ClusterService.ListShards")
 	ClusterAddShard              = protoreflect.FullName("yandex.cloud.mdb.spqr.v1.ClusterService.AddShard")
+	ClusterUpdateShard           = protoreflect.FullName("yandex.cloud.mdb.spqr.v1.ClusterService.UpdateShard")
 	ClusterDeleteShard           = protoreflect.FullName("yandex.cloud.mdb.spqr.v1.ClusterService.DeleteShard")
 	ClusterListAccessBindings    = protoreflect.FullName("yandex.cloud.mdb.spqr.v1.ClusterService.ListAccessBindings")
 	ClusterSetAccessBindings     = protoreflect.FullName("yandex.cloud.mdb.spqr.v1.ClusterService.SetAccessBindings")

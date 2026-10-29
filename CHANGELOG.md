@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.242.0 (October 29, 2026)
+
+##### FEATURES:
+* cic: add the `yandex_cic_private_connection` resource and data source, and the `yandex_cic_public_connection`, `yandex_cic_trunk_connection`, `yandex_cic_partner`, and `yandex_cic_point_of_presence` data sources
+
+
+
 ## 0.241.0 (October 28, 2026)
 
 ##### WARNING:

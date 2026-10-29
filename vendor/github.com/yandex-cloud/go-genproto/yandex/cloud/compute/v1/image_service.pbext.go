@@ -157,6 +157,22 @@ func (m *DeleteImageMetadata) SetImageId(v string) {
 	m.ImageId = v
 }
 
+func (m *ExportImageRequest) SetImageId(v string) {
+	m.ImageId = v
+}
+
+func (m *ExportImageRequest) SetDestination(v *ExportDestination) {
+	m.Destination = v
+}
+
+func (m *ExportImageRequest) SetCredentials(v *ExportS3Credentials) {
+	m.Credentials = v
+}
+
+func (m *ExportImageMetadata) SetImageId(v string) {
+	m.ImageId = v
+}
+
 func (m *ListImageOperationsRequest) SetImageId(v string) {
 	m.ImageId = v
 }

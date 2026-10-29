@@ -586,7 +586,7 @@ type Master struct {
 	MaintenancePolicy *MasterMaintenancePolicy `protobuf:"bytes,6,opt,name=maintenance_policy,json=maintenancePolicy,proto3" json:"maintenance_policy,omitempty"`
 	// Master security groups.
 	SecurityGroupIds []string `protobuf:"bytes,8,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
-	// Cloud Logging for master components.
+	// Export configuration of master logs.
 	MasterLogging *MasterLogging `protobuf:"bytes,9,opt,name=master_logging,json=masterLogging,proto3" json:"master_logging,omitempty"`
 	// Computing resources of each master instance such as the amount of memory and number of cores.
 	Resources *MasterResources `protobuf:"bytes,12,opt,name=resources,proto3" json:"resources,omitempty"`
@@ -939,7 +939,7 @@ func (x *MasterAuth) GetClusterCaCertificate() string {
 
 type MasterLogging struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Identifies whether Cloud Logging is enabled for master components.
+	// Specifies whether master logs should be exported.
 	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// The destination of master components' logs.
 	//
@@ -948,13 +948,17 @@ type MasterLogging struct {
 	//	*MasterLogging_LogGroupId
 	//	*MasterLogging_FolderId
 	Destination isMasterLogging_Destination `protobuf_oneof:"destination"`
-	// Identifies whether Cloud Logging is enabled for audit logs.
+	// Specifies whether audit logs should be exported
+	// when master log delivery is enabled.
 	AuditEnabled bool `protobuf:"varint,4,opt,name=audit_enabled,json=auditEnabled,proto3" json:"audit_enabled,omitempty"`
-	// Identifies whether Cloud Logging is enabled for cluster-autoscaler.
+	// Specifies whether cluster-autoscaler logs should be exported
+	// when master log delivery is enabled.
 	ClusterAutoscalerEnabled bool `protobuf:"varint,5,opt,name=cluster_autoscaler_enabled,json=clusterAutoscalerEnabled,proto3" json:"cluster_autoscaler_enabled,omitempty"`
-	// Identifies whether Cloud Logging is enabled for kube-apiserver.
+	// Specifies whether kube-apiserver logs should be exported
+	// when master log delivery is enabled.
 	KubeApiserverEnabled bool `protobuf:"varint,6,opt,name=kube_apiserver_enabled,json=kubeApiserverEnabled,proto3" json:"kube_apiserver_enabled,omitempty"`
-	// Identifies whether Cloud Logging is enabled for events.
+	// Specifies whether Kubernetes events should be exported
+	// when master log delivery is enabled.
 	EventsEnabled bool `protobuf:"varint,7,opt,name=events_enabled,json=eventsEnabled,proto3" json:"events_enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1004,6 +1008,7 @@ func (x *MasterLogging) GetDestination() isMasterLogging_Destination {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/k8s/v1/cluster.proto.
 func (x *MasterLogging) GetLogGroupId() string {
 	if x != nil {
 		if x, ok := x.Destination.(*MasterLogging_LogGroupId); ok {
@@ -1056,11 +1061,14 @@ type isMasterLogging_Destination interface {
 
 type MasterLogging_LogGroupId struct {
 	// ID of the log group where logs of master components should be stored.
+	// Deprecated: Cloud Logging is no longer supported; this field has no effect.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/k8s/v1/cluster.proto.
 	LogGroupId string `protobuf:"bytes,2,opt,name=log_group_id,json=logGroupId,proto3,oneof"`
 }
 
 type MasterLogging_FolderId struct {
-	// ID of the folder where logs should be stored (in default group).
+	// ID of the folder where logs should be stored.
 	FolderId string `protobuf:"bytes,3,opt,name=folder_id,json=folderId,proto3,oneof"`
 }
 
@@ -1857,10 +1865,10 @@ const file_yandex_cloud_k8s_v1_cluster_proto_rawDesc = "" +
 	"scale_type\x12\x04\xc0\xc11\x01\"B\n" +
 	"\n" +
 	"MasterAuth\x124\n" +
-	"\x16cluster_ca_certificate\x18\x01 \x01(\tR\x14clusterCaCertificate\"\x85\x03\n" +
+	"\x16cluster_ca_certificate\x18\x01 \x01(\tR\x14clusterCaCertificate\"\x87\x03\n" +
 	"\rMasterLogging\x12\x18\n" +
-	"\aenabled\x18\x01 \x01(\bR\aenabled\x12G\n" +
-	"\flog_group_id\x18\x02 \x01(\tB#\xf2\xc71\x1f([a-zA-Z][-a-zA-Z0-9_.]{0,63})?H\x00R\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12I\n" +
+	"\flog_group_id\x18\x02 \x01(\tB%\xf2\xc71\x1f([a-zA-Z][-a-zA-Z0-9_.]{0,63})?\x18\x01H\x00R\n" +
 	"logGroupId\x12B\n" +
 	"\tfolder_id\x18\x03 \x01(\tB#\xf2\xc71\x1f([a-zA-Z][-a-zA-Z0-9_.]{0,63})?H\x00R\bfolderId\x12#\n" +
 	"\raudit_enabled\x18\x04 \x01(\bR\fauditEnabled\x12<\n" +

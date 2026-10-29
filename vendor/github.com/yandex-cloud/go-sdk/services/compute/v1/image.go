@@ -24,6 +24,7 @@ type ImageClient interface {
 	Create(context.Context, *compute.CreateImageRequest, ...grpc.CallOption) (*ImageCreateOperation, error)
 	Update(context.Context, *compute.UpdateImageRequest, ...grpc.CallOption) (*ImageUpdateOperation, error)
 	Delete(context.Context, *compute.DeleteImageRequest, ...grpc.CallOption) (*ImageDeleteOperation, error)
+	Export(context.Context, *compute.ExportImageRequest, ...grpc.CallOption) (*ImageExportOperation, error)
 	ListOperations(context.Context, *compute.ListImageOperationsRequest, ...grpc.CallOption) (*compute.ListImageOperationsResponse, error)
 	ListAccessBindings(context.Context, *access.ListAccessBindingsRequest, ...grpc.CallOption) (*access.ListAccessBindingsResponse, error)
 	SetAccessBindings(context.Context, *access.SetAccessBindingsRequest, ...grpc.CallOption) (*ImageSetAccessBindingsOperation, error)
@@ -230,6 +231,60 @@ func (c imageClient) Delete(ctx context.Context, in *compute.DeleteImageRequest,
 	return &ImageDeleteOperation{*op}, nil
 }
 
+// ImageExportOperation is used to monitor the state of Export operations.
+type ImageExportOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *ImageExportOperation) Metadata() *compute.ExportImageMetadata {
+	return o.Operation.Metadata().(*compute.ExportImageMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *ImageExportOperation) Response() *compute.ExportResponse {
+	return o.Operation.Response().(*compute.ExportResponse)
+}
+
+// Wait polls the operation until it's done.
+func (o *ImageExportOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*compute.ExportResponse, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*compute.ExportResponse)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *ImageExportOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*compute.ExportResponse, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*compute.ExportResponse)
+	return response, err
+}
+
+// Export is an operation of Yandex.Cloud Compute Image service.
+// It returns an object which should be used to monitor the operation state.
+func (c imageClient) Export(ctx context.Context, in *compute.ExportImageRequest, opts ...grpc.CallOption) (*ImageExportOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, ImageExport, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := compute.NewImageServiceClient(connection).Export(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll: c.pollOperation,
+		GetResourceID: func(metadata proto.Message) string {
+			return metadata.(*compute.ExportImageMetadata).GetImageId()
+		},
+		MetadataType: (*compute.ExportImageMetadata)(nil),
+		ResponseType: (*compute.ExportResponse)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ImageExportOperation{*op}, nil
+}
+
 // ListOperations is an operation of Yandex.Cloud Compute Image service.
 func (c imageClient) ListOperations(ctx context.Context, in *compute.ListImageOperationsRequest, opts ...grpc.CallOption) (*compute.ListImageOperationsResponse, error) {
 	connection, err := c.connector.GetConnection(ctx, ImageListOperations, opts...)
@@ -366,6 +421,7 @@ var (
 	ImageCreate               = protoreflect.FullName("yandex.cloud.compute.v1.ImageService.Create")
 	ImageUpdate               = protoreflect.FullName("yandex.cloud.compute.v1.ImageService.Update")
 	ImageDelete               = protoreflect.FullName("yandex.cloud.compute.v1.ImageService.Delete")
+	ImageExport               = protoreflect.FullName("yandex.cloud.compute.v1.ImageService.Export")
 	ImageListOperations       = protoreflect.FullName("yandex.cloud.compute.v1.ImageService.ListOperations")
 	ImageListAccessBindings   = protoreflect.FullName("yandex.cloud.compute.v1.ImageService.ListAccessBindings")
 	ImageSetAccessBindings    = protoreflect.FullName("yandex.cloud.compute.v1.ImageService.SetAccessBindings")

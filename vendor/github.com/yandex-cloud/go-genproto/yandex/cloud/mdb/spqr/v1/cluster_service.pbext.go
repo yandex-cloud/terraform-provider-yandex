@@ -663,6 +663,22 @@ func (m *AddClusterShardMetadata) SetShardName(v string) {
 	m.ShardName = v
 }
 
+func (m *UpdateClusterShardRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *UpdateClusterShardRequest) SetShardSpec(v *ShardSpec) {
+	m.ShardSpec = v
+}
+
+func (m *UpdateClusterShardMetadata) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *UpdateClusterShardMetadata) SetShardName(v string) {
+	m.ShardName = v
+}
+
 func (m *DeleteClusterShardRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }
