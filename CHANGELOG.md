@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.243.0 (October 30, 2026)
+
+##### BUG FIXES:
+* storage: fix test sweeper cleanup of locked object versions and delete markers
+
+
+
 ## 0.242.0 (October 29, 2026)
 
 ##### FEATURES:

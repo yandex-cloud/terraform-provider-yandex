@@ -336,6 +336,10 @@ func (m *RestoreClusterRequest) SetMaintenanceWindows(v *v1.MaintenanceWindows) 
 	m.MaintenanceWindows = v
 }
 
+func (m *RestoreClusterRequest) SetIgnoreCloudStorageData(v bool) {
+	m.IgnoreCloudStorageData = v
+}
+
 func (m *PartialRestoreSpec) SetIncludePatterns(v []string) {
 	m.IncludePatterns = v
 }

@@ -1590,8 +1590,13 @@ type RestoreClusterRequest struct {
 	PartialRestore *PartialRestoreSpec `protobuf:"bytes,19,opt,name=partial_restore,json=partialRestore,proto3" json:"partial_restore,omitempty"`
 	// Maintenance windows.
 	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,20,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Restore the cluster without hybrid storage.
+	// Data parts stored in hybrid storage (Object Storage) are ignored during restore,
+	// only data stored on local disks is restored.
+	// Can be used only with backups of clusters with enabled hybrid storage.
+	IgnoreCloudStorageData bool `protobuf:"varint,21,opt,name=ignore_cloud_storage_data,json=ignoreCloudStorageData,proto3" json:"ignore_cloud_storage_data,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *RestoreClusterRequest) Reset() {
@@ -1749,6 +1754,13 @@ func (x *RestoreClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
 		return x.MaintenanceWindows
 	}
 	return nil
+}
+
+func (x *RestoreClusterRequest) GetIgnoreCloudStorageData() bool {
+	if x != nil {
+		return x.IgnoreCloudStorageData
+	}
+	return false
 }
 
 type PartialRestoreSpec struct {
@@ -5636,12 +5648,12 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"\x83\x01\n" +
 	"\x14ListClustersResponse\x12C\n" +
 	"\bclusters\x18\x01 \x03(\v2'.yandex.cloud.mdb.clickhouse.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x88\v\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x90\v\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x12;\n" +
 	"\x04name\x18\x02 \x01(\tB'\xe8\xc71\x01\xf2\xc71\x17[a-zA-Z_][a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
-	"\vdescription\x18\x03 \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x12\x95\x01\n" +
-	"\x06labels\x18\x04 \x03(\v2@.yandex.cloud.mdb.clickhouse.v1.CreateClusterRequest.LabelsEntryB;\xf2\xc71\v[0-9a-z_-]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x18\x12\x10[a-z][0-9a-z_-]*\x1a\x04<=63R\x06labels\x12[\n" +
+	"\vdescription\x18\x03 \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x12\x9d\x01\n" +
+	"\x06labels\x18\x04 \x03(\v2@.yandex.cloud.mdb.clickhouse.v1.CreateClusterRequest.LabelsEntryBC\xf2\xc71\x0f[-_./\\@0-9a-z]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x1c\x12\x14[a-z][-_./\\@0-9a-z]*\x1a\x04<=63R\x06labels\x12[\n" +
 	"\venvironment\x18\x05 \x01(\x0e23.yandex.cloud.mdb.clickhouse.v1.Cluster.EnvironmentB\x04\xe8\xc71\x01R\venvironment\x12K\n" +
 	"\vconfig_spec\x18\x06 \x01(\v2*.yandex.cloud.mdb.clickhouse.v1.ConfigSpecR\n" +
 	"configSpec\x12S\n" +
@@ -5668,14 +5680,14 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x11\x10\x12\"<\n" +
 	"\x15CreateClusterMetadata\x12#\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\"\xca\a\n" +
+	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\"\xd2\a\n" +
 	"\x14UpdateClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12;\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\x12+\n" +
-	"\vdescription\x18\x03 \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x12\x95\x01\n" +
-	"\x06labels\x18\x04 \x03(\v2@.yandex.cloud.mdb.clickhouse.v1.UpdateClusterRequest.LabelsEntryB;\xf2\xc71\v[0-9a-z_-]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x18\x12\x10[a-z][0-9a-z_-]*\x1a\x04<=63R\x06labels\x12K\n" +
+	"\vdescription\x18\x03 \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x12\x9d\x01\n" +
+	"\x06labels\x18\x04 \x03(\v2@.yandex.cloud.mdb.clickhouse.v1.UpdateClusterRequest.LabelsEntryBC\xf2\xc71\x0f[-_./\\@0-9a-z]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x1c\x12\x14[a-z][-_./\\@0-9a-z]*\x1a\x04<=63R\x06labels\x12K\n" +
 	"\vconfig_spec\x18\x05 \x01(\v2*.yandex.cloud.mdb.clickhouse.v1.ConfigSpecR\n" +
 	"configSpec\x12.\n" +
 	"\x04name\x18\x06 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12,\n" +
@@ -5746,14 +5758,13 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\"<\n" +
 	"\x15BackupClusterMetadata\x12#\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\"\xcc\n" +
-	"\n" +
+	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\"\x8f\v\n" +
 	"\x15RestoreClusterRequest\x12!\n" +
 	"\tbackup_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\bbackupId\x122\n" +
 	"\x15additional_backup_ids\x18\r \x03(\tR\x13additionalBackupIds\x12.\n" +
 	"\x04name\x18\x02 \x01(\tB\x1a\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
-	"\vdescription\x18\x03 \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x12\x96\x01\n" +
-	"\x06labels\x18\x04 \x03(\v2A.yandex.cloud.mdb.clickhouse.v1.RestoreClusterRequest.LabelsEntryB;\xf2\xc71\v[0-9a-z_-]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x18\x12\x10[a-z][0-9a-z_-]*\x1a\x04<=63R\x06labels\x12U\n" +
+	"\vdescription\x18\x03 \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x12\x9e\x01\n" +
+	"\x06labels\x18\x04 \x03(\v2A.yandex.cloud.mdb.clickhouse.v1.RestoreClusterRequest.LabelsEntryBC\xf2\xc71\x0f[-_./\\@0-9a-z]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x1c\x12\x14[a-z][-_./\\@0-9a-z]*\x1a\x04<=63R\x06labels\x12U\n" +
 	"\venvironment\x18\x05 \x01(\x0e23.yandex.cloud.mdb.clickhouse.v1.Cluster.EnvironmentR\venvironment\x12K\n" +
 	"\vconfig_spec\x18\x06 \x01(\v2*.yandex.cloud.mdb.clickhouse.v1.ConfigSpecR\n" +
 	"configSpec\x12G\n" +
@@ -5771,7 +5782,8 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"shardSpecs\x12k\n" +
 	"\x16disk_encryption_key_id\x18\x11 \x01(\v2\x1c.google.protobuf.StringValueB\x18\xf2\xc71\x14[a-zA-Z0-9_.-]{0,50}R\x13diskEncryptionKeyId\x12[\n" +
 	"\x0fpartial_restore\x18\x13 \x01(\v22.yandex.cloud.mdb.clickhouse.v1.PartialRestoreSpecR\x0epartialRestore\x12X\n" +
-	"\x13maintenance_windows\x18\x14 \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
+	"\x13maintenance_windows\x18\x14 \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x129\n" +
+	"\x19ignore_cloud_storage_data\x18\x15 \x01(\bR\x16ignoreCloudStorageData\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\f\x10\rJ\x04\b\x10\x10\x11\"j\n" +
@@ -6078,10 +6090,10 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_service_proto_rawDesc = "" +
 	"\x18external_dictionary_name\x18\x02 \x01(\tR\x16externalDictionaryName\"H\n" +
 	"'DeleteClusterExternalDictionaryMetadata\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xfe\x01\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xf8\x01\n" +
 	"\bHostSpec\x12!\n" +
-	"\azone_id\x18\x01 \x01(\tB\b\x8a\xc81\x04<=50R\x06zoneId\x12C\n" +
-	"\x04type\x18\x02 \x01(\x0e2).yandex.cloud.mdb.clickhouse.v1.Host.TypeB\x04\xe8\xc71\x01R\x04type\x12%\n" +
+	"\azone_id\x18\x01 \x01(\tB\b\x8a\xc81\x04<=50R\x06zoneId\x12=\n" +
+	"\x04type\x18\x02 \x01(\x0e2).yandex.cloud.mdb.clickhouse.v1.Host.TypeR\x04type\x12%\n" +
 	"\tsubnet_id\x18\x03 \x01(\tB\b\x8a\xc81\x04<=50R\bsubnetId\x12(\n" +
 	"\x10assign_public_ip\x18\x04 \x01(\bR\x0eassignPublicIp\x129\n" +
 	"\n" +

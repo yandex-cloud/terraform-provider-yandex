@@ -890,6 +890,7 @@ type MongodConfig_OperationProfiling struct {
 	// The fraction of slow operations that should be profiled or logged.
 	// operationProfiling.slowOpSampleRate accepts values between 0 and 1, inclusive.
 	SlowOpSampleRate *wrapperspb.DoubleValue `protobuf:"bytes,3,opt,name=slow_op_sample_rate,json=slowOpSampleRate,proto3" json:"slow_op_sample_rate,omitempty"`
+	Filter           string                  `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -943,6 +944,13 @@ func (x *MongodConfig_OperationProfiling) GetSlowOpSampleRate() *wrapperspb.Doub
 		return x.SlowOpSampleRate
 	}
 	return nil
+}
+
+func (x *MongodConfig_OperationProfiling) GetFilter() string {
+	if x != nil {
+		return x.Filter
+	}
+	return ""
 }
 
 type MongodConfig_Network struct {
@@ -1128,6 +1136,7 @@ type MongodConfig_SetParameter struct {
 	// The maximum number of documents to insert in a single batch during the cloning step of the migration process.
 	MigrateCloneInsertionBatchSize *wrapperspb.Int64Value `protobuf:"bytes,7,opt,name=migrate_clone_insertion_batch_size,json=migrateCloneInsertionBatchSize,proto3" json:"migrate_clone_insertion_batch_size,omitempty"`
 	// Minimum delay before a migrated chunk is deleted from the source shard.
+	// Default: 900 for MongoDB 8.0 and earlier, 3600 for MongoDB 9.0 and later.
 	OrphanCleanupDelaySecs *wrapperspb.Int64Value `protobuf:"bytes,8,opt,name=orphan_cleanup_delay_secs,json=orphanCleanupDelaySecs,proto3" json:"orphan_cleanup_delay_secs,omitempty"`
 	// Specifies the maximum batch size used for updating the persisted chunk cache.
 	PersistedChunkCacheUpdateMaxBatchSize *wrapperspb.Int64Value `protobuf:"bytes,9,opt,name=persisted_chunk_cache_update_max_batch_size,json=persistedChunkCacheUpdateMaxBatchSize,proto3" json:"persisted_chunk_cache_update_max_batch_size,omitempty"`
@@ -1911,6 +1920,7 @@ type MongoCfgConfig_OperationProfiling struct {
 	// for longer than this threshold are considered slow, and are processed by the profiler
 	// running in the SLOW_OP mode. For details see [MongoDB documentation](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs).
 	SlowOpThreshold *wrapperspb.Int64Value `protobuf:"bytes,2,opt,name=slow_op_threshold,json=slowOpThreshold,proto3" json:"slow_op_threshold,omitempty"`
+	Filter          string                 `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -1957,6 +1967,13 @@ func (x *MongoCfgConfig_OperationProfiling) GetSlowOpThreshold() *wrapperspb.Int
 		return x.SlowOpThreshold
 	}
 	return nil
+}
+
+func (x *MongoCfgConfig_OperationProfiling) GetFilter() string {
+	if x != nil {
+		return x.Filter
+	}
+	return ""
 }
 
 type MongoCfgConfig_Network struct {
@@ -2377,6 +2394,8 @@ type MongosConfig_SetParameter struct {
 	// https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess
 	AuditAuthorizationSuccess *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=audit_authorization_success,json=auditAuthorizationSuccess,proto3" json:"audit_authorization_success,omitempty"`
 	// Specifies whether mongos supports hedged reads for those read operations whose read preference have enabled the hedged read option.
+	// Deprecated: hedged reads are deprecated in MongoDB 8.0 and removed in later versions.
+	// The parameter has no effect in MongoDB 9.0 and later.
 	ReadHedgingMode *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=read_hedging_mode,json=readHedgingMode,proto3" json:"read_hedging_mode,omitempty"`
 	// Maximum number of outbound connections each TaskExecutor connection pool can open to any given mongod instance.
 	ShardingTaskExecutorPoolMaxSize *wrapperspb.Int64Value `protobuf:"bytes,3,opt,name=sharding_task_executor_pool_max_size,json=shardingTaskExecutorPoolMaxSize,proto3" json:"sharding_task_executor_pool_max_size,omitempty"`
@@ -2592,6 +2611,7 @@ type MongosConfig_OperationProfiling struct {
 	// The fraction of slow operations that should be logged.
 	// operationProfiling.slowOpSampleRate accepts values between 0 and 1, inclusive.
 	SlowOpSampleRate *wrapperspb.DoubleValue `protobuf:"bytes,2,opt,name=slow_op_sample_rate,json=slowOpSampleRate,proto3" json:"slow_op_sample_rate,omitempty"`
+	Filter           string                  `protobuf:"bytes,3,opt,name=filter,proto3" json:"filter,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -2638,6 +2658,13 @@ func (x *MongosConfig_OperationProfiling) GetSlowOpSampleRate() *wrapperspb.Doub
 		return x.SlowOpSampleRate
 	}
 	return nil
+}
+
+func (x *MongosConfig_OperationProfiling) GetFilter() string {
+	if x != nil {
+		return x.Filter
+	}
+	return ""
 }
 
 type MongosConfig_BalancerConfig struct {
@@ -2883,7 +2910,7 @@ var File_yandex_cloud_mdb_mongodb_v1_config_mongodb_proto protoreflect.FileDescr
 
 const file_yandex_cloud_mdb_mongodb_v1_config_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"0yandex/cloud/mdb/mongodb/v1/config/mongodb.proto\x12\"yandex.cloud.mdb.mongodb.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\xb8)\n" +
+	"0yandex/cloud/mdb/mongodb/v1/config/mongodb.proto\x12\"yandex.cloud.mdb.mongodb.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\xd0)\n" +
 	"\fMongodConfig\x12R\n" +
 	"\astorage\x18\x01 \x01(\v28.yandex.cloud.mdb.mongodb.v1.config.MongodConfig.StorageR\astorage\x12t\n" +
 	"\x13operation_profiling\x18\x02 \x01(\v2C.yandex.cloud.mdb.mongodb.v1.config.MongodConfig.OperationProfilingR\x12operationProfiling\x12J\n" +
@@ -2920,11 +2947,12 @@ const file_yandex_cloud_mdb_mongodb_v1_config_mongodb_proto_rawDesc = "" +
 	"\vIndexConfig\x12I\n" +
 	"\x12prefix_compression\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x11prefixCompression\x1a`\n" +
 	"\aJournal\x12O\n" +
-	"\x0fcommit_interval\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueB\t\xfa\xc71\x051-500R\x0ecommitIntervalJ\x04\b\x01\x10\x02\x1a\xd6\x02\n" +
+	"\x0fcommit_interval\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueB\t\xfa\xc71\x051-500R\x0ecommitIntervalJ\x04\b\x01\x10\x02\x1a\xee\x02\n" +
 	"\x12OperationProfiling\x12\\\n" +
 	"\x04mode\x18\x01 \x01(\x0e2H.yandex.cloud.mdb.mongodb.v1.config.MongodConfig.OperationProfiling.ModeR\x04mode\x12O\n" +
 	"\x11slow_op_threshold\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueB\x06\xfa\xc71\x02>0R\x0fslowOpThreshold\x12T\n" +
-	"\x13slow_op_sample_rate\x18\x03 \x01(\v2\x1c.google.protobuf.DoubleValueB\a\xfa\xc71\x030-1R\x10slowOpSampleRate\";\n" +
+	"\x13slow_op_sample_rate\x18\x03 \x01(\v2\x1c.google.protobuf.DoubleValueB\a\xfa\xc71\x030-1R\x10slowOpSampleRate\x12\x16\n" +
+	"\x06filter\x18\x04 \x01(\tR\x06filter\";\n" +
 	"\x04Mode\x12\x14\n" +
 	"\x10MODE_UNSPECIFIED\x10\x00\x12\a\n" +
 	"\x03OFF\x10\x01\x12\v\n" +
@@ -2981,7 +3009,7 @@ const file_yandex_cloud_mdb_mongodb_v1_config_mongodb_proto_rawDesc = "" +
 	"\x13ChangeStreamOptions\x12\x84\x01\n" +
 	"\x13pre_and_post_images\x18\x01 \x01(\v2U.yandex.cloud.mdb.mongodb.v1.config.MongodConfig.ChangeStreamOptions.PreAndPostImagesR\x10preAndPostImages\x1aj\n" +
 	"\x10PreAndPostImages\x12V\n" +
-	"\x14expire_after_seconds\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\a\xfa\xc71\x03>=0R\x12expireAfterSeconds\"\xd7\x0e\n" +
+	"\x14expire_after_seconds\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\a\xfa\xc71\x03>=0R\x12expireAfterSeconds\"\xf5\x0e\n" +
 	"\x0eMongoCfgConfig\x12T\n" +
 	"\astorage\x18\x01 \x01(\v2:.yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig.StorageR\astorage\x12v\n" +
 	"\x13operation_profiling\x18\x02 \x01(\v2E.yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig.OperationProfilingR\x12operationProfiling\x12L\n" +
@@ -2999,15 +3027,16 @@ const file_yandex_cloud_mdb_mongodb_v1_config_mongodb_proto_rawDesc = "" +
 	"\fEngineConfig\x12@\n" +
 	"\rcache_size_gb\x18\x01 \x01(\v2\x1c.google.protobuf.DoubleValueR\vcacheSizeGb\x12;\n" +
 	"\n" +
-	"cache_size\x18\x02 \x01(\v2\x1c.google.protobuf.DoubleValueR\tcacheSize\x1a\x82\x02\n" +
+	"cache_size\x18\x02 \x01(\v2\x1c.google.protobuf.DoubleValueR\tcacheSize\x1a\xa0\x02\n" +
 	"\x12OperationProfiling\x12^\n" +
 	"\x04mode\x18\x01 \x01(\x0e2J.yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig.OperationProfiling.ModeR\x04mode\x12O\n" +
-	"\x11slow_op_threshold\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueB\x06\xfa\xc71\x02>0R\x0fslowOpThreshold\";\n" +
+	"\x11slow_op_threshold\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueB\x06\xfa\xc71\x02>0R\x0fslowOpThreshold\x12\x16\n" +
+	"\x06filter\x18\x04 \x01(\tR\x06filter\";\n" +
 	"\x04Mode\x12\x14\n" +
 	"\x10MODE_UNSPECIFIED\x10\x00\x12\a\n" +
 	"\x03OFF\x10\x01\x12\v\n" +
 	"\aSLOW_OP\x10\x02\x12\a\n" +
-	"\x03ALL\x10\x03\x1an\n" +
+	"\x03ALL\x10\x03J\x04\b\x03\x10\x04\x1an\n" +
 	"\aNetwork\x12c\n" +
 	"\x18max_incoming_connections\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\f\xfa\xc71\b10-32768R\x16maxIncomingConnections\x1a\x87\x02\n" +
 	"\fSetParameter\x12J\n" +
@@ -3018,7 +3047,7 @@ const file_yandex_cloud_mdb_mongodb_v1_config_mongodb_proto_rawDesc = "" +
 	"\x06filter\x18\x01 \x01(\tR\x06filter\x1a\x9c\x01\n" +
 	"\x05Oplog\x12E\n" +
 	"\x10max_size_percent\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueR\x0emaxSizePercent\x12L\n" +
-	"\x13min_retention_hours\x18\x02 \x01(\v2\x1c.google.protobuf.DoubleValueR\x11minRetentionHoursJ\x04\b\a\x10\b\"\xf4\x1e\n" +
+	"\x13min_retention_hours\x18\x02 \x01(\v2\x1c.google.protobuf.DoubleValueR\x11minRetentionHoursJ\x04\b\a\x10\b\"\x8c\x1f\n" +
 	"\fMongosConfig\x12J\n" +
 	"\x03net\x18\x03 \x01(\v28.yandex.cloud.mdb.mongodb.v1.config.MongosConfig.NetworkR\x03net\x12b\n" +
 	"\rset_parameter\x18\x04 \x01(\v2=.yandex.cloud.mdb.mongodb.v1.config.MongosConfig.SetParameterR\fsetParameter\x12V\n" +
@@ -3060,10 +3089,11 @@ const file_yandex_cloud_mdb_mongodb_v1_config_mongodb_proto_rawDesc = "" +
 	"7sharding_task_executor_pool_min_size_for_config_servers\x18\r \x01(\v2\x1b.google.protobuf.Int64ValueR/shardingTaskExecutorPoolMinSizeForConfigServers\x12O\n" +
 	"\x16redact_client_log_data\x18\x0e \x01(\v2\x1a.google.protobuf.BoolValueR\x13redactClientLogData\x1a\"\n" +
 	"\bAuditLog\x12\x16\n" +
-	"\x06filter\x18\x01 \x01(\tR\x06filter\x1a\xbb\x01\n" +
+	"\x06filter\x18\x01 \x01(\tR\x06filter\x1a\xd3\x01\n" +
 	"\x12OperationProfiling\x12O\n" +
 	"\x11slow_op_threshold\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\x06\xfa\xc71\x02>0R\x0fslowOpThreshold\x12T\n" +
-	"\x13slow_op_sample_rate\x18\x02 \x01(\v2\x1c.google.protobuf.DoubleValueB\a\xfa\xc71\x030-1R\x10slowOpSampleRate\x1a\x8b\x06\n" +
+	"\x13slow_op_sample_rate\x18\x02 \x01(\v2\x1c.google.protobuf.DoubleValueB\a\xfa\xc71\x030-1R\x10slowOpSampleRate\x12\x16\n" +
+	"\x06filter\x18\x03 \x01(\tR\x06filter\x1a\x8b\x06\n" +
 	"\x0eBalancerConfig\x12\x80\x01\n" +
 	"\x12secondary_throttle\x18\x01 \x01(\v2Q.yandex.cloud.mdb.mongodb.v1.config.MongosConfig.BalancerConfig.SecondaryThrottleR\x11secondaryThrottle\x12B\n" +
 	"\x0fwait_for_delete\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\rwaitForDelete\x12`\n" +

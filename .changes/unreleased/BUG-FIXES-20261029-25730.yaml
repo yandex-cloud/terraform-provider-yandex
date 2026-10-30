@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: "storage: fix test sweeper cleanup of locked object versions and delete markers"
-time: 2026-10-29T00:00:00+03:00

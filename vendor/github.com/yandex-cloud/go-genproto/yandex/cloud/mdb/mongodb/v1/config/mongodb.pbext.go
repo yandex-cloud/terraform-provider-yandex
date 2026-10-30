@@ -94,6 +94,10 @@ func (m *MongodConfig_OperationProfiling) SetSlowOpSampleRate(v *wrapperspb.Doub
 	m.SlowOpSampleRate = v
 }
 
+func (m *MongodConfig_OperationProfiling) SetFilter(v string) {
+	m.Filter = v
+}
+
 func (m *MongodConfig_Network) SetMaxIncomingConnections(v *wrapperspb.Int64Value) {
 	m.MaxIncomingConnections = v
 }
@@ -274,6 +278,10 @@ func (m *MongoCfgConfig_OperationProfiling) SetSlowOpThreshold(v *wrapperspb.Int
 	m.SlowOpThreshold = v
 }
 
+func (m *MongoCfgConfig_OperationProfiling) SetFilter(v string) {
+	m.Filter = v
+}
+
 func (m *MongoCfgConfig_Network) SetMaxIncomingConnections(v *wrapperspb.Int64Value) {
 	m.MaxIncomingConnections = v
 }
@@ -412,6 +420,10 @@ func (m *MongosConfig_OperationProfiling) SetSlowOpThreshold(v *wrapperspb.Int64
 
 func (m *MongosConfig_OperationProfiling) SetSlowOpSampleRate(v *wrapperspb.DoubleValue) {
 	m.SlowOpSampleRate = v
+}
+
+func (m *MongosConfig_OperationProfiling) SetFilter(v string) {
+	m.Filter = v
 }
 
 func (m *MongosConfig_BalancerConfig) SetSecondaryThrottle(v *MongosConfig_BalancerConfig_SecondaryThrottle) {
