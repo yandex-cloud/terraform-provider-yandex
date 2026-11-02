@@ -8,11 +8,12 @@ import (
 )
 
 type Database struct {
-	Id        types.String   `tfsdk:"id"`
-	ClusterID types.String   `tfsdk:"cluster_id"`
-	Engine    types.String   `tfsdk:"engine"`
-	Name      types.String   `tfsdk:"name"`
-	Timeouts  timeouts.Value `tfsdk:"timeouts"`
+	Id                     types.String   `tfsdk:"id"`
+	ClusterID              types.String   `tfsdk:"cluster_id"`
+	Engine                 types.String   `tfsdk:"engine"`
+	Name                   types.String   `tfsdk:"name"`
+	DeletionProtectionMode types.String   `tfsdk:"deletion_protection_mode"`
+	Timeouts               timeouts.Value `tfsdk:"timeouts"`
 }
 
 func specToState(spec *clickhouse.Database, state *Database) {
@@ -20,6 +21,7 @@ func specToState(spec *clickhouse.Database, state *Database) {
 	state.ClusterID = types.StringValue(spec.ClusterId)
 	state.Name = types.StringValue(spec.Name)
 	state.Engine = getDatabaseEngineName(spec.Engine)
+	state.DeletionProtectionMode = types.StringValue(spec.DeletionProtectionMode.String())
 }
 
 func stateToSpec(state *Database, spec *clickhouse.DatabaseSpec) {
@@ -28,4 +30,5 @@ func stateToSpec(state *Database, spec *clickhouse.DatabaseSpec) {
 	if dbEngine != clickhouse.DatabaseEngine_DATABASE_ENGINE_UNSPECIFIED {
 		spec.Engine = dbEngine
 	}
+	spec.DeletionProtectionMode = getDeletionProtectionModeValue(state.DeletionProtectionMode)
 }

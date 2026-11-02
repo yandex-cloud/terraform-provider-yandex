@@ -88,6 +88,13 @@ func UserSchema(ctx context.Context) schema.Schema {
 			},
 			"connection_manager":      ConnectionManagerSchema(),
 			"user_connection_manager": mdbcommon.UserConnectionManagerFrameworkSchema(),
+			"deletion_protection_mode": schema.StringAttribute{
+				MarkdownDescription: "Deletion protection mode of the user. Possible values: `DELETION_PROTECTION_MODE_INHERITED` (default) - the user is protected if `deletion_protection` is enabled for the cluster, `DELETION_PROTECTION_MODE_ENABLED` - the user is protected regardless of the cluster setting, `DELETION_PROTECTION_MODE_DISABLED` - the user can be deleted even if the cluster is protected. The mode does not prevent deletion of the cluster.",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString(defaultDeletionProtectionMode.String()),
+				Validators:          DeletionProtectionMode_validator,
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"permission": PermissionSchema(),

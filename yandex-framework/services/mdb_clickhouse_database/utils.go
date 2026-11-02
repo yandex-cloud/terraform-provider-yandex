@@ -15,7 +15,25 @@ var (
 	}
 	Database_Engine_value     = makeReversedMap(Database_Engine_name, clickhouse.DatabaseEngine_value)
 	Database_Engine_validator = makeEnumNamesValidator(Database_Engine_name)
+
+	DeletionProtectionMode_validator = []validator.String{stringvalidator.OneOf(
+		clickhouse.DeletionProtectionMode_DELETION_PROTECTION_MODE_INHERITED.String(),
+		clickhouse.DeletionProtectionMode_DELETION_PROTECTION_MODE_ENABLED.String(),
+		clickhouse.DeletionProtectionMode_DELETION_PROTECTION_MODE_DISABLED.String(),
+	)}
 )
+
+const defaultDeletionProtectionMode = clickhouse.DeletionProtectionMode_DELETION_PROTECTION_MODE_INHERITED
+
+func getDeletionProtectionModeValue(mode types.String) clickhouse.DeletionProtectionMode {
+	if mode.IsNull() || mode.IsUnknown() {
+		return defaultDeletionProtectionMode
+	}
+	if value, ok := clickhouse.DeletionProtectionMode_value[mode.ValueString()]; ok {
+		return clickhouse.DeletionProtectionMode(value)
+	}
+	return defaultDeletionProtectionMode
+}
 
 func getDatabaseEngineName(value clickhouse.DatabaseEngine) types.String {
 	if name, ok := Database_Engine_name[int32(value)]; ok {

@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_clickhouse: add deletion_protection_mode support for databases and users'
+time: 2026-10-30T14:05:17.212985+03:00

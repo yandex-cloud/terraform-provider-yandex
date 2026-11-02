@@ -66,15 +66,16 @@ func createUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid
 func updateUser(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, user *clickhouse.UserSpec, updatePaths []string) {
 	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*clickhousesdk.UserUpdateOperation, error) {
 		return clickhousesdk.NewUserClient(sdk).Update(ctx, &clickhouse.UpdateUserRequest{
-			ClusterId:        cid,
-			UserName:         user.Name,
-			Password:         user.Password,
-			Permissions:      user.Permissions,
-			Settings:         user.Settings,
-			Quotas:           user.Quotas,
-			GeneratePassword: user.GeneratePassword,
-			AuthMethod:       user.AuthMethod,
-			UpdateMask:       &fieldmaskpb.FieldMask{Paths: updatePaths},
+			ClusterId:              cid,
+			UserName:               user.Name,
+			Password:               user.Password,
+			Permissions:            user.Permissions,
+			Settings:               user.Settings,
+			Quotas:                 user.Quotas,
+			GeneratePassword:       user.GeneratePassword,
+			AuthMethod:             user.AuthMethod,
+			DeletionProtectionMode: user.DeletionProtectionMode,
+			UpdateMask:             &fieldmaskpb.FieldMask{Paths: updatePaths},
 		})
 	})
 

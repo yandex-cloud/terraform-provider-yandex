@@ -200,6 +200,9 @@ func getUpdatePaths(plan, state *ResourceUser, passwordChanged bool) []string {
 	if !plan.Settings.Equal(state.Settings) {
 		updatePaths = append(updatePaths, "settings")
 	}
+	if !plan.DeletionProtectionMode.Equal(state.DeletionProtectionMode) {
+		updatePaths = append(updatePaths, "deletion_protection_mode")
+	}
 	return updatePaths
 }
 

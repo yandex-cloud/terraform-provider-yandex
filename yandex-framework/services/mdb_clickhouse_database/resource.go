@@ -11,16 +11,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 const (
 	yandexMDBClickhouseDatabaseCreateTimeout = 15 * time.Minute
+	yandexMDBClickhouseDatabaseUpdateTimeout = 10 * time.Minute
 	yandexMDBClickhouseDatabaseDeleteTimeout = 10 * time.Minute
 )
 
@@ -61,6 +64,7 @@ func (r *bindingResource) Schema(ctx context.Context,
 		Attributes: map[string]schema.Attribute{
 			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
 				Create: true,
+				Update: true,
 				Delete: true,
 			}),
 			"id": schema.StringAttribute{
@@ -90,8 +94,16 @@ func (r *bindingResource) Schema(ctx context.Context,
 				Computed:            true,
 				Validators:          Database_Engine_validator,
 				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"deletion_protection_mode": schema.StringAttribute{
+				MarkdownDescription: "Deletion protection mode of the database. Possible values: `DELETION_PROTECTION_MODE_INHERITED` (default) - the database is protected if `deletion_protection` is enabled for the cluster, `DELETION_PROTECTION_MODE_ENABLED` - the database is protected regardless of the cluster setting, `DELETION_PROTECTION_MODE_DISABLED` - the database can be deleted even if the cluster is protected. The mode does not prevent deletion of the cluster.",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString(defaultDeletionProtectionMode.String()),
+				Validators:          DeletionProtectionMode_validator,
 			},
 		},
 	}
@@ -155,8 +167,45 @@ func (r *bindingResource) Create(ctx context.Context, req resource.CreateRequest
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r *bindingResource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	// No settings to update
+func (r *bindingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state Database
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	updateTimeout, diags := plan.Timeouts.Update(ctx, yandexMDBClickhouseDatabaseUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
+
+	updateReq := getUpdateRequest(&plan, &state)
+	if len(updateReq.GetUpdateMask().GetPaths()) > 0 {
+		updateDatabase(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, updateReq)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+}
+
+func getUpdateRequest(plan, state *Database) *clickhouse.UpdateDatabaseRequest {
+	req := &clickhouse.UpdateDatabaseRequest{
+		ClusterId:    state.ClusterID.ValueString(),
+		DatabaseName: state.Name.ValueString(),
+		UpdateMask:   &fieldmaskpb.FieldMask{},
+	}
+	if !plan.DeletionProtectionMode.Equal(state.DeletionProtectionMode) {
+		req.DeletionProtectionMode = getDeletionProtectionModeValue(plan.DeletionProtectionMode)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "deletion_protection_mode")
+	}
+	return req
 }
 
 func (r *bindingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -199,6 +248,7 @@ func (r *bindingResource) ImportState(ctx context.Context, req resource.ImportSt
 	state.Timeouts = timeouts.Value{
 		Object: types.ObjectNull(map[string]attr.Type{
 			"create": types.StringType,
+			"update": types.StringType,
 			"delete": types.StringType,
 		}),
 	}

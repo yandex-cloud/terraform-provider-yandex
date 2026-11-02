@@ -34,6 +34,10 @@ func DataSourceUserSchema() schema.Schema {
 			},
 			"connection_manager":      DataSourceConnectionManagerSchema(),
 			"user_connection_manager": mdbcommon.UserConnectionManagerFrameworkDataSourceSchema(),
+			"deletion_protection_mode": schema.StringAttribute{
+				MarkdownDescription: "Deletion protection mode of the user. Possible values: `DELETION_PROTECTION_MODE_INHERITED`, `DELETION_PROTECTION_MODE_ENABLED`, `DELETION_PROTECTION_MODE_DISABLED`.",
+				Computed:            true,
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"permission": DataSourcePermissionSchema(),

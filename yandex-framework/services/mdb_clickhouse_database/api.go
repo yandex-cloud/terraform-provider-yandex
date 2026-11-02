@@ -11,6 +11,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func readDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, dbName string) *clickhouse.Database {
@@ -66,6 +67,29 @@ func createDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics,
 		diag.AddError(
 			"Failed to Create resource",
 			"Error while waiting for operation to create ClickHouse database:"+err.Error(),
+		)
+	}
+}
+
+func updateDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, req *clickhouse.UpdateDatabaseRequest) {
+	op, err := retry.ConflictingOperationV2(ctx, sdk, func() (*clickhousesdk.DatabaseUpdateOperation, error) {
+		return clickhousesdk.NewDatabaseClient(sdk).Update(ctx, req)
+	})
+
+	if err != nil {
+		if !strings.EqualFold(status.Convert(err).Message(), "no changes detected") {
+			diag.AddError(
+				"Failed to Update resource",
+				"Error while requesting API to update ClickHouse database: "+err.Error(),
+			)
+		}
+		return
+	}
+
+	if _, err = op.Wait(ctx); err != nil {
+		diag.AddError(
+			"Failed to Update resource",
+			"Error while waiting for operation to update ClickHouse database: "+err.Error(),
 		)
 	}
 }

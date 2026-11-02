@@ -30,23 +30,25 @@ type User interface {
 	GetConnectionManager() types.Object
 	SetUserConnectionManager(userConnectionManager types.Object)
 	GetUserConnectionManager() types.Object
+	SetDeletionProtectionMode(deletionProtectionMode types.String)
 }
 
 type ResourceUser struct {
-	Id                    types.String   `tfsdk:"id"`
-	ClusterID             types.String   `tfsdk:"cluster_id"`
-	Name                  types.String   `tfsdk:"name"`
-	Password              types.String   `tfsdk:"password"`
-	PasswordWo            types.String   `tfsdk:"password_wo"`
-	PasswordWoVersion     types.Int64    `tfsdk:"password_wo_version"`
-	GeneratePassword      types.Bool     `tfsdk:"generate_password"`
-	AuthMethod            types.String   `tfsdk:"auth_method"`
-	Permissions           types.Set      `tfsdk:"permission"`
-	Settings              types.Object   `tfsdk:"settings"`
-	Quotas                types.Set      `tfsdk:"quota"`
-	ConnectionManager     types.Object   `tfsdk:"connection_manager"`
-	UserConnectionManager types.Object   `tfsdk:"user_connection_manager"`
-	Timeouts              timeouts.Value `tfsdk:"timeouts"`
+	Id                     types.String   `tfsdk:"id"`
+	ClusterID              types.String   `tfsdk:"cluster_id"`
+	Name                   types.String   `tfsdk:"name"`
+	Password               types.String   `tfsdk:"password"`
+	PasswordWo             types.String   `tfsdk:"password_wo"`
+	PasswordWoVersion      types.Int64    `tfsdk:"password_wo_version"`
+	GeneratePassword       types.Bool     `tfsdk:"generate_password"`
+	AuthMethod             types.String   `tfsdk:"auth_method"`
+	Permissions            types.Set      `tfsdk:"permission"`
+	Settings               types.Object   `tfsdk:"settings"`
+	Quotas                 types.Set      `tfsdk:"quota"`
+	ConnectionManager      types.Object   `tfsdk:"connection_manager"`
+	UserConnectionManager  types.Object   `tfsdk:"user_connection_manager"`
+	DeletionProtectionMode types.String   `tfsdk:"deletion_protection_mode"`
+	Timeouts               timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (ru *ResourceUser) SetId(id types.String) {
@@ -113,17 +115,22 @@ func (ru *ResourceUser) GetUserConnectionManager() types.Object {
 	return ru.UserConnectionManager
 }
 
+func (ru *ResourceUser) SetDeletionProtectionMode(deletionProtectionMode types.String) {
+	ru.DeletionProtectionMode = deletionProtectionMode
+}
+
 type DatasourceUser struct {
-	Id                    types.String `tfsdk:"id"`
-	ClusterID             types.String `tfsdk:"cluster_id"`
-	Name                  types.String `tfsdk:"name"`
-	Password              types.String `tfsdk:"password"`
-	AuthMethod            types.String `tfsdk:"auth_method"`
-	Permissions           types.Set    `tfsdk:"permission"`
-	Settings              types.Object `tfsdk:"settings"`
-	Quotas                types.Set    `tfsdk:"quota"`
-	ConnectionManager     types.Object `tfsdk:"connection_manager"`
-	UserConnectionManager types.Object `tfsdk:"user_connection_manager"`
+	Id                     types.String `tfsdk:"id"`
+	ClusterID              types.String `tfsdk:"cluster_id"`
+	Name                   types.String `tfsdk:"name"`
+	Password               types.String `tfsdk:"password"`
+	AuthMethod             types.String `tfsdk:"auth_method"`
+	Permissions            types.Set    `tfsdk:"permission"`
+	Settings               types.Object `tfsdk:"settings"`
+	Quotas                 types.Set    `tfsdk:"quota"`
+	ConnectionManager      types.Object `tfsdk:"connection_manager"`
+	UserConnectionManager  types.Object `tfsdk:"user_connection_manager"`
+	DeletionProtectionMode types.String `tfsdk:"deletion_protection_mode"`
 }
 
 func (du *DatasourceUser) SetId(id types.String) {
@@ -183,6 +190,10 @@ func (du *DatasourceUser) SetUserConnectionManager(userConnectionManager types.O
 
 func (du *DatasourceUser) GetUserConnectionManager() types.Object {
 	return du.UserConnectionManager
+}
+
+func (du *DatasourceUser) SetDeletionProtectionMode(deletionProtectionMode types.String) {
+	du.DeletionProtectionMode = deletionProtectionMode
 }
 
 type Permission struct {
@@ -249,6 +260,7 @@ func userToState(ctx context.Context, user *clickhouse.User, state User) diag.Di
 	state.SetConnectionManager(flattenConnectionManager(ctx, user.ConnectionManager, &diags))
 	log.Printf("[TRACE] mdb_clickhouse_user: flattened connection_manager: %+v\n", state.GetConnectionManager())
 	state.SetUserConnectionManager(mdbcommon.FlattenUserConnectionManagerFramework(ctx, user.UserConnectionManager, &diags))
+	state.SetDeletionProtectionMode(types.StringValue(user.DeletionProtectionMode.String()))
 
 	return diags
 }
@@ -262,13 +274,14 @@ func userFromState(ctx context.Context, state *ResourceUser, password string) (*
 	settings := usersettings.Expand(ctx, state.Settings, &diags)
 	log.Printf("[TRACE] mdb_clickhouse_user: expanded settings: %+v\n", settings)
 	return &clickhouse.UserSpec{
-		Name:                  state.Name.ValueString(),
-		Password:              password,
-		Permissions:           permissions,
-		Quotas:                quotas,
-		Settings:              settings,
-		GeneratePassword:      wrapperspb.Bool(state.GeneratePassword.ValueBool()),
-		AuthMethod:            getAuthMethodValue(state.AuthMethod),
-		UserConnectionManager: mdbcommon.ExpandUserConnectionManagerFramework(ctx, state.UserConnectionManager, &diags),
+		Name:                   state.Name.ValueString(),
+		Password:               password,
+		Permissions:            permissions,
+		Quotas:                 quotas,
+		Settings:               settings,
+		GeneratePassword:       wrapperspb.Bool(state.GeneratePassword.ValueBool()),
+		AuthMethod:             getAuthMethodValue(state.AuthMethod),
+		UserConnectionManager:  mdbcommon.ExpandUserConnectionManagerFramework(ctx, state.UserConnectionManager, &diags),
+		DeletionProtectionMode: getDeletionProtectionModeValue(state.DeletionProtectionMode),
 	}, diags
 }

@@ -66,6 +66,10 @@ func (d *bindingDataSource) Schema(ctx context.Context, _ datasource.SchemaReque
 				MarkdownDescription: "Database engine, possible values are: atomic,replicated.",
 				Computed:            true,
 			},
+			"deletion_protection_mode": schema.StringAttribute{
+				MarkdownDescription: "Deletion protection mode of the database. Possible values: `DELETION_PROTECTION_MODE_INHERITED`, `DELETION_PROTECTION_MODE_ENABLED`, `DELETION_PROTECTION_MODE_DISABLED`.",
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -87,5 +91,6 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	state.Name = types.StringValue(db.Name)
 	state.Id = types.StringValue(resourceid.Construct(cid, dbName))
 	state.Engine = getDatabaseEngineName(db.Engine)
+	state.DeletionProtectionMode = types.StringValue(db.DeletionProtectionMode.String())
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
