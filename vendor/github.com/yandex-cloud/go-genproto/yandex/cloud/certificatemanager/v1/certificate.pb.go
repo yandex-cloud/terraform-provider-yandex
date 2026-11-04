@@ -74,6 +74,57 @@ func (CertificateType) EnumDescriptor() ([]byte, []int) {
 	return file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDescGZIP(), []int{0}
 }
 
+type CertificateProvider int32
+
+const (
+	CertificateProvider_CERTIFICATE_PROVIDER_UNSPECIFIED CertificateProvider = 0
+	// Let's Encrypt ACME Provider
+	CertificateProvider_LETS_ENCRYPT CertificateProvider = 1
+	// ACME Provider of National Certification Authority of Ministry of Digital Development, Communications and Mass Media of the Russian Federation
+	CertificateProvider_RUSSIAN_TRUSTED_CA CertificateProvider = 5
+)
+
+// Enum value maps for CertificateProvider.
+var (
+	CertificateProvider_name = map[int32]string{
+		0: "CERTIFICATE_PROVIDER_UNSPECIFIED",
+		1: "LETS_ENCRYPT",
+		5: "RUSSIAN_TRUSTED_CA",
+	}
+	CertificateProvider_value = map[string]int32{
+		"CERTIFICATE_PROVIDER_UNSPECIFIED": 0,
+		"LETS_ENCRYPT":                     1,
+		"RUSSIAN_TRUSTED_CA":               5,
+	}
+)
+
+func (x CertificateProvider) Enum() *CertificateProvider {
+	p := new(CertificateProvider)
+	*p = x
+	return p
+}
+
+func (x CertificateProvider) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CertificateProvider) Descriptor() protoreflect.EnumDescriptor {
+	return file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[1].Descriptor()
+}
+
+func (CertificateProvider) Type() protoreflect.EnumType {
+	return &file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[1]
+}
+
+func (x CertificateProvider) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CertificateProvider.Descriptor instead.
+func (CertificateProvider) EnumDescriptor() ([]byte, []int) {
+	return file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDescGZIP(), []int{1}
+}
+
 // Supported domain validation types.
 type ChallengeType int32
 
@@ -110,11 +161,11 @@ func (x ChallengeType) String() string {
 }
 
 func (ChallengeType) Descriptor() protoreflect.EnumDescriptor {
-	return file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[1].Descriptor()
+	return file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[2].Descriptor()
 }
 
 func (ChallengeType) Type() protoreflect.EnumType {
-	return &file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[1]
+	return &file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[2]
 }
 
 func (x ChallengeType) Number() protoreflect.EnumNumber {
@@ -123,7 +174,7 @@ func (x ChallengeType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ChallengeType.Descriptor instead.
 func (ChallengeType) EnumDescriptor() ([]byte, []int) {
-	return file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDescGZIP(), []int{1}
+	return file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDescGZIP(), []int{2}
 }
 
 type Certificate_Status int32
@@ -177,11 +228,11 @@ func (x Certificate_Status) String() string {
 }
 
 func (Certificate_Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[2].Descriptor()
+	return file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[3].Descriptor()
 }
 
 func (Certificate_Status) Type() protoreflect.EnumType {
-	return &file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[2]
+	return &file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[3]
 }
 
 func (x Certificate_Status) Number() protoreflect.EnumNumber {
@@ -236,11 +287,11 @@ func (x Challenge_Status) String() string {
 }
 
 func (Challenge_Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[3].Descriptor()
+	return file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[4].Descriptor()
 }
 
 func (Challenge_Status) Type() protoreflect.EnumType {
-	return &file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[3]
+	return &file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes[4]
 }
 
 func (x Challenge_Status) Number() protoreflect.EnumNumber {
@@ -284,6 +335,8 @@ type Certificate struct {
 	Serial string `protobuf:"bytes,12,opt,name=serial,proto3" json:"serial,omitempty"`
 	// Status of the certificate.
 	Status Certificate_Status `protobuf:"varint,9,opt,name=status,proto3,enum=yandex.cloud.certificatemanager.v1.Certificate_Status" json:"status,omitempty"`
+	// ACME Certificate Provider
+	Provider CertificateProvider `protobuf:"varint,20,opt,name=provider,proto3,enum=yandex.cloud.certificatemanager.v1.CertificateProvider" json:"provider,omitempty"`
 	// Domains validation challenges of the certificate. Used only for managed certificates.
 	Challenges []*Challenge `protobuf:"bytes,17,rep,name=challenges,proto3" json:"challenges,omitempty"`
 	// [Distinguished Name](https://tools.ietf.org/html/rfc1779) of the entity that is associated with the public key contained in the certificate.
@@ -424,6 +477,13 @@ func (x *Certificate) GetStatus() Certificate_Status {
 		return x.Status
 	}
 	return Certificate_STATUS_UNSPECIFIED
+}
+
+func (x *Certificate) GetProvider() CertificateProvider {
+	if x != nil {
+		return x.Provider
+	}
+	return CertificateProvider_CERTIFICATE_PROVIDER_UNSPECIFIED
 }
 
 func (x *Certificate) GetChallenges() []*Challenge {
@@ -796,7 +856,7 @@ var File_yandex_cloud_certificatemanager_v1_certificate_proto protoreflect.FileD
 
 const file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDesc = "" +
 	"\n" +
-	"4yandex/cloud/certificatemanager/v1/certificate.proto\x12\"yandex.cloud.certificatemanager.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc5\b\n" +
+	"4yandex/cloud/certificatemanager/v1/certificate.proto\x12\"yandex.cloud.certificatemanager.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9a\t\n" +
 	"\vCertificate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x04 \x01(\tR\x04name\x12S\n" +
@@ -815,7 +875,8 @@ const file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDesc = "" +
 	"\n" +
 	"not_before\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tnotBefore\x12\x16\n" +
 	"\x06serial\x18\f \x01(\tR\x06serial\x12N\n" +
-	"\x06status\x18\t \x01(\x0e26.yandex.cloud.certificatemanager.v1.Certificate.StatusR\x06status\x12M\n" +
+	"\x06status\x18\t \x01(\x0e26.yandex.cloud.certificatemanager.v1.Certificate.StatusR\x06status\x12S\n" +
+	"\bprovider\x18\x14 \x01(\x0e27.yandex.cloud.certificatemanager.v1.CertificateProviderR\bprovider\x12M\n" +
 	"\n" +
 	"challenges\x18\x11 \x03(\v2-.yandex.cloud.certificatemanager.v1.ChallengeR\n" +
 	"challenges\x12\x18\n" +
@@ -871,7 +932,11 @@ const file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDesc = "" +
 	"\x0fCertificateType\x12 \n" +
 	"\x1cCERTIFICATE_TYPE_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bIMPORTED\x10\x01\x12\v\n" +
-	"\aMANAGED\x10\x02*B\n" +
+	"\aMANAGED\x10\x02*e\n" +
+	"\x13CertificateProvider\x12$\n" +
+	" CERTIFICATE_PROVIDER_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fLETS_ENCRYPT\x10\x01\x12\x16\n" +
+	"\x12RUSSIAN_TRUSTED_CA\x10\x05*B\n" +
 	"\rChallengeType\x12\x1e\n" +
 	"\x1aCHALLENGE_TYPE_UNSPECIFIED\x10\x00\x12\a\n" +
 	"\x03DNS\x10\x01\x12\b\n" +
@@ -890,43 +955,45 @@ func file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDescGZIP() []b
 	return file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDescData
 }
 
-var file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_yandex_cloud_certificatemanager_v1_certificate_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 var file_yandex_cloud_certificatemanager_v1_certificate_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_yandex_cloud_certificatemanager_v1_certificate_proto_goTypes = []any{
 	(CertificateType)(0),          // 0: yandex.cloud.certificatemanager.v1.CertificateType
-	(ChallengeType)(0),            // 1: yandex.cloud.certificatemanager.v1.ChallengeType
-	(Certificate_Status)(0),       // 2: yandex.cloud.certificatemanager.v1.Certificate.Status
-	(Challenge_Status)(0),         // 3: yandex.cloud.certificatemanager.v1.Challenge.Status
-	(*Certificate)(nil),           // 4: yandex.cloud.certificatemanager.v1.Certificate
-	(*Challenge)(nil),             // 5: yandex.cloud.certificatemanager.v1.Challenge
-	(*Version)(nil),               // 6: yandex.cloud.certificatemanager.v1.Version
-	nil,                           // 7: yandex.cloud.certificatemanager.v1.Certificate.LabelsEntry
-	(*Challenge_DnsRecord)(nil),   // 8: yandex.cloud.certificatemanager.v1.Challenge.DnsRecord
-	(*Challenge_HttpFile)(nil),    // 9: yandex.cloud.certificatemanager.v1.Challenge.HttpFile
-	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
+	(CertificateProvider)(0),      // 1: yandex.cloud.certificatemanager.v1.CertificateProvider
+	(ChallengeType)(0),            // 2: yandex.cloud.certificatemanager.v1.ChallengeType
+	(Certificate_Status)(0),       // 3: yandex.cloud.certificatemanager.v1.Certificate.Status
+	(Challenge_Status)(0),         // 4: yandex.cloud.certificatemanager.v1.Challenge.Status
+	(*Certificate)(nil),           // 5: yandex.cloud.certificatemanager.v1.Certificate
+	(*Challenge)(nil),             // 6: yandex.cloud.certificatemanager.v1.Challenge
+	(*Version)(nil),               // 7: yandex.cloud.certificatemanager.v1.Version
+	nil,                           // 8: yandex.cloud.certificatemanager.v1.Certificate.LabelsEntry
+	(*Challenge_DnsRecord)(nil),   // 9: yandex.cloud.certificatemanager.v1.Challenge.DnsRecord
+	(*Challenge_HttpFile)(nil),    // 10: yandex.cloud.certificatemanager.v1.Challenge.HttpFile
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
 var file_yandex_cloud_certificatemanager_v1_certificate_proto_depIdxs = []int32{
-	7,  // 0: yandex.cloud.certificatemanager.v1.Certificate.labels:type_name -> yandex.cloud.certificatemanager.v1.Certificate.LabelsEntry
-	10, // 1: yandex.cloud.certificatemanager.v1.Certificate.created_at:type_name -> google.protobuf.Timestamp
-	10, // 2: yandex.cloud.certificatemanager.v1.Certificate.updated_at:type_name -> google.protobuf.Timestamp
+	8,  // 0: yandex.cloud.certificatemanager.v1.Certificate.labels:type_name -> yandex.cloud.certificatemanager.v1.Certificate.LabelsEntry
+	11, // 1: yandex.cloud.certificatemanager.v1.Certificate.created_at:type_name -> google.protobuf.Timestamp
+	11, // 2: yandex.cloud.certificatemanager.v1.Certificate.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 3: yandex.cloud.certificatemanager.v1.Certificate.type:type_name -> yandex.cloud.certificatemanager.v1.CertificateType
-	10, // 4: yandex.cloud.certificatemanager.v1.Certificate.issued_at:type_name -> google.protobuf.Timestamp
-	10, // 5: yandex.cloud.certificatemanager.v1.Certificate.not_after:type_name -> google.protobuf.Timestamp
-	10, // 6: yandex.cloud.certificatemanager.v1.Certificate.not_before:type_name -> google.protobuf.Timestamp
-	2,  // 7: yandex.cloud.certificatemanager.v1.Certificate.status:type_name -> yandex.cloud.certificatemanager.v1.Certificate.Status
-	5,  // 8: yandex.cloud.certificatemanager.v1.Certificate.challenges:type_name -> yandex.cloud.certificatemanager.v1.Challenge
-	8,  // 9: yandex.cloud.certificatemanager.v1.Challenge.dns_challenge:type_name -> yandex.cloud.certificatemanager.v1.Challenge.DnsRecord
-	9,  // 10: yandex.cloud.certificatemanager.v1.Challenge.http_challenge:type_name -> yandex.cloud.certificatemanager.v1.Challenge.HttpFile
-	10, // 11: yandex.cloud.certificatemanager.v1.Challenge.created_at:type_name -> google.protobuf.Timestamp
-	10, // 12: yandex.cloud.certificatemanager.v1.Challenge.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 13: yandex.cloud.certificatemanager.v1.Challenge.type:type_name -> yandex.cloud.certificatemanager.v1.ChallengeType
-	3,  // 14: yandex.cloud.certificatemanager.v1.Challenge.status:type_name -> yandex.cloud.certificatemanager.v1.Challenge.Status
-	10, // 15: yandex.cloud.certificatemanager.v1.Version.created_at:type_name -> google.protobuf.Timestamp
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	11, // 4: yandex.cloud.certificatemanager.v1.Certificate.issued_at:type_name -> google.protobuf.Timestamp
+	11, // 5: yandex.cloud.certificatemanager.v1.Certificate.not_after:type_name -> google.protobuf.Timestamp
+	11, // 6: yandex.cloud.certificatemanager.v1.Certificate.not_before:type_name -> google.protobuf.Timestamp
+	3,  // 7: yandex.cloud.certificatemanager.v1.Certificate.status:type_name -> yandex.cloud.certificatemanager.v1.Certificate.Status
+	1,  // 8: yandex.cloud.certificatemanager.v1.Certificate.provider:type_name -> yandex.cloud.certificatemanager.v1.CertificateProvider
+	6,  // 9: yandex.cloud.certificatemanager.v1.Certificate.challenges:type_name -> yandex.cloud.certificatemanager.v1.Challenge
+	9,  // 10: yandex.cloud.certificatemanager.v1.Challenge.dns_challenge:type_name -> yandex.cloud.certificatemanager.v1.Challenge.DnsRecord
+	10, // 11: yandex.cloud.certificatemanager.v1.Challenge.http_challenge:type_name -> yandex.cloud.certificatemanager.v1.Challenge.HttpFile
+	11, // 12: yandex.cloud.certificatemanager.v1.Challenge.created_at:type_name -> google.protobuf.Timestamp
+	11, // 13: yandex.cloud.certificatemanager.v1.Challenge.updated_at:type_name -> google.protobuf.Timestamp
+	2,  // 14: yandex.cloud.certificatemanager.v1.Challenge.type:type_name -> yandex.cloud.certificatemanager.v1.ChallengeType
+	4,  // 15: yandex.cloud.certificatemanager.v1.Challenge.status:type_name -> yandex.cloud.certificatemanager.v1.Challenge.Status
+	11, // 16: yandex.cloud.certificatemanager.v1.Version.created_at:type_name -> google.protobuf.Timestamp
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_certificatemanager_v1_certificate_proto_init() }
@@ -943,7 +1010,7 @@ func file_yandex_cloud_certificatemanager_v1_certificate_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDesc), len(file_yandex_cloud_certificatemanager_v1_certificate_proto_rawDesc)),
-			NumEnums:      4,
+			NumEnums:      5,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,

@@ -890,9 +890,10 @@ type MongodConfig_OperationProfiling struct {
 	// The fraction of slow operations that should be profiled or logged.
 	// operationProfiling.slowOpSampleRate accepts values between 0 and 1, inclusive.
 	SlowOpSampleRate *wrapperspb.DoubleValue `protobuf:"bytes,3,opt,name=slow_op_sample_rate,json=slowOpSampleRate,proto3" json:"slow_op_sample_rate,omitempty"`
-	Filter           string                  `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Filter for operations to profile or log, specified as a JSON object string.
+	Filter        string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MongodConfig_OperationProfiling) Reset() {
@@ -1136,7 +1137,6 @@ type MongodConfig_SetParameter struct {
 	// The maximum number of documents to insert in a single batch during the cloning step of the migration process.
 	MigrateCloneInsertionBatchSize *wrapperspb.Int64Value `protobuf:"bytes,7,opt,name=migrate_clone_insertion_batch_size,json=migrateCloneInsertionBatchSize,proto3" json:"migrate_clone_insertion_batch_size,omitempty"`
 	// Minimum delay before a migrated chunk is deleted from the source shard.
-	// Default: 900 for MongoDB 8.0 and earlier, 3600 for MongoDB 9.0 and later.
 	OrphanCleanupDelaySecs *wrapperspb.Int64Value `protobuf:"bytes,8,opt,name=orphan_cleanup_delay_secs,json=orphanCleanupDelaySecs,proto3" json:"orphan_cleanup_delay_secs,omitempty"`
 	// Specifies the maximum batch size used for updating the persisted chunk cache.
 	PersistedChunkCacheUpdateMaxBatchSize *wrapperspb.Int64Value `protobuf:"bytes,9,opt,name=persisted_chunk_cache_update_max_batch_size,json=persistedChunkCacheUpdateMaxBatchSize,proto3" json:"persisted_chunk_cache_update_max_batch_size,omitempty"`
@@ -1920,9 +1920,10 @@ type MongoCfgConfig_OperationProfiling struct {
 	// for longer than this threshold are considered slow, and are processed by the profiler
 	// running in the SLOW_OP mode. For details see [MongoDB documentation](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs).
 	SlowOpThreshold *wrapperspb.Int64Value `protobuf:"bytes,2,opt,name=slow_op_threshold,json=slowOpThreshold,proto3" json:"slow_op_threshold,omitempty"`
-	Filter          string                 `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Filter for operations to profile or log, specified as a JSON object string.
+	Filter        string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MongoCfgConfig_OperationProfiling) Reset() {
@@ -2394,8 +2395,6 @@ type MongosConfig_SetParameter struct {
 	// https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess
 	AuditAuthorizationSuccess *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=audit_authorization_success,json=auditAuthorizationSuccess,proto3" json:"audit_authorization_success,omitempty"`
 	// Specifies whether mongos supports hedged reads for those read operations whose read preference have enabled the hedged read option.
-	// Deprecated: hedged reads are deprecated in MongoDB 8.0 and removed in later versions.
-	// The parameter has no effect in MongoDB 9.0 and later.
 	ReadHedgingMode *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=read_hedging_mode,json=readHedgingMode,proto3" json:"read_hedging_mode,omitempty"`
 	// Maximum number of outbound connections each TaskExecutor connection pool can open to any given mongod instance.
 	ShardingTaskExecutorPoolMaxSize *wrapperspb.Int64Value `protobuf:"bytes,3,opt,name=sharding_task_executor_pool_max_size,json=shardingTaskExecutorPoolMaxSize,proto3" json:"sharding_task_executor_pool_max_size,omitempty"`
@@ -2611,9 +2610,10 @@ type MongosConfig_OperationProfiling struct {
 	// The fraction of slow operations that should be logged.
 	// operationProfiling.slowOpSampleRate accepts values between 0 and 1, inclusive.
 	SlowOpSampleRate *wrapperspb.DoubleValue `protobuf:"bytes,2,opt,name=slow_op_sample_rate,json=slowOpSampleRate,proto3" json:"slow_op_sample_rate,omitempty"`
-	Filter           string                  `protobuf:"bytes,3,opt,name=filter,proto3" json:"filter,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Filter for operations to log, specified as a JSON object string.
+	Filter        string `protobuf:"bytes,3,opt,name=filter,proto3" json:"filter,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MongosConfig_OperationProfiling) Reset() {

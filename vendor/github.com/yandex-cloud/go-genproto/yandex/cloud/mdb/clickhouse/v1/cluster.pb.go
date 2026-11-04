@@ -1553,8 +1553,10 @@ type CloudStorage struct {
 	DataCacheMaxSize *wrapperspb.Int64Value `protobuf:"bytes,4,opt,name=data_cache_max_size,json=dataCacheMaxSize,proto3" json:"data_cache_max_size,omitempty"`
 	// Disables or enables merging date parts storing in Object Storage.
 	PreferNotToMerge *wrapperspb.BoolValue `protobuf:"bytes,5,opt,name=prefer_not_to_merge,json=preferNotToMerge,proto3" json:"prefer_not_to_merge,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Maximum size of the Object Storage bucket used for hybrid storage.
+	BucketMaxSize *wrapperspb.Int64Value `protobuf:"bytes,6,opt,name=bucket_max_size,json=bucketMaxSize,proto3" json:"bucket_max_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CloudStorage) Reset() {
@@ -1618,6 +1620,13 @@ func (x *CloudStorage) GetDataCacheMaxSize() *wrapperspb.Int64Value {
 func (x *CloudStorage) GetPreferNotToMerge() *wrapperspb.BoolValue {
 	if x != nil {
 		return x.PreferNotToMerge
+	}
+	return nil
+}
+
+func (x *CloudStorage) GetBucketMaxSize() *wrapperspb.Int64Value {
+	if x != nil {
+		return x.BucketMaxSize
 	}
 	return nil
 }
@@ -2209,14 +2218,15 @@ const file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_rawDesc = "" +
 	"serverless\x18\x04 \x01(\bR\n" +
 	"serverless\x12#\n" +
 	"\rdata_transfer\x18\x05 \x01(\bR\fdataTransfer\x12!\n" +
-	"\fyandex_query\x18\x06 \x01(\bR\vyandexQuery\"\xd1\x02\n" +
+	"\fyandex_query\x18\x06 \x01(\bR\vyandexQuery\"\x96\x03\n" +
 	"\fCloudStorage\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12F\n" +
 	"\vmove_factor\x18\x02 \x01(\v2\x1c.google.protobuf.DoubleValueB\a\xfa\xc71\x030-1R\n" +
 	"moveFactor\x12H\n" +
 	"\x12data_cache_enabled\x18\x03 \x01(\v2\x1a.google.protobuf.BoolValueR\x10dataCacheEnabled\x12J\n" +
 	"\x13data_cache_max_size\x18\x04 \x01(\v2\x1b.google.protobuf.Int64ValueR\x10dataCacheMaxSize\x12I\n" +
-	"\x13prefer_not_to_merge\x18\x05 \x01(\v2\x1a.google.protobuf.BoolValueR\x10preferNotToMerge\"\xa6\x02\n" +
+	"\x13prefer_not_to_merge\x18\x05 \x01(\v2\x1a.google.protobuf.BoolValueR\x10preferNotToMerge\x12C\n" +
+	"\x0fbucket_max_size\x18\x06 \x01(\v2\x1b.google.protobuf.Int64ValueR\rbucketMaxSize\"\xa6\x02\n" +
 	"\x13DiskSizeAutoscaling\x12b\n" +
 	"\x17planned_usage_threshold\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\r\xe8\xc71\x00\xfa\xc71\x050-100R\x15plannedUsageThreshold\x12f\n" +
 	"\x19emergency_usage_threshold\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueB\r\xe8\xc71\x00\xfa\xc71\x050-100R\x17emergencyUsageThreshold\x12C\n" +
@@ -2321,29 +2331,30 @@ var file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_depIdxs = []int32{
 	33, // 35: yandex.cloud.mdb.clickhouse.v1.CloudStorage.data_cache_enabled:type_name -> google.protobuf.BoolValue
 	34, // 36: yandex.cloud.mdb.clickhouse.v1.CloudStorage.data_cache_max_size:type_name -> google.protobuf.Int64Value
 	33, // 37: yandex.cloud.mdb.clickhouse.v1.CloudStorage.prefer_not_to_merge:type_name -> google.protobuf.BoolValue
-	34, // 38: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.planned_usage_threshold:type_name -> google.protobuf.Int64Value
-	34, // 39: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.emergency_usage_threshold:type_name -> google.protobuf.Int64Value
-	34, // 40: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.disk_size_limit:type_name -> google.protobuf.Int64Value
-	33, // 41: yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics.enabled:type_name -> google.protobuf.BoolValue
-	37, // 42: yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics.processes_refresh_interval:type_name -> google.protobuf.Duration
-	38, // 43: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.config:type_name -> yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
-	39, // 44: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.default_user_settings:type_name -> yandex.cloud.mdb.clickhouse.v1.UserSettings
-	17, // 45: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
-	20, // 46: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
-	17, // 47: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
-	20, // 48: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
-	38, // 49: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.config:type_name -> yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
-	17, // 50: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
-	34, // 51: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.weight:type_name -> google.protobuf.Int64Value
-	20, // 52: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
-	34, // 53: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.port:type_name -> google.protobuf.Int64Value
-	33, // 54: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.secure:type_name -> google.protobuf.BoolValue
-	34, // 55: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.priority:type_name -> google.protobuf.Int64Value
-	56, // [56:56] is the sub-list for method output_type
-	56, // [56:56] is the sub-list for method input_type
-	56, // [56:56] is the sub-list for extension type_name
-	56, // [56:56] is the sub-list for extension extendee
-	0,  // [0:56] is the sub-list for field type_name
+	34, // 38: yandex.cloud.mdb.clickhouse.v1.CloudStorage.bucket_max_size:type_name -> google.protobuf.Int64Value
+	34, // 39: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.planned_usage_threshold:type_name -> google.protobuf.Int64Value
+	34, // 40: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.emergency_usage_threshold:type_name -> google.protobuf.Int64Value
+	34, // 41: yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling.disk_size_limit:type_name -> google.protobuf.Int64Value
+	33, // 42: yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics.enabled:type_name -> google.protobuf.BoolValue
+	37, // 43: yandex.cloud.mdb.clickhouse.v1.PerformanceDiagnostics.processes_refresh_interval:type_name -> google.protobuf.Duration
+	38, // 44: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.config:type_name -> yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
+	39, // 45: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.default_user_settings:type_name -> yandex.cloud.mdb.clickhouse.v1.UserSettings
+	17, // 46: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
+	20, // 47: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Clickhouse.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
+	17, // 48: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
+	20, // 49: yandex.cloud.mdb.clickhouse.v1.ClusterConfig.Zookeeper.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
+	38, // 50: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.config:type_name -> yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfigSet
+	17, // 51: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.resources:type_name -> yandex.cloud.mdb.clickhouse.v1.Resources
+	34, // 52: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.weight:type_name -> google.protobuf.Int64Value
+	20, // 53: yandex.cloud.mdb.clickhouse.v1.ShardConfig.Clickhouse.disk_size_autoscaling:type_name -> yandex.cloud.mdb.clickhouse.v1.DiskSizeAutoscaling
+	34, // 54: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.port:type_name -> google.protobuf.Int64Value
+	33, // 55: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.secure:type_name -> google.protobuf.BoolValue
+	34, // 56: yandex.cloud.mdb.clickhouse.v1.ExternalShard.Replica.priority:type_name -> google.protobuf.Int64Value
+	57, // [57:57] is the sub-list for method output_type
+	57, // [57:57] is the sub-list for method input_type
+	57, // [57:57] is the sub-list for extension type_name
+	57, // [57:57] is the sub-list for extension extendee
+	0,  // [0:57] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_clickhouse_v1_cluster_proto_init() }

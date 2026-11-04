@@ -62,6 +62,10 @@ func (m *Certificate) SetStatus(v Certificate_Status) {
 	m.Status = v
 }
 
+func (m *Certificate) SetProvider(v CertificateProvider) {
+	m.Provider = v
+}
+
 func (m *Certificate) SetChallenges(v []*Challenge) {
 	m.Challenges = v
 }

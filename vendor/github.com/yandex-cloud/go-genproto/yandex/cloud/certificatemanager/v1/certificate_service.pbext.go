@@ -111,6 +111,10 @@ func (m *RequestNewCertificateRequest) SetChallengeType(v ChallengeType) {
 	m.ChallengeType = v
 }
 
+func (m *RequestNewCertificateRequest) SetProvider(v CertificateProvider) {
+	m.Provider = v
+}
+
 func (m *RequestNewCertificateRequest) SetDescription(v string) {
 	m.Description = v
 }

@@ -508,6 +508,8 @@ type RequestNewCertificateRequest struct {
 	Domains []string `protobuf:"bytes,5,rep,name=domains,proto3" json:"domains,omitempty"`
 	// Type of the domain validation challenge.
 	ChallengeType ChallengeType `protobuf:"varint,6,opt,name=challenge_type,json=challengeType,proto3,enum=yandex.cloud.certificatemanager.v1.ChallengeType" json:"challenge_type,omitempty"`
+	// ACME Certificate Provider
+	Provider CertificateProvider `protobuf:"varint,10,opt,name=provider,proto3,enum=yandex.cloud.certificatemanager.v1.CertificateProvider" json:"provider,omitempty"`
 	// Description of the certificate.
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Flag that protects deletion of the certificate
@@ -579,6 +581,13 @@ func (x *RequestNewCertificateRequest) GetChallengeType() ChallengeType {
 		return x.ChallengeType
 	}
 	return ChallengeType_CHALLENGE_TYPE_UNSPECIFIED
+}
+
+func (x *RequestNewCertificateRequest) GetProvider() CertificateProvider {
+	if x != nil {
+		return x.Provider
+	}
+	return CertificateProvider_CERTIFICATE_PROVIDER_UNSPECIFIED
 }
 
 func (x *RequestNewCertificateRequest) GetDescription() string {
@@ -1103,19 +1112,22 @@ const file_yandex_cloud_certificatemanager_v1_certificate_service_proto_rawDesc 
 	"\x13deletion_protection\x18\b \x01(\bR\x12deletionProtection\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb5\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x90\x05\n" +
 	"\x1cRequestNewCertificateRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x128\n" +
 	"\x04name\x18\x02 \x01(\tB$\xf2\xc71 |[a-z]([-a-z0-9]{0,61}[a-z0-9])?R\x04name\x12\xa1\x01\n" +
 	"\x06labels\x18\x04 \x03(\v2L.yandex.cloud.certificatemanager.v1.RequestNewCertificateRequest.LabelsEntryB;\xf2\xc71\v[-_0-9a-z]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x18\x12\x10[a-z][-_0-9a-z]*\x1a\x04<=63R\x06labels\x12\x18\n" +
 	"\adomains\x18\x05 \x03(\tR\adomains\x12X\n" +
-	"\x0echallenge_type\x18\x06 \x01(\x0e21.yandex.cloud.certificatemanager.v1.ChallengeTypeR\rchallengeType\x12,\n" +
+	"\x0echallenge_type\x18\x06 \x01(\x0e21.yandex.cloud.certificatemanager.v1.ChallengeTypeR\rchallengeType\x12S\n" +
+	"\bprovider\x18\n" +
+	" \x01(\x0e27.yandex.cloud.certificatemanager.v1.CertificateProviderR\bprovider\x12,\n" +
 	"\vdescription\x18\x03 \x01(\tB\n" +
 	"\x8a\xc81\x06<=1024R\vdescription\x12/\n" +
 	"\x13deletion_protection\x18\a \x01(\bR\x12deletionProtection\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x83\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\n" +
+	"\"\x83\x05\n" +
 	"\x18UpdateCertificateRequest\x123\n" +
 	"\x0ecertificate_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\rcertificateId\x12;\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
@@ -1214,12 +1226,13 @@ var file_yandex_cloud_certificatemanager_v1_certificate_service_proto_goTypes = 
 	(*Certificate)(nil),                      // 19: yandex.cloud.certificatemanager.v1.Certificate
 	(*Version)(nil),                          // 20: yandex.cloud.certificatemanager.v1.Version
 	(ChallengeType)(0),                       // 21: yandex.cloud.certificatemanager.v1.ChallengeType
-	(*fieldmaskpb.FieldMask)(nil),            // 22: google.protobuf.FieldMask
-	(*operation.Operation)(nil),              // 23: yandex.cloud.operation.Operation
-	(*access.ListAccessBindingsRequest)(nil), // 24: yandex.cloud.access.ListAccessBindingsRequest
-	(*access.SetAccessBindingsRequest)(nil),  // 25: yandex.cloud.access.SetAccessBindingsRequest
-	(*access.UpdateAccessBindingsRequest)(nil), // 26: yandex.cloud.access.UpdateAccessBindingsRequest
-	(*access.ListAccessBindingsResponse)(nil),  // 27: yandex.cloud.access.ListAccessBindingsResponse
+	(CertificateProvider)(0),                 // 22: yandex.cloud.certificatemanager.v1.CertificateProvider
+	(*fieldmaskpb.FieldMask)(nil),            // 23: google.protobuf.FieldMask
+	(*operation.Operation)(nil),              // 24: yandex.cloud.operation.Operation
+	(*access.ListAccessBindingsRequest)(nil), // 25: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),  // 26: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil), // 27: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),  // 28: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_certificatemanager_v1_certificate_service_proto_depIdxs = []int32{
 	0,  // 0: yandex.cloud.certificatemanager.v1.GetCertificateRequest.view:type_name -> yandex.cloud.certificatemanager.v1.CertificateView
@@ -1229,36 +1242,37 @@ var file_yandex_cloud_certificatemanager_v1_certificate_service_proto_depIdxs = 
 	16, // 4: yandex.cloud.certificatemanager.v1.CreateCertificateRequest.labels:type_name -> yandex.cloud.certificatemanager.v1.CreateCertificateRequest.LabelsEntry
 	17, // 5: yandex.cloud.certificatemanager.v1.RequestNewCertificateRequest.labels:type_name -> yandex.cloud.certificatemanager.v1.RequestNewCertificateRequest.LabelsEntry
 	21, // 6: yandex.cloud.certificatemanager.v1.RequestNewCertificateRequest.challenge_type:type_name -> yandex.cloud.certificatemanager.v1.ChallengeType
-	22, // 7: yandex.cloud.certificatemanager.v1.UpdateCertificateRequest.update_mask:type_name -> google.protobuf.FieldMask
-	18, // 8: yandex.cloud.certificatemanager.v1.UpdateCertificateRequest.labels:type_name -> yandex.cloud.certificatemanager.v1.UpdateCertificateRequest.LabelsEntry
-	23, // 9: yandex.cloud.certificatemanager.v1.ListCertificateOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	1,  // 10: yandex.cloud.certificatemanager.v1.CertificateService.Get:input_type -> yandex.cloud.certificatemanager.v1.GetCertificateRequest
-	2,  // 11: yandex.cloud.certificatemanager.v1.CertificateService.List:input_type -> yandex.cloud.certificatemanager.v1.ListCertificatesRequest
-	4,  // 12: yandex.cloud.certificatemanager.v1.CertificateService.ListVersions:input_type -> yandex.cloud.certificatemanager.v1.ListVersionsRequest
-	6,  // 13: yandex.cloud.certificatemanager.v1.CertificateService.Create:input_type -> yandex.cloud.certificatemanager.v1.CreateCertificateRequest
-	8,  // 14: yandex.cloud.certificatemanager.v1.CertificateService.Update:input_type -> yandex.cloud.certificatemanager.v1.UpdateCertificateRequest
-	9,  // 15: yandex.cloud.certificatemanager.v1.CertificateService.Delete:input_type -> yandex.cloud.certificatemanager.v1.DeleteCertificateRequest
-	7,  // 16: yandex.cloud.certificatemanager.v1.CertificateService.RequestNew:input_type -> yandex.cloud.certificatemanager.v1.RequestNewCertificateRequest
-	14, // 17: yandex.cloud.certificatemanager.v1.CertificateService.ListOperations:input_type -> yandex.cloud.certificatemanager.v1.ListCertificateOperationsRequest
-	24, // 18: yandex.cloud.certificatemanager.v1.CertificateService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
-	25, // 19: yandex.cloud.certificatemanager.v1.CertificateService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
-	26, // 20: yandex.cloud.certificatemanager.v1.CertificateService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
-	19, // 21: yandex.cloud.certificatemanager.v1.CertificateService.Get:output_type -> yandex.cloud.certificatemanager.v1.Certificate
-	3,  // 22: yandex.cloud.certificatemanager.v1.CertificateService.List:output_type -> yandex.cloud.certificatemanager.v1.ListCertificatesResponse
-	5,  // 23: yandex.cloud.certificatemanager.v1.CertificateService.ListVersions:output_type -> yandex.cloud.certificatemanager.v1.ListVersionsResponse
-	23, // 24: yandex.cloud.certificatemanager.v1.CertificateService.Create:output_type -> yandex.cloud.operation.Operation
-	23, // 25: yandex.cloud.certificatemanager.v1.CertificateService.Update:output_type -> yandex.cloud.operation.Operation
-	23, // 26: yandex.cloud.certificatemanager.v1.CertificateService.Delete:output_type -> yandex.cloud.operation.Operation
-	23, // 27: yandex.cloud.certificatemanager.v1.CertificateService.RequestNew:output_type -> yandex.cloud.operation.Operation
-	15, // 28: yandex.cloud.certificatemanager.v1.CertificateService.ListOperations:output_type -> yandex.cloud.certificatemanager.v1.ListCertificateOperationsResponse
-	27, // 29: yandex.cloud.certificatemanager.v1.CertificateService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
-	23, // 30: yandex.cloud.certificatemanager.v1.CertificateService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
-	23, // 31: yandex.cloud.certificatemanager.v1.CertificateService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
-	21, // [21:32] is the sub-list for method output_type
-	10, // [10:21] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	22, // 7: yandex.cloud.certificatemanager.v1.RequestNewCertificateRequest.provider:type_name -> yandex.cloud.certificatemanager.v1.CertificateProvider
+	23, // 8: yandex.cloud.certificatemanager.v1.UpdateCertificateRequest.update_mask:type_name -> google.protobuf.FieldMask
+	18, // 9: yandex.cloud.certificatemanager.v1.UpdateCertificateRequest.labels:type_name -> yandex.cloud.certificatemanager.v1.UpdateCertificateRequest.LabelsEntry
+	24, // 10: yandex.cloud.certificatemanager.v1.ListCertificateOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	1,  // 11: yandex.cloud.certificatemanager.v1.CertificateService.Get:input_type -> yandex.cloud.certificatemanager.v1.GetCertificateRequest
+	2,  // 12: yandex.cloud.certificatemanager.v1.CertificateService.List:input_type -> yandex.cloud.certificatemanager.v1.ListCertificatesRequest
+	4,  // 13: yandex.cloud.certificatemanager.v1.CertificateService.ListVersions:input_type -> yandex.cloud.certificatemanager.v1.ListVersionsRequest
+	6,  // 14: yandex.cloud.certificatemanager.v1.CertificateService.Create:input_type -> yandex.cloud.certificatemanager.v1.CreateCertificateRequest
+	8,  // 15: yandex.cloud.certificatemanager.v1.CertificateService.Update:input_type -> yandex.cloud.certificatemanager.v1.UpdateCertificateRequest
+	9,  // 16: yandex.cloud.certificatemanager.v1.CertificateService.Delete:input_type -> yandex.cloud.certificatemanager.v1.DeleteCertificateRequest
+	7,  // 17: yandex.cloud.certificatemanager.v1.CertificateService.RequestNew:input_type -> yandex.cloud.certificatemanager.v1.RequestNewCertificateRequest
+	14, // 18: yandex.cloud.certificatemanager.v1.CertificateService.ListOperations:input_type -> yandex.cloud.certificatemanager.v1.ListCertificateOperationsRequest
+	25, // 19: yandex.cloud.certificatemanager.v1.CertificateService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	26, // 20: yandex.cloud.certificatemanager.v1.CertificateService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	27, // 21: yandex.cloud.certificatemanager.v1.CertificateService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	19, // 22: yandex.cloud.certificatemanager.v1.CertificateService.Get:output_type -> yandex.cloud.certificatemanager.v1.Certificate
+	3,  // 23: yandex.cloud.certificatemanager.v1.CertificateService.List:output_type -> yandex.cloud.certificatemanager.v1.ListCertificatesResponse
+	5,  // 24: yandex.cloud.certificatemanager.v1.CertificateService.ListVersions:output_type -> yandex.cloud.certificatemanager.v1.ListVersionsResponse
+	24, // 25: yandex.cloud.certificatemanager.v1.CertificateService.Create:output_type -> yandex.cloud.operation.Operation
+	24, // 26: yandex.cloud.certificatemanager.v1.CertificateService.Update:output_type -> yandex.cloud.operation.Operation
+	24, // 27: yandex.cloud.certificatemanager.v1.CertificateService.Delete:output_type -> yandex.cloud.operation.Operation
+	24, // 28: yandex.cloud.certificatemanager.v1.CertificateService.RequestNew:output_type -> yandex.cloud.operation.Operation
+	15, // 29: yandex.cloud.certificatemanager.v1.CertificateService.ListOperations:output_type -> yandex.cloud.certificatemanager.v1.ListCertificateOperationsResponse
+	28, // 30: yandex.cloud.certificatemanager.v1.CertificateService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	24, // 31: yandex.cloud.certificatemanager.v1.CertificateService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	24, // 32: yandex.cloud.certificatemanager.v1.CertificateService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	22, // [22:33] is the sub-list for method output_type
+	11, // [11:22] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_certificatemanager_v1_certificate_service_proto_init() }

@@ -379,6 +379,10 @@ func (m *CloudStorage) SetPreferNotToMerge(v *wrapperspb.BoolValue) {
 	m.PreferNotToMerge = v
 }
 
+func (m *CloudStorage) SetBucketMaxSize(v *wrapperspb.Int64Value) {
+	m.BucketMaxSize = v
+}
+
 func (m *DiskSizeAutoscaling) SetPlannedUsageThreshold(v *wrapperspb.Int64Value) {
 	m.PlannedUsageThreshold = v
 }

@@ -109,6 +109,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_mfa_enforcement"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_organization_iam_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_organization_iam_member"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_policy_authentication_policy_rule"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_organizationmanager_user_ssh_key"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resource_manager_cloud_iam_policy_binding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/gen/yandex/yandex_resource_manager_folder_iam_policy_binding"
@@ -195,6 +196,7 @@ func init() {
 		yandex_organizationmanager_idp_user.NewResource,
 		yandex_organizationmanager_idp_userpool.NewResource,
 		yandex_organizationmanager_idp_userpool_domain.NewResource,
+		yandex_organizationmanager_policy_authentication_policy_rule.NewResource,
 		yandex_organizationmanager_group.NewResource,
 		yandex_organizationmanager_group_iam_member.NewResource,
 		yandex_organizationmanager_mfa_enforcement.NewResource,
