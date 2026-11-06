@@ -1,4 +1,4 @@
-version: 2
+version: "2"
 run:
   modules-download-mode: vendor
   allow-parallel-runners: true
@@ -16,14 +16,16 @@ linters:
   settings:
     errcheck:
       exclude-functions:
-        - github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set,fmt:.*,io:Close,github.com/yandex-cloud/terraform-provider-yandex/yandex:Set
+        - (*github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema.ResourceData).Set
+        - (*github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema.ResourceDiff).ForceNew
+        - (io.Closer).Close
     govet:
       disable:
         - copylocks
   exclusions:
     rules:
       - linters:
-          - gosimple
+          - staticcheck
         text: "S1009:" # should omit nil check; len() for nil slices is defined as zero
       - linters:
           - staticcheck
@@ -46,6 +48,9 @@ linters:
       - linters:
           - staticcheck
         text: "SA4009" # A function argument is overwritten before its first use
+      - linters:
+          - staticcheck
+        text: "ST1005:" # Error strings should not be capitalized or end with punctuation or a newline
     paths:
       - scripts
       - vendor
