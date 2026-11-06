@@ -27,17 +27,17 @@ func CreateCatalog(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics,
 		)
 	}
 
+	// Returned on wait failure too: the operation may still create the catalog.
+	catalogID := op.Metadata().GetCatalogId()
 	_, err = op.WaitInterval(ctx, func(int) time.Duration { return 5 * time.Second })
 	if err != nil {
-		return "", diag.NewErrorDiagnostic(
+		return catalogID, diag.NewErrorDiagnostic(
 			"Failed to create Trino catalog",
 			"Error while requesting API to create Trino catalog. Failed to wait: "+err.Error(),
 		)
 	}
 
-	md := op.Metadata()
-
-	return md.CatalogId, nil
+	return catalogID, nil
 }
 
 func GetCatalogByID(ctx context.Context, sdk *ycsdk.SDK, catalogID, cid string) (*trino.Catalog, diag.Diagnostic) {

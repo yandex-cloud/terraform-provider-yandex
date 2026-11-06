@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_access_control/models"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_cluster"
 )
 
 func NewResource() resource.Resource {
@@ -65,6 +66,8 @@ func (t *trinoAccessControlResource) Create(ctx context.Context, req resource.Cr
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	unlock := trino_cluster.LockOperations(clusterID)
+	defer unlock()
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 
@@ -92,6 +95,8 @@ func (t *trinoAccessControlResource) Delete(ctx context.Context, req resource.De
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	unlock := trino_cluster.LockOperations(clusterID)
+	defer unlock()
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 
@@ -201,6 +206,8 @@ func (t *trinoAccessControlResource) update(ctx context.Context, plan models.Acc
 	if diags.HasError() {
 		return diags
 	}
+	unlock := trino_cluster.LockOperations(plan.ClusterId.ValueString())
+	defer unlock()
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 

@@ -16,6 +16,7 @@ import (
 
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_cluster"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -92,10 +93,17 @@ func (t *trinoCatalogResource) Create(ctx context.Context, req resource.CreateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	unlock := trino_cluster.LockOperations(plan.ClusterId.ValueString())
+	defer unlock()
 	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
 	catalogID, d := CreateCatalog(ctx, t.providerConfig.SDKv2, &resp.Diagnostics, createCatalogRequest)
+	if d != nil && catalogID != "" {
+		// Saved as tainted, otherwise the next apply fails with "already exists".
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), catalogID)...)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("cluster_id"), plan.ClusterId)...)
+	}
 	resp.Diagnostics.Append(d)
 	if resp.Diagnostics.HasError() {
 		return
@@ -132,6 +140,8 @@ func (t *trinoCatalogResource) Delete(ctx context.Context, req resource.DeleteRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	unlock := trino_cluster.LockOperations(clusterID)
+	defer unlock()
 	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
 	defer cancel()
 
@@ -191,6 +201,8 @@ func (t *trinoCatalogResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	unlock := trino_cluster.LockOperations(plan.ClusterId.ValueString())
+	defer unlock()
 	ctx, cancel := context.WithTimeout(ctx, updateTimeout)
 	defer cancel()
 

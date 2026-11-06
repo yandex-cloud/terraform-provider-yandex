@@ -1,11 +1,12 @@
 package trino_catalog
 
-import "time"
+import "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/trino_cluster"
 
 const (
-	YandexTrinoCatalogCreateTimeout = 10 * time.Minute
-	YandexTrinoCatalogDeleteTimeout = 5 * time.Minute
-	YandexTrinoCatalogUpdateTimeout = 10 * time.Minute
+	// A catalog change restarts the whole cluster.
+	YandexTrinoCatalogCreateTimeout = trino_cluster.YandexTrinoClusterUpdateTimeout
+	YandexTrinoCatalogDeleteTimeout = trino_cluster.YandexTrinoClusterUpdateTimeout
+	YandexTrinoCatalogUpdateTimeout = trino_cluster.YandexTrinoClusterUpdateTimeout
 
 	PasswordStubOnImport = "<real value unknown because resource was imported>"
 )
