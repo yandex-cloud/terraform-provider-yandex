@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: wait only for the MASTER host, not for every host role, when refreshing `yandex_mdb_postgresql_cluster` (resource, data source) and `yandex_mdb_postgresql_cluster_v2`; a refresh of a cluster with a host in `ROLE_UNKNOWN` took about two minutes'
+time: 2026-11-03T18:12:20.390905+01:00

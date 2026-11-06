@@ -790,7 +790,7 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 		return
 	}
 
-	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, r.providerConfig.SDKv2, respDiagnostics, mysqlHostService, &mysqlApi, state.HostSpecs, cid)
+	entityIdToApiHosts := mdbcommon.ReadHosts(ctx, r.providerConfig.SDKv2, respDiagnostics, mysqlHostService, hostsAPIForRead(cluster), state.HostSpecs, cid)
 
 	// replication_source_name is user-configured and not returned by the API.
 	// Preserve it from the incoming state so it survives refreshes.

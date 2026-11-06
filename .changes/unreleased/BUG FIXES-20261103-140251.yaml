@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: do not wait for a MASTER host when reading a cluster in `STOPPED` status in `yandex_mdb_postgresql_cluster` resource, data source and `yandex_mdb_postgresql_cluster_v2`; such a refresh took about two minutes per cluster'
+time: 2026-11-03T14:03:03.465613+01:00

@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mysql: do not wait for a MASTER host when reading a cluster in `STOPPED` status in `yandex_mdb_mysql_cluster_v2`; such a refresh took about two minutes per cluster'
+time: 2026-11-03T14:08:59.187353+01:00

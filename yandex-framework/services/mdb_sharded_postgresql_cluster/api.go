@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1"
 	"log"
-	"math"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -260,31 +258,10 @@ func (p *ShardedPostgreSQLAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, 
 }
 
 func (p *ShardedPostgreSQLAPI) ListHosts(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*spqr.Host {
-	attempts := 7
-	return p.retryListSPQRHostsInner(ctx, sdk, diags, cid, 0, attempts, func(hosts []*spqr.Host) bool {
-		return true
-	})
+	log.Printf("[DEBUG] Try ListSPQRHosts")
+	return p.listHostsOnce(ctx, sdk, diags, cid)
 }
 
-func (r *ShardedPostgreSQLAPI) retryListSPQRHostsInner(
-	ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string, attempt int, maxAttempt int, condition func([]*spqr.Host) bool) []*spqr.Host {
-	log.Printf("[DEBUG] Try ListSPQRHosts, attempt: %d", attempt)
-	hosts := r.listHostsOnce(ctx, sdk, diags, cid)
-	if diags.HasError() {
-		return nil
-	}
-	if condition(hosts) || maxAttempt <= attempt {
-		return hosts // We tried to do our best
-	}
-
-	timeout := int(math.Pow(2, float64(attempt)))
-	log.Printf("[DEBUG] Condition failed, waiting %ds before the next attempt", timeout)
-	time.Sleep(time.Second * time.Duration(timeout))
-
-	return r.retryListSPQRHostsInner(ctx, sdk, diags, cid, attempt+1, maxAttempt, condition)
-}
-
-// Do not use. Use ListHosts instead
 func (p *ShardedPostgreSQLAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*spqr.Host {
 	hosts := []*spqr.Host{}
 	pageToken := ""

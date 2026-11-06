@@ -725,7 +725,7 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		}
 	}
 
-	hosts, err := retryListPGHostsWrapper(ctx, config, d.Id())
+	hosts, err := listPGHostsForRead(ctx, config, d.Id(), cluster.GetStatus())
 	if err != nil {
 		return err
 	}
@@ -1324,7 +1324,7 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Step 2: update hosts:
-	currHosts, err := retryListPGHostsWrapper(ctx, config, d.Id())
+	currHosts, err := listPGHostsWithKnownRoles(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -1376,7 +1376,7 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 }
 
 func createPGClusterHosts(ctx context.Context, config *Config, d *schema.ResourceData) error {
-	hosts, err := retryListPGHostsWrapper(ctx, config, d.Id())
+	hosts, err := listPGHostsWithKnownRoles(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -1422,7 +1422,7 @@ func startPGFailoverIfNeed(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	currHosts, err := retryListPGHostsWrapper(ctx, config, d.Id())
+	currHosts, err := listPGHostsWithKnownRoles(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -1845,63 +1845,100 @@ func updatePGHost(ctx context.Context, config *Config, d *schema.ResourceData, h
 	return nil
 }
 
-func retryListPGHosts(ctx context.Context, config *Config, id string, attempt int, maxAttempt int, condition func([]*postgresql.Host) bool) ([]*postgresql.Host, error) {
-	log.Printf("[DEBUG] Try ListPGHosts, attempt: %d", attempt)
-	hosts, err := func(ctx context.Context, config *Config, id string) ([]*postgresql.Host, error) {
-		hosts := []*postgresql.Host{}
-		pageToken := ""
+func listPGHostsOnce(ctx context.Context, config *Config, id string) ([]*postgresql.Host, error) {
+	hosts := []*postgresql.Host{}
+	pageToken := ""
 
-		for {
-			request := &postgresql.ListClusterHostsRequest{
-				ClusterId: id,
-				PageSize:  defaultMDBPageSize,
-				PageToken: pageToken,
-			}
-			resp, err := postgresqlsdk.NewClusterClient(config.SDK).ListHosts(ctx, request)
-			log.Printf("[DEBUG] Sending PostgreSQL cluster list hosts request: %+v", request)
-			if err != nil {
-				return nil, fmt.Errorf("Error while getting list of hosts for PostgreSQL Cluster '%q': %s", id, err)
-			}
-
-			hosts = append(hosts, resp.Hosts...)
-
-			if resp.NextPageToken == "" {
-				break
-			}
-			pageToken = resp.NextPageToken
+	for {
+		request := &postgresql.ListClusterHostsRequest{
+			ClusterId: id,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		}
+		resp, err := postgresqlsdk.NewClusterClient(config.SDK).ListHosts(ctx, request)
+		log.Printf("[DEBUG] Sending PostgreSQL cluster list hosts request: %+v", request)
+		if err != nil {
+			return nil, fmt.Errorf("Error while getting list of hosts for PostgreSQL Cluster '%q': %s", id, err)
 		}
 
-		return hosts, nil
-	}(ctx, config, id)
-	if condition(hosts) || maxAttempt <= attempt {
-		return hosts, err // We tried to do our best
+		hosts = append(hosts, resp.Hosts...)
+
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
 	}
 
-	timeout := int(math.Pow(2, float64(attempt)))
-	log.Printf("[DEBUG] Condition failed, waiting %ds before the next attempt", timeout)
-	time.Sleep(time.Second * time.Duration(timeout))
-
-	return retryListPGHosts(ctx, config, id, attempt+1, maxAttempt, condition)
+	return hosts, nil
 }
 
-// retry with 1, 2, 4, 8, 16, 32, 64, 128 seconds if no succeess
-// while at least one host is unknown and there is no master
-func retryListPGHostsWrapper(ctx context.Context, config *Config, id string) ([]*postgresql.Host, error) {
-	attempts := 7
-	return retryListPGHosts(ctx, config, id, 0, attempts, func(hosts []*postgresql.Host) bool {
-		masterExists := false
-		for _, host := range hosts {
-			// Check that every host has a role
-			if host.Role == postgresql.Host_ROLE_UNKNOWN {
-				return false
-			}
-			// And one of them is master
-			if host.Role == postgresql.Host_MASTER {
-				masterExists = true
-			}
+func pgRetryBackoff(attempt int) time.Duration {
+	return time.Second * time.Duration(int(math.Pow(2, float64(attempt))))
+}
+
+// A list error is returned at once: the wait is for host roles to settle, not for the API to recover.
+func retryListPGHosts(ctx context.Context, list func(context.Context) ([]*postgresql.Host, error), maxAttempt int, condition func([]*postgresql.Host) bool, backoff func(int) time.Duration) ([]*postgresql.Host, error) {
+	for attempt := 0; ; attempt++ {
+		log.Printf("[DEBUG] Try ListPGHosts, attempt: %d", attempt)
+		hosts, err := list(ctx)
+		if err != nil {
+			return nil, err
 		}
-		return masterExists
-	})
+		if condition(hosts) || maxAttempt <= attempt {
+			return hosts, nil
+		}
+
+		wait := backoff(attempt)
+		log.Printf("[DEBUG] Condition failed, waiting %s before the next attempt", wait)
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(wait):
+		}
+	}
+}
+
+func pgHasMasterAndKnownRoles(hosts []*postgresql.Host) bool {
+	masterExists := false
+	for _, host := range hosts {
+		if host.Role == postgresql.Host_ROLE_UNKNOWN {
+			return false
+		}
+		if host.Role == postgresql.Host_MASTER {
+			masterExists = true
+		}
+	}
+	return masterExists
+}
+
+func pgHasMaster(hosts []*postgresql.Host) bool {
+	for _, host := range hosts {
+		if host.Role == postgresql.Host_MASTER {
+			return true
+		}
+	}
+	return false
+}
+
+const pgListHostsMaxAttempt = 7
+
+func pgListHostsMaxAttemptForStatus(status postgresql.Cluster_Status) int {
+	if status == postgresql.Cluster_STOPPED {
+		return 0
+	}
+	return pgListHostsMaxAttempt
+}
+
+func listPGHostsWithKnownRoles(ctx context.Context, config *Config, id string) ([]*postgresql.Host, error) {
+	return retryListPGHosts(ctx, func(ctx context.Context) ([]*postgresql.Host, error) {
+		return listPGHostsOnce(ctx, config, id)
+	}, pgListHostsMaxAttempt, pgHasMasterAndKnownRoles, pgRetryBackoff)
+}
+
+func listPGHostsForRead(ctx context.Context, config *Config, id string, status postgresql.Cluster_Status) ([]*postgresql.Host, error) {
+	return retryListPGHosts(ctx, func(ctx context.Context) ([]*postgresql.Host, error) {
+		return listPGHostsOnce(ctx, config, id)
+	}, pgListHostsMaxAttemptForStatus(status), pgHasMaster, pgRetryBackoff)
 }
 
 func setPGFolderID(d *schema.ResourceData, meta interface{}) error {
