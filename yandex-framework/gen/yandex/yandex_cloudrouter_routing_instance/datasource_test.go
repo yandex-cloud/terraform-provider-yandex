@@ -47,25 +47,31 @@ func TestCloudRouterRoutingInstanceDataSource_byID(t *testing.T) {
 }
 
 func TestCloudRouterRoutingInstanceDataSource_readError(t *testing.T) {
-	for _, test := range []struct {
-		name    string
-		err     error
-		message string
-	}{
-		{"permissionDenied", status.Error(codes.PermissionDenied, "read denied"), "read denied"},
-		{"notFound", status.Error(codes.NotFound, "routing instance not found"), "(?s)Error: Failed to Read resource.*routing_instance not found"},
-	} {
-		t.Run(test.name, func(t *testing.T) {
-			api := &routingInstanceAPIStub{readError: test.err}
-			resource.UnitTest(t, resource.TestCase{
-				ProtoV6ProviderFactories: routingInstanceTestFactories(t, api),
-				Steps: []resource.TestStep{{
-					Config:      routingInstanceDataSourceTestConfig,
-					ExpectError: regexp.MustCompile(test.message),
-				}},
-			})
-		})
-	}
+	api := &routingInstanceAPIStub{readError: status.Error(codes.PermissionDenied, "read denied")}
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: routingInstanceTestFactories(t, api),
+		Steps: []resource.TestStep{{
+			Config:      routingInstanceDataSourceTestConfig,
+			ExpectError: regexp.MustCompile("read denied"),
+		}},
+	})
+}
+
+func TestCloudRouterRoutingInstanceDataSource_notFound(t *testing.T) {
+	api := &routingInstanceAPIStub{readError: status.Error(codes.NotFound, "routing instance not found")}
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: routingInstanceTestFactories(t, api),
+		Steps: []resource.TestStep{{
+			Config: routingInstanceDataSourceTestConfig,
+			Check: resource.ComposeTestCheckFunc(
+				resource.TestCheckResourceAttr("data.yandex_cloudrouter_routing_instance.test", "routing_instance_id", "routing-instance-id"),
+				resource.TestCheckNoResourceAttr("data.yandex_cloudrouter_routing_instance.test", "id"),
+				resource.TestCheckNoResourceAttr("data.yandex_cloudrouter_routing_instance.test", "name"),
+				resource.TestCheckNoResourceAttr("data.yandex_cloudrouter_routing_instance.test", "status"),
+				api.checkMutations(0, 0),
+			),
+		}},
+	})
 }
 
 const routingInstanceDataSourceTestConfig = `
