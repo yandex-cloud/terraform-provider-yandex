@@ -1324,7 +1324,7 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Step 2: update hosts:
-	currHosts, err := listPGHostsWithKnownRoles(ctx, config, d.Id())
+	currHosts, err := listPGHostsOnce(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -1376,7 +1376,7 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 }
 
 func createPGClusterHosts(ctx context.Context, config *Config, d *schema.ResourceData) error {
-	hosts, err := listPGHostsWithKnownRoles(ctx, config, d.Id())
+	hosts, err := listPGHostsOnce(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -1422,7 +1422,7 @@ func startPGFailoverIfNeed(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	currHosts, err := listPGHostsWithKnownRoles(ctx, config, d.Id())
+	currHosts, err := listPGHostsOnce(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
@@ -1438,12 +1438,21 @@ func startPGFailoverIfNeed(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] hostMasterName: %+v", hostMasterName)
 	for _, hostInfo := range compareHostsInfo.hostsInfo {
 		log.Printf("[DEBUG] hostInfox: %+v", hostInfo)
-		if hostMasterName == hostInfo.name && hostInfo.role != postgresql.Host_MASTER {
-			if err := startPGFailover(ctx, config, d, hostInfo.fqdn); err != nil {
-				return err
-			}
-			break
+		if hostMasterName != hostInfo.name {
+			continue
 		}
+		// A failover to a host the API does not see as alive fails in the worker and leaves the cluster in MODIFY-ERROR,
+		// so a host that keeps reporting ROLE_UNKNOWN is an error here, not a failover target.
+		role, err := waitPGHostRole(ctx, func(ctx context.Context) ([]*postgresql.Host, error) {
+			return listPGHostsOnce(ctx, config, d.Id())
+		}, hostInfo.fqdn, hostInfo.role, pgListHostsMaxAttempt, pgRetryBackoff)
+		if err != nil {
+			return fmt.Errorf("failover is not started: %w", err)
+		}
+		if role != postgresql.Host_MASTER {
+			return startPGFailover(ctx, config, d, hostInfo.fqdn)
+		}
+		return nil
 	}
 
 	return nil
@@ -1898,19 +1907,6 @@ func retryListPGHosts(ctx context.Context, list func(context.Context) ([]*postgr
 	}
 }
 
-func pgHasMasterAndKnownRoles(hosts []*postgresql.Host) bool {
-	masterExists := false
-	for _, host := range hosts {
-		if host.Role == postgresql.Host_ROLE_UNKNOWN {
-			return false
-		}
-		if host.Role == postgresql.Host_MASTER {
-			masterExists = true
-		}
-	}
-	return masterExists
-}
-
 func pgHasMaster(hosts []*postgresql.Host) bool {
 	for _, host := range hosts {
 		if host.Role == postgresql.Host_MASTER {
@@ -1929,16 +1925,36 @@ func pgListHostsMaxAttemptForStatus(status postgresql.Cluster_Status) int {
 	return pgListHostsMaxAttempt
 }
 
-func listPGHostsWithKnownRoles(ctx context.Context, config *Config, id string) ([]*postgresql.Host, error) {
-	return retryListPGHosts(ctx, func(ctx context.Context) ([]*postgresql.Host, error) {
-		return listPGHostsOnce(ctx, config, id)
-	}, pgListHostsMaxAttempt, pgHasMasterAndKnownRoles, pgRetryBackoff)
-}
-
 func listPGHostsForRead(ctx context.Context, config *Config, id string, status postgresql.Cluster_Status) ([]*postgresql.Host, error) {
 	return retryListPGHosts(ctx, func(ctx context.Context) ([]*postgresql.Host, error) {
 		return listPGHostsOnce(ctx, config, id)
 	}, pgListHostsMaxAttemptForStatus(status), pgHasMaster, pgRetryBackoff)
+}
+
+func pgHostRole(hosts []*postgresql.Host, fqdn string) postgresql.Host_Role {
+	for _, host := range hosts {
+		if host.Name == fqdn {
+			return host.Role
+		}
+	}
+	return postgresql.Host_ROLE_UNKNOWN
+}
+
+func waitPGHostRole(ctx context.Context, list func(context.Context) ([]*postgresql.Host, error), fqdn string, role postgresql.Host_Role, maxAttempt int, backoff func(int) time.Duration) (postgresql.Host_Role, error) {
+	if role != postgresql.Host_ROLE_UNKNOWN {
+		return role, nil
+	}
+	hosts, err := retryListPGHosts(ctx, list, maxAttempt, func(hosts []*postgresql.Host) bool {
+		return pgHostRole(hosts, fqdn) != postgresql.Host_ROLE_UNKNOWN
+	}, backoff)
+	if err != nil {
+		return postgresql.Host_ROLE_UNKNOWN, err
+	}
+	role = pgHostRole(hosts, fqdn)
+	if role == postgresql.Host_ROLE_UNKNOWN {
+		return role, fmt.Errorf("PostgreSQL host %q does not report its role", fqdn)
+	}
+	return role, nil
 }
 
 func setPGFolderID(d *schema.ResourceData, meta interface{}) error {
