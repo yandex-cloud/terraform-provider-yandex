@@ -29,5 +29,5 @@ func (c clusterExtensionClient) Iterator(ctx context.Context, req *clickhouse.Li
 				return nil, err
 			}
 			return clusterExtensionServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -18,7 +18,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceSchema(ctx
 		MarkdownDescription: "",
 		Attributes: map[string]schema.Attribute{
 
-			"applications_exclude": schema.ListAttribute{
+			"applications_exclude": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of IDs of applications not affected by the authentication policy rule.\n Empty list matches no applications.",
 				Description: "List of IDs of applications not affected by the authentication policy rule.\n Empty list matches no applications." +
@@ -29,7 +29,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceSchema(ctx
 				Computed: true,
 			},
 
-			"applications_include": schema.ListAttribute{
+			"applications_include": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of IDs of applications affected by the authentication policy rule.\n Empty list matches all applications.",
 				Description: "List of IDs of applications affected by the authentication policy rule.\n Empty list matches all applications." +
@@ -91,7 +91,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceSchema(ctx
 				Computed: true,
 			},
 
-			"networks_exclude": schema.ListAttribute{
+			"networks_exclude": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "Source IP ranges in CIDR notation excluded from the authentication policy rule.\n Empty list matches no sources.",
 				Description: "Source IP ranges in CIDR notation excluded from the authentication policy rule.\n Empty list matches no sources." +
@@ -102,7 +102,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceSchema(ctx
 				Computed: true,
 			},
 
-			"networks_include": schema.ListAttribute{
+			"networks_include": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "Source IP ranges in CIDR notation that the authentication policy rule applies to.\n Empty list matches any source and is functionally equal to [\"0.0.0.0/0\", \"::0/0\"].",
 				Description: "Source IP ranges in CIDR notation that the authentication policy rule applies to.\n Empty list matches any source and is functionally equal to [\"0.0.0.0/0\", \"::0/0\"]." +
@@ -113,7 +113,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceSchema(ctx
 				Computed: true,
 			},
 
-			"obligations": schema.ListNestedAttribute{
+			"obligations": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 
 					Attributes: map[string]schema.Attribute{
@@ -152,6 +152,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceSchema(ctx
 										// -> yandex.cloud.organizationmanager.v1.policy.AuthenticationPolicyRule.obligations -> yandex.cloud.organizationmanager.v1.policy.Obligation.skip_mfa -> yandex.cloud.organizationmanager.v1.policy.SkipMfa.require_once
 										"package: yandex.cloud.organizationmanager.v1.policy\n" +
 										"filename: yandex/cloud/organizationmanager/v1/policy/authentication_policy_rule.proto\n",
+									Optional: true,
 									Computed: true,
 								},
 							},
@@ -259,7 +260,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceSchema(ctx
 				Computed: true,
 			},
 
-			"subjects_exclude": schema.ListAttribute{
+			"subjects_exclude": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of IDs of subjects not affected by the authentication policy rule.\n Empty list matches no subjects.",
 				Description: "List of IDs of subjects not affected by the authentication policy rule.\n Empty list matches no subjects." +
@@ -270,7 +271,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceSchema(ctx
 				Computed: true,
 			},
 
-			"subjects_include": schema.ListAttribute{
+			"subjects_include": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of IDs of subjects affected by the authentication policy rule.\n Empty list matches all subjects and is functionally equal to [\"allUsers\"].",
 				Description: "List of IDs of subjects affected by the authentication policy rule.\n Empty list matches all subjects and is functionally equal to [\"allUsers\"]." +

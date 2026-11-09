@@ -27,5 +27,5 @@ func (c userClient) Iterator(ctx context.Context, req *idp.ListUsersRequest, opt
 				return nil, err
 			}
 			return userServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

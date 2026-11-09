@@ -30,7 +30,7 @@ func (c oAuthClientClient) Iterator(ctx context.Context, req *iam.ListOAuthClien
 				return nil, err
 			}
 			return oAuthClientServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type oAuthClientServiceListProfilesInternal struct {
@@ -49,5 +49,5 @@ func (c oAuthClientClient) ProfilesIterator(ctx context.Context, req *iam.ListPr
 				return nil, err
 			}
 			return oAuthClientServiceListProfilesInternal{resp}, nil
-		})
+		}, opts...)
 }

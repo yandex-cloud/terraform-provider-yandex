@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mysql: wait only for the MASTER host, not for every host role, when refreshing `yandex_mdb_mysql_cluster_v2`; a refresh of a cluster with a host in `ROLE_UNKNOWN` took about two minutes'
-time: 2026-11-03T18:38:16.409414+01:00

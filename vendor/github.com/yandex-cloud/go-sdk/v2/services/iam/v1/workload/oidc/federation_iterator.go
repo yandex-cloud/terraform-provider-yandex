@@ -31,7 +31,7 @@ func (c federationClient) Iterator(ctx context.Context, req *oidc.ListFederation
 				return nil, err
 			}
 			return federationServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type federationServiceListAccessBindingsInternal struct {
@@ -50,5 +50,5 @@ func (c federationClient) AccessBindingsIterator(ctx context.Context, req *acces
 				return nil, err
 			}
 			return federationServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -40,7 +40,7 @@ func (c clusterClient) Iterator(ctx context.Context, req *clickhouse.ListCluster
 				return nil, err
 			}
 			return clusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListLogsInternal struct {
@@ -59,7 +59,7 @@ func (c clusterClient) LogsIterator(ctx context.Context, req *clickhouse.ListClu
 				return nil, err
 			}
 			return clusterServiceListLogsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListOperationsInternal struct {
@@ -78,7 +78,7 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *clickhouse.L
 				return nil, err
 			}
 			return clusterServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListBackupsInternal struct {
@@ -97,7 +97,7 @@ func (c clusterClient) BackupsIterator(ctx context.Context, req *clickhouse.List
 				return nil, err
 			}
 			return clusterServiceListBackupsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListHostsInternal struct {
@@ -116,7 +116,7 @@ func (c clusterClient) HostsIterator(ctx context.Context, req *clickhouse.ListCl
 				return nil, err
 			}
 			return clusterServiceListHostsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListShardsInternal struct {
@@ -135,7 +135,7 @@ func (c clusterClient) ShardsIterator(ctx context.Context, req *clickhouse.ListC
 				return nil, err
 			}
 			return clusterServiceListShardsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListShardGroupsInternal struct {
@@ -154,7 +154,7 @@ func (c clusterClient) ShardGroupsIterator(ctx context.Context, req *clickhouse.
 				return nil, err
 			}
 			return clusterServiceListShardGroupsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListExternalDictionariesInternal struct {
@@ -173,7 +173,7 @@ func (c clusterClient) ExternalDictionariesIterator(ctx context.Context, req *cl
 				return nil, err
 			}
 			return clusterServiceListExternalDictionariesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListAccessBindingsInternal struct {
@@ -192,5 +192,5 @@ func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.L
 				return nil, err
 			}
 			return clusterServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

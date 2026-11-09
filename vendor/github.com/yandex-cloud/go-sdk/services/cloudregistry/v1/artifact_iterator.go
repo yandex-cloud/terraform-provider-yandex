@@ -31,7 +31,7 @@ func (c artifactClient) Iterator(ctx context.Context, req *cloudregistry.ListArt
 				return nil, err
 			}
 			return artifactServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type artifactServiceListAccessBindingsInternal struct {
@@ -50,5 +50,5 @@ func (c artifactClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return artifactServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

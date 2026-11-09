@@ -33,7 +33,7 @@ func (c filesystemClient) Iterator(ctx context.Context, req *compute.ListFilesys
 				return nil, err
 			}
 			return filesystemServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type filesystemServiceListOperationsInternal struct {
@@ -52,7 +52,7 @@ func (c filesystemClient) OperationsIterator(ctx context.Context, req *compute.L
 				return nil, err
 			}
 			return filesystemServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type filesystemServiceListAccessBindingsInternal struct {
@@ -71,5 +71,5 @@ func (c filesystemClient) AccessBindingsIterator(ctx context.Context, req *acces
 				return nil, err
 			}
 			return filesystemServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

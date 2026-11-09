@@ -29,5 +29,5 @@ func (c formatSchemaClient) Iterator(ctx context.Context, req *clickhouse.ListFo
 				return nil, err
 			}
 			return formatSchemaServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

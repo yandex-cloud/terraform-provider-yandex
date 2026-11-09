@@ -30,5 +30,5 @@ func (c accessPolicyTemplateClient) Iterator(ctx context.Context, req *iam.ListA
 				return nil, err
 			}
 			return accessPolicyTemplateServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

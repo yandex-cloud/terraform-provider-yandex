@@ -31,7 +31,7 @@ func (c routingInstanceClient) Iterator(ctx context.Context, req *cloudrouter.Li
 				return nil, err
 			}
 			return routingInstanceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type routingInstanceServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c routingInstanceClient) OperationsIterator(ctx context.Context, req *clou
 				return nil, err
 			}
 			return routingInstanceServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

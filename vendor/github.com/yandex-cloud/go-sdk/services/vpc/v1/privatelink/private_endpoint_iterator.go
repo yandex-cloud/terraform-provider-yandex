@@ -31,7 +31,7 @@ func (c privateEndpointClient) Iterator(ctx context.Context, req *privatelink.Li
 				return nil, err
 			}
 			return privateEndpointServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type privateEndpointServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c privateEndpointClient) OperationsIterator(ctx context.Context, req *priv
 				return nil, err
 			}
 			return privateEndpointServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

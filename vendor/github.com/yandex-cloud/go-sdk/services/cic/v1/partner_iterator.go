@@ -27,5 +27,5 @@ func (c partnerClient) Iterator(ctx context.Context, req *cic.ListPartnersReques
 				return nil, err
 			}
 			return partnerServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

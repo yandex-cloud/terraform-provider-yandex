@@ -29,7 +29,7 @@ func (c backupClient) Iterator(ctx context.Context, req *ydb.ListBackupsRequest,
 				return nil, err
 			}
 			return backupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type backupServiceListAccessBindingsInternal struct {
@@ -48,5 +48,5 @@ func (c backupClient) AccessBindingsIterator(ctx context.Context, req *access.Li
 				return nil, err
 			}
 			return backupServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

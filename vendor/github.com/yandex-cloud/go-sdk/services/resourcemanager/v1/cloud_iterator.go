@@ -34,7 +34,7 @@ func (c cloudClient) Iterator(ctx context.Context, req *resourcemanager.ListClou
 				return nil, err
 			}
 			return cloudServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type cloudServiceListOperationsInternal struct {
@@ -53,7 +53,7 @@ func (c cloudClient) OperationsIterator(ctx context.Context, req *resourcemanage
 				return nil, err
 			}
 			return cloudServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type cloudServiceListAccessBindingsInternal struct {
@@ -72,7 +72,7 @@ func (c cloudClient) AccessBindingsIterator(ctx context.Context, req *access.Lis
 				return nil, err
 			}
 			return cloudServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type cloudServiceListAccessPolicyBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c cloudClient) AccessPolicyBindingsIterator(ctx context.Context, req *acce
 				return nil, err
 			}
 			return cloudServiceListAccessPolicyBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

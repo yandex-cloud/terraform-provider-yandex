@@ -29,5 +29,5 @@ func (c authenticationPolicyRuleClient) Iterator(ctx context.Context, req *polic
 				return nil, err
 			}
 			return authenticationPolicyRuleServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

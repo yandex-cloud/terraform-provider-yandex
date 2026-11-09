@@ -27,5 +27,5 @@ func (c zoneClient) Iterator(ctx context.Context, req *compute.ListZonesRequest,
 				return nil, err
 			}
 			return zoneServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

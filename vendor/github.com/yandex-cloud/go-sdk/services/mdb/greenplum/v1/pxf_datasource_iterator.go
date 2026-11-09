@@ -29,5 +29,5 @@ func (c pxfDatasourceClient) Iterator(ctx context.Context, req *greenplum.ListPX
 				return nil, err
 			}
 			return pxfDatasourceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

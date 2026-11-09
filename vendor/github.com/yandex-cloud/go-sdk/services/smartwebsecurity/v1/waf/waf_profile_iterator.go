@@ -29,5 +29,5 @@ func (c wafProfileClient) Iterator(ctx context.Context, req *waf.ListWafProfiles
 				return nil, err
 			}
 			return wafProfileServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

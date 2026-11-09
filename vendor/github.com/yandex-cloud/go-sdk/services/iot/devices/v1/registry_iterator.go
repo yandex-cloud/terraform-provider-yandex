@@ -35,7 +35,7 @@ func (c registryClient) Iterator(ctx context.Context, req *devices.ListRegistrie
 				return nil, err
 			}
 			return registryServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListCertificatesInternal struct {
@@ -54,7 +54,7 @@ func (c registryClient) CertificatesIterator(ctx context.Context, req *devices.L
 				return nil, err
 			}
 			return registryServiceListCertificatesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListPasswordsInternal struct {
@@ -73,7 +73,7 @@ func (c registryClient) PasswordsIterator(ctx context.Context, req *devices.List
 				return nil, err
 			}
 			return registryServiceListPasswordsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListDeviceTopicAliasesInternal struct {
@@ -92,7 +92,7 @@ func (c registryClient) DeviceTopicAliasesIterator(ctx context.Context, req *dev
 				return nil, err
 			}
 			return registryServiceListDeviceTopicAliasesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListOperationsInternal struct {
@@ -111,7 +111,7 @@ func (c registryClient) OperationsIterator(ctx context.Context, req *devices.Lis
 				return nil, err
 			}
 			return registryServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListDataStreamExportsInternal struct {
@@ -130,5 +130,5 @@ func (c registryClient) DataStreamExportsIterator(ctx context.Context, req *devi
 				return nil, err
 			}
 			return registryServiceListDataStreamExportsInternal{resp}, nil
-		})
+		}, opts...)
 }

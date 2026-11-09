@@ -29,5 +29,5 @@ func (c changeFreezeClient) Iterator(ctx context.Context, req *maintenance.ListC
 				return nil, err
 			}
 			return changeFreezeServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

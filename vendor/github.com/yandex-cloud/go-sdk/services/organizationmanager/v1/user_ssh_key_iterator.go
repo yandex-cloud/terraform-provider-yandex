@@ -29,5 +29,5 @@ func (c userSshKeyClient) Iterator(ctx context.Context, req *organizationmanager
 				return nil, err
 			}
 			return userSshKeyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

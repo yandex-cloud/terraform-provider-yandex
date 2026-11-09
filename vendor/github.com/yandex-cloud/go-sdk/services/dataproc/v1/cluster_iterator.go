@@ -35,7 +35,7 @@ func (c clusterClient) Iterator(ctx context.Context, req *dataproc.ListClustersR
 				return nil, err
 			}
 			return clusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListOperationsInternal struct {
@@ -54,7 +54,7 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *dataproc.Lis
 				return nil, err
 			}
 			return clusterServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListHostsInternal struct {
@@ -73,7 +73,7 @@ func (c clusterClient) HostsIterator(ctx context.Context, req *dataproc.ListClus
 				return nil, err
 			}
 			return clusterServiceListHostsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListUILinksInternal struct {
@@ -92,7 +92,7 @@ func (c clusterClient) UILinksIterator(ctx context.Context, req *dataproc.ListUI
 				return nil, err
 			}
 			return clusterServiceListUILinksInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListAccessBindingsInternal struct {
@@ -111,5 +111,5 @@ func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.L
 				return nil, err
 			}
 			return clusterServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

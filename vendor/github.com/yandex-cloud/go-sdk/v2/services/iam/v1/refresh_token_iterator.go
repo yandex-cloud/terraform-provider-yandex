@@ -29,5 +29,5 @@ func (c refreshTokenClient) Iterator(ctx context.Context, req *iam.ListRefreshTo
 				return nil, err
 			}
 			return refreshTokenServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

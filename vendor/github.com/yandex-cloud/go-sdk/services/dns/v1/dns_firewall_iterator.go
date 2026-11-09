@@ -33,7 +33,7 @@ func (c dnsFirewallClient) Iterator(ctx context.Context, req *dns.ListDnsFirewal
 				return nil, err
 			}
 			return dnsFirewallServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type dnsFirewallServiceListOperationsInternal struct {
@@ -52,7 +52,7 @@ func (c dnsFirewallClient) OperationsIterator(ctx context.Context, req *dns.List
 				return nil, err
 			}
 			return dnsFirewallServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type dnsFirewallServiceListAccessBindingsInternal struct {
@@ -71,5 +71,5 @@ func (c dnsFirewallClient) AccessBindingsIterator(ctx context.Context, req *acce
 				return nil, err
 			}
 			return dnsFirewallServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

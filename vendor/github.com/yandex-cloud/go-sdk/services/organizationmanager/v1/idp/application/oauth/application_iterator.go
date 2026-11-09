@@ -34,7 +34,7 @@ func (c applicationClient) Iterator(ctx context.Context, req *oauth.ListApplicat
 				return nil, err
 			}
 			return applicationServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type applicationServiceListOperationsInternal struct {
@@ -53,7 +53,7 @@ func (c applicationClient) OperationsIterator(ctx context.Context, req *oauth.Li
 				return nil, err
 			}
 			return applicationServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type applicationServiceListAccessBindingsInternal struct {
@@ -72,7 +72,7 @@ func (c applicationClient) AccessBindingsIterator(ctx context.Context, req *acce
 				return nil, err
 			}
 			return applicationServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type applicationServiceListAssignmentsInternal struct {
@@ -91,5 +91,5 @@ func (c applicationClient) AssignmentsIterator(ctx context.Context, req *oauth.L
 				return nil, err
 			}
 			return applicationServiceListAssignmentsInternal{resp}, nil
-		})
+		}, opts...)
 }

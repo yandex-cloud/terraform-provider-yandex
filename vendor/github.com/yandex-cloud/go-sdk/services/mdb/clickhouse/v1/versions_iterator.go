@@ -29,5 +29,5 @@ func (c versionsClient) Iterator(ctx context.Context, req *clickhouse.ListVersio
 				return nil, err
 			}
 			return versionsServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

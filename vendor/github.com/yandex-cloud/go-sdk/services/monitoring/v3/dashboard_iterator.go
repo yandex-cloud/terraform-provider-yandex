@@ -31,7 +31,7 @@ func (c dashboardClient) Iterator(ctx context.Context, req *monitoring.ListDashb
 				return nil, err
 			}
 			return dashboardServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type dashboardServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c dashboardClient) OperationsIterator(ctx context.Context, req *monitoring
 				return nil, err
 			}
 			return dashboardServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

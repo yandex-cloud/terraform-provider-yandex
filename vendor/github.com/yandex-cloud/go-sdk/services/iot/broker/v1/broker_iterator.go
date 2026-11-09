@@ -31,7 +31,7 @@ func (c brokerClient) Iterator(ctx context.Context, req *broker.ListBrokersReque
 				return nil, err
 			}
 			return brokerServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type brokerServiceListCertificatesInternal struct {
@@ -50,7 +50,7 @@ func (c brokerClient) CertificatesIterator(ctx context.Context, req *broker.List
 				return nil, err
 			}
 			return brokerServiceListCertificatesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type brokerServiceListPasswordsInternal struct {
@@ -69,7 +69,7 @@ func (c brokerClient) PasswordsIterator(ctx context.Context, req *broker.ListBro
 				return nil, err
 			}
 			return brokerServiceListPasswordsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type brokerServiceListOperationsInternal struct {
@@ -88,5 +88,5 @@ func (c brokerClient) OperationsIterator(ctx context.Context, req *broker.ListBr
 				return nil, err
 			}
 			return brokerServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

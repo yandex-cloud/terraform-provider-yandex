@@ -31,7 +31,7 @@ func (c projectClient) Iterator(ctx context.Context, req *datasphere.ListProject
 				return nil, err
 			}
 			return projectServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type projectServiceListAccessBindingsInternal struct {
@@ -50,5 +50,5 @@ func (c projectClient) AccessBindingsIterator(ctx context.Context, req *access.L
 				return nil, err
 			}
 			return projectServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

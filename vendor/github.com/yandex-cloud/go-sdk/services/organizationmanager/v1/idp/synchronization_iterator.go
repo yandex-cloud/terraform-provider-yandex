@@ -29,5 +29,5 @@ func (c synchronizationClient) SupportedAttributesIterator(ctx context.Context, 
 				return nil, err
 			}
 			return synchronizationServiceListSupportedAttributesInternal{resp}, nil
-		})
+		}, opts...)
 }

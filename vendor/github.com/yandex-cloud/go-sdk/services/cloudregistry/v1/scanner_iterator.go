@@ -30,7 +30,7 @@ func (c scannerClient) Iterator(ctx context.Context, req *cloudregistry.ListScan
 				return nil, err
 			}
 			return scannerServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type scannerServiceListVulnerabilitiesInternal struct {
@@ -49,5 +49,5 @@ func (c scannerClient) VulnerabilitiesIterator(ctx context.Context, req *cloudre
 				return nil, err
 			}
 			return scannerServiceListVulnerabilitiesInternal{resp}, nil
-		})
+		}, opts...)
 }

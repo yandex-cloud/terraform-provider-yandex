@@ -33,6 +33,7 @@ const (
 	ClusterService_Restore_FullMethodName               = "/yandex.cloud.mdb.redis.v1.ClusterService/Restore"
 	ClusterService_RescheduleMaintenance_FullMethodName = "/yandex.cloud.mdb.redis.v1.ClusterService/RescheduleMaintenance"
 	ClusterService_StartFailover_FullMethodName         = "/yandex.cloud.mdb.redis.v1.ClusterService/StartFailover"
+	ClusterService_RestartHosts_FullMethodName          = "/yandex.cloud.mdb.redis.v1.ClusterService/RestartHosts"
 	ClusterService_ListLogs_FullMethodName              = "/yandex.cloud.mdb.redis.v1.ClusterService/ListLogs"
 	ClusterService_StreamLogs_FullMethodName            = "/yandex.cloud.mdb.redis.v1.ClusterService/StreamLogs"
 	ClusterService_ListOperations_FullMethodName        = "/yandex.cloud.mdb.redis.v1.ClusterService/ListOperations"
@@ -84,6 +85,8 @@ type ClusterServiceClient interface {
 	RescheduleMaintenance(ctx context.Context, in *RescheduleMaintenanceRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Start a manual failover on the specified Valkey cluster.
 	StartFailover(ctx context.Context, in *StartClusterFailoverRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Restarts the specified host of a Valkey cluster.
+	RestartHosts(ctx context.Context, in *RestartHostsRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Retrieves logs for the specified Valkey cluster.
 	ListLogs(ctx context.Context, in *ListClusterLogsRequest, opts ...grpc.CallOption) (*ListClusterLogsResponse, error)
 	// Same as ListLogs but using server-side streaming. Also allows for 'tail -f' semantics.
@@ -248,6 +251,16 @@ func (c *clusterServiceClient) StartFailover(ctx context.Context, in *StartClust
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(operation.Operation)
 	err := c.cc.Invoke(ctx, ClusterService_StartFailover_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clusterServiceClient) RestartHosts(ctx context.Context, in *RestartHostsRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, ClusterService_RestartHosts_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -465,6 +478,8 @@ type ClusterServiceServer interface {
 	RescheduleMaintenance(context.Context, *RescheduleMaintenanceRequest) (*operation.Operation, error)
 	// Start a manual failover on the specified Valkey cluster.
 	StartFailover(context.Context, *StartClusterFailoverRequest) (*operation.Operation, error)
+	// Restarts the specified host of a Valkey cluster.
+	RestartHosts(context.Context, *RestartHostsRequest) (*operation.Operation, error)
 	// Retrieves logs for the specified Valkey cluster.
 	ListLogs(context.Context, *ListClusterLogsRequest) (*ListClusterLogsResponse, error)
 	// Same as ListLogs but using server-side streaming. Also allows for 'tail -f' semantics.
@@ -549,6 +564,9 @@ func (UnimplementedClusterServiceServer) RescheduleMaintenance(context.Context, 
 }
 func (UnimplementedClusterServiceServer) StartFailover(context.Context, *StartClusterFailoverRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method StartFailover not implemented")
+}
+func (UnimplementedClusterServiceServer) RestartHosts(context.Context, *RestartHostsRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method RestartHosts not implemented")
 }
 func (UnimplementedClusterServiceServer) ListLogs(context.Context, *ListClusterLogsRequest) (*ListClusterLogsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListLogs not implemented")
@@ -833,6 +851,24 @@ func _ClusterService_StartFailover_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ClusterServiceServer).StartFailover(ctx, req.(*StartClusterFailoverRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClusterService_RestartHosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RestartHostsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServiceServer).RestartHosts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClusterService_RestartHosts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServiceServer).RestartHosts(ctx, req.(*RestartHostsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1190,6 +1226,10 @@ var ClusterService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartFailover",
 			Handler:    _ClusterService_StartFailover_Handler,
+		},
+		{
+			MethodName: "RestartHosts",
+			Handler:    _ClusterService_RestartHosts_Handler,
 		},
 		{
 			MethodName: "ListLogs",

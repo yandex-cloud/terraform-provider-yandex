@@ -35,7 +35,7 @@ func (c snapshotScheduleClient) Iterator(ctx context.Context, req *compute.ListS
 				return nil, err
 			}
 			return snapshotScheduleServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type snapshotScheduleServiceListOperationsInternal struct {
@@ -54,7 +54,7 @@ func (c snapshotScheduleClient) OperationsIterator(ctx context.Context, req *com
 				return nil, err
 			}
 			return snapshotScheduleServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type snapshotScheduleServiceListSnapshotsInternal struct {
@@ -73,7 +73,7 @@ func (c snapshotScheduleClient) SnapshotsIterator(ctx context.Context, req *comp
 				return nil, err
 			}
 			return snapshotScheduleServiceListSnapshotsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type snapshotScheduleServiceListDisksInternal struct {
@@ -92,7 +92,7 @@ func (c snapshotScheduleClient) DisksIterator(ctx context.Context, req *compute.
 				return nil, err
 			}
 			return snapshotScheduleServiceListDisksInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type snapshotScheduleServiceListAccessBindingsInternal struct {
@@ -111,5 +111,5 @@ func (c snapshotScheduleClient) AccessBindingsIterator(ctx context.Context, req 
 				return nil, err
 			}
 			return snapshotScheduleServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -29,5 +29,5 @@ func (c captchaClient) Iterator(ctx context.Context, req *smartcaptcha.ListCaptc
 				return nil, err
 			}
 			return captchaServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

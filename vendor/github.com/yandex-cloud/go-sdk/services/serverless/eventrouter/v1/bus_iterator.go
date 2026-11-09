@@ -31,7 +31,7 @@ func (c busClient) Iterator(ctx context.Context, req *eventrouter.ListBusesReque
 				return nil, err
 			}
 			return busServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type busServiceListOperationsInternal struct {
@@ -50,7 +50,7 @@ func (c busClient) OperationsIterator(ctx context.Context, req *eventrouter.List
 				return nil, err
 			}
 			return busServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type busServiceListAccessBindingsInternal struct {
@@ -69,5 +69,5 @@ func (c busClient) AccessBindingsIterator(ctx context.Context, req *access.ListA
 				return nil, err
 			}
 			return busServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

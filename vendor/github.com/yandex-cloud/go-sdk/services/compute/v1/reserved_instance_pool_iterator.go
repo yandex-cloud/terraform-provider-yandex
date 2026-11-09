@@ -32,7 +32,7 @@ func (c reservedInstancePoolClient) Iterator(ctx context.Context, req *compute.L
 				return nil, err
 			}
 			return reservedInstancePoolServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type reservedInstancePoolServiceListOperationsInternal struct {
@@ -51,7 +51,7 @@ func (c reservedInstancePoolClient) OperationsIterator(ctx context.Context, req 
 				return nil, err
 			}
 			return reservedInstancePoolServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type reservedInstancePoolServiceListInstancesInternal struct {
@@ -70,5 +70,5 @@ func (c reservedInstancePoolClient) InstancesIterator(ctx context.Context, req *
 				return nil, err
 			}
 			return reservedInstancePoolServiceListInstancesInternal{resp}, nil
-		})
+		}, opts...)
 }

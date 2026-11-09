@@ -29,5 +29,5 @@ func (c mlModelClient) Iterator(ctx context.Context, req *clickhouse.ListMlModel
 				return nil, err
 			}
 			return mlModelServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -29,5 +29,5 @@ func (c diskTypeClient) Iterator(ctx context.Context, req *compute.ListDiskTypes
 				return nil, err
 			}
 			return diskTypeServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

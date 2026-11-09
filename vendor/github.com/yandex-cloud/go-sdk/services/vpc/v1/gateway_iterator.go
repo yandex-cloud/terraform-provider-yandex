@@ -29,7 +29,7 @@ func (c gatewayClient) Iterator(ctx context.Context, req *vpc.ListGatewaysReques
 				return nil, err
 			}
 			return gatewayServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type gatewayServiceListOperationsInternal struct {
@@ -48,5 +48,5 @@ func (c gatewayClient) OperationsIterator(ctx context.Context, req *vpc.ListGate
 				return nil, err
 			}
 			return gatewayServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

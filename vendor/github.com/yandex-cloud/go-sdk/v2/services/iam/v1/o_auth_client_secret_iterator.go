@@ -29,5 +29,5 @@ func (c oAuthClientSecretClient) Iterator(ctx context.Context, req *iam.ListOAut
 				return nil, err
 			}
 			return oAuthClientSecretServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

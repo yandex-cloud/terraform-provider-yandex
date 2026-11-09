@@ -33,7 +33,7 @@ func (c trunkConnectionClient) Iterator(ctx context.Context, req *cic.ListTrunkC
 				return nil, err
 			}
 			return trunkConnectionServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type trunkConnectionServiceListPrivateConnectionsInternal struct {
@@ -52,7 +52,7 @@ func (c trunkConnectionClient) PrivateConnectionsIterator(ctx context.Context, r
 				return nil, err
 			}
 			return trunkConnectionServiceListPrivateConnectionsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type trunkConnectionServiceListPublicConnectionsInternal struct {
@@ -71,7 +71,7 @@ func (c trunkConnectionClient) PublicConnectionsIterator(ctx context.Context, re
 				return nil, err
 			}
 			return trunkConnectionServiceListPublicConnectionsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type trunkConnectionServiceListOperationsInternal struct {
@@ -90,5 +90,5 @@ func (c trunkConnectionClient) OperationsIterator(ctx context.Context, req *cic.
 				return nil, err
 			}
 			return trunkConnectionServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

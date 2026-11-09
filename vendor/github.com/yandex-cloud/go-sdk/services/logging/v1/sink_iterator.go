@@ -31,7 +31,7 @@ func (c sinkClient) Iterator(ctx context.Context, req *logging.ListSinksRequest,
 				return nil, err
 			}
 			return sinkServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type sinkServiceListOperationsInternal struct {
@@ -50,7 +50,7 @@ func (c sinkClient) OperationsIterator(ctx context.Context, req *logging.ListSin
 				return nil, err
 			}
 			return sinkServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type sinkServiceListAccessBindingsInternal struct {
@@ -69,5 +69,5 @@ func (c sinkClient) AccessBindingsIterator(ctx context.Context, req *access.List
 				return nil, err
 			}
 			return sinkServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

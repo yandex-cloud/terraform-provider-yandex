@@ -29,5 +29,5 @@ func (c extensionClient) Iterator(ctx context.Context, req *clickhouse.ListExten
 				return nil, err
 			}
 			return extensionServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

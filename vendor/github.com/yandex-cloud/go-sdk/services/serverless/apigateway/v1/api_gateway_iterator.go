@@ -33,7 +33,7 @@ func (c apiGatewayClient) Iterator(ctx context.Context, req *apigateway.ListApiG
 				return nil, err
 			}
 			return apiGatewayServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type apiGatewayServiceListOperationsInternal struct {
@@ -52,7 +52,7 @@ func (c apiGatewayClient) OperationsIterator(ctx context.Context, req *apigatewa
 				return nil, err
 			}
 			return apiGatewayServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type apiGatewayServiceListAccessBindingsInternal struct {
@@ -71,5 +71,5 @@ func (c apiGatewayClient) AccessBindingsIterator(ctx context.Context, req *acces
 				return nil, err
 			}
 			return apiGatewayServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

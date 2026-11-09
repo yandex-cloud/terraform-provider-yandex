@@ -29,5 +29,5 @@ func (c userClient) MembersIterator(ctx context.Context, req *organizationmanage
 				return nil, err
 			}
 			return userServiceListMembersInternal{resp}, nil
-		})
+		}, opts...)
 }

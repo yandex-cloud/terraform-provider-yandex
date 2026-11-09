@@ -31,7 +31,7 @@ func (c privateConnectionClient) Iterator(ctx context.Context, req *cic.ListPriv
 				return nil, err
 			}
 			return privateConnectionServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type privateConnectionServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c privateConnectionClient) OperationsIterator(ctx context.Context, req *ci
 				return nil, err
 			}
 			return privateConnectionServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

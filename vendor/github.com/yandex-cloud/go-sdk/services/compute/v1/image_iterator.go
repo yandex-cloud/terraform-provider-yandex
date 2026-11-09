@@ -31,7 +31,7 @@ func (c imageClient) Iterator(ctx context.Context, req *compute.ListImagesReques
 				return nil, err
 			}
 			return imageServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type imageServiceListOperationsInternal struct {
@@ -50,7 +50,7 @@ func (c imageClient) OperationsIterator(ctx context.Context, req *compute.ListIm
 				return nil, err
 			}
 			return imageServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type imageServiceListAccessBindingsInternal struct {
@@ -69,5 +69,5 @@ func (c imageClient) AccessBindingsIterator(ctx context.Context, req *access.Lis
 				return nil, err
 			}
 			return imageServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

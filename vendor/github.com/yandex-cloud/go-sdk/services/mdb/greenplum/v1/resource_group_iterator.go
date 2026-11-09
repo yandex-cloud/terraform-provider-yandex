@@ -29,5 +29,5 @@ func (c resourceGroupClient) Iterator(ctx context.Context, req *greenplum.ListRe
 				return nil, err
 			}
 			return resourceGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

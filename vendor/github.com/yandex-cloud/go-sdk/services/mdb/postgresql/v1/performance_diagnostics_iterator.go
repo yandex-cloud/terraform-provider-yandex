@@ -30,7 +30,7 @@ func (c performanceDiagnosticsClient) RawSessionStatesIterator(ctx context.Conte
 				return nil, err
 			}
 			return performanceDiagnosticsServiceListRawSessionStatesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type performanceDiagnosticsServiceListRawStatementsInternal struct {
@@ -49,5 +49,5 @@ func (c performanceDiagnosticsClient) RawStatementsIterator(ctx context.Context,
 				return nil, err
 			}
 			return performanceDiagnosticsServiceListRawStatementsInternal{resp}, nil
-		})
+		}, opts...)
 }

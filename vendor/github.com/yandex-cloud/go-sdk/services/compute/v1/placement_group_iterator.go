@@ -34,7 +34,7 @@ func (c placementGroupClient) Iterator(ctx context.Context, req *compute.ListPla
 				return nil, err
 			}
 			return placementGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type placementGroupServiceListInstancesInternal struct {
@@ -53,7 +53,7 @@ func (c placementGroupClient) InstancesIterator(ctx context.Context, req *comput
 				return nil, err
 			}
 			return placementGroupServiceListInstancesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type placementGroupServiceListOperationsInternal struct {
@@ -72,7 +72,7 @@ func (c placementGroupClient) OperationsIterator(ctx context.Context, req *compu
 				return nil, err
 			}
 			return placementGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type placementGroupServiceListAccessBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c placementGroupClient) AccessBindingsIterator(ctx context.Context, req *a
 				return nil, err
 			}
 			return placementGroupServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

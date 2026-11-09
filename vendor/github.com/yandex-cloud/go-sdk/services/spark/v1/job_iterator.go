@@ -27,5 +27,5 @@ func (c jobClient) Iterator(ctx context.Context, req *spark.ListJobsRequest, opt
 				return nil, err
 			}
 			return jobServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

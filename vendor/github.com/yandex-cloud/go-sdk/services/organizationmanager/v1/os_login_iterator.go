@@ -29,5 +29,5 @@ func (c osLoginClient) ProfilesIterator(ctx context.Context, req *organizationma
 				return nil, err
 			}
 			return osLoginServiceListProfilesInternal{resp}, nil
-		})
+		}, opts...)
 }

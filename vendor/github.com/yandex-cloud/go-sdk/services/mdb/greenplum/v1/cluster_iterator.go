@@ -37,7 +37,7 @@ func (c clusterClient) Iterator(ctx context.Context, req *greenplum.ListClusters
 				return nil, err
 			}
 			return clusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListLogsInternal struct {
@@ -56,7 +56,7 @@ func (c clusterClient) LogsIterator(ctx context.Context, req *greenplum.ListClus
 				return nil, err
 			}
 			return clusterServiceListLogsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListOperationsInternal struct {
@@ -75,7 +75,7 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *greenplum.Li
 				return nil, err
 			}
 			return clusterServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListMasterHostsInternal struct {
@@ -94,7 +94,7 @@ func (c clusterClient) MasterHostsIterator(ctx context.Context, req *greenplum.L
 				return nil, err
 			}
 			return clusterServiceListMasterHostsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListSegmentHostsInternal struct {
@@ -113,7 +113,7 @@ func (c clusterClient) SegmentHostsIterator(ctx context.Context, req *greenplum.
 				return nil, err
 			}
 			return clusterServiceListSegmentHostsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListBackupsInternal struct {
@@ -132,7 +132,7 @@ func (c clusterClient) BackupsIterator(ctx context.Context, req *greenplum.ListC
 				return nil, err
 			}
 			return clusterServiceListBackupsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListAccessBindingsInternal struct {
@@ -151,5 +151,5 @@ func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.L
 				return nil, err
 			}
 			return clusterServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

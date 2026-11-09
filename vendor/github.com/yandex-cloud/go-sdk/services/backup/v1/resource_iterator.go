@@ -33,7 +33,7 @@ func (c resourceClient) Iterator(ctx context.Context, req *backup.ListResourcesR
 				return nil, err
 			}
 			return resourceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type resourceServiceListTasksInternal struct {
@@ -50,7 +50,7 @@ func (c resourceClient) TasksIterator(ctx context.Context, req *backup.ListTasks
 				return nil, err
 			}
 			return resourceServiceListTasksInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type resourceServiceListDirectoryInternal struct {
@@ -69,7 +69,7 @@ func (c resourceClient) DirectoryIterator(ctx context.Context, req *backup.ListD
 				return nil, err
 			}
 			return resourceServiceListDirectoryInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type resourceServiceListOperationsInternal struct {
@@ -88,5 +88,5 @@ func (c resourceClient) OperationsIterator(ctx context.Context, req *backup.List
 				return nil, err
 			}
 			return resourceServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

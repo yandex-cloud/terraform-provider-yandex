@@ -30,7 +30,7 @@ func (c addressClient) Iterator(ctx context.Context, req *vpc.ListAddressesReque
 				return nil, err
 			}
 			return addressServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type addressServiceListBySubnetInternal struct {
@@ -49,7 +49,7 @@ func (c addressClient) BySubnetIterator(ctx context.Context, req *vpc.ListAddres
 				return nil, err
 			}
 			return addressServiceListBySubnetInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type addressServiceListOperationsInternal struct {
@@ -68,5 +68,5 @@ func (c addressClient) OperationsIterator(ctx context.Context, req *vpc.ListAddr
 				return nil, err
 			}
 			return addressServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

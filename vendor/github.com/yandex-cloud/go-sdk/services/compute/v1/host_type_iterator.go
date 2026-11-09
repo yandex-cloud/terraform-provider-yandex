@@ -29,5 +29,5 @@ func (c hostTypeClient) Iterator(ctx context.Context, req *compute.ListHostTypes
 				return nil, err
 			}
 			return hostTypeServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

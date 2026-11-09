@@ -34,7 +34,7 @@ func (c folderClient) Iterator(ctx context.Context, req *resourcemanager.ListFol
 				return nil, err
 			}
 			return folderServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type folderServiceListOperationsInternal struct {
@@ -53,7 +53,7 @@ func (c folderClient) OperationsIterator(ctx context.Context, req *resourcemanag
 				return nil, err
 			}
 			return folderServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type folderServiceListAccessBindingsInternal struct {
@@ -72,7 +72,7 @@ func (c folderClient) AccessBindingsIterator(ctx context.Context, req *access.Li
 				return nil, err
 			}
 			return folderServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type folderServiceListAccessPolicyBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c folderClient) AccessPolicyBindingsIterator(ctx context.Context, req *acc
 				return nil, err
 			}
 			return folderServiceListAccessPolicyBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

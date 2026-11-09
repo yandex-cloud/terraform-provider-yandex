@@ -32,7 +32,7 @@ func (c networkClient) Iterator(ctx context.Context, req *vpc.ListNetworksReques
 				return nil, err
 			}
 			return networkServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type networkServiceListSubnetsInternal struct {
@@ -51,7 +51,7 @@ func (c networkClient) SubnetsIterator(ctx context.Context, req *vpc.ListNetwork
 				return nil, err
 			}
 			return networkServiceListSubnetsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type networkServiceListSecurityGroupsInternal struct {
@@ -70,7 +70,7 @@ func (c networkClient) SecurityGroupsIterator(ctx context.Context, req *vpc.List
 				return nil, err
 			}
 			return networkServiceListSecurityGroupsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type networkServiceListRouteTablesInternal struct {
@@ -89,7 +89,7 @@ func (c networkClient) RouteTablesIterator(ctx context.Context, req *vpc.ListNet
 				return nil, err
 			}
 			return networkServiceListRouteTablesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type networkServiceListOperationsInternal struct {
@@ -108,5 +108,5 @@ func (c networkClient) OperationsIterator(ctx context.Context, req *vpc.ListNetw
 				return nil, err
 			}
 			return networkServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

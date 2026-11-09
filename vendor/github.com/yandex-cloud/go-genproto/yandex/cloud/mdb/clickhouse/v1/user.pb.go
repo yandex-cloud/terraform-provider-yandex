@@ -2416,6 +2416,7 @@ type UserSettings struct {
 	// For details, see [ClickHouse documentation](https://clickhouse.com/docs/operations/settings/settings#ignore_materialized_views_with_dropped_target_table).
 	IgnoreMaterializedViewsWithDroppedTargetTable *wrapperspb.BoolValue `protobuf:"bytes,166,opt,name=ignore_materialized_views_with_dropped_target_table,json=ignoreMaterializedViewsWithDroppedTargetTable,proto3" json:"ignore_materialized_views_with_dropped_target_table,omitempty"`
 	// Enables or disables new query analyzer.
+	// Starting from the ClickHouse version 26.9, old query analyzer is not supported and the setting is always enabled.
 	//
 	// Default value: **true**.
 	//

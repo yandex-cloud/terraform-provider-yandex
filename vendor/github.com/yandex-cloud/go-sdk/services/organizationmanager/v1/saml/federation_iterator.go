@@ -34,7 +34,7 @@ func (c federationClient) Iterator(ctx context.Context, req *saml.ListFederation
 				return nil, err
 			}
 			return federationServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type federationServiceListUserAccountsInternal struct {
@@ -53,7 +53,7 @@ func (c federationClient) UserAccountsIterator(ctx context.Context, req *saml.Li
 				return nil, err
 			}
 			return federationServiceListUserAccountsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type federationServiceListOperationsInternal struct {
@@ -72,7 +72,7 @@ func (c federationClient) OperationsIterator(ctx context.Context, req *saml.List
 				return nil, err
 			}
 			return federationServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type federationServiceListDomainsInternal struct {
@@ -91,5 +91,5 @@ func (c federationClient) DomainsIterator(ctx context.Context, req *saml.ListFed
 				return nil, err
 			}
 			return federationServiceListDomainsInternal{resp}, nil
-		})
+		}, opts...)
 }

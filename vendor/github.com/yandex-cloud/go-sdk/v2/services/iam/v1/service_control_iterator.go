@@ -29,5 +29,5 @@ func (c serviceControlClient) Iterator(ctx context.Context, req *iam.ListService
 				return nil, err
 			}
 			return serviceControlServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

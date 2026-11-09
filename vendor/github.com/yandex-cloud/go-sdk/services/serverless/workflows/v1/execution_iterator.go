@@ -29,5 +29,5 @@ func (c executionClient) Iterator(ctx context.Context, req *workflows.ListExecut
 				return nil, err
 			}
 			return executionServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

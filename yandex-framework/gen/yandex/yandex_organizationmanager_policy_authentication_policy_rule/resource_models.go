@@ -327,30 +327,30 @@ func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStru
 }
 
 type yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel struct {
-	ApplicationsExclude types.List     `tfsdk:"applications_exclude"`
-	ApplicationsInclude types.List     `tfsdk:"applications_include"`
+	ApplicationsExclude types.Set      `tfsdk:"applications_exclude"`
+	ApplicationsInclude types.Set      `tfsdk:"applications_include"`
 	CreatedAt           types.String   `tfsdk:"created_at"`
 	Description         types.String   `tfsdk:"description"`
 	Effect              types.String   `tfsdk:"effect"`
 	Labels              types.Map      `tfsdk:"labels"`
 	Name                types.String   `tfsdk:"name"`
-	NetworksExclude     types.List     `tfsdk:"networks_exclude"`
-	NetworksInclude     types.List     `tfsdk:"networks_include"`
-	Obligations         types.List     `tfsdk:"obligations"`
+	NetworksExclude     types.Set      `tfsdk:"networks_exclude"`
+	NetworksInclude     types.Set      `tfsdk:"networks_include"`
+	Obligations         types.Set      `tfsdk:"obligations"`
 	OrganizationId      types.String   `tfsdk:"organization_id"`
 	RuleId              types.String   `tfsdk:"rule_id"`
 	ID                  types.String   `tfsdk:"id"`
 	Status              types.String   `tfsdk:"status"`
-	SubjectsExclude     types.List     `tfsdk:"subjects_exclude"`
-	SubjectsInclude     types.List     `tfsdk:"subjects_include"`
+	SubjectsExclude     types.Set      `tfsdk:"subjects_exclude"`
+	SubjectsInclude     types.Set      `tfsdk:"subjects_include"`
 	UpdatedAt           types.String   `tfsdk:"updated_at"`
 	Timeouts            timeouts.Value `tfsdk:"timeouts"`
 }
 
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetApplicationsExclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetApplicationsExclude() types.Set {
 	return m.ApplicationsExclude
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetApplicationsInclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetApplicationsInclude() types.Set {
 	return m.ApplicationsInclude
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetCreatedAt() types.String {
@@ -368,13 +368,13 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetLabels
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetName() types.String {
 	return m.Name
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetNetworksExclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetNetworksExclude() types.Set {
 	return m.NetworksExclude
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetNetworksInclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetNetworksInclude() types.Set {
 	return m.NetworksInclude
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetObligations() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetObligations() types.Set {
 	return m.Obligations
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetOrganizationId() types.String {
@@ -389,20 +389,20 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetID() t
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetStatus() types.String {
 	return m.Status
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetSubjectsExclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetSubjectsExclude() types.Set {
 	return m.SubjectsExclude
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetSubjectsInclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetSubjectsInclude() types.Set {
 	return m.SubjectsInclude
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) GetUpdatedAt() types.String {
 	return m.UpdatedAt
 }
 
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetApplicationsExclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetApplicationsExclude(target types.Set) {
 	m.ApplicationsExclude = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetApplicationsInclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetApplicationsInclude(target types.Set) {
 	m.ApplicationsInclude = target
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetCreatedAt(target types.String) {
@@ -420,13 +420,13 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetLabels
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetName(target types.String) {
 	m.Name = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetNetworksExclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetNetworksExclude(target types.Set) {
 	m.NetworksExclude = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetNetworksInclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetNetworksInclude(target types.Set) {
 	m.NetworksInclude = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetObligations(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetObligations(target types.Set) {
 	m.Obligations = target
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetOrganizationId(target types.String) {
@@ -441,10 +441,10 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetID(tar
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetStatus(target types.String) {
 	m.Status = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetSubjectsExclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetSubjectsExclude(target types.Set) {
 	m.SubjectsExclude = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetSubjectsInclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetSubjectsInclude(target types.Set) {
 	m.SubjectsInclude = target
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetUpdatedAt(target types.String) {
@@ -453,32 +453,32 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) SetUpdate
 
 func NewYandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel() yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel {
 	return yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel{
-		ApplicationsExclude: types.ListNull(types.StringType),
-		ApplicationsInclude: types.ListNull(types.StringType),
+		ApplicationsExclude: types.SetNull(types.StringType),
+		ApplicationsInclude: types.SetNull(types.StringType),
 		CreatedAt:           types.StringNull(),
 		Description:         types.StringNull(),
 		Effect:              types.StringNull(),
 		Labels:              types.MapNull(types.StringType),
 		Name:                types.StringNull(),
-		NetworksExclude:     types.ListNull(types.StringType),
-		NetworksInclude:     types.ListNull(types.StringType),
-		Obligations:         types.ListNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType),
+		NetworksExclude:     types.SetNull(types.StringType),
+		NetworksInclude:     types.SetNull(types.StringType),
+		Obligations:         types.SetNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType),
 		OrganizationId:      types.StringNull(),
 		RuleId:              types.StringNull(),
 		ID:                  types.StringNull(),
 		Status:              types.StringNull(),
-		SubjectsExclude:     types.ListNull(types.StringType),
-		SubjectsInclude:     types.ListNull(types.StringType),
+		SubjectsExclude:     types.SetNull(types.StringType),
+		SubjectsInclude:     types.SetNull(types.StringType),
 		UpdatedAt:           types.StringNull(),
 	}
 }
 
 func yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModelFillUnknown(target yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel) yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel {
 	if target.ApplicationsExclude.IsUnknown() || target.ApplicationsExclude.IsNull() {
-		target.ApplicationsExclude = types.ListNull(types.StringType)
+		target.ApplicationsExclude = types.SetNull(types.StringType)
 	}
 	if target.ApplicationsInclude.IsUnknown() || target.ApplicationsInclude.IsNull() {
-		target.ApplicationsInclude = types.ListNull(types.StringType)
+		target.ApplicationsInclude = types.SetNull(types.StringType)
 	}
 	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
 		target.CreatedAt = types.StringNull()
@@ -496,13 +496,13 @@ func yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModelFillUnknown(tar
 		target.Name = types.StringNull()
 	}
 	if target.NetworksExclude.IsUnknown() || target.NetworksExclude.IsNull() {
-		target.NetworksExclude = types.ListNull(types.StringType)
+		target.NetworksExclude = types.SetNull(types.StringType)
 	}
 	if target.NetworksInclude.IsUnknown() || target.NetworksInclude.IsNull() {
-		target.NetworksInclude = types.ListNull(types.StringType)
+		target.NetworksInclude = types.SetNull(types.StringType)
 	}
 	if target.Obligations.IsUnknown() || target.Obligations.IsNull() {
-		target.Obligations = types.ListNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
+		target.Obligations = types.SetNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
 	}
 	if target.OrganizationId.IsUnknown() || target.OrganizationId.IsNull() {
 		target.OrganizationId = types.StringNull()
@@ -517,10 +517,10 @@ func yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModelFillUnknown(tar
 		target.Status = types.StringNull()
 	}
 	if target.SubjectsExclude.IsUnknown() || target.SubjectsExclude.IsNull() {
-		target.SubjectsExclude = types.ListNull(types.StringType)
+		target.SubjectsExclude = types.SetNull(types.StringType)
 	}
 	if target.SubjectsInclude.IsUnknown() || target.SubjectsInclude.IsNull() {
-		target.SubjectsInclude = types.ListNull(types.StringType)
+		target.SubjectsInclude = types.SetNull(types.StringType)
 	}
 	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
 		target.UpdatedAt = types.StringNull()
@@ -530,22 +530,22 @@ func yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModelFillUnknown(tar
 
 var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"applications_exclude": types.ListType{ElemType: types.StringType},
-		"applications_include": types.ListType{ElemType: types.StringType},
+		"applications_exclude": types.SetType{ElemType: types.StringType},
+		"applications_include": types.SetType{ElemType: types.StringType},
 		"created_at":           types.StringType,
 		"description":          types.StringType,
 		"effect":               types.StringType,
 		"labels":               types.MapType{ElemType: types.StringType},
 		"name":                 types.StringType,
-		"networks_exclude":     types.ListType{ElemType: types.StringType},
-		"networks_include":     types.ListType{ElemType: types.StringType},
-		"obligations":          types.ListType{ElemType: yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType},
+		"networks_exclude":     types.SetType{ElemType: types.StringType},
+		"networks_include":     types.SetType{ElemType: types.StringType},
+		"obligations":          types.SetType{ElemType: yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType},
 		"organization_id":      types.StringType,
 		"rule_id":              types.StringType,
 		"id":                   types.StringType,
 		"status":               types.StringType,
-		"subjects_exclude":     types.ListType{ElemType: types.StringType},
-		"subjects_include":     types.ListType{ElemType: types.StringType},
+		"subjects_exclude":     types.SetType{ElemType: types.StringType},
+		"subjects_include":     types.SetType{ElemType: types.StringType},
 		"updated_at":           types.StringType,
 		"timeouts":             timeouts.AttributesAll(context.Background()).GetType(),
 	},
@@ -619,12 +619,12 @@ func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel(ctx cont
 	return value
 }
 
-func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExclude []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExclude []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExclude == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeValues []attr.Value
 	for _, elem := range yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExclude {
@@ -632,12 +632,12 @@ func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsE
 		yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeValues = append(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeValues)
+	value, diag := types.SetValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeState types.List, diags *diag.Diagnostics) []string {
+func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeState types.Set, diags *diag.Diagnostics) []string {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeState.IsNull() || yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeState.IsUnknown() {
 		return nil
 	}
@@ -656,12 +656,12 @@ func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsEx
 	return yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsExcludeRes
 }
 
-func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsInclude []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsInclude []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsInclude == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsIncludeValues []attr.Value
 	for _, elem := range yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsInclude {
@@ -669,12 +669,12 @@ func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsI
 		yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsIncludeValues = append(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsIncludeValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsIncludeValues)
+	value, diag := types.SetValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsIncludeValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsIncludeState types.List, diags *diag.Diagnostics) []string {
+func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsIncludeState types.Set, diags *diag.Diagnostics) []string {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsIncludeState.IsNull() || yandexOrganizationmanagerPolicyAuthenticationPolicyRuleApplicationsIncludeState.IsUnknown() {
 		return nil
 	}
@@ -730,12 +730,12 @@ func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleLabels(ctx con
 	return yandexOrganizationmanagerPolicyAuthenticationPolicyRuleLabelsRes
 }
 
-func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclude []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclude []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclude == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeValues []attr.Value
 	for _, elem := range yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclude {
@@ -743,12 +743,12 @@ func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclu
 		yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeValues = append(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeValues)
+	value, diag := types.SetValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeState types.List, diags *diag.Diagnostics) []string {
+func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeState types.Set, diags *diag.Diagnostics) []string {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeState.IsNull() || yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeState.IsUnknown() {
 		return nil
 	}
@@ -767,12 +767,12 @@ func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExclud
 	return yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksExcludeRes
 }
 
-func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclude []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclude []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclude == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeValues []attr.Value
 	for _, elem := range yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclude {
@@ -780,12 +780,12 @@ func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclu
 		yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeValues = append(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeValues)
+	value, diag := types.SetValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeState types.List, diags *diag.Diagnostics) []string {
+func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeState types.Set, diags *diag.Diagnostics) []string {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeState.IsNull() || yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeState.IsUnknown() {
 		return nil
 	}
@@ -804,15 +804,15 @@ func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksInclud
 	return yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNetworksIncludeRes
 }
 
-func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligations(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligations []*policy.Obligation, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligations(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligations []*policy.Obligation, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligations == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
+		return types.SetNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
 	}
 	if listState.IsNull() || listState.IsUnknown() {
-		listState = types.ListNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
+		listState = types.SetNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
 	}
 	stateVals := make([]yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModel, 0)
 	diags.Append(listState.ElementsAs(ctx, &stateVals, false)...)
@@ -826,12 +826,12 @@ func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligations(c
 		yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationsValues = append(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationsValues, val)
 	}
 
-	value, diag := types.ListValue(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationsValues)
+	value, diag := types.SetValue(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationsValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligations(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationsState types.List, diags *diag.Diagnostics) []*policy.Obligation {
+func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligations(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationsState types.Set, diags *diag.Diagnostics) []*policy.Obligation {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationsState.IsNull() || yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationsState.IsUnknown() {
 		return nil
 	}
@@ -850,12 +850,12 @@ func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligations(ct
 	return yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationsRes
 }
 
-func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclude []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclude []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclude == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeValues []attr.Value
 	for _, elem := range yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclude {
@@ -863,12 +863,12 @@ func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclu
 		yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeValues = append(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeValues)
+	value, diag := types.SetValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeState types.List, diags *diag.Diagnostics) []string {
+func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeState types.Set, diags *diag.Diagnostics) []string {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeState.IsNull() || yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeState.IsUnknown() {
 		return nil
 	}
@@ -887,12 +887,12 @@ func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExclud
 	return yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsExcludeRes
 }
 
-func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsInclude []string, listState types.List, diags *diag.Diagnostics) types.List {
+func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsInclude []string, listState types.Set, diags *diag.Diagnostics) types.Set {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsInclude == nil {
 		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
 			return listState
 		}
-		return types.ListNull(types.StringType)
+		return types.SetNull(types.StringType)
 	}
 	var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsIncludeValues []attr.Value
 	for _, elem := range yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsInclude {
@@ -900,12 +900,12 @@ func flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsInclu
 		yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsIncludeValues = append(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsIncludeValues, val)
 	}
 
-	value, diag := types.ListValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsIncludeValues)
+	value, diag := types.SetValue(types.StringType, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsIncludeValues)
 	diags.Append(diag...)
 	return value
 }
 
-func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsIncludeState types.List, diags *diag.Diagnostics) []string {
+func expandYandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsInclude(ctx context.Context, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsIncludeState types.Set, diags *diag.Diagnostics) []string {
 	if yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsIncludeState.IsNull() || yandexOrganizationmanagerPolicyAuthenticationPolicyRuleSubjectsIncludeState.IsUnknown() {
 		return nil
 	}

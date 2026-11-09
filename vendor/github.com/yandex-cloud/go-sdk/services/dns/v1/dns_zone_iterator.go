@@ -32,7 +32,7 @@ func (c dnsZoneClient) Iterator(ctx context.Context, req *dns.ListDnsZonesReques
 				return nil, err
 			}
 			return dnsZoneServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type dnsZoneServiceListRecordSetsInternal struct {
@@ -51,7 +51,7 @@ func (c dnsZoneClient) RecordSetsIterator(ctx context.Context, req *dns.ListDnsZ
 				return nil, err
 			}
 			return dnsZoneServiceListRecordSetsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type dnsZoneServiceListOperationsInternal struct {
@@ -70,7 +70,7 @@ func (c dnsZoneClient) OperationsIterator(ctx context.Context, req *dns.ListDnsZ
 				return nil, err
 			}
 			return dnsZoneServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type dnsZoneServiceListAccessBindingsInternal struct {
@@ -89,5 +89,5 @@ func (c dnsZoneClient) AccessBindingsIterator(ctx context.Context, req *access.L
 				return nil, err
 			}
 			return dnsZoneServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

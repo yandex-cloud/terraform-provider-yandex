@@ -29,7 +29,7 @@ func (c apiKeyClient) Iterator(ctx context.Context, req *iam.ListApiKeysRequest,
 				return nil, err
 			}
 			return apiKeyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type apiKeyServiceListOperationsInternal struct {
@@ -48,5 +48,5 @@ func (c apiKeyClient) OperationsIterator(ctx context.Context, req *iam.ListApiKe
 				return nil, err
 			}
 			return apiKeyServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

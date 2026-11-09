@@ -29,5 +29,5 @@ func (c trunkConnectionTicketClient) Iterator(ctx context.Context, req *cic.List
 				return nil, err
 			}
 			return trunkConnectionTicketServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

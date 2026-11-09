@@ -34,7 +34,7 @@ func (c userpoolClient) Iterator(ctx context.Context, req *idp.ListUserpoolsRequ
 				return nil, err
 			}
 			return userpoolServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type userpoolServiceListDomainsInternal struct {
@@ -53,7 +53,7 @@ func (c userpoolClient) DomainsIterator(ctx context.Context, req *idp.ListUserpo
 				return nil, err
 			}
 			return userpoolServiceListDomainsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type userpoolServiceListOperationsInternal struct {
@@ -72,7 +72,7 @@ func (c userpoolClient) OperationsIterator(ctx context.Context, req *idp.ListUse
 				return nil, err
 			}
 			return userpoolServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type userpoolServiceListAccessBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c userpoolClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return userpoolServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

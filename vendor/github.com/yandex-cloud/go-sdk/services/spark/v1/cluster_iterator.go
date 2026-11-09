@@ -31,7 +31,7 @@ func (c clusterClient) Iterator(ctx context.Context, req *spark.ListClustersRequ
 				return nil, err
 			}
 			return clusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListOperationsInternal struct {
@@ -50,7 +50,7 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *spark.ListCl
 				return nil, err
 			}
 			return clusterServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListAccessBindingsInternal struct {
@@ -69,5 +69,5 @@ func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.L
 				return nil, err
 			}
 			return clusterServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

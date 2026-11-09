@@ -31,7 +31,7 @@ func (c desktopClient) Iterator(ctx context.Context, req *clouddesktop.ListDeskt
 				return nil, err
 			}
 			return desktopServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type desktopServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c desktopClient) OperationsIterator(ctx context.Context, req *clouddesktop
 				return nil, err
 			}
 			return desktopServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

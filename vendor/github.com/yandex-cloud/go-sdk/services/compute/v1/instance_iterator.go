@@ -33,7 +33,7 @@ func (c instanceClient) Iterator(ctx context.Context, req *compute.ListInstances
 				return nil, err
 			}
 			return instanceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type instanceServiceListOperationsInternal struct {
@@ -52,7 +52,7 @@ func (c instanceClient) OperationsIterator(ctx context.Context, req *compute.Lis
 				return nil, err
 			}
 			return instanceServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type instanceServiceListAccessBindingsInternal struct {
@@ -71,5 +71,5 @@ func (c instanceClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return instanceServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

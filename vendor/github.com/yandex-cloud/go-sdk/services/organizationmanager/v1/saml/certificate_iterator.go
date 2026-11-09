@@ -31,7 +31,7 @@ func (c certificateClient) Iterator(ctx context.Context, req *saml.ListCertifica
 				return nil, err
 			}
 			return certificateServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type certificateServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c certificateClient) OperationsIterator(ctx context.Context, req *saml.Lis
 				return nil, err
 			}
 			return certificateServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

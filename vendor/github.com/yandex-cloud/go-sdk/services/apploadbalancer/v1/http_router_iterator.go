@@ -31,7 +31,7 @@ func (c httpRouterClient) Iterator(ctx context.Context, req *apploadbalancer.Lis
 				return nil, err
 			}
 			return httpRouterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type httpRouterServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c httpRouterClient) OperationsIterator(ctx context.Context, req *apploadba
 				return nil, err
 			}
 			return httpRouterServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

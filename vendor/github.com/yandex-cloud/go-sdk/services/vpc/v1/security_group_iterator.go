@@ -31,7 +31,7 @@ func (c securityGroupClient) Iterator(ctx context.Context, req *vpc.ListSecurity
 				return nil, err
 			}
 			return securityGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type securityGroupServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c securityGroupClient) OperationsIterator(ctx context.Context, req *vpc.Li
 				return nil, err
 			}
 			return securityGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

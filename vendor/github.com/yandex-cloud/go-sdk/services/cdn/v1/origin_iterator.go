@@ -27,5 +27,5 @@ func (c originClient) Iterator(ctx context.Context, req *cdn.ListOriginsRequest,
 				return nil, err
 			}
 			return originServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

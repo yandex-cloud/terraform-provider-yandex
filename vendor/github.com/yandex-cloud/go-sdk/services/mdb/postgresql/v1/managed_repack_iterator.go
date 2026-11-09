@@ -29,5 +29,5 @@ func (c managedRepackClient) RunningRepacksIterator(ctx context.Context, req *po
 				return nil, err
 			}
 			return managedRepackServiceListRunningRepacksInternal{resp}, nil
-		})
+		}, opts...)
 }

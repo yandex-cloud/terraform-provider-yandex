@@ -31,7 +31,7 @@ func (c connectionClient) Iterator(ctx context.Context, req *connectionmanager.L
 				return nil, err
 			}
 			return connectionServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type connectionServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c connectionClient) OperationsIterator(ctx context.Context, req *connectio
 				return nil, err
 			}
 			return connectionServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

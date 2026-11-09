@@ -29,5 +29,5 @@ func (c resourcePresetClient) Iterator(ctx context.Context, req *mysql.ListResou
 				return nil, err
 			}
 			return resourcePresetServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

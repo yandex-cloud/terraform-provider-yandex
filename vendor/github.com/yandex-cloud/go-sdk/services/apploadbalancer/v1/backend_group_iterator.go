@@ -31,7 +31,7 @@ func (c backendGroupClient) Iterator(ctx context.Context, req *apploadbalancer.L
 				return nil, err
 			}
 			return backendGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type backendGroupServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c backendGroupClient) OperationsIterator(ctx context.Context, req *appload
 				return nil, err
 			}
 			return backendGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

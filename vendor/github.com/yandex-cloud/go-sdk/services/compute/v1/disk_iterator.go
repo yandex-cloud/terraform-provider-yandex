@@ -32,7 +32,7 @@ func (c diskClient) Iterator(ctx context.Context, req *compute.ListDisksRequest,
 				return nil, err
 			}
 			return diskServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type diskServiceListOperationsInternal struct {
@@ -51,7 +51,7 @@ func (c diskClient) OperationsIterator(ctx context.Context, req *compute.ListDis
 				return nil, err
 			}
 			return diskServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type diskServiceListSnapshotSchedulesInternal struct {
@@ -70,7 +70,7 @@ func (c diskClient) SnapshotSchedulesIterator(ctx context.Context, req *compute.
 				return nil, err
 			}
 			return diskServiceListSnapshotSchedulesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type diskServiceListAccessBindingsInternal struct {
@@ -89,5 +89,5 @@ func (c diskClient) AccessBindingsIterator(ctx context.Context, req *access.List
 				return nil, err
 			}
 			return diskServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -33,7 +33,7 @@ func (c asymmetricSignatureKeyClient) Iterator(ctx context.Context, req *asymmet
 				return nil, err
 			}
 			return asymmetricSignatureKeyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type asymmetricSignatureKeyServiceListOperationsInternal struct {
@@ -52,7 +52,7 @@ func (c asymmetricSignatureKeyClient) OperationsIterator(ctx context.Context, re
 				return nil, err
 			}
 			return asymmetricSignatureKeyServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type asymmetricSignatureKeyServiceListAccessBindingsInternal struct {
@@ -71,5 +71,5 @@ func (c asymmetricSignatureKeyClient) AccessBindingsIterator(ctx context.Context
 				return nil, err
 			}
 			return asymmetricSignatureKeyServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

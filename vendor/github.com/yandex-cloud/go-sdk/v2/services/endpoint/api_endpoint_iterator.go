@@ -29,5 +29,5 @@ func (c apiEndpointClient) Iterator(ctx context.Context, req *endpoint.ListApiEn
 				return nil, err
 			}
 			return apiEndpointServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

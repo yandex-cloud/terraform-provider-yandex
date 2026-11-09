@@ -31,7 +31,7 @@ func (c communityClient) Iterator(ctx context.Context, req *datasphere.ListCommu
 				return nil, err
 			}
 			return communityServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type communityServiceListAccessBindingsInternal struct {
@@ -50,5 +50,5 @@ func (c communityClient) AccessBindingsIterator(ctx context.Context, req *access
 				return nil, err
 			}
 			return communityServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

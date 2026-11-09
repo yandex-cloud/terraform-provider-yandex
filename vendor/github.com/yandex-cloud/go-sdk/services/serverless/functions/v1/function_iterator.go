@@ -38,7 +38,7 @@ func (c functionClient) Iterator(ctx context.Context, req *functions.ListFunctio
 				return nil, err
 			}
 			return functionServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type functionServiceListVersionsInternal struct {
@@ -57,7 +57,7 @@ func (c functionClient) VersionsIterator(ctx context.Context, req *functions.Lis
 				return nil, err
 			}
 			return functionServiceListVersionsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type functionServiceListFunctionVersionsInternal struct {
@@ -76,7 +76,7 @@ func (c functionClient) FunctionVersionsIterator(ctx context.Context, req *funct
 				return nil, err
 			}
 			return functionServiceListFunctionVersionsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type functionServiceListTagHistoryInternal struct {
@@ -95,7 +95,7 @@ func (c functionClient) TagHistoryIterator(ctx context.Context, req *functions.L
 				return nil, err
 			}
 			return functionServiceListTagHistoryInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type functionServiceListFunctionTagHistoryInternal struct {
@@ -114,7 +114,7 @@ func (c functionClient) FunctionTagHistoryIterator(ctx context.Context, req *fun
 				return nil, err
 			}
 			return functionServiceListFunctionTagHistoryInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type functionServiceListOperationsInternal struct {
@@ -133,7 +133,7 @@ func (c functionClient) OperationsIterator(ctx context.Context, req *functions.L
 				return nil, err
 			}
 			return functionServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type functionServiceListAccessBindingsInternal struct {
@@ -152,7 +152,7 @@ func (c functionClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return functionServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type functionServiceListScalingPoliciesInternal struct {
@@ -171,5 +171,5 @@ func (c functionClient) ScalingPoliciesIterator(ctx context.Context, req *functi
 				return nil, err
 			}
 			return functionServiceListScalingPoliciesInternal{resp}, nil
-		})
+		}, opts...)
 }

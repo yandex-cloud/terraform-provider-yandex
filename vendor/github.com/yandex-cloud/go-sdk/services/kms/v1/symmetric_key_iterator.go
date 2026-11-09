@@ -34,7 +34,7 @@ func (c symmetricKeyClient) Iterator(ctx context.Context, req *kms.ListSymmetric
 				return nil, err
 			}
 			return symmetricKeyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type symmetricKeyServiceListVersionsInternal struct {
@@ -53,7 +53,7 @@ func (c symmetricKeyClient) VersionsIterator(ctx context.Context, req *kms.ListS
 				return nil, err
 			}
 			return symmetricKeyServiceListVersionsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type symmetricKeyServiceListOperationsInternal struct {
@@ -72,7 +72,7 @@ func (c symmetricKeyClient) OperationsIterator(ctx context.Context, req *kms.Lis
 				return nil, err
 			}
 			return symmetricKeyServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type symmetricKeyServiceListAccessBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c symmetricKeyClient) AccessBindingsIterator(ctx context.Context, req *acc
 				return nil, err
 			}
 			return symmetricKeyServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

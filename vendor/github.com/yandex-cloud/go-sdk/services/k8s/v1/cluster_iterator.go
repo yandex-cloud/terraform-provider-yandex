@@ -33,7 +33,7 @@ func (c clusterClient) Iterator(ctx context.Context, req *k8s.ListClustersReques
 				return nil, err
 			}
 			return clusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListNodeGroupsInternal struct {
@@ -52,7 +52,7 @@ func (c clusterClient) NodeGroupsIterator(ctx context.Context, req *k8s.ListClus
 				return nil, err
 			}
 			return clusterServiceListNodeGroupsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListNodesInternal struct {
@@ -69,7 +69,7 @@ func (c clusterClient) NodesIterator(ctx context.Context, req *k8s.ListClusterNo
 				return nil, err
 			}
 			return clusterServiceListNodesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListOperationsInternal struct {
@@ -88,7 +88,7 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *k8s.ListClus
 				return nil, err
 			}
 			return clusterServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListAccessBindingsInternal struct {
@@ -107,5 +107,5 @@ func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.L
 				return nil, err
 			}
 			return clusterServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

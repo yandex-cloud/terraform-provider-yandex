@@ -33,7 +33,7 @@ func (c asymmetricEncryptionKeyClient) Iterator(ctx context.Context, req *asymme
 				return nil, err
 			}
 			return asymmetricEncryptionKeyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type asymmetricEncryptionKeyServiceListOperationsInternal struct {
@@ -52,7 +52,7 @@ func (c asymmetricEncryptionKeyClient) OperationsIterator(ctx context.Context, r
 				return nil, err
 			}
 			return asymmetricEncryptionKeyServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type asymmetricEncryptionKeyServiceListAccessBindingsInternal struct {
@@ -71,5 +71,5 @@ func (c asymmetricEncryptionKeyClient) AccessBindingsIterator(ctx context.Contex
 				return nil, err
 			}
 			return asymmetricEncryptionKeyServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

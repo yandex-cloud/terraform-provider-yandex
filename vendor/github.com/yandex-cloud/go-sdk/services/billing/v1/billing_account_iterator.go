@@ -32,7 +32,7 @@ func (c billingAccountClient) Iterator(ctx context.Context, req *billing.ListBil
 				return nil, err
 			}
 			return billingAccountServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type billingAccountServiceListBillableObjectBindingsInternal struct {
@@ -51,7 +51,7 @@ func (c billingAccountClient) BillableObjectBindingsIterator(ctx context.Context
 				return nil, err
 			}
 			return billingAccountServiceListBillableObjectBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type billingAccountServiceListAccessBindingsInternal struct {
@@ -70,5 +70,5 @@ func (c billingAccountClient) AccessBindingsIterator(ctx context.Context, req *a
 				return nil, err
 			}
 			return billingAccountServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

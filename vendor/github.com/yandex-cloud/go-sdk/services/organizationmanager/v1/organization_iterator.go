@@ -34,7 +34,7 @@ func (c organizationClient) Iterator(ctx context.Context, req *organizationmanag
 				return nil, err
 			}
 			return organizationServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type organizationServiceListOperationsInternal struct {
@@ -53,7 +53,7 @@ func (c organizationClient) OperationsIterator(ctx context.Context, req *organiz
 				return nil, err
 			}
 			return organizationServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type organizationServiceListAccessBindingsInternal struct {
@@ -72,7 +72,7 @@ func (c organizationClient) AccessBindingsIterator(ctx context.Context, req *acc
 				return nil, err
 			}
 			return organizationServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type organizationServiceListAccessPolicyBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c organizationClient) AccessPolicyBindingsIterator(ctx context.Context, re
 				return nil, err
 			}
 			return organizationServiceListAccessPolicyBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

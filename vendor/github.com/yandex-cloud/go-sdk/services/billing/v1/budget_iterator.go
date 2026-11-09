@@ -27,5 +27,5 @@ func (c budgetClient) Iterator(ctx context.Context, req *billing.ListBudgetsRequ
 				return nil, err
 			}
 			return budgetServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -33,7 +33,7 @@ func (c connectorClient) Iterator(ctx context.Context, req *eventrouter.ListConn
 				return nil, err
 			}
 			return connectorServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type connectorServiceListAccessBindingsInternal struct {
@@ -52,7 +52,7 @@ func (c connectorClient) AccessBindingsIterator(ctx context.Context, req *access
 				return nil, err
 			}
 			return connectorServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type connectorServiceListOperationsInternal struct {
@@ -71,5 +71,5 @@ func (c connectorClient) OperationsIterator(ctx context.Context, req *eventroute
 				return nil, err
 			}
 			return connectorServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -27,5 +27,5 @@ func (c catalogClient) Iterator(ctx context.Context, req *trino.ListCatalogsRequ
 				return nil, err
 			}
 			return catalogServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

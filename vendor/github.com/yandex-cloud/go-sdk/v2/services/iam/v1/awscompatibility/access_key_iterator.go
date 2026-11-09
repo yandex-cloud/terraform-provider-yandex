@@ -31,7 +31,7 @@ func (c accessKeyClient) Iterator(ctx context.Context, req *awscompatibility.Lis
 				return nil, err
 			}
 			return accessKeyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type accessKeyServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c accessKeyClient) OperationsIterator(ctx context.Context, req *awscompati
 				return nil, err
 			}
 			return accessKeyServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

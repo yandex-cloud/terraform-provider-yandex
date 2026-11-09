@@ -31,7 +31,7 @@ func (c mfaEnforcementClient) Iterator(ctx context.Context, req *organizationman
 				return nil, err
 			}
 			return mfaEnforcementServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type mfaEnforcementServiceListAudienceInternal struct {
@@ -50,7 +50,7 @@ func (c mfaEnforcementClient) AudienceIterator(ctx context.Context, req *organiz
 				return nil, err
 			}
 			return mfaEnforcementServiceListAudienceInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type mfaEnforcementServiceListExcludedAudienceInternal struct {
@@ -69,5 +69,5 @@ func (c mfaEnforcementClient) ExcludedAudienceIterator(ctx context.Context, req 
 				return nil, err
 			}
 			return mfaEnforcementServiceListExcludedAudienceInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -31,7 +31,7 @@ func (c repositoryClient) Iterator(ctx context.Context, req *containerregistry.L
 				return nil, err
 			}
 			return repositoryServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type repositoryServiceListAccessBindingsInternal struct {
@@ -50,5 +50,5 @@ func (c repositoryClient) AccessBindingsIterator(ctx context.Context, req *acces
 				return nil, err
 			}
 			return repositoryServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

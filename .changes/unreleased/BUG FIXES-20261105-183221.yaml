@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'trino: `yandex_trino_catalog` keeps the catalog in state as tainted when waiting for its operation fails, default catalog timeouts are raised to 60m, catalog and access control operations on one cluster are serialized'
-time: 2026-11-05T18:32:21.000000+03:00

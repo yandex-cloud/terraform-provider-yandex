@@ -27,5 +27,5 @@ func (c userClient) Iterator(ctx context.Context, req *redis.ListUsersRequest, o
 				return nil, err
 			}
 			return userServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -30,7 +30,7 @@ func (c networkClient) UsedIterator(ctx context.Context, req *functions.ListUsed
 				return nil, err
 			}
 			return networkServiceListUsedInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type networkServiceListConnectedResourcesInternal struct {
@@ -49,5 +49,5 @@ func (c networkClient) ConnectedResourcesIterator(ctx context.Context, req *func
 				return nil, err
 			}
 			return networkServiceListConnectedResourcesInternal{resp}, nil
-		})
+		}, opts...)
 }

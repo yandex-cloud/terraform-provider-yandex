@@ -27,5 +27,5 @@ func (c backupClient) Iterator(ctx context.Context, req *postgresql.ListBackupsR
 				return nil, err
 			}
 			return backupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

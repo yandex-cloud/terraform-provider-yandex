@@ -757,3 +757,19 @@ func (m *ConfigSpec) SetShardAutoscalingSettings(v *ShardAutoscalingSettings) {
 func (m *ConfigSpec) SetMoniumLogs(v *MoniumLogs) {
 	m.MoniumLogs = v
 }
+
+func (m *RestartHostsRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *RestartHostsRequest) SetHostNames(v []string) {
+	m.HostNames = v
+}
+
+func (m *RestartHostsMetadata) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *RestartHostsMetadata) SetHostNames(v []string) {
+	m.HostNames = v
+}

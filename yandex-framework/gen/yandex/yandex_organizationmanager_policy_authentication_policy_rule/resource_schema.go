@@ -7,15 +7,16 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -31,7 +32,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 		Version:             1,
 		Attributes: map[string]schema.Attribute{
 
-			"applications_exclude": schema.ListAttribute{
+			"applications_exclude": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of IDs of applications not affected by the authentication policy rule.\n Empty list matches no applications.",
 				Description: "List of IDs of applications not affected by the authentication policy rule.\n Empty list matches no applications." +
@@ -44,18 +45,18 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
 						stringvalidator.LengthBetween(0, 64),
 					),
 				},
 			},
 
-			"applications_include": schema.ListAttribute{
+			"applications_include": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of IDs of applications affected by the authentication policy rule.\n Empty list matches all applications.",
 				Description: "List of IDs of applications affected by the authentication policy rule.\n Empty list matches all applications." +
@@ -68,12 +69,12 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
 						stringvalidator.LengthBetween(0, 64),
 					),
 				},
@@ -177,7 +178,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 				},
 			},
 
-			"networks_exclude": schema.ListAttribute{
+			"networks_exclude": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "Source IP ranges in CIDR notation excluded from the authentication policy rule.\n Empty list matches no sources.",
 				Description: "Source IP ranges in CIDR notation excluded from the authentication policy rule.\n Empty list matches no sources." +
@@ -190,18 +191,18 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
 						stringvalidator.LengthBetween(0, 64),
 					),
 				},
 			},
 
-			"networks_include": schema.ListAttribute{
+			"networks_include": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "Source IP ranges in CIDR notation that the authentication policy rule applies to.\n Empty list matches any source and is functionally equal to [\"0.0.0.0/0\", \"::0/0\"].",
 				Description: "Source IP ranges in CIDR notation that the authentication policy rule applies to.\n Empty list matches any source and is functionally equal to [\"0.0.0.0/0\", \"::0/0\"]." +
@@ -214,18 +215,18 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
 						stringvalidator.LengthBetween(0, 64),
 					),
 				},
 			},
 
-			"obligations": schema.ListNestedAttribute{
+			"obligations": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 
 					Attributes: map[string]schema.Attribute{
@@ -260,7 +261,6 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 								"package: yandex.cloud.organizationmanager.v1.policy\n" +
 								"filename: yandex/cloud/organizationmanager/v1/policy/authentication_policy_rule.proto\n",
 							Optional: true,
-							Computed: true,
 
 							PlanModifiers: []planmodifier.Object{
 								objectplanmodifier.UseStateForUnknown(),
@@ -282,6 +282,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 										"filename: yandex/cloud/organizationmanager/v1/policy/authentication_policy_rule.proto\n",
 									Optional: true,
 									Computed: true,
+									Default:  booldefault.StaticBool(false),
 
 									PlanModifiers: []planmodifier.Bool{
 										boolplanmodifier.UseStateForUnknown(),
@@ -297,7 +298,6 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 								"package: yandex.cloud.organizationmanager.v1.policy\n" +
 								"filename: yandex/cloud/organizationmanager/v1/policy/authentication_policy_rule.proto\n",
 							Optional: true,
-							Computed: true,
 
 							PlanModifiers: []planmodifier.Object{
 								objectplanmodifier.UseStateForUnknown(),
@@ -353,7 +353,6 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 								"package: yandex.cloud.organizationmanager.v1.policy\n" +
 								"filename: yandex/cloud/organizationmanager/v1/policy/authentication_policy_rule.proto\n",
 							Optional: true,
-							Computed: true,
 
 							PlanModifiers: []planmodifier.Object{
 								objectplanmodifier.UseStateForUnknown(),
@@ -372,9 +371,9 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
 			},
 
@@ -449,7 +448,7 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 				Computed: true,
 			},
 
-			"subjects_exclude": schema.ListAttribute{
+			"subjects_exclude": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of IDs of subjects not affected by the authentication policy rule.\n Empty list matches no subjects.",
 				Description: "List of IDs of subjects not affected by the authentication policy rule.\n Empty list matches no subjects." +
@@ -462,18 +461,18 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
 						stringvalidator.LengthBetween(0, 64),
 					),
 				},
 			},
 
-			"subjects_include": schema.ListAttribute{
+			"subjects_include": schema.SetAttribute{
 				ElementType:         types.StringType,
 				MarkdownDescription: "List of IDs of subjects affected by the authentication policy rule.\n Empty list matches all subjects and is functionally equal to [\"allUsers\"].",
 				Description: "List of IDs of subjects affected by the authentication policy rule.\n Empty list matches all subjects and is functionally equal to [\"allUsers\"]." +
@@ -486,12 +485,12 @@ func YandexOrganizationmanagerPolicyAuthenticationPolicyRuleResourceSchema(ctx c
 				Optional: true,
 				Computed: true,
 
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-					planmodifiers.NilRelaxedList(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+					planmodifiers.NilRelaxedSet(),
 				},
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
 						stringvalidator.LengthBetween(0, 64),
 					),
 				},

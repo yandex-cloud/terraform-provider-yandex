@@ -31,7 +31,7 @@ func (c backupClient) ArchivesIterator(ctx context.Context, req *backup.ListArch
 				return nil, err
 			}
 			return backupServiceListArchivesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type backupServiceListInternal struct {
@@ -48,7 +48,7 @@ func (c backupClient) Iterator(ctx context.Context, req *backup.ListBackupsReque
 				return nil, err
 			}
 			return backupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type backupServiceListFilesInternal struct {
@@ -67,5 +67,5 @@ func (c backupClient) FilesIterator(ctx context.Context, req *backup.ListFilesRe
 				return nil, err
 			}
 			return backupServiceListFilesInternal{resp}, nil
-		})
+		}, opts...)
 }

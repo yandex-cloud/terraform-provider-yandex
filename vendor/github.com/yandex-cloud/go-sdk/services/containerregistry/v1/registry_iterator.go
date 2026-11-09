@@ -32,7 +32,7 @@ func (c registryClient) Iterator(ctx context.Context, req *containerregistry.Lis
 				return nil, err
 			}
 			return registryServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListAccessBindingsInternal struct {
@@ -51,7 +51,7 @@ func (c registryClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return registryServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListIpPermissionInternal struct {
@@ -70,5 +70,5 @@ func (c registryClient) IpPermissionIterator(ctx context.Context, req *container
 				return nil, err
 			}
 			return registryServiceListIpPermissionInternal{resp}, nil
-		})
+		}, opts...)
 }

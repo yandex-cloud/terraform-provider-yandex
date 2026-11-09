@@ -6,9 +6,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	policy "github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/policy"
 	policysdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1/policy"
@@ -126,6 +128,22 @@ func (r *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleResource) Read(c
 		return
 	}
 
+	var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel
+	resp.Diagnostics.Append(newState.As(ctx, &yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(preserveObligationDurations(ctx, r.providerConfig, res, &yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	var d diag.Diagnostics
+	newState, d = types.ObjectValueFrom(ctx, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModelType.AttrTypes, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &newState)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -238,6 +256,22 @@ func (r *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleResource) Create
 		return
 	}
 
+	var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel
+	resp.Diagnostics.Append(newState.As(ctx, &yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(preserveObligationDurations(ctx, r.providerConfig, res, &yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	var d diag.Diagnostics
+	newState, d = types.ObjectValueFrom(ctx, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModelType.AttrTypes, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &newState)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -319,19 +353,19 @@ func (r *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleResource) Update
 	var updatePaths []string
 
 	if plan.ApplicationsExclude.IsNull() {
-		plan.ApplicationsExclude = types.ListNull(types.StringType)
+		plan.ApplicationsExclude = types.SetNull(types.StringType)
 	}
 	if state.ApplicationsExclude.IsNull() {
-		state.ApplicationsExclude = types.ListNull(types.StringType)
+		state.ApplicationsExclude = types.SetNull(types.StringType)
 	}
 	if !plan.ApplicationsExclude.IsUnknown() && !plan.ApplicationsExclude.Equal(state.ApplicationsExclude) {
 		updatePaths = append(updatePaths, "applications_exclude")
 	}
 	if plan.ApplicationsInclude.IsNull() {
-		plan.ApplicationsInclude = types.ListNull(types.StringType)
+		plan.ApplicationsInclude = types.SetNull(types.StringType)
 	}
 	if state.ApplicationsInclude.IsNull() {
-		state.ApplicationsInclude = types.ListNull(types.StringType)
+		state.ApplicationsInclude = types.SetNull(types.StringType)
 	}
 	if !plan.ApplicationsInclude.IsUnknown() && !plan.ApplicationsInclude.Equal(state.ApplicationsInclude) {
 		updatePaths = append(updatePaths, "applications_include")
@@ -355,28 +389,28 @@ func (r *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleResource) Update
 		updatePaths = append(updatePaths, "name")
 	}
 	if plan.NetworksExclude.IsNull() {
-		plan.NetworksExclude = types.ListNull(types.StringType)
+		plan.NetworksExclude = types.SetNull(types.StringType)
 	}
 	if state.NetworksExclude.IsNull() {
-		state.NetworksExclude = types.ListNull(types.StringType)
+		state.NetworksExclude = types.SetNull(types.StringType)
 	}
 	if !plan.NetworksExclude.IsUnknown() && !plan.NetworksExclude.Equal(state.NetworksExclude) {
 		updatePaths = append(updatePaths, "networks_exclude")
 	}
 	if plan.NetworksInclude.IsNull() {
-		plan.NetworksInclude = types.ListNull(types.StringType)
+		plan.NetworksInclude = types.SetNull(types.StringType)
 	}
 	if state.NetworksInclude.IsNull() {
-		state.NetworksInclude = types.ListNull(types.StringType)
+		state.NetworksInclude = types.SetNull(types.StringType)
 	}
 	if !plan.NetworksInclude.IsUnknown() && !plan.NetworksInclude.Equal(state.NetworksInclude) {
 		updatePaths = append(updatePaths, "networks_include")
 	}
 	if plan.Obligations.IsNull() {
-		plan.Obligations = types.ListNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
+		plan.Obligations = types.SetNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
 	}
 	if state.Obligations.IsNull() {
-		state.Obligations = types.ListNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
+		state.Obligations = types.SetNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
 	}
 	if !plan.Obligations.IsUnknown() && !plan.Obligations.Equal(state.Obligations) {
 		updatePaths = append(updatePaths, "obligations")
@@ -385,19 +419,19 @@ func (r *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleResource) Update
 		updatePaths = append(updatePaths, "rule_id")
 	}
 	if plan.SubjectsExclude.IsNull() {
-		plan.SubjectsExclude = types.ListNull(types.StringType)
+		plan.SubjectsExclude = types.SetNull(types.StringType)
 	}
 	if state.SubjectsExclude.IsNull() {
-		state.SubjectsExclude = types.ListNull(types.StringType)
+		state.SubjectsExclude = types.SetNull(types.StringType)
 	}
 	if !plan.SubjectsExclude.IsUnknown() && !plan.SubjectsExclude.Equal(state.SubjectsExclude) {
 		updatePaths = append(updatePaths, "subjects_exclude")
 	}
 	if plan.SubjectsInclude.IsNull() {
-		plan.SubjectsInclude = types.ListNull(types.StringType)
+		plan.SubjectsInclude = types.SetNull(types.StringType)
 	}
 	if state.SubjectsInclude.IsNull() {
-		state.SubjectsInclude = types.ListNull(types.StringType)
+		state.SubjectsInclude = types.SetNull(types.StringType)
 	}
 	if !plan.SubjectsInclude.IsUnknown() && !plan.SubjectsInclude.Equal(state.SubjectsInclude) {
 		updatePaths = append(updatePaths, "subjects_include")
@@ -500,6 +534,22 @@ func (r *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleResource) Update
 	}
 
 	newState := flattenYandexOrganizationmanagerPolicyAuthenticationPolicyRule(ctx, res, plan, to, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModel
+	resp.Diagnostics.Append(newState.As(ctx, &yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(preserveObligationDurations(ctx, r.providerConfig, res, &yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	var d diag.Diagnostics
+	newState, d = types.ObjectValueFrom(ctx, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleModelType.AttrTypes, yandexOrganizationmanagerPolicyAuthenticationPolicyRuleNewState)
+	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

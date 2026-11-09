@@ -27,5 +27,5 @@ func (c userClient) Iterator(ctx context.Context, req *postgresql.ListUsersReque
 				return nil, err
 			}
 			return userServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

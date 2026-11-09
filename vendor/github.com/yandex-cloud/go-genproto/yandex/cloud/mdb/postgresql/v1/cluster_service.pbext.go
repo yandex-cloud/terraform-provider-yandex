@@ -557,6 +557,10 @@ func (m *UpdateHostSpec) SetAssignPublicIp(v bool) {
 	m.AssignPublicIp = v
 }
 
+func (m *UpdateHostSpec) SetBackupPriority(v *wrapperspb.Int64Value) {
+	m.BackupPriority = v
+}
+
 func (m *HostSpec) SetZoneId(v string) {
 	m.ZoneId = v
 }
@@ -579,6 +583,10 @@ func (m *HostSpec) SetPriority(v *wrapperspb.Int64Value) {
 
 func (m *HostSpec) SetConfigSpec(v *ConfigHostSpec) {
 	m.ConfigSpec = v
+}
+
+func (m *HostSpec) SetBackupPriority(v *wrapperspb.Int64Value) {
+	m.BackupPriority = v
 }
 
 type ConfigSpec_PostgresqlConfig = isConfigSpec_PostgresqlConfig

@@ -27,5 +27,5 @@ func (c roleClient) Iterator(ctx context.Context, req *iam.ListRolesRequest, opt
 				return nil, err
 			}
 			return roleServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

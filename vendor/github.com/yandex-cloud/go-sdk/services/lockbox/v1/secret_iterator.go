@@ -32,7 +32,7 @@ func (c secretClient) Iterator(ctx context.Context, req *lockbox.ListSecretsRequ
 				return nil, err
 			}
 			return secretServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type secretServiceListVersionsInternal struct {
@@ -51,7 +51,7 @@ func (c secretClient) VersionsIterator(ctx context.Context, req *lockbox.ListVer
 				return nil, err
 			}
 			return secretServiceListVersionsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type secretServiceListOperationsInternal struct {
@@ -70,7 +70,7 @@ func (c secretClient) OperationsIterator(ctx context.Context, req *lockbox.ListS
 				return nil, err
 			}
 			return secretServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type secretServiceListAccessBindingsInternal struct {
@@ -89,5 +89,5 @@ func (c secretClient) AccessBindingsIterator(ctx context.Context, req *access.Li
 				return nil, err
 			}
 			return secretServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

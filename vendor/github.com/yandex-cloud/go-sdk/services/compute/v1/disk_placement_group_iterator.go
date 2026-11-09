@@ -34,7 +34,7 @@ func (c diskPlacementGroupClient) Iterator(ctx context.Context, req *compute.Lis
 				return nil, err
 			}
 			return diskPlacementGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type diskPlacementGroupServiceListDisksInternal struct {
@@ -53,7 +53,7 @@ func (c diskPlacementGroupClient) DisksIterator(ctx context.Context, req *comput
 				return nil, err
 			}
 			return diskPlacementGroupServiceListDisksInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type diskPlacementGroupServiceListOperationsInternal struct {
@@ -72,7 +72,7 @@ func (c diskPlacementGroupClient) OperationsIterator(ctx context.Context, req *c
 				return nil, err
 			}
 			return diskPlacementGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type diskPlacementGroupServiceListAccessBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c diskPlacementGroupClient) AccessBindingsIterator(ctx context.Context, re
 				return nil, err
 			}
 			return diskPlacementGroupServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -31,7 +31,7 @@ func (c ruleClient) Iterator(ctx context.Context, req *eventrouter.ListRulesRequ
 				return nil, err
 			}
 			return ruleServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type ruleServiceListAccessBindingsInternal struct {
@@ -50,7 +50,7 @@ func (c ruleClient) AccessBindingsIterator(ctx context.Context, req *access.List
 				return nil, err
 			}
 			return ruleServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type ruleServiceListOperationsInternal struct {
@@ -69,5 +69,5 @@ func (c ruleClient) OperationsIterator(ctx context.Context, req *eventrouter.Lis
 				return nil, err
 			}
 			return ruleServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -27,5 +27,5 @@ func (c backupClient) Iterator(ctx context.Context, req *greenplum.ListBackupsRe
 				return nil, err
 			}
 			return backupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -33,7 +33,7 @@ func (c snapshotClient) Iterator(ctx context.Context, req *compute.ListSnapshots
 				return nil, err
 			}
 			return snapshotServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type snapshotServiceListOperationsInternal struct {
@@ -52,7 +52,7 @@ func (c snapshotClient) OperationsIterator(ctx context.Context, req *compute.Lis
 				return nil, err
 			}
 			return snapshotServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type snapshotServiceListAccessBindingsInternal struct {
@@ -71,5 +71,5 @@ func (c snapshotClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return snapshotServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -34,7 +34,7 @@ func (c certificateClient) Iterator(ctx context.Context, req *certificatemanager
 				return nil, err
 			}
 			return certificateServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type certificateServiceListVersionsInternal struct {
@@ -53,7 +53,7 @@ func (c certificateClient) VersionsIterator(ctx context.Context, req *certificat
 				return nil, err
 			}
 			return certificateServiceListVersionsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type certificateServiceListOperationsInternal struct {
@@ -72,7 +72,7 @@ func (c certificateClient) OperationsIterator(ctx context.Context, req *certific
 				return nil, err
 			}
 			return certificateServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type certificateServiceListAccessBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c certificateClient) AccessBindingsIterator(ctx context.Context, req *acce
 				return nil, err
 			}
 			return certificateServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

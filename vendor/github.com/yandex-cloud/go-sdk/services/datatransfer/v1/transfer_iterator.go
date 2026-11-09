@@ -29,5 +29,5 @@ func (c transferClient) Iterator(ctx context.Context, req *datatransfer.ListTran
 				return nil, err
 			}
 			return transferServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

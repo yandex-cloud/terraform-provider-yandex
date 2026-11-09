@@ -33,7 +33,7 @@ func (c dnsInboundEndpointClient) Iterator(ctx context.Context, req *dns.ListDns
 				return nil, err
 			}
 			return dnsInboundEndpointServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type dnsInboundEndpointServiceListOperationsInternal struct {
@@ -52,7 +52,7 @@ func (c dnsInboundEndpointClient) OperationsIterator(ctx context.Context, req *d
 				return nil, err
 			}
 			return dnsInboundEndpointServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type dnsInboundEndpointServiceListAccessBindingsInternal struct {
@@ -71,5 +71,5 @@ func (c dnsInboundEndpointClient) AccessBindingsIterator(ctx context.Context, re
 				return nil, err
 			}
 			return dnsInboundEndpointServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

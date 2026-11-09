@@ -308,6 +308,10 @@ func (m *Host) SetReplicaType(v Host_ReplicaType) {
 	m.ReplicaType = v
 }
 
+func (m *Host) SetBackupPriority(v *wrapperspb.Int64Value) {
+	m.BackupPriority = v
+}
+
 type HostConfig_PostgresqlConfig = isHostConfig_PostgresqlConfig
 
 func (m *HostConfig) SetPostgresqlConfig(v HostConfig_PostgresqlConfig) {

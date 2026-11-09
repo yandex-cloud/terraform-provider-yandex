@@ -29,5 +29,5 @@ func (c imageClient) Iterator(ctx context.Context, req *containerregistry.ListIm
 				return nil, err
 			}
 			return imageServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

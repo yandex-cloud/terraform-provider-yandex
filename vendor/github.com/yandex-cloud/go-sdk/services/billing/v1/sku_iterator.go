@@ -27,5 +27,5 @@ func (c skuClient) Iterator(ctx context.Context, req *billing.ListSkusRequest, o
 				return nil, err
 			}
 			return skuServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

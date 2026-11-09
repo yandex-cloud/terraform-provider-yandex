@@ -31,7 +31,7 @@ func (c triggerClient) Iterator(ctx context.Context, req *triggers.ListTriggersR
 				return nil, err
 			}
 			return triggerServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type triggerServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c triggerClient) OperationsIterator(ctx context.Context, req *triggers.Lis
 				return nil, err
 			}
 			return triggerServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

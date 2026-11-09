@@ -31,7 +31,7 @@ func (c lifecyclePolicyClient) Iterator(ctx context.Context, req *cloudregistry.
 				return nil, err
 			}
 			return lifecyclePolicyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type lifecyclePolicyServiceListDryRunResultsInternal struct {
@@ -50,7 +50,7 @@ func (c lifecyclePolicyClient) DryRunResultsIterator(ctx context.Context, req *c
 				return nil, err
 			}
 			return lifecyclePolicyServiceListDryRunResultsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type lifecyclePolicyServiceListDryRunArtifactsInternal struct {
@@ -69,5 +69,5 @@ func (c lifecyclePolicyClient) DryRunArtifactsIterator(ctx context.Context, req 
 				return nil, err
 			}
 			return lifecyclePolicyServiceListDryRunArtifactsInternal{resp}, nil
-		})
+		}, opts...)
 }

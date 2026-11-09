@@ -30,7 +30,7 @@ func (c subnetClient) Iterator(ctx context.Context, req *vpc.ListSubnetsRequest,
 				return nil, err
 			}
 			return subnetServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type subnetServiceListOperationsInternal struct {
@@ -49,7 +49,7 @@ func (c subnetClient) OperationsIterator(ctx context.Context, req *vpc.ListSubne
 				return nil, err
 			}
 			return subnetServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type subnetServiceListUsedAddressesInternal struct {
@@ -68,5 +68,5 @@ func (c subnetClient) UsedAddressesIterator(ctx context.Context, req *vpc.ListUs
 				return nil, err
 			}
 			return subnetServiceListUsedAddressesInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -31,7 +31,7 @@ func (c targetGroupClient) Iterator(ctx context.Context, req *loadbalancer.ListT
 				return nil, err
 			}
 			return targetGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type targetGroupServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c targetGroupClient) OperationsIterator(ctx context.Context, req *loadbala
 				return nil, err
 			}
 			return targetGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

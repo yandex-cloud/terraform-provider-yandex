@@ -33,7 +33,7 @@ func (c registryClient) Iterator(ctx context.Context, req *cloudregistry.ListReg
 				return nil, err
 			}
 			return registryServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListAccessBindingsInternal struct {
@@ -52,7 +52,7 @@ func (c registryClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return registryServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListIpPermissionsInternal struct {
@@ -71,7 +71,7 @@ func (c registryClient) IpPermissionsIterator(ctx context.Context, req *cloudreg
 				return nil, err
 			}
 			return registryServiceListIpPermissionsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type registryServiceListArtifactsInternal struct {
@@ -90,5 +90,5 @@ func (c registryClient) ArtifactsIterator(ctx context.Context, req *cloudregistr
 				return nil, err
 			}
 			return registryServiceListArtifactsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -29,5 +29,5 @@ func (c versionClient) Iterator(ctx context.Context, req *k8s.ListVersionsReques
 				return nil, err
 			}
 			return versionServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

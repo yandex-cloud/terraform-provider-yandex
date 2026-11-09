@@ -29,5 +29,5 @@ func (c federatedCredentialClient) Iterator(ctx context.Context, req *workload.L
 				return nil, err
 			}
 			return federatedCredentialServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

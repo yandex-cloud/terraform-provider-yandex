@@ -29,5 +29,5 @@ func (c originGroupClient) Iterator(ctx context.Context, req *cdn.ListOriginGrou
 				return nil, err
 			}
 			return originGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

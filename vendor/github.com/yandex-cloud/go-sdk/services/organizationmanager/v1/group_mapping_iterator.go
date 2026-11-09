@@ -29,5 +29,5 @@ func (c groupMappingClient) ItemsIterator(ctx context.Context, req *organization
 				return nil, err
 			}
 			return groupMappingServiceListItemsInternal{resp}, nil
-		})
+		}, opts...)
 }

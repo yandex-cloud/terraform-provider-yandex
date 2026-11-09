@@ -29,5 +29,5 @@ func (c accessAnalyzerClient) SubjectAccessBindingsIterator(ctx context.Context,
 				return nil, err
 			}
 			return accessAnalyzerServiceListSubjectAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

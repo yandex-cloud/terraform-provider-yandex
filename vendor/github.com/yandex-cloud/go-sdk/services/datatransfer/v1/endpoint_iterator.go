@@ -29,5 +29,5 @@ func (c endpointClient) Iterator(ctx context.Context, req *datatransfer.ListEndp
 				return nil, err
 			}
 			return endpointServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

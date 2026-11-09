@@ -29,5 +29,5 @@ func (c virtualHostClient) Iterator(ctx context.Context, req *apploadbalancer.Li
 				return nil, err
 			}
 			return virtualHostServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

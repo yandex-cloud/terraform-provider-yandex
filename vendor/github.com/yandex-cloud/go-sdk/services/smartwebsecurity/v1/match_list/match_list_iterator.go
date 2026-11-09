@@ -29,5 +29,5 @@ func (c matchListClient) Iterator(ctx context.Context, req *match_list.ListMatch
 				return nil, err
 			}
 			return matchListServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -14,30 +14,30 @@ import (
 )
 
 type yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel struct {
-	ApplicationsExclude types.List     `tfsdk:"applications_exclude"`
-	ApplicationsInclude types.List     `tfsdk:"applications_include"`
+	ApplicationsExclude types.Set      `tfsdk:"applications_exclude"`
+	ApplicationsInclude types.Set      `tfsdk:"applications_include"`
 	CreatedAt           types.String   `tfsdk:"created_at"`
 	Description         types.String   `tfsdk:"description"`
 	Effect              types.String   `tfsdk:"effect"`
 	Labels              types.Map      `tfsdk:"labels"`
 	Name                types.String   `tfsdk:"name"`
-	NetworksExclude     types.List     `tfsdk:"networks_exclude"`
-	NetworksInclude     types.List     `tfsdk:"networks_include"`
-	Obligations         types.List     `tfsdk:"obligations"`
+	NetworksExclude     types.Set      `tfsdk:"networks_exclude"`
+	NetworksInclude     types.Set      `tfsdk:"networks_include"`
+	Obligations         types.Set      `tfsdk:"obligations"`
 	OrganizationId      types.String   `tfsdk:"organization_id"`
 	RuleId              types.String   `tfsdk:"rule_id"`
 	ID                  types.String   `tfsdk:"id"`
 	Status              types.String   `tfsdk:"status"`
-	SubjectsExclude     types.List     `tfsdk:"subjects_exclude"`
-	SubjectsInclude     types.List     `tfsdk:"subjects_include"`
+	SubjectsExclude     types.Set      `tfsdk:"subjects_exclude"`
+	SubjectsInclude     types.Set      `tfsdk:"subjects_include"`
 	UpdatedAt           types.String   `tfsdk:"updated_at"`
 	Timeouts            timeouts.Value `tfsdk:"timeouts"`
 }
 
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetApplicationsExclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetApplicationsExclude() types.Set {
 	return m.ApplicationsExclude
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetApplicationsInclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetApplicationsInclude() types.Set {
 	return m.ApplicationsInclude
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetCreatedAt() types.String {
@@ -55,13 +55,13 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel)
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetName() types.String {
 	return m.Name
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetNetworksExclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetNetworksExclude() types.Set {
 	return m.NetworksExclude
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetNetworksInclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetNetworksInclude() types.Set {
 	return m.NetworksInclude
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetObligations() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetObligations() types.Set {
 	return m.Obligations
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetOrganizationId() types.String {
@@ -76,20 +76,20 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel)
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetStatus() types.String {
 	return m.Status
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetSubjectsExclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetSubjectsExclude() types.Set {
 	return m.SubjectsExclude
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetSubjectsInclude() types.List {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetSubjectsInclude() types.Set {
 	return m.SubjectsInclude
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) GetUpdatedAt() types.String {
 	return m.UpdatedAt
 }
 
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetApplicationsExclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetApplicationsExclude(target types.Set) {
 	m.ApplicationsExclude = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetApplicationsInclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetApplicationsInclude(target types.Set) {
 	m.ApplicationsInclude = target
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetCreatedAt(target types.String) {
@@ -107,13 +107,13 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel)
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetName(target types.String) {
 	m.Name = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetNetworksExclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetNetworksExclude(target types.Set) {
 	m.NetworksExclude = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetNetworksInclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetNetworksInclude(target types.Set) {
 	m.NetworksInclude = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetObligations(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetObligations(target types.Set) {
 	m.Obligations = target
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetOrganizationId(target types.String) {
@@ -128,10 +128,10 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel)
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetStatus(target types.String) {
 	m.Status = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetSubjectsExclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetSubjectsExclude(target types.Set) {
 	m.SubjectsExclude = target
 }
-func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetSubjectsInclude(target types.List) {
+func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetSubjectsInclude(target types.Set) {
 	m.SubjectsInclude = target
 }
 func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) SetUpdatedAt(target types.String) {
@@ -140,32 +140,32 @@ func (m *yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel)
 
 func NewYandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel() yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel {
 	return yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel{
-		ApplicationsExclude: types.ListNull(types.StringType),
-		ApplicationsInclude: types.ListNull(types.StringType),
+		ApplicationsExclude: types.SetNull(types.StringType),
+		ApplicationsInclude: types.SetNull(types.StringType),
 		CreatedAt:           types.StringNull(),
 		Description:         types.StringNull(),
 		Effect:              types.StringNull(),
 		Labels:              types.MapNull(types.StringType),
 		Name:                types.StringNull(),
-		NetworksExclude:     types.ListNull(types.StringType),
-		NetworksInclude:     types.ListNull(types.StringType),
-		Obligations:         types.ListNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType),
+		NetworksExclude:     types.SetNull(types.StringType),
+		NetworksInclude:     types.SetNull(types.StringType),
+		Obligations:         types.SetNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType),
 		OrganizationId:      types.StringNull(),
 		RuleId:              types.StringNull(),
 		ID:                  types.StringNull(),
 		Status:              types.StringNull(),
-		SubjectsExclude:     types.ListNull(types.StringType),
-		SubjectsInclude:     types.ListNull(types.StringType),
+		SubjectsExclude:     types.SetNull(types.StringType),
+		SubjectsInclude:     types.SetNull(types.StringType),
 		UpdatedAt:           types.StringNull(),
 	}
 }
 
 func yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModelFillUnknown(target yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel) yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModel {
 	if target.ApplicationsExclude.IsUnknown() || target.ApplicationsExclude.IsNull() {
-		target.ApplicationsExclude = types.ListNull(types.StringType)
+		target.ApplicationsExclude = types.SetNull(types.StringType)
 	}
 	if target.ApplicationsInclude.IsUnknown() || target.ApplicationsInclude.IsNull() {
-		target.ApplicationsInclude = types.ListNull(types.StringType)
+		target.ApplicationsInclude = types.SetNull(types.StringType)
 	}
 	if target.CreatedAt.IsUnknown() || target.CreatedAt.IsNull() {
 		target.CreatedAt = types.StringNull()
@@ -183,13 +183,13 @@ func yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModelFillU
 		target.Name = types.StringNull()
 	}
 	if target.NetworksExclude.IsUnknown() || target.NetworksExclude.IsNull() {
-		target.NetworksExclude = types.ListNull(types.StringType)
+		target.NetworksExclude = types.SetNull(types.StringType)
 	}
 	if target.NetworksInclude.IsUnknown() || target.NetworksInclude.IsNull() {
-		target.NetworksInclude = types.ListNull(types.StringType)
+		target.NetworksInclude = types.SetNull(types.StringType)
 	}
 	if target.Obligations.IsUnknown() || target.Obligations.IsNull() {
-		target.Obligations = types.ListNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
+		target.Obligations = types.SetNull(yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType)
 	}
 	if target.OrganizationId.IsUnknown() || target.OrganizationId.IsNull() {
 		target.OrganizationId = types.StringNull()
@@ -204,10 +204,10 @@ func yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModelFillU
 		target.Status = types.StringNull()
 	}
 	if target.SubjectsExclude.IsUnknown() || target.SubjectsExclude.IsNull() {
-		target.SubjectsExclude = types.ListNull(types.StringType)
+		target.SubjectsExclude = types.SetNull(types.StringType)
 	}
 	if target.SubjectsInclude.IsUnknown() || target.SubjectsInclude.IsNull() {
-		target.SubjectsInclude = types.ListNull(types.StringType)
+		target.SubjectsInclude = types.SetNull(types.StringType)
 	}
 	if target.UpdatedAt.IsUnknown() || target.UpdatedAt.IsNull() {
 		target.UpdatedAt = types.StringNull()
@@ -217,22 +217,22 @@ func yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModelFillU
 
 var yandexOrganizationmanagerPolicyAuthenticationPolicyRuleDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"applications_exclude": types.ListType{ElemType: types.StringType},
-		"applications_include": types.ListType{ElemType: types.StringType},
+		"applications_exclude": types.SetType{ElemType: types.StringType},
+		"applications_include": types.SetType{ElemType: types.StringType},
 		"created_at":           types.StringType,
 		"description":          types.StringType,
 		"effect":               types.StringType,
 		"labels":               types.MapType{ElemType: types.StringType},
 		"name":                 types.StringType,
-		"networks_exclude":     types.ListType{ElemType: types.StringType},
-		"networks_include":     types.ListType{ElemType: types.StringType},
-		"obligations":          types.ListType{ElemType: yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType},
+		"networks_exclude":     types.SetType{ElemType: types.StringType},
+		"networks_include":     types.SetType{ElemType: types.StringType},
+		"obligations":          types.SetType{ElemType: yandexOrganizationmanagerPolicyAuthenticationPolicyRuleObligationStructModelType},
 		"organization_id":      types.StringType,
 		"rule_id":              types.StringType,
 		"id":                   types.StringType,
 		"status":               types.StringType,
-		"subjects_exclude":     types.ListType{ElemType: types.StringType},
-		"subjects_include":     types.ListType{ElemType: types.StringType},
+		"subjects_exclude":     types.SetType{ElemType: types.StringType},
+		"subjects_include":     types.SetType{ElemType: types.StringType},
 		"updated_at":           types.StringType,
 		"timeouts":             timeouts.AttributesAll(context.Background()).GetType(),
 	},

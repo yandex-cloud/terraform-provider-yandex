@@ -33,7 +33,7 @@ func (c serviceAccountClient) Iterator(ctx context.Context, req *iam.ListService
 				return nil, err
 			}
 			return serviceAccountServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type serviceAccountServiceListAccessBindingsInternal struct {
@@ -52,7 +52,7 @@ func (c serviceAccountClient) AccessBindingsIterator(ctx context.Context, req *a
 				return nil, err
 			}
 			return serviceAccountServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type serviceAccountServiceListOperationsInternal struct {
@@ -71,5 +71,5 @@ func (c serviceAccountClient) OperationsIterator(ctx context.Context, req *iam.L
 				return nil, err
 			}
 			return serviceAccountServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

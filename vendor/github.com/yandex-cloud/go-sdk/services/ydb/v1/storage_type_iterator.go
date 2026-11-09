@@ -29,5 +29,5 @@ func (c storageTypeClient) Iterator(ctx context.Context, req *ydb.ListStorageTyp
 				return nil, err
 			}
 			return storageTypeServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

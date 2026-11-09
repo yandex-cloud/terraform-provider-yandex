@@ -31,7 +31,7 @@ func (c trailClient) Iterator(ctx context.Context, req *audittrails.ListTrailsRe
 				return nil, err
 			}
 			return trailServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type trailServiceListOperationsInternal struct {
@@ -50,7 +50,7 @@ func (c trailClient) OperationsIterator(ctx context.Context, req *audittrails.Li
 				return nil, err
 			}
 			return trailServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type trailServiceListAccessBindingsInternal struct {
@@ -69,5 +69,5 @@ func (c trailClient) AccessBindingsIterator(ctx context.Context, req *access.Lis
 				return nil, err
 			}
 			return trailServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

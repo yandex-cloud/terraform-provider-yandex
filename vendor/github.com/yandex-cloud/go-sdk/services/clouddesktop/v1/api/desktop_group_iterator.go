@@ -34,7 +34,7 @@ func (c desktopGroupClient) Iterator(ctx context.Context, req *clouddesktop.List
 				return nil, err
 			}
 			return desktopGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type desktopGroupServiceListDesktopsInternal struct {
@@ -53,7 +53,7 @@ func (c desktopGroupClient) DesktopsIterator(ctx context.Context, req *clouddesk
 				return nil, err
 			}
 			return desktopGroupServiceListDesktopsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type desktopGroupServiceListOperationsInternal struct {
@@ -72,7 +72,7 @@ func (c desktopGroupClient) OperationsIterator(ctx context.Context, req *cloudde
 				return nil, err
 			}
 			return desktopGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type desktopGroupServiceListAccessBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c desktopGroupClient) AccessBindingsIterator(ctx context.Context, req *acc
 				return nil, err
 			}
 			return desktopGroupServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

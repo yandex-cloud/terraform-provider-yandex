@@ -36,7 +36,7 @@ func (c groupClient) Iterator(ctx context.Context, req *organizationmanager.List
 				return nil, err
 			}
 			return groupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type groupServiceListExternalInternal struct {
@@ -55,7 +55,7 @@ func (c groupClient) ExternalIterator(ctx context.Context, req *organizationmana
 				return nil, err
 			}
 			return groupServiceListExternalInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type groupServiceListOperationsInternal struct {
@@ -74,7 +74,7 @@ func (c groupClient) OperationsIterator(ctx context.Context, req *organizationma
 				return nil, err
 			}
 			return groupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type groupServiceListMembersInternal struct {
@@ -93,7 +93,7 @@ func (c groupClient) MembersIterator(ctx context.Context, req *organizationmanag
 				return nil, err
 			}
 			return groupServiceListMembersInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type groupServiceListAccessBindingsInternal struct {
@@ -112,7 +112,7 @@ func (c groupClient) AccessBindingsIterator(ctx context.Context, req *access.Lis
 				return nil, err
 			}
 			return groupServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type groupServiceListEffectiveInternal struct {
@@ -131,5 +131,5 @@ func (c groupClient) EffectiveIterator(ctx context.Context, req *organizationman
 				return nil, err
 			}
 			return groupServiceListEffectiveInternal{resp}, nil
-		})
+		}, opts...)
 }

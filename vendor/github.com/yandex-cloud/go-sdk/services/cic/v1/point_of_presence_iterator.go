@@ -29,5 +29,5 @@ func (c pointOfPresenceClient) Iterator(ctx context.Context, req *cic.ListPointO
 				return nil, err
 			}
 			return pointOfPresenceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

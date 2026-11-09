@@ -29,5 +29,5 @@ func (c synchronizationSessionClient) SessionsIterator(ctx context.Context, req 
 				return nil, err
 			}
 			return synchronizationSessionServiceListSessionsInternal{resp}, nil
-		})
+		}, opts...)
 }

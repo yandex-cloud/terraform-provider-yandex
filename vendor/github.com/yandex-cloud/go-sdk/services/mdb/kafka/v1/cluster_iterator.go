@@ -33,7 +33,7 @@ func (c clusterClient) Iterator(ctx context.Context, req *kafka.ListClustersRequ
 				return nil, err
 			}
 			return clusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListLogsInternal struct {
@@ -52,7 +52,7 @@ func (c clusterClient) LogsIterator(ctx context.Context, req *kafka.ListClusterL
 				return nil, err
 			}
 			return clusterServiceListLogsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListOperationsInternal struct {
@@ -71,7 +71,7 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *kafka.ListCl
 				return nil, err
 			}
 			return clusterServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListHostsInternal struct {
@@ -90,7 +90,7 @@ func (c clusterClient) HostsIterator(ctx context.Context, req *kafka.ListCluster
 				return nil, err
 			}
 			return clusterServiceListHostsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListAccessBindingsInternal struct {
@@ -109,5 +109,5 @@ func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.L
 				return nil, err
 			}
 			return clusterServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

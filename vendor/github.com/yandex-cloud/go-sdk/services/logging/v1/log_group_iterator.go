@@ -34,7 +34,7 @@ func (c logGroupClient) Iterator(ctx context.Context, req *logging.ListLogGroups
 				return nil, err
 			}
 			return logGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type logGroupServiceListResourcesInternal struct {
@@ -53,7 +53,7 @@ func (c logGroupClient) ResourcesIterator(ctx context.Context, req *logging.List
 				return nil, err
 			}
 			return logGroupServiceListResourcesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type logGroupServiceListOperationsInternal struct {
@@ -72,7 +72,7 @@ func (c logGroupClient) OperationsIterator(ctx context.Context, req *logging.Lis
 				return nil, err
 			}
 			return logGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type logGroupServiceListAccessBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c logGroupClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return logGroupServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

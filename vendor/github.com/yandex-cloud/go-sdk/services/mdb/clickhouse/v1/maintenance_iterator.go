@@ -29,5 +29,5 @@ func (c maintenanceClient) Iterator(ctx context.Context, req *maintenance.ListMa
 				return nil, err
 			}
 			return maintenanceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

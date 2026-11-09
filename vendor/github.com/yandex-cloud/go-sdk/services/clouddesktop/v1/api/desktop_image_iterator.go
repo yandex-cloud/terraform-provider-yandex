@@ -29,5 +29,5 @@ func (c desktopImageClient) Iterator(ctx context.Context, req *clouddesktop.List
 				return nil, err
 			}
 			return desktopImageServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

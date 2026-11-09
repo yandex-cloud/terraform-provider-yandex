@@ -29,5 +29,5 @@ func (c resourcePresetClient) Iterator(ctx context.Context, req *kafka.ListResou
 				return nil, err
 			}
 			return resourcePresetServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

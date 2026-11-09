@@ -29,7 +29,7 @@ func (c keyClient) Iterator(ctx context.Context, req *iam.ListKeysRequest, opts 
 				return nil, err
 			}
 			return keyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type keyServiceListOperationsInternal struct {
@@ -48,5 +48,5 @@ func (c keyClient) OperationsIterator(ctx context.Context, req *iam.ListKeyOpera
 				return nil, err
 			}
 			return keyServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -29,5 +29,5 @@ func (c resourceClient) Iterator(ctx context.Context, req *cdn.ListResourcesRequ
 				return nil, err
 			}
 			return resourceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

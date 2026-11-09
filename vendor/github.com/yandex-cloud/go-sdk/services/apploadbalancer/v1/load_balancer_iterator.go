@@ -31,7 +31,7 @@ func (c loadBalancerClient) Iterator(ctx context.Context, req *apploadbalancer.L
 				return nil, err
 			}
 			return loadBalancerServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type loadBalancerServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c loadBalancerClient) OperationsIterator(ctx context.Context, req *appload
 				return nil, err
 			}
 			return loadBalancerServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -29,5 +29,5 @@ func (c locationClient) Iterator(ctx context.Context, req *ydb.ListLocationsRequ
 				return nil, err
 			}
 			return locationServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -31,7 +31,7 @@ func (c backupRetentionPolicyClient) Iterator(ctx context.Context, req *redis.Li
 				return nil, err
 			}
 			return backupRetentionPolicyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type backupRetentionPolicyServiceListByFolderInternal struct {
@@ -50,5 +50,5 @@ func (c backupRetentionPolicyClient) ByFolderIterator(ctx context.Context, req *
 				return nil, err
 			}
 			return backupRetentionPolicyServiceListByFolderInternal{resp}, nil
-		})
+		}, opts...)
 }

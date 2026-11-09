@@ -33,7 +33,7 @@ func (c workflowClient) Iterator(ctx context.Context, req *workflows.ListWorkflo
 				return nil, err
 			}
 			return workflowServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type workflowServiceListOperationsInternal struct {
@@ -52,7 +52,7 @@ func (c workflowClient) OperationsIterator(ctx context.Context, req *workflows.L
 				return nil, err
 			}
 			return workflowServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type workflowServiceListAccessBindingsInternal struct {
@@ -71,5 +71,5 @@ func (c workflowClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return workflowServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

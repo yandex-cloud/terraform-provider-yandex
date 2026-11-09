@@ -34,7 +34,7 @@ func (c containerClient) Iterator(ctx context.Context, req *containers.ListConta
 				return nil, err
 			}
 			return containerServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type containerServiceListRevisionsInternal struct {
@@ -53,7 +53,7 @@ func (c containerClient) RevisionsIterator(ctx context.Context, req *containers.
 				return nil, err
 			}
 			return containerServiceListRevisionsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type containerServiceListOperationsInternal struct {
@@ -72,7 +72,7 @@ func (c containerClient) OperationsIterator(ctx context.Context, req *containers
 				return nil, err
 			}
 			return containerServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type containerServiceListAccessBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c containerClient) AccessBindingsIterator(ctx context.Context, req *access
 				return nil, err
 			}
 			return containerServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

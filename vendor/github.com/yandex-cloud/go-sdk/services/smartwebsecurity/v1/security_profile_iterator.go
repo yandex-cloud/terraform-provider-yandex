@@ -29,5 +29,5 @@ func (c securityProfileClient) Iterator(ctx context.Context, req *smartwebsecuri
 				return nil, err
 			}
 			return securityProfileServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

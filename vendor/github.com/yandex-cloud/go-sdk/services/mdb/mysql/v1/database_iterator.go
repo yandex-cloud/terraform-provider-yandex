@@ -29,5 +29,5 @@ func (c databaseClient) Iterator(ctx context.Context, req *mysql.ListDatabasesRe
 				return nil, err
 			}
 			return databaseServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -31,7 +31,7 @@ func (c routeTableClient) Iterator(ctx context.Context, req *vpc.ListRouteTables
 				return nil, err
 			}
 			return routeTableServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type routeTableServiceListOperationsInternal struct {
@@ -50,5 +50,5 @@ func (c routeTableClient) OperationsIterator(ctx context.Context, req *vpc.ListR
 				return nil, err
 			}
 			return routeTableServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

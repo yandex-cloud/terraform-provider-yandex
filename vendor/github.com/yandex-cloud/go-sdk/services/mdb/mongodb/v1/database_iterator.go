@@ -29,5 +29,5 @@ func (c databaseClient) Iterator(ctx context.Context, req *mongodb.ListDatabases
 				return nil, err
 			}
 			return databaseServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

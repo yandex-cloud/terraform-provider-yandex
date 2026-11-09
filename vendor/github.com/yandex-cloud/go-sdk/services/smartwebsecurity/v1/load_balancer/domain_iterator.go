@@ -29,5 +29,5 @@ func (c domainClient) Iterator(ctx context.Context, req *load_balancer.ListDomai
 				return nil, err
 			}
 			return domainServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

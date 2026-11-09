@@ -29,5 +29,5 @@ func (c shieldingClient) AvailableLocationsIterator(ctx context.Context, req *cd
 				return nil, err
 			}
 			return shieldingServiceListAvailableLocationsInternal{resp}, nil
-		})
+		}, opts...)
 }

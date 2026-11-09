@@ -31,7 +31,7 @@ func (c deviceClient) Iterator(ctx context.Context, req *devices.ListDevicesRequ
 				return nil, err
 			}
 			return deviceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type deviceServiceListCertificatesInternal struct {
@@ -50,7 +50,7 @@ func (c deviceClient) CertificatesIterator(ctx context.Context, req *devices.Lis
 				return nil, err
 			}
 			return deviceServiceListCertificatesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type deviceServiceListPasswordsInternal struct {
@@ -69,7 +69,7 @@ func (c deviceClient) PasswordsIterator(ctx context.Context, req *devices.ListDe
 				return nil, err
 			}
 			return deviceServiceListPasswordsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type deviceServiceListOperationsInternal struct {
@@ -88,5 +88,5 @@ func (c deviceClient) OperationsIterator(ctx context.Context, req *devices.ListD
 				return nil, err
 			}
 			return deviceServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

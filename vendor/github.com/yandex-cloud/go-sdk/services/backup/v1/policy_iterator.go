@@ -28,7 +28,7 @@ func (c policyClient) Iterator(ctx context.Context, req *backup.ListPoliciesRequ
 				return nil, err
 			}
 			return policyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type policyServiceListApplicationsInternal struct {
@@ -47,5 +47,5 @@ func (c policyClient) ApplicationsIterator(ctx context.Context, req *backup.List
 				return nil, err
 			}
 			return policyServiceListApplicationsInternal{resp}, nil
-		})
+		}, opts...)
 }

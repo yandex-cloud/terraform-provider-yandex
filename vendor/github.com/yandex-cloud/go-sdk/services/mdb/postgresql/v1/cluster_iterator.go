@@ -36,7 +36,7 @@ func (c clusterClient) Iterator(ctx context.Context, req *postgresql.ListCluster
 				return nil, err
 			}
 			return clusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListLogsInternal struct {
@@ -55,7 +55,7 @@ func (c clusterClient) LogsIterator(ctx context.Context, req *postgresql.ListClu
 				return nil, err
 			}
 			return clusterServiceListLogsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListOperationsInternal struct {
@@ -74,7 +74,7 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *postgresql.L
 				return nil, err
 			}
 			return clusterServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListBackupsInternal struct {
@@ -93,7 +93,7 @@ func (c clusterClient) BackupsIterator(ctx context.Context, req *postgresql.List
 				return nil, err
 			}
 			return clusterServiceListBackupsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListHostsInternal struct {
@@ -112,7 +112,7 @@ func (c clusterClient) HostsIterator(ctx context.Context, req *postgresql.ListCl
 				return nil, err
 			}
 			return clusterServiceListHostsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type clusterServiceListAccessBindingsInternal struct {
@@ -131,5 +131,5 @@ func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.L
 				return nil, err
 			}
 			return clusterServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -31,7 +31,7 @@ func (c databaseClient) Iterator(ctx context.Context, req *ydb.ListDatabasesRequ
 				return nil, err
 			}
 			return databaseServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type databaseServiceListAccessBindingsInternal struct {
@@ -50,5 +50,5 @@ func (c databaseClient) AccessBindingsIterator(ctx context.Context, req *access.
 				return nil, err
 			}
 			return databaseServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

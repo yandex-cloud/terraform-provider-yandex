@@ -28,5 +28,5 @@ func (c versionsClient) Iterator(ctx context.Context, req *mysql.ListVersionsReq
 				return nil, err
 			}
 			return versionsServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

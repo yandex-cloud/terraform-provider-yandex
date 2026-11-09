@@ -31,7 +31,7 @@ func (c exportClient) Iterator(ctx context.Context, req *logging.ListExportsRequ
 				return nil, err
 			}
 			return exportServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type exportServiceListOperationsInternal struct {
@@ -50,7 +50,7 @@ func (c exportClient) OperationsIterator(ctx context.Context, req *logging.ListE
 				return nil, err
 			}
 			return exportServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type exportServiceListAccessBindingsInternal struct {
@@ -69,5 +69,5 @@ func (c exportClient) AccessBindingsIterator(ctx context.Context, req *access.Li
 				return nil, err
 			}
 			return exportServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -29,5 +29,5 @@ func (c catalogClient) CatalogsIterator(ctx context.Context, req *datacatalog.Li
 				return nil, err
 			}
 			return catalogServiceListCatalogsInternal{resp}, nil
-		})
+		}, opts...)
 }

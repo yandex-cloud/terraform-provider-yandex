@@ -32,7 +32,7 @@ func (c nodeGroupClient) Iterator(ctx context.Context, req *k8s.ListNodeGroupsRe
 				return nil, err
 			}
 			return nodeGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type nodeGroupServiceListNodesInternal struct {
@@ -51,7 +51,7 @@ func (c nodeGroupClient) NodesIterator(ctx context.Context, req *k8s.ListNodeGro
 				return nil, err
 			}
 			return nodeGroupServiceListNodesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type nodeGroupServiceListOperationsInternal struct {
@@ -70,5 +70,5 @@ func (c nodeGroupClient) OperationsIterator(ctx context.Context, req *k8s.ListNo
 				return nil, err
 			}
 			return nodeGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }

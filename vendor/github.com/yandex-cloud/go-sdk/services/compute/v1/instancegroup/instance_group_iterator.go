@@ -35,7 +35,7 @@ func (c instanceGroupClient) Iterator(ctx context.Context, req *instancegroup.Li
 				return nil, err
 			}
 			return instanceGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type instanceGroupServiceListInstancesInternal struct {
@@ -54,7 +54,7 @@ func (c instanceGroupClient) InstancesIterator(ctx context.Context, req *instanc
 				return nil, err
 			}
 			return instanceGroupServiceListInstancesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type instanceGroupServiceListOperationsInternal struct {
@@ -73,7 +73,7 @@ func (c instanceGroupClient) OperationsIterator(ctx context.Context, req *instan
 				return nil, err
 			}
 			return instanceGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type instanceGroupServiceListLogRecordsInternal struct {
@@ -92,7 +92,7 @@ func (c instanceGroupClient) LogRecordsIterator(ctx context.Context, req *instan
 				return nil, err
 			}
 			return instanceGroupServiceListLogRecordsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type instanceGroupServiceListAccessBindingsInternal struct {
@@ -111,5 +111,5 @@ func (c instanceGroupClient) AccessBindingsIterator(ctx context.Context, req *ac
 				return nil, err
 			}
 			return instanceGroupServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

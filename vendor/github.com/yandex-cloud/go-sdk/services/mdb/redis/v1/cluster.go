@@ -30,6 +30,7 @@ type ClusterClient interface {
 	Restore(context.Context, *redis.RestoreClusterRequest, ...grpc.CallOption) (*ClusterRestoreOperation, error)
 	RescheduleMaintenance(context.Context, *redis.RescheduleMaintenanceRequest, ...grpc.CallOption) (*ClusterRescheduleMaintenanceOperation, error)
 	StartFailover(context.Context, *redis.StartClusterFailoverRequest, ...grpc.CallOption) (*ClusterStartFailoverOperation, error)
+	RestartHosts(context.Context, *redis.RestartHostsRequest, ...grpc.CallOption) (*ClusterRestartHostsOperation, error)
 	ListLogs(context.Context, *redis.ListClusterLogsRequest, ...grpc.CallOption) (*redis.ListClusterLogsResponse, error)
 	StreamLogs(context.Context, *redis.StreamClusterLogsRequest, ...grpc.CallOption) (redis.ClusterService_StreamLogsClient, error)
 	ListOperations(context.Context, *redis.ListClusterOperationsRequest, ...grpc.CallOption) (*redis.ListClusterOperationsResponse, error)
@@ -618,6 +619,60 @@ func (c clusterClient) StartFailover(ctx context.Context, in *redis.StartCluster
 	return &ClusterStartFailoverOperation{*op}, nil
 }
 
+// ClusterRestartHostsOperation is used to monitor the state of RestartHosts operations.
+type ClusterRestartHostsOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *ClusterRestartHostsOperation) Metadata() *redis.RestartHostsMetadata {
+	return o.Operation.Metadata().(*redis.RestartHostsMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *ClusterRestartHostsOperation) Response() *emptypb.Empty {
+	return o.Operation.Response().(*emptypb.Empty)
+}
+
+// Wait polls the operation until it's done.
+func (o *ClusterRestartHostsOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*emptypb.Empty)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *ClusterRestartHostsOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*emptypb.Empty)
+	return response, err
+}
+
+// RestartHosts is an operation of Yandex.Cloud Redis Cluster service.
+// It returns an object which should be used to monitor the operation state.
+func (c clusterClient) RestartHosts(ctx context.Context, in *redis.RestartHostsRequest, opts ...grpc.CallOption) (*ClusterRestartHostsOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, ClusterRestartHosts, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := redis.NewClusterServiceClient(connection).RestartHosts(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll: c.pollOperation,
+		GetResourceID: func(metadata proto.Message) string {
+			return metadata.(*redis.RestartHostsMetadata).GetClusterId()
+		},
+		MetadataType: (*redis.RestartHostsMetadata)(nil),
+		ResponseType: (*emptypb.Empty)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ClusterRestartHostsOperation{*op}, nil
+}
+
 // ListLogs is an operation of Yandex.Cloud Redis Cluster service.
 func (c clusterClient) ListLogs(ctx context.Context, in *redis.ListClusterLogsRequest, opts ...grpc.CallOption) (*redis.ListClusterLogsResponse, error) {
 	connection, err := c.connector.GetConnection(ctx, ClusterListLogs, opts...)
@@ -1192,6 +1247,7 @@ var (
 	ClusterRestore               = protoreflect.FullName("yandex.cloud.mdb.redis.v1.ClusterService.Restore")
 	ClusterRescheduleMaintenance = protoreflect.FullName("yandex.cloud.mdb.redis.v1.ClusterService.RescheduleMaintenance")
 	ClusterStartFailover         = protoreflect.FullName("yandex.cloud.mdb.redis.v1.ClusterService.StartFailover")
+	ClusterRestartHosts          = protoreflect.FullName("yandex.cloud.mdb.redis.v1.ClusterService.RestartHosts")
 	ClusterListLogs              = protoreflect.FullName("yandex.cloud.mdb.redis.v1.ClusterService.ListLogs")
 	ClusterStreamLogs            = protoreflect.FullName("yandex.cloud.mdb.redis.v1.ClusterService.StreamLogs")
 	ClusterListOperations        = protoreflect.FullName("yandex.cloud.mdb.redis.v1.ClusterService.ListOperations")

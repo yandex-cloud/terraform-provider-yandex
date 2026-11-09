@@ -29,5 +29,5 @@ func (c clusterClient) Iterator(ctx context.Context, req *ytsaurus.ListClustersR
 				return nil, err
 			}
 			return clusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -29,5 +29,5 @@ func (c subclusterClient) Iterator(ctx context.Context, req *dataproc.ListSubclu
 				return nil, err
 			}
 			return subclusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

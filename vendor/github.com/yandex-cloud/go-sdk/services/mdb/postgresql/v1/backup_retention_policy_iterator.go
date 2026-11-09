@@ -30,5 +30,5 @@ func (c backupRetentionPolicyClient) Iterator(ctx context.Context, req *postgres
 				return nil, err
 			}
 			return backupRetentionPolicyServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

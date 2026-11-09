@@ -35,7 +35,7 @@ func (c hostGroupClient) Iterator(ctx context.Context, req *compute.ListHostGrou
 				return nil, err
 			}
 			return hostGroupServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type hostGroupServiceListOperationsInternal struct {
@@ -54,7 +54,7 @@ func (c hostGroupClient) OperationsIterator(ctx context.Context, req *compute.Li
 				return nil, err
 			}
 			return hostGroupServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type hostGroupServiceListInstancesInternal struct {
@@ -73,7 +73,7 @@ func (c hostGroupClient) InstancesIterator(ctx context.Context, req *compute.Lis
 				return nil, err
 			}
 			return hostGroupServiceListInstancesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type hostGroupServiceListHostsInternal struct {
@@ -92,7 +92,7 @@ func (c hostGroupClient) HostsIterator(ctx context.Context, req *compute.ListHos
 				return nil, err
 			}
 			return hostGroupServiceListHostsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type hostGroupServiceListAccessBindingsInternal struct {
@@ -111,5 +111,5 @@ func (c hostGroupClient) AccessBindingsIterator(ctx context.Context, req *access
 				return nil, err
 			}
 			return hostGroupServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

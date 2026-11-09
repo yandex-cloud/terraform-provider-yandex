@@ -29,5 +29,5 @@ func (c advancedRateLimiterProfileClient) Iterator(ctx context.Context, req *adv
 				return nil, err
 			}
 			return advancedRateLimiterProfileServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

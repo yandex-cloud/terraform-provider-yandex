@@ -29,5 +29,5 @@ func (c helmReleaseClient) Iterator(ctx context.Context, req *marketplace.ListHe
 				return nil, err
 			}
 			return helmReleaseServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

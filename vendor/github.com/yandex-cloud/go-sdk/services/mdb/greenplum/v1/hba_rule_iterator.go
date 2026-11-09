@@ -30,7 +30,7 @@ func (c hbaRuleClient) Iterator(ctx context.Context, req *greenplum.ListHBARules
 				return nil, err
 			}
 			return hbaRuleServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type hbaRuleServiceListAtRevisionInternal struct {
@@ -49,5 +49,5 @@ func (c hbaRuleClient) AtRevisionIterator(ctx context.Context, req *greenplum.Li
 				return nil, err
 			}
 			return hbaRuleServiceListAtRevisionInternal{resp}, nil
-		})
+		}, opts...)
 }

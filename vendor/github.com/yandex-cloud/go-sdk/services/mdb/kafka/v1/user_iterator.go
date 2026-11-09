@@ -27,5 +27,5 @@ func (c userClient) Iterator(ctx context.Context, req *kafka.ListUsersRequest, o
 				return nil, err
 			}
 			return userServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -29,5 +29,5 @@ func (c serviceClient) Iterator(ctx context.Context, req *billing.ListServicesRe
 				return nil, err
 			}
 			return serviceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

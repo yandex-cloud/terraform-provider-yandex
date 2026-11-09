@@ -29,5 +29,5 @@ func (c loadBalancerClient) Iterator(ctx context.Context, req *load_balancer.Lis
 				return nil, err
 			}
 			return loadBalancerServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

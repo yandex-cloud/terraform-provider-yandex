@@ -29,7 +29,7 @@ func (c bucketClient) Iterator(ctx context.Context, req *storage.ListBucketsRequ
 				return nil, err
 			}
 			return bucketServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type bucketServiceListAccessBindingsInternal struct {
@@ -48,5 +48,5 @@ func (c bucketClient) AccessBindingsIterator(ctx context.Context, req *access.Li
 				return nil, err
 			}
 			return bucketServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

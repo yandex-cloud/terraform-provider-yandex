@@ -29,5 +29,5 @@ func (c connectorClient) Iterator(ctx context.Context, req *kafka.ListConnectors
 				return nil, err
 			}
 			return connectorServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

@@ -27,5 +27,5 @@ func (c topicClient) Iterator(ctx context.Context, req *kafka.ListTopicsRequest,
 				return nil, err
 			}
 			return topicServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

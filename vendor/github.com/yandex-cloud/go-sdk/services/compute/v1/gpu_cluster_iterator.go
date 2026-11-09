@@ -34,7 +34,7 @@ func (c gpuClusterClient) Iterator(ctx context.Context, req *compute.ListGpuClus
 				return nil, err
 			}
 			return gpuClusterServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type gpuClusterServiceListOperationsInternal struct {
@@ -53,7 +53,7 @@ func (c gpuClusterClient) OperationsIterator(ctx context.Context, req *compute.L
 				return nil, err
 			}
 			return gpuClusterServiceListOperationsInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type gpuClusterServiceListInstancesInternal struct {
@@ -72,7 +72,7 @@ func (c gpuClusterClient) InstancesIterator(ctx context.Context, req *compute.Li
 				return nil, err
 			}
 			return gpuClusterServiceListInstancesInternal{resp}, nil
-		})
+		}, opts...)
 }
 
 type gpuClusterServiceListAccessBindingsInternal struct {
@@ -91,5 +91,5 @@ func (c gpuClusterClient) AccessBindingsIterator(ctx context.Context, req *acces
 				return nil, err
 			}
 			return gpuClusterServiceListAccessBindingsInternal{resp}, nil
-		})
+		}, opts...)
 }

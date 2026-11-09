@@ -30,5 +30,5 @@ func (c subjectDetailsClient) Iterator(ctx context.Context, req *iam_.ListSubjec
 				return nil, err
 			}
 			return subjectDetailsServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

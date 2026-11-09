@@ -29,5 +29,5 @@ func (c signatureCertificateClient) Iterator(ctx context.Context, req *saml.List
 				return nil, err
 			}
 			return signatureCertificateServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }

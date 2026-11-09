@@ -29,5 +29,5 @@ func (c instanceClient) Iterator(ctx context.Context, req *gitlab.ListInstancesR
 				return nil, err
 			}
 			return instanceServiceListInternal{resp}, nil
-		})
+		}, opts...)
 }
