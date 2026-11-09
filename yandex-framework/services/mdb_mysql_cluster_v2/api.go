@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math"
-	"time"
 
 	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
 
@@ -20,79 +18,13 @@ const defaultMDBPageSize = 1000
 
 var mysqlApi = MysqlAPI{}
 
-type MysqlAPI struct {
-	listHostsMaxAttempt *int // nil: defaultListHostsMaxAttempt
-}
+type MysqlAPI struct{}
 
 // ==============================================================================
 //                                     HOST
 // ==============================================================================
 
-const defaultListHostsMaxAttempt = 7
-
 func (r *MysqlAPI) ListHosts(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*mysql.Host {
-	return retryListHosts(ctx, diags, func(ctx context.Context) []*mysql.Host {
-		return r.listHostsOnce(ctx, sdk, diags, cid)
-	}, r.maxAttempt(), retryBackoff)
-}
-
-func (r *MysqlAPI) maxAttempt() int {
-	if r.listHostsMaxAttempt == nil {
-		return defaultListHostsMaxAttempt
-	}
-	return *r.listHostsMaxAttempt
-}
-
-// A STOPPED cluster reports ROLE_UNKNOWN for every host, so waiting for MASTER there would only spend the whole retry budget.
-func hostsAPIForRead(cluster *mysql.Cluster) *MysqlAPI {
-	api := &MysqlAPI{}
-	if cluster.GetStatus() == mysql.Cluster_STOPPED {
-		noWait := 0
-		api.listHostsMaxAttempt = &noWait
-	}
-	return api
-}
-
-func retryBackoff(attempt int) time.Duration {
-	return time.Second * time.Duration(int(math.Pow(2, float64(attempt))))
-}
-
-func retryListHosts(ctx context.Context, diags *diag.Diagnostics, list func(context.Context) []*mysql.Host, maxAttempt int, backoff func(int) time.Duration) []*mysql.Host {
-	for attempt := 0; ; attempt++ {
-		log.Printf("[DEBUG] Try ListMySQLHosts, attempt: %d", attempt)
-		hosts := list(ctx)
-		if diags.HasError() {
-			return nil
-		}
-		if hasMaster(hosts) || maxAttempt <= attempt {
-			return hosts
-		}
-
-		wait := backoff(attempt)
-		log.Printf("[DEBUG] Condition failed, waiting %s before the next attempt", wait)
-		select {
-		case <-ctx.Done():
-			diags.AddError(
-				"Failed to List MySQL Hosts",
-				"Context is done while waiting for MySQL host roles: "+ctx.Err().Error(),
-			)
-			return nil
-		case <-time.After(wait):
-		}
-	}
-}
-
-// Unknown roles are not waited for: the role is not stored in the state, and a host that stays ROLE_UNKNOWN would not get one by waiting.
-func hasMaster(hosts []*mysql.Host) bool {
-	for _, host := range hosts {
-		if host.Role == mysql.Host_MASTER {
-			return true
-		}
-	}
-	return false
-}
-
-func (r *MysqlAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*mysql.Host {
 	hosts := []*mysql.Host{}
 	pageToken := ""
 

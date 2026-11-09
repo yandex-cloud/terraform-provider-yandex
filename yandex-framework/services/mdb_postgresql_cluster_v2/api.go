@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math"
-	"time"
 
 	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
 
@@ -20,77 +18,13 @@ const defaultMDBPageSize = 1000
 
 var postgresqlApi = PostgresqlAPI{}
 
-type PostgresqlAPI struct {
-	listHostsMaxAttempt *int // nil: defaultListHostsMaxAttempt
-}
+type PostgresqlAPI struct{}
 
 // ==============================================================================
 //                                     HOST
 // ==============================================================================
 
-const defaultListHostsMaxAttempt = 7
-
 func (p *PostgresqlAPI) ListHosts(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*postgresql.Host {
-	return retryListHosts(ctx, diags, func(ctx context.Context) []*postgresql.Host {
-		return p.listHostsOnce(ctx, sdk, diags, cid)
-	}, p.maxAttempt(), retryBackoff)
-}
-
-func (p *PostgresqlAPI) maxAttempt() int {
-	if p.listHostsMaxAttempt == nil {
-		return defaultListHostsMaxAttempt
-	}
-	return *p.listHostsMaxAttempt
-}
-
-func hostsAPIForRead(cluster *postgresql.Cluster) *PostgresqlAPI {
-	api := &PostgresqlAPI{}
-	if cluster.GetStatus() == postgresql.Cluster_STOPPED {
-		noWait := 0
-		api.listHostsMaxAttempt = &noWait
-	}
-	return api
-}
-
-func retryBackoff(attempt int) time.Duration {
-	return time.Second * time.Duration(int(math.Pow(2, float64(attempt))))
-}
-
-func retryListHosts(ctx context.Context, diags *diag.Diagnostics, list func(context.Context) []*postgresql.Host, maxAttempt int, backoff func(int) time.Duration) []*postgresql.Host {
-	for attempt := 0; ; attempt++ {
-		log.Printf("[DEBUG] Try ListPostgreSQLHosts, attempt: %d", attempt)
-		hosts := list(ctx)
-		if diags.HasError() {
-			return nil
-		}
-		if hasMaster(hosts) || maxAttempt <= attempt {
-			return hosts
-		}
-
-		wait := backoff(attempt)
-		log.Printf("[DEBUG] Condition failed, waiting %s before the next attempt", wait)
-		select {
-		case <-ctx.Done():
-			diags.AddError(
-				"Failed to List PostgreSQL Hosts",
-				"Context is done while waiting for PostgreSQL host roles: "+ctx.Err().Error(),
-			)
-			return nil
-		case <-time.After(wait):
-		}
-	}
-}
-
-func hasMaster(hosts []*postgresql.Host) bool {
-	for _, host := range hosts {
-		if host.Role == postgresql.Host_MASTER {
-			return true
-		}
-	}
-	return false
-}
-
-func (p *PostgresqlAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*postgresql.Host {
 	hosts := []*postgresql.Host{}
 	pageToken := ""
 

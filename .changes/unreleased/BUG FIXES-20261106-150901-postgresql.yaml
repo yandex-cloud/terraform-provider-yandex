@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql: do not wait for a MASTER host when reading hosts of `yandex_mdb_postgresql_cluster_v2`; the resource does not expose host roles, so the wait only delayed a refresh of a cluster without a master by about two minutes'
+time: 2026-11-06T15:09:01.300861+01:00
