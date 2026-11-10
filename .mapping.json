@@ -12467,7 +12467,6 @@
   "yandex/sweepers_sharded_postgresql_cluster_test.go":"opensource/terraform-provider-yandex-mirror/yandex/sweepers_sharded_postgresql_cluster_test.go",
   "yandex/sweepers_spark_cluster_test.go":"opensource/terraform-provider-yandex-mirror/yandex/sweepers_spark_cluster_test.go",
   "yandex/sweepers_trino_cluster_test.go":"opensource/terraform-provider-yandex-mirror/yandex/sweepers_trino_cluster_test.go",
-  "yandex/sws_structures.go":"opensource/terraform-provider-yandex-mirror/yandex/sws_structures.go",
   "yandex/test-fixtures/fake_secret_generator.sh":"opensource/terraform-provider-yandex-mirror/yandex/test-fixtures/fake_secret_generator.sh",
   "yandex/test-fixtures/fake_service_account_key.json":"opensource/terraform-provider-yandex-mirror/yandex/test-fixtures/fake_service_account_key.json",
   "yandex/test-fixtures/id_rsa.pub":"opensource/terraform-provider-yandex-mirror/yandex/test-fixtures/id_rsa.pub",
