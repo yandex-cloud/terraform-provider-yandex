@@ -2,6 +2,8 @@ package sweep
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -20,6 +22,11 @@ func registerResourceYandexLoggingGroup(add func(string, *resource.Sweeper)) {
 }
 
 func sweepAllYandexLoggingGroup(_ string) error {
+	if os.Getenv("YC_SKIP_LOGGING_GROUP_SWEEPING") == "1" {
+		log.Print("[INFO] Skipping yandex_logging_group sweeper: YC_SKIP_LOGGING_GROUP_SWEEPING=1")
+		return nil
+	}
+
 	conf, err := sweep.ConfigForSweepers()
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)

@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: "logging: allow explicitly skipping the log group sweeper with YC_SKIP_LOGGING_GROUP_SWEEPING=1 when Cloud Logging is unavailable in the test environment"
+time: 2026-11-10T15:06:08.592873+03:00
