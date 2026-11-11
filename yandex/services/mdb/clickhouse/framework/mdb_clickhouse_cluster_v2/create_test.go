@@ -534,6 +534,7 @@ var (
 					"data_cache_enabled":  types.BoolValue(true),
 					"data_cache_max_size": types.Int64Value(32),
 					"prefer_not_to_merge": types.BoolValue(false),
+					"bucket_max_size":     types.Int64Value(1073741824),
 				},
 			),
 			"format_schema": types.SetValueMust(
@@ -1204,6 +1205,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 						DataCacheEnabled: wrapperspb.Bool(true),
 						DataCacheMaxSize: wrapperspb.Int64(32),
 						PreferNotToMerge: wrapperspb.Bool(false),
+						BucketMaxSize:    wrapperspb.Int64(1073741824),
 					},
 					ConnectionManager: &mdbv1.ClusterConnectionManager{
 						Enabled:             wrapperspb.Bool(true),
@@ -1578,6 +1580,7 @@ func TestExpandCloudStorage_EnabledTrueWithUnknownOptionalFields(t *testing.T) {
 			"data_cache_enabled":  types.BoolUnknown(),
 			"data_cache_max_size": types.Int64Unknown(),
 			"prefer_not_to_merge": types.BoolUnknown(),
+			"bucket_max_size":     types.Int64Unknown(),
 		},
 	)
 
@@ -1603,6 +1606,9 @@ func TestExpandCloudStorage_EnabledTrueWithUnknownOptionalFields(t *testing.T) {
 	}
 	if got.PreferNotToMerge != nil {
 		t.Errorf("expected PreferNotToMerge to be nil for Unknown, got %v", got.PreferNotToMerge)
+	}
+	if got.BucketMaxSize != nil {
+		t.Errorf("expected BucketMaxSize to be nil for Unknown, got %v", got.BucketMaxSize)
 	}
 }
 

@@ -340,6 +340,14 @@ func CloudStorageSchema() schema.SingleNestedAttribute {
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"bucket_max_size": schema.Int64Attribute{
+				Description: "Maximum size (in bytes) of the `Yandex Object Storage` bucket used for hybrid storage. Required when hybrid storage is enabled. Cannot be decreased.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 }

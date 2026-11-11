@@ -1767,6 +1767,7 @@ cloud_storage = {
 	data_cache_enabled  = true
 	data_cache_max_size = 214748364
 	prefer_not_to_merge = true
+	bucket_max_size     = 10737418240
 }
 `
 
@@ -1812,6 +1813,7 @@ cloud_storage = {
 					resource.TestCheckResourceAttr(chResourceCloudStorage, "cloud_storage.data_cache_enabled", "true"),
 					resource.TestCheckResourceAttr(chResourceCloudStorage, "cloud_storage.data_cache_max_size", "214748364"),
 					resource.TestCheckResourceAttr(chResourceCloudStorage, "cloud_storage.prefer_not_to_merge", "true"),
+					resource.TestCheckResourceAttr(chResourceCloudStorage, "cloud_storage.bucket_max_size", "10737418240"),
 					testAccCheckCreatedAtAttr(chResourceCloudStorage)),
 			},
 			mdbClickHouseClusterImportStep(chResourceCloudStorage),

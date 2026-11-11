@@ -225,6 +225,10 @@ func DataSourceCloudStorageSchema() schema.SingleNestedAttribute {
 				MarkdownDescription: "Disables merging of data parts in `Yandex Object Storage`.",
 				Computed:            true,
 			},
+			"bucket_max_size": schema.Int64Attribute{
+				MarkdownDescription: "Maximum size (in bytes) of the `Yandex Object Storage` bucket used for hybrid storage.",
+				Computed:            true,
+			},
 		},
 	}
 }

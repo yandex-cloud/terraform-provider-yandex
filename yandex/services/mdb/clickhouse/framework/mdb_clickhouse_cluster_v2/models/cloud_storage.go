@@ -18,6 +18,7 @@ type CloudStorage struct {
 	DataCacheEnabled types.Bool   `tfsdk:"data_cache_enabled"`
 	DataCacheMaxSize types.Int64  `tfsdk:"data_cache_max_size"`
 	PreferNotToMerge types.Bool   `tfsdk:"prefer_not_to_merge"`
+	BucketMaxSize    types.Int64  `tfsdk:"bucket_max_size"`
 }
 
 var CloudStorageAttrTypes = map[string]attr.Type{
@@ -26,6 +27,7 @@ var CloudStorageAttrTypes = map[string]attr.Type{
 	"data_cache_enabled":  types.BoolType,
 	"data_cache_max_size": types.Int64Type,
 	"prefer_not_to_merge": types.BoolType,
+	"bucket_max_size":     types.Int64Type,
 }
 
 func FlattenCloudStorage(ctx context.Context, cloudStorage *clickhouse.CloudStorage, diags *diag.Diagnostics) types.Object {
@@ -48,6 +50,7 @@ func FlattenCloudStorage(ctx context.Context, cloudStorage *clickhouse.CloudStor
 		cloudStorageModel.DataCacheEnabled = mdbcommon.FlattenBoolWrapper(ctx, cloudStorage.DataCacheEnabled, diags)
 		cloudStorageModel.DataCacheMaxSize = mdbcommon.FlattenInt64Wrapper(ctx, cloudStorage.DataCacheMaxSize, diags)
 		cloudStorageModel.PreferNotToMerge = mdbcommon.FlattenBoolWrapper(ctx, cloudStorage.PreferNotToMerge, diags)
+		cloudStorageModel.BucketMaxSize = mdbcommon.FlattenInt64Wrapper(ctx, cloudStorage.BucketMaxSize, diags)
 	}
 
 	obj, d := types.ObjectValueFrom(
@@ -88,6 +91,9 @@ func ExpandCloudStorage(ctx context.Context, cloudStorage types.Object, diags *d
 		}
 		if !cs.PreferNotToMerge.IsNull() && !cs.PreferNotToMerge.IsUnknown() {
 			result.PreferNotToMerge = &wrapperspb.BoolValue{Value: cs.PreferNotToMerge.ValueBool()}
+		}
+		if !cs.BucketMaxSize.IsNull() && !cs.BucketMaxSize.IsUnknown() {
+			result.BucketMaxSize = &wrapperspb.Int64Value{Value: cs.BucketMaxSize.ValueInt64()}
 		}
 	}
 

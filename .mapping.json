@@ -140,6 +140,7 @@
   ".changes/unreleased/BUG FIXES-20261106-113914.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/BUG FIXES-20261106-113914.yaml",
   ".changes/unreleased/BUG FIXES-20261106-150901-mysql.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/BUG FIXES-20261106-150901-mysql.yaml",
   ".changes/unreleased/BUG FIXES-20261106-150901-postgresql.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/BUG FIXES-20261106-150901-postgresql.yaml",
+  ".changes/unreleased/FEATURES-20261111-132252.yaml":"opensource/terraform-provider-yandex-mirror/.changes/unreleased/FEATURES-20261111-132252.yaml",
   ".changie.yaml":"opensource/terraform-provider-yandex-mirror/.changie.yaml",
   ".github/workflows/release.yml":"opensource/terraform-provider-yandex-mirror/.github/workflows/release.yml",
   ".gitignore":"opensource/terraform-provider-yandex-mirror/.gitignore",

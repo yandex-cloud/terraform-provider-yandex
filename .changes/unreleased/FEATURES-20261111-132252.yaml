@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'mdb_clickhouse: add `cloud_storage.bucket_max_size` support to `yandex_mdb_clickhouse_cluster_v2` resource and data source'
+time: 2026-11-11T13:22:52.793124+03:00
