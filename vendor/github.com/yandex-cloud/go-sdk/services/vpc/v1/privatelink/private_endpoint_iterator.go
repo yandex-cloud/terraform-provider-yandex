@@ -11,8 +11,28 @@ import (
 )
 
 type PrivateEndpointClientIterator interface {
+	YandexCloudServicesIterator(context.Context, *privatelink.ListYandexCloudServicesRequest, ...grpc.CallOption) *iterator.SimpleIterator[*privatelink.ListYandexCloudServicesRequest, *privatelink.YandexCloudService]
 	Iterator(context.Context, *privatelink.ListPrivateEndpointsRequest, ...grpc.CallOption) *iterator.Iterator[*privatelink.ListPrivateEndpointsRequest, *privatelink.PrivateEndpoint]
 	OperationsIterator(context.Context, *privatelink.ListPrivateEndpointOperationsRequest, ...grpc.CallOption) *iterator.Iterator[*privatelink.ListPrivateEndpointOperationsRequest, *operation.Operation]
+}
+
+type privateEndpointServiceListYandexCloudServicesInternal struct {
+	*privatelink.ListYandexCloudServicesResponse
+}
+
+func (r privateEndpointServiceListYandexCloudServicesInternal) Items() []*privatelink.YandexCloudService {
+	return r.ListYandexCloudServicesResponse.Services
+}
+
+func (c privateEndpointClient) YandexCloudServicesIterator(ctx context.Context, req *privatelink.ListYandexCloudServicesRequest, opts ...grpc.CallOption) *iterator.SimpleIterator[*privatelink.ListYandexCloudServicesRequest, *privatelink.YandexCloudService] {
+	return iterator.NewSimpleIterator[*privatelink.ListYandexCloudServicesRequest, *privatelink.YandexCloudService](ctx, req,
+		func(ctx context.Context, req *privatelink.ListYandexCloudServicesRequest, opts ...grpc.CallOption) (iterator.SimpleResponse[*privatelink.YandexCloudService], error) {
+			resp, err := c.ListYandexCloudServices(ctx, req, opts...)
+			if err != nil {
+				return nil, err
+			}
+			return privateEndpointServiceListYandexCloudServicesInternal{resp}, nil
+		}, opts...)
 }
 
 type privateEndpointServiceListInternal struct {

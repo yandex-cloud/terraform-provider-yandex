@@ -87,3 +87,11 @@ func (m *PrivateEndpoint_EndpointAddress) SetAddressId(v string) {
 func (m *PrivateEndpoint_DnsRecord) SetName(v string) {
 	m.Name = v
 }
+
+func (m *YandexCloudService) SetServiceName(v string) {
+	m.ServiceName = v
+}
+
+func (m *YandexCloudService) SetDescription(v string) {
+	m.Description = v
+}

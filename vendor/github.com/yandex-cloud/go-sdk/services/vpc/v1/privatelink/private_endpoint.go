@@ -17,6 +17,7 @@ import (
 // PrivateEndpointClient provides methods for managing PrivateEndpoint resources of Yandex.Cloud Privatelink.
 type PrivateEndpointClient interface {
 	PrivateEndpointClientIterator
+	ListYandexCloudServices(context.Context, *privatelink.ListYandexCloudServicesRequest, ...grpc.CallOption) (*privatelink.ListYandexCloudServicesResponse, error)
 	Get(context.Context, *privatelink.GetPrivateEndpointRequest, ...grpc.CallOption) (*privatelink.PrivateEndpoint, error)
 	List(context.Context, *privatelink.ListPrivateEndpointsRequest, ...grpc.CallOption) (*privatelink.ListPrivateEndpointsResponse, error)
 	Create(context.Context, *privatelink.CreatePrivateEndpointRequest, ...grpc.CallOption) (*PrivateEndpointCreateOperation, error)
@@ -34,6 +35,15 @@ type privateEndpointClient struct {
 // NewPrivateEndpointClient returns PrivateEndpointClient implementation.
 func NewPrivateEndpointClient(connector transport.Connector) PrivateEndpointClient {
 	return privateEndpointClient{connector}
+}
+
+// ListYandexCloudServices is an operation of Yandex.Cloud Privatelink PrivateEndpoint service.
+func (c privateEndpointClient) ListYandexCloudServices(ctx context.Context, in *privatelink.ListYandexCloudServicesRequest, opts ...grpc.CallOption) (*privatelink.ListYandexCloudServicesResponse, error) {
+	connection, err := c.connector.GetConnection(ctx, PrivateEndpointListYandexCloudServices, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return privatelink.NewPrivateEndpointServiceClient(connection).ListYandexCloudServices(ctx, in, opts...)
 }
 
 // Get is an operation of Yandex.Cloud Privatelink PrivateEndpoint service.
@@ -235,11 +245,12 @@ func (c privateEndpointClient) pollOperation(ctx context.Context, operationId st
 }
 
 var (
-	PrivateEndpointGet             = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Get")
-	PrivateEndpointList            = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.List")
-	PrivateEndpointCreate          = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Create")
-	PrivateEndpointUpdate          = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Update")
-	PrivateEndpointDelete          = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Delete")
-	PrivateEndpointListOperations  = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.ListOperations")
-	PrivateEndpointOperationPoller = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
+	PrivateEndpointListYandexCloudServices = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.ListYandexCloudServices")
+	PrivateEndpointGet                     = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Get")
+	PrivateEndpointList                    = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.List")
+	PrivateEndpointCreate                  = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Create")
+	PrivateEndpointUpdate                  = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Update")
+	PrivateEndpointDelete                  = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Delete")
+	PrivateEndpointListOperations          = protoreflect.FullName("yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.ListOperations")
+	PrivateEndpointOperationPoller         = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
 )

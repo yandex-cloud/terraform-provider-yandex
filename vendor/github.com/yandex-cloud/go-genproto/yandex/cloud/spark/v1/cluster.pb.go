@@ -8,6 +8,7 @@ package spark
 
 import (
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -485,12 +486,17 @@ type Cluster struct {
 	Health Health `protobuf:"varint,13,opt,name=health,proto3,enum=yandex.cloud.spark.v1.Health" json:"health,omitempty"`
 	// UI URLs.
 	Links []*UILink `protobuf:"bytes,14,rep,name=links,proto3" json:"links,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/spark/v1/cluster.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,15,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Maintenance operation planned at nearest maintenance_window.
 	PlannedOperation *MaintenanceOperation `protobuf:"bytes,16,opt,name=planned_operation,json=plannedOperation,proto3" json:"planned_operation,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Maintenance windows.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,19,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Cluster) Reset() {
@@ -621,6 +627,7 @@ func (x *Cluster) GetLinks() []*UILink {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/spark/v1/cluster.proto.
 func (x *Cluster) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -631,6 +638,13 @@ func (x *Cluster) GetMaintenanceWindow() *MaintenanceWindow {
 func (x *Cluster) GetPlannedOperation() *MaintenanceOperation {
 	if x != nil {
 		return x.PlannedOperation
+	}
+	return nil
+}
+
+func (x *Cluster) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
 	}
 	return nil
 }
@@ -1527,7 +1541,7 @@ var File_yandex_cloud_spark_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_spark_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"#yandex/cloud/spark/v1/cluster.proto\x12\x15yandex.cloud.spark.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a'yandex/cloud/spark/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xbc\x02\n" +
+	"#yandex/cloud/spark/v1/cluster.proto\x12\x15yandex.cloud.spark.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a'yandex/cloud/spark/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xbc\x02\n" +
 	"\x13DetailedHealthCheck\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\x12I\n" +
 	"\x06status\x18\x02 \x01(\x0e21.yandex.cloud.spark.v1.DetailedHealthCheck.StatusR\x06status\x12Q\n" +
@@ -1554,7 +1568,7 @@ const file_yandex_cloud_spark_v1_cluster_proto_rawDesc = "" +
 	"\x16CAUSE_TYPE_UNSPECIFIED\x10\x00\x12\b\n" +
 	"\x04USER\x10\x01\x12\v\n" +
 	"\aSERVICE\x10\x02\x12\t\n" +
-	"\x05INFRA\x10\x03\"\xb4\b\n" +
+	"\x05INFRA\x10\x03\"\x98\t\n" +
 	"\aCluster\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -1571,9 +1585,10 @@ const file_yandex_cloud_spark_v1_cluster_proto_rawDesc = "" +
 	"\x12service_account_id\x18\v \x01(\tB\b\x8a\xc81\x04<=50R\x10serviceAccountId\x12>\n" +
 	"\alogging\x18\f \x01(\v2$.yandex.cloud.spark.v1.LoggingConfigR\alogging\x125\n" +
 	"\x06health\x18\r \x01(\x0e2\x1d.yandex.cloud.spark.v1.HealthR\x06health\x123\n" +
-	"\x05links\x18\x0e \x03(\v2\x1d.yandex.cloud.spark.v1.UILinkR\x05links\x12W\n" +
-	"\x12maintenance_window\x18\x0f \x01(\v2(.yandex.cloud.spark.v1.MaintenanceWindowR\x11maintenanceWindow\x12X\n" +
-	"\x11planned_operation\x18\x10 \x01(\v2+.yandex.cloud.spark.v1.MaintenanceOperationR\x10plannedOperation\x1a9\n" +
+	"\x05links\x18\x0e \x03(\v2\x1d.yandex.cloud.spark.v1.UILinkR\x05links\x12[\n" +
+	"\x12maintenance_window\x18\x0f \x01(\v2(.yandex.cloud.spark.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12X\n" +
+	"\x11planned_operation\x18\x10 \x01(\v2+.yandex.cloud.spark.v1.MaintenanceOperationR\x10plannedOperation\x12X\n" +
+	"\x13maintenance_windows\x18\x13 \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"y\n" +
@@ -1585,7 +1600,7 @@ const file_yandex_cloud_spark_v1_cluster_proto_rawDesc = "" +
 	"\x05ERROR\x10\x04\x12\f\n" +
 	"\bSTOPPING\x10\x05\x12\v\n" +
 	"\aSTOPPED\x10\x06\x12\f\n" +
-	"\bSTARTING\x10\a\"\x94\x03\n" +
+	"\bSTARTING\x10\aJ\x04\b\x11\x10\x13\"\x94\x03\n" +
 	"\rClusterConfig\x12Q\n" +
 	"\x0eresource_pools\x18\x01 \x01(\v2$.yandex.cloud.spark.v1.ResourcePoolsB\x04\xe8\xc71\x01R\rresourcePools\x12Q\n" +
 	"\x0ehistory_server\x18\x02 \x01(\v2*.yandex.cloud.spark.v1.HistoryServerConfigR\rhistoryServer\x12G\n" +
@@ -1692,6 +1707,7 @@ var file_yandex_cloud_spark_v1_cluster_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),   // 24: google.protobuf.Timestamp
 	(*MaintenanceWindow)(nil),       // 25: yandex.cloud.spark.v1.MaintenanceWindow
 	(*MaintenanceOperation)(nil),    // 26: yandex.cloud.spark.v1.MaintenanceOperation
+	(*v1.MaintenanceWindows)(nil),   // 27: yandex.cloud.mdb.v1.MaintenanceWindows
 }
 var file_yandex_cloud_spark_v1_cluster_proto_depIdxs = []int32{
 	1,  // 0: yandex.cloud.spark.v1.DetailedHealthCheck.status:type_name -> yandex.cloud.spark.v1.DetailedHealthCheck.Status
@@ -1709,24 +1725,25 @@ var file_yandex_cloud_spark_v1_cluster_proto_depIdxs = []int32{
 	19, // 12: yandex.cloud.spark.v1.Cluster.links:type_name -> yandex.cloud.spark.v1.UILink
 	25, // 13: yandex.cloud.spark.v1.Cluster.maintenance_window:type_name -> yandex.cloud.spark.v1.MaintenanceWindow
 	26, // 14: yandex.cloud.spark.v1.Cluster.planned_operation:type_name -> yandex.cloud.spark.v1.MaintenanceOperation
-	13, // 15: yandex.cloud.spark.v1.ClusterConfig.resource_pools:type_name -> yandex.cloud.spark.v1.ResourcePools
-	10, // 16: yandex.cloud.spark.v1.ClusterConfig.history_server:type_name -> yandex.cloud.spark.v1.HistoryServerConfig
-	16, // 17: yandex.cloud.spark.v1.ClusterConfig.dependencies:type_name -> yandex.cloud.spark.v1.Dependencies
-	17, // 18: yandex.cloud.spark.v1.ClusterConfig.metastore:type_name -> yandex.cloud.spark.v1.Metastore
-	13, // 19: yandex.cloud.spark.v1.UpdateClusterConfigSpec.resource_pools:type_name -> yandex.cloud.spark.v1.ResourcePools
-	10, // 20: yandex.cloud.spark.v1.UpdateClusterConfigSpec.history_server:type_name -> yandex.cloud.spark.v1.HistoryServerConfig
-	16, // 21: yandex.cloud.spark.v1.UpdateClusterConfigSpec.dependencies:type_name -> yandex.cloud.spark.v1.Dependencies
-	17, // 22: yandex.cloud.spark.v1.UpdateClusterConfigSpec.metastore:type_name -> yandex.cloud.spark.v1.Metastore
-	14, // 23: yandex.cloud.spark.v1.ResourcePools.driver:type_name -> yandex.cloud.spark.v1.ResourcePool
-	14, // 24: yandex.cloud.spark.v1.ResourcePools.executor:type_name -> yandex.cloud.spark.v1.ResourcePool
-	15, // 25: yandex.cloud.spark.v1.ResourcePool.scale_policy:type_name -> yandex.cloud.spark.v1.ScalePolicy
-	22, // 26: yandex.cloud.spark.v1.ScalePolicy.fixed_scale:type_name -> yandex.cloud.spark.v1.ScalePolicy.FixedScale
-	23, // 27: yandex.cloud.spark.v1.ScalePolicy.auto_scale:type_name -> yandex.cloud.spark.v1.ScalePolicy.AutoScale
-	28, // [28:28] is the sub-list for method output_type
-	28, // [28:28] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	27, // 15: yandex.cloud.spark.v1.Cluster.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	13, // 16: yandex.cloud.spark.v1.ClusterConfig.resource_pools:type_name -> yandex.cloud.spark.v1.ResourcePools
+	10, // 17: yandex.cloud.spark.v1.ClusterConfig.history_server:type_name -> yandex.cloud.spark.v1.HistoryServerConfig
+	16, // 18: yandex.cloud.spark.v1.ClusterConfig.dependencies:type_name -> yandex.cloud.spark.v1.Dependencies
+	17, // 19: yandex.cloud.spark.v1.ClusterConfig.metastore:type_name -> yandex.cloud.spark.v1.Metastore
+	13, // 20: yandex.cloud.spark.v1.UpdateClusterConfigSpec.resource_pools:type_name -> yandex.cloud.spark.v1.ResourcePools
+	10, // 21: yandex.cloud.spark.v1.UpdateClusterConfigSpec.history_server:type_name -> yandex.cloud.spark.v1.HistoryServerConfig
+	16, // 22: yandex.cloud.spark.v1.UpdateClusterConfigSpec.dependencies:type_name -> yandex.cloud.spark.v1.Dependencies
+	17, // 23: yandex.cloud.spark.v1.UpdateClusterConfigSpec.metastore:type_name -> yandex.cloud.spark.v1.Metastore
+	14, // 24: yandex.cloud.spark.v1.ResourcePools.driver:type_name -> yandex.cloud.spark.v1.ResourcePool
+	14, // 25: yandex.cloud.spark.v1.ResourcePools.executor:type_name -> yandex.cloud.spark.v1.ResourcePool
+	15, // 26: yandex.cloud.spark.v1.ResourcePool.scale_policy:type_name -> yandex.cloud.spark.v1.ScalePolicy
+	22, // 27: yandex.cloud.spark.v1.ScalePolicy.fixed_scale:type_name -> yandex.cloud.spark.v1.ScalePolicy.FixedScale
+	23, // 28: yandex.cloud.spark.v1.ScalePolicy.auto_scale:type_name -> yandex.cloud.spark.v1.ScalePolicy.AutoScale
+	29, // [29:29] is the sub-list for method output_type
+	29, // [29:29] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_spark_v1_cluster_proto_init() }

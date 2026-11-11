@@ -3,7 +3,8 @@
 package metastore
 
 import (
-	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	v11 "github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -115,6 +116,10 @@ func (m *Cluster) SetIsHa(v bool) {
 	m.IsHa = v
 }
 
+func (m *Cluster) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
+}
+
 func (m *Monitoring) SetName(v string) {
 	m.Name = v
 }
@@ -169,7 +174,7 @@ func (m *LoggingConfig) SetEnabled(v bool) {
 	m.Enabled = v
 }
 
-func (m *LoggingConfig) SetMinLevel(v v1.LogLevel_Level) {
+func (m *LoggingConfig) SetMinLevel(v v11.LogLevel_Level) {
 	m.MinLevel = v
 }
 

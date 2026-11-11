@@ -10,6 +10,7 @@ import (
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud"
 	access "github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud/api"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -232,10 +233,15 @@ type CreateClusterRequest struct {
 	Logging *LoggingConfig `protobuf:"bytes,15,opt,name=logging,proto3" json:"logging,omitempty"`
 	// Network-related configuration options.
 	Network *NetworkConfig `protobuf:"bytes,16,opt,name=network,proto3" json:"network,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Maintenance window.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/metastore/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,17,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Maintenance windows.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,18,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CreateClusterRequest) Reset() {
@@ -338,9 +344,17 @@ func (x *CreateClusterRequest) GetNetwork() *NetworkConfig {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/metastore/v1/cluster_service.proto.
 func (x *CreateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
+	}
+	return nil
+}
+
+func (x *CreateClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
 	}
 	return nil
 }
@@ -413,12 +427,17 @@ type UpdateClusterRequest struct {
 	NetworkSpec *UpdateNetworkConfigSpec `protobuf:"bytes,10,opt,name=network_spec,json=networkSpec,proto3" json:"network_spec,omitempty"`
 	// Metastore Cluster configuration.
 	ConfigSpec *UpdateClusterConfigSpec `protobuf:"bytes,11,opt,name=config_spec,json=configSpec,proto3" json:"config_spec,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Maintenance window.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/metastore/v1/cluster_service.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,12,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Metastore server version.
-	Version       string `protobuf:"bytes,13,opt,name=version,proto3" json:"version,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Version string `protobuf:"bytes,13,opt,name=version,proto3" json:"version,omitempty"`
+	// Maintenance windows.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,14,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *UpdateClusterRequest) Reset() {
@@ -521,6 +540,7 @@ func (x *UpdateClusterRequest) GetConfigSpec() *UpdateClusterConfigSpec {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/metastore/v1/cluster_service.proto.
 func (x *UpdateClusterRequest) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -533,6 +553,13 @@ func (x *UpdateClusterRequest) GetVersion() string {
 		return x.Version
 	}
 	return ""
+}
+
+func (x *UpdateClusterRequest) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
+	}
+	return nil
 }
 
 type UpdateClusterMetadata struct {
@@ -1347,7 +1374,7 @@ var File_yandex_cloud_metastore_v1_cluster_service_proto protoreflect.FileDescri
 
 const file_yandex_cloud_metastore_v1_cluster_service_proto_rawDesc = "" +
 	"\n" +
-	"/yandex/cloud/metastore/v1/cluster_service.proto\x12\x19yandex.cloud.metastore.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a'yandex/cloud/metastore/v1/cluster.proto\x1a+yandex/cloud/metastore/v1/maintenance.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"@\n" +
+	"/yandex/cloud/metastore/v1/cluster_service.proto\x12\x19yandex.cloud.metastore.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a'yandex/cloud/metastore/v1/cluster.proto\x1a+yandex/cloud/metastore/v1/maintenance.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"@\n" +
 	"\x11GetClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\"\xb7\x01\n" +
@@ -1361,7 +1388,7 @@ const file_yandex_cloud_metastore_v1_cluster_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"~\n" +
 	"\x14ListClustersResponse\x12>\n" +
 	"\bclusters\x18\x01 \x03(\v2\".yandex.cloud.metastore.v1.ClusterR\bclusters\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xaa\x06\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x88\a\n" +
 	"\x14CreateClusterRequest\x12)\n" +
 	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x122\n" +
 	"\x04name\x18\x02 \x01(\tB\x1e\xe8\xc71\x01\xf2\xc71\x0e[a-zA-Z0-9_-]*\x8a\xc81\x04<=63R\x04name\x12+\n" +
@@ -1373,14 +1400,15 @@ const file_yandex_cloud_metastore_v1_cluster_service_proto_rawDesc = "" +
 	"configSpec\x12:\n" +
 	"\x12service_account_id\x18\x0e \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\x10serviceAccountId\x12B\n" +
 	"\alogging\x18\x0f \x01(\v2(.yandex.cloud.metastore.v1.LoggingConfigR\alogging\x12B\n" +
-	"\anetwork\x18\x10 \x01(\v2(.yandex.cloud.metastore.v1.NetworkConfigR\anetwork\x12[\n" +
-	"\x12maintenance_window\x18\x11 \x01(\v2,.yandex.cloud.metastore.v1.MaintenanceWindowR\x11maintenanceWindow\x1a9\n" +
+	"\anetwork\x18\x10 \x01(\v2(.yandex.cloud.metastore.v1.NetworkConfigR\anetwork\x12_\n" +
+	"\x12maintenance_window\x18\x11 \x01(\v2,.yandex.cloud.metastore.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12X\n" +
+	"\x13maintenance_windows\x18\x12 \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x05\x10\v\"6\n" +
 	"\x15CreateClusterMetadata\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xf9\x06\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xd7\a\n" +
 	"\x14UpdateClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12;\n" +
@@ -1395,9 +1423,10 @@ const file_yandex_cloud_metastore_v1_cluster_service_proto_rawDesc = "" +
 	"\fnetwork_spec\x18\n" +
 	" \x01(\v22.yandex.cloud.metastore.v1.UpdateNetworkConfigSpecR\vnetworkSpec\x12S\n" +
 	"\vconfig_spec\x18\v \x01(\v22.yandex.cloud.metastore.v1.UpdateClusterConfigSpecR\n" +
-	"configSpec\x12[\n" +
-	"\x12maintenance_window\x18\f \x01(\v2,.yandex.cloud.metastore.v1.MaintenanceWindowR\x11maintenanceWindow\x12\x18\n" +
-	"\aversion\x18\r \x01(\tR\aversion\x1a9\n" +
+	"configSpec\x12_\n" +
+	"\x12maintenance_window\x18\f \x01(\v2,.yandex.cloud.metastore.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12\x18\n" +
+	"\aversion\x18\r \x01(\tR\aversion\x12X\n" +
+	"\x13maintenance_windows\x18\x0e \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x06\x10\a\"6\n" +
@@ -1528,14 +1557,15 @@ var file_yandex_cloud_metastore_v1_cluster_service_proto_goTypes = []any{
 	(*LoggingConfig)(nil),                      // 25: yandex.cloud.metastore.v1.LoggingConfig
 	(*NetworkConfig)(nil),                      // 26: yandex.cloud.metastore.v1.NetworkConfig
 	(*MaintenanceWindow)(nil),                  // 27: yandex.cloud.metastore.v1.MaintenanceWindow
-	(*fieldmaskpb.FieldMask)(nil),              // 28: google.protobuf.FieldMask
-	(*operation.Operation)(nil),                // 29: yandex.cloud.operation.Operation
-	(*Resources)(nil),                          // 30: yandex.cloud.metastore.v1.Resources
-	(*WarehouseConfig)(nil),                    // 31: yandex.cloud.metastore.v1.WarehouseConfig
-	(*access.ListAccessBindingsRequest)(nil),   // 32: yandex.cloud.access.ListAccessBindingsRequest
-	(*access.SetAccessBindingsRequest)(nil),    // 33: yandex.cloud.access.SetAccessBindingsRequest
-	(*access.UpdateAccessBindingsRequest)(nil), // 34: yandex.cloud.access.UpdateAccessBindingsRequest
-	(*access.ListAccessBindingsResponse)(nil),  // 35: yandex.cloud.access.ListAccessBindingsResponse
+	(*v1.MaintenanceWindows)(nil),              // 28: yandex.cloud.mdb.v1.MaintenanceWindows
+	(*fieldmaskpb.FieldMask)(nil),              // 29: google.protobuf.FieldMask
+	(*operation.Operation)(nil),                // 30: yandex.cloud.operation.Operation
+	(*Resources)(nil),                          // 31: yandex.cloud.metastore.v1.Resources
+	(*WarehouseConfig)(nil),                    // 32: yandex.cloud.metastore.v1.WarehouseConfig
+	(*access.ListAccessBindingsRequest)(nil),   // 33: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),    // 34: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil), // 35: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),  // 36: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_metastore_v1_cluster_service_proto_depIdxs = []int32{
 	24, // 0: yandex.cloud.metastore.v1.ListClustersResponse.clusters:type_name -> yandex.cloud.metastore.v1.Cluster
@@ -1544,48 +1574,50 @@ var file_yandex_cloud_metastore_v1_cluster_service_proto_depIdxs = []int32{
 	25, // 3: yandex.cloud.metastore.v1.CreateClusterRequest.logging:type_name -> yandex.cloud.metastore.v1.LoggingConfig
 	26, // 4: yandex.cloud.metastore.v1.CreateClusterRequest.network:type_name -> yandex.cloud.metastore.v1.NetworkConfig
 	27, // 5: yandex.cloud.metastore.v1.CreateClusterRequest.maintenance_window:type_name -> yandex.cloud.metastore.v1.MaintenanceWindow
-	28, // 6: yandex.cloud.metastore.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
-	23, // 7: yandex.cloud.metastore.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.metastore.v1.UpdateClusterRequest.LabelsEntry
-	25, // 8: yandex.cloud.metastore.v1.UpdateClusterRequest.logging:type_name -> yandex.cloud.metastore.v1.LoggingConfig
-	21, // 9: yandex.cloud.metastore.v1.UpdateClusterRequest.network_spec:type_name -> yandex.cloud.metastore.v1.UpdateNetworkConfigSpec
-	20, // 10: yandex.cloud.metastore.v1.UpdateClusterRequest.config_spec:type_name -> yandex.cloud.metastore.v1.UpdateClusterConfigSpec
-	27, // 11: yandex.cloud.metastore.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.metastore.v1.MaintenanceWindow
-	29, // 12: yandex.cloud.metastore.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	30, // 13: yandex.cloud.metastore.v1.ConfigSpec.resources:type_name -> yandex.cloud.metastore.v1.Resources
-	31, // 14: yandex.cloud.metastore.v1.ConfigSpec.warehouse:type_name -> yandex.cloud.metastore.v1.WarehouseConfig
-	30, // 15: yandex.cloud.metastore.v1.UpdateClusterConfigSpec.resources:type_name -> yandex.cloud.metastore.v1.Resources
-	31, // 16: yandex.cloud.metastore.v1.UpdateClusterConfigSpec.warehouse:type_name -> yandex.cloud.metastore.v1.WarehouseConfig
-	0,  // 17: yandex.cloud.metastore.v1.ClusterService.Get:input_type -> yandex.cloud.metastore.v1.GetClusterRequest
-	1,  // 18: yandex.cloud.metastore.v1.ClusterService.List:input_type -> yandex.cloud.metastore.v1.ListClustersRequest
-	3,  // 19: yandex.cloud.metastore.v1.ClusterService.Create:input_type -> yandex.cloud.metastore.v1.CreateClusterRequest
-	5,  // 20: yandex.cloud.metastore.v1.ClusterService.Update:input_type -> yandex.cloud.metastore.v1.UpdateClusterRequest
-	7,  // 21: yandex.cloud.metastore.v1.ClusterService.Delete:input_type -> yandex.cloud.metastore.v1.DeleteClusterRequest
-	9,  // 22: yandex.cloud.metastore.v1.ClusterService.Start:input_type -> yandex.cloud.metastore.v1.StartClusterRequest
-	11, // 23: yandex.cloud.metastore.v1.ClusterService.Stop:input_type -> yandex.cloud.metastore.v1.StopClusterRequest
-	13, // 24: yandex.cloud.metastore.v1.ClusterService.ImportData:input_type -> yandex.cloud.metastore.v1.ImportDataRequest
-	15, // 25: yandex.cloud.metastore.v1.ClusterService.ExportData:input_type -> yandex.cloud.metastore.v1.ExportDataRequest
-	17, // 26: yandex.cloud.metastore.v1.ClusterService.ListOperations:input_type -> yandex.cloud.metastore.v1.ListClusterOperationsRequest
-	32, // 27: yandex.cloud.metastore.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
-	33, // 28: yandex.cloud.metastore.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
-	34, // 29: yandex.cloud.metastore.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
-	24, // 30: yandex.cloud.metastore.v1.ClusterService.Get:output_type -> yandex.cloud.metastore.v1.Cluster
-	2,  // 31: yandex.cloud.metastore.v1.ClusterService.List:output_type -> yandex.cloud.metastore.v1.ListClustersResponse
-	29, // 32: yandex.cloud.metastore.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
-	29, // 33: yandex.cloud.metastore.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
-	29, // 34: yandex.cloud.metastore.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
-	29, // 35: yandex.cloud.metastore.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
-	29, // 36: yandex.cloud.metastore.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
-	29, // 37: yandex.cloud.metastore.v1.ClusterService.ImportData:output_type -> yandex.cloud.operation.Operation
-	29, // 38: yandex.cloud.metastore.v1.ClusterService.ExportData:output_type -> yandex.cloud.operation.Operation
-	18, // 39: yandex.cloud.metastore.v1.ClusterService.ListOperations:output_type -> yandex.cloud.metastore.v1.ListClusterOperationsResponse
-	35, // 40: yandex.cloud.metastore.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
-	29, // 41: yandex.cloud.metastore.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
-	29, // 42: yandex.cloud.metastore.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
-	30, // [30:43] is the sub-list for method output_type
-	17, // [17:30] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	28, // 6: yandex.cloud.metastore.v1.CreateClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	29, // 7: yandex.cloud.metastore.v1.UpdateClusterRequest.update_mask:type_name -> google.protobuf.FieldMask
+	23, // 8: yandex.cloud.metastore.v1.UpdateClusterRequest.labels:type_name -> yandex.cloud.metastore.v1.UpdateClusterRequest.LabelsEntry
+	25, // 9: yandex.cloud.metastore.v1.UpdateClusterRequest.logging:type_name -> yandex.cloud.metastore.v1.LoggingConfig
+	21, // 10: yandex.cloud.metastore.v1.UpdateClusterRequest.network_spec:type_name -> yandex.cloud.metastore.v1.UpdateNetworkConfigSpec
+	20, // 11: yandex.cloud.metastore.v1.UpdateClusterRequest.config_spec:type_name -> yandex.cloud.metastore.v1.UpdateClusterConfigSpec
+	27, // 12: yandex.cloud.metastore.v1.UpdateClusterRequest.maintenance_window:type_name -> yandex.cloud.metastore.v1.MaintenanceWindow
+	28, // 13: yandex.cloud.metastore.v1.UpdateClusterRequest.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	30, // 14: yandex.cloud.metastore.v1.ListClusterOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	31, // 15: yandex.cloud.metastore.v1.ConfigSpec.resources:type_name -> yandex.cloud.metastore.v1.Resources
+	32, // 16: yandex.cloud.metastore.v1.ConfigSpec.warehouse:type_name -> yandex.cloud.metastore.v1.WarehouseConfig
+	31, // 17: yandex.cloud.metastore.v1.UpdateClusterConfigSpec.resources:type_name -> yandex.cloud.metastore.v1.Resources
+	32, // 18: yandex.cloud.metastore.v1.UpdateClusterConfigSpec.warehouse:type_name -> yandex.cloud.metastore.v1.WarehouseConfig
+	0,  // 19: yandex.cloud.metastore.v1.ClusterService.Get:input_type -> yandex.cloud.metastore.v1.GetClusterRequest
+	1,  // 20: yandex.cloud.metastore.v1.ClusterService.List:input_type -> yandex.cloud.metastore.v1.ListClustersRequest
+	3,  // 21: yandex.cloud.metastore.v1.ClusterService.Create:input_type -> yandex.cloud.metastore.v1.CreateClusterRequest
+	5,  // 22: yandex.cloud.metastore.v1.ClusterService.Update:input_type -> yandex.cloud.metastore.v1.UpdateClusterRequest
+	7,  // 23: yandex.cloud.metastore.v1.ClusterService.Delete:input_type -> yandex.cloud.metastore.v1.DeleteClusterRequest
+	9,  // 24: yandex.cloud.metastore.v1.ClusterService.Start:input_type -> yandex.cloud.metastore.v1.StartClusterRequest
+	11, // 25: yandex.cloud.metastore.v1.ClusterService.Stop:input_type -> yandex.cloud.metastore.v1.StopClusterRequest
+	13, // 26: yandex.cloud.metastore.v1.ClusterService.ImportData:input_type -> yandex.cloud.metastore.v1.ImportDataRequest
+	15, // 27: yandex.cloud.metastore.v1.ClusterService.ExportData:input_type -> yandex.cloud.metastore.v1.ExportDataRequest
+	17, // 28: yandex.cloud.metastore.v1.ClusterService.ListOperations:input_type -> yandex.cloud.metastore.v1.ListClusterOperationsRequest
+	33, // 29: yandex.cloud.metastore.v1.ClusterService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	34, // 30: yandex.cloud.metastore.v1.ClusterService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	35, // 31: yandex.cloud.metastore.v1.ClusterService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	24, // 32: yandex.cloud.metastore.v1.ClusterService.Get:output_type -> yandex.cloud.metastore.v1.Cluster
+	2,  // 33: yandex.cloud.metastore.v1.ClusterService.List:output_type -> yandex.cloud.metastore.v1.ListClustersResponse
+	30, // 34: yandex.cloud.metastore.v1.ClusterService.Create:output_type -> yandex.cloud.operation.Operation
+	30, // 35: yandex.cloud.metastore.v1.ClusterService.Update:output_type -> yandex.cloud.operation.Operation
+	30, // 36: yandex.cloud.metastore.v1.ClusterService.Delete:output_type -> yandex.cloud.operation.Operation
+	30, // 37: yandex.cloud.metastore.v1.ClusterService.Start:output_type -> yandex.cloud.operation.Operation
+	30, // 38: yandex.cloud.metastore.v1.ClusterService.Stop:output_type -> yandex.cloud.operation.Operation
+	30, // 39: yandex.cloud.metastore.v1.ClusterService.ImportData:output_type -> yandex.cloud.operation.Operation
+	30, // 40: yandex.cloud.metastore.v1.ClusterService.ExportData:output_type -> yandex.cloud.operation.Operation
+	18, // 41: yandex.cloud.metastore.v1.ClusterService.ListOperations:output_type -> yandex.cloud.metastore.v1.ListClusterOperationsResponse
+	36, // 42: yandex.cloud.metastore.v1.ClusterService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	30, // 43: yandex.cloud.metastore.v1.ClusterService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	30, // 44: yandex.cloud.metastore.v1.ClusterService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	32, // [32:45] is the sub-list for method output_type
+	19, // [19:32] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_metastore_v1_cluster_service_proto_init() }

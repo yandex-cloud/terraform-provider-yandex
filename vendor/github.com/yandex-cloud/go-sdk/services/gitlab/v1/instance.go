@@ -20,10 +20,12 @@ type InstanceClient interface {
 	Get(context.Context, *gitlab.GetInstanceRequest, ...grpc.CallOption) (*gitlab.Instance, error)
 	List(context.Context, *gitlab.ListInstancesRequest, ...grpc.CallOption) (*gitlab.ListInstancesResponse, error)
 	Create(context.Context, *gitlab.CreateInstanceRequest, ...grpc.CallOption) (*InstanceCreateOperation, error)
+	PrepareBackupUpload(context.Context, *gitlab.PrepareBackupUploadRequest, ...grpc.CallOption) (*InstancePrepareBackupUploadOperation, error)
 	Update(context.Context, *gitlab.UpdateInstanceRequest, ...grpc.CallOption) (*InstanceUpdateOperation, error)
 	Delete(context.Context, *gitlab.DeleteInstanceRequest, ...grpc.CallOption) (*InstanceDeleteOperation, error)
 	Start(context.Context, *gitlab.StartInstanceRequest, ...grpc.CallOption) (*InstanceStartOperation, error)
 	Stop(context.Context, *gitlab.StopInstanceRequest, ...grpc.CallOption) (*InstanceStopOperation, error)
+	GetBackupDownloadUrls(context.Context, *gitlab.GetBackupDownloadUrlsRequest, ...grpc.CallOption) (*gitlab.GetBackupDownloadUrlsResponse, error)
 }
 
 var _ InstanceClient = instanceClient{}
@@ -107,6 +109,60 @@ func (c instanceClient) Create(ctx context.Context, in *gitlab.CreateInstanceReq
 		return nil, err
 	}
 	return &InstanceCreateOperation{*op}, nil
+}
+
+// InstancePrepareBackupUploadOperation is used to monitor the state of PrepareBackupUpload operations.
+type InstancePrepareBackupUploadOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *InstancePrepareBackupUploadOperation) Metadata() *gitlab.PrepareBackupUploadMetadata {
+	return o.Operation.Metadata().(*gitlab.PrepareBackupUploadMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *InstancePrepareBackupUploadOperation) Response() *gitlab.PrepareBackupUploadResponse {
+	return o.Operation.Response().(*gitlab.PrepareBackupUploadResponse)
+}
+
+// Wait polls the operation until it's done.
+func (o *InstancePrepareBackupUploadOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*gitlab.PrepareBackupUploadResponse, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*gitlab.PrepareBackupUploadResponse)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *InstancePrepareBackupUploadOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*gitlab.PrepareBackupUploadResponse, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*gitlab.PrepareBackupUploadResponse)
+	return response, err
+}
+
+// PrepareBackupUpload is an operation of Yandex.Cloud Gitlab Instance service.
+// It returns an object which should be used to monitor the operation state.
+func (c instanceClient) PrepareBackupUpload(ctx context.Context, in *gitlab.PrepareBackupUploadRequest, opts ...grpc.CallOption) (*InstancePrepareBackupUploadOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, InstancePrepareBackupUpload, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := gitlab.NewInstanceServiceClient(connection).PrepareBackupUpload(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll: c.pollOperation,
+		GetResourceID: func(metadata proto.Message) string {
+			return metadata.(*gitlab.PrepareBackupUploadMetadata).GetInstanceId()
+		},
+		MetadataType: (*gitlab.PrepareBackupUploadMetadata)(nil),
+		ResponseType: (*gitlab.PrepareBackupUploadResponse)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &InstancePrepareBackupUploadOperation{*op}, nil
 }
 
 // InstanceUpdateOperation is used to monitor the state of Update operations.
@@ -325,6 +381,15 @@ func (c instanceClient) Stop(ctx context.Context, in *gitlab.StopInstanceRequest
 	return &InstanceStopOperation{*op}, nil
 }
 
+// GetBackupDownloadUrls is an operation of Yandex.Cloud Gitlab Instance service.
+func (c instanceClient) GetBackupDownloadUrls(ctx context.Context, in *gitlab.GetBackupDownloadUrlsRequest, opts ...grpc.CallOption) (*gitlab.GetBackupDownloadUrlsResponse, error) {
+	connection, err := c.connector.GetConnection(ctx, InstanceGetBackupDownloadUrls, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return gitlab.NewInstanceServiceClient(connection).GetBackupDownloadUrls(ctx, in, opts...)
+}
+
 // pollOperation returns the current state of the polled operation.
 func (c instanceClient) pollOperation(ctx context.Context, operationId string, opts ...grpc.CallOption) (sdkop.YCOperation, error) {
 	connection, err := c.connector.GetConnection(ctx, InstanceOperationPoller, opts...)
@@ -335,12 +400,14 @@ func (c instanceClient) pollOperation(ctx context.Context, operationId string, o
 }
 
 var (
-	InstanceGet             = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Get")
-	InstanceList            = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.List")
-	InstanceCreate          = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Create")
-	InstanceUpdate          = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Update")
-	InstanceDelete          = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Delete")
-	InstanceStart           = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Start")
-	InstanceStop            = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Stop")
-	InstanceOperationPoller = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
+	InstanceGet                   = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Get")
+	InstanceList                  = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.List")
+	InstanceCreate                = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Create")
+	InstancePrepareBackupUpload   = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.PrepareBackupUpload")
+	InstanceUpdate                = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Update")
+	InstanceDelete                = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Delete")
+	InstanceStart                 = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Start")
+	InstanceStop                  = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Stop")
+	InstanceGetBackupDownloadUrls = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.GetBackupDownloadUrls")
+	InstanceOperationPoller       = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
 )

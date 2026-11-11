@@ -8,7 +8,8 @@ package metastore
 
 import (
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud"
-	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	v11 "github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -490,14 +491,19 @@ type Cluster struct {
 	Logging *LoggingConfig `protobuf:"bytes,22,opt,name=logging,proto3" json:"logging,omitempty"`
 	// Network-related configuration options.
 	Network *NetworkConfig `protobuf:"bytes,23,opt,name=network,proto3" json:"network,omitempty"`
+	// Deprecated. Use maintenance_windows instead.
 	// Maintenance window.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/metastore/v1/cluster.proto.
 	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,24,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	// Maintenance operation scheduled for the nearest maintenance window.
 	PlannedOperation *MaintenanceOperation `protobuf:"bytes,25,opt,name=planned_operation,json=plannedOperation,proto3" json:"planned_operation,omitempty"`
 	// Output only. Whether the cluster is configured for high availability (multiple zones).
-	IsHa          bool `protobuf:"varint,26,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	IsHa bool `protobuf:"varint,26,opt,name=is_ha,json=isHa,proto3" json:"is_ha,omitempty"`
+	// Maintenance windows.
+	MaintenanceWindows *v1.MaintenanceWindows `protobuf:"bytes,29,opt,name=maintenance_windows,json=maintenanceWindows,proto3" json:"maintenance_windows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Cluster) Reset() {
@@ -649,6 +655,7 @@ func (x *Cluster) GetNetwork() *NetworkConfig {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/metastore/v1/cluster.proto.
 func (x *Cluster) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
@@ -668,6 +675,13 @@ func (x *Cluster) GetIsHa() bool {
 		return x.IsHa
 	}
 	return false
+}
+
+func (x *Cluster) GetMaintenanceWindows() *v1.MaintenanceWindows {
+	if x != nil {
+		return x.MaintenanceWindows
+	}
+	return nil
 }
 
 type Monitoring struct {
@@ -899,7 +913,7 @@ type LoggingConfig struct {
 	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Minimum severity level for log entries.
 	// See [LogLevel.Level] for details.
-	MinLevel      v1.LogLevel_Level `protobuf:"varint,4,opt,name=min_level,json=minLevel,proto3,enum=yandex.cloud.logging.v1.LogLevel_Level" json:"min_level,omitempty"`
+	MinLevel      v11.LogLevel_Level `protobuf:"varint,4,opt,name=min_level,json=minLevel,proto3,enum=yandex.cloud.logging.v1.LogLevel_Level" json:"min_level,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -966,11 +980,11 @@ func (x *LoggingConfig) GetEnabled() bool {
 	return false
 }
 
-func (x *LoggingConfig) GetMinLevel() v1.LogLevel_Level {
+func (x *LoggingConfig) GetMinLevel() v11.LogLevel_Level {
 	if x != nil {
 		return x.MinLevel
 	}
-	return v1.LogLevel_Level(0)
+	return v11.LogLevel_Level(0)
 }
 
 type isLoggingConfig_Destination interface {
@@ -1116,7 +1130,7 @@ var File_yandex_cloud_metastore_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_metastore_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"'yandex/cloud/metastore/v1/cluster.proto\x12\x19yandex.cloud.metastore.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a'yandex/cloud/logging/v1/log_entry.proto\x1a+yandex/cloud/metastore/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xc4\x02\n" +
+	"'yandex/cloud/metastore/v1/cluster.proto\x12\x19yandex.cloud.metastore.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a'yandex/cloud/logging/v1/log_entry.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a+yandex/cloud/metastore/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xc4\x02\n" +
 	"\x13DetailedHealthCheck\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\x12M\n" +
 	"\x06status\x18\x02 \x01(\x0e25.yandex.cloud.metastore.v1.DetailedHealthCheck.StatusR\x06status\x12U\n" +
@@ -1143,7 +1157,7 @@ const file_yandex_cloud_metastore_v1_cluster_proto_rawDesc = "" +
 	"\x16CAUSE_TYPE_UNSPECIFIED\x10\x00\x12\b\n" +
 	"\x04USER\x10\x01\x12\v\n" +
 	"\aSERVICE\x10\x02\x12\t\n" +
-	"\x05INFRA\x10\x03\"\x9b\n" +
+	"\x05INFRA\x10\x03\"\xff\n" +
 	"\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
@@ -1167,10 +1181,11 @@ const file_yandex_cloud_metastore_v1_cluster_proto_rawDesc = "" +
 	"\x0ecluster_config\x18\x14 \x01(\v2(.yandex.cloud.metastore.v1.ClusterConfigR\rclusterConfig\x12,\n" +
 	"\x12service_account_id\x18\x15 \x01(\tR\x10serviceAccountId\x12B\n" +
 	"\alogging\x18\x16 \x01(\v2(.yandex.cloud.metastore.v1.LoggingConfigR\alogging\x12B\n" +
-	"\anetwork\x18\x17 \x01(\v2(.yandex.cloud.metastore.v1.NetworkConfigR\anetwork\x12[\n" +
-	"\x12maintenance_window\x18\x18 \x01(\v2,.yandex.cloud.metastore.v1.MaintenanceWindowR\x11maintenanceWindow\x12\\\n" +
+	"\anetwork\x18\x17 \x01(\v2(.yandex.cloud.metastore.v1.NetworkConfigR\anetwork\x12_\n" +
+	"\x12maintenance_window\x18\x18 \x01(\v2,.yandex.cloud.metastore.v1.MaintenanceWindowB\x02\x18\x01R\x11maintenanceWindow\x12\\\n" +
 	"\x11planned_operation\x18\x19 \x01(\v2/.yandex.cloud.metastore.v1.MaintenanceOperationR\x10plannedOperation\x12\x13\n" +
-	"\x05is_ha\x18\x1a \x01(\bR\x04isHa\x1a9\n" +
+	"\x05is_ha\x18\x1a \x01(\bR\x04isHa\x12X\n" +
+	"\x13maintenance_windows\x18\x1d \x01(\v2'.yandex.cloud.mdb.v1.MaintenanceWindowsR\x12maintenanceWindows\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"?\n" +
@@ -1188,7 +1203,7 @@ const file_yandex_cloud_metastore_v1_cluster_proto_rawDesc = "" +
 	"\bSTOPPING\x10\x05\x12\v\n" +
 	"\aSTOPPED\x10\x06\x12\f\n" +
 	"\bSTARTING\x10\aJ\x04\b\n" +
-	"\x10\x10\"V\n" +
+	"\x10\x10J\x04\b\x1b\x10\x1d\"V\n" +
 	"\n" +
 	"Monitoring\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
@@ -1253,7 +1268,8 @@ var file_yandex_cloud_metastore_v1_cluster_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),       // 17: google.protobuf.Timestamp
 	(*MaintenanceWindow)(nil),           // 18: yandex.cloud.metastore.v1.MaintenanceWindow
 	(*MaintenanceOperation)(nil),        // 19: yandex.cloud.metastore.v1.MaintenanceOperation
-	(v1.LogLevel_Level)(0),              // 20: yandex.cloud.logging.v1.LogLevel.Level
+	(*v1.MaintenanceWindows)(nil),       // 20: yandex.cloud.mdb.v1.MaintenanceWindows
+	(v11.LogLevel_Level)(0),             // 21: yandex.cloud.logging.v1.LogLevel.Level
 }
 var file_yandex_cloud_metastore_v1_cluster_proto_depIdxs = []int32{
 	0,  // 0: yandex.cloud.metastore.v1.DetailedHealthCheck.status:type_name -> yandex.cloud.metastore.v1.DetailedHealthCheck.Status
@@ -1271,15 +1287,16 @@ var file_yandex_cloud_metastore_v1_cluster_proto_depIdxs = []int32{
 	10, // 12: yandex.cloud.metastore.v1.Cluster.network:type_name -> yandex.cloud.metastore.v1.NetworkConfig
 	18, // 13: yandex.cloud.metastore.v1.Cluster.maintenance_window:type_name -> yandex.cloud.metastore.v1.MaintenanceWindow
 	19, // 14: yandex.cloud.metastore.v1.Cluster.planned_operation:type_name -> yandex.cloud.metastore.v1.MaintenanceOperation
-	11, // 15: yandex.cloud.metastore.v1.ClusterConfig.resources:type_name -> yandex.cloud.metastore.v1.Resources
-	13, // 16: yandex.cloud.metastore.v1.ClusterConfig.warehouse:type_name -> yandex.cloud.metastore.v1.WarehouseConfig
-	20, // 17: yandex.cloud.metastore.v1.LoggingConfig.min_level:type_name -> yandex.cloud.logging.v1.LogLevel.Level
-	16, // 18: yandex.cloud.metastore.v1.WarehouseConfig.s3:type_name -> yandex.cloud.metastore.v1.WarehouseConfig.S3Warehouse
-	19, // [19:19] is the sub-list for method output_type
-	19, // [19:19] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	20, // 15: yandex.cloud.metastore.v1.Cluster.maintenance_windows:type_name -> yandex.cloud.mdb.v1.MaintenanceWindows
+	11, // 16: yandex.cloud.metastore.v1.ClusterConfig.resources:type_name -> yandex.cloud.metastore.v1.Resources
+	13, // 17: yandex.cloud.metastore.v1.ClusterConfig.warehouse:type_name -> yandex.cloud.metastore.v1.WarehouseConfig
+	21, // 18: yandex.cloud.metastore.v1.LoggingConfig.min_level:type_name -> yandex.cloud.logging.v1.LogLevel.Level
+	16, // 19: yandex.cloud.metastore.v1.WarehouseConfig.s3:type_name -> yandex.cloud.metastore.v1.WarehouseConfig.S3Warehouse
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_metastore_v1_cluster_proto_init() }

@@ -3,6 +3,7 @@
 package spark
 
 import (
+	v1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -96,6 +97,10 @@ func (m *Cluster) SetMaintenanceWindow(v *MaintenanceWindow) {
 
 func (m *Cluster) SetPlannedOperation(v *MaintenanceOperation) {
 	m.PlannedOperation = v
+}
+
+func (m *Cluster) SetMaintenanceWindows(v *v1.MaintenanceWindows) {
+	m.MaintenanceWindows = v
 }
 
 func (m *ClusterConfig) SetResourcePools(v *ResourcePools) {

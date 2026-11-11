@@ -1,5 +1,17 @@
 # Release notes
 
+## 0.246.0 (November 11, 2026)
+
+##### FEATURES:
+* mdb_clickhouse: add `cloud_storage.bucket_max_size` support to `yandex_mdb_clickhouse_cluster_v2` resource and data source
+
+##### BUG FIXES:
+* postgresql: do not wait for host roles before adding, updating or deleting hosts of `yandex_mdb_postgresql_cluster`: these steps do not use the roles, and a host in `ROLE_UNKNOWN` state made each of them wait about two minutes. Before a failover only the role of the target host is awaited, and a failover to a host that does not report its role is no longer started: such a task fails in the worker and leaves the cluster in `MODIFY-ERROR`
+* mysql: do not wait for a MASTER host when reading hosts of `yandex_mdb_mysql_cluster_v2`; the resource does not expose host roles, so the wait only delayed a refresh of a cluster without a master by about two minutes
+* postgresql: do not wait for a MASTER host when reading hosts of `yandex_mdb_postgresql_cluster_v2`; the resource does not expose host roles, so the wait only delayed a refresh of a cluster without a master by about two minutes
+
+
+
 ## 0.245.0 (November 9, 2026)
 
 ##### BUG FIXES:

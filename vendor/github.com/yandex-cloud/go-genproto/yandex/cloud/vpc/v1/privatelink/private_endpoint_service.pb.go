@@ -853,6 +853,87 @@ func (x *ListPrivateEndpointsResponse) GetNextPageToken() string {
 	return ""
 }
 
+type ListYandexCloudServicesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListYandexCloudServicesRequest) Reset() {
+	*x = ListYandexCloudServicesRequest{}
+	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListYandexCloudServicesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListYandexCloudServicesRequest) ProtoMessage() {}
+
+func (x *ListYandexCloudServicesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListYandexCloudServicesRequest.ProtoReflect.Descriptor instead.
+func (*ListYandexCloudServicesRequest) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDescGZIP(), []int{11}
+}
+
+type ListYandexCloudServicesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Information about Yandex Cloud services accessible through private endpoints.
+	Services      []*YandexCloudService `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListYandexCloudServicesResponse) Reset() {
+	*x = ListYandexCloudServicesResponse{}
+	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListYandexCloudServicesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListYandexCloudServicesResponse) ProtoMessage() {}
+
+func (x *ListYandexCloudServicesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListYandexCloudServicesResponse.ProtoReflect.Descriptor instead.
+func (*ListYandexCloudServicesResponse) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListYandexCloudServicesResponse) GetServices() []*YandexCloudService {
+	if x != nil {
+		return x.Services
+	}
+	return nil
+}
+
 type ListPrivateEndpointOperationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the private endpoint to list operations for.
@@ -878,7 +959,7 @@ type ListPrivateEndpointOperationsRequest struct {
 
 func (x *ListPrivateEndpointOperationsRequest) Reset() {
 	*x = ListPrivateEndpointOperationsRequest{}
-	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[11]
+	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -890,7 +971,7 @@ func (x *ListPrivateEndpointOperationsRequest) String() string {
 func (*ListPrivateEndpointOperationsRequest) ProtoMessage() {}
 
 func (x *ListPrivateEndpointOperationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[11]
+	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -903,7 +984,7 @@ func (x *ListPrivateEndpointOperationsRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ListPrivateEndpointOperationsRequest.ProtoReflect.Descriptor instead.
 func (*ListPrivateEndpointOperationsRequest) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDescGZIP(), []int{11}
+	return file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListPrivateEndpointOperationsRequest) GetPrivateEndpointId() string {
@@ -945,7 +1026,7 @@ type ListPrivateEndpointOperationsResponse struct {
 
 func (x *ListPrivateEndpointOperationsResponse) Reset() {
 	*x = ListPrivateEndpointOperationsResponse{}
-	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[12]
+	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -957,7 +1038,7 @@ func (x *ListPrivateEndpointOperationsResponse) String() string {
 func (*ListPrivateEndpointOperationsResponse) ProtoMessage() {}
 
 func (x *ListPrivateEndpointOperationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[12]
+	mi := &file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -970,7 +1051,7 @@ func (x *ListPrivateEndpointOperationsResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use ListPrivateEndpointOperationsResponse.ProtoReflect.Descriptor instead.
 func (*ListPrivateEndpointOperationsResponse) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDescGZIP(), []int{12}
+	return file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListPrivateEndpointOperationsResponse) GetOperations() []*operation.Operation {
@@ -1049,7 +1130,10 @@ const file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDes
 	"\tcontainerJ\x04\b\x02\x10\x03\"\xa5\x01\n" +
 	"\x1cListPrivateEndpointsResponse\x12]\n" +
 	"\x11private_endpoints\x18\x01 \x03(\v20.yandex.cloud.vpc.v1.privatelink.PrivateEndpointR\x10privateEndpoints\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x92\x01\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\" \n" +
+	"\x1eListYandexCloudServicesRequest\"r\n" +
+	"\x1fListYandexCloudServicesResponse\x12O\n" +
+	"\bservices\x18\x01 \x03(\v23.yandex.cloud.vpc.v1.privatelink.YandexCloudServiceR\bservices\"\x92\x01\n" +
 	"$ListPrivateEndpointOperationsRequest\x12.\n" +
 	"\x13private_endpoint_id\x18\x01 \x01(\tR\x11privateEndpointId\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x03R\bpageSize\x12\x1d\n" +
@@ -1059,8 +1143,10 @@ const file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDes
 	"\n" +
 	"operations\x18\x01 \x03(\v2!.yandex.cloud.operation.OperationR\n" +
 	"operations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xaa\t\n" +
-	"\x16PrivateEndpointService\x12\xa4\x01\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xfc\n" +
+	"\n" +
+	"\x16PrivateEndpointService\x12\xcf\x01\n" +
+	"\x17ListYandexCloudServices\x12?.yandex.cloud.vpc.v1.privatelink.ListYandexCloudServicesRequest\x1a@.yandex.cloud.vpc.v1.privatelink.ListYandexCloudServicesResponse\"1\x82\xd3\xe4\x93\x02+\x12)/vpc/v1/endpoints:listYandexCloudServices\x12\xa4\x01\n" +
 	"\x03Get\x12:.yandex.cloud.vpc.v1.privatelink.GetPrivateEndpointRequest\x1a0.yandex.cloud.vpc.v1.privatelink.PrivateEndpoint\"/\x82\xd3\xe4\x93\x02)\x12'/vpc/v1/endpoints/{private_endpoint_id}\x12\x9e\x01\n" +
 	"\x04List\x12<.yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsRequest\x1a=.yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/vpc/v1/endpoints\x12\xbc\x01\n" +
 	"\x06Create\x12=.yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest\x1a!.yandex.cloud.operation.Operation\"P\xb2\xd2*0\n" +
@@ -1084,7 +1170,7 @@ func file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDesc
 	return file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDescData
 }
 
-var file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_goTypes = []any{
 	(*GetPrivateEndpointRequest)(nil),             // 0: yandex.cloud.vpc.v1.privatelink.GetPrivateEndpointRequest
 	(*InternalIpv4AddressSpec)(nil),               // 1: yandex.cloud.vpc.v1.privatelink.InternalIpv4AddressSpec
@@ -1097,45 +1183,51 @@ var file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_goTypes 
 	(*DeletePrivateEndpointMetadata)(nil),         // 8: yandex.cloud.vpc.v1.privatelink.DeletePrivateEndpointMetadata
 	(*ListPrivateEndpointsRequest)(nil),           // 9: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsRequest
 	(*ListPrivateEndpointsResponse)(nil),          // 10: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsResponse
-	(*ListPrivateEndpointOperationsRequest)(nil),  // 11: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsRequest
-	(*ListPrivateEndpointOperationsResponse)(nil), // 12: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsResponse
-	nil,                                   // 13: yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.LabelsEntry
-	nil,                                   // 14: yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.LabelsEntry
-	(*PrivateEndpoint_DnsOptions)(nil),    // 15: yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.DnsOptions
-	(*PrivateEndpoint_ObjectStorage)(nil), // 16: yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.ObjectStorage
-	(*fieldmaskpb.FieldMask)(nil),         // 17: google.protobuf.FieldMask
-	(*PrivateEndpoint)(nil),               // 18: yandex.cloud.vpc.v1.privatelink.PrivateEndpoint
-	(*operation.Operation)(nil),           // 19: yandex.cloud.operation.Operation
+	(*ListYandexCloudServicesRequest)(nil),        // 11: yandex.cloud.vpc.v1.privatelink.ListYandexCloudServicesRequest
+	(*ListYandexCloudServicesResponse)(nil),       // 12: yandex.cloud.vpc.v1.privatelink.ListYandexCloudServicesResponse
+	(*ListPrivateEndpointOperationsRequest)(nil),  // 13: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsRequest
+	(*ListPrivateEndpointOperationsResponse)(nil), // 14: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsResponse
+	nil,                                   // 15: yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.LabelsEntry
+	nil,                                   // 16: yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.LabelsEntry
+	(*PrivateEndpoint_DnsOptions)(nil),    // 17: yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.DnsOptions
+	(*PrivateEndpoint_ObjectStorage)(nil), // 18: yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.ObjectStorage
+	(*fieldmaskpb.FieldMask)(nil),         // 19: google.protobuf.FieldMask
+	(*PrivateEndpoint)(nil),               // 20: yandex.cloud.vpc.v1.privatelink.PrivateEndpoint
+	(*YandexCloudService)(nil),            // 21: yandex.cloud.vpc.v1.privatelink.YandexCloudService
+	(*operation.Operation)(nil),           // 22: yandex.cloud.operation.Operation
 }
 var file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_depIdxs = []int32{
 	1,  // 0: yandex.cloud.vpc.v1.privatelink.AddressSpec.internal_ipv4_address_spec:type_name -> yandex.cloud.vpc.v1.privatelink.InternalIpv4AddressSpec
-	13, // 1: yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.labels:type_name -> yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.LabelsEntry
+	15, // 1: yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.labels:type_name -> yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.LabelsEntry
 	2,  // 2: yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.address_spec:type_name -> yandex.cloud.vpc.v1.privatelink.AddressSpec
-	15, // 3: yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.dns_options:type_name -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.DnsOptions
-	16, // 4: yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.object_storage:type_name -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.ObjectStorage
-	17, // 5: yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.update_mask:type_name -> google.protobuf.FieldMask
-	14, // 6: yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.labels:type_name -> yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.LabelsEntry
+	17, // 3: yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.dns_options:type_name -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.DnsOptions
+	18, // 4: yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest.object_storage:type_name -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.ObjectStorage
+	19, // 5: yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.update_mask:type_name -> google.protobuf.FieldMask
+	16, // 6: yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.labels:type_name -> yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.LabelsEntry
 	2,  // 7: yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.address_spec:type_name -> yandex.cloud.vpc.v1.privatelink.AddressSpec
-	15, // 8: yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.dns_options:type_name -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.DnsOptions
-	18, // 9: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsResponse.private_endpoints:type_name -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint
-	19, // 10: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	0,  // 11: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Get:input_type -> yandex.cloud.vpc.v1.privatelink.GetPrivateEndpointRequest
-	9,  // 12: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.List:input_type -> yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsRequest
-	3,  // 13: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Create:input_type -> yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest
-	5,  // 14: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Update:input_type -> yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest
-	7,  // 15: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Delete:input_type -> yandex.cloud.vpc.v1.privatelink.DeletePrivateEndpointRequest
-	11, // 16: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.ListOperations:input_type -> yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsRequest
-	18, // 17: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Get:output_type -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint
-	10, // 18: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.List:output_type -> yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsResponse
-	19, // 19: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Create:output_type -> yandex.cloud.operation.Operation
-	19, // 20: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Update:output_type -> yandex.cloud.operation.Operation
-	19, // 21: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Delete:output_type -> yandex.cloud.operation.Operation
-	12, // 22: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.ListOperations:output_type -> yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsResponse
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	17, // 8: yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest.dns_options:type_name -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint.DnsOptions
+	20, // 9: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsResponse.private_endpoints:type_name -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint
+	21, // 10: yandex.cloud.vpc.v1.privatelink.ListYandexCloudServicesResponse.services:type_name -> yandex.cloud.vpc.v1.privatelink.YandexCloudService
+	22, // 11: yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	11, // 12: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.ListYandexCloudServices:input_type -> yandex.cloud.vpc.v1.privatelink.ListYandexCloudServicesRequest
+	0,  // 13: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Get:input_type -> yandex.cloud.vpc.v1.privatelink.GetPrivateEndpointRequest
+	9,  // 14: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.List:input_type -> yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsRequest
+	3,  // 15: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Create:input_type -> yandex.cloud.vpc.v1.privatelink.CreatePrivateEndpointRequest
+	5,  // 16: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Update:input_type -> yandex.cloud.vpc.v1.privatelink.UpdatePrivateEndpointRequest
+	7,  // 17: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Delete:input_type -> yandex.cloud.vpc.v1.privatelink.DeletePrivateEndpointRequest
+	13, // 18: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.ListOperations:input_type -> yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsRequest
+	12, // 19: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.ListYandexCloudServices:output_type -> yandex.cloud.vpc.v1.privatelink.ListYandexCloudServicesResponse
+	20, // 20: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Get:output_type -> yandex.cloud.vpc.v1.privatelink.PrivateEndpoint
+	10, // 21: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.List:output_type -> yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointsResponse
+	22, // 22: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Create:output_type -> yandex.cloud.operation.Operation
+	22, // 23: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Update:output_type -> yandex.cloud.operation.Operation
+	22, // 24: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.Delete:output_type -> yandex.cloud.operation.Operation
+	14, // 25: yandex.cloud.vpc.v1.privatelink.PrivateEndpointService.ListOperations:output_type -> yandex.cloud.vpc.v1.privatelink.ListPrivateEndpointOperationsResponse
+	19, // [19:26] is the sub-list for method output_type
+	12, // [12:19] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_init() }
@@ -1161,7 +1253,7 @@ func file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_init() 
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDesc), len(file_yandex_cloud_vpc_v1_privatelink_private_endpoint_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

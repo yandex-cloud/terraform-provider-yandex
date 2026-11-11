@@ -159,6 +159,10 @@ func (m *ListPrivateEndpointsResponse) SetNextPageToken(v string) {
 	m.NextPageToken = v
 }
 
+func (m *ListYandexCloudServicesResponse) SetServices(v []*YandexCloudService) {
+	m.Services = v
+}
+
 func (m *ListPrivateEndpointOperationsRequest) SetPrivateEndpointId(v string) {
 	m.PrivateEndpointId = v
 }

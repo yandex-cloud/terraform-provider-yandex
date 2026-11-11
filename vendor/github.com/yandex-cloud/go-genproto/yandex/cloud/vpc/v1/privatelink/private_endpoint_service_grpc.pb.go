@@ -20,12 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PrivateEndpointService_Get_FullMethodName            = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/Get"
-	PrivateEndpointService_List_FullMethodName           = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/List"
-	PrivateEndpointService_Create_FullMethodName         = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/Create"
-	PrivateEndpointService_Update_FullMethodName         = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/Update"
-	PrivateEndpointService_Delete_FullMethodName         = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/Delete"
-	PrivateEndpointService_ListOperations_FullMethodName = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/ListOperations"
+	PrivateEndpointService_ListYandexCloudServices_FullMethodName = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/ListYandexCloudServices"
+	PrivateEndpointService_Get_FullMethodName                     = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/Get"
+	PrivateEndpointService_List_FullMethodName                    = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/List"
+	PrivateEndpointService_Create_FullMethodName                  = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/Create"
+	PrivateEndpointService_Update_FullMethodName                  = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/Update"
+	PrivateEndpointService_Delete_FullMethodName                  = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/Delete"
+	PrivateEndpointService_ListOperations_FullMethodName          = "/yandex.cloud.vpc.v1.privatelink.PrivateEndpointService/ListOperations"
 )
 
 // PrivateEndpointServiceClient is the client API for PrivateEndpointService service.
@@ -34,6 +35,8 @@ const (
 //
 // A set of methods for managing PrivateEndpoint resources.
 type PrivateEndpointServiceClient interface {
+	// Lists Yandex Cloud services accessible through private endpoints.
+	ListYandexCloudServices(ctx context.Context, in *ListYandexCloudServicesRequest, opts ...grpc.CallOption) (*ListYandexCloudServicesResponse, error)
 	// Returns the specified Private Endpoint resource.
 	// To get the list of all available PrivateEndpoint resources, make a [List]
 	// request.
@@ -56,6 +59,16 @@ type privateEndpointServiceClient struct {
 
 func NewPrivateEndpointServiceClient(cc grpc.ClientConnInterface) PrivateEndpointServiceClient {
 	return &privateEndpointServiceClient{cc}
+}
+
+func (c *privateEndpointServiceClient) ListYandexCloudServices(ctx context.Context, in *ListYandexCloudServicesRequest, opts ...grpc.CallOption) (*ListYandexCloudServicesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListYandexCloudServicesResponse)
+	err := c.cc.Invoke(ctx, PrivateEndpointService_ListYandexCloudServices_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *privateEndpointServiceClient) Get(ctx context.Context, in *GetPrivateEndpointRequest, opts ...grpc.CallOption) (*PrivateEndpoint, error) {
@@ -124,6 +137,8 @@ func (c *privateEndpointServiceClient) ListOperations(ctx context.Context, in *L
 //
 // A set of methods for managing PrivateEndpoint resources.
 type PrivateEndpointServiceServer interface {
+	// Lists Yandex Cloud services accessible through private endpoints.
+	ListYandexCloudServices(context.Context, *ListYandexCloudServicesRequest) (*ListYandexCloudServicesResponse, error)
 	// Returns the specified Private Endpoint resource.
 	// To get the list of all available PrivateEndpoint resources, make a [List]
 	// request.
@@ -147,6 +162,9 @@ type PrivateEndpointServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedPrivateEndpointServiceServer struct{}
 
+func (UnimplementedPrivateEndpointServiceServer) ListYandexCloudServices(context.Context, *ListYandexCloudServicesRequest) (*ListYandexCloudServicesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListYandexCloudServices not implemented")
+}
 func (UnimplementedPrivateEndpointServiceServer) Get(context.Context, *GetPrivateEndpointRequest) (*PrivateEndpoint, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
 }
@@ -183,6 +201,24 @@ func RegisterPrivateEndpointServiceServer(s grpc.ServiceRegistrar, srv PrivateEn
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&PrivateEndpointService_ServiceDesc, srv)
+}
+
+func _PrivateEndpointService_ListYandexCloudServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListYandexCloudServicesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PrivateEndpointServiceServer).ListYandexCloudServices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PrivateEndpointService_ListYandexCloudServices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PrivateEndpointServiceServer).ListYandexCloudServices(ctx, req.(*ListYandexCloudServicesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _PrivateEndpointService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -300,6 +336,10 @@ var PrivateEndpointService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "yandex.cloud.vpc.v1.privatelink.PrivateEndpointService",
 	HandlerType: (*PrivateEndpointServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListYandexCloudServices",
+			Handler:    _PrivateEndpointService_ListYandexCloudServices_Handler,
+		},
 		{
 			MethodName: "Get",
 			Handler:    _PrivateEndpointService_Get_Handler,

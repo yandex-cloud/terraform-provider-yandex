@@ -3,7 +3,9 @@
 package gitlab
 
 import (
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (m *GetInstanceRequest) SetInstanceId(v string) {
@@ -88,6 +90,70 @@ func (m *CreateInstanceRequest) SetApprovalRulesId(v string) {
 
 func (m *CreateInstanceMetadata) SetInstanceId(v string) {
 	m.InstanceId = v
+}
+
+func (m *PrepareBackupUploadRequest) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
+func (m *PrepareBackupUploadRequest) SetBackupGitlabVersion(v string) {
+	m.BackupGitlabVersion = v
+}
+
+func (m *PrepareBackupUploadMetadata) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
+func (m *PrepareBackupUploadResponse) SetS3Endpoint(v string) {
+	m.S3Endpoint = v
+}
+
+func (m *PrepareBackupUploadResponse) SetBucket(v string) {
+	m.Bucket = v
+}
+
+func (m *PrepareBackupUploadResponse) SetBackupObjectKey(v string) {
+	m.BackupObjectKey = v
+}
+
+func (m *PrepareBackupUploadResponse) SetSecretsObjectKey(v string) {
+	m.SecretsObjectKey = v
+}
+
+func (m *PrepareBackupUploadResponse) SetAccessKeyId(v string) {
+	m.AccessKeyId = v
+}
+
+func (m *PrepareBackupUploadResponse) SetSecretAccessKey(v string) {
+	m.SecretAccessKey = v
+}
+
+func (m *PrepareBackupUploadResponse) SetSessionToken(v string) {
+	m.SessionToken = v
+}
+
+func (m *PrepareBackupUploadResponse) SetAccessExpiresAt(v *timestamppb.Timestamp) {
+	m.AccessExpiresAt = v
+}
+
+func (m *GetBackupDownloadUrlsRequest) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
+func (m *GetBackupDownloadUrlsRequest) SetBackupId(v string) {
+	m.BackupId = v
+}
+
+func (m *GetBackupDownloadUrlsRequest) SetTtl(v *durationpb.Duration) {
+	m.Ttl = v
+}
+
+func (m *GetBackupDownloadUrlsResponse) SetBackupPresignedUrl(v string) {
+	m.BackupPresignedUrl = v
+}
+
+func (m *GetBackupDownloadUrlsResponse) SetSecretsPresignedUrl(v string) {
+	m.SecretsPresignedUrl = v
 }
 
 func (m *UpdateInstanceRequest) SetInstanceId(v string) {

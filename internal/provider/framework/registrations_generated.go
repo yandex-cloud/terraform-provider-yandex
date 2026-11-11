@@ -156,26 +156,12 @@ func generatedResources() []func() resource.Resource {
 		yandex_airflow_cluster_change_freeze.NewResource,
 		// tfgen:target=yandex_airflow_cluster
 		yandex_airflow_cluster_iam_binding.NewResource,
-		// tfgen:target=yandex_api_gateway
-		yandex_api_gateway_iam_binding.NewResource,
-		// tfgen:target=yandex_api_gateway
-		yandex_api_gateway_iam_member.NewResource,
 		// tfgen:target=yandex_cm_certificate
 		yandex_cm_certificate_iam_binding.NewResource,
 		// tfgen:target=yandex_cm_certificate
 		yandex_cm_certificate_iam_member.NewResource,
 		// tfgen:target=yandex_cic_private_connection
 		yandex_cic_private_connection.NewResource,
-		// tfgen:target=yandex_mdb_clickhouse_cluster_change_freeze
-		yandex_mdb_clickhouse_cluster_change_freeze.NewResource,
-		// tfgen:target=yandex_mdb_clickhouse_cluster
-		yandex_mdb_clickhouse_cluster_iam_binding.NewResource,
-		// tfgen:target=yandex_function
-		yandex_function_iam_binding.NewResource,
-		// tfgen:target=yandex_function
-		yandex_function_iam_member.NewResource,
-		// tfgen:target=yandex_logging_group
-		yandex_logging_group.NewResource,
 		// tfgen:target=yandex_cloudregistry_folder
 		yandex_cloudregistry_folder.NewResource,
 		// tfgen:target=yandex_cloudregistry_folder
@@ -252,12 +238,6 @@ func generatedResources() []func() resource.Resource {
 		yandex_dns_inbound_endpoint_iam_binding.NewResource,
 		// tfgen:target=yandex_dns_zone
 		yandex_dns_zone_iam_binding.NewResource,
-		// tfgen:target=yandex_serverless_eventrouter_bus
-		yandex_serverless_eventrouter_bus.NewResource,
-		// tfgen:target=yandex_mdb_greenplum_cluster_change_freeze
-		yandex_mdb_greenplum_cluster_change_freeze.NewResource,
-		// tfgen:target=yandex_mdb_greenplum_cluster
-		yandex_mdb_greenplum_cluster_iam_binding.NewResource,
 		// tfgen:target=yandex_iam_oauth_client
 		yandex_iam_oauth_client.NewResource,
 		// tfgen:target=yandex_iam_service_account
@@ -272,10 +252,10 @@ func generatedResources() []func() resource.Resource {
 		yandex_iam_workload_identity_oidc_federation.NewResource,
 		// tfgen:target=yandex_iam_workload_identity_oidc_federation
 		yandex_iam_workload_identity_oidc_federation_iam_binding.NewResource,
-		// tfgen:target=yandex_mdb_kafka_cluster_change_freeze
-		yandex_mdb_kafka_cluster_change_freeze.NewResource,
-		// tfgen:target=yandex_mdb_kafka_cluster
-		yandex_mdb_kafka_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_kubernetes_cluster
+		yandex_kubernetes_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_kubernetes_cluster
+		yandex_kubernetes_cluster_iam_member.NewResource,
 		// tfgen:target=yandex_kms_asymmetric_encryption_key
 		yandex_kms_asymmetric_encryption_key.NewResource,
 		// tfgen:target=yandex_kms_asymmetric_encryption_key
@@ -294,18 +274,26 @@ func generatedResources() []func() resource.Resource {
 		yandex_kms_symmetric_key_iam_binding.NewResource,
 		// tfgen:target=yandex_kms_symmetric_key
 		yandex_kms_symmetric_key_iam_member.NewResource,
+		// tfgen:target=yandex_lb_target_group
+		yandex_lb_target_group.NewResource,
 		// tfgen:target=yandex_lockbox_secret
 		yandex_lockbox_secret_iam_binding.NewResource,
 		// tfgen:target=yandex_lockbox_secret
 		yandex_lockbox_secret_iam_member.NewResource,
-		// tfgen:target=yandex_kubernetes_cluster
-		yandex_kubernetes_cluster_iam_binding.NewResource,
-		// tfgen:target=yandex_kubernetes_cluster
-		yandex_kubernetes_cluster_iam_member.NewResource,
-		// tfgen:target=yandex_metastore_cluster_change_freeze
-		yandex_metastore_cluster_change_freeze.NewResource,
-		// tfgen:target=yandex_metastore_cluster
-		yandex_metastore_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_logging_group
+		yandex_logging_group.NewResource,
+		// tfgen:target=yandex_mdb_clickhouse_cluster_change_freeze
+		yandex_mdb_clickhouse_cluster_change_freeze.NewResource,
+		// tfgen:target=yandex_mdb_clickhouse_cluster
+		yandex_mdb_clickhouse_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_mdb_greenplum_cluster_change_freeze
+		yandex_mdb_greenplum_cluster_change_freeze.NewResource,
+		// tfgen:target=yandex_mdb_greenplum_cluster
+		yandex_mdb_greenplum_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_mdb_kafka_cluster_change_freeze
+		yandex_mdb_kafka_cluster_change_freeze.NewResource,
+		// tfgen:target=yandex_mdb_kafka_cluster
+		yandex_mdb_kafka_cluster_iam_binding.NewResource,
 		// tfgen:target=yandex_mdb_mongodb_backup_retention_policy
 		yandex_mdb_mongodb_backup_retention_policy.NewResource,
 		// tfgen:target=yandex_mdb_mongodb_cluster_change_freeze
@@ -318,12 +306,30 @@ func generatedResources() []func() resource.Resource {
 		yandex_mdb_mysql_cluster_change_freeze.NewResource,
 		// tfgen:target=yandex_mdb_mysql_cluster
 		yandex_mdb_mysql_cluster_iam_binding.NewResource,
-		// tfgen:target=yandex_lb_target_group
-		yandex_lb_target_group.NewResource,
 		// tfgen:target=yandex_mdb_opensearch_cluster_change_freeze
 		yandex_mdb_opensearch_cluster_change_freeze.NewResource,
 		// tfgen:target=yandex_mdb_opensearch_cluster
 		yandex_mdb_opensearch_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_mdb_postgresql_backup_retention_policy
+		yandex_mdb_postgresql_backup_retention_policy.NewResource,
+		// tfgen:target=yandex_mdb_postgresql_cluster_change_freeze
+		yandex_mdb_postgresql_cluster_change_freeze.NewResource,
+		// tfgen:target=yandex_mdb_postgresql_cluster
+		yandex_mdb_postgresql_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_mdb_redis_backup_retention_policy
+		yandex_mdb_redis_backup_retention_policy.NewResource,
+		// tfgen:target=yandex_mdb_redis_cluster_change_freeze
+		yandex_mdb_redis_cluster_change_freeze.NewResource,
+		// tfgen:target=yandex_mdb_redis_cluster
+		yandex_mdb_redis_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_mdb_sharded_postgresql_cluster_change_freeze
+		yandex_mdb_sharded_postgresql_cluster_change_freeze.NewResource,
+		// tfgen:target=yandex_mdb_sharded_postgresql_cluster
+		yandex_mdb_sharded_postgresql_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_metastore_cluster_change_freeze
+		yandex_metastore_cluster_change_freeze.NewResource,
+		// tfgen:target=yandex_metastore_cluster
+		yandex_metastore_cluster_iam_binding.NewResource,
 		// tfgen:target=yandex_organization_manager_organization
 		yandex_organization_manager_organization_iam_policy_binding.NewResource,
 		// tfgen:target=yandex_organizationmanager_group
@@ -352,18 +358,6 @@ func generatedResources() []func() resource.Resource {
 		yandex_organizationmanager_policy_authentication_policy_rule.NewResource,
 		// tfgen:target=yandex_organizationmanager_user_ssh_key
 		yandex_organizationmanager_user_ssh_key.NewResource,
-		// tfgen:target=yandex_mdb_postgresql_backup_retention_policy
-		yandex_mdb_postgresql_backup_retention_policy.NewResource,
-		// tfgen:target=yandex_mdb_postgresql_cluster_change_freeze
-		yandex_mdb_postgresql_cluster_change_freeze.NewResource,
-		// tfgen:target=yandex_mdb_postgresql_cluster
-		yandex_mdb_postgresql_cluster_iam_binding.NewResource,
-		// tfgen:target=yandex_mdb_redis_backup_retention_policy
-		yandex_mdb_redis_backup_retention_policy.NewResource,
-		// tfgen:target=yandex_mdb_redis_cluster_change_freeze
-		yandex_mdb_redis_cluster_change_freeze.NewResource,
-		// tfgen:target=yandex_mdb_redis_cluster
-		yandex_mdb_redis_cluster_iam_binding.NewResource,
 		// tfgen:target=yandex_resource_manager_cloud
 		yandex_resource_manager_cloud_iam_policy_binding.NewResource,
 		// tfgen:target=yandex_resource_manager_folder
@@ -380,14 +374,30 @@ func generatedResources() []func() resource.Resource {
 		yandex_resourcemanager_folder_iam_binding.NewResource,
 		// tfgen:target=yandex_resourcemanager_folder
 		yandex_resourcemanager_folder_iam_member.NewResource,
+		// tfgen:target=yandex_api_gateway
+		yandex_api_gateway_iam_binding.NewResource,
+		// tfgen:target=yandex_api_gateway
+		yandex_api_gateway_iam_member.NewResource,
 		// tfgen:target=yandex_serverless_container
 		yandex_serverless_container_iam_binding.NewResource,
 		// tfgen:target=yandex_serverless_container
 		yandex_serverless_container_iam_member.NewResource,
-		// tfgen:target=yandex_mdb_sharded_postgresql_cluster_change_freeze
-		yandex_mdb_sharded_postgresql_cluster_change_freeze.NewResource,
-		// tfgen:target=yandex_mdb_sharded_postgresql_cluster
-		yandex_mdb_sharded_postgresql_cluster_iam_binding.NewResource,
+		// tfgen:target=yandex_serverless_eventrouter_bus
+		yandex_serverless_eventrouter_bus.NewResource,
+		// tfgen:target=yandex_function
+		yandex_function_iam_binding.NewResource,
+		// tfgen:target=yandex_function
+		yandex_function_iam_member.NewResource,
+		// tfgen:target=yandex_serverless_triggers
+		yandex_serverless_triggers.NewResource,
+		// tfgen:target=yandex_serverless_workflow
+		yandex_serverless_workflow.NewResource,
+		// tfgen:target=yandex_serverless_workflow
+		yandex_serverless_workflow_iam_binding.NewResource,
+		// tfgen:target=yandex_serverless_workflow
+		yandex_serverless_workflow_iam_member.NewResource,
+		// tfgen:target=yandex_smartcaptcha_captcha
+		yandex_smartcaptcha_captcha.NewResource,
 		// tfgen:target=yandex_sws_advanced_rate_limiter_profile
 		yandex_sws_advanced_rate_limiter_profile.NewResource,
 		// tfgen:target=yandex_sws_domain
@@ -400,24 +410,14 @@ func generatedResources() []func() resource.Resource {
 		yandex_sws_security_profile.NewResource,
 		// tfgen:target=yandex_sws_waf_profile
 		yandex_sws_waf_profile.NewResource,
-		// tfgen:target=yandex_smartcaptcha_captcha
-		yandex_smartcaptcha_captcha.NewResource,
 		// tfgen:target=yandex_spark_cluster_change_freeze
 		yandex_spark_cluster_change_freeze.NewResource,
 		// tfgen:target=yandex_spark_cluster
 		yandex_spark_cluster_iam_binding.NewResource,
-		// tfgen:target=yandex_serverless_triggers
-		yandex_serverless_triggers.NewResource,
 		// tfgen:target=yandex_trino_cluster_change_freeze
 		yandex_trino_cluster_change_freeze.NewResource,
 		// tfgen:target=yandex_trino_cluster
 		yandex_trino_cluster_iam_binding.NewResource,
-		// tfgen:target=yandex_serverless_workflow
-		yandex_serverless_workflow.NewResource,
-		// tfgen:target=yandex_serverless_workflow
-		yandex_serverless_workflow_iam_binding.NewResource,
-		// tfgen:target=yandex_serverless_workflow
-		yandex_serverless_workflow_iam_member.NewResource,
 		// tfgen:target=yandex_ydb_database
 		yandex_ydb_database_iam_binding.NewResource,
 		// tfgen:target=yandex_ydb_database
@@ -426,7 +426,6 @@ func generatedResources() []func() resource.Resource {
 		yandex_ytsaurus_cluster.NewResource,
 	}
 }
-
 func generatedDataSources() []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		// tfgen:target=yandex_cic_partner
@@ -477,6 +476,10 @@ func generatedDataSources() []func() datasource.DataSource {
 		yandex_mdb_mysql_backup_retention_policy.NewDataSource,
 		// tfgen:target=yandex_mdb_opensearch_user
 		yandex_mdb_opensearch_user.NewDataSource,
+		// tfgen:target=yandex_mdb_postgresql_backup_retention_policy
+		yandex_mdb_postgresql_backup_retention_policy.NewDataSource,
+		// tfgen:target=yandex_mdb_redis_backup_retention_policy
+		yandex_mdb_redis_backup_retention_policy.NewDataSource,
 		// tfgen:target=yandex_organizationmanager_idp_application_oauth_application
 		yandex_organizationmanager_idp_application_oauth_application.NewDataSource,
 		// tfgen:target=yandex_organizationmanager_idp_application_saml_application
@@ -493,10 +496,14 @@ func generatedDataSources() []func() datasource.DataSource {
 		yandex_organizationmanager_policy_authentication_policy_rule.NewDataSource,
 		// tfgen:target=yandex_organizationmanager_user_ssh_key
 		yandex_organizationmanager_user_ssh_key.NewDataSource,
-		// tfgen:target=yandex_mdb_postgresql_backup_retention_policy
-		yandex_mdb_postgresql_backup_retention_policy.NewDataSource,
-		// tfgen:target=yandex_mdb_redis_backup_retention_policy
-		yandex_mdb_redis_backup_retention_policy.NewDataSource,
+		// tfgen:target=yandex_serverless_triggers
+		yandex_serverless_triggers.NewDataSource,
+		// tfgen:target=yandex_serverless_workflow
+		yandex_serverless_workflow.NewDataSource,
+		// tfgen:target=yandex_smartcaptcha_captcha
+		yandex_smartcaptcha_captcha.NewDataSource,
+		// tfgen:target=yandex_smartcaptcha_captcha_keys
+		yandex_smartcaptcha_captcha_keys.NewDataSource,
 		// tfgen:target=yandex_sws_advanced_rate_limiter_profile
 		yandex_sws_advanced_rate_limiter_profile.NewDataSource,
 		// tfgen:target=yandex_sws_domain
@@ -511,14 +518,6 @@ func generatedDataSources() []func() datasource.DataSource {
 		yandex_sws_waf_profile.NewDataSource,
 		// tfgen:target=yandex_sws_waf_rule_set_descriptor
 		yandex_sws_waf_rule_set_descriptor.NewDataSource,
-		// tfgen:target=yandex_smartcaptcha_captcha
-		yandex_smartcaptcha_captcha.NewDataSource,
-		// tfgen:target=yandex_smartcaptcha_captcha_keys
-		yandex_smartcaptcha_captcha_keys.NewDataSource,
-		// tfgen:target=yandex_serverless_triggers
-		yandex_serverless_triggers.NewDataSource,
-		// tfgen:target=yandex_serverless_workflow
-		yandex_serverless_workflow.NewDataSource,
 		// tfgen:target=yandex_ytsaurus_cluster
 		yandex_ytsaurus_cluster.NewDataSource,
 	}

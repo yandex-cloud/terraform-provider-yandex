@@ -42,6 +42,10 @@ var sensitivePayloadFields = map[string]struct{}{
 	"private_key":                 {},
 	"secret":                      {},
 	"password":                    {},
+	"secret_access_key":           {},
+	"session_token":               {},
+	"backup_presigned_url":        {},
+	"secrets_presigned_url":       {},
 }
 
 // sensitiveHeaderNames lists outgoing gRPC metadata keys that we drop entirely
