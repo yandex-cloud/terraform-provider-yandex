@@ -41,7 +41,7 @@ func dataSourceYandexClientConfigRead(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 	ctx := config.Context()
 
-	iamToken, err := config.getIAMToken(ctx)
+	iamToken, err := config.GetIAMToken(ctx)
 	if err != nil {
 		return err
 	}

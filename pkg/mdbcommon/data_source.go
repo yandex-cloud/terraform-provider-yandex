@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	redissdk "github.com/yandex-cloud/go-sdk/services/mdb/redis/v1"
 	"github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/objectid"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
-	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
 // GetClusterIdForDatasource retrieves the cluster ID for a given datasource.

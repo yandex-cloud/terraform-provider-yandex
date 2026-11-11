@@ -1,0 +1,1540 @@
+package acceptance
+
+import (
+	"context"
+	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+	"testing"
+
+	statecheck "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance/statecheck"
+
+	"github.com/fatih/structs"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	k8ssdk "github.com/yandex-cloud/go-sdk/services/k8s/v1"
+	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+)
+
+func k8sNodeGroupImportStep(nodeResourceFullName string, ignored ...string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:            nodeResourceFullName,
+		ImportState:             true,
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: ignored,
+	}
+}
+
+//revive:disable:var-naming
+func TestAccKubernetesNodeGroup_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroupDailyMaintenance_basic", true)
+	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, true, true, dailyMaintenancePolicy)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_zero_cores(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.Cores = "0"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				ExpectError: regexp.MustCompile("expected instance_template.0.resources.0.cores to be greater than"),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_zero_memory(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.Memory = "0"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				ExpectError: regexp.MustCompile("expected instance_template.0.resources.0.memory to be greater than"),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroupNetworkInterfaces_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWithSecurityGroups("TestAccKubernetesNodeGroupNetworkInterfaces_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroupWLI_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWLI("TestAccKubernetesNodeGroupWLI_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.WorkloadIdentityFederation = true
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_update(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_update", true)
+	clusterResource.MasterVersion = k8sTestUpdateVersion
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.Version = k8sTestVersion
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	nodeUpdatedResource := nodeResource
+
+	nodeUpdatedResource.Name = safeResourceName("clusternewname")
+	nodeUpdatedResource.Description = "new-description"
+	nodeUpdatedResource.Version = k8sTestUpdateVersion
+
+	nodeUpdatedResource.LabelKey = "new_label_key"
+	nodeUpdatedResource.LabelValue = "new_label_value"
+
+	nodeUpdatedResource.NodeLabelKey = "new_node_label_key"
+	nodeUpdatedResource.NodeLabelValue = "new_node_label_value"
+
+	nodeUpdatedResource.NodeTaintKey = "key2"
+	nodeUpdatedResource.NodeTaintValue = "value2"
+	nodeUpdatedResource.NodeTaintEffect = "NoExecute"
+
+	nodeUpdatedResource.Memory = "4"
+	nodeUpdatedResource.Cores = "2"
+	nodeUpdatedResource.DiskSize = "65"
+	nodeUpdatedResource.Preemptible = "false"
+	nodeUpdatedResource.NodeName = "new-{instance.short_id}"
+	nodeUpdatedResource.TemplateLabelKey = "two"
+	nodeUpdatedResource.TemplateLabelValue = "2"
+
+	// update maintenance policy
+	nodeUpdatedResource.constructMaintenancePolicyField(false, false, dailyMaintenancePolicy)
+	// commented, because of current quotes for summary disk size
+	//nodeUpdatedResource.FixedScale = "2"
+
+	nodeUpdatedResource2 := nodeUpdatedResource
+	nodeUpdatedResource2.NodeName = ""
+	// clearing node group template labels
+	nodeUpdatedResource2.TemplateLabelKey = ""
+	nodeUpdatedResource2.NodeTaintEffect = "PreferNoSchedule"
+	nodeUpdatedResource2.constructMaintenancePolicyField(true, true, weeklyMaintenancePolicy)
+
+	nodeUpdatedResource3 := nodeUpdatedResource2
+	nodeUpdatedResource3.constructMaintenancePolicyField(true, true, emptyMaintenancePolicy)
+
+	nodeUpdatedResource4 := nodeUpdatedResource3
+	nodeUpdatedResource4.constructMaintenancePolicyField(false, true, weeklyMaintenancePolicySecond)
+
+	nodeUpdatedResource5 := nodeUpdatedResource4
+	nodeUpdatedResource5.constructMaintenancePolicyField(true, false, anyMaintenancePolicy)
+
+	var originalNGID string
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource2),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource2, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource3),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource3, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource4),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource4, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource5),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					testAccCheckKubernetesNodeGroupNotRecreated(&ng, &originalNGID),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource5, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroupNetworkInterfaces_update(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWithSecurityGroups("TestAccKubernetesNodeGroupNetworkInterfaces_update", true)
+	nodeResource := nodeGroupInfoIPv4DNSFQDN(clusterResource.ClusterResourceName)
+	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	nodeUpdatedResource := nodeResource
+	nodeUpdatedResource.NetworkInterfaces = enableNAT
+
+	nodeUpdatedResource2 := nodeUpdatedResource
+	nodeUpdatedResource2.IPv4DNSFQDN = "new-{instance.short_id}.ipv4.internal."
+	nodeUpdatedResource2.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, "")
+
+	nodeUpdatedResource3 := nodeUpdatedResource2
+	nodeUpdatedResource3.IPv4DNSFQDN = ""
+	nodeUpdatedResource3.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, "")
+
+	nodeUpdatedResource4 := nodeUpdatedResource3
+	nodeUpdatedResource4.constructNetworkInterfaces(clusterResource.SubnetResourceNameB, "")
+	nodeUpdatedResource4.LocationZone = "ru-central1-b"
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource2),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource2, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource3),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource3, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource4),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource4, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroupWLI_update(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWLI("TestAccKubernetesNodeGroupWLI_update", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	nodeUpdatedResource := nodeResource
+	nodeUpdatedResource.WorkloadIdentityFederation = true
+
+	nodeUpdatedResource2 := nodeUpdatedResource
+	nodeUpdatedResource2.WorkloadIdentityFederation = false
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource2),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource2, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_autoscaled(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	nodeResource := nodeGroupInfoAutoscaled(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_autoscaled(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, true),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_createPlacementGroup(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.PlacementGroupId = "yandex_compute_placement_group.pg.id"
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource) + constPlacementGroupResource,
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_dualStack(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoDualStack("TestAccKubernetesNodeGroup_dualStack", true)
+	nodeResource := nodeGroupInfoDualStack(clusterResource.ClusterResourceName)
+	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	nodeUpdatedResource := nodeResource
+	nodeUpdatedResource.IPv4DNSFQDN = "new-{instance.short_id}.ipv4.internal."
+	nodeUpdatedResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+
+	nodeUpdatedResource2 := nodeUpdatedResource
+	nodeUpdatedResource2.IPv6DNSFQDN = "new-{instance.short_id}.ipv6.internal."
+	nodeUpdatedResource2.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+
+	nodeUpdatedResource3 := nodeUpdatedResource2
+	nodeUpdatedResource3.IPv4DNSFQDN = ""
+	nodeUpdatedResource3.IPv6DNSFQDN = ""
+	nodeUpdatedResource3.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+
+	var ng k8s.NodeGroup
+
+	// All dual stack test share the same subnet. Disallow concurrent execution.
+	sdkcommon.MutexKV.Lock(clusterResource.SubnetResourceNameA)
+	defer sdkcommon.MutexKV.Unlock(clusterResource.SubnetResourceNameA)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource2),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource2, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource3),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource3, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_networkSettings(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_networkSettings", true)
+
+	nodeResourceStandard := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceSoftwareAcceleration := nodeResourceStandard
+
+	nodeResourceStandard.NetworkAccelerationType = "standard"
+	nodeResourceSoftwareAcceleration.NetworkAccelerationType = "software_accelerated"
+
+	nodeResourceFullName := nodeResourceStandard.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceSoftwareAcceleration),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResourceSoftwareAcceleration, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceStandard),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResourceStandard, true, false),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName, "status"),
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_containerRuntime(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_containerRuntime", true)
+
+	nodeResourceContainerd := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResourceContainerd.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceContainerd),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResourceContainerd, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_containerRuntime_invalid(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_containerRuntime_invalid", true)
+	nodeResourceInvalid := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceInvalid.ContainerRuntimeType = "some_invalid_type"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceInvalid),
+				ExpectError: regexp.MustCompile("expected instance_template.0.container_runtime.0.type to be one of"),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_containerNetwork(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_containerNetwork", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+	nodeResource.PodMTU = 8910
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_reservedInstancePool(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_reservedInstancePoolId", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+	nodeResource.ReservedInstancePoolId = "test-reserved-pool"
+	// Because "test-reserved-pool" does not exist.
+	nodeResource.constructFixedScalePolicy(0)
+
+	updatedNodeResource := nodeResource
+	newTestReservedInstancePoolID := "new-test-reserved-pool"
+	updatedNodeResource.ReservedInstancePoolId = newTestReservedInstancePoolID
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, updatedNodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &updatedNodeResource, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_variables(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_variables", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	vars1 := map[string]string{
+		"some-key-1": "some-pool-value-1",
+		"some-key-2": "some-pool-value-2",
+	}
+	vars2 := map[string]string{
+		"some-key-3": "some-pool-value-3",
+	}
+
+	nodeResource.Variables = formatNodeGroupVariables(vars1)
+
+	nodeUpdatedResource := nodeResource
+	nodeUpdatedResource.Variables = formatNodeGroupVariables(vars2)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
+				),
+			},
+		},
+	})
+}
+
+type resourceNodeGroupInfo struct {
+	ClusterResourceName   string
+	NodeGroupResourceName string
+	Name                  string
+	Description           string
+	Version               string
+
+	ContainerRuntimeType string
+
+	Memory string
+	Cores  string
+
+	DiskSize         string
+	Preemptible      string
+	ScalePolicy      string
+	PlacementGroupId string
+
+	LabelKey   string
+	LabelValue string
+
+	NodeLabelKey   string
+	NodeLabelValue string
+
+	NodeTaintKey    string
+	NodeTaintValue  string
+	NodeTaintEffect string
+
+	MaintenancePolicy string
+
+	NetworkInterfaces string
+	IPv4DNSFQDN       string
+	IPv6DNSFQDN       string
+
+	autoUpgrade       bool
+	autoRepair        bool
+	policy            maintenancePolicyType
+	SecurityGroupName string
+	SubnetName        string
+
+	DualStack bool
+
+	NetworkAccelerationType string
+
+	NodeName string
+
+	TemplateLabelKey   string
+	TemplateLabelValue string
+
+	PodMTU       int
+	LocationZone string
+
+	WorkloadIdentityFederation bool
+
+	ReservedInstancePoolId string
+	Variables              string
+}
+
+func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
+	return nodeGroupInfoWithMaintenance(clusterResourceName, true, true, anyMaintenancePolicy)
+}
+
+func nodeGroupInfoDualStack(clusterResourceName string) resourceNodeGroupInfo {
+	ng := nodeGroupInfoWithMaintenance(clusterResourceName, true, true, anyMaintenancePolicy)
+	ng.DualStack = true
+	ng.IPv4DNSFQDN = "{instance.short_id}.{instance_group.id}.ipv4.internal."
+	ng.IPv6DNSFQDN = "{instance.short_id}.{instance_group.id}.ipv6.internal."
+	return ng
+}
+
+func nodeGroupInfoAutoscaled(clusterResourceName string) resourceNodeGroupInfo {
+	ng := nodeGroupInfo(clusterResourceName)
+	ng.constructAutoScalePolicy(autoscaledMinSize, autoscaledMaxSize, autoscaledInitialSize)
+	return ng
+}
+
+func nodeGroupInfoIPv4DNSFQDN(clusterResourceName string) resourceNodeGroupInfo {
+	ng := nodeGroupInfo(clusterResourceName)
+	ng.IPv4DNSFQDN = "{instance.short_id}.{instance_group.id}.ipv4.internal."
+	return ng
+}
+
+func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoRepair bool, policyType maintenancePolicyType) resourceNodeGroupInfo {
+	info := resourceNodeGroupInfo{
+		ClusterResourceName:   clusterResourceName,
+		NodeGroupResourceName: randomResourceName("nodegroup"),
+		Name:                  safeResourceName("nodegroupname"),
+		Description:           "description",
+		Version:               k8sTestVersion,
+		Memory:                "2",
+		Cores:                 "2",
+		DiskSize:              "64",
+		Preemptible:           "true",
+		LabelKey:              "label_key",
+		LabelValue:            "label_value",
+		NodeLabelKey:          "node_label_key",
+		NodeLabelValue:        "node_label_value",
+		NodeTaintKey:          "key1",
+		NodeTaintValue:        "value1",
+		NodeTaintEffect:       "NoSchedule",
+		NetworkInterfaces:     enableNAT,
+		NodeName:              "node-{instance.short_id}",
+		TemplateLabelKey:      "one",
+		TemplateLabelValue:    "1",
+		ContainerRuntimeType:  "containerd",
+		LocationZone:          "ru-central1-a",
+	}
+
+	info.constructMaintenancePolicyField(autoUpgrade, autoRepair, policyType)
+	info.constructFixedScalePolicy(fixedScaleSize)
+	return info
+}
+
+func (i *resourceNodeGroupInfo) Map() map[string]interface{} {
+	return structs.Map(i)
+}
+
+func (i *resourceNodeGroupInfo) ResourceFullName(resource bool) string {
+	if resource {
+		return "yandex_kubernetes_node_group." + i.NodeGroupResourceName
+	}
+
+	return "data.yandex_kubernetes_node_group." + i.NodeGroupResourceName
+}
+
+func (i *resourceNodeGroupInfo) constructMaintenancePolicyField(autoUpgrade, autoRepair bool, policy maintenancePolicyType) {
+	m := map[string]interface{}{
+		"AutoUpgrade": autoUpgrade,
+		"AutoRepair":  autoRepair,
+	}
+
+	i.autoUpgrade = autoUpgrade
+	i.autoRepair = autoRepair
+	i.policy = policy
+
+	switch policy {
+	case emptyMaintenancePolicy:
+		i.MaintenancePolicy = ""
+	case anyMaintenancePolicy:
+		i.MaintenancePolicy = sdkcommon.TemplateConfig(ngAnyMaintenancePolicyTemplate, m)
+	case dailyMaintenancePolicy:
+		i.MaintenancePolicy = sdkcommon.TemplateConfig(ngDailyMaintenancePolicyTemplate, m)
+	case weeklyMaintenancePolicy:
+		i.MaintenancePolicy = sdkcommon.TemplateConfig(ngWeeklyMaintenancePolicyTemplate, m)
+	case weeklyMaintenancePolicySecond:
+		i.MaintenancePolicy = sdkcommon.TemplateConfig(ngWeeklyMaintenancePolicyTemplateSecond, m)
+	}
+}
+
+func (i *resourceNodeGroupInfo) constructFixedScalePolicy(size int) {
+	i.ScalePolicy = fmt.Sprintf(`
+  scale_policy {
+    fixed_scale {
+      size = %d
+    }
+  }
+`, size)
+}
+
+func (i *resourceNodeGroupInfo) constructAutoScalePolicy(min, max, initial int) {
+	i.ScalePolicy = fmt.Sprintf(`
+  scale_policy {
+    auto_scale {
+      min     = %d
+      max     = %d
+      initial = %d
+    }
+  }
+`, min, max, initial)
+}
+
+func (i *resourceNodeGroupInfo) constructNetworkInterfaces(subnetName string, securityGroupName string) {
+	i.SubnetName = subnetName
+	i.SecurityGroupName = securityGroupName
+
+	if i.DualStack {
+		if i.IPv4DNSFQDN != "" && i.IPv6DNSFQDN != "" {
+			i.NetworkInterfaces = fmt.Sprintf(networkInterfacesTemplateDualStackWithDNSRecords,
+				subnetName,
+				securityGroupName,
+				i.IPv4DNSFQDN,
+				i.IPv6DNSFQDN,
+			)
+			return
+		}
+
+		i.NetworkInterfaces = fmt.Sprintf(networkInterfacesTemplateDualStack,
+			subnetName,
+			securityGroupName,
+		)
+		return
+	}
+
+	subnetNameGetter := fmt.Sprintf("\"${yandex_vpc_subnet.%s.id}\"", i.SubnetName)
+	securityGroupIDGetter := ""
+	if securityGroupName != "" {
+		securityGroupIDGetter = fmt.Sprintf("\"${yandex_vpc_security_group.%s.id}\"", i.SecurityGroupName)
+	}
+
+	if i.IPv4DNSFQDN != "" {
+		i.NetworkInterfaces = fmt.Sprintf(networkInterfacesTemplateWithDNSRecords,
+			subnetNameGetter,
+			securityGroupIDGetter,
+			i.IPv4DNSFQDN,
+		)
+		return
+	}
+
+	i.NetworkInterfaces = fmt.Sprintf(networkInterfacesTemplate,
+		subnetNameGetter,
+		securityGroupIDGetter,
+	)
+}
+
+func (i *resourceNodeGroupInfo) securityGroupName() string {
+	return "yandex_vpc_security_group." + i.SecurityGroupName
+}
+
+func (i *resourceNodeGroupInfo) subnetName() string {
+	return "yandex_vpc_subnet." + i.SubnetName
+}
+
+const ngAnyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        auto_repair  = {{.AutoRepair}}
+    }
+`
+
+const ngDailyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        auto_repair  = {{.AutoRepair}}
+
+        maintenance_window {
+			start_time = "15:00:00.000000000"
+			duration   = "3h0m0s"
+		}
+    }
+`
+
+const ngWeeklyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        auto_repair  = {{.AutoRepair}}
+
+        maintenance_window {
+            day		   = "monday"
+			start_time = "15:00:00.000000000"
+			duration   = "3h0m0s"
+		}
+
+        maintenance_window {
+            day		   = "friday"
+			start_time = "10:00:00.000000000"
+			duration   = "4h0m0s"
+		}
+    }
+`
+
+const ngWeeklyMaintenancePolicyTemplateSecond = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        auto_repair  = {{.AutoRepair}}
+
+        maintenance_window {
+            day		   = "monday"
+			start_time = "15:00:00.000000000"
+			duration   = "5h0m0s"
+		}
+
+        maintenance_window {
+            day		   = "friday"
+			start_time = "12:00:00.000000000"
+			duration   = "4h0m0s"
+		}
+    }
+`
+
+const (
+	autoscaledMinSize     = 1
+	autoscaledMaxSize     = 3
+	autoscaledInitialSize = 2
+)
+
+const fixedScaleSize = 1
+
+const nodeGroupConfigTemplate = `
+resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
+  cluster_id = "${yandex_kubernetes_cluster.{{.ClusterResourceName}}.id}"
+  name        = "{{.Name}}"
+  description = "{{.Description}}"
+
+  labels = {
+	{{.LabelKey}} = "{{.LabelValue}}"
+  }
+  node_labels = {
+	{{.NodeLabelKey}} = "{{.NodeLabelValue}}"
+  }
+
+  instance_template {
+    platform_id = "standard-v2"
+
+	{{if .ContainerRuntimeType}}
+	container_runtime {
+		type = "{{.ContainerRuntimeType}}"
+	}
+	{{end}}
+
+    {{if .PodMTU}}
+    container_network {
+        pod_mtu = {{.PodMTU}}
+    }
+    {{end}}
+
+    {{.NetworkInterfaces}}
+
+    resources {
+      memory = {{.Memory}}
+      cores  = {{.Cores}}
+    }
+
+    boot_disk {
+      type = "network-hdd"
+      size     = {{.DiskSize}}
+    }
+
+    scheduling_policy {
+      preemptible = {{.Preemptible}}
+    }
+    {{if .PlacementGroupId}}
+    placement_policy {
+      placement_group_id = {{.PlacementGroupId}}
+    }
+    {{end}}
+
+    {{if .NetworkAccelerationType}}
+	network_acceleration_type = "{{.NetworkAccelerationType}}"
+	{{end}}
+
+    name = "{{.NodeName}}"
+
+    {{if .TemplateLabelKey}}
+    labels = {
+      {{.TemplateLabelKey}} = "{{.TemplateLabelValue}}"
+    }
+    {{end}}
+
+	{{if .ReservedInstancePoolId}}
+    reserved_instance_pool_id = "{{.ReservedInstancePoolId}}"
+    {{end}}
+  }
+
+  {{.ScalePolicy}}
+  
+  allocation_policy {
+    location {
+      zone = "{{.LocationZone}}"
+    }
+  }
+
+  version = "{{.Version}}"
+
+  {{.MaintenancePolicy}}
+
+  node_taints = [
+    "{{.NodeTaintKey}}={{.NodeTaintValue}}:{{.NodeTaintEffect}}"
+  ]
+  allowed_unsafe_sysctls = [
+    "kernel.msg*",
+    "net.core.somaxconn",
+  ]
+
+  {{if .WorkloadIdentityFederation}}
+  workload_identity_federation {
+    enabled = {{.WorkloadIdentityFederation}}
+  }
+  {{end}}
+
+  {{.Variables}}
+}
+`
+
+const enableNAT = "nat = true"
+
+var networkInterfacesTemplate = `
+  network_interface {
+	nat = true
+    subnet_ids = [%s]
+	security_group_ids = [%s]
+  }
+`
+
+var networkInterfacesTemplateWithDNSRecords = `
+  network_interface {
+	nat = true
+    subnet_ids = [%s]
+	security_group_ids = [%s]
+    ipv4_dns_records {
+      fqdn = "%s"
+    }
+  }
+`
+
+var networkInterfacesTemplateDualStack = `
+  network_interface {
+	ipv4 = true
+	ipv6 = true
+    subnet_ids = ["%s"]
+    security_group_ids = ["%s"]
+  }
+`
+
+var networkInterfacesTemplateDualStackWithDNSRecords = `
+  network_interface {
+	ipv4 = true
+	ipv6 = true
+    subnet_ids = ["%s"]
+    security_group_ids = ["%s"]
+    ipv4_dns_records {
+      fqdn = "%s"
+    }
+    ipv6_dns_records {
+      fqdn = "%s"
+    }
+  }
+`
+
+// language=tf
+const constPlacementGroupResource = `
+resource yandex_compute_placement_group pg {
+}
+`
+
+func testAccKubernetesNodeGroupConfig_basic(cluster resourceClusterInfo, ng resourceNodeGroupInfo) string {
+	deps := testAccKubernetesClusterZonalConfig_basic(cluster)
+	return deps + sdkcommon.TemplateConfig(nodeGroupConfigTemplate, ng.Map())
+}
+
+func testAccKubernetesNodeGroupConfig_autoscaled(cluster resourceClusterInfo, ng resourceNodeGroupInfo) string {
+	deps := testAccKubernetesClusterZonalConfig_basic(cluster)
+	return deps + sdkcommon.TemplateConfig(nodeGroupConfigTemplate, ng.Map())
+}
+
+func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs bool, autoscaled bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		versionInfo := ng.GetVersionInfo()
+		scalePolicy := ng.GetScalePolicy()
+		locations := ng.GetAllocationPolicy().GetLocations()
+		tpl := ng.GetNodeTemplate()
+		if tpl == nil || versionInfo == nil || scalePolicy == nil || len(locations) != 1 {
+			return fmt.Errorf("failed to get kubernetes node group specs info")
+		}
+
+		expectedTemplateLabels := map[string]string{}
+		if info.TemplateLabelKey != "" {
+			expectedTemplateLabels[info.TemplateLabelKey] = info.TemplateLabelValue
+		}
+		resourceFullName := info.ResourceFullName(rs)
+		checkFuncsAr := []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(resourceFullName, "cluster_id", ng.ClusterId),
+
+			resource.TestCheckResourceAttr(resourceFullName, "name", info.Name),
+			resource.TestCheckResourceAttr(resourceFullName, "name", ng.Name),
+
+			resource.TestCheckResourceAttr(resourceFullName, "description", info.Description),
+			resource.TestCheckResourceAttr(resourceFullName, "description", ng.Description),
+
+			resource.TestCheckResourceAttr(resourceFullName, "instance_group_id", ng.GetInstanceGroupId()),
+
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.resources.0.memory", info.Memory),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.resources.0.cores", info.Cores),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.resources.0.cores",
+				strconv.Itoa(int(tpl.GetResourcesSpec().GetCores()))),
+
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.boot_disk.0.type", "network-hdd"),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.boot_disk.0.type",
+				tpl.GetBootDiskSpec().GetDiskTypeId()),
+
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.boot_disk.0.size", info.DiskSize),
+
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.platform_id", "standard-v2"),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.platform_id", tpl.GetPlatformId()),
+
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.scheduling_policy.0.preemptible", info.Preemptible),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.scheduling_policy.0.preemptible",
+				strconv.FormatBool(tpl.GetSchedulingPolicy().GetPreemptible())),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_acceleration_type",
+				strings.ToLower(tpl.NetworkSettings.Type.String())),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.name", info.NodeName),
+			testCheckResourceMap(resourceFullName, "instance_template.0.labels", tpl.GetLabels()),
+			testCheckResourceMap(resourceFullName, "instance_template.0.labels", expectedTemplateLabels),
+
+			resource.TestCheckResourceAttr(resourceFullName, "version_info.0.current_version",
+				versionInfo.GetCurrentVersion()),
+			resource.TestCheckResourceAttr(resourceFullName, "version_info.0.new_revision_available",
+				strconv.FormatBool(versionInfo.GetNewRevisionAvailable())),
+			resource.TestCheckResourceAttr(resourceFullName, "version_info.0.new_revision_summary",
+				versionInfo.GetNewRevisionSummary()),
+			resource.TestCheckResourceAttr(resourceFullName, "version_info.0.version_deprecated",
+				strconv.FormatBool(versionInfo.GetVersionDeprecated())),
+
+			resource.TestCheckResourceAttr(resourceFullName, "allocation_policy.0.location.#", "1"),
+			resource.TestCheckResourceAttr(resourceFullName, "allocation_policy.0.location.0.zone", locations[0].GetZoneId()),
+			resource.TestCheckResourceAttr(resourceFullName, "allocation_policy.0.location.0.subnet_id", locations[0].GetSubnetId()),
+
+			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_upgrade", strconv.FormatBool(ng.GetMaintenancePolicy().GetAutoUpgrade())),
+			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_repair", strconv.FormatBool(ng.GetMaintenancePolicy().GetAutoRepair())),
+
+			testAccCheckNodeGroupLabel(ng, info, rs),
+			statecheck.CheckCreatedAtAttr(resourceFullName),
+
+			testCheckResourceMap(resourceFullName, "node_labels", ng.GetNodeLabels()),
+			testCheckResourceList(resourceFullName, "node_taints", formatTaints(ng.GetNodeTaints())),
+			testCheckResourceList(resourceFullName, "allowed_unsafe_sysctls", ng.GetAllowedUnsafeSysctls()),
+
+			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_unavailable", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxUnavailable()))),
+			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_expansion", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxExpansion()))),
+
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv4",
+				strconv.FormatBool(tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec != nil)),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv6",
+				strconv.FormatBool(tpl.NetworkInterfaceSpecs[0].PrimaryV6AddressSpec != nil)),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.nat",
+				strconv.FormatBool(
+					tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec != nil &&
+						tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec.OneToOneNatSpec != nil)),
+		}
+
+		if info.PlacementGroupId != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName,
+					"instance_template.0.placement_policy.0.placement_group_id",
+					tpl.PlacementPolicy.PlacementGroupId),
+			)
+		}
+
+		if info.ReservedInstancePoolId != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName,
+					"instance_template.0.reserved_instance_pool_id", info.ReservedInstancePoolId),
+			)
+		}
+
+		if info.ContainerRuntimeType != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.container_runtime.0.type",
+					strings.ToLower(tpl.GetContainerRuntimeSettings().GetType().String())),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.container_runtime.0.type",
+					strings.ToLower(info.ContainerRuntimeType)),
+			)
+		}
+
+		if info.PodMTU != 0 {
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.container_network.0.pod_mtu",
+				strconv.Itoa(int(tpl.GetContainerNetworkSettings().GetPodMtu())))
+		}
+
+		if info.NetworkInterfaces != enableNAT {
+			subnetID := info.SubnetName
+			if !info.DualStack {
+				var err error
+				subnetID, err = sdkcommon.GetResourceID(info.subnetName(), s)
+				if err != nil {
+					return err
+				}
+			}
+
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.#", "1"),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.subnet_ids.#", "1"),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.subnet_ids.0", subnetID),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.subnet_ids.0", ng.NodeTemplate.NetworkInterfaceSpecs[0].SubnetIds[0]),
+			)
+
+			if info.SecurityGroupName != "" {
+				securityGroupID := info.SecurityGroupName
+				if !info.DualStack {
+					var err error
+					securityGroupID, err = sdkcommon.GetResourceID(info.securityGroupName(), s)
+					if err != nil {
+						return err
+					}
+				}
+
+				checkFuncsAr = append(checkFuncsAr,
+					resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.security_group_ids.0", securityGroupID),
+					resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.security_group_ids.0", ng.NodeTemplate.NetworkInterfaceSpecs[0].SecurityGroupIds[0]),
+				)
+			}
+		} else {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.#", "1"),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.nat", "true"),
+			)
+		}
+
+		if info.IPv4DNSFQDN != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv4_dns_records.#", "1"),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv4_dns_records.0.fqdn", info.IPv4DNSFQDN),
+			)
+		}
+		if info.IPv6DNSFQDN != "" && info.DualStack {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv6_dns_records.#", "1"),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv6_dns_records.0.fqdn", info.IPv6DNSFQDN),
+			)
+		}
+
+		if info.policy != emptyMaintenancePolicy {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)),
+				resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_repair", strconv.FormatBool(info.autoRepair)),
+			)
+		}
+
+		const maintenanceWindowPrefix = "maintenance_policy.0.maintenance_window."
+		switch info.policy {
+		case anyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "0"),
+			)
+		case dailyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "1"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "", "15:00", "3h"),
+			)
+		case weeklyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "monday", "15:00", "3h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "friday", "10:00", "4h"),
+			)
+		case weeklyMaintenancePolicySecond:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "monday", "15:00", "5h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "friday", "12:00", "4h"),
+			)
+		}
+
+		if !autoscaled {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.fixed_scale.0.size", strconv.Itoa(int(scalePolicy.GetFixedScale().GetSize()))),
+			)
+		} else {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.min", strconv.Itoa(int(scalePolicy.GetAutoScale().GetMinSize()))),
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.max", strconv.Itoa(int(scalePolicy.GetAutoScale().GetMaxSize()))),
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.initial", strconv.Itoa(int(scalePolicy.GetAutoScale().GetInitialSize()))),
+			)
+		}
+
+		if rs {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "version", info.Version),
+				resource.TestCheckResourceAttr(resourceFullName, "version", ng.GetVersionInfo().GetCurrentVersion()),
+			)
+		}
+
+		if info.WorkloadIdentityFederation {
+			wlif := ng.GetWorkloadIdentityFederation()
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "workload_identity_federation.0.enabled", strconv.FormatBool(wlif.GetEnabled())),
+			)
+		}
+
+		if info.Variables != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "variables.%", strconv.Itoa(len(ng.GetVariables()))),
+			)
+
+			for _, v := range ng.GetVariables() {
+				checkFuncsAr = append(checkFuncsAr,
+					resource.TestCheckResourceAttr(resourceFullName, fmt.Sprintf("variables.%s", v.Key), v.Value),
+				)
+			}
+		}
+
+		return resource.ComposeTestCheckFunc(checkFuncsAr...)(s)
+	}
+}
+
+func testAccCheckNodeGroupLabel(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(ng.Labels) != 1 {
+			return fmt.Errorf("should be exactly one label on kubernetes node group %s", ng.Name)
+		}
+
+		v, ok := ng.Labels[info.LabelKey]
+		if !ok {
+			return fmt.Errorf("no label found with key %s on kubernetes node group %s", info.LabelKey, ng.Name)
+		}
+		if v != info.LabelValue {
+			return fmt.Errorf("expected value '%s' but found value '%s' for label '%s' on kubernetes node group %s",
+				info.LabelValue, v, info.LabelKey, ng.Name)
+		}
+
+		objName := info.ResourceFullName(rs)
+		labelPath := fmt.Sprintf("labels.%s", info.LabelKey)
+
+		return resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(objName, "labels.%", "1"),
+			resource.TestCheckResourceAttr(objName, labelPath, info.LabelValue))(s)
+	}
+}
+
+func (suite testSuite) testAccCheckKubernetesNodeGroupExists(n string, ng *k8s.NodeGroup) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no ID is set")
+		}
+
+		config, configErr := suite.Config()
+		if configErr != nil {
+			return configErr
+		}
+
+		client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &k8s.GetNodeGroupRequest{
+			NodeGroupId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("Kubernetes node group not found")
+		}
+
+		*ng = *found
+		return nil
+	}
+}
+
+// testAccCheckKubernetesNodeGroupNotRecreated records the node group ID on its
+// first invocation and, on subsequent steps, fails if the ID has changed. A
+// changed ID means the resource was destroyed and recreated rather than updated
+// in-place
+func testAccCheckKubernetesNodeGroupNotRecreated(ng *k8s.NodeGroup, originalID *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if *originalID == "" {
+			*originalID = ng.Id
+			return nil
+		}
+
+		if ng.Id != *originalID {
+			return fmt.Errorf("kubernetes node group was recreated (id changed from %s to %s), expected in-place update",
+				*originalID, ng.Id)
+		}
+
+		return nil
+	}
+}
+
+func (suite testSuite) testAccCheckKubernetesNodeGroupDestroy(s *terraform.State) error {
+	config, configErr := suite.Config()
+	if configErr != nil {
+		return configErr
+	}
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_kubernetes_node_group" {
+			continue
+		}
+
+		client := k8ssdk.NewNodeGroupClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &k8s.GetNodeGroupRequest{
+			NodeGroupId: rs.Primary.ID,
+		})
+		if err == nil {
+			return fmt.Errorf("Kubernetes node group still exists")
+		}
+	}
+
+	return nil
+}
+
+func formatTaints(taints []*k8s.Taint) []string {
+	var formatted []string
+	for _, t := range taints {
+		var effect string
+		switch t.Effect {
+		case k8s.Taint_NO_EXECUTE:
+			effect = "NoExecute"
+		case k8s.Taint_NO_SCHEDULE:
+			effect = "NoSchedule"
+		case k8s.Taint_PREFER_NO_SCHEDULE:
+			effect = "PreferNoSchedule"
+		}
+		formatted = append(formatted, fmt.Sprintf("%s=%s:%s", t.Key, t.Value, effect))
+	}
+	return formatted
+}
+
+func testCheckResourceMap(objName string, key string, m map[string]string) resource.TestCheckFunc {
+	checkFuncs := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(objName, fmt.Sprintf("%s.%%", key), strconv.Itoa(len(m))),
+	}
+
+	for k, v := range m {
+		labelPath := fmt.Sprintf("%s.%s", key, k)
+		checkFuncs = append(checkFuncs, resource.TestCheckResourceAttr(objName, labelPath, v))
+	}
+
+	return resource.ComposeTestCheckFunc(checkFuncs...)
+}
+
+func testCheckResourceList(objName string, key string, values []string) resource.TestCheckFunc {
+	checkFuncs := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(objName, fmt.Sprintf("%s.#", key), strconv.Itoa(len(values))),
+	}
+
+	for i, v := range values {
+		labelPath := fmt.Sprintf("%s.%d", key, i)
+		checkFuncs = append(checkFuncs, resource.TestCheckResourceAttr(objName, labelPath, v))
+	}
+
+	return resource.ComposeTestCheckFunc(checkFuncs...)
+}
+
+// formatNodeGroupVariables returns the HCL snippet for a variables map attribute.
+func formatNodeGroupVariables(vars map[string]string) string {
+	if len(vars) == 0 {
+		return ""
+	}
+	var sb strings.Builder
+	sb.WriteString("\n  variables = {")
+	for k, v := range vars {
+		sb.WriteString(fmt.Sprintf("\n    %q = %q", k, v))
+	}
+	sb.WriteString("\n  }")
+	return sb.String()
+}

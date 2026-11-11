@@ -1,0 +1,47 @@
+package yandex_compute_disk_placement_group_iam_binding_test
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework"
+	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+)
+
+func testAccCheckComputeDiskPlacementGroupExists(n string, placement *compute.DiskPlacementGroup, timeout time.Duration) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
+
+		found, err := computesdk.NewDiskPlacementGroupClient(config.SDKv2).Get(ctx, &compute.GetDiskPlacementGroupRequest{
+			DiskPlacementGroupId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("Disk not found")
+		}
+
+		*placement = *found
+
+		return nil
+	}
+}

@@ -1,0 +1,802 @@
+package acceptance
+
+import (
+	"bytes"
+	"context"
+	"errors"
+	"fmt"
+	"testing"
+	"text/template"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/acceptanceenv"
+
+	statecheck "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance/statecheck"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/eventrouter/v1"
+	eventroutersdk "github.com/yandex-cloud/go-sdk/services/serverless/eventrouter/v1"
+	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+	apifixtures "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/serverless/apigateway/testfixtures"
+	containerfixtures "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/serverless/containers/testfixtures"
+)
+
+const eventrouterRuleResource = "yandex_serverless_eventrouter_rule.test-rule"
+
+func TestAccEventrouterRule_yds(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	var rule eventrouter.Rule
+	name := acctest.RandomWithPrefix("tf-rule")
+	desc := acctest.RandomWithPrefix("tf-rule-desc")
+	labelKey := acctest.RandomWithPrefix("tf-rule-label")
+	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testYandexEventrouterRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexEventrouterRuleYds(name, desc, labelKey, labelValue),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexEventrouterRuleExists(eventrouterRuleResource, &rule),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "name", name),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "description", desc),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "cloud_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "deletion_protection"),
+					testYandexEventrouterRuleContainsLabel(&rule, labelKey, labelValue),
+					statecheck.CheckCreatedAtAttr(eventrouterRuleResource),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "yds.0.database"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "yds.0.stream_name"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "yds.0.service_account_id"),
+				),
+			},
+			eventrouterRuleImportTestStep(),
+		},
+	})
+}
+
+func TestAccEventrouterRule_ymq(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	var rule eventrouter.Rule
+	name := acctest.RandomWithPrefix("tf-rule")
+	desc := acctest.RandomWithPrefix("tf-rule-desc")
+	labelKey := acctest.RandomWithPrefix("tf-rule-label")
+	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testYandexEventrouterRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexEventrouterRuleYmq(name, desc, labelKey, labelValue, name),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexEventrouterRuleExists(eventrouterRuleResource, &rule),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "name", name),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "description", desc),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "cloud_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "deletion_protection"),
+					testYandexEventrouterRuleContainsLabel(&rule, labelKey, labelValue),
+					statecheck.CheckCreatedAtAttr(eventrouterRuleResource),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "ymq.0.queue_arn"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "ymq.0.service_account_id"),
+				),
+			},
+			eventrouterRuleImportTestStep(),
+		},
+	})
+}
+
+func TestAccEventrouterRule_function(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	var rule eventrouter.Rule
+	name := acctest.RandomWithPrefix("tf-rule")
+	desc := acctest.RandomWithPrefix("tf-rule-desc")
+	labelKey := acctest.RandomWithPrefix("tf-rule-label")
+	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testYandexEventrouterRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexEventrouterRuleFunction(name, desc, labelKey, labelValue),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexEventrouterRuleExists(eventrouterRuleResource, &rule),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "name", name),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "description", desc),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "cloud_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "deletion_protection"),
+					testYandexEventrouterRuleContainsLabel(&rule, labelKey, labelValue),
+					statecheck.CheckCreatedAtAttr(eventrouterRuleResource),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "function.0.function_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "function.0.batch_settings.0.max_count"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "function.0.batch_settings.0.max_bytes"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "function.0.batch_settings.0.cutoff"),
+				),
+			},
+			eventrouterRuleImportTestStep(),
+		},
+	})
+}
+
+func TestAccEventrouterRule_container(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	var rule eventrouter.Rule
+	name := acctest.RandomWithPrefix("tf-rule")
+	desc := acctest.RandomWithPrefix("tf-rule-desc")
+	labelKey := acctest.RandomWithPrefix("tf-rule-label")
+	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testYandexEventrouterRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexEventrouterRuleContainer(name, desc, labelKey, labelValue),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexEventrouterRuleExists(eventrouterRuleResource, &rule),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "name", name),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "description", desc),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "cloud_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "deletion_protection"),
+					testYandexEventrouterRuleContainsLabel(&rule, labelKey, labelValue),
+					statecheck.CheckCreatedAtAttr(eventrouterRuleResource),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "container.0.container_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "container.0.batch_settings.0.max_count"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "container.0.batch_settings.0.max_bytes"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "container.0.batch_settings.0.cutoff"),
+				),
+			},
+			eventrouterRuleImportTestStep(),
+		},
+	})
+}
+
+func TestAccEventrouterRule_gatewayWsBroadcast(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	var rule eventrouter.Rule
+	name := acctest.RandomWithPrefix("tf-rule")
+	desc := acctest.RandomWithPrefix("tf-rule-desc")
+	labelKey := acctest.RandomWithPrefix("tf-rule-label")
+	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testYandexEventrouterRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexEventrouterRuleGatewayWsBroadcast(name, desc, labelKey, labelValue),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexEventrouterRuleExists(eventrouterRuleResource, &rule),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "name", name),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "description", desc),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "cloud_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "deletion_protection"),
+					testYandexEventrouterRuleContainsLabel(&rule, labelKey, labelValue),
+					statecheck.CheckCreatedAtAttr(eventrouterRuleResource),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "gateway_websocket_broadcast.0.gateway_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "gateway_websocket_broadcast.0.path"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "gateway_websocket_broadcast.0.service_account_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "gateway_websocket_broadcast.0.batch_settings.0.max_count"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "gateway_websocket_broadcast.0.batch_settings.0.max_bytes"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "gateway_websocket_broadcast.0.batch_settings.0.cutoff"),
+				),
+			},
+			eventrouterRuleImportTestStep(),
+		},
+	})
+}
+
+func TestAccEventrouterRule_logging(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	var rule eventrouter.Rule
+	name := acctest.RandomWithPrefix("tf-rule")
+	desc := acctest.RandomWithPrefix("tf-rule-desc")
+	labelKey := acctest.RandomWithPrefix("tf-rule-label")
+	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testYandexEventrouterRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexEventrouterRuleLogging(name, desc, labelKey, labelValue),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexEventrouterRuleExists(eventrouterRuleResource, &rule),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "name", name),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "description", desc),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "cloud_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "deletion_protection"),
+					testYandexEventrouterRuleContainsLabel(&rule, labelKey, labelValue),
+					statecheck.CheckCreatedAtAttr(eventrouterRuleResource),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "deletion_protection"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "logging.0.folder_id"),
+				),
+			},
+			eventrouterRuleImportTestStep(),
+		},
+	})
+}
+
+func TestAccEventrouterRule_workflow(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Skip("TODO: enable this test when workflow is supported in provider")
+	var rule eventrouter.Rule
+	name := acctest.RandomWithPrefix("tf-rule")
+	desc := acctest.RandomWithPrefix("tf-rule-desc")
+	labelKey := acctest.RandomWithPrefix("tf-rule-label")
+	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testYandexEventrouterRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexEventrouterRuleWorkflow(name, desc, labelKey, labelValue),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexEventrouterRuleExists(eventrouterRuleResource, &rule),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "name", name),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "description", desc),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "cloud_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "deletion_protection"),
+					testYandexEventrouterRuleContainsLabel(&rule, labelKey, labelValue),
+					statecheck.CheckCreatedAtAttr(eventrouterRuleResource),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "workflow.0.workflow_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "workflow.0.service_account_id"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "workflow.0.gateway_websocket_broadcast.0.batch_settings"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "workflow.0.gateway_websocket_broadcast.0.batch_settings.0.max_count"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "workflow.0.gateway_websocket_broadcast.0.batch_settings.0.max_bytes"),
+					resource.TestCheckResourceAttrSet(eventrouterRuleResource, "workflow.0.gateway_websocket_broadcast.0.batch_settings.0.cutoff"),
+				),
+			},
+			eventrouterRuleImportTestStep(),
+		},
+	})
+}
+
+func TestAccEventrouterRule_update(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	var rule eventrouter.Rule
+	var ruleUpdated eventrouter.Rule
+	name := acctest.RandomWithPrefix("tf-rule")
+	desc := acctest.RandomWithPrefix("tf-rule-desc")
+	labelKey := acctest.RandomWithPrefix("tf-rule-label")
+	labelValue := acctest.RandomWithPrefix("tf-rule-label-value")
+
+	nameUpdated := acctest.RandomWithPrefix("tf-rule-1")
+	descUpdated := acctest.RandomWithPrefix("tf-rule-desc-1")
+	labelKeyUpdated := acctest.RandomWithPrefix("tf-rule-label-1")
+	labelValueUpdated := acctest.RandomWithPrefix("tf-rule-label-value-1")
+	queueName := acctest.RandomWithPrefix("tf-queue")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testYandexEventrouterRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexEventrouterRuleYmq(name, desc, labelKey, labelValue, queueName),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexEventrouterRuleExists(eventrouterRuleResource, &rule),
+				),
+			},
+			eventrouterRuleImportTestStep(),
+			{
+				Config: testYandexEventrouterRuleYmq(nameUpdated, descUpdated, labelKeyUpdated, labelValueUpdated, queueName),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexEventrouterRuleExists(eventrouterRuleResource, &ruleUpdated),
+					resource.TestCheckResourceAttrWith(eventrouterRuleResource, "id", func(t *eventrouter.Rule) resource.CheckResourceAttrWithFunc {
+						return func(id string) error {
+							if id == t.Id {
+								return nil
+							}
+							return errors.New("invalid Event Router rule id")
+						}
+					}(&rule)),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "name", nameUpdated),
+					resource.TestCheckResourceAttr(eventrouterRuleResource, "description", descUpdated),
+					testYandexEventrouterRuleContainsLabel(&ruleUpdated, labelKeyUpdated, labelValueUpdated),
+					statecheck.CheckCreatedAtAttr(eventrouterRuleResource),
+				),
+			},
+			eventrouterRuleImportTestStep(),
+		},
+	})
+}
+
+func (suite testSuite) testYandexEventrouterRuleDestroy(s *terraform.State) error {
+	config, configErr := suite.Config()
+	if configErr != nil {
+		return configErr
+	}
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_serverless_eventrouter_rule" {
+			continue
+		}
+
+		_, err := testGetEventrouterRuleByID(config, rs.Primary.ID)
+		if err == nil {
+			return fmt.Errorf("Event Router rule still exists")
+		}
+	}
+
+	return nil
+}
+
+func eventrouterRuleImportTestStep() resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      eventrouterRuleResource,
+		ImportState:       true,
+		ImportStateVerify: true,
+	}
+}
+
+func (suite testSuite) testYandexEventrouterRuleExists(name string, rule *eventrouter.Rule) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config, configErr := suite.Config()
+		if configErr != nil {
+			return configErr
+		}
+
+		found, err := testGetEventrouterRuleByID(config, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("Event Router rule not found")
+		}
+
+		*rule = *found
+		return nil
+	}
+}
+
+func testGetEventrouterRuleByID(config *providerconfig.Config, ID string) (*eventrouter.Rule, error) {
+	req := eventrouter.GetRuleRequest{
+		RuleId: ID,
+	}
+
+	client := eventroutersdk.NewRuleClient(config.SDK)
+
+	return client.Get(context.Background(), &req)
+}
+
+func testYandexEventrouterRuleContainsLabel(rule *eventrouter.Rule, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := rule.Labels[key]
+		if !ok {
+			return fmt.Errorf("Expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
+func testYandexEventrouterRuleYmq(name, desc, labelKey, labelValue, queueName string) string {
+	tmpl := template.Must(template.New("tf").Parse(`
+resource "yandex_serverless_eventrouter_bus" "test-bus" {
+  name        = "{{.name}}"
+}
+
+resource "yandex_iam_service_account" "test-account" {
+  name = "{{.name}}-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test-account" {
+  folder_id   = "{{.folder_id}}"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_iam_service_account_static_access_key" "test_sa_key" {
+  service_account_id = yandex_iam_service_account.test-account.id
+  depends_on = [yandex_resourcemanager_folder_iam_member.test-account]
+}
+
+resource "yandex_message_queue" "test_queue" {
+  name = "{{.queue_name}}-queue"
+  access_key = yandex_iam_service_account_static_access_key.test_sa_key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.test_sa_key.secret_key
+  depends_on = [yandex_resourcemanager_folder_iam_member.test-account]
+}
+
+resource "yandex_serverless_eventrouter_rule" "test-rule" {
+  bus_id      = yandex_serverless_eventrouter_bus.test-bus.id
+  name        = "{{.name}}"
+  description = "{{.description}}"
+  labels = {
+    {{.label_key}}          = "{{.label_value}}"
+    empty-label = ""
+  }
+  ymq {
+	queue_arn          = yandex_message_queue.test_queue.arn
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+  depends_on = [
+    yandex_serverless_eventrouter_bus.test-bus,
+    yandex_resourcemanager_folder_iam_member.test-account
+  ]
+}
+`))
+	buf := &bytes.Buffer{}
+	_ = tmpl.Execute(buf, map[string]interface{}{
+		"folder_id":   acceptanceenv.FolderID(),
+		"name":        name,
+		"description": desc,
+		"label_key":   labelKey,
+		"label_value": labelValue,
+		"queue_name":  queueName,
+	})
+	return buf.String()
+}
+
+func testYandexEventrouterRuleYds(name, desc, labelKey, labelValue string) string {
+	tmpl := template.Must(template.New("tf").Parse(`
+resource "yandex_serverless_eventrouter_bus" "test-bus" {
+  name        = "{{.name}}"
+}
+
+resource "yandex_iam_service_account" "test-account" {
+  name = "{{.name}}-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test-account" {
+  folder_id   = "{{.folder_id}}"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_ydb_database_serverless" "test-database" {
+  name        = "{{.name}}-ydb-serverless"
+  location_id = "ru-central1"
+  sleep_after = 180
+}
+
+resource "yandex_ydb_topic" "test-topic" {
+  database_endpoint = yandex_ydb_database_serverless.test-database.ydb_full_endpoint
+  name              = "{{.name}}-topic"
+
+  partitions_count  = 1
+  consumer {
+    name = "{{.name}}-consumer"
+  }
+  depends_on = [yandex_ydb_database_serverless.test-database]
+}
+
+resource "yandex_serverless_eventrouter_rule" "test-rule" {
+  bus_id      = yandex_serverless_eventrouter_bus.test-bus.id
+  name        = "{{.name}}"
+  description = "{{.description}}"
+  labels = {
+    {{.label_key}}          = "{{.label_value}}"
+    empty-label = ""
+  }
+  yds {
+    database           = yandex_ydb_database_serverless.test-database.database_path
+    stream_name        = yandex_ydb_topic.test-topic.name
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+  depends_on = [
+    yandex_serverless_eventrouter_bus.test-bus,
+    yandex_resourcemanager_folder_iam_member.test-account,
+    yandex_ydb_topic.test-topic
+  ]
+}
+`))
+	buf := &bytes.Buffer{}
+	_ = tmpl.Execute(buf, map[string]interface{}{
+		"folder_id":   acceptanceenv.FolderID(),
+		"cloud_id":    acceptanceenv.CloudID(),
+		"name":        name,
+		"description": desc,
+		"label_key":   labelKey,
+		"label_value": labelValue,
+	})
+	return buf.String()
+}
+
+func testYandexEventrouterRuleFunction(name, desc, labelKey, labelValue string) string {
+	tmpl := template.Must(template.New("tf").Parse(`
+resource "yandex_serverless_eventrouter_bus" "test-bus" {
+  name        = "{{.name}}"
+}
+
+resource "yandex_iam_service_account" "test-account" {
+  name = "{{.name}}-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test-account" {
+  folder_id   = "{{.folder_id}}"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "{{.name}}-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  execution_timeout = "3"
+  content {
+    zip_filename = "../../../../test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
+  depends_on         = [yandex_resourcemanager_folder_iam_member.test-account]
+}
+
+resource "yandex_serverless_eventrouter_rule" "test-rule" {
+  bus_id      = yandex_serverless_eventrouter_bus.test-bus.id
+  name        = "{{.name}}"
+  description = "{{.description}}"
+  labels = {
+    {{.label_key}}          = "{{.label_value}}"
+    empty-label = ""
+  }
+  function {
+    function_id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+  depends_on = [
+    yandex_serverless_eventrouter_bus.test-bus,
+    yandex_resourcemanager_folder_iam_member.test-account,
+    yandex_function.tf-test
+  ]
+}
+`))
+	buf := &bytes.Buffer{}
+	_ = tmpl.Execute(buf, map[string]interface{}{
+		"folder_id":   acceptanceenv.FolderID(),
+		"name":        name,
+		"description": desc,
+		"label_key":   labelKey,
+		"label_value": labelValue,
+	})
+	return buf.String()
+}
+
+func testYandexEventrouterRuleContainer(name, desc, labelKey, labelValue string) string {
+	tmpl := template.Must(template.New("tf").Parse(`
+resource "yandex_serverless_eventrouter_bus" "test-bus" {
+  name        = "{{.name}}"
+}
+
+resource "yandex_iam_service_account" "test-account" {
+  name = "{{.name}}-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test-account" {
+  folder_id   = "{{.folder_id}}"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_serverless_container" "tf-test" {
+  name       = "{{.name}}-container"
+  service_account_id = yandex_iam_service_account.test-account.id
+  memory = 128
+  image {
+    url = "{{.container_url}}"
+  }
+}
+
+resource "yandex_serverless_eventrouter_rule" "test-rule" {
+  bus_id      = yandex_serverless_eventrouter_bus.test-bus.id
+  name        = "{{.name}}"
+  description = "{{.description}}"
+  labels = {
+    {{.label_key}}          = "{{.label_value}}"
+    empty-label = ""
+  }
+  container {
+    container_id                 = yandex_serverless_container.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+  depends_on = [
+    yandex_serverless_eventrouter_bus.test-bus,
+    yandex_resourcemanager_folder_iam_member.test-account,
+    yandex_serverless_container.tf-test
+  ]
+}
+`))
+	buf := &bytes.Buffer{}
+	_ = tmpl.Execute(buf, map[string]interface{}{
+		"folder_id":     acceptanceenv.FolderID(),
+		"name":          name,
+		"description":   desc,
+		"label_key":     labelKey,
+		"label_value":   labelValue,
+		"container_url": containerfixtures.DemoImage,
+	})
+	return buf.String()
+}
+
+func testYandexEventrouterRuleGatewayWsBroadcast(name, desc, labelKey, labelValue string) string {
+	tmpl := template.Must(template.New("tf").Parse(`
+resource "yandex_serverless_eventrouter_bus" "test-bus" {
+  name        = "{{.name}}"
+}
+
+resource "yandex_iam_service_account" "test-account" {
+  name = "{{.name}}-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test-account" {
+  folder_id   = "{{.folder_id}}"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "api-gateway.websocketBroadcaster"
+  sleep_after = 30
+}
+
+resource "yandex_api_gateway" "tf-test" {
+  name        = "{{.name}}-gateway"
+  spec = <<EOF
+{{.spec}}EOF
+}
+
+resource "yandex_serverless_eventrouter_rule" "test-rule" {
+  bus_id      = yandex_serverless_eventrouter_bus.test-bus.id
+  name        = "{{.name}}"
+  description = "{{.description}}"
+  labels = {
+    {{.label_key}}          = "{{.label_value}}"
+    empty-label = ""
+  }
+  gateway_websocket_broadcast {
+    gateway_id         = yandex_api_gateway.tf-test.id
+    path               = "/test-path"
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+  depends_on = [
+    yandex_serverless_eventrouter_bus.test-bus,
+    yandex_resourcemanager_folder_iam_member.test-account,
+    yandex_api_gateway.tf-test
+  ]
+}
+`))
+	buf := &bytes.Buffer{}
+	_ = tmpl.Execute(buf, map[string]interface{}{
+		"folder_id":   acceptanceenv.FolderID(),
+		"name":        name,
+		"description": desc,
+		"label_key":   labelKey,
+		"label_value": labelValue,
+		"spec":        apifixtures.Spec,
+	})
+	return buf.String()
+}
+
+func testYandexEventrouterRuleLogging(name, desc, labelKey, labelValue string) string {
+	tmpl := template.Must(template.New("tf").Parse(`
+resource "yandex_serverless_eventrouter_bus" "test-bus" {
+  name        = "{{.name}}"
+}
+
+resource "yandex_iam_service_account" "test-account" {
+  name = "{{.name}}-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test-account" {
+  folder_id   = "{{.folder_id}}"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_logging_group" "test-logging-group" {
+  name = "{{.name}}-logging-group"
+}
+
+resource "yandex_serverless_eventrouter_rule" "test-rule" {
+  bus_id      = yandex_serverless_eventrouter_bus.test-bus.id
+  name        = "{{.name}}"
+  description = "{{.description}}"
+  labels = {
+    {{.label_key}}          = "{{.label_value}}"
+    empty-label = ""
+  }
+  logging {
+    folder_id = "{{.folder_id}}"
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+  depends_on = [
+    yandex_serverless_eventrouter_bus.test-bus,
+    yandex_resourcemanager_folder_iam_member.test-account,
+    yandex_logging_group.test-logging-group
+  ]
+}
+`))
+	buf := &bytes.Buffer{}
+	_ = tmpl.Execute(buf, map[string]interface{}{
+		"folder_id":   acceptanceenv.FolderID(),
+		"name":        name,
+		"description": desc,
+		"label_key":   labelKey,
+		"label_value": labelValue,
+	})
+	return buf.String()
+}
+
+func testYandexEventrouterRuleWorkflow(name, desc, labelKey, labelValue string) string {
+	tmpl := template.Must(template.New("tf").Parse(`
+resource "yandex_serverless_eventrouter_bus" "test-bus" {
+  name        = "{{.name}}"
+}
+
+resource "yandex_iam_service_account" "test-account" {
+  name = "{{.name}}-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test-account" {
+  folder_id   = "{{.folder_id}}"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_serverless_workflow" "test-workflow" {
+  name = "{{.name}}-workflow"
+}
+
+resource "yandex_serverless_eventrouter_rule" "test-rule" {
+  bus_id      = yandex_serverless_eventrouter_bus.test-bus.id
+  name        = "{{.name}}"
+  description = "{{.description}}"
+  labels = {
+    {{.label_key}}          = "{{.label_value}}"
+    empty-label = ""
+  }
+  workflow {
+    workflow_id = yandex_serverless_workflow.test-workflow.id
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+  depends_on = [
+    yandex_serverless_eventrouter_bus.test-bus,
+    yandex_resourcemanager_folder_iam_member.test-account,
+    yandex_serverless_workflow.test-workflow
+  ]
+}
+`))
+	buf := &bytes.Buffer{}
+	_ = tmpl.Execute(buf, map[string]interface{}{
+		"folder_id":   acceptanceenv.FolderID(),
+		"name":        name,
+		"description": desc,
+		"label_key":   labelKey,
+		"label_value": labelValue,
+	})
+	return buf.String()
+}

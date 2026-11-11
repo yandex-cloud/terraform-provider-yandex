@@ -1,0 +1,207 @@
+package pluginsdk
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/workload/oidc"
+	sdkresolversv2 "github.com/yandex-cloud/go-sdk/v2/pkg/sdkresolvers"
+	oidcsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1/workload/oidc"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+)
+
+func DataSourceYandexIAMWorkloadIdentityOidcFederation() *schema.Resource {
+	return &schema.Resource{
+		ReadContext: dataSourceYandexIAMWorkloadIdentityOidcFederationRead,
+
+		Description: "Get information about a [Yandex Cloud IAM workload identity OIDC federation](https://yandex.cloud/docs/iam/concepts/workload-identity).",
+
+		SchemaVersion: 1,
+
+		Schema: map[string]*schema.Schema{
+			"federation_id": {
+				Type:          schema.TypeString,
+				Computed:      true,
+				Optional:      true,
+				ConflictsWith: []string{"name"},
+				Description:   "Id of the OIDC workload identity federation.",
+			},
+
+			"folder_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Id of the folder that the OIDC workload identity federation belongs to.",
+			},
+
+			"name": {
+				Type:          schema.TypeString,
+				Computed:      true,
+				Optional:      true,
+				ConflictsWith: []string{"federation_id"},
+				Description:   "Name of the OIDC workload identity federation. The name is unique within the folder.",
+			},
+
+			"description": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Description of the OIDC workload identity federation.",
+			},
+
+			"enabled": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Enabled flag.",
+			},
+
+			"audiences": {
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Computed:    true,
+				Description: "List of trusted values for aud claim.",
+			},
+
+			"issuer": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Issuer identifier of the external IdP server to be used for authentication.",
+			},
+
+			"jwks_url": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "URL reference to trusted keys in format of JSON Web Key Set.",
+			},
+
+			"labels": {
+				Type: schema.TypeMap,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set:         schema.HashString,
+				Computed:    true,
+				Description: "Resource labels as key-value pairs.",
+			},
+
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Creation timestamp.",
+			},
+		},
+	}
+}
+
+func dataSourceYandexIAMWorkloadIdentityOidcFederationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*providerconfig.Config)
+
+	err := sdkcommon.CheckOneOf(d, "federation_id", "name")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	federationID := d.Get("federation_id").(string)
+	_, federationNameOk := d.GetOk("name")
+
+	if federationNameOk {
+		federationID, err = resolveWorkloadIdentityOidcFederationID(ctx, config, d)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("failed to resolve workload identity federation by name: %v", err))
+		}
+	}
+
+	req := &oidc.GetFederationRequest{
+		FederationId: federationID,
+	}
+
+	client := oidcsdk.NewFederationClient(config.SDK)
+
+	resp, err := client.Get(ctx, req)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	d.SetId(resp.Id)
+
+	if err := d.Set("federation_id", resp.GetId()); err != nil {
+		log.Printf("[ERROR] failed set field federation_id: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("folder_id", resp.GetFolderId()); err != nil {
+		log.Printf("[ERROR] failed set field folder_id: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("name", resp.GetName()); err != nil {
+		log.Printf("[ERROR] failed set field name: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("description", resp.GetDescription()); err != nil {
+		log.Printf("[ERROR] failed set field description: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("enabled", resp.GetEnabled()); err != nil {
+		log.Printf("[ERROR] failed set field enabled: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("audiences", resp.GetAudiences()); err != nil {
+		log.Printf("[ERROR] failed set field audiences: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("issuer", resp.GetIssuer()); err != nil {
+		log.Printf("[ERROR] failed set field issuer: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("jwks_url", resp.GetJwksUrl()); err != nil {
+		log.Printf("[ERROR] failed set field jwks_url: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("labels", resp.GetLabels()); err != nil {
+		log.Printf("[ERROR] failed set field labels: %s", err)
+		return diag.FromErr(err)
+	}
+	if err := d.Set("created_at", sdkcommon.GetTimestamp(resp.GetCreatedAt())); err != nil {
+		log.Printf("[ERROR] failed set field created_at: %s", err)
+		return diag.FromErr(err)
+	}
+
+	return nil
+}
+
+func resolveWorkloadIdentityOidcFederationID(ctx context.Context, config *providerconfig.Config, d *schema.ResourceData) (string, error) {
+	name := d.Get("name").(string)
+	folderID, err := sdkcommon.GetFolderID(d, config)
+	if err != nil {
+		return "", err
+	}
+	client := oidcsdk.NewFederationClient(config.SDK)
+
+	var federations []*oidc.Federation
+	pageToken := ""
+	for {
+		resp, err := client.List(ctx, &oidc.ListFederationsRequest{
+			FolderId:  folderID,
+			PageSize:  sdkcommon.DefaultListSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return "", err
+		}
+		federations = append(federations, resp.Federations...)
+		pageToken = resp.NextPageToken
+		if pageToken == "" {
+			break
+		}
+	}
+
+	resolver := sdkresolversv2.NewBaseNameResolver(name, "workload identity OIDC federation")
+	if err := resolver.FindName(federations, nil); err != nil {
+		return "", err
+	}
+	return resolver.ID(), nil
+}

@@ -1,0 +1,284 @@
+package acceptance
+
+import (
+	"fmt"
+	"testing"
+
+	statecheck "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance/statecheck"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
+)
+
+func TestAccDataSourceMDBGreenplumCluster_byID(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	greenplumName := acctest.RandomWithPrefix("ds-greenplum-by-id")
+	greenplumDescription := "Greenplum Cluster Terraform Datasource Test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckMDBGreenplumClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMDBGreenplumClusterConfig(greenplumName, greenplumDescription, true),
+				Check: testAccDataSourceMDBGreenplumClusterCheck(
+					"data.yandex_mdb_greenplum_cluster.bar",
+					"yandex_mdb_greenplum_cluster.foo", greenplumName, greenplumDescription),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceMDBGreenplumCluster_byName(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	greenplumName := acctest.RandomWithPrefix("ds-greenplum-by-name")
+	greenplumDesc := "Greenplum Cluster Terraform Datasource Test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckMDBGreenplumClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMDBGreenplumClusterConfig(greenplumName, greenplumDesc, false),
+				Check: testAccDataSourceMDBGreenplumClusterCheck(
+					"data.yandex_mdb_greenplum_cluster.bar",
+					"yandex_mdb_greenplum_cluster.foo", greenplumName, greenplumDesc),
+			},
+		},
+	})
+}
+
+func testAccDataSourceMDBGreenplumClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ds, ok := s.RootModule().Resources[datasourceName]
+		if !ok {
+			return fmt.Errorf("root module has no resource called %s", datasourceName)
+		}
+
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		if ds.Primary.ID != rs.Primary.ID {
+			return fmt.Errorf("instance `data source` ID does not match `resource` ID: %s and %s", ds.Primary.ID, rs.Primary.ID)
+		}
+
+		datasourceAttributes := ds.Primary.Attributes
+		resourceAttributes := rs.Primary.Attributes
+
+		instanceAttrsToTest := []struct {
+			dataSourcePath string
+			resourcePath   string
+		}{
+			{
+				"name",
+				"name",
+			},
+			{
+				"folder_id",
+				"folder_id",
+			},
+			{
+				"network_id",
+				"network_id",
+			},
+			{
+				"created_at",
+				"created_at",
+			},
+			{
+				"description",
+				"description",
+			},
+			{
+				"labels.%",
+				"labels.%",
+			},
+			{
+				"labels.test_key_create",
+				"labels.test_key_create",
+			},
+			{
+				"environment",
+				"environment",
+			},
+			{
+				"service_account_id",
+				"service_account_id",
+			},
+			{
+				"logging.0.enabled",
+				"logging.0.enabled",
+			},
+			{
+				"logging.0.folder_id",
+				"logging.0.folder_id",
+			},
+			{
+				"logging.0.command_center_enabled",
+				"logging.0.command_center_enabled",
+			},
+			{
+				"logging.0.greenplum_enabled",
+				"logging.0.greenplum_enabled",
+			},
+			{
+				"logging.0.pooler_enabled",
+				"logging.0.pooler_enabled",
+			},
+			{
+				"master_subcluster.0.resources.0.disk_size",
+				"master_subcluster.0.resources.0.disk_size",
+			},
+			{
+				"master_subcluster.0.resources.0.disk_type_id",
+				"master_subcluster.0.resources.0.disk_type_id",
+			},
+			{
+				"master_subcluster.0.resources.0.resource_preset_id",
+				"master_subcluster.0.resources.0.resource_preset_id",
+			},
+			{
+				"version",
+				"version",
+			},
+			{
+				"deletion_protection",
+				"deletion_protection",
+			},
+			{
+				"pooler_config.0.pooling_mode",
+				"pooler_config.0.pooling_mode",
+			},
+			{
+				"pooler_config.0.pool_size",
+				"pooler_config.0.pool_size",
+			},
+			{
+				"pooler_config.0.pool_client_idle_timeout",
+				"pooler_config.0.pool_client_idle_timeout",
+			},
+			{
+				"pooler_config.0.pool_idle_in_transaction_timeout",
+				"pooler_config.0.pool_idle_in_transaction_timeout",
+			},
+			{
+				"access.#",
+				"access.#",
+			},
+			{
+				"access.0.data_lens",
+				"access.0.data_lens",
+			},
+			{
+				"access.0.trino",
+				"access.0.trino",
+			},
+			{
+				"cloud_storage.0.enable",
+				"cloud_storage.0.enable",
+			},
+			{
+				"pxf_config.0.connection_timeout",
+				"pxf_config.0.connection_timeout",
+			},
+			{
+				"pxf_config.0.upload_timeout",
+				"pxf_config.0.upload_timeout",
+			},
+			{
+				"pxf_config.0.max_threads",
+				"pxf_config.0.max_threads",
+			},
+			{
+				"pxf_config.0.pool_allow_core_thread_timeout",
+				"pxf_config.0.pool_allow_core_thread_timeout",
+			},
+			{
+				"pxf_config.0.pool_core_size",
+				"pxf_config.0.pool_core_size",
+			},
+			{
+				"pxf_config.0.pool_queue_capacity",
+				"pxf_config.0.pool_queue_capacity",
+			},
+			{
+				"pxf_config.0.pool_max_size",
+				"pxf_config.0.pool_max_size",
+			},
+			{
+				"pxf_config.0.xmx",
+				"pxf_config.0.xmx",
+			},
+			{
+				"pxf_config.0.xms",
+				"pxf_config.0.xms",
+			},
+		}
+
+		for _, attrToCheck := range instanceAttrsToTest {
+			if _, ok := datasourceAttributes[attrToCheck.dataSourcePath]; !ok {
+				return fmt.Errorf("%s is not present in data source attributes", attrToCheck.dataSourcePath)
+			}
+			if _, ok := resourceAttributes[attrToCheck.resourcePath]; !ok {
+				return fmt.Errorf("%s is not present in resource attributes", attrToCheck.resourcePath)
+			}
+			if datasourceAttributes[attrToCheck.dataSourcePath] != resourceAttributes[attrToCheck.resourcePath] {
+				return fmt.Errorf(
+					"%s is %s; want %s",
+					attrToCheck.dataSourcePath,
+					datasourceAttributes[attrToCheck.dataSourcePath],
+					resourceAttributes[attrToCheck.resourcePath],
+				)
+			}
+		}
+
+		return nil
+	}
+}
+
+func testAccDataSourceMDBGreenplumClusterCheck(datasourceName string, resourceName string, greenplumName string, desc string) resource.TestCheckFunc {
+	folderID := acceptance.FolderID()
+	env := "PRESTABLE"
+
+	return resource.ComposeTestCheckFunc(
+		testAccDataSourceMDBGreenplumClusterAttributesCheck(datasourceName, resourceName),
+		statecheck.CheckResourceIDField(datasourceName, "cluster_id"),
+		resource.TestCheckResourceAttr(datasourceName, "name", greenplumName),
+		resource.TestCheckResourceAttr(datasourceName, "folder_id", folderID),
+		resource.TestCheckResourceAttr(datasourceName, "description", desc),
+		resource.TestCheckResourceAttr(datasourceName, "environment", env),
+		resource.TestCheckResourceAttr(datasourceName, "labels.test_key_create", "test_value_create"),
+		statecheck.CheckCreatedAtAttr(datasourceName),
+		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
+	)
+}
+
+const mdbGreenplumClusterByIDConfig = `
+data "yandex_mdb_greenplum_cluster" "bar" {
+  cluster_id = "${yandex_mdb_greenplum_cluster.foo.id}"
+}
+`
+
+const mdbGreenplumClusterByNameConfig = `
+data "yandex_mdb_greenplum_cluster" "bar" {
+  name = "${yandex_mdb_greenplum_cluster.foo.name}"
+}
+`
+
+func testAccDataSourceMDBGreenplumClusterConfig(greenplumName, greenplumDescription string, useDataID bool) string {
+	if useDataID {
+		return testAccMDBGreenplumClusterConfigStep1(greenplumName, greenplumDescription) + mdbGreenplumClusterByIDConfig
+	}
+
+	return testAccMDBGreenplumClusterConfigStep1(greenplumName, greenplumDescription) + mdbGreenplumClusterByNameConfig
+}

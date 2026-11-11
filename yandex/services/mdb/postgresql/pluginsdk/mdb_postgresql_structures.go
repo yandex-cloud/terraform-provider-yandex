@@ -1,0 +1,2393 @@
+package pluginsdk
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
+	"maps"
+	"reflect"
+	"sort"
+	"strings"
+
+	wrappers "github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/stretchr/objx"
+	"google.golang.org/protobuf/types/known/wrapperspb"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
+	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+)
+
+type PostgreSQLHostSpec struct {
+	HostSpec *postgresql.HostSpec
+	Fqdn     string
+}
+
+type PGAuditSettings struct {
+	Log []string `json:"log"`
+}
+
+func flattenPGClusterConfig(d *schema.ResourceData, c *postgresql.ClusterConfig) ([]interface{}, error) {
+	settings, err := flattenPGSettings(c)
+	if err != nil {
+		return nil, err
+	}
+
+	out := map[string]interface{}{}
+	out["version"] = c.Version
+	out["pooler_config"] = flattenPGPoolerConfig(d, c.PoolerConfig)
+	out["resources"] = flattenPGResources(c.Resources)
+	out["backup_window_start"] = sdkcommon.FlattenMDBBackupWindowStart(c.BackupWindowStart)
+	out["backup_retain_period_days"] = c.BackupRetainPeriodDays.GetValue()
+	out["performance_diagnostics"] = FlattenPGPerformanceDiagnostics(c.PerformanceDiagnostics)
+	out["disk_size_autoscaling"] = flattenPGDiskSizeAutoscaling(c.DiskSizeAutoscaling)
+	out["access"] = flattenPGAccess(c.Access)
+	out["postgresql_config"] = settings
+	out["connection_manager"] = mdbcommon.FlattenClusterConnectionManager(c.ConnectionManager)
+	out["managed_repack"] = flattenPGManagedRepack(c.ManagedRepack)
+
+	return []interface{}{out}, nil
+}
+
+func flattenPGPoolerConfig(d *schema.ResourceData, c *postgresql.ConnectionPoolerConfig) []interface{} {
+	if c == nil {
+		return nil
+	}
+
+	out := map[string]interface{}{}
+	if _, ok := d.GetOk("config.0.pooler_config.0.pool_discard"); ok {
+		out["pool_discard"] = c.GetPoolDiscard().GetValue()
+	}
+
+	if _, ok := d.GetOk("config.0.pooler_config.0.pooler_pool_discard"); ok {
+		out["pooler_pool_discard"] = mdbPGResolveTristateBoolean(c.GetPoolDiscard())
+	}
+	out["pooling_mode"] = c.GetPoolingMode().String()
+
+	return []interface{}{out}
+}
+
+func flattenPGResources(r *postgresql.Resources) []interface{} {
+	out := map[string]interface{}{}
+	out["resource_preset_id"] = r.ResourcePresetId
+	out["disk_size"] = sdkcommon.ToGigabytes(r.DiskSize)
+	out["disk_type_id"] = r.DiskTypeId
+
+	return []interface{}{out}
+}
+
+func FlattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) []any {
+	if p == nil {
+		return nil
+	}
+
+	out := map[string]any{}
+
+	out["enabled"] = p.Enabled
+	out["advanced_mode"] = p.AdvancedMode
+	out["sessions_sampling_interval"] = int(p.SessionsSamplingInterval)
+	out["statements_sampling_interval"] = int(p.StatementsSamplingInterval)
+
+	return []any{out}
+}
+
+func flattenPGManagedRepack(p *postgresql.ManagedRepack) []interface{} {
+	if p == nil {
+		return nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["enabled"] = p.GetEnabled().GetValue()
+
+	return []interface{}{out}
+}
+
+func flattenPGDiskSizeAutoscaling(p *postgresql.DiskSizeAutoscaling) []interface{} {
+	if p == nil {
+		return nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["disk_size_limit"] = sdkcommon.ToGigabytes(p.DiskSizeLimit)
+	out["planned_usage_threshold"] = int(p.PlannedUsageThreshold)
+	out["emergency_usage_threshold"] = int(p.EmergencyUsageThreshold)
+
+	return []interface{}{out}
+}
+
+func flattenPGSettingsSPL(settings map[string]string, fieldsInfo *sdkcommon.ObjectFieldsInfo, c *postgresql.ClusterConfig) map[string]string {
+	splEnums := convertPGSPLtoInts(c)
+	spl, _ := fieldsInfo.IntSliceToString("shared_preload_libraries", splEnums)
+	if settings == nil {
+		settings = make(map[string]string)
+	}
+	settings["shared_preload_libraries"] = spl
+	return settings
+}
+
+func convertPGSPLtoInts(c *postgresql.ClusterConfig) []int32 {
+	out := []int32{}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_19); ok {
+		for _, v := range cf.PostgresqlConfig_19.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_19_1C); ok {
+		for _, v := range cf.PostgresqlConfig_19_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_18); ok {
+		for _, v := range cf.PostgresqlConfig_18.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_18_1C); ok {
+		for _, v := range cf.PostgresqlConfig_18_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_17); ok {
+		for _, v := range cf.PostgresqlConfig_17.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_17_1C); ok {
+		for _, v := range cf.PostgresqlConfig_17_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_16); ok {
+		for _, v := range cf.PostgresqlConfig_16.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_16_1C); ok {
+		for _, v := range cf.PostgresqlConfig_16_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15); ok {
+		for _, v := range cf.PostgresqlConfig_15.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15_1C); ok {
+		for _, v := range cf.PostgresqlConfig_15_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14); ok {
+		for _, v := range cf.PostgresqlConfig_14.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14_1C); ok {
+		for _, v := range cf.PostgresqlConfig_14_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	return out
+}
+
+func flattenPGSettings(c *postgresql.ClusterConfig) (map[string]string, error) {
+	// TODO refactor it using generics
+	settingsFieldsInfo, err := GetMdbPGSettingsFieldsInfo(c.Version)
+	if err != nil {
+		return nil, err
+	}
+
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_19); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_19.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_19_1C); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_19_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_18); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_18.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_18_1C); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_18_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_17); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_17.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_17_1C); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_17_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_16); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_16.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_16_1C); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_16_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_15.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15_1C); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_15_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_14.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14_1C); ok {
+		settings, err := sdkcommon.FlattenResourceGenerateMapS(cf.PostgresqlConfig_14_1C.UserConfig, false, settingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, settingsFieldsInfo, c)
+		return settings, nil
+	}
+
+	return nil, nil
+}
+
+func flattenPGAccess(a *postgresql.Access) []interface{} {
+	if a == nil {
+		return nil
+	}
+
+	out := map[string]interface{}{}
+	out["data_lens"] = a.DataLens
+	out["web_sql"] = a.WebSql
+	out["serverless"] = a.Serverless
+	out["data_transfer"] = a.DataTransfer
+	out["yandex_query"] = a.YandexQuery
+
+	return []interface{}{out}
+}
+
+func flattenPGUsers(us []*postgresql.User, passwords map[string]string,
+	fieldsInfo *sdkcommon.ObjectFieldsInfo) ([]map[string]interface{}, error) {
+
+	out := make([]map[string]interface{}, 0)
+
+	for _, u := range us {
+		knownDefault := map[string]struct{}{
+			"log_min_duration_statement": {},
+		}
+		ou, err := flattenPGUser(u, fieldsInfo, knownDefault)
+		if err != nil {
+			return nil, err
+		}
+
+		if v, ok := passwords[u.Name]; ok {
+			ou["password"] = v
+		}
+
+		out = append(out, ou)
+	}
+
+	return out, nil
+}
+
+func flattenPGUser(u *postgresql.User,
+	fieldsInfo *sdkcommon.ObjectFieldsInfo, knownDefault map[string]struct{}) (map[string]interface{}, error) {
+	settings, err := sdkcommon.FlattenResourceGenerateMapS(u.Settings, false, fieldsInfo, false, true, knownDefault)
+	if err != nil {
+		return nil, err
+	}
+	m := map[string]interface{}{}
+	m["name"] = u.Name
+	m["login"] = u.GetLogin().GetValue()
+	m["permission"] = flattenPGUserPermissions(u.Permissions)
+	m["grants"] = u.Grants
+	m["conn_limit"] = u.ConnLimit
+	m["settings"] = settings
+
+	return m, nil
+}
+
+func pgUsersPasswords(users []*postgresql.UserSpec) map[string]string {
+	out := map[string]string{}
+	for _, u := range users {
+		out[u.Name] = u.Password
+	}
+	return out
+}
+
+func pgUserPermissionHash(v interface{}) int {
+	m := v.(map[string]interface{})
+
+	if n, ok := m["database_name"]; ok {
+		return hashcode.String(n.(string))
+	}
+	return 0
+}
+
+func flattenPGUserPermissions(ps []*postgresql.Permission) *schema.Set {
+	out := schema.NewSet(pgUserPermissionHash, nil)
+
+	for _, p := range ps {
+		op := map[string]interface{}{
+			"database_name": p.DatabaseName,
+		}
+
+		out.Add(op)
+	}
+
+	return out
+}
+
+// flattenPGUserConnectionManager produces the legacy (deprecated) connection_manager
+// attribute on the user resource. The API guarantees that UserConnectionManager.ConnectionId
+// is populated for the same set of users for which the legacy ConnectionManager.ConnectionId
+// used to be populated, so reading it from the new field is safe and does not require a
+// fallback to apiUser.ConnectionManager.
+func flattenPGUserConnectionManager(ucm *mdbv1.UserConnectionManager) map[string]string {
+	if ucm == nil {
+		return nil
+	}
+	return map[string]string{"connection_id": ucm.ConnectionId}
+}
+
+func flattenPGUserPgAudit(userSettings *postgresql.UserSettings) (string, error) {
+	if userSettings == nil || userSettings.Pgaudit == nil || userSettings.Pgaudit.Log == nil || len(userSettings.Pgaudit.Log) == 0 {
+		return "", nil
+	}
+
+	pgAuditLogSettings := make([]string, 0)
+	for _, log := range userSettings.Pgaudit.Log {
+		pgAuditLogSettings = append(pgAuditLogSettings, mdbPGUserSettingsPgauditEnumToStringMap[log])
+	}
+
+	pgAuditJson, err := json.Marshal(map[string]any{"log": pgAuditLogSettings})
+	if err != nil {
+		return "", err
+	}
+
+	return string(pgAuditJson), nil
+}
+
+type PgHostInfo struct {
+	name string
+	fqdn string
+
+	zone     string
+	subnetID string
+
+	role postgresql.Host_Role
+
+	oldAssignPublicIP        bool
+	oldReplicationSource     string
+	oldReplicationSourceName string
+	oldPriority              int64
+
+	newAssignPublicIP        bool
+	newReplicationSource     string
+	newReplicationSourceName string
+	newPriority              int64
+
+	inTargetSet bool
+
+	rowNumber int
+}
+
+func loadNewHosts(newHosts []any) ([]*PgHostInfo, error) {
+	hostsInfo := make([]*PgHostInfo, 0)
+	for i, newHostInfo := range newHosts {
+		hni := objx.New(newHostInfo)
+		if hni == nil {
+			return nil, fmt.Errorf("PostgreSQL.host: failed to read hosts info %v", hostsInfo)
+		}
+
+		hostsInfo = append(hostsInfo, &PgHostInfo{
+			name:                     hni.Get("name").Str(),
+			zone:                     hni.Get("zone").Str(),
+			subnetID:                 hni.Get("subnet_id").Str(),
+			newAssignPublicIP:        hni.Get("assign_public_ip").Bool(),
+			newReplicationSourceName: hni.Get("replication_source_name").Str(),
+			newPriority:              int64(hni.Get("priority").Int()),
+			rowNumber:                i,
+			inTargetSet:              true,
+		})
+	}
+	return hostsInfo, nil
+}
+
+func ComparePGNamedHostInfo(existsHostInfo *PgHostInfo, newHostInfo *PgHostInfo, currentNameToHost map[string]string) int {
+	if existsHostInfo.name == newHostInfo.name {
+		return 10
+	}
+	if existsHostInfo.name != "" {
+		return 0
+	}
+
+	if existsHostInfo.zone != newHostInfo.zone ||
+		existsHostInfo.subnetID != newHostInfo.subnetID && newHostInfo.subnetID != "" {
+		return 0
+	}
+
+	compareWeight := 1
+
+	if newHostInfo.newReplicationSourceName != "" {
+		if fqdn, ok := currentNameToHost[newHostInfo.newReplicationSourceName]; ok && existsHostInfo.oldReplicationSource == fqdn {
+			compareWeight += 4
+		}
+	}
+
+	if existsHostInfo.oldAssignPublicIP == newHostInfo.newAssignPublicIP {
+		compareWeight++
+	}
+
+	return compareWeight
+}
+
+func MatchesPGNoNamedHostInfo(existsHostInfo *PgHostInfo, newHostInfo *PgHostInfo) bool {
+	if existsHostInfo.zone != newHostInfo.zone ||
+		existsHostInfo.subnetID != newHostInfo.subnetID && newHostInfo.subnetID != "" {
+		return false
+	}
+
+	return true
+}
+
+func copyMapStringString(source map[string]string) map[string]string {
+	res := make(map[string]string)
+	for k, v := range source {
+		res[k] = v
+	}
+	return res
+}
+
+func comparePGNamedHostsInfoWeight(existsHostsInfo map[string]*PgHostInfo, newHostsInfo []*PgHostInfo, compareResult pgCompareHostNameResult) int {
+	weight := 0
+
+	for i, fqdn := range compareResult.compareMap {
+		weightStep := ComparePGNamedHostInfo(existsHostsInfo[fqdn], newHostsInfo[i], compareResult.nameToHost)
+		if weightStep == 0 {
+			return 0
+		}
+
+		weight += weightStep
+	}
+
+	return weight
+}
+
+type pgCompareHostNameResult struct {
+	nameToHost map[string]string
+	compareMap map[int]string
+	hostToName map[string]string
+}
+
+func generatePGNamedHostsInfoMaps(existsHostsInfo map[string]*PgHostInfo, newHostsInfo []*PgHostInfo, nameToHost map[string]string, hostToName map[string]string, compareMap map[int]string, itm int) (compareResults []pgCompareHostNameResult) {
+	compareResults = make([]pgCompareHostNameResult, 0)
+
+	if len(newHostsInfo) <= itm {
+		compareResults = append(compareResults, pgCompareHostNameResult{
+			nameToHost: nameToHost,
+			compareMap: compareMap,
+			hostToName: hostToName,
+		})
+		return compareResults
+	}
+
+	newHostInfo := newHostsInfo[itm]
+
+	if fqdn, ok := nameToHost[newHostInfo.name]; ok {
+		compareMap[itm] = fqdn
+		hostToName[fqdn] = newHostInfo.name
+		return generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, nameToHost, hostToName, compareMap, itm+1)
+	}
+
+	compareResults = append(compareResults, generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, copyMapStringString(nameToHost), copyMapStringString(hostToName), sdkcommon.CopyMapIntString(compareMap), itm+1)...)
+
+	for fqdn, existHostInfo := range existsHostsInfo {
+
+		if _, ok := hostToName[fqdn]; ok {
+			continue
+		}
+
+		weight := ComparePGNamedHostInfo(existHostInfo, newHostInfo, nameToHost)
+		if weight == 0 {
+			continue
+		}
+
+		stepNameToHost := copyMapStringString(nameToHost)
+		stepHostToName := copyMapStringString(hostToName)
+		stepCompareMap := sdkcommon.CopyMapIntString(compareMap)
+
+		stepNameToHost[newHostInfo.name] = fqdn
+		stepHostToName[fqdn] = newHostInfo.name
+		stepCompareMap[itm] = fqdn
+
+		compareResults = append(compareResults, generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, stepNameToHost, stepHostToName, stepCompareMap, itm+1)...)
+	}
+
+	return compareResults
+}
+
+func comparePGNamedHostsInfo(existsHostsInfo map[string]*PgHostInfo, nameToHost map[string]string, newHostsInfo []*PgHostInfo) (compareMap map[int]string, hostToName map[string]string) {
+	compareMap = make(map[int]string)
+	hostToName = make(map[string]string)
+
+	weight := 0
+
+	compareResults := generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, nameToHost, make(map[string]string), make(map[int]string), 0)
+
+	for _, compareResult := range compareResults {
+		stepWeight := comparePGNamedHostsInfoWeight(existsHostsInfo, newHostsInfo, compareResult)
+
+		if stepWeight > weight {
+			weight = stepWeight
+			compareMap = compareResult.compareMap
+			hostToName = compareResult.hostToName
+		}
+	}
+
+	return compareMap, hostToName
+}
+
+// row idx (in newHostsInfo) -> FQDN
+func comparePGNoNamedHostsInfo(existingHostsInfo map[string]*PgHostInfo, newHostsInfo []*PgHostInfo) map[int]string {
+	compareMap := make(map[int]string)
+	visitedHostNames := make(map[string]struct{})
+
+	for i, newHostInfo := range newHostsInfo {
+		for _, existingHostInfo := range existingHostsInfo {
+			if _, ok := visitedHostNames[existingHostInfo.fqdn]; ok {
+				continue
+			}
+			if MatchesPGNoNamedHostInfo(existingHostInfo, newHostInfo) {
+				visitedHostNames[existingHostInfo.fqdn] = struct{}{}
+				compareMap[i] = existingHostInfo.fqdn
+				break
+			}
+		}
+	}
+
+	return compareMap
+}
+
+func loadExistingHosts(currentHosts []*postgresql.Host, oldHosts []any) (map[string]*PgHostInfo, error) {
+	hostsInfo := make(map[string]*PgHostInfo)
+
+	for i, h := range currentHosts {
+		var priority int64
+		if h.Priority != nil {
+			priority = int64(h.Priority.Value)
+		}
+		hostsInfo[h.Name] = &PgHostInfo{
+			fqdn:                 h.Name,
+			zone:                 h.ZoneId,
+			subnetID:             h.SubnetId,
+			role:                 h.Role,
+			oldAssignPublicIP:    h.AssignPublicIp,
+			oldReplicationSource: h.ReplicationSource,
+			oldPriority:          priority,
+
+			rowNumber: i,
+		}
+	}
+
+	for _, hostOldInfo := range oldHosts {
+		hoi := objx.New(hostOldInfo)
+		if hoi == nil {
+			return nil, fmt.Errorf("PostgreSQL.host: failed to read hosts info %v", hostsInfo)
+		}
+
+		if !hoi.Has("fqdn") || !hoi.Has("name") {
+			continue
+		}
+		fqdn := hoi.Get("fqdn").Str()
+		name := hoi.Get("name").Str()
+
+		if hi, ok := hostsInfo[fqdn]; ok {
+			hi.name = name
+		}
+	}
+	return hostsInfo, nil
+}
+
+func validatePriority(existingHosts map[string]*PgHostInfo, newHosts []*PgHostInfo) error {
+	check := func(host *PgHostInfo) error {
+		if host.newPriority > 0 && host.name == "" {
+			return fmt.Errorf("priority can be set only when name is specified")
+		}
+		return nil
+	}
+
+	for _, host := range existingHosts {
+		if err := check(host); err != nil {
+			return err
+		}
+	}
+	for _, host := range newHosts {
+		if err := check(host); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func validateNewPGHostsInfo(newHostsInfo []*PgHostInfo, isUpdate bool) (bool, error) {
+	uniqueNames := make(map[string]struct{})
+	haveHostWithName := false
+	haveHostWithoutName := false
+
+	for _, nhi := range newHostsInfo {
+		name := nhi.name
+		if name == "" {
+			haveHostWithoutName = true
+		} else {
+			haveHostWithName = true
+			if _, ok := uniqueNames[name]; ok && isUpdate {
+				return haveHostWithName, fmt.Errorf("PostgreSQL.host: name is duplicate %v", name)
+			}
+			uniqueNames[name] = struct{}{}
+		}
+	}
+
+	if haveHostWithName && haveHostWithoutName && isUpdate {
+		return haveHostWithName, fmt.Errorf("names should be set for all hosts or unset for all host")
+	}
+
+	return haveHostWithName, nil
+}
+
+type comparePGHostsInfoResult struct {
+	hostsInfo        map[string]*PgHostInfo
+	createHostsInfo  []*PgHostInfo
+	haveHostWithName bool
+	// when hierarchyExists is true - we cannot change replication source graph in a single round
+	// because we don't know all FQDNs.
+	hierarchyExists bool
+}
+
+func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host, isUpdate bool) (*comparePGHostsInfoResult, error) {
+	existing, new := d.GetChange("host")
+
+	existingHosts, err := loadExistingHosts(currentHosts, existing.([]any))
+	if err != nil {
+		return nil, err
+	}
+
+	newHosts, err := loadNewHosts(new.([]any))
+	if err != nil {
+		return nil, err
+	}
+
+	haveHostWithName, err := validateNewPGHostsInfo(newHosts, isUpdate)
+	if err != nil {
+		return nil, err
+	}
+
+	nameToHost := getNameToHost(existingHosts)
+	if haveHostWithName {
+		return compareNamedHosts(existingHosts, newHosts, nameToHost)
+	}
+	return compareUnnamedHosts(existingHosts, newHosts, nameToHost)
+}
+
+func getNameToHost(hosts map[string]*PgHostInfo) map[string]string {
+	nameToHost := make(map[string]string)
+	for fqdn, hi := range hosts {
+		if hi.name != "" {
+			nameToHost[hi.name] = fqdn
+		}
+	}
+	return nameToHost
+}
+
+func applyNewHostInfo(exist *PgHostInfo, new *PgHostInfo) {
+	exist.name = new.name
+	exist.rowNumber = new.rowNumber
+	exist.newReplicationSourceName = new.newReplicationSourceName
+	exist.newAssignPublicIP = new.newAssignPublicIP
+	exist.inTargetSet = true
+	exist.newPriority = new.newPriority
+}
+
+func resolveNewReplicationSource(
+	exist *PgHostInfo,
+	nameToHost map[string]string,
+) {
+	if exist.newReplicationSourceName == "" {
+		exist.newReplicationSource = ""
+		return
+	}
+
+	if fqdn, ok := nameToHost[exist.newReplicationSourceName]; ok {
+		exist.newReplicationSource = fqdn
+	} else {
+		exist.newReplicationSource = exist.oldReplicationSource
+	}
+}
+
+func resolveOldReplicationSourceName(
+	exist *PgHostInfo,
+	hostToName map[string]string,
+) {
+	if exist.oldReplicationSource == "" {
+		exist.oldReplicationSourceName = ""
+		return
+	}
+
+	if name, ok := hostToName[exist.oldReplicationSource]; ok {
+		exist.oldReplicationSourceName = name
+	}
+}
+
+func prepareHostForCreate(
+	newHost *PgHostInfo,
+	nameToHost map[string]string,
+) (ready bool) {
+	if newHost.newReplicationSourceName == "" {
+		return true
+	}
+
+	if fqdn, ok := nameToHost[newHost.newReplicationSourceName]; ok {
+		newHost.newReplicationSource = fqdn
+		return true
+	}
+
+	return false
+}
+
+func compareNamedHosts(
+	existingHosts map[string]*PgHostInfo,
+	newHosts []*PgHostInfo,
+	nameToHost map[string]string,
+) (*comparePGHostsInfoResult, error) {
+	createHostsInfoPrepare := make([]*PgHostInfo, 0)
+	compareMap, hostToName := comparePGNamedHostsInfo(existingHosts, nameToHost, newHosts)
+
+	for i, newHostInfo := range newHosts {
+		if existHostFqdn, ok := compareMap[i]; ok {
+			existHostInfo := existingHosts[existHostFqdn]
+			applyNewHostInfo(existHostInfo, newHostInfo)
+			if existHostInfo.name != "" {
+				nameToHost[existHostInfo.name] = existHostInfo.fqdn
+			}
+		} else {
+			createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
+		}
+	}
+
+	for _, existHostInfo := range existingHosts {
+		resolveNewReplicationSource(existHostInfo, nameToHost)
+		resolveOldReplicationSourceName(existHostInfo, hostToName)
+	}
+
+	createHostsInfo := make([]*PgHostInfo, 0)
+	hierarchyExists := false
+
+	for _, newHostInfo := range createHostsInfoPrepare {
+		if prepareHostForCreate(newHostInfo, nameToHost) {
+			createHostsInfo = append(createHostsInfo, newHostInfo)
+		} else {
+			hierarchyExists = true
+		}
+	}
+
+	if err := validatePriority(existingHosts, createHostsInfo); err != nil {
+		return nil, err
+	}
+
+	return &comparePGHostsInfoResult{
+		haveHostWithName: true,
+		createHostsInfo:  createHostsInfo,
+		hierarchyExists:  hierarchyExists,
+		hostsInfo:        existingHosts,
+	}, nil
+}
+
+func compareUnnamedHosts(
+	existingHosts map[string]*PgHostInfo,
+	newHosts []*PgHostInfo,
+	nameToHost map[string]string,
+) (*comparePGHostsInfoResult, error) {
+	createHostsInfoPrepare := make([]*PgHostInfo, 0)
+	compareMap := comparePGNoNamedHostsInfo(existingHosts, newHosts)
+
+	for i, newHostInfo := range newHosts {
+		if existHostFqdn, ok := compareMap[i]; ok {
+			existHostInfo := existingHosts[existHostFqdn]
+			applyNewHostInfo(existHostInfo, newHostInfo)
+		} else {
+			createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
+		}
+	}
+
+	for _, existHostInfo := range existingHosts {
+		resolveNewReplicationSource(existHostInfo, nameToHost)
+		if existHostInfo.oldReplicationSource == "" {
+			existHostInfo.oldReplicationSourceName = ""
+		}
+	}
+
+	if err := validatePriority(existingHosts, createHostsInfoPrepare); err != nil {
+		return nil, err
+	}
+
+	return &comparePGHostsInfoResult{
+		haveHostWithName: false,
+		createHostsInfo:  createHostsInfoPrepare,
+		hostsInfo:        existingHosts,
+	}, nil
+}
+
+func flattenPGHostsInfo(d *schema.ResourceData, hs []*postgresql.Host) ([]*PgHostInfo, error) {
+	compareHostsInfo, err := comparePGHostsInfo(d, hs, false)
+	if err != nil {
+		return nil, err
+	}
+
+	orderedHostsInfo := make([]*PgHostInfo, 0, len(compareHostsInfo.hostsInfo))
+	for _, hostInfo := range compareHostsInfo.hostsInfo {
+		orderedHostsInfo = append(orderedHostsInfo, hostInfo)
+	}
+
+	sort.Slice(orderedHostsInfo, func(i, j int) bool {
+		if orderedHostsInfo[i].inTargetSet == orderedHostsInfo[j].inTargetSet {
+			return orderedHostsInfo[i].rowNumber < orderedHostsInfo[j].rowNumber
+		}
+		return orderedHostsInfo[i].inTargetSet
+	})
+	return orderedHostsInfo, nil
+}
+
+func getMasterHostname(orderedHostsInfo []*PgHostInfo) string {
+	for _, hostInfo := range orderedHostsInfo {
+		if hostInfo.name != "" && hostInfo.role == postgresql.Host_MASTER {
+			return hostInfo.name
+		}
+	}
+	return ""
+}
+
+func getPostgreSQLConfigFieldName(version string) (string, error) {
+	switch version {
+	case "14":
+		return "postgresql_config_14", nil
+	case "14-1c":
+		return "postgresql_config_14_1c", nil
+	case "15":
+		return "postgresql_config_15", nil
+	case "15-1c":
+		return "postgresql_config_15_1c", nil
+	case "16":
+		return "postgresql_config_16", nil
+	case "16-1c":
+		return "postgresql_config_16_1c", nil
+	case "17":
+		return "postgresql_config_17", nil
+	case "17-1c":
+		return "postgresql_config_17_1c", nil
+	case "18":
+		return "postgresql_config_18", nil
+	case "18-1c":
+		return "postgresql_config_18_1c", nil
+	case "19":
+		return "postgresql_config_19", nil
+	case "19-1c":
+		return "postgresql_config_19_1c", nil
+	default:
+		return "", fmt.Errorf("Unsupported postgresql version: %s", version)
+	}
+}
+
+func flattenPGHostsFromHostInfos(d *schema.ResourceData, orderedHostsInfo []*PgHostInfo, isDataSource bool) []map[string]interface{} {
+	isNameFieldUsed := checkNameFieldUsage(d)
+	log.Printf("[DEBUG] isNameFieldUsed = %t", isNameFieldUsed)
+	hosts := []map[string]interface{}{}
+	for _, hostInfo := range orderedHostsInfo {
+		m := map[string]interface{}{}
+
+		m["zone"] = hostInfo.zone
+		m["subnet_id"] = hostInfo.subnetID
+		m["assign_public_ip"] = hostInfo.oldAssignPublicIP
+		m["fqdn"] = hostInfo.fqdn
+		m["role"] = hostInfo.role.String()
+		m["replication_source"] = hostInfo.oldReplicationSource
+		m["priority"] = hostInfo.oldPriority
+		if !isDataSource && isNameFieldUsed {
+			m["name"] = hostInfo.name
+			m["replication_source_name"] = hostInfo.oldReplicationSourceName
+		}
+		hosts = append(hosts, m)
+	}
+
+	return hosts
+}
+
+func checkNameFieldUsage(d *schema.ResourceData) bool {
+	log.Print("[DEBUG] checkNameFieldUsage")
+	hosts := d.Get("host").([]interface{})
+	if len(hosts) == 0 {
+		return false
+	}
+	host := hosts[0].(map[string]interface{})
+	log.Printf("[DEBUG] host name is '%s'", host["name"])
+	return host["name"] != ""
+}
+
+func flattenPGDatabases(dbs []*postgresql.Database) []map[string]interface{} {
+	out := make([]map[string]interface{}, 0)
+
+	for _, d := range dbs {
+		m := make(map[string]interface{})
+		m["name"] = d.Name
+		m["owner"] = d.Owner
+		m["lc_collate"] = d.LcCollate
+		m["template_db"] = d.TemplateDb
+		m["lc_type"] = d.LcCtype
+		m["extension"] = flattenPGExtensions(d.Extensions)
+
+		out = append(out, m)
+	}
+
+	return out
+}
+
+func flattenPGExtensions(es []*postgresql.Extension) *schema.Set {
+	out := schema.NewSet(pgExtensionHash, nil)
+
+	for _, e := range es {
+		m := make(map[string]interface{})
+		m["name"] = e.Name
+
+		out.Add(m)
+	}
+
+	return out
+}
+
+func pgExtensionHash(v interface{}) int {
+	var buf bytes.Buffer
+
+	m := v.(map[string]interface{})
+	if v, ok := m["name"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+
+	return hashcode.String(buf.String())
+}
+
+func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) ([]string, error) {
+	log.Println("[DEBUG] expandPGParamsUpdatePath")
+	version := d.Get("config.0.version").(string)
+	pgFieldName, err := getPostgreSQLConfigFieldName(version)
+	if err != nil {
+		return []string{}, err
+	}
+	log.Print("[DEBUG] pgFieldName")
+
+	mdbPGUpdateFieldsMap := map[string]string{
+		"name":                                  "name",
+		"description":                           "description",
+		"labels":                                "labels",
+		"network_id":                            "network_id",
+		"config.0.version":                      "config_spec.version",
+		"config.0.pooler_config.0.pooling_mode": "config_spec.pooler_config.pooling_mode",
+		"config.0.pooler_config.0.pool_discard": "config_spec.pooler_config.pool_discard",
+		"config.0.pooler_config.0.pooler_pool_discard":                    "config_spec.pooler_config.pool_discard",
+		"config.0.access.0.data_lens":                                     "config_spec.access.data_lens",
+		"config.0.access.0.web_sql":                                       "config_spec.access.web_sql",
+		"config.0.access.0.serverless":                                    "config_spec.access.serverless",
+		"config.0.access.0.data_transfer":                                 "config_spec.access.data_transfer",
+		"config.0.access.0.yandex_query":                                  "config_spec.access.yandex_query",
+		"config.0.performance_diagnostics.0.enabled":                      "config_spec.performance_diagnostics.enabled",
+		"config.0.performance_diagnostics.0.advanced_mode":                "config_spec.performance_diagnostics.advanced_mode",
+		"config.0.performance_diagnostics.0.sessions_sampling_interval":   "config_spec.performance_diagnostics.sessions_sampling_interval",
+		"config.0.performance_diagnostics.0.statements_sampling_interval": "config_spec.performance_diagnostics.statements_sampling_interval",
+		"config.0.disk_size_autoscaling.0.emergency_usage_threshold":      "config_spec.disk_size_autoscaling.emergency_usage_threshold",
+		"config.0.disk_size_autoscaling.0.planned_usage_threshold":        "config_spec.disk_size_autoscaling.planned_usage_threshold",
+		"config.0.disk_size_autoscaling.0.disk_size_limit":                "config_spec.disk_size_autoscaling.disk_size_limit",
+		"config.0.managed_repack.0.enabled":                               "config_spec.managed_repack.enabled",
+		"config.0.backup_window_start":                                    "config_spec.backup_window_start",
+		"config.0.resources":                                              "config_spec.resources",
+		"config.0.backup_retain_period_days":                              "config_spec.backup_retain_period_days",
+		"security_group_ids":                                              "security_group_ids",
+		"deletion_protection":                                             "deletion_protection",
+		"config.0.postgresql_config.shared_preload_libraries":             fmt.Sprintf("config_spec.%s.shared_preload_libraries", pgFieldName),
+	}
+	maps.Copy(mdbPGUpdateFieldsMap, mdbcommon.ClusterConnectionManagerUpdateFields("config.0.connection_manager", "config_spec.connection_manager."))
+
+	updatePath := []string{}
+	for field, path := range mdbPGUpdateFieldsMap {
+		if d.HasChange(field) {
+			if !avoidPoolerConfigPoolDiscardChanges(d, field) {
+				updatePath = append(updatePath, path)
+			}
+		}
+	}
+
+	if (d.HasChange("maintenance_window") || d.HasChange("maintenance_windows")) && rawPGMaintenanceForm(d) != "" {
+		updatePath = append(updatePath, "maintenance_windows")
+	}
+
+	// connection_manager.enabled is handled by a dedicated helper because the field is
+	// Optional+Computed and d.HasChange cannot distinguish "user set the value" from
+	// "value came from state".
+	updatePath = append(updatePath, mdbcommon.ClusterConnectionManagerEnabledChangedPath(
+		d, "config.0.connection_manager", "config_spec.connection_manager.",
+	)...)
+
+	for _, setting := range settingNames {
+		field := fmt.Sprintf("config.0.postgresql_config.%s", setting)
+		log.Printf("[DEBUG] HasChange(%s): %t", field, d.HasChange(field))
+		if d.HasChange(field) {
+			path := fmt.Sprintf("config_spec.%s.%s", pgFieldName, setting)
+			updatePath = append(updatePath, path)
+		}
+	}
+
+	return updatePath, nil
+}
+
+func avoidPoolerConfigPoolDiscardChanges(d *schema.ResourceData, field string) bool {
+	if field == "config.0.pooler_config.0.pool_discard" || field == "config.0.pooler_config.0.pooler_pool_discard" {
+		oldPoolDiscard, newPoolDiscard := d.GetChange("config.0.pooler_config.0.pool_discard")
+		oldPoolerPoolDiscard, newPoolerPoolDiscard := d.GetChange("config.0.pooler_config.0.pooler_pool_discard")
+
+		if oldPoolDiscard == true && newPoolerPoolDiscard == "true" {
+			return true
+		}
+		if oldPoolerPoolDiscard == "true" && newPoolerPoolDiscard == "" && newPoolDiscard == true {
+			return true
+		}
+	}
+	return false
+}
+
+func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, []string, error) {
+	poolerConfig, err := expandPGPoolerConfig(d)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resources, err := expandPGResources(d)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	cs := &postgresql.ConfigSpec{
+		Version:                d.Get("config.0.version").(string),
+		BackupRetainPeriodDays: expandPGBackupRetainPeriodDays(d),
+		PoolerConfig:           poolerConfig,
+		Resources:              resources,
+		BackupWindowStart:      sdkcommon.ExpandMDBBackupWindowStart(d, "config.0.backup_window_start.0"),
+		Access:                 expandPGAccess(d),
+		PerformanceDiagnostics: ExpandPGPerformanceDiagnostics(d),
+		DiskSizeAutoscaling:    expandPGDiskSizeAutoscaling(d),
+		ConnectionManager:      mdbcommon.ExpandClusterConnectionManager(d, "config.0.connection_manager"),
+		ManagedRepack:          expandPGManagedRepack(d),
+	}
+
+	settingNames, err := expandPGConfigSpecSettings(d, cs)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return cs, settingNames, nil
+}
+
+func expandPGBackupRetainPeriodDays(d *schema.ResourceData) *wrappers.Int64Value {
+	if v, ok := d.GetOkExists("config.0.backup_retain_period_days"); ok {
+		return &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	return nil
+}
+
+func expandPGPoolerConfig(d *schema.ResourceData) (*postgresql.ConnectionPoolerConfig, error) {
+	pc := &postgresql.ConnectionPoolerConfig{}
+
+	if v, ok := d.GetOk("config.0.pooler_config.0.pooling_mode"); ok {
+		pm, err := parsePostgreSQLPoolingMode(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		pc.PoolingMode = pm
+	}
+
+	if v, ok := d.GetOk("config.0.pooler_config.0.pooler_pool_discard"); ok {
+		pc.PoolDiscard = mdbPGTristateBooleanName[v.(string)]
+	} else if v, ok := d.GetOk("config.0.pooler_config.0.pool_discard"); ok {
+		pc.PoolDiscard = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	return pc, nil
+}
+
+func expandPGResources(d *schema.ResourceData) (*postgresql.Resources, error) {
+	r := &postgresql.Resources{}
+
+	if v, ok := d.GetOk("config.0.resources.0.resource_preset_id"); ok {
+		r.ResourcePresetId = v.(string)
+	}
+
+	if v, ok := d.GetOk("config.0.resources.0.disk_size"); ok {
+		r.DiskSize = sdkcommon.ToBytes(v.(int))
+	}
+
+	if v, ok := d.GetOk("config.0.resources.0.disk_type_id"); ok {
+		r.DiskTypeId = v.(string)
+	}
+
+	return r, nil
+}
+
+func expandPGUserSpecs(d *schema.ResourceData) ([]*postgresql.UserSpec, error) {
+	out := []*postgresql.UserSpec{}
+
+	cnt := d.Get("user.#").(int)
+	for i := 0; i < cnt; i++ {
+		user, err := expandPGUserNew(d, fmt.Sprintf("user.%v.", i))
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(out, user)
+	}
+
+	return out, nil
+}
+
+// pgUserForCreate get users for create
+func pgUserForCreate(d *schema.ResourceData, currUsers []*postgresql.User) (usersForCreate []*postgresql.UserSpec, err error) {
+	currentUser := make(map[string]struct{})
+	for _, v := range currUsers {
+		currentUser[v.Name] = struct{}{}
+	}
+	usersForCreate = make([]*postgresql.UserSpec, 0)
+
+	cnt := d.Get("user.#").(int)
+	for i := 0; i < cnt; i++ {
+		_, ok := currentUser[d.Get(fmt.Sprintf("user.%v.name", i)).(string)]
+		if !ok {
+			user, err := expandPGUserNew(d, fmt.Sprintf("user.%v.", i))
+			if err != nil {
+				return nil, err
+			}
+			user.Grants = make([]string, 0)
+			user.Permissions = make([]*postgresql.Permission, 0)
+			usersForCreate = append(usersForCreate, user)
+		}
+	}
+
+	return usersForCreate, nil
+}
+
+// expandPGUserNew expand to new object from schema.ResourceData
+// path like "user.3."
+func expandPGUserNew(d *schema.ResourceData, path string) (*postgresql.UserSpec, error) {
+	return expandPGUser(d, &postgresql.UserSpec{}, path)
+}
+
+// expandPGUser expand to exists object from schema.ResourceData
+// path like "user.3."
+func expandPGUser(d *schema.ResourceData, user *postgresql.UserSpec, path string) (*postgresql.UserSpec, error) {
+
+	if v, ok := d.GetOkExists(path + "name"); ok {
+		user.Name = v.(string)
+	}
+
+	if v, ok := d.GetOkExists(path + "password"); ok {
+		user.Password = v.(string)
+	}
+
+	if v, ok := d.GetOkExists(path + "login"); ok {
+		user.Login = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	if v, ok := d.GetOkExists(path + "conn_limit"); ok {
+		user.ConnLimit = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOkExists(path + "permission"); ok {
+		permissions, err := expandPGUserPermissions(v.(*schema.Set))
+		if err != nil {
+			return nil, err
+		}
+		user.Permissions = permissions
+	}
+
+	if v, ok := d.GetOkExists(path + "grants"); ok {
+		gs, err := expandPGUserGrants(v.([]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		user.Grants = gs
+	}
+
+	if _, ok := d.GetOkExists(path + "settings"); ok {
+		if user.Settings == nil {
+			user.Settings = &postgresql.UserSettings{}
+		}
+
+		err := sdkcommon.ExpandResourceGenerate(MdbPGUserSettingsFieldsInfo, d, user.Settings, path+"settings.", true)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	return user, nil
+}
+
+func expandPGUserGrants(gs []interface{}) ([]string, error) {
+	out := []string{}
+
+	if gs == nil {
+		return out, nil
+	}
+
+	for _, v := range gs {
+		out = append(out, v.(string))
+	}
+
+	return out, nil
+}
+
+func expandPgAuditSettings(as string) (*postgresql.PGAuditSettings, error) {
+	if as == "" {
+		return nil, nil
+	}
+	var auditSettings PGAuditSettings
+	err := json.Unmarshal([]byte(as), &auditSettings)
+	if err != nil {
+		return nil, err
+	}
+
+	asl := make([]postgresql.PGAuditSettings_PGAuditSettingsLog, 0)
+	for _, log := range auditSettings.Log {
+		setting, found := mdbPGUserSettingsPgauditStringToEnumMap[strings.ToLower(log)]
+		if !found {
+			return nil, fmt.Errorf("unsupported PostgreSQL audit settings log type: %v", log)
+		}
+		asl = append(asl, setting)
+	}
+
+	if len(asl) == 0 {
+		return nil, nil
+	}
+
+	return &postgresql.PGAuditSettings{Log: asl}, nil
+}
+
+func expandPGUserPermissions(ps *schema.Set) ([]*postgresql.Permission, error) {
+	out := []*postgresql.Permission{}
+
+	for _, p := range ps.List() {
+		m := p.(map[string]interface{})
+		permission := &postgresql.Permission{}
+
+		if v, ok := m["database_name"]; ok {
+			permission.DatabaseName = v.(string)
+		}
+
+		out = append(out, permission)
+	}
+
+	return out, nil
+}
+
+func expandPGHosts(d *schema.ResourceData) ([]*PostgreSQLHostSpec, error) {
+	out := []*PostgreSQLHostSpec{}
+	hosts := d.Get("host").([]interface{})
+
+	for _, v := range hosts {
+		m := v.(map[string]interface{})
+		h, err := expandPGHost(m)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, h)
+	}
+
+	return out, nil
+}
+
+func expandPGHost(m map[string]interface{}) (*PostgreSQLHostSpec, error) {
+	hostSpec := &postgresql.HostSpec{}
+	host := &PostgreSQLHostSpec{HostSpec: hostSpec}
+
+	if v, ok := m["zone"]; ok {
+		host.HostSpec.ZoneId = v.(string)
+	}
+	if v, ok := m["subnet_id"]; ok {
+		host.HostSpec.SubnetId = v.(string)
+	}
+	if v, ok := m["assign_public_ip"]; ok {
+		host.HostSpec.AssignPublicIp = v.(bool)
+	}
+	if v, ok := m["fqdn"]; ok && v.(string) != "" {
+		host.Fqdn = v.(string)
+	}
+	if v, ok := m["replication_source_name"]; ok {
+		host.HostSpec.ReplicationSource = v.(string)
+	}
+	if v, ok := m["priority"].(int); ok {
+		priority := int64(v)
+		if name, ok := m["name"]; priority > 0 && (!ok || name.(string) == "") {
+			return nil, fmt.Errorf("priority can be set only when name is specified")
+		}
+		host.HostSpec.Priority = wrapperspb.Int64(priority)
+	}
+
+	return host, nil
+}
+
+func expandPGDatabaseSpecs(d *schema.ResourceData) ([]*postgresql.DatabaseSpec, error) {
+	out := []*postgresql.DatabaseSpec{}
+	dbs := d.Get("database").([]interface{})
+
+	for _, d := range dbs {
+		m := d.(map[string]interface{})
+		database, err := expandPGDatabase(m)
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(out, database)
+	}
+
+	return out, nil
+}
+
+func expandPGDatabase(m map[string]interface{}) (*postgresql.DatabaseSpec, error) {
+	out := &postgresql.DatabaseSpec{}
+
+	if v, ok := m["name"]; ok {
+		out.Name = v.(string)
+	}
+
+	if v, ok := m["owner"]; ok {
+		out.Owner = v.(string)
+	}
+
+	if v, ok := m["lc_collate"]; ok {
+		out.LcCollate = v.(string)
+	}
+
+	if v, ok := m["template_db"]; ok {
+		out.TemplateDb = v.(string)
+	}
+
+	if v, ok := m["lc_type"]; ok {
+		out.LcCtype = v.(string)
+	}
+
+	if v, ok := m["extension"]; ok {
+		es := v.(*schema.Set).List()
+		out.Extensions = expandPGExtensions(es)
+	}
+
+	return out, nil
+}
+
+func expandPGExtensions(es []interface{}) []*postgresql.Extension {
+	out := []*postgresql.Extension{}
+
+	for _, e := range es {
+		m := e.(map[string]interface{})
+		extension := &postgresql.Extension{}
+
+		if v, ok := m["name"]; ok {
+			extension.Name = v.(string)
+		}
+
+		out = append(out, extension)
+	}
+
+	return out
+}
+
+func ExpandPGPerformanceDiagnostics(d *schema.ResourceData) *postgresql.PerformanceDiagnostics {
+
+	if _, ok := d.GetOkExists("config.0.performance_diagnostics"); !ok {
+		return nil
+	}
+
+	out := &postgresql.PerformanceDiagnostics{}
+
+	if v, ok := d.GetOk("config.0.performance_diagnostics.0.enabled"); ok {
+		out.Enabled = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.performance_diagnostics.0.advanced_mode"); ok {
+		out.AdvancedMode = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.performance_diagnostics.0.sessions_sampling_interval"); ok {
+		out.SessionsSamplingInterval = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("config.0.performance_diagnostics.0.statements_sampling_interval"); ok {
+		out.StatementsSamplingInterval = int64(v.(int))
+	}
+
+	return out
+}
+
+func expandPGManagedRepack(d *schema.ResourceData) *postgresql.ManagedRepack {
+
+	if _, ok := d.GetOkExists("config.0.managed_repack"); !ok {
+		return nil
+	}
+
+	out := &postgresql.ManagedRepack{}
+
+	if v, ok := d.GetOkExists("config.0.managed_repack.0.enabled"); ok {
+		out.Enabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	return out
+}
+
+func expandPGDiskSizeAutoscaling(d *schema.ResourceData) *postgresql.DiskSizeAutoscaling {
+
+	if _, ok := d.GetOkExists("config.0.disk_size_autoscaling"); !ok {
+		return nil
+	}
+
+	out := &postgresql.DiskSizeAutoscaling{}
+
+	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.disk_size_limit"); ok {
+		out.DiskSizeLimit = sdkcommon.ToBytes(v.(int))
+	}
+
+	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.planned_usage_threshold"); ok {
+		out.PlannedUsageThreshold = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.emergency_usage_threshold"); ok {
+		out.EmergencyUsageThreshold = int64(v.(int))
+	}
+
+	return out
+}
+
+func expandPGAccess(d *schema.ResourceData) *postgresql.Access {
+	out := &postgresql.Access{}
+
+	if v, ok := d.GetOk("config.0.access.0.data_lens"); ok {
+		out.DataLens = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.access.0.web_sql"); ok {
+		out.WebSql = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.access.0.serverless"); ok {
+		out.Serverless = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.access.0.data_transfer"); ok {
+		out.DataTransfer = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.access.0.yandex_query"); ok {
+		out.YandexQuery = v.(bool)
+	}
+	return out
+}
+
+func expandPGSharedPreloadLibraries(d *schema.ResourceData, version string) ([]int32, error) {
+	var sharedPreloadLibraries []int32
+	sharedPreloadLibValue, ok := d.GetOkExists("config.0.postgresql_config.shared_preload_libraries")
+	mdbPGSettingsFieldsInfo, err := GetMdbPGSettingsFieldsInfo(version)
+	if err != nil {
+		return []int32{}, err
+	}
+	if ok {
+		splValue := sharedPreloadLibValue.(string)
+
+		for _, sv := range strings.Split(splValue, ",") {
+
+			i, err := mdbPGSettingsFieldsInfo.StringToInt("shared_preload_libraries", sv)
+			if err != nil {
+				return []int32{}, err
+			}
+			if i != nil {
+				sharedPreloadLibraries = append(sharedPreloadLibraries, int32(*i))
+			}
+		}
+	}
+	return sharedPreloadLibraries, nil
+}
+
+func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.ConfigSpec) ([]string, error) {
+	if _, ok := d.GetOkExists("config.0.postgresql_config"); !ok {
+		log.Println("[DEBUG] config.0.postgresql_config does not exists")
+		return []string{}, nil
+	}
+	log.Println("[DEBUG] config.0.postgresql_config exists")
+	version := configSpec.Version
+
+	sharedPreloadLibraries, err := expandPGSharedPreloadLibraries(d, version)
+	if err != nil {
+		return []string{}, err
+	}
+
+	if version == "14" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_14{
+			PostgresqlConfig_14: &config.PostgresqlConfig14{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_14.SharedPreloadLibraries = append(cfg.PostgresqlConfig_14.SharedPreloadLibraries, config.PostgresqlConfig14_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo14, d, cfg.PostgresqlConfig_14, "config.0.postgresql_config.", true)
+	} else if version == "14-1c" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_14_1C{
+			PostgresqlConfig_14_1C: &config.PostgresqlConfig14_1C{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_14_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_14_1C.SharedPreloadLibraries, config.PostgresqlConfig14_1C_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo14_1C, d, cfg.PostgresqlConfig_14_1C, "config.0.postgresql_config.", true)
+	} else if version == "15" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_15{
+			PostgresqlConfig_15: &config.PostgresqlConfig15{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_15.SharedPreloadLibraries = append(cfg.PostgresqlConfig_15.SharedPreloadLibraries, config.PostgresqlConfig15_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo15, d, cfg.PostgresqlConfig_15, "config.0.postgresql_config.", true)
+	} else if version == "15-1c" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_15_1C{
+			PostgresqlConfig_15_1C: &config.PostgresqlConfig15_1C{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_15_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_15_1C.SharedPreloadLibraries, config.PostgresqlConfig15_1C_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo15_1C, d, cfg.PostgresqlConfig_15_1C, "config.0.postgresql_config.", true)
+	} else if version == "16" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_16{
+			PostgresqlConfig_16: &config.PostgresqlConfig16{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_16.SharedPreloadLibraries = append(cfg.PostgresqlConfig_16.SharedPreloadLibraries, config.PostgresqlConfig16_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo16, d, cfg.PostgresqlConfig_16, "config.0.postgresql_config.", true)
+	} else if version == "16-1c" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_16_1C{
+			PostgresqlConfig_16_1C: &config.PostgresqlConfig16_1C{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_16_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_16_1C.SharedPreloadLibraries, config.PostgresqlConfig16_1C_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo16_1C, d, cfg.PostgresqlConfig_16_1C, "config.0.postgresql_config.", true)
+	} else if version == "17" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_17{
+			PostgresqlConfig_17: &config.PostgresqlConfig17{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_17.SharedPreloadLibraries = append(cfg.PostgresqlConfig_17.SharedPreloadLibraries, config.PostgresqlConfig17_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(MdbPGSettingsFieldsInfo17, d, cfg.PostgresqlConfig_17, "config.0.postgresql_config.", true)
+	} else if version == "17-1c" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_17_1C{
+			PostgresqlConfig_17_1C: &config.PostgresqlConfig17_1C{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_17_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_17_1C.SharedPreloadLibraries, config.PostgresqlConfig17_1C_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo17_1C, d, cfg.PostgresqlConfig_17_1C, "config.0.postgresql_config.", true)
+	} else if version == "18" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_18{
+			PostgresqlConfig_18: &config.PostgresqlConfig18{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_18.SharedPreloadLibraries = append(cfg.PostgresqlConfig_18.SharedPreloadLibraries, config.PostgresqlConfig18_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(MdbPGSettingsFieldsInfo18, d, cfg.PostgresqlConfig_18, "config.0.postgresql_config.", true)
+	} else if version == "18-1c" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_18_1C{
+			PostgresqlConfig_18_1C: &config.PostgresqlConfig18_1C{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_18_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_18_1C.SharedPreloadLibraries, config.PostgresqlConfig18_1C_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo18_1C, d, cfg.PostgresqlConfig_18_1C, "config.0.postgresql_config.", true)
+	} else if version == "19" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_19{
+			PostgresqlConfig_19: &config.PostgresqlConfig19{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_19.SharedPreloadLibraries = append(cfg.PostgresqlConfig_19.SharedPreloadLibraries, config.PostgresqlConfig19_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo19, d, cfg.PostgresqlConfig_19, "config.0.postgresql_config.", true)
+	} else if version == "19-1c" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_19_1C{
+			PostgresqlConfig_19_1C: &config.PostgresqlConfig19_1C{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_19_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_19_1C.SharedPreloadLibraries, config.PostgresqlConfig19_1C_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo19_1C, d, cfg.PostgresqlConfig_19_1C, "config.0.postgresql_config.", true)
+	}
+
+	return []string{}, err
+}
+
+func pgDatabasesDiff(currDBs []*postgresql.Database, targetDBs []*postgresql.DatabaseSpec) ([]string, []*postgresql.DatabaseSpec) {
+	m := map[string]bool{}
+	toAdd := []*postgresql.DatabaseSpec{}
+	toDelete := map[string]bool{}
+	for _, db := range currDBs {
+		toDelete[db.Name] = true
+		m[db.Name] = true
+	}
+
+	for _, db := range targetDBs {
+		delete(toDelete, db.Name)
+		if _, ok := m[db.Name]; !ok {
+			toAdd = append(toAdd, db)
+		}
+	}
+
+	toDel := []string{}
+	for u := range toDelete {
+		toDel = append(toDel, u)
+	}
+
+	return toDel, toAdd
+}
+
+type PgDatabaseChange struct {
+	Spec       *postgresql.DatabaseSpec
+	UpdatePath []string
+}
+
+func pgDatabaseUpdatePaths(oldDB, newDB *postgresql.DatabaseSpec) []string {
+	updatePath := []string{}
+	if oldDB.Owner != newDB.Owner {
+		updatePath = append(updatePath, "owner")
+	}
+	if !reflect.DeepEqual(oldDB.Extensions, newDB.Extensions) {
+		updatePath = append(updatePath, "extensions")
+	}
+
+	return updatePath
+}
+
+func PgChangedDatabases(oldSpecs []interface{}, newSpecs []interface{}) ([]PgDatabaseChange, error) {
+	out := []PgDatabaseChange{}
+
+	m := map[string]*postgresql.DatabaseSpec{}
+	for _, spec := range oldSpecs {
+		db, err := expandPGDatabase(spec.(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		m[db.Name] = db
+	}
+
+	for _, spec := range newSpecs {
+		db, err := expandPGDatabase(spec.(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		oldDB, ok := m[db.Name]
+		if !ok {
+			continue
+		}
+		if updatePath := pgDatabaseUpdatePaths(oldDB, db); len(updatePath) > 0 {
+			out = append(out, PgDatabaseChange{Spec: db, UpdatePath: updatePath})
+		}
+	}
+
+	return out, nil
+}
+
+func parsePostgreSQLEnv(e string) (postgresql.Cluster_Environment, error) {
+	v, ok := postgresql.Cluster_Environment_value[e]
+	if !ok {
+		return 0, fmt.Errorf("value for 'environment' must be one of %s, not `%s`", sdkcommon.GetJoinedKeys(sdkcommon.GetEnumValueMapKeys(postgresql.Cluster_Environment_value)), e)
+	}
+
+	return postgresql.Cluster_Environment(v), nil
+}
+
+func parsePostgreSQLPoolingMode(s string) (postgresql.ConnectionPoolerConfig_PoolingMode, error) {
+	v, ok := postgresql.ConnectionPoolerConfig_PoolingMode_value[s]
+	if !ok {
+		return 0, fmt.Errorf("value for 'pooling_mode' must be one of %s, not `%s`", sdkcommon.GetJoinedKeys(sdkcommon.GetEnumValueMapKeys(postgresql.ConnectionPoolerConfig_PoolingMode_value)), s)
+	}
+
+	return postgresql.ConnectionPoolerConfig_PoolingMode(v), nil
+}
+
+func parsePostgreSQLAuthMethod(s string) (postgresql.AuthMethod, error) {
+	v, ok := postgresql.AuthMethod_value[s]
+	if !ok {
+		return 0, fmt.Errorf("value for 'auth_method' must be one of %s, not `%s`", sdkcommon.GetJoinedKeys(sdkcommon.GetEnumValueMapKeys(postgresql.AuthMethod_value)), s)
+	}
+
+	return postgresql.AuthMethod(v), nil
+}
+
+func parsePostgreSQLUserPasswordEncryption(s string) (postgresql.UserPasswordEncryption, error) {
+	v, ok := postgresql.UserPasswordEncryption_value[s]
+	if !ok {
+		return 0, fmt.Errorf("value for 'user_password_encryption' must be one of %s, not `%s`", sdkcommon.GetJoinedKeys(allowedUserPasswordEncryptionValues), s)
+	}
+
+	return postgresql.UserPasswordEncryption(v), nil
+}
+
+var mdbPGTristateBooleanName = map[string]*wrappers.BoolValue{
+	"true":        wrapperspb.Bool(true),
+	"false":       wrapperspb.Bool(false),
+	"unspecified": nil,
+}
+
+func mdbPGResolveTristateBoolean(value *wrappers.BoolValue) string {
+	if value == nil {
+		return "unspecified"
+	}
+	if value.Value {
+		return "true"
+	}
+	return "false"
+}
+
+func validatePasswordConfiguration(userSpec *postgresql.UserSpec) error {
+	passwordSpecified := len(userSpec.Password) > 0
+
+	isBothFieldSpecified := passwordSpecified && userSpec.GeneratePassword.GetValue()
+	isAnyFieldSpecified := passwordSpecified || userSpec.GeneratePassword.GetValue()
+	if userSpec.AuthMethod == postgresql.AuthMethod_AUTH_METHOD_IAM {
+		if isAnyFieldSpecified {
+			return fmt.Errorf("%q does not support password or generate_password", userSpec.AuthMethod.String())
+		}
+	}
+	if isBothFieldSpecified {
+		return fmt.Errorf("must specify either password or generate_password")
+
+	}
+	return nil
+}
+
+func validateUserPasswordEncryptionForCreate(d *schema.ResourceData) error {
+	if v, ok := d.GetOk("user_password_encryption"); ok {
+		userPasswordEncryption, err := parsePostgreSQLUserPasswordEncryption(v.(string))
+		if err != nil {
+			return err
+		}
+		if userPasswordEncryption == postgresql.UserPasswordEncryption_USER_PASSWORD_ENCRYPTION_UNSPECIFIED {
+			return fmt.Errorf(
+				"value for 'user_password_encryption' must be one of %s, not `%s`", sdkcommon.GetJoinedKeys(allowedUserPasswordEncryptionValues), userPasswordEncryption.String(),
+			)
+		}
+	}
+
+	return nil
+}
+
+func validateUserPasswordEncryptionForUpdate(d *schema.ResourceData, user *postgresql.UserSpec) error {
+	isUserPasswordEncryptionHasChanges := d.HasChange("user_password_encryption")
+
+	if isUserPasswordEncryptionHasChanges &&
+		user.UserPasswordEncryption == postgresql.UserPasswordEncryption_USER_PASSWORD_ENCRYPTION_UNSPECIFIED {
+		return fmt.Errorf(
+			"value for 'user_password_encryption' must be one of %s, not `%s`", sdkcommon.GetJoinedKeys(allowedUserPasswordEncryptionValues), user.UserPasswordEncryption.String(),
+		)
+	}
+
+	isPasswordChanged := d.HasChange("password") || d.HasChange("password_wo_version")
+	if isUserPasswordEncryptionHasChanges && !isPasswordChanged {
+		return fmt.Errorf("user_password_encryption can not be changed without password change")
+	}
+
+	return nil
+}
+
+var MdbPGUserSettingsTransactionIsolationName = map[int]string{
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_UNSPECIFIED):      "unspecified",
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED): "read uncommitted",
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED):   "read committed",
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_REPEATABLE_READ):  "repeatable read",
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_SERIALIZABLE):     "serializable",
+}
+var mdbPGUserSettingsSynchronousCommitName = map[int]string{
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_UNSPECIFIED):  "unspecified",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_ON):           "on",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_OFF):          "off",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_LOCAL):        "local",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_REMOTE_WRITE): "remote write",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_REMOTE_APPLY): "remote apply",
+}
+var mdbPGUserSettingsLogStatementName = map[int]string{
+	int(postgresql.UserSettings_LOG_STATEMENT_UNSPECIFIED): "unspecified",
+	int(postgresql.UserSettings_LOG_STATEMENT_NONE):        "none",
+	int(postgresql.UserSettings_LOG_STATEMENT_DDL):         "ddl",
+	int(postgresql.UserSettings_LOG_STATEMENT_MOD):         "mod",
+	int(postgresql.UserSettings_LOG_STATEMENT_ALL):         "all",
+}
+var mdbPGUserSettingsPoolModeName = map[int]string{
+	int(postgresql.UserSettings_POOLING_MODE_UNSPECIFIED): "unspecified",
+	int(postgresql.UserSettings_STATEMENT):                "statement",
+	int(postgresql.UserSettings_TRANSACTION):              "transaction",
+	int(postgresql.UserSettings_SESSION):                  "session",
+}
+
+var allowedUserPasswordEncryptionValues = []string{
+	"USER_PASSWORD_ENCRYPTION_MD5",
+	"USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256",
+}
+
+var mdbPGUserSettingsPgauditStringToEnumMap = map[string]postgresql.PGAuditSettings_PGAuditSettingsLog{
+	"read":     postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_READ,
+	"write":    postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_WRITE,
+	"function": postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_FUNCTION,
+	"role":     postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_ROLE,
+	"ddl":      postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_DDL,
+	"misc":     postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_MISC,
+	"misc_set": postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_MISC_SET,
+}
+
+var mdbPGUserSettingsPgauditEnumToStringMap = map[postgresql.PGAuditSettings_PGAuditSettingsLog]string{
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_READ:     "read",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_WRITE:    "write",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_FUNCTION: "function",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_ROLE:     "role",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_DDL:      "ddl",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_MISC:     "misc",
+	postgresql.PGAuditSettings_PG_AUDIT_SETTINGS_LOG_MISC_SET: "misc_set",
+}
+
+var MdbPGUserSettingsFieldsInfo = sdkcommon.NewObjectFieldsInfo().
+	AddType(postgresql.UserSettings{}, []reflect.Type{reflect.TypeFor[*postgresql.PGAuditSettings]()}).
+	AddFieldInfoManually("pgaudit", true, pgAuditCompare, pgAuditCheck).
+	AddIDefault("log_min_duration_statement", -1).
+	AddEnumHumanNames("default_transaction_isolation", MdbPGUserSettingsTransactionIsolationName,
+		postgresql.UserSettings_TransactionIsolation_name).
+	AddEnumHumanNames("synchronous_commit", mdbPGUserSettingsSynchronousCommitName,
+		postgresql.UserSettings_SynchronousCommit_name).
+	AddEnumHumanNames("log_statement", mdbPGUserSettingsLogStatementName,
+		postgresql.UserSettings_LogStatement_name).
+	AddEnumHumanNames("pool_mode", mdbPGUserSettingsPoolModeName,
+		postgresql.UserSettings_PoolingMode_name)
+
+func pgAuditCompare(fieldsInfo *sdkcommon.ObjectFieldsInfo, old, new, fieldname string) bool {
+	oldPgAudit, err := expandPgAuditSettings(old)
+	if err != nil {
+		return false
+	}
+
+	newPgAudit, err := expandPgAuditSettings(new)
+	if err != nil {
+		return false
+	}
+
+	if oldPgAudit == nil && newPgAudit == nil {
+		return true
+	}
+
+	return reflect.DeepEqual(oldPgAudit, newPgAudit)
+}
+
+func pgAuditCheck(fieldsInfo *sdkcommon.ObjectFieldsInfo, v any) error {
+	s, ok := v.(string)
+	if ok {
+		if s == "" {
+			return nil
+		}
+		_, err := expandPgAuditSettings(s)
+
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return fmt.Errorf("pgAuditCheck: Unsupported type for value %v", v)
+}
+
+func GetMdbPGSettingsFieldsInfo(version string) (*sdkcommon.ObjectFieldsInfo, error) {
+	switch version {
+	case "14":
+		return mdbPGSettingsFieldsInfo14, nil
+	case "14-1c":
+		return mdbPGSettingsFieldsInfo14_1C, nil
+	case "15":
+		return mdbPGSettingsFieldsInfo15, nil
+	case "15-1c":
+		return mdbPGSettingsFieldsInfo15_1C, nil
+	case "16":
+		return mdbPGSettingsFieldsInfo16, nil
+	case "16-1c":
+		return mdbPGSettingsFieldsInfo16_1C, nil
+	case "17":
+		return MdbPGSettingsFieldsInfo17, nil
+	case "17-1c":
+		return mdbPGSettingsFieldsInfo17_1C, nil
+	case "18":
+		return MdbPGSettingsFieldsInfo18, nil
+	case "18-1c":
+		return mdbPGSettingsFieldsInfo18_1C, nil
+	case "19":
+		return mdbPGSettingsFieldsInfo19, nil
+	case "19-1c":
+		return mdbPGSettingsFieldsInfo19_1C, nil
+	default:
+		return nil, fmt.Errorf("Unsupported postgresql version: %s", version)
+	}
+}
+
+var mdbPGSettingsFieldsInfo19 = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig19{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig19_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig19_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig19_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig19_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig19_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig19_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig19_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig19_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig19_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig19_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig19_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig19_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig19_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig19_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig19_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig19_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig19_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig19_PasswordEncryption_name,
+		int(config.PostgresqlConfig19_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig19_DebugParallelQuery_name).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig19_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo19_1C = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig19_1C{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig19_1C_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig19_1C_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig19_1C_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig19_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig19_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig19_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig19_1C_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig19_1C_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig19_1C_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig19_1C_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig19_1C_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig19_1C_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig19_1C_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig19_1C_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig19_1C_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig19_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig19_1C_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig19_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig19_1C_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig19_1C_DebugParallelQuery_name).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig19_1C_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var MdbPGSettingsFieldsInfo18 = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig18{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig18_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig18_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig18_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig18_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig18_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig18_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig18_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig18_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig18_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig18_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig18_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig18_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig18_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig18_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig18_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig18_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig18_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig18_PasswordEncryption_name,
+		int(config.PostgresqlConfig18_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig18_DebugParallelQuery_name).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig18_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo18_1C = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig18_1C{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig18_1C_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig18_1C_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig18_1C_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig18_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig18_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig18_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig18_1C_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig18_1C_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig18_1C_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig18_1C_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig18_1C_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig18_1C_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig18_1C_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig18_1C_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig18_1C_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig18_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig18_1C_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig18_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig18_1C_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig18_1C_DebugParallelQuery_name).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig18_1C_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var MdbPGSettingsFieldsInfo17 = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig17{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig17_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig17_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig17_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig17_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig17_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig17_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig17_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig17_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig17_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig17_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig17_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig17_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig17_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig17_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig17_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig17_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig17_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig17_PasswordEncryption_name,
+		int(config.PostgresqlConfig17_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig17_DebugParallelQuery_name).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig17_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo17_1C = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig17_1C{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig17_1C_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig17_1C_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig17_1C_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig17_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig17_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig17_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig17_1C_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig17_1C_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig17_1C_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig17_1C_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig17_1C_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig17_1C_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig17_1C_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig17_1C_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig17_1C_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig17_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig17_1C_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig17_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig17_1C_PASSWORD_ENCRYPTION_SCRAM_SHA_256.Number()),
+	).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig17_1C_DebugParallelQuery_name).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig17_1C_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo16 = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig16{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig16_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig16_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig16_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig16_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig16_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig16_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig16_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig16_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig16_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig16_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig16_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig16_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig16_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig16_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig16_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig16_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig16_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig16_PasswordEncryption_name,
+		int(config.PostgresqlConfig16_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig16_DebugParallelQuery_name).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig16_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo16_1C = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig16_1C{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig16_1C_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig16_1C_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig16_1C_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig16_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig16_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig16_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig16_1C_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig16_1C_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig16_1C_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig16_1C_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig16_1C_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig16_1C_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig16_1C_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig16_1C_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig16_1C_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig16_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig16_1C_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig16_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig16_1C_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("debug_parallel_query", config.PostgresqlConfig16_1C_DebugParallelQuery_name).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig16_1C_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo15 = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig15{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig15_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig15_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig15_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("force_parallel_mode", config.PostgresqlConfig15_ForceParallelMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig15_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig15_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig15_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig15_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig15_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig15_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig15_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig15_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig15_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig15_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig15_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig15_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig15_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig15_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig15_PasswordEncryption_name,
+		int(config.PostgresqlConfig15_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig15_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo15_1C = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig15_1C{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig15_1C_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig15_1C_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig15_1C_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("force_parallel_mode", config.PostgresqlConfig15_1C_ForceParallelMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig15_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig15_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig15_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig15_1C_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig15_1C_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig15_1C_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig15_1C_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig15_1C_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig15_1C_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig15_1C_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig15_1C_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig15_1C_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig15_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig15_1C_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig15_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig15_1C_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig15_1C_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo14 = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig14{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig14_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig14_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig14_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("force_parallel_mode", config.PostgresqlConfig14_ForceParallelMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig14_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig14_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig14_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig14_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig14_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig14_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig14_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig14_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig14_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig14_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig14_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig14_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig14_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig14_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig14_PasswordEncryption_name,
+		int(config.PostgresqlConfig14_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig14_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGSettingsFieldsInfo14_1C = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.PostgresqlConfig14_1C{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("wal_level", config.PostgresqlConfig14_1C_WalLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("synchronous_commit", config.PostgresqlConfig14_1C_SynchronousCommit_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("constraint_exclusion", config.PostgresqlConfig14_1C_ConstraintExclusion_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("force_parallel_mode", config.PostgresqlConfig14_1C_ForceParallelMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("client_min_messages", config.PostgresqlConfig14_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_messages", config.PostgresqlConfig14_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_min_error_statement", config.PostgresqlConfig14_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_error_verbosity", config.PostgresqlConfig14_1C_LogErrorVerbosity_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("log_statement", config.PostgresqlConfig14_1C_LogStatement_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("default_transaction_isolation", config.PostgresqlConfig14_1C_TransactionIsolation_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("bytea_output", config.PostgresqlConfig14_1C_ByteaOutput_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmlbinary", config.PostgresqlConfig14_1C_XmlBinary_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("xmloption", config.PostgresqlConfig14_1C_XmlOption_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("backslash_quote", config.PostgresqlConfig14_1C_BackslashQuote_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("plan_cache_mode", config.PostgresqlConfig14_1C_PlanCacheMode_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_debug_print", config.PostgresqlConfig14_1C_PgHintPlanDebugPrint_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pg_hint_plan_message_level", config.PostgresqlConfig14_1C_LogLevel_name).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("auto_explain_log_format", config.PostgresqlConfig14_1C_AutoExplainLogFormat_name).
+	AddEnumGeneratedNamesWithDefaultValueCompareAndValidFuncs(
+		"password_encryption",
+		config.PostgresqlConfig14_1C_PasswordEncryption_name,
+		int(config.PostgresqlConfig14_1C_PASSWORD_ENCRYPTION_MD5.Number()),
+	).
+	AddSkipEnumGeneratedNamesWithEmptySliceValue(
+		"shared_preload_libraries",
+		config.PostgresqlConfig14_1C_SharedPreloadLibraries_name, sdkcommon.DefaultStringOfEnumsCheck("shared_preload_libraries"), stringOfEnumSliceCompareWithDefault,
+	)
+
+var mdbPGPoolerConfigFieldsInfo = sdkcommon.NewObjectFieldsInfo().
+	AddType(postgresql.ConnectionPoolerConfig{}, []reflect.Type{}).
+	AddEnumGeneratedNamesWithCompareAndValidFuncs("pooling_mode", postgresql.ConnectionPoolerConfig_PoolingMode_name)

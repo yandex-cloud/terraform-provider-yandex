@@ -1,0 +1,160 @@
+package acceptance
+
+import (
+	"context"
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
+	dataprocsdk "github.com/yandex-cloud/go-sdk/services/dataproc/v1"
+	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers/iam"
+)
+
+const (
+	dataprocIAMBindingResourceType = dataprocResourceType + "_iam_binding"
+	dataprocIAMBindingResourceFoo  = dataprocIAMBindingResourceType + ".foo"
+	dataprocIAMBindingResourceBar  = dataprocIAMBindingResourceType + ".bar"
+
+	dataprocIAMClusterName = "tf-dataproc-cluster-access-bindings"
+	dataprocIAMClusterDesc = "Dataproc Cluster Terraform Test AccessBindings"
+
+	dataprocIAMRoleViewer = "dataproc.viewer"
+	dataprocIAMRoleEditor = "dataproc.editor"
+)
+
+func TestAccDataprocClusterIamBinding_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	var (
+		cluster        dataproc.Cluster
+		ctx            = context.Background()
+		templateParams = defaultDataprocConfigParams(t)
+
+		role   = dataprocIAMRoleViewer
+		userID = "system:allAuthenticatedUsers"
+	)
+	templateParams.Name = acctest.RandomWithPrefix(dataprocIAMClusterName)
+	templateParams.Description = dataprocIAMClusterDesc + " Basic"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocClusterIamBindingConfig(t, role, userID, templateParams),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckDataprocClusterExists(dataprocResourceType+".tf-dataproc-cluster", &cluster),
+					iam.TestAccCheckIamBindingEqualsMembers(ctx, suite.testAccDataprocClusterIAMClient(t), &cluster, role, []string{userID}),
+				),
+			},
+			iam.IAMBindingImportTestStep(dataprocIAMBindingResourceFoo, &cluster, role, "cluster_id"),
+		},
+	})
+}
+
+func TestAccDataprocClusterIamBinding_multiple(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	var (
+		cluster        dataproc.Cluster
+		ctx            = context.Background()
+		templateParams = defaultDataprocConfigParams(t)
+
+		roleFoo = dataprocIAMRoleViewer
+		roleBar = dataprocIAMRoleEditor
+		userID  = "system:allAuthenticatedUsers"
+	)
+	templateParams.Name = acctest.RandomWithPrefix(dataprocIAMClusterName)
+	templateParams.Description = dataprocIAMClusterDesc + " AddAndRemove"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		Steps: []resource.TestStep{
+			// Prepare cluster without IAM
+			{
+				Config: testAccDataprocClusterConfig(t, templateParams),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckDataprocClusterExists(dataprocResourceType+".tf-dataproc-cluster", &cluster),
+					iam.TestAccCheckIamBindingEmpty(ctx, suite.testAccDataprocClusterIAMClient(t), &cluster, roleFoo),
+				),
+			},
+			// One binding
+			{
+				Config: testAccDataprocClusterIamBindingConfig(t, roleFoo, userID, templateParams),
+				Check:  iam.TestAccCheckIamBindingEqualsMembers(ctx, suite.testAccDataprocClusterIAMClient(t), &cluster, roleFoo, []string{userID}),
+			},
+			iam.IAMBindingImportTestStep(dataprocIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
+			// Two bindings
+			{
+				Config: testAccDataprocClusterIamBindingMultipleConfig(t, roleFoo, roleBar, userID, templateParams),
+				Check: resource.ComposeTestCheckFunc(
+					iam.TestAccCheckIamBindingEqualsMembers(ctx, suite.testAccDataprocClusterIAMClient(t), &cluster, roleFoo, []string{userID}),
+					iam.TestAccCheckIamBindingEqualsMembers(ctx, suite.testAccDataprocClusterIAMClient(t), &cluster, roleBar, []string{userID}),
+				),
+			},
+			iam.IAMBindingImportTestStep(dataprocIAMBindingResourceFoo, &cluster, roleFoo, "cluster_id"),
+			iam.IAMBindingImportTestStep(dataprocIAMBindingResourceBar, &cluster, roleBar, "cluster_id"),
+			// Remove all bindings
+			{
+				Config: testAccDataprocClusterConfig(t, templateParams),
+				Check: resource.ComposeTestCheckFunc(
+					iam.TestAccCheckIamBindingEmpty(ctx, suite.testAccDataprocClusterIAMClient(t), &cluster, roleFoo),
+					iam.TestAccCheckIamBindingEmpty(ctx, suite.testAccDataprocClusterIAMClient(t), &cluster, roleBar),
+				),
+			},
+		},
+	})
+}
+
+func (suite testSuite) testAccDataprocClusterIAMClient(t *testing.T) iam.ClientFactory {
+	return func() (iam.BindingsGetter, error) {
+		cfg, configErr := suite.Config()
+		if configErr != nil {
+			return nil, configErr
+		}
+
+		client := dataprocsdk.NewClusterClient(cfg.SDK)
+
+		return client, nil
+	}
+}
+
+func testAccDataprocClusterIamBindingConfig(t *testing.T, role, userID string, templateParams dataprocTFConfigParams) string {
+	main := testAccDataprocClusterConfig(t, templateParams)
+
+	return fmt.Sprintf(`
+resource "%s" "foo" {
+  cluster_id = %s.id
+  role       = "%s"
+  members    = ["%s"]
+}
+`, dataprocIAMBindingResourceType, dataprocResourceType+".tf-dataproc-cluster", role, userID) + main
+}
+
+func testAccDataprocClusterIamBindingMultipleConfig(t *testing.T, roleFoo, roleBar, userID string, templateParams dataprocTFConfigParams) string {
+	main := testAccDataprocClusterConfig(t, templateParams)
+
+	return fmt.Sprintf(`
+resource "%s" "foo" {
+  cluster_id = %s.id
+  role       = "%s"
+  members    = ["%s"]
+}
+
+resource "%s" "bar" {
+  cluster_id = %s.id
+  role       = "%s"
+  members    = ["%s"]
+}
+`,
+		dataprocIAMBindingResourceType, dataprocResourceType+".tf-dataproc-cluster", roleFoo, userID,
+		dataprocIAMBindingResourceType, dataprocResourceType+".tf-dataproc-cluster", roleBar, userID,
+	) + main
+}

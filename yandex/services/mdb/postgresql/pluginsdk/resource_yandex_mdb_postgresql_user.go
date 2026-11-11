@@ -1,0 +1,632 @@
+package pluginsdk
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
+
+	wrappers "github.com/golang/protobuf/ptypes/wrappers"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+)
+
+const (
+	yandexMDBPostgreSQLUserCreateTimeout = 10 * time.Minute
+	yandexMDBPostgreSQLUserReadTimeout   = 1 * time.Minute
+	yandexMDBPostgreSQLUserUpdateTimeout = 10 * time.Minute
+	yandexMDBPostgreSQLUserDeleteTimeout = 10 * time.Minute
+	RedactedPgUserPassword               = "[REDACTED]"
+)
+
+func ResourceYandexMDBPostgreSQLUser() *schema.Resource {
+	return &schema.Resource{
+		Description: "Manages a PostgreSQL user within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/managed-postgresql/).",
+
+		Create: resourceYandexMDBPostgreSQLUserCreate,
+		Read:   resourceYandexMDBPostgreSQLUserRead,
+		Update: resourceYandexMDBPostgreSQLUserUpdate,
+		Delete: resourceYandexMDBPostgreSQLUserDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if err := ValidatePgUserPasswordConflict(d); err != nil {
+				return err
+			}
+			return mdbcommon.CustomizeDiffUserConnectionManager(ctx, d, "user_connection_manager")
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(yandexMDBPostgreSQLUserCreateTimeout),
+			Read:   schema.DefaultTimeout(yandexMDBPostgreSQLUserReadTimeout),
+			Update: schema.DefaultTimeout(yandexMDBPostgreSQLUserUpdateTimeout),
+			Delete: schema.DefaultTimeout(yandexMDBPostgreSQLUserDeleteTimeout),
+		},
+
+		SchemaVersion: 0,
+
+		Schema: map[string]*schema.Schema{
+			"cluster_id": {
+				Type:        schema.TypeString,
+				Description: "The ID of the PostgreSQL cluster.",
+				Required:    true,
+				ForceNew:    true,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Description: "The name of the PostgreSQL user.",
+				Required:    true,
+			},
+			"password": {
+				Type:        schema.TypeString,
+				Description: "The password of the user.",
+				Optional:    true,
+				Sensitive:   true,
+			},
+			"password_wo": {
+				Type:         schema.TypeString,
+				Description:  "The password of the user. This attribute is write-only and is not stored in state. Requires `password_wo_version` to trigger updates. Write-only arguments are only supported in Terraform v1.11 or higher",
+				Optional:     true,
+				WriteOnly:    true,
+				Sensitive:    true,
+				RequiredWith: []string{"password_wo_version"},
+			},
+			"password_wo_version": {
+				Type:         schema.TypeInt,
+				Description:  "A version number for the write-only password. Increment this to trigger a password update.",
+				Optional:     true,
+				RequiredWith: []string{"password_wo"},
+			},
+			"login": {
+				Type:        schema.TypeBool,
+				Description: "User's ability to login.",
+				Optional:    true,
+				Default:     true,
+			},
+			"grants": {
+				Type:        schema.TypeList,
+				Description: "List of the user's grants.",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.StringIsNotEmpty,
+				},
+			},
+			// TODO change to permissions
+			"permission": {
+				Type:        schema.TypeSet,
+				Description: "Set of permissions granted to the user.",
+				Optional:    true,
+				Set:         pgUserPermissionHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"database_name": {
+							Type:        schema.TypeString,
+							Description: "The name of the database that the permission grants access to.",
+							Required:    true,
+						},
+					},
+				},
+			},
+			"conn_limit": {
+				Type:        schema.TypeInt,
+				Description: "The maximum number of connections per user. (Default 50).",
+				Optional:    true,
+				Computed:    true,
+			},
+			"settings": {
+				Type:             schema.TypeMap,
+				Description:      "Map of user settings. [Full description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).\n\n  - `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:\n    - `read uncommitted`\n    - `read committed`\n    - `repeatable read`\n    - `serializable`\n\n  - `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)\n\n  - `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)\n\n  - `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way. One of:\n    - `on`\n    - `off`\n    - `local`\n    - `remote write`\n    - `remote apply`\n\n  - `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.\n\n  - `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of:\n    - `none`\n    - `ddl`\n    - `mod`\n    - `all`\n\n  - `pool_mode` - Mode that the connection pooler is working in with specified user. One of:\n    - `session`\n    - `transaction`\n    - `statement`\n\n  - `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.\n\n  - `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.\n\n  - `wal_sender_timeout` - The maximum time (in milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that are inactive for longer than this amount of time. Integer.\n\n  - `idle_in_transaction_session_timeout` - Sets the maximum allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout. Integer.\n\n  - `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables the timeout. Integer.\n\n  - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings). String (json with with escaped quotes). Example `\"{\\\"log\\\": [\\\"READ\\\", \\\"WRITE\\\"]}\"`\n\n",
+				Optional:         true,
+				ValidateFunc:     sdkcommon.GenerateMapSchemaValidateFunc(MdbPGUserSettingsFieldsInfo),
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFuncV2(MdbPGUserSettingsFieldsInfo),
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"deletion_protection": {
+				Type:         schema.TypeString,
+				Description:  common.ResourceDescriptions["deletion_protection"],
+				Optional:     true,
+				Default:      "unspecified",
+				ValidateFunc: validation.StringInSlice([]string{"true", "false", "unspecified"}, false),
+			},
+			"connection_manager": {
+				Type:        schema.TypeMap,
+				Description: "Connection Manager connection configuration. Populated from `user_connection_manager`.",
+				Deprecated:  sdkcommon.FieldDeprecatedForAnother("connection_manager", "user_connection_manager"),
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"user_connection_manager": mdbcommon.UserConnectionManagerSchema(),
+			"generate_password": {
+				Type:        schema.TypeBool,
+				Description: "Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is ignored during updating.\n\n~> **Must specify either password or generate_password**.\n",
+				Optional:    true,
+				Default:     false,
+			},
+			"auth_method": {
+				Type:        schema.TypeString,
+				Description: "Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is `AUTH_METHOD_PASSWORD`.",
+				Optional:    true,
+				Default:     "AUTH_METHOD_PASSWORD",
+				ValidateFunc: validation.StringInSlice([]string{
+					"AUTH_METHOD_UNSPECIFIED",
+					"AUTH_METHOD_PASSWORD",
+					"AUTH_METHOD_IAM",
+				}, false),
+			},
+			"user_password_encryption": {
+				Type:        schema.TypeString,
+				Description: "Password-based authentication method for user.\nPossible values are `USER_PASSWORD_ENCRYPTION_MD5` or `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`.\nThe default is password_encryption setting for cluster.",
+				Optional:    true,
+				Computed:    true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"USER_PASSWORD_ENCRYPTION_UNSPECIFIED",
+					"USER_PASSWORD_ENCRYPTION_MD5",
+					"USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256",
+				}, false),
+			},
+		},
+	}
+}
+
+func ValidatePgUserPasswordConflict(d mdbcommon.RawConfigProvider) error {
+	_, hasPassword := mdbcommon.LookupRawConfigPath(d, "password")
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
+	if hasPassword && hasPasswordWo {
+		return fmt.Errorf("only one of `password` or `password_wo` can be specified")
+	}
+	return nil
+}
+
+func ValidatePgUserPasswordPair(d mdbcommon.RawConfigProvider) error {
+	_, hasPasswordWo := mdbcommon.LookupRawConfigPath(d, "password_wo")
+	_, hasPasswordWoVersion := mdbcommon.LookupRawConfigPath(d, "password_wo_version")
+	if hasPasswordWo != hasPasswordWoVersion {
+		return fmt.Errorf("`password_wo` and `password_wo_version` must be specified together")
+	}
+	return nil
+}
+
+func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta any) error {
+	config := meta.(*providerconfig.Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	if err := ValidatePgUserPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := ValidatePgUserPasswordPair(d); err != nil {
+		return err
+	}
+
+	clusterID := d.Get("cluster_id").(string)
+	userSpec, err := expandPgUserSpec(d)
+	if err != nil {
+		return err
+	}
+
+	err = validatePasswordConfiguration(userSpec)
+	if err != nil {
+		return err
+	}
+
+	err = validateUserPasswordEncryptionForCreate(d)
+	if err != nil {
+		return err
+	}
+
+	request := &postgresql.CreateUserRequest{
+		ClusterId: clusterID,
+		UserSpec:  userSpec,
+	}
+	op, err := sdkcommon.RetryConflictingOperationV2(ctx, config, func() (sdkcommon.SdkV2Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL user create request: %+v", RedactPgUserCreateRequest(request))
+		return postgresqlsdk.NewUserClient(config.SDK).Create(ctx, request)
+	})
+
+	userID := sdkcommon.ConstructResourceId(clusterID, userSpec.Name)
+	d.SetId(userID)
+
+	if err != nil {
+		return fmt.Errorf("error while requesting API to create user for PostgreSQL Cluster %q: %s", clusterID, err)
+	}
+
+	if _, err = op.Wait(ctx); err != nil {
+		return fmt.Errorf("error while creating user for PostgreSQL Cluster %q: %s", clusterID, err)
+	}
+
+	if err := op.Error(); err != nil {
+		return fmt.Errorf("creating user for PostgreSQL Cluster %q failed: %s", clusterID, err)
+	}
+
+	return resourceYandexMDBPostgreSQLUserRead(d, meta)
+}
+
+func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
+	user := &postgresql.UserSpec{}
+	if v, ok := d.GetOkExists("name"); ok {
+		user.Name = v.(string)
+	}
+
+	if v, ok := d.GetOkExists("password"); ok {
+		user.Password = v.(string)
+	}
+
+	if passwordWo, ok := mdbcommon.LookupRawConfigPath(d, "password_wo"); ok {
+		user.Password = passwordWo.AsString()
+	}
+
+	if v, ok := d.GetOkExists("login"); ok {
+		user.Login = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	if v, ok := d.GetOkExists("conn_limit"); ok {
+		user.ConnLimit = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOkExists("permission"); ok {
+		permissions, err := expandPGUserPermissions(v.(*schema.Set))
+		if err != nil {
+			return nil, err
+		}
+		user.Permissions = permissions
+	}
+
+	if v, ok := d.GetOkExists("grants"); ok {
+		gs, err := expandPGUserGrants(v.([]any))
+		if err != nil {
+			return nil, err
+		}
+		user.Grants = gs
+	}
+
+	if _, ok := d.GetOkExists("settings"); ok {
+		if user.Settings == nil {
+			user.Settings = &postgresql.UserSettings{}
+		}
+
+		err := sdkcommon.ExpandResourceGenerate(MdbPGUserSettingsFieldsInfo, d, user.Settings, "settings.", true)
+		if err != nil {
+			return nil, err
+		}
+
+		if v, ok := d.GetOkExists("settings.pgaudit"); ok {
+			as, err := expandPgAuditSettings(v.(string))
+			if err != nil {
+				return nil, err
+			}
+			user.Settings.Pgaudit = as
+		}
+	}
+
+	if v, ok := d.GetOk("deletion_protection"); ok {
+		user.DeletionProtection = mdbPGTristateBooleanName[v.(string)]
+	}
+
+	if v, ok := d.GetOk("generate_password"); ok {
+		user.GeneratePassword = wrapperspb.Bool(v.(bool))
+	}
+
+	if v, ok := d.GetOk("auth_method"); ok {
+		authMethod, err := parsePostgreSQLAuthMethod(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		user.AuthMethod = authMethod
+	}
+
+	if v, ok := d.GetOk("user_password_encryption"); ok {
+		userPasswordEncryption, err := parsePostgreSQLUserPasswordEncryption(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		user.UserPasswordEncryption = userPasswordEncryption
+	}
+
+	user.UserConnectionManager = mdbcommon.ExpandUserConnectionManager(d, "user_connection_manager")
+
+	return user, nil
+}
+
+func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta any) error {
+	config := meta.(*providerconfig.Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	clusterId, username, err := sdkcommon.DeconstructResourceId(d.Id())
+	if err != nil {
+		return err
+	}
+
+	apiUser, err := postgresqlsdk.NewUserClient(config.SDK).Get(ctx, &postgresql.GetUserRequest{
+		ClusterId: clusterId,
+		UserName:  username,
+	})
+	if err != nil {
+		return sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("User %q", username))
+	}
+
+	stateUser, err := expandPgUserSpec(d)
+	if err != nil {
+		return err
+	}
+
+	userPermissions, err := removePgUserOwnerPermissions(ctx, config, clusterId, apiUser.Name, apiUser.Permissions, stateUser.Permissions)
+	if err != nil {
+		return fmt.Errorf("error while removing owner permissions from user in PostgreSQL Cluster %q: %s", clusterId, err)
+	}
+
+	d.Set("cluster_id", clusterId)
+	d.Set("name", apiUser.Name)
+	d.Set("login", apiUser.Login.GetValue())
+	d.Set("grants", apiUser.Grants)
+	d.Set("permission", flattenPGUserPermissions(userPermissions))
+	d.Set("conn_limit", apiUser.ConnLimit)
+	knownDefault := map[string]struct{}{
+		"log_min_duration_statement": {},
+	}
+	settings, err := sdkcommon.FlattenResourceGenerateMapS(apiUser.Settings, false, MdbPGUserSettingsFieldsInfo, false, true, knownDefault)
+	if err != nil {
+		return err
+	}
+	pgAudit, err := flattenPGUserPgAudit(apiUser.Settings)
+	if err != nil {
+		return err
+	}
+	if pgAudit != "" {
+		if settings == nil {
+			settings = make(map[string]string)
+		}
+		settings["pgaudit"] = pgAudit
+	}
+	d.Set("settings", settings)
+	d.Set("deletion_protection", mdbPGResolveTristateBoolean(apiUser.DeletionProtection))
+	d.Set("connection_manager", flattenPGUserConnectionManager(apiUser.UserConnectionManager))
+	d.Set("user_connection_manager", mdbcommon.FlattenUserConnectionManager(apiUser.UserConnectionManager))
+	d.Set("auth_method", apiUser.AuthMethod.String())
+	d.Set("user_password_encryption", apiUser.UserPasswordEncryption.String())
+
+	return nil
+}
+
+func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta any) error {
+	config := meta.(*providerconfig.Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
+	defer cancel()
+
+	if err := ValidatePgUserPasswordConflict(d); err != nil {
+		return err
+	}
+	if err := ValidatePgUserPasswordPair(d); err != nil {
+		return err
+	}
+
+	user, err := expandPgUserSpec(d)
+	if err != nil {
+		return err
+	}
+
+	err = validatePasswordConfiguration(user)
+	if err != nil {
+		return err
+	}
+
+	err = validateUserPasswordEncryptionForUpdate(d, user)
+	if err != nil {
+		return err
+	}
+
+	if d.HasChange("name") {
+		return fmt.Errorf("can't change name of an existing user")
+	}
+
+	updatePath := []string{}
+	changeMask := map[string]string{
+		"password":                                     "password",
+		"password_wo_version":                          "password",
+		"permission":                                   "permissions",
+		"login":                                        "login",
+		"grants":                                       "grants",
+		"conn_limit":                                   "conn_limit",
+		"deletion_protection":                          "deletion_protection",
+		"auth_method":                                  "auth_method",
+		"user_password_encryption":                     "user_password_encryption",
+		"settings.default_transaction_isolation":       "settings.default_transaction_isolation",
+		"settings.lock_timeout":                        "settings.lock_timeout",
+		"settings.log_min_duration_statement":          "settings.log_min_duration_statement",
+		"settings.synchronous_commit":                  "settings.synchronous_commit",
+		"settings.temp_file_limit":                     "settings.temp_file_limit",
+		"settings.log_statement":                       "settings.log_statement",
+		"settings.pool_mode":                           "settings.pool_mode",
+		"settings.prepared_statements_pooling":         "settings.prepared_statements_pooling",
+		"settings.catchup_timeout":                     "settings.catchup_timeout",
+		"settings.wal_sender_timeout":                  "settings.wal_sender_timeout",
+		"settings.idle_in_transaction_session_timeout": "settings.idle_in_transaction_session_timeout",
+		"settings.statement_timeout":                   "settings.statement_timeout",
+		"settings.pgaudit":                             "settings.pgaudit",
+	}
+
+	for field, mask := range changeMask {
+		if d.HasChange(field) {
+			updatePath = append(updatePath, mask)
+		}
+	}
+
+	if len(updatePath) == 0 {
+		return nil
+	}
+
+	clusterID := d.Get("cluster_id").(string)
+	userPermissions, err := addPgUserOwnerPermissions(ctx, config, clusterID, user.Name, user.Permissions)
+	if err != nil {
+		return fmt.Errorf("error while adding owner permissions to user in PostgreSQL Cluster %q: %s", clusterID, err)
+	}
+
+	request := &postgresql.UpdateUserRequest{
+		ClusterId:              clusterID,
+		UserName:               user.Name,
+		Password:               user.Password,
+		Permissions:            userPermissions,
+		ConnLimit:              user.ConnLimit.GetValue(),
+		Login:                  user.Login,
+		Grants:                 user.Grants,
+		Settings:               user.Settings,
+		DeletionProtection:     user.DeletionProtection,
+		AuthMethod:             user.AuthMethod,
+		UserPasswordEncryption: user.UserPasswordEncryption,
+		UpdateMask:             &fieldmaskpb.FieldMask{Paths: updatePath},
+	}
+
+	op, err := sdkcommon.RetryConflictingOperationV2(ctx, config, func() (sdkcommon.SdkV2Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL user update request: %+v", RedactPgUserUpdateRequest(request))
+		return postgresqlsdk.NewUserClient(config.SDK).Update(ctx, request)
+	})
+
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update user in PostgreSQL Cluster %q: %s", clusterID, err)
+	}
+
+	if _, err = op.Wait(ctx); err != nil {
+		return fmt.Errorf("error while updating user in PostgreSQL Cluster %q: %s", clusterID, err)
+	}
+
+	if err := op.Error(); err != nil {
+		return fmt.Errorf("updating user for PostgreSQL Cluster %q failed: %s", clusterID, err)
+	}
+	return resourceYandexMDBPostgreSQLUserRead(d, meta)
+}
+
+func RedactPgUserCreateRequest(request *postgresql.CreateUserRequest) *postgresql.CreateUserRequest {
+	redactedRequest := proto.Clone(request).(*postgresql.CreateUserRequest)
+	if redactedRequest.UserSpec != nil && redactedRequest.UserSpec.Password != "" {
+		redactedRequest.UserSpec.Password = RedactedPgUserPassword
+	}
+	return redactedRequest
+}
+
+func RedactPgUserUpdateRequest(request *postgresql.UpdateUserRequest) *postgresql.UpdateUserRequest {
+	redactedRequest := proto.Clone(request).(*postgresql.UpdateUserRequest)
+	if redactedRequest.Password != "" {
+		redactedRequest.Password = RedactedPgUserPassword
+	}
+	return redactedRequest
+}
+
+func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta any) error {
+	config := meta.(*providerconfig.Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
+	defer cancel()
+
+	clusterID := d.Get("cluster_id").(string)
+	username := d.Get("name").(string)
+
+	request := &postgresql.DeleteUserRequest{
+		ClusterId: clusterID,
+		UserName:  username,
+	}
+	op, err := sdkcommon.RetryConflictingOperationV2(ctx, config, func() (sdkcommon.SdkV2Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL user delete request: %+v", request)
+		return postgresqlsdk.NewUserClient(config.SDK).Delete(ctx, request)
+	})
+
+	if err != nil {
+		return fmt.Errorf("error while requesting API to delete user from PostgreSQL Cluster %q: %s", clusterID, err)
+	}
+
+	if _, err = op.Wait(ctx); err != nil {
+		return fmt.Errorf("error while deleting user from PostgreSQL Cluster %q: %s", clusterID, err)
+	}
+
+	if err := op.Error(); err != nil {
+		return fmt.Errorf("deleting user from PostgreSQL Cluster %q failed: %s", clusterID, err)
+	}
+
+	return nil
+}
+
+// If the user is the database owner, it is assumed that they have permissions on that database (and the API reflects this as well).
+// Therefore, it is redundant to declare explicit permissions for a user on a database they already own.
+// However, if the user specifies both fields - owner and permissions - we simply ignore those permissions in the Read
+// function to avoid constant changes in the Terraform plan.
+func removePgUserOwnerPermissions(
+	ctx context.Context,
+	config *providerconfig.Config,
+	clusterId string,
+	username string,
+	apiUserPermissions []*postgresql.Permission,
+	stateUserPermissions []*postgresql.Permission,
+) ([]*postgresql.Permission, error) {
+
+	statePermissionsMap := make(map[string]*postgresql.Permission)
+	for _, permission := range stateUserPermissions {
+		statePermissionsMap[permission.DatabaseName] = permission
+	}
+
+	databaseList, err := listPGDatabases(ctx, config, clusterId)
+	if err != nil {
+		return nil, err
+	}
+
+	dbMap := make(map[string]*postgresql.Database)
+	for _, db := range databaseList {
+		dbMap[db.Name] = db
+	}
+
+	newPerms := []*postgresql.Permission{}
+	for _, p := range apiUserPermissions {
+		if db, ok := dbMap[p.DatabaseName]; ok && !isOwnerWithoutPermissions(db, statePermissionsMap, username) {
+			newPerms = append(newPerms, p)
+		}
+	}
+
+	return newPerms, nil
+}
+
+func isOwnerWithoutPermissions(db *postgresql.Database, statePermissionsMap map[string]*postgresql.Permission, username string) bool {
+	return db.Owner == username && statePermissionsMap[db.Name] == nil
+}
+
+// Add permissions for databases where user is owner
+func addPgUserOwnerPermissions(
+	ctx context.Context,
+	config *providerconfig.Config,
+	clusterId string,
+	name string,
+	permissions []*postgresql.Permission,
+) ([]*postgresql.Permission, error) {
+	databaseList, err := listPGDatabases(ctx, config, clusterId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, db := range databaseList {
+		if db.Owner == name {
+			permissions = append(permissions, &postgresql.Permission{
+				DatabaseName: db.Name,
+			})
+		}
+	}
+
+	return permissions, nil
+}

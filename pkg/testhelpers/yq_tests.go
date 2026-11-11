@@ -6,8 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework"
+	"github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 )
 

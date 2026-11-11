@@ -1,0 +1,269 @@
+package pluginsdk
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
+	dnssdk "github.com/yandex-cloud/go-sdk/services/dns/v1"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+)
+
+func ResourceYandexDnsRecordSet() *schema.Resource {
+	return &schema.Resource{
+		Description: "Manages a DNS RecordSet within Yandex Cloud.",
+		Create:      resourceYandexDnsRecordSetCreate,
+		Read:        resourceYandexDnsRecordSetRead,
+		Update:      resourceYandexDnsRecordSetUpdate,
+		Delete:      resourceYandexDnsRecordSetDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceDnsRecordSetImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(yandexDnsDefaultTimeout),
+			Update: schema.DefaultTimeout(yandexDnsDefaultTimeout),
+			Delete: schema.DefaultTimeout(yandexDnsDefaultTimeout),
+		},
+
+		SchemaVersion: 0,
+
+		Schema: map[string]*schema.Schema{
+			"zone_id": {
+				Type:        schema.TypeString,
+				Description: "The id of the zone in which this record set will reside.",
+				Required:    true,
+				ForceNew:    true,
+			},
+
+			"name": {
+				Type:         schema.TypeString,
+				Description:  "The DNS name this record set will apply to.",
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringLenBetween(1, 254),
+			},
+
+			"description": {
+				Type:        schema.TypeString,
+				Description: "The DNS record set description.",
+				Optional:    true,
+			},
+
+			"type": {
+				Type:         schema.TypeString,
+				Description:  "The DNS record set type.",
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringLenBetween(1, 20),
+			},
+
+			"ttl": {
+				Type:         schema.TypeInt,
+				Description:  "The time-to-live of this record set (seconds).",
+				Required:     true,
+				ValidateFunc: validation.IntBetween(0, 2147483647),
+			},
+
+			"data": {
+				Type:        schema.TypeSet,
+				Description: "The string data for the records in this record set.",
+				Required:    true,
+				MinItems:    1,
+				MaxItems:    100,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.StringLenBetween(1, 1024),
+				},
+				Set: schema.HashString,
+			},
+		},
+	}
+}
+
+func resourceYandexDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	rs := &dns.RecordSet{
+		Name:        d.Get("name").(string),
+		Type:        d.Get("type").(string),
+		Description: d.Get("description").(string),
+		Ttl:         int64(d.Get("ttl").(int)),
+		Data:        sdkcommon.ConvertStringSet(d.Get("data").(*schema.Set)),
+	}
+
+	req := dns.UpdateRecordSetsRequest{
+		DnsZoneId: d.Get("zone_id").(string),
+		Additions: []*dns.RecordSet{rs},
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := client.UpdateRecordSets(ctx, &req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to create DnsRecordSet: %s", err)
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while waiting operation to create DnsRecordSet: %s", err)
+	}
+
+	d.SetId(fmt.Sprintf("%s/%s/%s", d.Get("zone_id"), d.Get("name"), d.Get("type")))
+
+	return resourceYandexDnsRecordSetRead(d, meta)
+}
+
+func resourceYandexDnsRecordSetRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	req := &dns.GetDnsZoneRecordSetRequest{
+		DnsZoneId: d.Get("zone_id").(string),
+		Type:      d.Get("type").(string),
+		Name:      d.Get("name").(string),
+	}
+
+	rs, err := client.GetRecordSet(config.Context(), req)
+
+	if err != nil {
+		return sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("DnsRecordSet %s", rsId(d)))
+	}
+
+	d.Set("description", rs.Description)
+	d.Set("ttl", int(rs.Ttl))
+	d.Set("data", sdkcommon.ConvertStringArrToInterface(rs.Data))
+
+	return nil
+}
+
+func resourceYandexDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error {
+	req, err := prepareDnsRecordSetUpdateRequest(d)
+	if err != nil {
+		return err
+	}
+
+	err = makeDnsRecordSetUpdateRequest(req, d, meta)
+	if err != nil {
+		return err
+	}
+
+	return resourceYandexDnsRecordSetRead(d, meta)
+}
+
+func resourceYandexDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	rs := &dns.RecordSet{
+		Name:        d.Get("name").(string),
+		Type:        d.Get("type").(string),
+		Description: d.Get("description").(string),
+		Ttl:         int64(d.Get("ttl").(int)),
+		Data:        sdkcommon.ConvertStringSet(d.Get("data").(*schema.Set)),
+	}
+
+	req := dns.UpdateRecordSetsRequest{
+		DnsZoneId: d.Get("zone_id").(string),
+		Deletions: []*dns.RecordSet{rs},
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := client.UpdateRecordSets(ctx, &req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to create DnsRecordSet: %s", err)
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while waiting operation to create DnsRecordSet: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished deleting DnsRecordSet %s", rsId(d))
+	return nil
+}
+
+func prepareDnsRecordSetUpdateRequest(d *schema.ResourceData) (*dns.UpdateRecordSetsRequest, error) {
+	name := d.Get("name").(string)
+
+	oldTtl, newTtl := d.GetChange("ttl")
+	oldType, newType := d.GetChange("type")
+	oldDescription, newDescription := d.GetChange("description")
+	oldData, _ := d.GetChange("data")
+
+	req := &dns.UpdateRecordSetsRequest{
+		DnsZoneId: d.Get("zone_id").(string),
+		Deletions: []*dns.RecordSet{
+			{
+				Name:        name,
+				Type:        oldType.(string),
+				Description: oldDescription.(string),
+				Ttl:         int64(oldTtl.(int)),
+				Data:        sdkcommon.ConvertStringSet(oldData.(*schema.Set)),
+			},
+		},
+		Additions: []*dns.RecordSet{
+			{
+				Name:        name,
+				Type:        newType.(string),
+				Description: newDescription.(string),
+				Ttl:         int64(newTtl.(int)),
+				Data:        sdkcommon.ConvertStringSet(d.Get("data").(*schema.Set)),
+			},
+		},
+	}
+
+	return req, nil
+}
+
+func makeDnsRecordSetUpdateRequest(req *dns.UpdateRecordSetsRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := client.UpdateRecordSets(ctx, req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to update DnsRecordSet %q: %s", d.Id(), err)
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error updating DnsRecordSet %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func resourceDnsRecordSetImportState(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) == 3 {
+		if err := d.Set("zone_id", parts[0]); err != nil {
+			return nil, fmt.Errorf("Error setting zone_id: %s", err)
+		}
+		if err := d.Set("name", parts[1]); err != nil {
+			return nil, fmt.Errorf("Error setting name: %s", err)
+		}
+		if err := d.Set("type", parts[2]); err != nil {
+			return nil, fmt.Errorf("Error setting type: %s", err)
+		}
+	} else {
+		return nil, fmt.Errorf("Invalid dns recordset specifier. Expecting {zone-id}/{record-name}/{record-type}.")
+	}
+
+	return []*schema.ResourceData{d}, nil
+}
+
+func rsId(d *schema.ResourceData) string {
+	return fmt.Sprintf("%s %s", d.Get("type").(string), d.Get("name"))
+}

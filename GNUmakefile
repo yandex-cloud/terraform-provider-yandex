@@ -14,14 +14,14 @@ SEMVER ?= 0.0.1
 TEST?=$$(go list ./... )
 GOFMT_FILES?=$$(find . -path './vendor' -prune -o -name '*.go' -print)
 PKG_NAME=yandex
-LINT_PACKAGES= ./yandex/... yandex-framework/...
+LINT_PACKAGES= ./yandex/... ./internal/provider/framework/...
 
 SWEEP?=$(YC_REGION)
 ifeq ($(SWEEP),)
 SWEEP=ru-central1
 endif
 
-SWEEP_DIR= ./yandex ./yandex-framework/...
+SWEEP_DIR=./yandex/internal/sweeprunner
 
 SWEEPERS_FOR_RUNNING?=""
 

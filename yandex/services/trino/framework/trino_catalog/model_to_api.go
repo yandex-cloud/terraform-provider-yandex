@@ -1,0 +1,779 @@
+package trino_catalog
+
+import (
+	"context"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/trino/v1"
+
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"google.golang.org/genproto/protobuf/field_mask"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
+)
+
+func BuildCreateCatalogRequest(ctx context.Context, catalogModel *CatalogModel, providerConfig *config.State) (*trino.CreateCatalogRequest, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	clusterID := catalogModel.ClusterId.ValueString()
+	common, _, dd := buildCommonForCreateAndUpdate(ctx, catalogModel, nil)
+	diags.Append(dd...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	clusterCreateRequest := &trino.CreateCatalogRequest{
+		ClusterId: clusterID,
+		Catalog: &trino.CatalogSpec{
+			Name:        common.Name,
+			Connector:   common.Connector,
+			Description: common.Description,
+			Labels:      common.Labels,
+		},
+	}
+
+	return clusterCreateRequest, diags
+}
+
+func BuildUpdateCatalogRequest(ctx context.Context, state *CatalogModel, plan *CatalogModel) (*trino.UpdateCatalogRequest, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	common, updateMaskPaths, dd := buildCommonForCreateAndUpdate(ctx, plan, state)
+	diags.Append(dd...)
+
+	updateCatalogRequest := &trino.UpdateCatalogRequest{
+		ClusterId:  state.ClusterId.ValueString(),
+		CatalogId:  state.Id.ValueString(),
+		UpdateMask: &field_mask.FieldMask{Paths: updateMaskPaths},
+		Catalog: &trino.CatalogUpdateSpec{
+			Name:        common.Name,
+			Connector:   common.Connector,
+			Description: common.Description,
+			Labels:      common.Labels,
+		},
+	}
+
+	return updateCatalogRequest, diags
+}
+
+type CommonForCreateAndUpdate struct {
+	Name        string
+	Description string
+	Labels      map[string]string
+	Connector   *trino.Connector
+}
+
+func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *CatalogModel) (*CommonForCreateAndUpdate, []string, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+	updateMaskPaths := make([]string, 0)
+
+	if state != nil {
+		if !plan.Name.Equal(state.Name) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.name")
+		}
+		if !stringsAreEqual(plan.Description, state.Description) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.description")
+		}
+	}
+
+	labels := make(map[string]string, len(plan.Labels.Elements()))
+	diags.Append(plan.Labels.ElementsAs(ctx, &labels, false)...)
+	if diags.HasError() {
+		return nil, nil, diags
+	}
+	if state != nil && !mapsAreEqual(plan.Labels, state.Labels) {
+		updateMaskPaths = append(updateMaskPaths, "catalog.labels")
+	}
+
+	// Connector
+	connector := &trino.Connector{}
+	switch {
+	case !plan.Postgresql.IsNull() && !plan.Postgresql.IsUnknown():
+		postgresql, dd := postgresqlConnectorToAPI(ctx, plan.Postgresql)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Postgresql{Postgresql: postgresql}
+		if state != nil && !plan.Postgresql.Equal(state.Postgresql) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.postgresql")
+		}
+	case !plan.Greenplum.IsNull() && !plan.Greenplum.IsUnknown():
+		greenplum, dd := greenplumConnectorToAPI(ctx, plan.Greenplum)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Greenplum{Greenplum: greenplum}
+		if state != nil && !plan.Greenplum.Equal(state.Greenplum) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.greenplum")
+		}
+	case !plan.Hive.IsNull() && !plan.Hive.IsUnknown():
+		hive, dd := hiveConnectorToAPI(ctx, plan.Hive)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Hive{Hive: hive}
+		if state != nil && !plan.Hive.Equal(state.Hive) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.hive")
+		}
+	case !plan.Clickhouse.IsNull() && !plan.Clickhouse.IsUnknown():
+		clickhouse, dd := clickhouseConnectorToAPI(ctx, plan.Clickhouse)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Clickhouse{Clickhouse: clickhouse}
+		if state != nil && !plan.Clickhouse.Equal(state.Clickhouse) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.clickhouse")
+		}
+	case !plan.DeltaLake.IsNull() && !plan.DeltaLake.IsUnknown():
+		deltaLake, dd := deltaLakeConnectorToAPI(ctx, plan.DeltaLake)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_DeltaLake{DeltaLake: deltaLake}
+		if state != nil && !plan.DeltaLake.Equal(state.DeltaLake) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.delta_lake")
+		}
+	case !plan.Iceberg.IsNull() && !plan.Iceberg.IsUnknown():
+		iceberg, dd := icebergConnectorToAPI(ctx, plan.Iceberg)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Iceberg{Iceberg: iceberg}
+		if state != nil && !plan.Iceberg.Equal(state.Iceberg) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.iceberg")
+		}
+	case !plan.Hudi.IsNull() && !plan.Hudi.IsUnknown():
+		hudi, dd := hudiConnectorToAPI(ctx, plan.Hudi)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Hudi{Hudi: hudi}
+		if state != nil && !plan.Hudi.Equal(state.Hudi) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.hudi")
+		}
+	case !plan.Oracle.IsNull() && !plan.Oracle.IsUnknown():
+		oracle, dd := oracleConnectorToAPI(ctx, plan.Oracle)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Oracle{Oracle: oracle}
+		if state != nil && !plan.Oracle.Equal(state.Oracle) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.oracle")
+		}
+	case !plan.Sqlserver.IsNull() && !plan.Sqlserver.IsUnknown():
+		sqlserver, dd := sqlserverConnectorToAPI(ctx, plan.Sqlserver)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Sqlserver{Sqlserver: sqlserver}
+		if state != nil && !plan.Sqlserver.Equal(state.Sqlserver) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.sqlserver")
+		}
+	case !plan.Tpcds.IsNull() && !plan.Tpcds.IsUnknown():
+		tpcds, dd := tpcdsConnectorToAPI(ctx, plan.Tpcds)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Tpcds{Tpcds: tpcds}
+		if state != nil && !plan.Tpcds.Equal(state.Tpcds) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.tpcds")
+		}
+	case !plan.Tpch.IsNull() && !plan.Tpch.IsUnknown():
+		tpch, dd := tpchConnectorToAPI(ctx, plan.Tpch)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Tpch{Tpch: tpch}
+		if state != nil && !plan.Tpch.Equal(state.Tpch) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.tpch")
+		}
+	case !plan.Mysql.IsNull() && !plan.Mysql.IsUnknown():
+		mysql, dd := mysqlConnectorToAPI(ctx, plan.Mysql)
+		diags.Append(dd...)
+		connector.Type = &trino.Connector_Mysql{Mysql: mysql}
+		if state != nil && !plan.Mysql.Equal(state.Mysql) {
+			updateMaskPaths = append(updateMaskPaths, "catalog.connector.mysql")
+		}
+	}
+	if diags.HasError() {
+		return nil, nil, diags
+	}
+
+	params := &CommonForCreateAndUpdate{
+		Name:        plan.Name.ValueString(),
+		Description: plan.Description.ValueString(),
+		Labels:      labels,
+		Connector:   connector,
+	}
+
+	return params, updateMaskPaths, diags
+}
+
+func postgresqlConnectorToAPI(ctx context.Context, postgresqlObj types.Object) (*trino.PostgresqlConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var postgresql Postgresql
+	diags.Append(postgresqlObj.As(ctx, &postgresql, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(postgresql.AdditionalProperties.Elements()))
+	diags.Append(postgresql.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.PostgresqlConnector{
+		Connection:           &trino.PostgresqlConnection{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !postgresql.OnPremise.IsNull() && !postgresql.OnPremise.IsUnknown():
+		onPremise := OnPremise{}
+		diags.Append(postgresql.OnPremise.As(ctx, &onPremise, baseOptions)...)
+		connector.Connection.Type = &trino.PostgresqlConnection_OnPremise_{
+			OnPremise: &trino.PostgresqlConnection_OnPremise{
+				ConnectionUrl: onPremise.ConnectionUrl.ValueString(),
+				UserName:      onPremise.UserName.ValueString(),
+				Password:      onPremise.Password.ValueString(),
+			},
+		}
+	case !postgresql.ConnectionManager.IsNull() && !postgresql.ConnectionManager.IsUnknown():
+		connectionManager := ConnectionManager{}
+		diags.Append(postgresql.ConnectionManager.As(ctx, &connectionManager, baseOptions)...)
+		connectionProperties := make(map[string]string, len(connectionManager.ConnectionProperties.Elements()))
+		diags.Append(connectionManager.ConnectionProperties.ElementsAs(ctx, &connectionProperties, false)...)
+
+		connector.Connection.Type = &trino.PostgresqlConnection_ConnectionManager_{
+			ConnectionManager: &trino.PostgresqlConnection_ConnectionManager{
+				ConnectionId:         connectionManager.ConnectionId.ValueString(),
+				Database:             connectionManager.Database.ValueString(),
+				ConnectionProperties: connectionProperties,
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func greenplumConnectorToAPI(ctx context.Context, greenplumObj types.Object) (*trino.GreenplumConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var greenplum Greenplum
+	diags.Append(greenplumObj.As(ctx, &greenplum, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(greenplum.AdditionalProperties.Elements()))
+	diags.Append(greenplum.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.GreenplumConnector{
+		Connection:           &trino.GreenplumConnection{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !greenplum.OnPremise.IsNull() && !greenplum.OnPremise.IsUnknown():
+		onPremise := OnPremise{}
+		diags.Append(greenplum.OnPremise.As(ctx, &onPremise, baseOptions)...)
+		connector.Connection.Type = &trino.GreenplumConnection_OnPremise_{
+			OnPremise: &trino.GreenplumConnection_OnPremise{
+				ConnectionUrl: onPremise.ConnectionUrl.ValueString(),
+				UserName:      onPremise.UserName.ValueString(),
+				Password:      onPremise.Password.ValueString(),
+			},
+		}
+	case !greenplum.ConnectionManager.IsNull() && !greenplum.ConnectionManager.IsUnknown():
+		connectionManager := ConnectionManager{}
+		diags.Append(greenplum.ConnectionManager.As(ctx, &connectionManager, baseOptions)...)
+		connectionProperties := make(map[string]string, len(connectionManager.ConnectionProperties.Elements()))
+		diags.Append(connectionManager.ConnectionProperties.ElementsAs(ctx, &connectionProperties, false)...)
+
+		connector.Connection.Type = &trino.GreenplumConnection_ConnectionManager_{
+			ConnectionManager: &trino.GreenplumConnection_ConnectionManager{
+				ConnectionId:         connectionManager.ConnectionId.ValueString(),
+				Database:             connectionManager.Database.ValueString(),
+				ConnectionProperties: connectionProperties,
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func metastoreToAPI(metastore Metastore) *trino.Metastore {
+	hiveMetastore := &trino.Metastore_HiveMetastore{}
+	if !metastore.ManagedClusterId.IsNull() && !metastore.ManagedClusterId.IsUnknown() {
+		hiveMetastore.Connection = &trino.Metastore_HiveMetastore_ManagedClusterId{
+			ManagedClusterId: metastore.ManagedClusterId.ValueString(),
+		}
+	} else {
+		hiveMetastore.Connection = &trino.Metastore_HiveMetastore_Uri{
+			Uri: metastore.Uri.ValueString(),
+		}
+	}
+
+	return &trino.Metastore{
+		Type: &trino.Metastore_Hive{
+			Hive: hiveMetastore,
+		},
+	}
+}
+
+func hiveConnectorToAPI(ctx context.Context, hiveObj types.Object) (*trino.HiveConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var hive Hive
+	diags.Append(hiveObj.As(ctx, &hive, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(hive.AdditionalProperties.Elements()))
+	diags.Append(hive.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	metastore := Metastore{}
+	diags.Append(hive.Metastore.As(ctx, &metastore, baseOptions)...)
+
+	fileSystem := FileSystem{}
+	diags.Append(hive.FileSystem.As(ctx, &fileSystem, baseOptions)...)
+
+	connector := &trino.HiveConnector{
+		Metastore:            metastoreToAPI(metastore),
+		Filesystem:           &trino.FileSystem{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !fileSystem.S3.IsNull() && !fileSystem.S3.IsUnknown():
+		s3 := S3{}
+		diags.Append(fileSystem.S3.As(ctx, &s3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_S3{
+			S3: &trino.FileSystem_S3FileSystem{},
+		}
+	case !fileSystem.ExternalS3.IsNull() && !fileSystem.ExternalS3.IsUnknown():
+		externalS3 := ExternalS3{}
+		diags.Append(fileSystem.ExternalS3.As(ctx, &externalS3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_ExternalS3{
+			ExternalS3: &trino.FileSystem_ExternalS3FileSystem{
+				AwsAccessKey: externalS3.AwsAccessKey.ValueString(),
+				AwsSecretKey: externalS3.AwsSecretKey.ValueString(),
+				AwsEndpoint:  externalS3.AwsEndpoint.ValueString(),
+				AwsRegion:    externalS3.AwsRegion.ValueString(),
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func clickhouseConnectorToAPI(ctx context.Context, clickhouseObj types.Object) (*trino.ClickhouseConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var clickhouse Clickhouse
+	diags.Append(clickhouseObj.As(ctx, &clickhouse, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(clickhouse.AdditionalProperties.Elements()))
+	diags.Append(clickhouse.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.ClickhouseConnector{
+		Connection:           &trino.ClickhouseConnection{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !clickhouse.OnPremise.IsNull() && !clickhouse.OnPremise.IsUnknown():
+		onPremise := OnPremise{}
+		diags.Append(clickhouse.OnPremise.As(ctx, &onPremise, baseOptions)...)
+		connector.Connection.Type = &trino.ClickhouseConnection_OnPremise_{
+			OnPremise: &trino.ClickhouseConnection_OnPremise{
+				ConnectionUrl: onPremise.ConnectionUrl.ValueString(),
+				UserName:      onPremise.UserName.ValueString(),
+				Password:      onPremise.Password.ValueString(),
+			},
+		}
+	case !clickhouse.ConnectionManager.IsNull() && !clickhouse.ConnectionManager.IsUnknown():
+		connectionManager := ConnectionManager{}
+		diags.Append(clickhouse.ConnectionManager.As(ctx, &connectionManager, baseOptions)...)
+		connectionProperties := make(map[string]string, len(connectionManager.ConnectionProperties.Elements()))
+		diags.Append(connectionManager.ConnectionProperties.ElementsAs(ctx, &connectionProperties, false)...)
+
+		connector.Connection.Type = &trino.ClickhouseConnection_ConnectionManager_{
+			ConnectionManager: &trino.ClickhouseConnection_ConnectionManager{
+				ConnectionId:         connectionManager.ConnectionId.ValueString(),
+				Database:             connectionManager.Database.ValueString(),
+				ConnectionProperties: connectionProperties,
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func deltaLakeConnectorToAPI(ctx context.Context, deltaLakeObj types.Object) (*trino.DeltaLakeConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var deltaLake DeltaLake
+	diags.Append(deltaLakeObj.As(ctx, &deltaLake, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(deltaLake.AdditionalProperties.Elements()))
+	diags.Append(deltaLake.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	metastore := Metastore{}
+	diags.Append(deltaLake.Metastore.As(ctx, &metastore, baseOptions)...)
+
+	fileSystem := FileSystem{}
+	diags.Append(deltaLake.FileSystem.As(ctx, &fileSystem, baseOptions)...)
+
+	connector := &trino.DeltaLakeConnector{
+		Metastore:            metastoreToAPI(metastore),
+		Filesystem:           &trino.FileSystem{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !fileSystem.S3.IsNull() && !fileSystem.S3.IsUnknown():
+		s3 := S3{}
+		diags.Append(fileSystem.S3.As(ctx, &s3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_S3{
+			S3: &trino.FileSystem_S3FileSystem{},
+		}
+	case !fileSystem.ExternalS3.IsNull() && !fileSystem.ExternalS3.IsUnknown():
+		externalS3 := ExternalS3{}
+		diags.Append(fileSystem.ExternalS3.As(ctx, &externalS3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_ExternalS3{
+			ExternalS3: &trino.FileSystem_ExternalS3FileSystem{
+				AwsAccessKey: externalS3.AwsAccessKey.ValueString(),
+				AwsSecretKey: externalS3.AwsSecretKey.ValueString(),
+				AwsEndpoint:  externalS3.AwsEndpoint.ValueString(),
+				AwsRegion:    externalS3.AwsRegion.ValueString(),
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func icebergMetastoreToAPI(metastore MetastoreIceberg) (*trino.Metastore, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	if !metastore.RestUri.IsNull() && !metastore.RestUri.IsUnknown() {
+		if !metastore.Protocol.IsNull() && !metastore.Protocol.IsUnknown() {
+			diags.AddError(
+				"Invalid metastore configuration",
+				`"protocol" cannot be set together with "rest_uri"`,
+			)
+			return nil, diags
+		}
+
+		return &trino.Metastore{
+			Type: &trino.Metastore_Rest{
+				Rest: &trino.Metastore_RestMetastore{
+					Uri: metastore.RestUri.ValueString(),
+					Authorization: &trino.Metastore_RestMetastore_Authorization{
+						Type: &trino.Metastore_RestMetastore_Authorization_None{
+							None: &trino.Metastore_RestMetastore_Authorization_NoneAuth{},
+						},
+					},
+				},
+			},
+		}, diags
+	}
+
+	hive := &trino.Metastore_HiveMetastore{}
+	if !metastore.ManagedClusterId.IsNull() && !metastore.ManagedClusterId.IsUnknown() {
+		hive.Connection = &trino.Metastore_HiveMetastore_ManagedClusterId{
+			ManagedClusterId: metastore.ManagedClusterId.ValueString(),
+		}
+	} else {
+		hive.Connection = &trino.Metastore_HiveMetastore_Uri{
+			Uri: metastore.Uri.ValueString(),
+		}
+	}
+	if !metastore.Protocol.IsNull() && !metastore.Protocol.IsUnknown() {
+		hive.Protocol = hiveProtocolToAPI(metastore.Protocol.ValueString())
+	}
+
+	return &trino.Metastore{
+		Type: &trino.Metastore_Hive{Hive: hive},
+	}, diags
+}
+
+func hiveProtocolToAPI(protocol string) *trino.Metastore_HiveMetastore_Protocol {
+	if protocol == "rest" {
+		return &trino.Metastore_HiveMetastore_Protocol{
+			Type: &trino.Metastore_HiveMetastore_Protocol_Rest{
+				Rest: &trino.Metastore_HiveMetastore_Protocol_IcebergRest{},
+			},
+		}
+	}
+
+	return &trino.Metastore_HiveMetastore_Protocol{
+		Type: &trino.Metastore_HiveMetastore_Protocol_Thrift_{
+			Thrift: &trino.Metastore_HiveMetastore_Protocol_Thrift{},
+		},
+	}
+}
+
+func icebergConnectorToAPI(ctx context.Context, icebergObj types.Object) (*trino.IcebergConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var iceberg Iceberg
+	diags.Append(icebergObj.As(ctx, &iceberg, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(iceberg.AdditionalProperties.Elements()))
+	diags.Append(iceberg.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	metastore := MetastoreIceberg{}
+	diags.Append(iceberg.Metastore.As(ctx, &metastore, baseOptions)...)
+
+	apiMetastore, dd := icebergMetastoreToAPI(metastore)
+	diags.Append(dd...)
+
+	fileSystem := FileSystem{}
+	diags.Append(iceberg.FileSystem.As(ctx, &fileSystem, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	connector := &trino.IcebergConnector{
+		Metastore:            apiMetastore,
+		Filesystem:           &trino.FileSystem{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !fileSystem.S3.IsNull() && !fileSystem.S3.IsUnknown():
+		s3 := S3{}
+		diags.Append(fileSystem.S3.As(ctx, &s3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_S3{
+			S3: &trino.FileSystem_S3FileSystem{},
+		}
+	case !fileSystem.ExternalS3.IsNull() && !fileSystem.ExternalS3.IsUnknown():
+		externalS3 := ExternalS3{}
+		diags.Append(fileSystem.ExternalS3.As(ctx, &externalS3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_ExternalS3{
+			ExternalS3: &trino.FileSystem_ExternalS3FileSystem{
+				AwsAccessKey: externalS3.AwsAccessKey.ValueString(),
+				AwsSecretKey: externalS3.AwsSecretKey.ValueString(),
+				AwsEndpoint:  externalS3.AwsEndpoint.ValueString(),
+				AwsRegion:    externalS3.AwsRegion.ValueString(),
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func hudiConnectorToAPI(ctx context.Context, hudiObj types.Object) (*trino.HudiConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var hudi Hudi
+	diags.Append(hudiObj.As(ctx, &hudi, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(hudi.AdditionalProperties.Elements()))
+	diags.Append(hudi.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	metastore := Metastore{}
+	diags.Append(hudi.Metastore.As(ctx, &metastore, baseOptions)...)
+
+	fileSystem := FileSystem{}
+	diags.Append(hudi.FileSystem.As(ctx, &fileSystem, baseOptions)...)
+
+	connector := &trino.HudiConnector{
+		Metastore:            metastoreToAPI(metastore),
+		Filesystem:           &trino.FileSystem{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !fileSystem.S3.IsNull() && !fileSystem.S3.IsUnknown():
+		s3 := S3{}
+		diags.Append(fileSystem.S3.As(ctx, &s3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_S3{
+			S3: &trino.FileSystem_S3FileSystem{},
+		}
+	case !fileSystem.ExternalS3.IsNull() && !fileSystem.ExternalS3.IsUnknown():
+		externalS3 := ExternalS3{}
+		diags.Append(fileSystem.ExternalS3.As(ctx, &externalS3, baseOptions)...)
+
+		connector.Filesystem.Type = &trino.FileSystem_ExternalS3{
+			ExternalS3: &trino.FileSystem_ExternalS3FileSystem{
+				AwsAccessKey: externalS3.AwsAccessKey.ValueString(),
+				AwsSecretKey: externalS3.AwsSecretKey.ValueString(),
+				AwsEndpoint:  externalS3.AwsEndpoint.ValueString(),
+				AwsRegion:    externalS3.AwsRegion.ValueString(),
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func oracleConnectorToAPI(ctx context.Context, oracleObj types.Object) (*trino.OracleConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var oracle Oracle
+	diags.Append(oracleObj.As(ctx, &oracle, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(oracle.AdditionalProperties.Elements()))
+	diags.Append(oracle.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.OracleConnector{
+		Connection:           &trino.OracleConnection{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !oracle.OnPremise.IsNull() && !oracle.OnPremise.IsUnknown():
+		onPremise := OnPremise{}
+		diags.Append(oracle.OnPremise.As(ctx, &onPremise, baseOptions)...)
+		connector.Connection.Type = &trino.OracleConnection_OnPremise_{
+			OnPremise: &trino.OracleConnection_OnPremise{
+				ConnectionUrl: onPremise.ConnectionUrl.ValueString(),
+				UserName:      onPremise.UserName.ValueString(),
+				Password:      onPremise.Password.ValueString(),
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func sqlserverConnectorToAPI(ctx context.Context, sqlserverObj types.Object) (*trino.SQLServerConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var sqlserver Sqlserver
+	diags.Append(sqlserverObj.As(ctx, &sqlserver, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(sqlserver.AdditionalProperties.Elements()))
+	diags.Append(sqlserver.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.SQLServerConnector{
+		Connection:           &trino.SQLServerConnection{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !sqlserver.OnPremise.IsNull() && !sqlserver.OnPremise.IsUnknown():
+		onPremise := OnPremise{}
+		diags.Append(sqlserver.OnPremise.As(ctx, &onPremise, baseOptions)...)
+		connector.Connection.Type = &trino.SQLServerConnection_OnPremise_{
+			OnPremise: &trino.SQLServerConnection_OnPremise{
+				ConnectionUrl: onPremise.ConnectionUrl.ValueString(),
+				UserName:      onPremise.UserName.ValueString(),
+				Password:      onPremise.Password.ValueString(),
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func tpcdsConnectorToAPI(ctx context.Context, tpcdsObj types.Object) (*trino.TPCDSConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var tpcds Tpcds
+	diags.Append(tpcdsObj.As(ctx, &tpcds, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(tpcds.AdditionalProperties.Elements()))
+	diags.Append(tpcds.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.TPCDSConnector{
+		AdditionalProperties: additionalProperties,
+	}
+
+	return connector, diags
+}
+
+func tpchConnectorToAPI(ctx context.Context, tpchObj types.Object) (*trino.TPCHConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var tpch Tpch
+	diags.Append(tpchObj.As(ctx, &tpch, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(tpch.AdditionalProperties.Elements()))
+	diags.Append(tpch.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.TPCHConnector{
+		AdditionalProperties: additionalProperties,
+	}
+
+	return connector, diags
+}
+
+func mysqlConnectorToAPI(ctx context.Context, mysqlObj types.Object) (*trino.MysqlConnector, diag.Diagnostics) {
+	diags := diag.Diagnostics{}
+
+	var mysql Mysql
+	diags.Append(mysqlObj.As(ctx, &mysql, baseOptions)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	additionalProperties := make(map[string]string, len(mysql.AdditionalProperties.Elements()))
+	diags.Append(mysql.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+
+	connector := &trino.MysqlConnector{
+		Connection:           &trino.MysqlConnection{},
+		AdditionalProperties: additionalProperties,
+	}
+
+	switch {
+	case !mysql.OnPremise.IsNull() && !mysql.OnPremise.IsUnknown():
+		onPremise := OnPremise{}
+		diags.Append(mysql.OnPremise.As(ctx, &onPremise, baseOptions)...)
+		connector.Connection.Type = &trino.MysqlConnection_OnPremise_{
+			OnPremise: &trino.MysqlConnection_OnPremise{
+				ConnectionUrl: onPremise.ConnectionUrl.ValueString(),
+				UserName:      onPremise.UserName.ValueString(),
+				Password:      onPremise.Password.ValueString(),
+			},
+		}
+	case !mysql.ConnectionManager.IsNull() && !mysql.ConnectionManager.IsUnknown():
+		connectionManager := MysqlConnectionManager{}
+		diags.Append(mysql.ConnectionManager.As(ctx, &connectionManager, baseOptions)...)
+		connectionProperties := make(map[string]string, len(connectionManager.ConnectionProperties.Elements()))
+		diags.Append(connectionManager.ConnectionProperties.ElementsAs(ctx, &connectionProperties, false)...)
+
+		connector.Connection.Type = &trino.MysqlConnection_ConnectionManager_{
+			ConnectionManager: &trino.MysqlConnection_ConnectionManager{
+				ConnectionId:         connectionManager.ConnectionId.ValueString(),
+				ConnectionProperties: connectionProperties,
+			},
+		}
+	}
+
+	return connector, diags
+}
+
+func mapsAreEqual(map1, map2 types.Map) bool {
+	if map1.Equal(map2) {
+		return true
+	}
+	// if one of map is null and the other is empty then we assume that they are equal
+	if len(map1.Elements()) == 0 && len(map2.Elements()) == 0 {
+		return true
+	}
+	return false
+}
+
+func stringsAreEqual(str1, str2 types.String) bool {
+	if str1.Equal(str2) {
+		return true
+	}
+	// if one of strings is null and the other is empty then we assume that they are equal
+	if str1.ValueString() == "" && str2.ValueString() == "" {
+		return true
+	}
+	return false
+}

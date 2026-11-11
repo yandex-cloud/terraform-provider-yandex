@@ -1,0 +1,852 @@
+package pluginsdk
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"regexp"
+	"strings"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+)
+
+const YandexALBLoadBalancerDefaultTimeout = 10 * time.Minute
+
+const (
+	ResourceNameRedirects   = "redirects"
+	ResourceNameHTTPToHTTPS = "http_to_https"
+)
+
+type redirect struct {
+	httpToHTTPS bool
+}
+
+func ResourceYandexALBLoadBalancer() *schema.Resource {
+	return &schema.Resource{
+		Description: "Creates an Application Load Balancer in the specified folder. For more information, see [the official documentation](https://yandex.cloud/docs/application-load-balancer/concepts/application-load-balancer).",
+		Create:      resourceYandexALBLoadBalancerCreate,
+		Read:        resourceYandexALBLoadBalancerRead,
+		Update:      resourceYandexALBLoadBalancerUpdate,
+		Delete:      resourceYandexALBLoadBalancerDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(YandexALBLoadBalancerDefaultTimeout),
+			Update: schema.DefaultTimeout(YandexALBLoadBalancerDefaultTimeout),
+			Delete: schema.DefaultTimeout(YandexALBLoadBalancerDefaultTimeout),
+		},
+
+		SchemaVersion: 0,
+
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: common.ResourceDescriptions["name"],
+			},
+
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: common.ResourceDescriptions["description"],
+			},
+
+			"folder_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: common.ResourceDescriptions["folder_id"],
+			},
+
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: common.ResourceDescriptions["labels"],
+			},
+
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: common.ResourceDescriptions["created_at"],
+			},
+
+			"region_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The region ID where Load Balancer is located at.",
+			},
+
+			"network_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: common.ResourceDescriptions["network_id"],
+			},
+
+			"log_group_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Cloud Logging group ID to send logs to. Leave empty to use the balancer folder default log group.",
+			},
+
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Status of the Load Balancer.",
+			},
+
+			"security_group_ids": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+				Description: common.ResourceDescriptions["security_group_ids"],
+			},
+
+			"allow_zonal_shift": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Specifies whether application load balancer is available to zonal shift",
+			},
+
+			"allocation_policy": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Required:    true,
+				Description: "Allocation zones for the Load Balancer instance.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"location": {
+							Type:        schema.TypeSet,
+							Required:    true,
+							Description: "Unique set of locations.",
+							Set:         resourceALBAllocationPolicyLocationHash,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"zone_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: common.ResourceDescriptions["zone"],
+									},
+									"subnet_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "ID of the subnet that location is located at.",
+									},
+									"disable_traffic": {
+										Type:        schema.TypeBool,
+										Default:     false,
+										Optional:    true,
+										Description: "If set, will disable all L7 instances in the zone for request handling.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
+			"log_options": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Description: "Cloud Logging settings.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disable": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Set to `true` to disable Cloud Logging for the balancer.",
+						},
+						"discard_rule": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "List of rules to discard a fraction of logs.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"discard_percent": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 100),
+										Description:  "The percent of logs which will be discarded.",
+									},
+
+									"grpc_codes": {
+										Type:        schema.TypeList,
+										Description: "list of grpc codes by name, e.g, [**NOT_FOUND**, **RESOURCE_EXHAUSTED**].",
+										Optional:    true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+
+									"http_code_intervals": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of http code intervals *1XX*-*5XX* or *ALL*",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+
+									"http_codes": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of http codes *100*-*599*.",
+										Elem: &schema.Schema{
+											Type:         schema.TypeInt,
+											ValidateFunc: validation.IntBetween(100, 599),
+										},
+									},
+								},
+							},
+						},
+
+						"log_group_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringMatch(regexp.MustCompile("^(([a-zA-Z][-a-zA-Z0-9_.]{0,63})?)$"), ""),
+							Description:  "Cloud Logging group ID to send logs to. Leave empty to use the balancer folder default log group.",
+						},
+					},
+				},
+			},
+
+			"auto_scale_policy": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Description: "Scaling settings of the application load balancer.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_size": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 1000),
+							Description:  "Upper limit for total instance count (across all zones)",
+						},
+						"min_zone_size": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 1000),
+							Description:  "Lower limit for instance count in each zone.",
+						},
+					},
+				},
+			},
+
+			"listener": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "List of listeners for the Load Balancer.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Name of the listener.",
+						},
+						"endpoint": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Network endpoint (addresses and ports) of the listener.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ports": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "One or more ports to listen on.",
+										Elem:        &schema.Schema{Type: schema.TypeInt},
+									},
+									"address": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "One or more addresses to listen on.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"external_ipv4_address": {
+													Type:        schema.TypeList,
+													MaxItems:    1,
+													Optional:    true,
+													Description: "External IPv4 address.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"address": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Optional:    true,
+																Description: "Provided by the client or computed automatically.",
+															},
+														},
+													},
+												},
+												"internal_ipv4_address": {
+													Type:        schema.TypeList,
+													MaxItems:    1,
+													Optional:    true,
+													Description: "Internal IPv4 address.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"address": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Optional:    true,
+																Description: "Provided by the client or computed automatically.",
+															},
+															"subnet_id": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Optional:    true,
+																Description: "ID of the subnet that the address belongs to.",
+															},
+														},
+													},
+												},
+												"external_ipv6_address": {
+													Type:        schema.TypeList,
+													MaxItems:    1,
+													Optional:    true,
+													Description: "External IPv6 address.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"address": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Optional:    true,
+																Description: "Provided by the client or computed automatically.",
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"http": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "HTTP handler that sets plain text HTTP router.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"handler": httpHandler(),
+									"redirects": {
+										Type:             schema.TypeList,
+										MaxItems:         1,
+										Optional:         true,
+										DiffSuppressFunc: RedirectsDiffSuppress,
+										Description:      "Shortcut for adding http -> https redirects.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"http_to_https": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     false,
+													Description: "If set redirects all unencrypted HTTP requests to the same URI with scheme changed to `https`.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"stream": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "Stream configuration",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"handler": streamHandler(),
+								},
+							},
+						},
+						"tls": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "TLS configuration",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"default_handler": tlsHandler(),
+									"sni_handler": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "Settings for handling requests with Server Name Indication (SNI)",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "Name of the SNI handler",
+												},
+												"server_names": {
+													Type:        schema.TypeSet,
+													Required:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Set:         schema.HashString,
+													Description: "Server names that are matched by the SNI handler",
+												},
+												"handler": tlsHandler(),
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func tlsHandler() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		MaxItems:    1,
+		Required:    true,
+		Description: "TLS handler resource.",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"http_handler":                     httpHandler(),
+				"stream_handler":                   streamHandler(),
+				"certificate_ids":                  certificateIdsSchema(),
+				"client_certificates_verification": clientCertificatesVerificationSchema(),
+			},
+		},
+	}
+}
+
+func certificateIdsSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeSet,
+		Required:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString, Description: "Certificate ID"},
+		Set:         schema.HashString,
+		Description: "Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.",
+	}
+}
+
+func clientCertificatesVerificationSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		MaxItems:    1,
+		Optional:    true,
+		Description: "Client certificates verification settings.",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"require_client_certificate": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "If true, ALB will reject connections without a valid client certificate.",
+				},
+				"bytes": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "Trusted certificate authority certificates bundle (PEM text).",
+				},
+				"accept_untrusted": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "If true, ALB will not check certification chain and will allow expired client certificates.",
+				},
+				"allow_expired": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "If true, ALB will allow expired client certificates even if accept_untrusted is set to false.",
+				},
+			},
+		},
+	}
+}
+
+func httpHandler() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		MaxItems:    1,
+		Optional:    true,
+		Description: "HTTP handler.",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"http_router_id": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "HTTP router id.",
+				},
+				"http2_options": {
+					Type:        schema.TypeList,
+					MaxItems:    1,
+					Optional:    true,
+					Description: "If set, will enable HTTP2 protocol for the handler.",
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"max_concurrent_streams": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Default:     0,
+								Description: "Maximum number of concurrent streams.",
+							},
+						},
+					},
+				},
+				"allow_http10": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Default:     false,
+					Description: "If set, will enable only HTTP1 protocol with HTTP1.0 support.",
+				},
+				"rewrite_request_id": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Default:     false,
+					Description: "When unset, will preserve the incoming `x-request-id` header, otherwise would rewrite it with a new value.",
+				},
+				"preserve_http1_header_casing": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Default:     false,
+					Description: "When unset, will preserve the casing of the incoming HTTP headers, otherwise would convert them to lowercase. Works only for HTTP1.1 and HTTP1.0 requests.",
+				},
+			},
+		},
+	}
+}
+
+func streamHandler() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		MaxItems:    1,
+		Optional:    true,
+		Description: "Stream handler resource.",
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"backend_group_id": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "Backend Group ID.",
+				},
+				"idle_timeout": {
+					Type:             schema.TypeString,
+					Optional:         true,
+					Description:      "The idle timeout is the interval after which the connection will be forcibly closed if no data has been transmitted or received on either the upstream or downstream connection. If not configured, the default idle timeout is 1 hour. Setting it to 0 disables the timeout.",
+					ValidateFunc:     sdkcommon.ValidateParsableValue(sdkcommon.ParseDuration),
+					DiffSuppressFunc: sdkcommon.ShouldSuppressDiffForTimeDuration,
+				},
+			},
+		},
+	}
+}
+
+func BuildALBLoadBalancerCreateRequest(d *schema.ResourceData, config *providerconfig.Config) (*apploadbalancer.CreateLoadBalancerRequest, error) {
+	labels, err := sdkcommon.ExpandLabels(d.Get("labels"))
+
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding labels while creating ALB Load Balancer: %w", err)
+	}
+
+	folderID, err := sdkcommon.GetFolderID(d, config)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting folder ID while creating ALB Load Balancer: %w", err)
+	}
+
+	req := &apploadbalancer.CreateLoadBalancerRequest{
+		FolderId:         folderID,
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		RegionId:         d.Get("region_id").(string),
+		NetworkId:        d.Get("network_id").(string),
+		SecurityGroupIds: expandStringSet(d.Get("security_group_ids")),
+		Labels:           labels,
+		AllowZonalShift:  d.Get("allow_zonal_shift").(bool),
+	}
+
+	allocationPolicy, err := expandALBAllocationPolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding allocation policy while creating ALB Load Balancer: %w", err)
+	}
+	req.SetAllocationPolicy(allocationPolicy)
+
+	logOptions, err := expandALBLogOptions(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding log options while creating ALB Load Balancer: %w", err)
+	}
+	req.SetLogOptions(logOptions)
+
+	autoscalePolicy, err := expandALBAutoscalePolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding autoscale policy while creating ALB Load Balancer: %w", err)
+	}
+	req.SetAutoScalePolicy(autoscalePolicy)
+
+	listeners, err := expandALBListeners(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding listeners while creating ALB Load Balancer: %w", err)
+	}
+	req.SetListenerSpecs(listeners)
+
+	return req, nil
+}
+
+func resourceYandexALBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Creating ALB Load Balancer %q", d.Id())
+
+	config := meta.(*providerconfig.Config)
+
+	req, err := BuildALBLoadBalancerCreateRequest(d, config)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	client := albsdk.NewLoadBalancerClient(config.SDK)
+
+	op, err := client.Create(ctx, req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to create ALB Load Balancer: %w", err)
+	}
+
+	md := op.Metadata()
+	d.SetId(md.LoadBalancerId)
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while waiting operation to create ALB Load Balancer: %w", err)
+	}
+
+	log.Printf("[DEBUG] Finished creating ALB Load Balancer %q", d.Id())
+	return resourceYandexALBLoadBalancerRead(d, meta)
+
+}
+
+func resourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Reading ALB Load Balancer %q", d.Id())
+	config := meta.(*providerconfig.Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	client := albsdk.NewLoadBalancerClient(config.SDK)
+
+	alb, err := client.Get(ctx, &apploadbalancer.GetLoadBalancerRequest{
+		LoadBalancerId: d.Id(),
+	})
+
+	if err != nil {
+		return sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("ALB Load Balancer %q", d.Get("name").(string)))
+	}
+
+	d.Set("created_at", sdkcommon.GetTimestamp(alb.CreatedAt))
+	d.Set("name", alb.Name)
+	d.Set("folder_id", alb.FolderId)
+	d.Set("description", alb.Description)
+	d.Set("region_id", alb.RegionId)
+	d.Set("network_id", alb.NetworkId)
+	d.Set("security_group_ids", alb.SecurityGroupIds)
+	d.Set("log_group_id", alb.LogGroupId)
+	d.Set("status", strings.ToLower(alb.Status.String()))
+	d.Set("allow_zonal_shift", alb.AllowZonalShift)
+
+	allocationPolicy, err := FlattenALBAllocationPolicy(alb)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("allocation_policy", allocationPolicy); err != nil {
+		return err
+	}
+
+	listeners, err := FlattenALBListeners(alb)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("listener", listeners); err != nil {
+		return err
+	}
+
+	logOptions, err := flattenALBLogOptions(alb)
+	if err != nil {
+		return err
+	}
+	if err = d.Set("log_options", logOptions); err != nil {
+		return err
+	}
+
+	autoscalePolicy, err := FlattenALBAutoscalePolicy(alb)
+	if err != nil {
+		return err
+	}
+	if err = d.Set("auto_scale_policy", autoscalePolicy); err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Finished reading ALB Load Balancer %q", d.Id())
+	return d.Set("labels", alb.Labels)
+}
+
+func resourceYandexALBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Updating ALB Load Balancer %q", d.Id())
+	config := meta.(*providerconfig.Config)
+
+	labels, err := sdkcommon.ExpandLabels(d.Get("labels"))
+	if err != nil {
+		return err
+	}
+
+	req := &apploadbalancer.UpdateLoadBalancerRequest{
+		LoadBalancerId:   d.Id(),
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		SecurityGroupIds: expandStringSet(d.Get("security_group_ids")),
+		Labels:           labels,
+		AllowZonalShift:  d.Get("allow_zonal_shift").(bool),
+	}
+
+	allocationPolicy, err := expandALBAllocationPolicy(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding allocation policy while updating ALB Load Balancer: %w", err)
+	}
+	req.SetAllocationPolicy(allocationPolicy)
+
+	listeners, err := expandALBListeners(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding listeners while updating ALB Load Balancer: %w", err)
+	}
+	req.SetListenerSpecs(listeners)
+
+	logOptions, err := expandALBLogOptions(d)
+	if err != nil {
+		return err
+	}
+	req.SetLogOptions(logOptions)
+
+	autoscalePolicy, err := expandALBAutoscalePolicy(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding autoscale policy while updating ALB Load Balancer: %w", err)
+	}
+	req.SetAutoScalePolicy(autoscalePolicy)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	client := albsdk.NewLoadBalancerClient(config.SDK)
+
+	op, err := client.Update(ctx, req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to update ALB Load Balancer %q: %w", d.Id(), err)
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error updating ALB Load Balancer %q: %w", d.Id(), err)
+	}
+
+	log.Printf("[DEBUG] Finished updating ALB Load Balancer %q", d.Id())
+	return resourceYandexALBLoadBalancerRead(d, meta)
+}
+
+func resourceYandexALBLoadBalancerDelete(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Deleting ALB Load Balancer %q", d.Id())
+	config := meta.(*providerconfig.Config)
+
+	req := &apploadbalancer.DeleteLoadBalancerRequest{
+		LoadBalancerId: d.Id(),
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
+	defer cancel()
+
+	client := albsdk.NewLoadBalancerClient(config.SDK)
+
+	op, err := client.Delete(ctx, req)
+	if err != nil {
+		return sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("ALB Load Balancer %q", d.Get("name").(string)))
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Finished deleting ALB Load Balancer %q", d.Id())
+	return nil
+}
+
+// redirectsDiffSuppress is a custom diff function for http redirects resource and it's inner fields.
+//
+// Main thing is to suppress diff between nil and empty redirect objects since they have no sense and we
+// do not handle them during create or update operations.
+//
+// Handles redirect lists with at most 1 element, panics if any state contains more than 1 element.
+func RedirectsDiffSuppress(key, oldValue, newValue string, d *schema.ResourceData) bool {
+	if strings.HasSuffix(key, ResourceNameRedirects+".#") {
+		var oldRedirectUntyped, newRedirectUntyped interface{}
+
+		oldRedirectsUntyped, newRedirectsUntyped := d.GetChange(strings.ReplaceAll(key, ".#", ""))
+
+		oldRedirects := oldRedirectsUntyped.([]interface{})
+		newRedirects := newRedirectsUntyped.([]interface{})
+
+		if len(oldRedirects) > 1 {
+			panic("redirects diff suppress: too many redirect elements for previous state")
+		}
+
+		if len(newRedirects) > 1 {
+			panic("redirects diff suppress: too many redirect elements for new state")
+		}
+
+		if len(oldRedirects) == 1 {
+			oldRedirectUntyped = oldRedirects[0]
+		}
+
+		if len(newRedirects) == 1 {
+			newRedirectUntyped = newRedirects[0]
+		}
+
+		oldRedirect := expandRedirect(oldRedirectUntyped)
+		newRedirect := expandRedirect(newRedirectUntyped)
+
+		return oldRedirect == newRedirect
+	}
+
+	if !strings.HasSuffix(key, ResourceNameHTTPToHTTPS) {
+		panic(fmt.Sprintf("redirects diff suppress: unexpected resource key '%v'", key))
+	}
+
+	return oldValue == newValue
+}
+
+// expandRedirect parses redirect object from dynamic data.
+//
+// Panics on any type assertion error.
+func expandRedirect(data interface{}) redirect {
+	r := redirect{}
+
+	if data == nil {
+		return r
+	}
+
+	redirectMap := data.(map[string]interface{})
+
+	if v, ok := redirectMap[ResourceNameHTTPToHTTPS]; ok {
+		r.httpToHTTPS = v.(bool)
+	}
+
+	return r
+}

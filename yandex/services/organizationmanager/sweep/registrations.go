@@ -1,0 +1,20 @@
+package sweep
+
+import (
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+)
+
+func Register(add func(string, *resource.Sweeper)) {
+	registerResourceYandexOrganizationmanagerGroupMappingItem(add)
+	registerResourceYandexOrganizationmanagerGroupMapping(add)
+	registerResourceYandexOrganizationmanagerGroup(add)
+	registerResourceYandexOrganizationmanagerSamlFederation(add)
+	registerResourceYandexOrganizationmanagerSamlFederationUserAccount(add)
+	registerResourceYandexOrganizationmanagerUserSshKey(add)
+	registerYandexOrganizationmanagerIdpApplicationOauthApplicationResource(add)
+	registerYandexOrganizationmanagerIdpApplicationSamlApplicationResource(add)
+	registerYandexOrganizationmanagerIdpApplicationSamlSignatureCertificateResource(add)
+	registerYandexOrganizationmanagerIdpUserResource(add)
+	registerYandexOrganizationmanagerIdpUserpoolResource(add)
+	registerYandexOrganizationmanagerMfaEnforcementResource(add)
+}

@@ -4,7 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
 )
 
 func FolderID(folderID basetypes.StringValue, config *config.State) (string, diag.Diagnostic) {

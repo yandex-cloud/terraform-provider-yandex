@@ -3,7 +3,7 @@ package converter
 import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
 )
 
 func GetCloudID(stateValue string, providerConfig *config.Config, diags *diag.Diagnostics) string {

@@ -1,0 +1,307 @@
+package acceptance
+
+import (
+	"context"
+	"fmt"
+	"io/ioutil"
+	"testing"
+
+	statecheck "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance/statecheck"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/broker/v1"
+	brokersdk "github.com/yandex-cloud/go-sdk/services/iot/broker/v1"
+	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+)
+
+const iotBrokerResource = "yandex_iot_core_broker.test-broker"
+
+func TestAccYandexIoTCoreBroker_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	var broker iot.Broker
+	brokerName := acctest.RandomWithPrefix("tf-iot-core-broker")
+	folderID := acceptance.FolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testYandexIoTCoreBrokerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexIoTCoreBrokerBasic(brokerName),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexIoTCoreBrokerExists(iotBrokerResource, &broker),
+					resource.TestCheckResourceAttr(iotBrokerResource, "name", brokerName),
+					resource.TestCheckResourceAttrSet(iotBrokerResource, "folder_id"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "folder_id", folderID),
+					testYandexIoTCoreBrokerContainsLabel(&broker, "tf-label", "tf-label-value"),
+					testYandexIoTCoreBrokerContainsLabel(&broker, "empty-label", ""),
+					statecheck.CheckCreatedAtAttr(iotBrokerResource),
+				),
+			},
+		},
+	})
+}
+
+func TestAccYandexIoTCoreBroker_update(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	var broker iot.Broker
+	brokerName := acctest.RandomWithPrefix("tf-iot-core-broker")
+
+	authInfo := &yandexIotCoreAuth{}
+
+	certDefault, _ := ioutil.ReadFile("testdata/brk_default.pub")
+	certUpdated, _ := ioutil.ReadFile("testdata/brk_updated.pub")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testYandexIoTCoreBrokerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexIoTCoreBrokerFull(
+					brokerName,
+					"description",
+					"label_key",
+					"label",
+					"ERROR",
+					string(certDefault)),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexIoTCoreBrokerExists(iotBrokerResource, &broker),
+					resource.TestCheckResourceAttr(iotBrokerResource, "name", brokerName),
+					resource.TestCheckResourceAttr(iotBrokerResource, "description", "description"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.min_level", "ERROR"),
+					resource.TestCheckResourceAttrSet(iotBrokerResource, "log_options.0.log_group_id"),
+					testYandexIoTCoreBrokerContainsLabel(&broker, "label_key", "label"),
+					suite.testYandexIoTCoreStoreBrokerCertificates(authInfo, &broker),
+				),
+			},
+			{
+				Config: testYandexIoTCoreBrokerFull(
+					brokerName+"_updated",
+					"description_updated",
+					"label_key_updated",
+					"label_updated",
+					"DEBUG",
+					string(certDefault)),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexIoTCoreBrokerExists(iotBrokerResource, &broker),
+					resource.TestCheckResourceAttr(iotBrokerResource, "name", brokerName+"_updated"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "description", "description_updated"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.min_level", "DEBUG"),
+					resource.TestCheckResourceAttrSet(iotBrokerResource, "log_options.0.log_group_id"),
+					testYandexIoTCoreBrokerContainsLabel(&broker, "label_key_updated", "label_updated"),
+					suite.testYandexIoTCoreNoChangeBrokerCertificates(authInfo, &broker),
+				),
+			},
+			{
+				Config: testYandexIoTCoreBrokerFull(
+					brokerName+"_updated",
+					"description_updated",
+					"label_key_updated",
+					"label_updated",
+					"DEBUG",
+					string(certUpdated)),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexIoTCoreBrokerExists(iotBrokerResource, &broker),
+					resource.TestCheckResourceAttr(iotBrokerResource, "name", brokerName+"_updated"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "description", "description_updated"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.min_level", "DEBUG"),
+					resource.TestCheckResourceAttrSet(iotBrokerResource, "log_options.0.log_group_id"),
+					testYandexIoTCoreBrokerContainsLabel(&broker, "label_key_updated", "label_updated"),
+					suite.testYandexIoTCoreChangeBrokerCertificates(authInfo, &broker),
+					suite.testYandexIoTCoreStoreBrokerCertificates(authInfo, &broker),
+				),
+			},
+		},
+	})
+}
+
+func (suite testSuite) testYandexIoTCoreBrokerExists(name string, broker *iot.Broker) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config, configErr := suite.Config()
+		if configErr != nil {
+			return configErr
+		}
+
+		found, err := testGetBrokerByID(config, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("IoT Broker not found")
+		}
+
+		*broker = *found
+		return nil
+	}
+}
+
+func (suite testSuite) testYandexIoTCoreBrokerDestroy(s *terraform.State) error {
+	config, configErr := suite.Config()
+	if configErr != nil {
+		return configErr
+	}
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_iot_core_broker" {
+			continue
+		}
+
+		_, err := testGetBrokerByID(config, rs.Primary.ID)
+		if err == nil {
+			return fmt.Errorf("Broker still exists")
+		}
+	}
+
+	return nil
+}
+
+func testYandexIoTCoreBrokerContainsLabel(broker *iot.Broker, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := broker.Labels[key]
+		if !ok {
+			return fmt.Errorf("Expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
+func (suite testSuite) testYandexIoTCoreStoreBrokerCertificates(authInfo *yandexIotCoreAuth, broker *iot.Broker) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		var err error
+		providerConfig, configErr := suite.Config()
+		if configErr != nil {
+			return configErr
+		}
+		authInfo.certificates, err = testGetBrokerCertificatesByID(providerConfig, broker.Id)
+		return err
+	}
+}
+
+func (suite testSuite) testYandexIoTCoreNoChangeBrokerCertificates(authInfo *yandexIotCoreAuth, broker *iot.Broker) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		providerConfig, configErr := suite.Config()
+		if configErr != nil {
+			return configErr
+		}
+		certificatesNew, err := testGetBrokerCertificatesByID(providerConfig, broker.Id)
+		if err != nil {
+			return err
+		}
+		if !testIsEqualSets(authInfo.certificates, certificatesNew) {
+			return fmt.Errorf("Certificates must not be changed, but it is")
+		}
+		return nil
+	}
+}
+
+func (suite testSuite) testYandexIoTCoreChangeBrokerCertificates(authInfo *yandexIotCoreAuth, broker *iot.Broker) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		providerConfig, configErr := suite.Config()
+		if configErr != nil {
+			return configErr
+		}
+		certificatesNew, err := testGetBrokerCertificatesByID(providerConfig, broker.Id)
+		if err != nil {
+			return err
+		}
+		if testIsEqualSets(authInfo.certificates, certificatesNew) {
+			return fmt.Errorf("Certificates must be changed, but it isn't")
+		}
+		return nil
+	}
+}
+
+func testYandexIoTCoreBrokerBasic(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_iot_core_broker" "test-broker" {
+  name = "%s"
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+}
+	`, name)
+}
+
+func testYandexIoTCoreBrokerFull(name string, descr string, labelKey string, label string, minLogLevel string, cert string) string {
+	return sdkcommon.TemplateConfig(`
+resource "yandex_iot_core_broker" "test-broker" {
+  name        = "{{.Name}}"
+  description = "{{.Descr}}"
+  labels = {
+    {{.LabelKey}} = "{{.Label}}"
+    empty-label   = ""
+  }
+  log_options {
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "{{.MinLogLevel}}"
+  }
+  certificates = [<<EOF
+{{.Cert}}
+EOF
+  ]
+}
+
+resource "yandex_logging_group" "logging-group" {
+}
+	`, map[string]interface{}{
+		"Name":        name,
+		"Descr":       descr,
+		"LabelKey":    labelKey,
+		"MinLogLevel": minLogLevel,
+		"Label":       label,
+		"Cert":        cert,
+	})
+}
+
+func testGetBrokerByID(config *providerconfig.Config, ID string) (*iot.Broker, error) {
+	client := brokersdk.NewBrokerClient(config.SDK)
+
+	req := iot.GetBrokerRequest{
+		BrokerId: ID,
+	}
+
+	return client.Get(context.Background(), &req)
+}
+
+func testGetBrokerCertificatesByID(config *providerconfig.Config, ID string) (map[string]interface{}, error) {
+	client := brokersdk.NewBrokerClient(config.SDK)
+
+	certs, err := client.ListCertificates(context.Background(), &iot.ListBrokerCertificatesRequest{BrokerId: ID})
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]interface{})
+	for _, cert := range certs.Certificates {
+		res[cert.CertificateData] = nil
+	}
+	return res, nil
+}

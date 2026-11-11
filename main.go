@@ -3,42 +3,19 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
+	"os"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server"
-	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
-	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
+	frameworkprovider "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework"
+	"github.com/yandex-cloud/terraform-provider-yandex/internal/providermux"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
-	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	grpcdns "google.golang.org/grpc/resolver/dns"
 )
 
 // Keep DNS lookups within the 20-second endpoint discovery deadline.
 const grpcDNSResolvingTimeout = 10 * time.Second
-
-func NewMuxProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer, error) {
-
-	upgradedSdkProvider, _ := tf5to6server.UpgradeServer(
-		context.Background(),
-		yandex.NewSDKProvider().GRPCProvider,
-	)
-
-	providers := []func() tfprotov6.ProviderServer{
-		providerserver.NewProtocol6(yandex_framework.NewFrameworkProvider()),
-		func() tfprotov6.ProviderServer {
-			return upgradedSdkProvider
-		},
-	}
-
-	muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
-	if err != nil {
-		return nil, err
-	}
-
-	return muxServer.ProviderServer, nil
-}
 
 func main() {
 	grpcdns.SetResolvingTimeout(grpcDNSResolvingTimeout)
@@ -48,10 +25,15 @@ func main() {
 	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
 	flag.Parse()
 
-	muxServerFactory, err := NewMuxProviderServer(ctx)
-
+	provider, err := yandex.NewPluginSDKProvider()
 	if err != nil {
-		return
+		fmt.Fprintf(os.Stderr, "register Terraform Plugin SDK services: %v\n", err)
+		os.Exit(1)
+	}
+	muxServerFactory, err := providermux.New(ctx, provider, frameworkprovider.NewFrameworkProvider())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 
 	var serveOpts []tf6server.ServeOpt
@@ -67,6 +49,7 @@ func main() {
 	)
 
 	if err != nil {
-		return
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }

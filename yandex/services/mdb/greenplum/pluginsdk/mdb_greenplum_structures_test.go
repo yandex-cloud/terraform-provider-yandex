@@ -1,0 +1,187 @@
+package pluginsdk_test
+
+import (
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
+	svc_greenplum "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/greenplum/pluginsdk"
+	"google.golang.org/protobuf/types/known/wrapperspb"
+)
+
+func TestExpandGreenplumConfigSpecDBMSConfig_Positive(t *testing.T) {
+	for _, tt := range []struct {
+		name                 string
+		rawConfig            map[string]interface{}
+		expectedSettingNames []string
+		expectedConfig       *greenplum.DBMSConfig
+	}{
+		{
+			name: "greenplum_config single field",
+			rawConfig: map[string]interface{}{
+				"version": "6.29",
+				"greenplum_config": map[string]interface{}{
+					"max_connections": 100,
+				},
+			},
+			expectedSettingNames: []string{"max_connections"},
+			expectedConfig: &greenplum.DBMSConfig{
+				MaxConnections: wrapperspb.Int64(100),
+			},
+		},
+		{
+			name: "6.29 all supported fields",
+			rawConfig: map[string]interface{}{
+				"version": "6.29",
+				"greenplum_config": map[string]interface{}{
+					"max_connections":                      100,
+					"max_slot_wal_keep_size":               101,
+					"gp_workfile_limit_per_segment":        102,
+					"gp_workfile_limit_per_query":          103,
+					"gp_workfile_limit_files_per_query":    104,
+					"max_prepared_transactions":            106,
+					"gp_workfile_compression":              true,
+					"max_statement_mem":                    107,
+					"log_statement":                        2,
+					"gp_add_column_inherits_table_setting": true,
+					"gp_enable_global_deadlock_detector":   true,
+					"gp_global_deadlock_detector_period":   108,
+				},
+			},
+			expectedSettingNames: []string{
+				"max_slot_wal_keep_size",
+				"max_connections",
+				"gp_workfile_limit_per_segment",
+				"gp_workfile_limit_per_query",
+				"gp_workfile_limit_files_per_query",
+				"max_prepared_transactions",
+				"gp_workfile_compression",
+				"max_statement_mem",
+				"log_statement",
+				"gp_add_column_inherits_table_setting",
+				"gp_enable_global_deadlock_detector",
+				"gp_global_deadlock_detector_period",
+			},
+			expectedConfig: &greenplum.DBMSConfig{
+				MaxConnections:                  wrapperspb.Int64(100),
+				MaxSlotWalKeepSize:              wrapperspb.Int64(101),
+				GpWorkfileLimitPerSegment:       wrapperspb.Int64(102),
+				GpWorkfileLimitPerQuery:         wrapperspb.Int64(103),
+				GpWorkfileLimitFilesPerQuery:    wrapperspb.Int64(104),
+				MaxPreparedTransactions:         wrapperspb.Int64(106),
+				GpWorkfileCompression:           wrapperspb.Bool(true),
+				MaxStatementMem:                 wrapperspb.Int64(107),
+				LogStatement:                    greenplum.LogStatement_DDL,
+				GpAddColumnInheritsTableSetting: wrapperspb.Bool(true),
+				GpEnableGlobalDeadlockDetector:  wrapperspb.Bool(true),
+				GpGlobalDeadlockDetectorPeriod:  wrapperspb.Int64(108),
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			rd := schema.TestResourceDataRaw(t, svc_greenplum.ResourceYandexMDBGreenplumCluster().Schema, tt.rawConfig)
+
+			config, settingNames, err := svc_greenplum.ExpandGreenplumConfigSpecDBMSConfig(rd)
+
+			require.NoError(t, err)
+			assert.Equal(t, config, tt.expectedConfig)
+			assert.ElementsMatch(t, tt.expectedSettingNames, settingNames)
+		})
+	}
+}
+
+func TestExpandGreenplumConfigSpecGreenplumConfig_Negative(t *testing.T) {
+	for _, tt := range []struct {
+		name                 string
+		rawConfig            map[string]interface{}
+		expectedErrorMessage string
+	}{
+		{
+			name:                 "unsupported version 6.17",
+			rawConfig:            map[string]interface{}{"version": "6.17"},
+			expectedErrorMessage: "unsupported Greenplum version '6.17'",
+		},
+		{
+			name:                 "unsupported version 6.19",
+			rawConfig:            map[string]interface{}{"version": "6.19"},
+			expectedErrorMessage: "unsupported Greenplum version '6.19'",
+		},
+		{
+			name:                 "unsupported version 6.22",
+			rawConfig:            map[string]interface{}{"version": "6.22"},
+			expectedErrorMessage: "unsupported Greenplum version '6.22'",
+		},
+		{
+			name:                 "unsupported version unknown",
+			rawConfig:            map[string]interface{}{"version": "unknown"},
+			expectedErrorMessage: "unknown Greenplum version 'unknown'",
+		},
+		{
+			name:                 "Cloudberry is not supported by terraform provider v1",
+			rawConfig:            map[string]interface{}{"version": "2.0-cb"},
+			expectedErrorMessage: "an Apache Cloudberry supported in 'yandex_mdb_greenplum_cluster_v2'",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			rd := schema.TestResourceDataRaw(t, svc_greenplum.ResourceYandexMDBGreenplumCluster().Schema, tt.rawConfig)
+
+			config, settingNames, err := svc_greenplum.ExpandGreenplumConfigSpecDBMSConfig(rd)
+
+			assert.EqualError(t, err, tt.expectedErrorMessage)
+			assert.Nil(t, config)
+			assert.Nil(t, settingNames)
+		})
+	}
+}
+
+func TestGreenplumAccessRoundTrip(t *testing.T) {
+	fields := []struct {
+		name string
+		get  func(*greenplum.Access) bool
+	}{
+		{
+			name: "data_lens",
+			get:  func(access *greenplum.Access) bool { return access.GetDataLens() },
+		},
+		{
+			name: "web_sql",
+			get:  func(access *greenplum.Access) bool { return access.GetWebSql() },
+		},
+		{
+			name: "data_transfer",
+			get:  func(access *greenplum.Access) bool { return access.GetDataTransfer() },
+		},
+		{
+			name: "trino",
+			get:  func(access *greenplum.Access) bool { return access.GetTrino() },
+		},
+		{
+			name: "yandex_query",
+			get:  func(access *greenplum.Access) bool { return access.GetYandexQuery() },
+		},
+	}
+
+	for _, tt := range fields {
+		t.Run(tt.name, func(t *testing.T) {
+			rd := schema.TestResourceDataRaw(t, svc_greenplum.ResourceYandexMDBGreenplumCluster().Schema, map[string]interface{}{
+				"access": []interface{}{map[string]interface{}{
+					tt.name: true,
+				}},
+			})
+
+			expanded := svc_greenplum.ExpandGreenplumAccess(rd)
+			require.NotNil(t, expanded)
+			for _, field := range fields {
+				assert.Equal(t, field.name == tt.name, field.get(expanded), field.name)
+			}
+
+			flattened := svc_greenplum.FlattenGreenplumAccess(&greenplum.GreenplumConfig{Access: expanded})
+			require.Len(t, flattened, 1)
+			for _, field := range fields {
+				assert.Equal(t, field.name == tt.name, flattened[0][field.name], field.name)
+			}
+		})
+	}
+}

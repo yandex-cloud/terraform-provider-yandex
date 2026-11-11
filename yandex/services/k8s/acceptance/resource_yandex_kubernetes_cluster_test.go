@@ -1,0 +1,1902 @@
+package acceptance
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"regexp"
+	"strconv"
+	"testing"
+
+	statecheck "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance/statecheck"
+
+	"github.com/fatih/structs"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	k8ssdk "github.com/yandex-cloud/go-sdk/services/k8s/v1"
+	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	svc_managed_kubernetes "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/k8s/pluginsdk"
+)
+
+const (
+	k8sTestVersion       = "1.33"
+	k8sTestUpdateVersion = "1.34"
+)
+
+func k8sClusterImportStep(clusterResourceFullName string, ignored ...string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:            clusterResourceFullName,
+		ImportState:             true,
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: ignored,
+	}
+}
+
+//revive:disable:var-naming
+func TestAccKubernetesClusterZonal_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWithNetworkPolicy("testAccKubernetesClusterZonalConfig_basic", true)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.zonal"),
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonalScalePolicy_autoScale(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResourceAutoScaled := clusterInfoAutoscaled("TestAccKubernetesClusterZonal_basic", true)
+	clusterResourceFullName := clusterResourceAutoScaled.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResourceAutoScaled),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResourceAutoScaled, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.zonal"),
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonal_clusterIpv4Ranges(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonal_clusterIpv4Ranges", true)
+	clusterResource.ServiceIPv4Range = "10.21.0.0/16"
+	clusterResource.ClusterIPv4Ranges = []string{"10.20.0.0/16", "10.22.0.0/16"}
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonalWLI_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWLI("testAccKubernetesClusterZonalWLI_basic", true)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonalNoVersion_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonalNoVersion_basic", true)
+	clusterResource.MasterVersion = ""
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonalSecurityGroups_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWithSecurityGroups("TestAccKubernetesClusterZonalSecurityGroups_basic", true)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	clusterUpdatedResource := clusterResource
+	clusterUpdatedResource.SecurityGroups = ""
+	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterZonalConfig_update"
+	clusterUpdatedResource.MasterVersion = k8sTestUpdateVersion
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+
+}
+
+func TestAccKubernetesClusterZonalDailyMaintenance_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWithMaintenance("TestAccKubernetesClusterZonalDailyMaintenance_basic",
+		true, true, dailyMaintenancePolicy)
+
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonalWeeklyMaintenance_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWithMaintenance("TestAccKubernetesClusterZonalWeeklyMaintenance_basic",
+		true, false, weeklyMaintenancePolicy)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterRegional_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoWithNetworkPolicy("testAccKubernetesClusterRegionalConfig_basic", false)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.regional"),
+		},
+	})
+}
+
+func TestAccKubernetesClusterRegional_externalIPv6Address(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfoExternalIPv6Address("testAccKubernetesClusterRegional_externalIPv6Address")
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	// All external IPv6 tests share the same subnets. Disallow concurrent execution.
+	sdkcommon.MutexKV.Lock(clusterResource.SubnetResourceNameA)
+	sdkcommon.MutexKV.Lock(clusterResource.SubnetResourceNameB)
+	sdkcommon.MutexKV.Lock(clusterResource.SubnetResourceNameD)
+	defer sdkcommon.MutexKV.Unlock(clusterResource.SubnetResourceNameA)
+	defer sdkcommon.MutexKV.Unlock(clusterResource.SubnetResourceNameB)
+	defer sdkcommon.MutexKV.Unlock(clusterResource.SubnetResourceNameD)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.regional"),
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonal_update(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("testAccKubernetesClusterZonalConfig_basic", true)
+	clusterResource.ClusterIPv4Ranges = []string{"10.20.0.0/16"}
+	clusterResource.ServiceIPv4Range = "10.21.0.0/16"
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	clusterUpdatedResource := clusterResource
+
+	clusterUpdatedResource.Name = safeResourceName("clusternewname")
+	clusterUpdatedResource.Description = "new-description"
+	clusterUpdatedResource.LabelKey = "new_label_key"
+	clusterUpdatedResource.LabelValue = "new_label_value"
+	// switch service accounts
+	clusterUpdatedResource.ServiceAccountResourceName = clusterResource.NodeServiceAccountResourceName
+	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
+	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterZonalConfig_update"
+	clusterUpdatedResource.MasterVersion = k8sTestUpdateVersion
+
+	// update maintenance policy
+	clusterUpdatedResource.constructMaintenancePolicyField(false, dailyMaintenancePolicy)
+
+	// test update of weekly maintenance policy (change start time && duration, without changing the 'days')
+	clusterUpdatedResource2 := clusterUpdatedResource
+	clusterUpdatedResource2.constructMaintenancePolicyField(true, weeklyMaintenancePolicy)
+
+	clusterUpdatedResource3 := clusterUpdatedResource2
+	clusterUpdatedResource3.constructMaintenancePolicyField(true, weeklyMaintenancePolicySecond)
+
+	clusterUpdatedResource4 := clusterUpdatedResource3
+	clusterUpdatedResource4.constructMaintenancePolicyField(false, anyMaintenancePolicy)
+
+	clusterUpdatedResource5 := clusterUpdatedResource4
+	clusterUpdatedResource5.constructMaintenancePolicyField(true, emptyMaintenancePolicy)
+
+	clusterUpdatedResource6 := clusterUpdatedResource5
+	clusterUpdatedResource6.constructMaintenancePolicyField(true, weeklyMaintenancePolicySecond)
+
+	clusterUpdatedResource7 := clusterUpdatedResource6
+	clusterUpdatedResource7.constructMaintenancePolicyField(true, emptyMaintenancePolicy)
+
+	clusterUpdatedResourceWithMasterAutoScale := clusterUpdatedResource7
+	clusterUpdatedResourceWithMasterAutoScale.constructScalePolicyField(AutoScalePolicy)
+
+	clusterUpdatedResourceWithWLI := clusterUpdatedResourceWithMasterAutoScale
+	clusterUpdatedResourceWithWLI.WorkloadIdentityFederation = true
+
+	clusterUpdatedResourceWithIPv4Ranges := clusterUpdatedResourceWithWLI
+	clusterUpdatedResourceWithIPv4Ranges.ClusterIPv4Ranges = []string{"10.20.0.0/16", "10.22.0.0/16"}
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource2),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource2, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource3),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource3, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource4),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource4, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource5),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource5, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource6),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource6, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource7),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource7, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResourceWithMasterAutoScale),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWithMasterAutoScale, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResourceWithWLI),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWithWLI, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResourceWithIPv4Ranges),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWithIPv4Ranges, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterRegional_update(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("testAccKubernetesClusterRegionalConfig_basic", false)
+	clusterResource.ClusterIPv4Ranges = []string{"10.20.0.0/16"}
+	clusterResource.ServiceIPv4Range = "10.21.0.0/16"
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	clusterUpdatedResource := clusterResource
+
+	clusterUpdatedResource.Name = safeResourceName("clusternewname")
+	clusterUpdatedResource.Description = "new-description"
+	clusterUpdatedResource.LabelKey = "new_label_key"
+	clusterUpdatedResource.LabelValue = "new_label_value"
+	// switch service accounts
+	clusterUpdatedResource.ServiceAccountResourceName = clusterResource.NodeServiceAccountResourceName
+	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
+	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterRegionalConfig_update"
+	clusterUpdatedResource.MasterVersion = k8sTestUpdateVersion
+
+	clusterUpdatedResourceAutoScaled := clusterUpdatedResource
+	clusterUpdatedResourceAutoScaled.constructScalePolicyField(AutoScalePolicy)
+
+	clusterUpdatedResourceWLI := clusterUpdatedResourceAutoScaled
+	clusterUpdatedResourceWLI.WorkloadIdentityFederation = true
+
+	clusterUpdatedResourceWithIPv4Ranges := clusterUpdatedResourceWLI
+	clusterUpdatedResourceWithIPv4Ranges.ClusterIPv4Ranges = []string{"10.20.0.0/16", "10.22.0.0/16"}
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterRegionalConfig_update(clusterResource, clusterUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterRegionalConfig_update(clusterResource, clusterUpdatedResourceAutoScaled),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceAutoScaled, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterRegionalConfig_update(clusterResource, clusterUpdatedResourceWLI),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWLI, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterRegionalConfig_update(clusterResource, clusterUpdatedResourceWithIPv4Ranges),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResourceWithIPv4Ranges, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesCluster_wrong(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccKubernetesClusterConfig_wrong(),
+				ExpectError: regexp.MustCompile("conflicts with master.0"),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonal_networkImplementationCilium(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonal_networkImplementationCilium", true)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+	clusterResource.NetworkImplementationCilium = true
+	clusterResource.MasterVersion = k8sTestVersion
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.zonal"),
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonal_masterLogging_defaultDestination(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonal_masterLogging_defaultDestination", true)
+	clusterResource.constructMasterLoggingField(masterLoggingParams{})
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonal_masterLogging_toPrecreatedLogGroup(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonal_masterLogging_toPrecreatedLogGroup", true)
+	clusterResource.constructMasterLoggingField(masterLoggingParams{LogToPrecreatedLogGroup: true})
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterRegional_masterLogging_defaultDestination(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesClusterRegional_masterLogging_defaultDestination", false)
+	clusterResource.constructMasterLoggingField(masterLoggingParams{})
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterRegional_masterLogging_toPrecreatedLogGroup(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	clusterResource := clusterInfo("TestAccKubernetesClusterRegional_masterLogging_toPrecreatedLogGroup", false)
+	clusterResource.constructMasterLoggingField(masterLoggingParams{LogToPrecreatedLogGroup: true})
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					statecheck.CheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+// log_group_id and folder_id must not be set simultaneously
+func TestAccKubernetesCluster_masterLogging_wrong(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccKubernetesClusterConfig_masterLogging_wrong(),
+				ExpectError: regexp.MustCompile("Conflicting configuration arguments"),
+			},
+		},
+	})
+}
+
+type masterLoggingParams struct {
+	LogToPrecreatedLogGroup bool
+}
+
+func randomResourceName(tp string) string {
+	return fmt.Sprintf("test_%s_%s", tp, acctest.RandString(10))
+}
+
+// iam uses strict validation for SA names
+func safeResourceName(tp string) string {
+	return fmt.Sprintf("test%s%s", tp, acctest.RandString(10))
+}
+
+func clusterInfo(testDesc string, zonal bool) resourceClusterInfo {
+	return clusterInfoWithMaintenance(testDesc, zonal, true, anyMaintenancePolicy)
+}
+
+// fillSharedEmptyResourceClusterInfoParams ensures that some cluster info parameters has fake values if they're empty.
+// It is needed for shared resources that are locked by mutexKV, so we don't have locks on the same empty string in unit
+// tests where those env variables are not set.
+func fillSharedEmptyResourceClusterInfoParams(ci resourceClusterInfo) resourceClusterInfo {
+	if ci.SubnetResourceNameA == "" {
+		ci.SubnetResourceNameA = "SubnetResourceNameA"
+	}
+	if ci.SubnetResourceNameB == "" {
+		ci.SubnetResourceNameB = "SubnetResourceNameB"
+	}
+	if ci.SubnetResourceNameD == "" {
+		ci.SubnetResourceNameD = "SubnetResourceNameD"
+	}
+	return ci
+}
+
+func clusterInfoDualStack(testDesc string, zonal bool) resourceClusterInfo {
+	ci := clusterInfo(testDesc, zonal)
+
+	// Use existing resources rather than creating new ones for dual stack clusters.
+	//
+	// K8S_SUBNET_NETWORK_ID - network with dual-stack subnets without external ivp6 for k8s cluster and node-groups.
+	// K8S_SUBNET_A_ID - dual-stack subnet without external ivp6 in location "a" for k8s cluster and node-groups.
+	// K8S_SUBNET_B_ID - dual-stack subnet without external ivp6 in location "b" for k8s cluster and node-groups.
+	// K8S_SUBNET_D_ID - dual-stack subnet without external ivp6 in location "d" for k8s cluster and node-groups.
+	// K8S_SECURITY_GROUP_ID - security-group of K8S_SUBNET_NETWORK_ID that can be used to test k8s cluster with security-group.
+	// K8S_NETWORK_FOLDER_ID - folder with dual-stack resources to add folder iam member to use those resources.
+	ci.NetworkResourceName = os.Getenv("K8S_SUBNET_NETWORK_ID")
+	ci.SubnetResourceNameA = os.Getenv("K8S_SUBNET_A_ID")
+	ci.SubnetResourceNameB = os.Getenv("K8S_SUBNET_B_ID")
+	ci.SubnetResourceNameD = os.Getenv("K8S_SUBNET_D_ID")
+	ci.SecurityGroupName = os.Getenv("K8S_SECURITY_GROUP_ID")
+	ci.NetworkFolderID = os.Getenv("K8S_NETWORK_FOLDER_ID")
+	ci.ClusterIPv6Range = "fc00::/96"
+	ci.ServiceIPv6Range = "fc01::/112"
+	ci.ClusterIPv4Range = "10.20.0.0/16"
+	ci.ServiceIPv4Range = "10.21.0.0/16"
+	ci.DualStack = true
+
+	return fillSharedEmptyResourceClusterInfoParams(ci)
+}
+
+func clusterInfoExternalIPv6Address(testDesc string) resourceClusterInfo {
+	ci := clusterInfo(testDesc, false)
+
+	// Use existing resources rather than creating new ones for clusters with external ipv6 address.
+	//
+	// K8S_E2E_IPV6_SUBNET_NETWORK_ID - network with dual-stack external ivp6 subnets for k8s cluster and node-groups.
+	// K8S_E2E_IPV6_SUBNET_A_ID - dual-stack subnet with external ivp6 in location "a" for k8s cluster and node-groups.
+	// K8S_E2E_IPV6_SUBNET_B_ID - dual-stack subnet with external ivp6 in location "b" for k8s cluster and node-groups.
+	// K8S_E2E_IPV6_SUBNET_D_ID - dual-stack subnet with external ivp6 in location "d" for k8s cluster and node-groups.
+	// K8S_E2E_IPV6_SECURITY_GROUP_ID - security-group of K8S_E2E_IPV6_SUBNET_NETWORK_ID that can be used to test k8s cluster with security-group.
+	// K8S_E2E_IPV6_ADDRESS - IPv6 address that can be used as K8S cluster endpoint.
+	// K8S_NETWORK_FOLDER_ID - folder with dual-stack external ivp6 resources to add folder iam member to use those resources.
+	ci.NetworkResourceName = os.Getenv("K8S_E2E_IPV6_SUBNET_NETWORK_ID")
+	ci.SubnetResourceNameA = os.Getenv("K8S_E2E_IPV6_SUBNET_A_ID")
+	ci.SubnetResourceNameB = os.Getenv("K8S_E2E_IPV6_SUBNET_B_ID")
+	ci.SubnetResourceNameD = os.Getenv("K8S_E2E_IPV6_SUBNET_D_ID")
+	ci.SecurityGroupName = os.Getenv("K8S_E2E_IPV6_SECURITY_GROUP_ID")
+	ci.ExternalIPv6Address = os.Getenv("K8S_E2E_IPV6_ADDRESS")
+	ci.NetworkFolderID = os.Getenv("K8S_NETWORK_FOLDER_ID")
+	ci.ClusterIPv4Range = "10.8.0.0/16"
+	ci.ServiceIPv4Range = "10.9.0.0/16"
+
+	return fillSharedEmptyResourceClusterInfoParams(ci)
+}
+
+func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
+	res := resourceClusterInfo{
+		ClusterResourceName:            randomResourceName("cluster"),
+		FolderID:                       acceptance.FolderID(),
+		Name:                           safeResourceName("clustername"),
+		Description:                    "description",
+		MasterVersion:                  k8sTestVersion,
+		LabelKey:                       "label_key",
+		LabelValue:                     "label_value",
+		TestDescription:                testDesc,
+		NetworkResourceName:            randomResourceName("network"),
+		SubnetResourceNameA:            randomResourceName("subnet"),
+		SubnetResourceNameB:            randomResourceName("subnet"),
+		SubnetResourceNameD:            randomResourceName("subnet"),
+		SecurityGroupName:              randomResourceName("sg"),
+		ServiceAccountResourceName:     safeResourceName("serviceaccount"),
+		NodeServiceAccountResourceName: safeResourceName("nodeserviceaccount"),
+		ReleaseChannel:                 k8s.ReleaseChannel_RAPID.String(),
+		zonal:                          zonal,
+		KMSKeyResourceName:             randomResourceName("key"),
+	}
+
+	res.constructMaintenancePolicyField(autoUpgrade, policyType)
+	return res
+}
+
+func clusterInfoWithNetworkPolicy(testDesc string, zonal bool) resourceClusterInfo {
+	res := clusterInfo(testDesc, zonal)
+	res.constructNetworkPolicyField(k8s.NetworkPolicy_CALICO)
+	return res
+}
+
+func clusterInfoWithSecurityGroups(testDesc string, zonal bool) resourceClusterInfo {
+	res := clusterInfo(testDesc, zonal)
+	res.constructSecurityGroupsField()
+	return res
+}
+
+func clusterInfoWithSecurityGroupsNetworkAndMaintenancePolicies(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
+	res := clusterInfoWithMaintenance(testDesc, zonal, autoUpgrade, policyType)
+	res.constructNetworkPolicyField(k8s.NetworkPolicy_CALICO)
+	res.constructSecurityGroupsField()
+
+	return res
+}
+
+func clusterInfoAutoscaled(testDesc string, zonal bool) resourceClusterInfo {
+	res := clusterInfo(testDesc, zonal)
+	res.constructScalePolicyField(AutoScalePolicy)
+	return res
+}
+
+func clusterInfoWLI(testDesc string, zonal bool) resourceClusterInfo {
+	res := clusterInfo(testDesc, zonal)
+	res.WorkloadIdentityFederation = true
+	return res
+}
+
+type clusterResourceIDs struct {
+	networkResourceID            string
+	subnetAResourceID            string
+	subnetBResourceID            string
+	subnetCResourceID            string
+	securityGroupID              string
+	serviceAccountResourceID     string
+	nodeServiceAccountResourceID string
+	kmsKeyResourceID             string
+}
+
+func clusterVPCDepsPrecreated(info *resourceClusterInfo) bool {
+	return info.DualStack || info.ExternalIPv6Address != ""
+}
+
+func getClusterResourcesIds(s *terraform.State, info *resourceClusterInfo) (ids clusterResourceIDs, err error) {
+	if !clusterVPCDepsPrecreated(info) {
+		ids.networkResourceID, err = sdkcommon.GetResourceID(info.networkResourceName(), s)
+		if err != nil {
+			return
+		}
+
+		ids.subnetAResourceID, err = sdkcommon.GetResourceID(info.subnetAResourceName(), s)
+		if err != nil {
+			return
+		}
+
+		ids.subnetBResourceID, err = sdkcommon.GetResourceID(info.subnetBResourceName(), s)
+		if err != nil {
+			return
+		}
+
+		ids.subnetCResourceID, err = sdkcommon.GetResourceID(info.subnetCResourceName(), s)
+		if err != nil {
+			return
+		}
+
+		ids.securityGroupID, err = sdkcommon.GetResourceID(info.securityGroupName(), s)
+		if err != nil {
+			return
+		}
+	}
+
+	ids.serviceAccountResourceID, err = sdkcommon.GetResourceID(info.serviceAccountResourceName(), s)
+	if err != nil {
+		return
+	}
+
+	ids.nodeServiceAccountResourceID, err = sdkcommon.GetResourceID(info.nodeServiceAccountResourceName(), s)
+	if err != nil {
+		return
+	}
+
+	ids.kmsKeyResourceID, err = sdkcommon.GetResourceID(info.kmsKeyResourceName(), s)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ids, err := getClusterResourcesIds(s, info)
+		if err != nil {
+			return err
+		}
+
+		master := cluster.GetMaster()
+		zonalMaster := master.GetZonalMaster()
+		regionalMaster := master.GetRegionalMaster()
+		versionInfo := master.GetVersionInfo()
+		if master == nil || versionInfo == nil || (regionalMaster == nil && zonalMaster == nil) {
+			return fmt.Errorf("failed to get cluster master specs")
+		}
+
+		if info.zonal && zonalMaster == nil {
+			return fmt.Errorf("expected zonal cluster, but got regional")
+		}
+
+		if info.NetworkImplementationCilium == true && cluster.GetNetworkImplementation() == nil {
+			return fmt.Errorf("expected network implementation, but got none")
+		}
+
+		if !info.zonal && regionalMaster == nil {
+			return fmt.Errorf("expected regional cluster, but got zonal")
+		}
+
+		resourceFullName := info.ResourceFullName(rs)
+		checkFuncsAr := []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(resourceFullName, "service_account_id", ids.serviceAccountResourceID),
+			resource.TestCheckResourceAttr(resourceFullName, "node_service_account_id", ids.nodeServiceAccountResourceID),
+
+			resource.TestCheckResourceAttr(resourceFullName, "name", info.Name),
+			resource.TestCheckResourceAttr(resourceFullName, "description", info.Description),
+
+			resource.TestCheckResourceAttr(resourceFullName, "release_channel", info.ReleaseChannel),
+			resource.TestCheckResourceAttr(resourceFullName, "release_channel", cluster.ReleaseChannel.String()),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.version_info.0.current_version", versionInfo.GetCurrentVersion()),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.version_info.0.new_revision_available", strconv.FormatBool(versionInfo.GetNewRevisionAvailable())),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.version_info.0.new_revision_summary", versionInfo.GetNewRevisionSummary()),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.version_info.0.version_deprecated", strconv.FormatBool(versionInfo.GetVersionDeprecated())),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.maintenance_policy.0.auto_upgrade", strconv.FormatBool(master.GetMaintenancePolicy().GetAutoUpgrade())),
+
+			resource.TestCheckResourceAttr(resourceFullName, "name", cluster.Name),
+			resource.TestCheckResourceAttr(resourceFullName, "description", cluster.Description),
+			resource.TestCheckResourceAttr(resourceFullName, "service_account_id", cluster.ServiceAccountId),
+			resource.TestCheckResourceAttr(resourceFullName, "node_service_account_id", cluster.NodeServiceAccountId),
+			resource.TestCheckResourceAttr(resourceFullName, "network_id", cluster.NetworkId),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.internal_v4_endpoint", master.GetEndpoints().GetInternalV4Endpoint()),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v4_endpoint", master.GetEndpoints().GetExternalV4Endpoint()),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.cluster_ca_certificate", master.GetMasterAuth().GetClusterCaCertificate()),
+			resource.TestCheckResourceAttr(resourceFullName, "kms_provider.0.key_id", ids.kmsKeyResourceID),
+			resource.TestCheckResourceAttr(resourceFullName, "kms_provider.0.key_id", cluster.GetKmsProvider().GetKeyId()),
+			testAccCheckClusterLabel(cluster, info, rs),
+
+			resource.TestCheckResourceAttr(resourceFullName,
+				"cluster_ipv4_range", cluster.GetIpAllocationPolicy().ClusterIpv4CidrBlock),
+			resource.TestCheckResourceAttr(resourceFullName,
+				"cluster_ipv6_range", cluster.GetIpAllocationPolicy().ClusterIpv6CidrBlock),
+			resource.TestCheckResourceAttr(resourceFullName,
+				"node_ipv4_cidr_mask_size", strconv.Itoa(int(cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize()))),
+			resource.TestCheckResourceAttr(resourceFullName,
+				"service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock()),
+			resource.TestCheckResourceAttr(resourceFullName,
+				"service_ipv6_range", cluster.GetIpAllocationPolicy().GetServiceIpv6CidrBlock()),
+		}
+
+		checkFuncsAr = append(checkFuncsAr, testAccCheckStringListAttr(resourceFullName, "cluster_ipv4_ranges", cluster.GetIpAllocationPolicy().GetClusterIpv4CidrBlocks())...)
+		checkFuncsAr = append(checkFuncsAr, testAccCheckStringListAttr(resourceFullName, "cluster_ipv6_ranges", cluster.GetIpAllocationPolicy().GetClusterIpv6CidrBlocks())...)
+
+		if !clusterVPCDepsPrecreated(info) {
+			resource.TestCheckResourceAttr(resourceFullName, "network_id", ids.networkResourceID)
+		}
+		if info.ExternalIPv6Address != "" {
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v6_endpoint", master.GetEndpoints().GetExternalV6Endpoint())
+		}
+
+		if networkImplementation := cluster.GetNetworkImplementation(); networkImplementation != nil {
+			switch networkImplementation.(type) {
+			case *k8s.Cluster_Cilium:
+				resource.TestCheckResourceAttrSet(resourceFullName, "network_implementation.0.cilium.0")
+			}
+		}
+
+		if info.SecurityGroups != "" && !clusterVPCDepsPrecreated(info) {
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.security_groups_ids.0", ids.securityGroupID)
+		} else {
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.security_groups_ids.#", "0")
+		}
+
+		if info.policy != emptyMaintenancePolicy {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)))
+		}
+
+		if npp := info.networkPolicyProvider; npp != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "network_policy_provider", npp.String()),
+				resource.TestCheckResourceAttr(resourceFullName, "network_policy_provider", cluster.GetNetworkPolicy().GetProvider().String()),
+			)
+		}
+
+		const maintenanceWindowPrefix = "master.0.maintenance_policy.0.maintenance_window."
+		switch info.policy {
+		case anyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "0"),
+			)
+		case dailyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "1"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "", "15:00", "3h"),
+			)
+		case weeklyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "monday", "15:00", "3h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "friday", "10:00", "4h"),
+			)
+		case weeklyMaintenancePolicySecond:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "monday", "15:00", "5h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "friday", "12:00", "4h"),
+			)
+		}
+
+		if zonalMaster != nil {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.zonal.0.zone",
+					zonalMaster.GetZoneId()),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v4_address",
+					zonalMaster.GetExternalV4Address()),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.internal_v4_address",
+					zonalMaster.GetInternalV4Address()),
+			)
+
+			if rs {
+				checkFuncsAr = append(checkFuncsAr,
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.zonal.0.subnet_id",
+						ids.subnetAResourceID),
+				)
+			}
+		}
+
+		if regionalMaster != nil {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.region",
+					regionalMaster.GetRegionId()),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v4_address",
+					regionalMaster.GetExternalV4Address()),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.internal_v4_address",
+					regionalMaster.GetInternalV4Address()),
+			)
+			if info.ExternalIPv6Address != "" {
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v6_address",
+					regionalMaster.GetExternalV6Address())
+			}
+
+			if rs {
+				checkFuncsAr = append(checkFuncsAr,
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.0.zone",
+						"ru-central1-a"),
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.1.zone",
+						"ru-central1-b"),
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.2.zone",
+						"ru-central1-d"),
+				)
+
+				if !clusterVPCDepsPrecreated(info) {
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.0.subnet_id",
+						ids.subnetAResourceID)
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.1.subnet_id",
+						ids.subnetBResourceID)
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.2.subnet_id",
+						ids.subnetCResourceID)
+				}
+			}
+		}
+
+		if rs {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.public_ip", "true"),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.version", cluster.GetMaster().GetVersion()),
+			)
+
+			if info.MasterVersion != "" {
+				checkFuncsAr = append(checkFuncsAr,
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.version", info.MasterVersion))
+			}
+		}
+
+		if info.MasterLogging != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.log_group_id", master.GetMasterLogging().GetLogGroupId()),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.folder_id", master.GetMasterLogging().GetFolderId()),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.kube_apiserver_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetKubeApiserverEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.cluster_autoscaler_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetClusterAutoscalerEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.events_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetEventsEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.audit_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetAuditEnabled())),
+			)
+		}
+
+		switch info.ScalePolicyType {
+		case AutoScalePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.scale_policy.0.auto_scale.0.min_resource_preset_id", master.GetScalePolicy().GetAutoScale().GetMinResourcePresetId()),
+			)
+		default:
+			//nothing to check
+		}
+
+		if info.WorkloadIdentityFederation {
+			wif := cluster.GetWorkloadIdentityFederation()
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "workload_identity_federation.0.enabled", strconv.FormatBool(wif.GetEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "workload_identity_federation.0.issuer", wif.GetIssuer()),
+				resource.TestCheckResourceAttr(resourceFullName, "workload_identity_federation.0.jwks_uri", wif.GetJwksUri()),
+			)
+		}
+
+		return resource.ComposeTestCheckFunc(checkFuncsAr...)(s)
+	}
+}
+
+func testAccCheckStringListAttr(resourceFullName, attr string, values []string) []resource.TestCheckFunc {
+	checks := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(resourceFullName, attr+".#", strconv.Itoa(len(values))),
+	}
+
+	for i, value := range values {
+		checks = append(checks, resource.TestCheckResourceAttr(resourceFullName, fmt.Sprintf("%s.%d", attr, i), value))
+	}
+
+	return checks
+}
+
+func testAccCheckClusterLabel(cluster *k8s.Cluster, info *resourceClusterInfo, rs bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(cluster.Labels) != 1 {
+			return fmt.Errorf("should be exactly one label on Kubernetes cluster %s", cluster.Name)
+		}
+
+		v, ok := cluster.Labels[info.LabelKey]
+		if !ok {
+			return fmt.Errorf("no label found with key %s on Kubernetes cluster %s", info.LabelKey, cluster.Name)
+		}
+		if v != info.LabelValue {
+			return fmt.Errorf("expected value '%s' but found value '%s' for label '%s' on Kubernetes cluster %s",
+				info.LabelValue, v, info.LabelKey, cluster.Name)
+		}
+
+		objName := info.ResourceFullName(rs)
+		labelPath := fmt.Sprintf("labels.%s", info.LabelKey)
+
+		return resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(objName, "labels.%", "1"),
+			resource.TestCheckResourceAttr(objName, labelPath, info.LabelValue))(s)
+	}
+}
+
+func errorResourceCheckFunc(err error) resource.TestCheckFunc {
+	return func(*terraform.State) error {
+		return err
+	}
+}
+
+func testAccCheckMaintenanceWindow(resourceFullName string, maintenanceWindowPrefix string, day, startTime, duration string) resource.TestCheckFunc {
+	st, err := svc_managed_kubernetes.ParseDayTime(startTime)
+	if err != nil {
+		return errorResourceCheckFunc(err)
+	}
+
+	du, err := sdkcommon.ParseDuration(duration)
+	if err != nil {
+		return errorResourceCheckFunc(err)
+	}
+
+	// can't use shouldSuppressDiffFor function here, thus, using regexp, to match either value
+	// from config (resources tests) or value from api (datasource tests)
+	m := map[string]*regexp.Regexp{
+		"day":        regexp.MustCompile(fmt.Sprintf("\\Q%v\\E", day)),
+		"start_time": regexp.MustCompile(fmt.Sprintf("\\Q%v\\E|\\Q%v\\E", startTime, st)),
+		"duration":   regexp.MustCompile(fmt.Sprintf("\\Q%v\\E|\\Q%v\\E", duration, du)),
+	}
+	return resource.TestMatchTypeSetElemNestedAttrs(resourceFullName, maintenanceWindowPrefix+"*", m)
+}
+
+type scalePolicyType int
+
+const (
+	UndefinedScalePolicy scalePolicyType = iota
+	AutoScalePolicy
+)
+
+type maintenancePolicyType int
+
+const (
+	anyMaintenancePolicy          maintenancePolicyType = 0
+	dailyMaintenancePolicy        maintenancePolicyType = 1
+	weeklyMaintenancePolicy       maintenancePolicyType = 2
+	weeklyMaintenancePolicySecond maintenancePolicyType = 3
+	emptyMaintenancePolicy        maintenancePolicyType = 4
+)
+
+type resourceClusterInfo struct {
+	ClusterResourceName string
+	FolderID            string
+	Name                string
+	Description         string
+	MasterVersion       string
+
+	LabelKey   string
+	LabelValue string
+
+	TestDescription     string
+	NetworkResourceName string
+
+	SubnetResourceNameA string
+	SubnetResourceNameB string
+	SubnetResourceNameD string
+
+	ServiceAccountResourceName     string
+	NodeServiceAccountResourceName string
+	ReleaseChannel                 string
+
+	MaintenancePolicy string
+
+	NetworkPolicy         string
+	networkPolicyProvider k8s.NetworkPolicy_Provider
+
+	zonal bool
+
+	autoUpgrade bool
+	policy      maintenancePolicyType
+
+	KMSKeyResourceName string
+
+	SecurityGroups    string
+	SecurityGroupName string
+
+	ClusterIPv4Range  string
+	ClusterIPv6Range  string
+	ClusterIPv4Ranges []string
+	ClusterIPv6Ranges []string
+	ServiceIPv4Range  string
+	ServiceIPv6Range  string
+
+	// For dual stack clusters and clusters with external ipv6.
+	NetworkFolderID     string
+	ExternalIPv6Address string
+	DualStack           bool
+
+	NetworkImplementationCilium bool
+
+	// folder_id is not tested here since folder deletion takes too long
+	MasterLogging                     string
+	MasterLoggingLogGroupResourceName string
+
+	ScalePolicyType scalePolicyType
+	ScalePolicy     string
+
+	WorkloadIdentityFederation bool
+}
+
+func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
+	m := map[string]interface{}{
+		"AutoUpgrade": autoUpgrade,
+	}
+
+	i.autoUpgrade = autoUpgrade
+	i.policy = policy
+
+	switch policy {
+	case emptyMaintenancePolicy:
+		i.MaintenancePolicy = ""
+	case anyMaintenancePolicy:
+		i.MaintenancePolicy = sdkcommon.TemplateConfig(anyMaintenancePolicyTemplate, m)
+	case dailyMaintenancePolicy:
+		i.MaintenancePolicy = sdkcommon.TemplateConfig(dailyMaintenancePolicyTemplate, m)
+	case weeklyMaintenancePolicy:
+		i.MaintenancePolicy = sdkcommon.TemplateConfig(weeklyMaintenancePolicyTemplate, m)
+	case weeklyMaintenancePolicySecond:
+		i.MaintenancePolicy = sdkcommon.TemplateConfig(weeklyMaintenancePolicyTemplateSecond, m)
+	}
+}
+
+func (i *resourceClusterInfo) constructNetworkPolicyField(npp k8s.NetworkPolicy_Provider) {
+	if npp != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {
+		i.networkPolicyProvider = npp
+		i.NetworkPolicy = fmt.Sprintf("network_policy_provider = \"%s\"", npp.String())
+	}
+}
+
+func (i *resourceClusterInfo) constructMasterLoggingField(params masterLoggingParams) {
+	ctx := map[string]interface{}{}
+	if params.LogToPrecreatedLogGroup {
+		logGroupName := safeResourceName("loggroup")
+		i.MasterLoggingLogGroupResourceName = logGroupName
+		ctx["MasterLoggingLogGroupResourceName"] = logGroupName
+	}
+	i.MasterLogging = sdkcommon.TemplateConfig(masterLoggingTemplate, ctx)
+}
+
+func (i *resourceClusterInfo) constructScalePolicyField(policy scalePolicyType) {
+	switch policy {
+	case AutoScalePolicy:
+		i.ScalePolicyType = policy
+		i.ScalePolicy = autoMasterScalePolicy
+	default:
+		//nothing
+	}
+}
+
+func (i *resourceClusterInfo) constructSecurityGroupsField() {
+	i.SecurityGroups = fmt.Sprintf("security_group_ids = [\"${yandex_vpc_security_group.%s.id}\"]", i.SecurityGroupName)
+}
+
+func (i *resourceClusterInfo) ResourceFullName(resource bool) string {
+	if resource {
+		return "yandex_kubernetes_cluster." + i.ClusterResourceName
+	}
+
+	return "data.yandex_kubernetes_cluster." + i.ClusterResourceName
+}
+
+func (i *resourceClusterInfo) Map() map[string]interface{} {
+	return structs.Map(i)
+}
+
+func (i *resourceClusterInfo) networkResourceName() string {
+	return "yandex_vpc_network." + i.NetworkResourceName
+}
+
+func (i *resourceClusterInfo) subnetAResourceName() string {
+	return "yandex_vpc_subnet." + i.SubnetResourceNameA
+}
+
+func (i *resourceClusterInfo) subnetBResourceName() string {
+	return "yandex_vpc_subnet." + i.SubnetResourceNameB
+}
+
+func (i *resourceClusterInfo) subnetCResourceName() string {
+	return "yandex_vpc_subnet." + i.SubnetResourceNameD
+}
+
+func (i *resourceClusterInfo) securityGroupName() string {
+	return "yandex_vpc_security_group." + i.SecurityGroupName
+}
+
+func (i *resourceClusterInfo) serviceAccountResourceName() string {
+	return "yandex_iam_service_account." + i.ServiceAccountResourceName
+}
+
+func (i *resourceClusterInfo) nodeServiceAccountResourceName() string {
+	return "yandex_iam_service_account." + i.NodeServiceAccountResourceName
+}
+
+func (i *resourceClusterInfo) kmsKeyResourceName() string {
+	return "yandex_kms_symmetric_key." + i.KMSKeyResourceName
+}
+
+const autoMasterScalePolicy = `
+	scale_policy {
+		auto_scale {
+			min_resource_preset_id = "s-c4-m16"
+		}
+	}
+`
+
+const anyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+    }
+`
+
+const dailyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        
+        maintenance_window {
+			start_time = "15:00"
+			duration   = "3h"
+		}
+    }
+`
+
+const weeklyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        
+        maintenance_window {
+            day		   = "monday"
+			start_time = "15:00"
+			duration   = "3h"
+		}
+
+        maintenance_window {
+            day		   = "friday"
+			start_time = "10:00"
+			duration   = "4h"
+		}
+
+    }
+`
+
+// used to test update for start time and duration, without changing of 'days'
+const weeklyMaintenancePolicyTemplateSecond = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+
+        maintenance_window {
+            day		   = "monday"
+			start_time = "15:00"
+			duration   = "5h"
+		}
+
+        maintenance_window {
+            day		   = "friday"
+			start_time = "12:00"
+			duration   = "4h"
+		}
+    }
+`
+
+const masterLoggingTemplate = `
+	master_logging {
+		enabled = true
+		kube_apiserver_enabled = true
+		cluster_autoscaler_enabled = true
+		events_enabled = true
+		audit_enabled = true
+{{if .MasterLoggingLogGroupResourceName}}
+		log_group_id = yandex_logging_group.{{.MasterLoggingLogGroupResourceName}}.id
+{{end}}
+	}
+`
+
+const zonalClusterConfigTemplate = `
+resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
+  depends_on         = [
+	"yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}",
+{{if .DualStack}}
+	"yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}_existing_network",
+{{end}}
+	"yandex_resourcemanager_folder_iam_member.{{.NodeServiceAccountResourceName}}"
+  ]
+
+  name        = "{{.Name}}"
+  description = "{{.Description}}"
+
+{{if .DualStack}}
+  network_id = "{{.NetworkResourceName}}"
+{{else}}
+  network_id = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+{{end}}
+
+  master {
+    version = "{{.MasterVersion}}" 
+    zonal {
+{{if .DualStack}}
+  	  zone = "ru-central1-a"
+	  subnet_id = "{{.SubnetResourceNameA}}"
+{{else}}
+  	  zone = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.zone}" 
+	  subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.id}"
+{{end}}
+    }
+  
+    public_ip = true
+    
+    {{.MaintenancePolicy}}
+
+    {{.SecurityGroups}}
+
+	{{.MasterLogging}}
+
+	{{.ScalePolicy}}
+  }
+
+  service_account_id = "${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
+  node_service_account_id = "${yandex_iam_service_account.{{.NodeServiceAccountResourceName}}.id}"
+
+  labels = {
+	{{.LabelKey}} = "{{.LabelValue}}"
+  }
+
+  release_channel = "{{.ReleaseChannel}}"
+
+  {{.NetworkPolicy}}
+
+  kms_provider {
+    key_id = "${yandex_kms_symmetric_key.{{.KMSKeyResourceName}}.id}"
+  }
+  {{if .ClusterIPv4Range}}
+  cluster_ipv4_range = "{{.ClusterIPv4Range}}"
+  {{end}}
+  {{if .ClusterIPv6Range}}
+  cluster_ipv6_range = "{{.ClusterIPv6Range}}"
+  {{end}}
+  {{if .ClusterIPv4Ranges}}
+  cluster_ipv4_ranges = [
+    {{range .ClusterIPv4Ranges}}"{{.}}",
+    {{end}}
+  ]
+  {{end}}
+  {{if .ClusterIPv6Ranges}}
+  cluster_ipv6_ranges = [
+    {{range .ClusterIPv6Ranges}}"{{.}}",
+    {{end}}
+  ]
+  {{end}}
+  {{if .ServiceIPv4Range}}
+  service_ipv4_range = "{{.ServiceIPv4Range}}"
+  {{end}}
+  {{if .ServiceIPv6Range}}
+  service_ipv6_range = "{{.ServiceIPv6Range}}"
+  {{end}}
+
+  {{if .NetworkImplementationCilium}}
+  network_implementation {
+    cilium {
+    }
+  }
+  {{end}}
+
+  {{if .WorkloadIdentityFederation}}
+  workload_identity_federation {
+    enabled = {{.WorkloadIdentityFederation}}
+  }
+  {{end}}
+}
+`
+
+const regionalClusterConfigTemplate = `
+resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
+  depends_on         = [
+    "yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}",
+{{if or .DualStack .ExternalIPv6Address}}
+    "yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}_existing_network",
+{{end}}
+    "yandex_resourcemanager_folder_iam_member.{{.NodeServiceAccountResourceName}}"
+  ]
+
+  name        = "{{.Name}}"
+  description = "{{.Description}}"
+{{if or .DualStack .ExternalIPv6Address}}
+  network_id = "{{.NetworkResourceName}}"
+{{else}}
+  network_id = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+{{end}}
+
+  master {
+    version = "{{.MasterVersion}}"
+    regional {
+      region = "ru-central1"
+{{if or .DualStack .ExternalIPv6Address}}
+      location {
+        zone = "ru-central1-a"
+        subnet_id = "{{.SubnetResourceNameA}}"
+      }
+      location {
+        zone = "ru-central1-b"
+        subnet_id = "{{.SubnetResourceNameB}}"
+      }
+      location {
+        zone = "ru-central1-d"
+        subnet_id = "{{.SubnetResourceNameD}}"
+      }
+{{else}}
+      location {
+        zone = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.zone}"
+        subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.id}"
+	  }
+      location {
+        zone = "${yandex_vpc_subnet.{{.SubnetResourceNameB}}.zone}"
+        subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameB}}.id}"
+	  }
+      location {
+        zone = "${yandex_vpc_subnet.{{.SubnetResourceNameD}}.zone}"
+        subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameD}}.id}"
+	  }
+{{end}}
+    }
+  
+    public_ip = true
+
+    {{.SecurityGroups}}
+
+    {{.MaintenancePolicy}}
+
+    {{.MasterLogging}}
+
+	{{.ScalePolicy}}
+
+{{if .ExternalIPv6Address}}
+    external_v6_address = "{{.ExternalIPv6Address}}"
+{{end}}
+  }
+
+  service_account_id = "${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
+  node_service_account_id = "${yandex_iam_service_account.{{.NodeServiceAccountResourceName}}.id}"
+
+  labels = {
+	{{.LabelKey}} = "{{.LabelValue}}"
+  }
+
+  release_channel = "{{.ReleaseChannel}}"
+
+  {{.NetworkPolicy}}
+
+  kms_provider {
+    key_id = "${yandex_kms_symmetric_key.{{.KMSKeyResourceName}}.id}"
+  }
+  {{if .ClusterIPv4Range}}
+  cluster_ipv4_range = "{{.ClusterIPv4Range}}"
+  {{end}}
+  {{if .ClusterIPv6Range}}
+  cluster_ipv6_range = "{{.ClusterIPv6Range}}"
+  {{end}}
+  {{if .ClusterIPv4Ranges}}
+  cluster_ipv4_ranges = [
+    {{range .ClusterIPv4Ranges}}"{{.}}",
+    {{end}}
+  ]
+  {{end}}
+  {{if .ClusterIPv6Ranges}}
+  cluster_ipv6_ranges = [
+    {{range .ClusterIPv6Ranges}}"{{.}}",
+    {{end}}
+  ]
+  {{end}}
+  {{if .ServiceIPv4Range}}
+  service_ipv4_range = "{{.ServiceIPv4Range}}"
+  {{end}}
+  {{if .ServiceIPv6Range}}
+  service_ipv6_range = "{{.ServiceIPv6Range}}"
+  {{end}}
+
+  {{if .WorkloadIdentityFederation}}
+  workload_identity_federation {
+    enabled = {{.WorkloadIdentityFederation}}
+  }
+  {{end}}
+}
+`
+
+const clusterDependenciesConfigTemplate = `
+{{if or .DualStack .ExternalIPv6Address}}
+// Use existing infrastructure for dual stack clusters or clusters with external ipv6 address.
+{{else}}
+resource "yandex_vpc_network" "{{.NetworkResourceName}}" {
+  description = "{{.TestDescription}}"
+}
+
+resource "yandex_vpc_subnet" "{{.SubnetResourceNameA}}" {
+  description = "{{.TestDescription}}"
+  zone = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "{{.SubnetResourceNameB}}" {
+  description = "{{.TestDescription}}"
+  zone = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+  v4_cidr_blocks = ["192.168.1.0/24"]
+}
+
+resource "yandex_vpc_subnet" "{{.SubnetResourceNameD}}" {
+  description = "{{.TestDescription}}"
+  zone = "ru-central1-d"
+  network_id     = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+  v4_cidr_blocks = ["192.168.2.0/24"]
+}
+
+resource "yandex_vpc_default_security_group" "default-network-sg" {
+  description = "{{.TestDescription}}"
+  network_id  = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+
+  ingress {
+      protocol = "ANY"
+      v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+      protocol = "ANY"
+      v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_security_group" "{{.SecurityGroupName}}" {
+  description = "{{.TestDescription}}"
+  network_id  = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+
+  ingress {
+      protocol = "ANY"
+      v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+      protocol = "ANY"
+      v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+{{end}}
+
+resource "yandex_iam_service_account" "{{.ServiceAccountResourceName}}" {
+  name = "{{.ServiceAccountResourceName}}"
+  description = "{{.TestDescription}}"
+}
+
+{{if or .DualStack .ExternalIPv6Address}}
+resource "yandex_resourcemanager_folder_iam_member" "{{.ServiceAccountResourceName}}_existing_network" {
+  folder_id   = "{{.NetworkFolderID}}"
+  member      = "serviceAccount:${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+{{end}}
+
+resource "yandex_resourcemanager_folder_iam_member" "{{.ServiceAccountResourceName}}" {
+  folder_id   = "{{.FolderID}}"
+  member      = "serviceAccount:${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_iam_service_account" "{{.NodeServiceAccountResourceName}}" {
+  name = "{{.NodeServiceAccountResourceName}}"
+  description = "{{.TestDescription}}"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "{{.NodeServiceAccountResourceName}}" {
+  folder_id   = "{{.FolderID}}"
+  member      = "serviceAccount:${yandex_iam_service_account.{{.NodeServiceAccountResourceName}}.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_kms_symmetric_key" "{{.KMSKeyResourceName}}" {
+  name        = "{{.KMSKeyResourceName}}"
+  description = "{{.TestDescription}}"
+}
+
+{{if .MasterLoggingLogGroupResourceName}}
+resource "yandex_logging_group" "{{.MasterLoggingLogGroupResourceName}}" {
+  name      = "{{.MasterLoggingLogGroupResourceName}}"
+  folder_id = "{{.FolderID}}"
+}
+{{end}}
+`
+
+func testAccKubernetesClusterZonalConfig_update(orig, new resourceClusterInfo) string {
+	config := sdkcommon.TemplateConfig(zonalClusterConfigTemplate, new.Map()) + sdkcommon.TemplateConfig(clusterDependenciesConfigTemplate, orig.Map())
+	return config
+}
+
+func testAccKubernetesClusterZonalConfig_basic(in resourceClusterInfo) string {
+	m := in.Map()
+	config := sdkcommon.TemplateConfig(clusterDependenciesConfigTemplate, m) + sdkcommon.TemplateConfig(zonalClusterConfigTemplate, m)
+	return config
+}
+
+func testAccKubernetesClusterRegionalConfig_update(orig, new resourceClusterInfo) string {
+	config := sdkcommon.TemplateConfig(regionalClusterConfigTemplate, new.Map()) + sdkcommon.TemplateConfig(clusterDependenciesConfigTemplate, orig.Map())
+	return config
+}
+
+func testAccKubernetesClusterRegionalConfig_basic(in resourceClusterInfo) string {
+	m := in.Map()
+	config := sdkcommon.TemplateConfig(clusterDependenciesConfigTemplate, m) + sdkcommon.TemplateConfig(regionalClusterConfigTemplate, m)
+	return config
+}
+
+func testAccKubernetesClusterConfig_wrong() string {
+	return `
+resource "yandex_kubernetes_cluster" "this" {
+  name        = "foo"
+  description = "bar"
+
+  network_id = "net-id"
+
+  service_account_id = "sa-id"
+  node_service_account_id = "node-sa-id"
+
+  master {
+    zonal {
+  	  zone = "ru-central1-a" 
+	  subnet_id = "subnet-id"
+    }
+    regional {
+  	  region = "ru-central1"
+      location {
+          zone = "zone-a"
+          subnet_id = "subnet-a"
+	  }
+      location {
+          zone = "zone-b"
+          subnet_id = "subnet-b"
+	  }
+      location {
+          zone = "zone-c"
+          subnet_id = "subnet-c"
+	  }
+    }
+  
+    public_ip = true 
+  }
+}
+`
+}
+
+func testAccKubernetesClusterConfig_masterLogging_wrong() string {
+	return `
+resource "yandex_kubernetes_cluster" "this" {
+  name        = "foo"
+  description = "bar"
+
+  network_id = "net-id"
+
+  service_account_id = "sa-id"
+  node_service_account_id = "node-sa-id"
+
+  master {
+    zonal {
+  	  zone = "ru-central1-a" 
+	  subnet_id = "subnet-id"
+    }
+
+    master_logging {
+      enabled = true
+      log_group_id = "log-group-id"
+      folder_id = "folder-id"
+    }
+  
+    public_ip = true 
+  }
+}
+`
+}
+
+func (suite testSuite) testAccCheckKubernetesClusterDestroy(s *terraform.State) error {
+	config, configErr := suite.Config()
+	if configErr != nil {
+		return configErr
+	}
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_kubernetes_cluster" {
+			continue
+		}
+
+		client := k8ssdk.NewClusterClient(config.SDK)
+
+		_, err := client.Get(context.Background(), &k8s.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err == nil {
+			return fmt.Errorf("Kubernetes cluster still exists")
+		}
+	}
+
+	return nil
+}
+
+func (suite testSuite) testAccCheckKubernetesClusterExists(n string, cluster *k8s.Cluster) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no ID is set")
+		}
+
+		config, configErr := suite.Config()
+		if configErr != nil {
+			return configErr
+		}
+
+		client := k8ssdk.NewClusterClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &k8s.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("Kubernetes cluster not found")
+		}
+
+		*cluster = *found
+		return nil
+	}
+}

@@ -31,7 +31,7 @@ if [[ -z "$changed_lines" ]]; then
   exit 0
 fi
 
-output=$(go run lint/cmd/provider-linter/main.go ./yandex-framework/... ./yandex/... 2>&1 | grep -F -f <(echo "$changed_lines"))
+output=$(go run lint/cmd/provider-linter/main.go ./internal/provider/framework/... ./yandex/... 2>&1 | grep -F -f <(echo "$changed_lines"))
 
 if [[ -n "$output" ]]; then
   echo "Found issues:"

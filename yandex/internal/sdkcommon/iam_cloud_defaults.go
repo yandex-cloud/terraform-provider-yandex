@@ -1,0 +1,3 @@
+package sdkcommon
+
+const YandexResourceManagerCloudUpdateAccessBindingsBatchSize = 1000

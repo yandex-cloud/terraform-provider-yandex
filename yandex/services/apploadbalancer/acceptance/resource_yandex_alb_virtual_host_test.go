@@ -1,0 +1,7709 @@
+package acceptance
+
+import (
+	"context"
+	"fmt"
+	"testing"
+
+	statecheck "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance/statecheck"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	albsdk "github.com/yandex-cloud/go-sdk/services/apploadbalancer/v1"
+	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
+	svc_alb "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/apploadbalancer/pluginsdk"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+const albVHResource = "yandex_alb_virtual_host.test-vh"
+
+func albVirtualHostImportStep() resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      albVHResource,
+		ImportState:       true,
+		ImportStateVerify: true,
+	}
+}
+
+func TestAccALBVirtualHost_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	var virtualHost apploadbalancer.VirtualHost
+	virtualHostName := acctest.RandomWithPrefix("tf-virtual-host")
+	httpRouterName := acctest.RandomWithPrefix("tf-http-router")
+	httpRouterDesc := acctest.RandomWithPrefix("tf-http-router-desc")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccALBVirtualHostBasic(httpRouterName, httpRouterDesc, virtualHostName),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					resource.TestCheckResourceAttr(albVHResource, "name", virtualHostName),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
+func TestAccALBVirtualHost_httpRouteWithRBAC(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	VHResource := albVirtualHostInfo()
+	VHResource.IsHTTPRoute = true
+	VHResource.IsRouteRBAC = true
+	VHResource.IsRedirectAction = true
+	var virtualHost apploadbalancer.VirtualHost
+	vhPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(VHResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route", "name", &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route", "route_options.0.rbac", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "route_options.0.rbac.0.action", albDefaultRBACAction, &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route", "route_options.0.rbac.0.principals.0.and_principals", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "route_options.0.rbac.0.principals.0.and_principals.0.any", albDefaultAnyPrincipal, &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
+func TestAccALBVirtualHost_httpVirtualHostWithRBAC(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Skip("Wait until CLOUD-103826 released")
+	t.Parallel()
+
+	VHResource := albVirtualHostInfo()
+	VHResource.IsVirtualHostRBAC = true
+	var virtualHost apploadbalancer.VirtualHost
+	vhPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(VHResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route_options", "rbac", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route_options", "rbac.0.action", albDefaultRBACAction, &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route_options", "rbac.0.principals.0.and_principals", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route_options", "rbac.0.principals.0.and_principals.0.remote_ip", albDefaultRemoteIP, &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
+func TestAccALBVirtualHost_httpRouteWithHTTPRouteAction(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	VHResource := albVirtualHostInfo()
+	VHResource.IsHTTPRoute = true
+	VHResource.IsHTTPRouteAction = true
+	VHResource.IsHTTPRouteActionHostRewrite = true
+	VHResource.HTTPRouteActionHostRewrite = "some.host.rewrite"
+	var virtualHost apploadbalancer.VirtualHost
+	vhPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(VHResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "http_route.0.http_route_action.0.timeout", albDefaultTimeout, &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "http_route.0.http_route_action.0.host_rewrite", "some.host.rewrite", &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
+func TestAccALBVirtualHost_httpRouteWithRedirectAction(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	VHResource := albVirtualHostInfo()
+	VHResource.IsHTTPRoute = true
+	VHResource.IsRedirectAction = true
+	var virtualHost apploadbalancer.VirtualHost
+	vhPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(VHResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "http_route.0.redirect_action.0.response_code", albDefaultRedirectResponseCode, &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
+func TestAccALBVirtualHost_httpRouteWithDirectResponseAction(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	VHResource := albVirtualHostInfo()
+	VHResource.IsHTTPRoute = true
+	VHResource.IsDirectResponseAction = true
+	var virtualHost apploadbalancer.VirtualHost
+	vhPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(VHResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "http_route.0.direct_response_action.0.status", albDefaultDirectResponseStatus, &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "http_route.0.direct_response_action.0.body", albDefaultDirectResponseBody, &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
+func TestAccALBVirtualHost_grpcRouteWithGRPCRouteAction(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	VHResource := albVirtualHostInfo()
+	VHResource.IsGRPCRoute = true
+	VHResource.IsGRPCRouteAction = true
+	var virtualHost apploadbalancer.VirtualHost
+	vhPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(VHResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testAccCheckALBVirtualHostValues(&virtualHost, false, true),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "grpc_route.0.grpc_route_action.0.max_timeout", albDefaultTimeout, &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "grpc_route.0.grpc_route_action.0.auto_host_rewrite", albDefaultAutoHostRewrite, &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
+func TestAccALBVirtualHost_grpcRouteWithGRPCStatusResponseAction(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	VHResource := albVirtualHostInfo()
+	VHResource.IsGRPCRoute = true
+	VHResource.IsGRPCStatusResponseAction = true
+	var virtualHost apploadbalancer.VirtualHost
+	vhPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(VHResource),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testAccCheckALBVirtualHostValues(&virtualHost, false, true),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route", "name", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "grpc_route.0.grpc_status_response_action.0.status", albDefaultStatusResponse, &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
+func TestAccALBVirtualHost_RateLimit(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	vhPath := ""
+	var virtualHost apploadbalancer.VirtualHost
+
+	testsTable := []struct {
+		name             string
+		resourceTestCase resource.TestCase
+	}{
+		{
+			name: "empty rate limit",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsRateLimit = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "rate_limit", "", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "all requests rps",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsRateLimit = true
+							result.RateLimitRPS = "10"
+							result.IsRateLimitAllRequests = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "rate_limit", "", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "rate_limit.0.all_requests", "per_second", "10", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "all requests rpm",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsRateLimit = true
+							result.RateLimitRPM = "15"
+							result.IsRateLimitAllRequests = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "rate_limit", "", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "rate_limit.0.all_requests", "per_minute", "15", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "requests per ip rps",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsRateLimit = true
+							result.RateLimitRPS = "10"
+							result.IsRateLimitRequestsPerIP = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "rate_limit", "", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "rate_limit.0.requests_per_ip", "per_second", "10", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "requests per ip rpm",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsRateLimit = true
+							result.RateLimitRPM = "15"
+							result.IsRateLimitRequestsPerIP = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "rate_limit", "", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "rate_limit.0.requests_per_ip", "per_minute", "15", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "all requests and requests per ip",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsRateLimit = true
+							result.RateLimitRPS = "10"
+							result.IsRateLimitAllRequests = true
+							result.IsRateLimitRequestsPerIP = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "rate_limit", "", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "rate_limit.0.requests_per_ip", "per_second", "10", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "http route: empty rate limit",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRouteRateLimit = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "rate_limit", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "http route: all requests rps",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRouteRateLimit = true
+							result.HTTPRouteRateLimitRPS = "10"
+							result.IsHTTPRouteRateLimitAllRequests = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.rate_limit.0.all_requests", "per_second", "10", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "http route: all requests rpm",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRouteRateLimit = true
+							result.HTTPRouteRateLimitRPM = "15"
+							result.IsHTTPRouteRateLimitAllRequests = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.rate_limit.0.all_requests", "per_minute", "15", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "http route: requests per ip rps",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRouteRateLimit = true
+							result.HTTPRouteRateLimitRPS = "10"
+							result.IsHTTPRouteRateLimitRequestsPerIP = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.rate_limit.0.requests_per_ip", "per_second", "10", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "http route: requests per ip rpm",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRouteRateLimit = true
+							result.HTTPRouteRateLimitRPM = "15"
+							result.IsHTTPRouteRateLimitRequestsPerIP = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.rate_limit.0.requests_per_ip", "per_minute", "15", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "http route: all requests and requests per ip",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRouteRateLimit = true
+							result.HTTPRouteRateLimitRPS = "10"
+							result.IsHTTPRouteRateLimitAllRequests = true
+							result.IsHTTPRouteRateLimitRequestsPerIP = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.rate_limit.0.requests_per_ip", "per_second", "10", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: empty rate limit",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+							result.IsGRPCRouteRateLimit = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action", "rate_limit", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: all requests rps",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+							result.IsGRPCRouteRateLimit = true
+							result.GRPCRouteRateLimitRPS = "10"
+							result.IsGRPCRouteRateLimitAllRequests = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action.0.rate_limit.0.all_requests", "per_second", "10", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: all requests rpm",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+							result.IsGRPCRouteRateLimit = true
+							result.GRPCRouteRateLimitRPM = "15"
+							result.IsGRPCRouteRateLimitAllRequests = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action.0.rate_limit.0.all_requests", "per_minute", "15", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: requests per ip rps",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+							result.IsGRPCRouteRateLimit = true
+							result.GRPCRouteRateLimitRPS = "10"
+							result.IsGRPCRouteRateLimitRequestsPerIP = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action.0.rate_limit.0.requests_per_ip", "per_second", "10", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: requests per ip rpm",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+							result.IsGRPCRouteRateLimit = true
+							result.GRPCRouteRateLimitRPM = "15"
+							result.IsGRPCRouteRateLimitRequestsPerIP = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action.0.rate_limit.0.requests_per_ip", "per_minute", "15", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: all requests and requests per ip",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+							result.IsGRPCRouteRateLimit = true
+							result.GRPCRouteRateLimitRPS = "10"
+							result.IsGRPCRouteRateLimitAllRequests = true
+							result.IsGRPCRouteRateLimitRequestsPerIP = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action", "rate_limit", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.grpc_route.0.grpc_route_action.0.rate_limit.0.requests_per_ip", "per_second", "10", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resource.Test(t, testCase.resourceTestCase)
+		})
+	}
+}
+
+func TestAccALBVirtualHost_RegexRewrite(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	vhPath := ""
+	var virtualHost apploadbalancer.VirtualHost
+
+	testsTable := []struct {
+		name             string
+		resourceTestCase resource.TestCase
+	}{
+		{
+			name: "use regex rewrite",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRoutePathRegexRewrite = true
+							result.HTTPRouteRegexRewriteRegex = "test_regex"
+							result.HTTPRouteRegexRewriteSubstitute = "test_substitute"
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "regex_rewrite", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.regex_rewrite", "regex", "test_regex", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.regex_rewrite", "substitute", "test_substitute", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "use regex rewrite: empty substitute",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.IsHTTPRoutePathRegexRewrite = true
+							result.HTTPRouteRegexRewriteRegex = "test_regex"
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route.0.http_route.0.http_route_action", "regex_rewrite", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.regex_rewrite", "regex", "test_regex", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route.0.http_route.0.http_route_action.0.regex_rewrite", "substitute", "", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resource.Test(t, testCase.resourceTestCase)
+		})
+	}
+}
+
+func TestAccALBVirtualHost_DisableSecurityProfile(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	vhPath := ""
+	var virtualHost apploadbalancer.VirtualHost
+
+	testsTable := []struct {
+		name             string
+		resourceTestCase resource.TestCase
+	}{
+		{
+			name: "http route: disable security profile: true",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+							result.RouteDisableSecurityProfile = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route", "disable_security_profile", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route", "disable_security_profile", "true", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "http route: disable security profile: false",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsHTTPRoute = true
+							result.IsHTTPRouteAction = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route", "disable_security_profile", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route", "disable_security_profile", "false", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: disable security profile: true",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+							result.RouteDisableSecurityProfile = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route", "disable_security_profile", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route", "disable_security_profile", "true", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+		{
+			name: "grpc route: disable security profile: false",
+			resourceTestCase: resource.TestCase{
+				PreCheck:     func() { acceptance.PreCheck(t) },
+				Providers:    suite.Providers(),
+				CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+							result := albVirtualHostInfo()
+
+							result.IsGRPCRoute = true
+							result.IsGRPCRouteAction = true
+
+							return result
+						}()),
+						Check: resource.ComposeTestCheckFunc(
+							suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+							statecheck.ExistsFirstElementWithAttr(
+								albVHResource, "route", "disable_security_profile", &vhPath,
+							),
+							statecheck.TestExistsElementWithAttrValue(
+								albVHResource, "route", "disable_security_profile", "false", &vhPath,
+							),
+						),
+					},
+					albVirtualHostImportStep(),
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resource.Test(t, testCase.resourceTestCase)
+		})
+	}
+}
+
+func (suite testSuite) testAccCheckALBVirtualHostDestroy(s *terraform.State) error {
+	config, configErr := suite.Config()
+	if configErr != nil {
+		return configErr
+	}
+
+	client := albsdk.NewVirtualHostClient(config.SDK)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_alb_virtual_host" {
+			continue
+		}
+		httpRouterID := rs.Primary.Attributes["http_router_id"]
+		virtualHostName := rs.Primary.Attributes["name"]
+		if httpRouterID == "" || virtualHostName == "" {
+			httpRouterID, virtualHostName = svc_alb.RetrieveDataFromVirtualHostID(rs.Primary.ID)
+		}
+
+		_, err := client.Get(context.Background(), &apploadbalancer.GetVirtualHostRequest{
+			HttpRouterId:    httpRouterID,
+			VirtualHostName: virtualHostName,
+		})
+		if status.Code(err) != codes.NotFound {
+			return fmt.Errorf("Virtual Host still exists")
+		}
+	}
+
+	return nil
+}
+
+func (suite testSuite) testAccCheckALBVirtualHostExists(virtualHostName string, virtualHost *apploadbalancer.VirtualHost) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[virtualHostName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", virtualHostName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config, configErr := suite.Config()
+		if configErr != nil {
+			return configErr
+		}
+
+		client := albsdk.NewVirtualHostClient(config.SDK)
+
+		found, err := client.Get(context.Background(), &apploadbalancer.GetVirtualHostRequest{
+			HttpRouterId:    rs.Primary.Attributes["http_router_id"],
+			VirtualHostName: rs.Primary.Attributes["name"],
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Name != rs.Primary.Attributes["name"] {
+			return fmt.Errorf("Virtual Host not found")
+		}
+
+		*virtualHost = *found
+
+		return nil
+	}
+}
+
+func testAccALBVirtualHostBasic(httpRouterName, httpRouterDesc, virtualHostName string) string {
+	return testAccALBGeneralHTTPRouterTemplate(httpRouterName, httpRouterDesc) + fmt.Sprintf(`
+resource "yandex_alb_virtual_host" "test-vh" {
+  http_router_id = yandex_alb_http_router.test-router.id
+  name		= "%s"
+}
+`, virtualHostName)
+}
+
+func TestUnitALBVirtualHostParseStringMatch(t *testing.T) {
+	t.Parallel()
+
+	bgResource := svc_alb.ResourceYandexALBVirtualHost()
+	makeRouteOptions := func(stringMatch interface{}) interface{} {
+		return []interface{}{
+			map[string]interface{}{
+				"rbac": []interface{}{
+					map[string]interface{}{
+						"principals": []interface{}{
+							map[string]interface{}{
+								"and_principals": []interface{}{
+									map[string]interface{}{
+										"header": []interface{}{
+											map[string]interface{}{
+												"value": stringMatch,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+	}
+	stringMatchPath := "route_options.0.rbac.0.principals.0.and_principals.0.header.0.value.0."
+
+	t.Run("string-match-path-regex", func(t *testing.T) {
+		stringMatchValue := []interface{}{
+			map[string]interface{}{
+				"regex": "my_cool_regex",
+			},
+		}
+		rawValues := map[string]interface{}{
+			"http_router_id": "id_0",
+			"name":           "name_0",
+			"route_options":  makeRouteOptions(stringMatchValue),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+		stringMatch, _ := svc_alb.ExpandALBStringMatch(resourceData, stringMatchPath)
+
+		assert.Equal(t, stringMatch.GetRegexMatch(), "my_cool_regex")
+	})
+
+	t.Run("string-match-path-prefix", func(t *testing.T) {
+		stringMatchValue := []interface{}{
+			map[string]interface{}{
+				"prefix": "my_cool_prefix",
+			},
+		}
+		rawValues := map[string]interface{}{
+			"http_router_id": "id_0",
+			"name":           "name_0",
+			"route_options":  makeRouteOptions(stringMatchValue),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+		stringMatch, _ := svc_alb.ExpandALBStringMatch(resourceData, stringMatchPath)
+
+		assert.Equal(t, stringMatch.GetPrefixMatch(), "my_cool_prefix")
+	})
+
+	t.Run("string-match-path-exact", func(t *testing.T) {
+		stringMatchValue := []interface{}{
+			map[string]interface{}{
+				"exact": "my_cool_exact",
+			},
+		}
+		rawValues := map[string]interface{}{
+			"http_router_id": "id_0",
+			"name":           "name_0",
+			"route_options":  makeRouteOptions(stringMatchValue),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+		stringMatch, _ := svc_alb.ExpandALBStringMatch(resourceData, stringMatchPath)
+
+		assert.Equal(t, stringMatch.GetExactMatch(), "my_cool_exact")
+	})
+}
+
+func TestUnitALBVirtualHostCreateFromResource(t *testing.T) {
+	t.Parallel()
+
+	vhResource := svc_alb.ResourceYandexALBVirtualHost()
+
+	makePayload := func(body string) *apploadbalancer.Payload {
+		return &apploadbalancer.Payload{
+			Payload: &apploadbalancer.Payload_Text{
+				Text: body,
+			},
+		}
+	}
+
+	type M = map[string]interface{}
+	type S = []interface{}
+
+	t.Run("vh-basic", func(t *testing.T) {
+		authority := "example.com"
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"authority":      S{authority},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := svc_alb.BuildALBVirtualHostCreateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetName(), "vh-name")
+		assert.Equal(t, req.GetAuthority(), []string{authority})
+		assert.Nil(t, req.GetRouteOptions())
+	})
+
+	t.Run("vh-route", func(t *testing.T) {
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"route": S{
+				M{
+					"name": "teapot-route-1",
+					"http_route": S{
+						M{
+							"direct_response_action": S{
+								M{
+									"status": 418,
+									"body":   "I'm a teapot",
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := svc_alb.BuildALBVirtualHostCreateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetName(), "vh-name")
+		assert.Len(t, req.GetRoutes(), 1)
+		route := req.GetRoutes()[0]
+		assert.Equal(t, route.GetName(), "teapot-route-1")
+		httpRoute := route.GetHttp()
+		assert.NotNil(t, httpRoute)
+		assert.Nil(t, httpRoute.GetRedirect())
+		assert.Nil(t, httpRoute.GetRoute())
+		assert.Equal(t, httpRoute.GetDirectResponse().GetStatus(), int64(418))
+		assert.Equal(t, httpRoute.GetDirectResponse().GetBody(), makePayload("I'm a teapot"))
+	})
+
+	t.Run("vh-route-options", func(t *testing.T) {
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"route_options": S{
+				M{
+					"security_profile_id": "sec-profile-id",
+				},
+			},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := svc_alb.BuildALBVirtualHostCreateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetName(), "vh-name")
+		assert.NotNil(t, req.GetRouteOptions())
+		assert.Equal(t, req.GetRouteOptions().GetSecurityProfileId(), "sec-profile-id")
+	})
+}
+
+func TestUnitALBVirtualHostUpdateFromResource(t *testing.T) {
+	t.Parallel()
+
+	vhResource := svc_alb.ResourceYandexALBVirtualHost()
+
+	type M = map[string]interface{}
+	type S = []interface{}
+
+	t.Run("vh-basic", func(t *testing.T) {
+		authority := "example.com"
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"authority":      S{authority},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := svc_alb.BuildALBVirtualHostUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build update request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetVirtualHostName(), "vh-name")
+		assert.Equal(t, req.GetAuthority(), []string{authority})
+		assert.Nil(t, req.GetRouteOptions())
+	})
+
+	t.Run("vh-route-options", func(t *testing.T) {
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"route_options": S{
+				M{
+					"security_profile_id": "sec-profile-id",
+				},
+			},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := svc_alb.BuildALBVirtualHostUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build update request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetVirtualHostName(), "vh-name")
+		assert.NotNil(t, req.GetRouteOptions())
+		assert.Equal(t, req.GetRouteOptions().GetSecurityProfileId(), "sec-profile-id")
+	})
+}
+
+func Test_buildALBVirtualHostCreateRequest(t *testing.T) {
+	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		config         map[string]interface{}
+		expectedResult *apploadbalancer.CreateVirtualHostRequest
+		expectErr      bool
+	}{
+		{
+			name: "http route regex rewrite: empty regex rewrite object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite:   &apploadbalancer.RegexMatchAndSubstitute{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: too many regex rewrite objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{},
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route regex rewrite: regex rewrite",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RegexSchemaKey:      "regex",
+												svc_alb.SubstituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex:      "regex",
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: regex not set",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.SubstituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: empty regex",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RegexSchemaKey:      "",
+												svc_alb.SubstituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: substitute not set",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RegexSchemaKey: "regex",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex: "regex",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: empty substitute",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RegexSchemaKey:      "regex",
+												svc_alb.SubstituteSchemaKey: "",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex: "regex",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: no rate limit field",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+			},
+		},
+		{
+			name: "virtual host rate limit: empty rate limits slice",
+			config: map[string]interface{}{
+				"name":                     "router-name",
+				"http_router_id":           "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+			},
+		},
+		{
+			name: "virtual host rate limit: too many rate limit objects",
+			config: map[string]interface{}{
+				"name":                     "router-name",
+				"http_router_id":           "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{map[string]interface{}{}, map[string]interface{}{}},
+			},
+			expectErr: true,
+		},
+		{
+			name: "virtual host rate limit: empty rate limit object",
+			config: map[string]interface{}{
+				"name":                     "router-name",
+				"http_router_id":           "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{map[string]interface{}{}},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit:    &apploadbalancer.RateLimit{},
+			},
+		},
+		{
+			name: "virtual host rate limit: empty all requests limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit:    &apploadbalancer.RateLimit{},
+			},
+		},
+		{
+			name: "virtual host rate limit: too many all requests limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{map[string]interface{}{}, map[string]interface{}{}},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "virtual host rate limit: empty all requests limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{map[string]interface{}{}},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+							PerSecond: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 0,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 0,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: empty requests per ip limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit:    &apploadbalancer.RateLimit{},
+			},
+		},
+		{
+			name: "virtual host rate limit: too many requests per ip limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{map[string]interface{}{}, map[string]interface{}{}},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "virtual host rate limit: empty requests per ip limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{map[string]interface{}{}},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+							PerSecond: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 0,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 0,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests and requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+							},
+						},
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+							PerSecond: 10,
+						},
+					},
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests and requests per ip limits: too many all requests limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+							},
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 20,
+							},
+						},
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "virtual host rate limit: all requests and requests per ip limits: too many requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+							},
+						},
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 20,
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: no rate limit field",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: empty rate limit slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id":         "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: too many rate limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{}, map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: empty rate limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: empty all requests limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: too many all requests limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{}, map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: empty all requests limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: empty requests per ip limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: too many requests per ip limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{}, map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: empty requests per ip limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests and requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 10,
+												},
+											},
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests and requests per ip limits: too many all requests limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: all requests and requests per ip limits: too many requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: no rate limit field",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: empty rate limit slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id":         "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: too many rate limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{}, map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: empty rate limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: empty all requests limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: too many all requests limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{}, map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: empty all requests limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: empty requests per ip limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: too many requests per ip limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{}, map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: empty requests per ip limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests and requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.CreateVirtualHostRequest{
+				Name:         "router-name",
+				HttpRouterId: "router-id",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 10,
+												},
+											},
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests and requests per ip limits: too many all requests limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: all requests and requests per ip limits: too many requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resourceData := schema.TestResourceDataRaw(t, svc_alb.ResourceYandexALBVirtualHost().Schema, testCase.config)
+
+			actualResult, err := svc_alb.BuildALBVirtualHostCreateRequest(resourceData)
+
+			if testCase.expectErr {
+				assert.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expectedResult, actualResult)
+			}
+		})
+	}
+}
+
+func Test_buildALBVirtualHostUpdateRequest(t *testing.T) {
+	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		config         map[string]interface{}
+		expectedResult *apploadbalancer.UpdateVirtualHostRequest
+		expectErr      bool
+	}{
+		{
+			name: "http route regex rewrite: empty regex rewrite object",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite:   &apploadbalancer.RegexMatchAndSubstitute{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: too many regex rewrite objects",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{},
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route regex rewrite: regex rewrite",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RegexSchemaKey:      "regex",
+												svc_alb.SubstituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex:      "regex",
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: regex not set",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.SubstituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: empty regex",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RegexSchemaKey:      "",
+												svc_alb.SubstituteSchemaKey: "substitute",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Substitute: "substitute",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: substitute not set",
+			config: map[string]interface{}{
+				"name":           "vh-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RegexSchemaKey: "regex",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex: "regex",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route regex rewrite: regex rewrite: empty substitute",
+			config: map[string]interface{}{
+				"http_router_id": "router-id",
+				"name":           "vh-name",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RegexRewriteSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RegexSchemaKey:      "regex",
+												svc_alb.SubstituteSchemaKey: "",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "vh-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RegexRewrite: &apploadbalancer.RegexMatchAndSubstitute{
+											Regex: "regex",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: no rate limit field",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+			},
+		},
+		{
+			name: "virtual host rate limit: empty rate limits slice",
+			config: map[string]interface{}{
+				"name":                     "router-name",
+				"http_router_id":           "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+			},
+		},
+		{
+			name: "virtual host rate limit: too many rate limit objects",
+			config: map[string]interface{}{
+				"name":                     "router-name",
+				"http_router_id":           "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{map[string]interface{}{}, map[string]interface{}{}},
+			},
+			expectErr: true,
+		},
+		{
+			name: "virtual host rate limit: empty rate limit object",
+			config: map[string]interface{}{
+				"name":                     "router-name",
+				"http_router_id":           "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{map[string]interface{}{}},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit:       &apploadbalancer.RateLimit{},
+			},
+		},
+		{
+			name: "virtual host rate limit: empty all requests limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit:       &apploadbalancer.RateLimit{},
+			},
+		},
+		{
+			name: "virtual host rate limit: too many all requests limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{map[string]interface{}{}, map[string]interface{}{}},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "virtual host rate limit: empty all requests limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{map[string]interface{}{}},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+							PerSecond: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 0,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 0,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: empty requests per ip limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit:       &apploadbalancer.RateLimit{},
+			},
+		},
+		{
+			name: "virtual host rate limit: too many requests per ip limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{map[string]interface{}{}, map[string]interface{}{}},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "virtual host rate limit: empty requests per ip limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{map[string]interface{}{}},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+							PerSecond: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 0,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 0,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: requests per ip rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests and requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+							},
+						},
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				RateLimit: &apploadbalancer.RateLimit{
+					AllRequests: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+							PerSecond: 10,
+						},
+					},
+					RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+						Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+							PerMinute: 15,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "virtual host rate limit: all requests and requests per ip limits: too many all requests limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+							},
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 20,
+							},
+						},
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "virtual host rate limit: all requests and requests per ip limits: too many requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				svc_alb.RateLimitSchemaKey: []interface{}{
+					map[string]interface{}{
+						svc_alb.AllRequestsSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 10,
+							},
+						},
+						svc_alb.RequestsPerIPSchemaKey: []interface{}{
+							map[string]interface{}{
+								svc_alb.PerMinuteSchemaKey: 15,
+							},
+							map[string]interface{}{
+								svc_alb.PerSecondSchemaKey: 20,
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: no rate limit field",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: empty rate limit slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id":         "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: too many rate limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{}, map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: empty rate limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: empty all requests limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: too many all requests limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{}, map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: empty all requests limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: empty requests per ip limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: too many requests per ip limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{}, map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: empty requests per ip limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: requests per ip rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests and requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Action: &apploadbalancer.HttpRoute_Route{
+									Route: &apploadbalancer.HttpRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 10,
+												},
+											},
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route rate limit: all requests and requests per ip limits: too many all requests limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route rate limit: all requests and requests per ip limits: too many requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"http_route": []interface{}{
+							map[string]interface{}{
+								"http_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: no rate limit field",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: empty rate limit slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id":         "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: too many rate limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{}, map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: empty rate limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: empty all requests limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: too many all requests limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{}, map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: empty all requests limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: empty requests per ip limits slice",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit:      &apploadbalancer.RateLimit{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: too many requests per ip limit objects",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{}, map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: empty requests per ip limit object",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip 0 rps",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip 0 rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 0,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: requests per ip rps and rpm",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests and requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name: "route-name",
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Action: &apploadbalancer.GrpcRoute_Route{
+									Route: &apploadbalancer.GrpcRouteAction{
+										BackendGroupId: "bg-id",
+										RateLimit: &apploadbalancer.RateLimit{
+											AllRequests: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerSecond{
+													PerSecond: 10,
+												},
+											},
+											RequestsPerIp: &apploadbalancer.RateLimit_Limit{
+												Rate: &apploadbalancer.RateLimit_Limit_PerMinute{
+													PerMinute: 15,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route rate limit: all requests and requests per ip limits: too many all requests limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "grpc route rate limit: all requests and requests per ip limits: too many requests per ip limits",
+			config: map[string]interface{}{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []interface{}{
+					map[string]interface{}{
+						"name": "route-name",
+						"grpc_route": []interface{}{
+							map[string]interface{}{
+								"grpc_route_action": []interface{}{
+									map[string]interface{}{
+										"backend_group_id": "bg-id",
+										svc_alb.RateLimitSchemaKey: []interface{}{
+											map[string]interface{}{
+												svc_alb.AllRequestsSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+												svc_alb.RequestsPerIPSchemaKey: []interface{}{
+													map[string]interface{}{
+														svc_alb.PerSecondSchemaKey: 10,
+													},
+													map[string]interface{}{
+														svc_alb.PerMinuteSchemaKey: 15,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "http route: disable security profile: true",
+			config: map[string]any{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []any{
+					map[string]any{
+						"name": "my_little_route",
+						"http_route": []any{
+							map[string]any{
+								"http_match": []any{
+									map[string]any{
+										"path": []any{
+											map[string]any{
+												"exact": "/",
+											},
+										},
+									},
+								},
+								"direct_response_action": []any{
+									map[string]any{
+										"body":   "hello world",
+										"status": 200,
+									},
+								},
+							},
+						},
+						"disable_security_profile": true,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name:                   "my_little_route",
+						DisableSecurityProfile: true,
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Match: &apploadbalancer.HttpRouteMatch{
+									Path: &apploadbalancer.StringMatch{
+										Match: &apploadbalancer.StringMatch_ExactMatch{
+											ExactMatch: "/",
+										},
+									},
+								},
+								Action: &apploadbalancer.HttpRoute_DirectResponse{
+									DirectResponse: &apploadbalancer.DirectResponseAction{
+										Status: 200,
+										Body: &apploadbalancer.Payload{
+											Payload: &apploadbalancer.Payload_Text{
+												Text: "hello world",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "http route: disable security profile: false",
+			config: map[string]any{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []any{
+					map[string]any{
+						"name": "my_little_route",
+						"http_route": []any{
+							map[string]any{
+								"http_match": []any{
+									map[string]any{
+										"path": []any{
+											map[string]any{
+												"exact": "/",
+											},
+										},
+									},
+								},
+								"direct_response_action": []any{
+									map[string]any{
+										"body":   "hello world",
+										"status": 200,
+									},
+								},
+							},
+						},
+						"disable_security_profile": false,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name:                   "my_little_route",
+						DisableSecurityProfile: false,
+						Route: &apploadbalancer.Route_Http{
+							Http: &apploadbalancer.HttpRoute{
+								Match: &apploadbalancer.HttpRouteMatch{
+									Path: &apploadbalancer.StringMatch{
+										Match: &apploadbalancer.StringMatch_ExactMatch{
+											ExactMatch: "/",
+										},
+									},
+								},
+								Action: &apploadbalancer.HttpRoute_DirectResponse{
+									DirectResponse: &apploadbalancer.DirectResponseAction{
+										Status: 200,
+										Body: &apploadbalancer.Payload{
+											Payload: &apploadbalancer.Payload_Text{
+												Text: "hello world",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+
+		{
+			name: "grpc route: disable security profile: true",
+			config: map[string]any{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []any{
+					map[string]any{
+						"name": "my_little_route",
+						"grpc_route": []any{
+							map[string]any{
+								"grpc_match": []any{
+									map[string]any{
+										"fqmn": []any{
+											map[string]any{
+												"exact": "some.service.Service",
+											},
+										},
+									},
+								},
+								"grpc_status_response_action": []any{
+									map[string]any{
+										"status": "ok",
+									},
+								},
+							},
+						},
+						"disable_security_profile": true,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name:                   "my_little_route",
+						DisableSecurityProfile: true,
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Match: &apploadbalancer.GrpcRouteMatch{
+									Fqmn: &apploadbalancer.StringMatch{
+										Match: &apploadbalancer.StringMatch_ExactMatch{
+											ExactMatch: "some.service.Service",
+										},
+									},
+								},
+								Action: &apploadbalancer.GrpcRoute_StatusResponse{
+									StatusResponse: &apploadbalancer.GrpcStatusResponseAction{
+										Status: apploadbalancer.GrpcStatusResponseAction_OK,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "grpc route: disable security profile: false",
+			config: map[string]any{
+				"name":           "router-name",
+				"http_router_id": "router-id",
+				"route": []any{
+					map[string]any{
+						"name": "my_little_route",
+						"grpc_route": []any{
+							map[string]any{
+								"grpc_match": []any{
+									map[string]any{
+										"fqmn": []any{
+											map[string]any{
+												"exact": "some.service.Service",
+											},
+										},
+									},
+								},
+								"grpc_status_response_action": []any{
+									map[string]any{
+										"status": "ok",
+									},
+								},
+							},
+						},
+						"disable_security_profile": false,
+					},
+				},
+			},
+			expectedResult: &apploadbalancer.UpdateVirtualHostRequest{
+				HttpRouterId:    "router-id",
+				VirtualHostName: "router-name",
+				Routes: []*apploadbalancer.Route{
+					{
+						Name:                   "my_little_route",
+						DisableSecurityProfile: false,
+						Route: &apploadbalancer.Route_Grpc{
+							Grpc: &apploadbalancer.GrpcRoute{
+								Match: &apploadbalancer.GrpcRouteMatch{
+									Fqmn: &apploadbalancer.StringMatch{
+										Match: &apploadbalancer.StringMatch_ExactMatch{
+											ExactMatch: "some.service.Service",
+										},
+									},
+								},
+								Action: &apploadbalancer.GrpcRoute_StatusResponse{
+									StatusResponse: &apploadbalancer.GrpcStatusResponseAction{
+										Status: apploadbalancer.GrpcStatusResponseAction_OK,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			resourceData := schema.TestResourceDataRaw(t, svc_alb.ResourceYandexALBVirtualHost().Schema, testCase.config)
+
+			actualResult, err := svc_alb.BuildALBVirtualHostUpdateRequest(resourceData)
+
+			if testCase.expectErr {
+				assert.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expectedResult, actualResult)
+			}
+		})
+	}
+}
+
+func TestAccALBVirtualHost_ClientCertificateForward(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	vhPath := ""
+	var virtualHost apploadbalancer.VirtualHost
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.PreCheck(t) },
+		Providers:    suite.Providers(),
+		CheckDestroy: suite.testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(func() resourceALBVirtualHostInfo {
+					result := albVirtualHostInfo()
+
+					result.IsHTTPRoute = true
+					result.IsHTTPRouteAction = true
+					result.IsClientCertificateForward = true
+
+					return result
+				}()),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					statecheck.ExistsFirstElementWithAttr(
+						albVHResource, "route", "client_certificate_forward", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "client_certificate_forward.0.http_header", "Ssl-Client-Cert", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "client_certificate_forward.0.issuer_header_name", "Ssl-Client-Issuer-Dn", &vhPath,
+					),
+					statecheck.TestExistsElementWithAttrValue(
+						albVHResource, "route", "client_certificate_forward.0.subject_header_name", "Ssl-Client-Subject-Dn", &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}

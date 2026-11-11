@@ -1,0 +1,668 @@
+package acceptance
+
+import (
+	"context"
+	"fmt"
+	"strings"
+	"testing"
+
+	statecheck "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance/statecheck"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	greenplumsdk "github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1"
+	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
+	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+)
+
+const (
+	greenplumResourceType = "yandex_mdb_greenplum_cluster"
+	greenplumResourceFoo  = greenplumResourceType + ".foo"
+	greenplumSANamePrefix = "sa-for-"
+)
+
+func buildGreenplumSAResourceName(greenplumName string) string {
+	// terraform resource name
+	return greenplumSANamePrefix + strings.ReplaceAll(greenplumName, "_", "-")
+}
+
+func buildGreenplumSAName(greenplumName string) string {
+	return greenplumSANamePrefix + strings.ReplaceAll(greenplumName, "_", "-")
+}
+
+func mdbGreenplumClusterImportStep(name string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      name,
+		ImportState:       true,
+		ImportStateVerify: true,
+		ImportStateVerifyIgnore: []string{
+			"user_password",            // passwords are not returned
+			"user_password_wo_version", // write-only password versions are not returned
+			"health",                   // volatile value
+		},
+	}
+}
+
+// Test that a Greenplum Cluster can be created, updated and destroyed
+func TestAccMDBGreenplumCluster_full(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	clusterName := acctest.RandomWithPrefix("tf-greenplum")
+	clusterNameUpdated := clusterName + "_updated"
+	clusterDescription := "Greenplum Cluster Terraform Test"
+	clusterDescriptionUpdated := clusterDescription + " Updated"
+	folderID := acceptance.FolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckMDBGreenplumClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create Greenplum Cluster
+			{
+				Config: testAccMDBGreenplumClusterConfigStep1(clusterName, clusterDescription),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "name", clusterName),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "folder_id", folderID),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "description", clusterDescription),
+					statecheck.CheckCreatedAtAttr(greenplumResourceFoo),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "deletion_protection", "false"),
+					resource.TestCheckResourceAttrSet(greenplumResourceFoo, "service_account_id"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "logging.0.enabled", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "logging.0.command_center_enabled", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "logging.0.greenplum_enabled", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "logging.0.pooler_enabled", "true"),
+					resource.TestCheckResourceAttrSet(greenplumResourceFoo, "logging.0.folder_id"),
+
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pooling_mode", "TRANSACTION"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_size", "10"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_client_idle_timeout", "28800"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_idle_in_transaction_timeout", "600"),
+
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.connection_timeout", "600"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.upload_timeout", "40"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.max_threads", "100"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_allow_core_thread_timeout", "false"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_core_size", "8"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_queue_capacity", "600"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_max_size", "128"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.xmx", "2048"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.xms", "1024"),
+
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_connections", "395"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_slot_wal_keep_size", "1048576"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_limit_per_segment", "0"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_limit_per_query", "0"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_limit_files_per_query", "100000"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_prepared_transactions", "500"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_compression", "false"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_statement_mem", "2147483648"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.log_statement", "2"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_add_column_inherits_table_setting", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_enable_global_deadlock_detector", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_global_deadlock_detector_period", "120"),
+
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "master_subcluster.0.resources.0.resource_preset_id", "s2.micro"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "master_subcluster.0.resources.0.disk_size", "24"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "master_subcluster.0.resources.0.disk_type_id", "network-ssd"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_subcluster.0.resources.0.resource_preset_id", "s2.small"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_subcluster.0.resources.0.disk_size", "24"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_subcluster.0.resources.0.disk_type_id", "network-ssd"),
+				),
+			},
+
+			// Changing resource_preset_id
+			{
+				Config: testAccMDBGreenplumClusterConfigStep2(clusterName, clusterDescription),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "master_subcluster.0.resources.0.resource_preset_id", "s2.small"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_subcluster.0.resources.0.resource_preset_id", "s2.small"),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
+			// Update name and description of the cluster
+			{
+				Config: testAccMDBGreenplumClusterConfigStep3(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "name", clusterNameUpdated),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "description", clusterDescriptionUpdated),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
+			// Update pooler_config, pxf_config and greenplum_config
+			{
+				Config: testAccMDBGreenplumClusterConfigStep4(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
+
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_connections", "400"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_workfile_compression", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.gp_global_deadlock_detector_period", "300"),
+
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pooling_mode", "SESSION"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_size", "10"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_client_idle_timeout", "28800"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_idle_in_transaction_timeout", "800"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.connection_timeout", "300"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.upload_timeout", "440"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.max_threads", "200"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_allow_core_thread_timeout", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_core_size", "4"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.pool_max_size", "48"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.xmx", "1536"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pxf_config.0.xms", "1024"),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
+			// Update deletion_protection
+			{
+				Config: testAccMDBGreenplumClusterConfigStep5(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
+					statecheck.CheckCreatedAtAttr(greenplumResourceFoo),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "deletion_protection", "true"),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
+			// Add access, background_activities and backup_window_start fields
+			{
+				Config: testAccMDBGreenplumClusterConfigStep6(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
+
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.trino", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.yandex_query", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "backup_window_start.0.minutes", "15"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "maintenance_window.0.day", "SAT"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "maintenance_window.0.hour", "12"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.analyze_and_vacuum.0.start_time", "12:34"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.analyze_and_vacuum.0.analyze_timeout", "7200"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.analyze_and_vacuum.0.vacuum_timeout", "7300"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle.0.enable", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle.0.max_age", "6000"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle.0.ignore_users.0", "manager"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle.0.ignore_users.1", "developer"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle_in_transaction.0.enable", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_idle_in_transaction.0.ignore_users.#", "0"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_long_running.0.enable", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "background_activities.0.query_killer_long_running.0.max_age", "8000"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_idle_in_transaction_timeout", "600"),
+				),
+			},
+
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
+			{
+				Config: testAccMDBGreenplumClusterConfigStep7(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 7),
+					statecheck.CheckCreatedAtAttr(greenplumResourceFoo),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_in_host", "2"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_lens", "false"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.trino", "false"),
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.yandex_query", "false"),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResourceFoo),
+		},
+	})
+}
+
+// CheckDestroy is called after the resource is finally destroyed
+// to allow the tester to test that the resource is truly gone.
+func (suite testSuite) testAccCheckMDBGreenplumClusterDestroy(s *terraform.State) error {
+	config, configErr := suite.Config()
+	if configErr != nil {
+		return configErr
+	}
+
+	iamClient := iamsdk.NewServiceAccountClient(config.SDK)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type == greenplumResourceType {
+			_, err := greenplumsdk.NewClusterClient(config.SDK).Get(config.Context(), &greenplum.GetClusterRequest{
+				ClusterId: rs.Primary.ID,
+			})
+			if err == nil {
+				return fmt.Errorf("Greenplum Cluster %s still exists", rs.Primary.ID)
+			}
+		}
+
+		if rs.Type == "yandex_iam_service_account" {
+			_, err := iamClient.Get(config.Context(), &iam.GetServiceAccountRequest{
+				ServiceAccountId: rs.Primary.ID,
+			})
+			if err == nil {
+				return fmt.Errorf("service account %s still exists", rs.Primary.ID)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (suite testSuite) testAccCheckMDBGreenplumClusterExists(resourceName string, resource *greenplum.Cluster, masterHosts int, segmentHosts int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config, configErr := suite.Config()
+		if configErr != nil {
+			return configErr
+		}
+
+		found, err := greenplumsdk.NewClusterClient(config.SDK).Get(context.Background(), &greenplum.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("Greenplum Cluster not found")
+		}
+
+		if resource != nil {
+			*resource = *found
+		}
+
+		resp, err := greenplumsdk.NewClusterClient(config.SDK).ListMasterHosts(context.Background(), &greenplum.ListClusterHostsRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  sdkcommon.DefaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(resp.Hosts) != masterHosts {
+			return fmt.Errorf("Expected %d hosts, got %d", masterHosts, len(resp.Hosts))
+		}
+
+		resp, err = greenplumsdk.NewClusterClient(config.SDK).ListSegmentHosts(context.Background(), &greenplum.ListClusterHostsRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  sdkcommon.DefaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(resp.Hosts) != segmentHosts {
+			return fmt.Errorf("Expected %d hosts, got %d", segmentHosts, len(resp.Hosts))
+		}
+
+		return nil
+	}
+}
+
+const greenplumVPCDependencies = `
+resource "yandex_vpc_network" "mdb-greenplum-test-net" {}
+
+resource "yandex_vpc_subnet" "mdb-greenplum-test-subnet-b" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.mdb-greenplum-test-net.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+`
+
+func testAccMDBGreenplumServiceAccountTemplate(greenplumName string) string {
+	folderID := acceptance.FolderID()
+	return fmt.Sprintf(`
+		resource "yandex_iam_service_account" "%s" {
+		  name        = "%s"
+		  description = "test service account for terraform mdb-greenplum cluster"
+		  folder_id   = "%s"
+		}
+		`, buildGreenplumSAResourceName(greenplumName), buildGreenplumSAName(greenplumName), folderID)
+}
+
+func testAccMDBGreenplumClusterConfigTemplate(name, description, resourcePresetId string) string {
+	return testAccMDBGreenplumServiceAccountTemplate(name) +
+		greenplumVPCDependencies +
+		fmt.Sprintf(`
+resource "yandex_mdb_greenplum_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-greenplum-test-net.id
+  zone = "ru-central1-b"
+  subnet_id = yandex_vpc_subnet.mdb-greenplum-test-subnet-b.id
+  assign_public_ip = false
+  version = "6.29"
+
+  labels = { test_key_create : "test_value_create" }
+
+  master_host_count  = 2
+
+  master_subcluster {
+    resources {
+      resource_preset_id = "%s"
+      disk_size          = 24
+      disk_type_id       = "network-ssd"
+    }
+  }
+  segment_subcluster {
+    resources {
+      resource_preset_id = "s2.small"
+      disk_size          = 24
+      disk_type_id       = "network-ssd"
+    }
+  }
+
+  user_name     = "user1"
+  user_password = "mysecurepassword"
+
+  service_account_id = "${yandex_iam_service_account.%s.id}"
+
+`, name, description, resourcePresetId, buildGreenplumSAResourceName(name))
+}
+
+func testAccMDBGreenplumClusterConfigStep0(name, description, resourcePresetId string) string {
+	return testAccMDBGreenplumClusterConfigTemplate(name, description, resourcePresetId) + `
+  segment_host_count = 5
+  segment_in_host    = 1
+`
+}
+
+func testAccMDBGreenplumClusterConfigStep1(name string, description string) string {
+	folderID := acceptance.FolderID()
+	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.micro") +
+		fmt.Sprintf(`
+  pooler_config {
+    pooling_mode                     = "TRANSACTION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+    pool_idle_in_transaction_timeout = 600
+  }
+
+  pxf_config {
+    connection_timeout             = 600
+	upload_timeout                 = 40
+	max_threads                    = 100
+	pool_allow_core_thread_timeout = "false"
+	pool_core_size                 = 8
+	pool_queue_capacity            = 600
+	pool_max_size                  = 128
+	xmx                            = 2048
+	xms                            = 1024
+  }
+
+  greenplum_config = {
+    max_connections                      = 395
+    max_slot_wal_keep_size               = 1048576
+    gp_workfile_limit_per_segment        = 0
+    gp_workfile_limit_per_query          = 0
+    gp_workfile_limit_files_per_query    = 100000
+    max_prepared_transactions            = 500
+    gp_workfile_compression              = "false"
+    max_statement_mem                    = 2147483648
+    log_statement                        = 2
+    gp_add_column_inherits_table_setting = "true"
+    gp_enable_global_deadlock_detector   = "true"
+    gp_global_deadlock_detector_period   = 120
+  }
+
+  logging {
+	enabled                = true
+	folder_id              = "%s"
+	command_center_enabled = true
+	greenplum_enabled      = true
+	pooler_enabled         = true
+  }
+}`, folderID)
+}
+
+func testAccMDBGreenplumClusterConfigStep2(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
+  pooler_config {
+    pooling_mode                     = "TRANSACTION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+    pool_idle_in_transaction_timeout = 600
+  }
+
+  pxf_config {
+    connection_timeout             = 600
+	upload_timeout                 = 40
+	max_threads                    = 100
+	pool_allow_core_thread_timeout = "false"
+	pool_core_size                 = 8
+	pool_queue_capacity            = 600
+	pool_max_size                  = 128
+	xmx                            = 2048
+	xms                            = 1024
+  }
+
+  greenplum_config = {
+    max_connections                   = 395
+    max_slot_wal_keep_size            = 1048576
+    gp_workfile_limit_per_segment     = 0
+    gp_workfile_limit_per_query       = 0
+    gp_workfile_limit_files_per_query = 100000
+    max_prepared_transactions         = 500
+    gp_workfile_compression           = "false"
+  }
+}`
+}
+
+func testAccMDBGreenplumClusterConfigStep3(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep2(name, description)
+}
+
+func testAccMDBGreenplumClusterConfigStep4(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
+  pooler_config {
+    pooling_mode                     = "SESSION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+	pool_idle_in_transaction_timeout = 800
+  }
+
+  pxf_config {
+    connection_timeout             = 300
+	upload_timeout                 = 440
+	max_threads                    = 200
+	pool_allow_core_thread_timeout = "true"
+	pool_core_size                 = 4
+	pool_queue_capacity            = 600
+	pool_max_size                  = 48
+	xmx                            = 1536
+	xms                            = 1024
+  }
+
+  greenplum_config = {
+    max_connections                    = 400
+    max_slot_wal_keep_size             = 1048576
+    gp_workfile_limit_per_segment      = 0
+    gp_workfile_limit_per_query        = 0
+    gp_workfile_limit_files_per_query  = 100000
+    max_prepared_transactions          = 500
+    gp_workfile_compression            = "true"
+    gp_global_deadlock_detector_period = 300
+  }
+}`
+}
+
+func testAccMDBGreenplumClusterConfigStep5(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
+  pooler_config {
+    pooling_mode                     = "SESSION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+	pool_idle_in_transaction_timeout = 800
+  }
+
+  pxf_config {
+    connection_timeout             = 300
+	upload_timeout                 = 440
+	max_threads                    = 200
+	pool_allow_core_thread_timeout = "true"
+	pool_core_size                 = 4
+	pool_queue_capacity            = 600
+	pool_max_size                  = 48
+	xmx                            = 1536
+	xms                            = 1024
+  }
+
+  greenplum_config = {
+    max_connections                   = 400
+    max_slot_wal_keep_size            = 1048576
+    gp_workfile_limit_per_segment     = 0
+    gp_workfile_limit_per_query       = 0
+    gp_workfile_limit_files_per_query = 100000
+    max_prepared_transactions         = 500
+    gp_workfile_compression           = "true"
+  }
+  
+  deletion_protection = true
+}`
+}
+
+func testAccMDBGreenplumClusterConfigStep6(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
+  pooler_config {
+    pooling_mode                     = "SESSION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+	pool_idle_in_transaction_timeout = 600
+  }
+
+  pxf_config {
+    connection_timeout             = 300
+	upload_timeout                 = 440
+	max_threads                    = 200
+	pool_allow_core_thread_timeout = "true"
+	pool_core_size                 = 4
+	pool_queue_capacity            = 600
+	pool_max_size                  = 48
+	xmx                            = 1536
+	xms                            = 1024
+  }
+
+  greenplum_config = {
+    max_connections                   = 400
+    max_slot_wal_keep_size            = 1048576
+    gp_workfile_limit_per_segment     = 0
+    gp_workfile_limit_per_query       = 0
+    gp_workfile_limit_files_per_query = 100000
+    max_prepared_transactions         = 500
+    gp_workfile_compression           = "true"
+  }
+  
+  deletion_protection = false
+
+  backup_window_start {
+    hours = 22
+    minutes = 15
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+  access {
+	web_sql       = true
+	data_lens     = true
+	data_transfer = true
+	trino         = true
+	yandex_query  = true
+  }
+  cloud_storage {
+	enable = true
+  }
+
+  background_activities {
+	analyze_and_vacuum {
+		start_time      = "12:34"
+		analyze_timeout = 7200
+		vacuum_timeout  = 7300
+	}
+	query_killer_idle {
+		enable       = true
+		max_age      = 6000
+		ignore_users = [ "manager", "developer" ]
+	}
+	query_killer_idle_in_transaction {
+		enable       = true
+		ignore_users = []
+	}
+	query_killer_long_running {
+		enable       = true
+		max_age      = 8000
+	}
+  }
+}`
+}
+
+func testAccMDBGreenplumClusterConfigStep7(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigTemplate(name, description, "s2.small") + `
+  segment_host_count = 7
+  segment_in_host    = 2
+
+  pooler_config {
+    pooling_mode                     = "TRANSACTION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+	pool_idle_in_transaction_timeout = 600
+  }
+
+  pxf_config {
+    connection_timeout             = 600
+	upload_timeout                 = 40
+	max_threads                    = 100
+	pool_allow_core_thread_timeout = "true"
+	pool_core_size                 = 8
+	pool_queue_capacity            = 600
+	pool_max_size                  = 128
+	xmx                            = 2048
+	xms                            = 1024
+  }
+
+  access {
+    web_sql       = true
+    data_transfer = true
+  }
+  cloud_storage {
+    enable = true
+  }
+  background_activities {
+	analyze_and_vacuum {
+		start_time      = "12:34"
+		analyze_timeout = 7200
+		vacuum_timeout  = 8000
+	}
+	query_killer_idle {
+		enable       = true
+		max_age      = 6000
+		ignore_users = [ "manager", "developer" ]
+	}
+	query_killer_idle_in_transaction {
+		enable       = true
+		ignore_users = []
+	}
+	query_killer_long_running {
+		enable       = true
+		max_age      = 8000
+	}
+  }
+}`
+}

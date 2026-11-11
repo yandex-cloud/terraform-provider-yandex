@@ -1,0 +1,461 @@
+package pluginsdk
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1/privatelink"
+	privatelinksdk "github.com/yandex-cloud/go-sdk/services/vpc/v1/privatelink"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+	"google.golang.org/genproto/protobuf/field_mask"
+)
+
+const YandexVPCPrivateEndpointDefaultTimeout = 1 * time.Minute
+
+func ResourceYandexVPCPrivateEndpoint() *schema.Resource {
+	return &schema.Resource{
+		Description: "Manages a VPC Private Endpoint within the Yandex Cloud. For more information, see [the official documentation](https://yandex.cloud/docs/vpc/concepts/private-endpoint).\n\n* How-to Guides\n  * [Cloud Networking](https://yandex.cloud/docs/vpc/)\n",
+
+		// TODO: Should we use *Context methods?
+		Create: resourceYandexVPCPrivateEndpointCreate,
+		Read:   resourceYandexVPCPrivateEndpointRead,
+		Update: resourceYandexVPCPrivateEndpointUpdate,
+		Delete: resourceYandexVPCPrivateEndpointDelete,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(YandexVPCPrivateEndpointDefaultTimeout),
+			Update: schema.DefaultTimeout(YandexVPCPrivateEndpointDefaultTimeout),
+			Delete: schema.DefaultTimeout(YandexVPCPrivateEndpointDefaultTimeout),
+		},
+
+		SchemaVersion: 0,
+
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Computed:    true,
+			},
+
+			"description": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
+			},
+
+			"folder_id": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+			},
+
+			"labels": {
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+			},
+
+			"created_at": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
+			},
+
+			"status": {
+				Type:        schema.TypeString,
+				Description: "Status of the private endpoint.",
+				Computed:    true,
+			},
+
+			"network_id": {
+				Type:        schema.TypeString,
+				Description: "ID of the network which private endpoint belongs to.",
+				Required:    true,
+				ForceNew:    true,
+			},
+
+			"object_storage": {
+				Type:        schema.TypeList,
+				Description: "Private endpoint for Object Storage.",
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{},
+				},
+			},
+
+			"service_name": {
+				Type:        schema.TypeString,
+				Description: "Name of the cloud service to access through the private endpoint (e.g. `yandex.cloud.storage`).",
+				Optional:    true,
+				ForceNew:    true,
+			},
+
+			"endpoint_address": {
+				Type:        schema.TypeList,
+				Description: "Private endpoint address specification block.\n\n~> Only one of `address_id` or `subnet_id` + `address` arguments can be specified.\n",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"subnet_id": {
+							Type:        schema.TypeString,
+							Description: "Subnet of the IP address.",
+							Optional:    true,
+							Computed:    true,
+						},
+						"address": {
+							Type:        schema.TypeString,
+							Description: "Specifies IP address within `subnet_id`.",
+							Optional:    true,
+							Computed:    true,
+						},
+						"address_id": {
+							Type:        schema.TypeString,
+							Description: "ID of the address.",
+							Optional:    true,
+							Computed:    true,
+						},
+					},
+				},
+			},
+
+			"dns_options": {
+				Type:        schema.TypeList,
+				Description: "Private endpoint DNS options block.",
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"private_dns_records_enabled": {
+							Type:        schema.TypeBool,
+							Description: "If enabled - additional service DNS will be created.",
+							Optional:    true,
+							Computed:    true,
+						},
+					},
+				},
+			},
+
+			"dns_records": {
+				Type:        schema.TypeList,
+				Description: "Private endpoint DNS records block.",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Description: "Name of the dns record.",
+							Computed:    true,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func resourceYandexVPCPrivateEndpointCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
+
+	labels, err := sdkcommon.ExpandLabels(d.Get("labels"))
+	if err != nil {
+		return fmt.Errorf("Error expanding labels while creating gateway: %s", err)
+	}
+
+	folderID, err := sdkcommon.GetFolderID(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting folder ID while creating gateway: %s", err)
+	}
+
+	dnsOptions, err := expandPrivateEndpointDnsOptions(d)
+	if err != nil {
+		return fmt.Errorf("error getting dns options while creating private endpoint: %s", err)
+	}
+
+	addressSpec, err := expandPrivateEndpointAddressSpec(d)
+	if err != nil {
+		return fmt.Errorf("error getting address spec while creating private endpoint: %s", err)
+	}
+
+	req := privatelink.CreatePrivateEndpointRequest{
+		FolderId:    folderID,
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Labels:      labels,
+		NetworkId:   d.Get("network_id").(string),
+		DnsOptions:  dnsOptions,
+		AddressSpec: addressSpec,
+	}
+
+	if d.HasChange("object_storage") && d.HasChange("service_name") {
+		return fmt.Errorf("only one of 'object_storage' or 'service_name' can be specified")
+	} else if d.HasChange("object_storage") {
+		req.Service = &privatelink.CreatePrivateEndpointRequest_ObjectStorage{}
+	} else if d.HasChange("service_name") {
+		req.Service = &privatelink.CreatePrivateEndpointRequest_ServiceName{
+			ServiceName: d.Get("service_name").(string),
+		}
+	} else {
+		return fmt.Errorf("one of 'object_storage' or 'service_name' must be specified")
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	op, err := client.Create(ctx, &req)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to create private endpoint: %s", err)
+	}
+
+	d.SetId(op.Metadata().GetPrivateEndpointId())
+
+	if _, err = op.Wait(ctx); err != nil {
+		return fmt.Errorf("error while waiting operation to create private endpoint: %s", err)
+	}
+
+	return resourceYandexVPCPrivateEndpointRead(d, meta)
+}
+
+func resourceYandexVPCPrivateEndpointRead(d *schema.ResourceData, meta interface{}) error {
+	return yandexVPCPrivateEndpointRead(d, meta, d.Id())
+}
+
+func handlePrivateEndpointNotFoundError(err error, d *schema.ResourceData, id string) error {
+	return sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("VPC Private Endpoint %q", id))
+}
+
+func yandexVPCPrivateEndpointRead(d *schema.ResourceData, meta interface{}, id string) error {
+	config := meta.(*providerconfig.Config)
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	privateEndpoint, err := client.Get(ctx, &privatelink.GetPrivateEndpointRequest{
+		PrivateEndpointId: id,
+	})
+
+	if err != nil {
+		return handlePrivateEndpointNotFoundError(err, d, d.Id())
+	}
+
+	if err := d.Set("created_at", sdkcommon.GetTimestamp(privateEndpoint.GetCreatedAt())); err != nil {
+		return err
+	}
+	if err := d.Set("name", privateEndpoint.GetName()); err != nil {
+		return err
+	}
+	if err := d.Set("folder_id", privateEndpoint.GetFolderId()); err != nil {
+		return err
+	}
+	if err := d.Set("network_id", privateEndpoint.GetNetworkId()); err != nil {
+		return err
+	}
+	if err := d.Set("description", privateEndpoint.GetDescription()); err != nil {
+		return err
+	}
+	if err := d.Set("status", privateEndpoint.GetStatus().String()); err != nil {
+		return err
+	}
+
+	addr := flattenPrivateEndpointAddress(privateEndpoint.GetAddress())
+	if err := d.Set("endpoint_address", addr); err != nil {
+		return err
+	}
+
+	dnsOpt := flattenPrivateEndpointDnsOptions(privateEndpoint.GetDnsOptions())
+	if err := d.Set("dns_options", dnsOpt); err != nil {
+		return err
+	}
+
+	dnsRecords := flattenPrivateEndpointDnsRecords(privateEndpoint.GetDnsRecords())
+	if err := d.Set("dns_records", dnsRecords); err != nil {
+		return err
+	}
+
+	switch v := privateEndpoint.Service.(type) {
+	case *privatelink.PrivateEndpoint_ObjectStorage_:
+		objStorage := flattenPrivateEndpointObjectStorage(v.ObjectStorage)
+		if err := d.Set("object_storage", objStorage); err != nil {
+			return err
+		}
+	case *privatelink.PrivateEndpoint_ServiceName:
+		if err := d.Set("service_name", v.ServiceName); err != nil {
+			return err
+		}
+	}
+
+	return d.Set("labels", privateEndpoint.GetLabels())
+}
+
+func resourceYandexVPCPrivateEndpointUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
+
+	d.Partial(true)
+
+	req := &privatelink.UpdatePrivateEndpointRequest{
+		PrivateEndpointId: d.Id(),
+		UpdateMask:        &field_mask.FieldMask{},
+	}
+
+	labelsPropName := "labels"
+	if d.HasChange(labelsPropName) {
+		labelsProp, err := sdkcommon.ExpandLabels(d.Get(labelsPropName))
+		if err != nil {
+			return err
+		}
+
+		req.Labels = labelsProp
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, labelsPropName)
+	}
+
+	namePropName := "name"
+	if d.HasChange(namePropName) {
+		req.Name = d.Get(namePropName).(string)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, namePropName)
+	}
+
+	descPropName := "description"
+	if d.HasChange(descPropName) {
+		req.Description = d.Get(descPropName).(string)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, descPropName)
+	}
+
+	if d.HasChange("endpoint_address") {
+		addressSpec, err := expandPrivateEndpointAddressSpec(d)
+		if err != nil {
+			return fmt.Errorf("error getting address spec while creating private endpoint: %s", err)
+		}
+
+		req.AddressSpec = addressSpec
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "address_spec")
+	}
+
+	dnsOptPropName := "dns_options"
+	if d.HasChange(dnsOptPropName) {
+		dnsOptions, err := expandPrivateEndpointDnsOptions(d)
+		if err != nil {
+			return fmt.Errorf("error getting dns options while updating private endpoint: %s", err)
+		}
+
+		req.DnsOptions = dnsOptions
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, dnsOptPropName)
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := client.Update(ctx, req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to update Private Endpoint %q: %s", d.Id(), err)
+	}
+
+	if _, err = op.Wait(ctx); err != nil {
+		return fmt.Errorf("Error updating Private Endpoint %q: %s", d.Id(), err)
+	}
+
+	d.Partial(false)
+
+	return resourceYandexVPCPrivateEndpointRead(d, meta)
+}
+
+func resourceYandexVPCPrivateEndpointDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := privatelinksdk.NewPrivateEndpointClient(config.SDK)
+
+	req := &privatelink.DeletePrivateEndpointRequest{
+		PrivateEndpointId: d.Id(),
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
+	defer cancel()
+
+	op, err := client.Delete(ctx, req)
+	if err != nil {
+		return handlePrivateEndpointNotFoundError(err, d, d.Id())
+	}
+
+	_, err = op.Wait(ctx)
+	return err
+}
+
+func expandPrivateEndpointDnsOptions(d *schema.ResourceData) (*privatelink.PrivateEndpoint_DnsOptions, error) {
+	if d.Get("dns_options.#").(int) == 0 {
+		return nil, nil
+	}
+
+	return &privatelink.PrivateEndpoint_DnsOptions{
+		PrivateDnsRecordsEnabled: d.Get("dns_options.0.private_dns_records_enabled").(bool),
+	}, nil
+}
+
+func expandPrivateEndpointAddressSpec(d *schema.ResourceData) (*privatelink.AddressSpec, error) {
+	if v, ok := d.GetOk("endpoint_address.0.subnet_id"); ok {
+		return &privatelink.AddressSpec{
+			Address: &privatelink.AddressSpec_InternalIpv4AddressSpec{
+				InternalIpv4AddressSpec: &privatelink.InternalIpv4AddressSpec{
+					Address:  d.Get("endpoint_address.0.address").(string),
+					SubnetId: v.(string),
+				},
+			},
+		}, nil
+	} else if v, ok := d.GetOk("endpoint_address.0.address_id"); ok {
+		return &privatelink.AddressSpec{
+			Address: &privatelink.AddressSpec_AddressId{
+				AddressId: v.(string),
+			},
+		}, nil
+	}
+
+	return nil, nil
+}
+
+func flattenPrivateEndpointDnsOptions(dnsOpts *privatelink.PrivateEndpoint_DnsOptions) []map[string]interface{} {
+	res := make(map[string]interface{})
+	res["private_dns_records_enabled"] = dnsOpts.PrivateDnsRecordsEnabled
+	return []map[string]interface{}{res}
+}
+
+func flattenPrivateEndpointDnsRecords(dnsRecords []*privatelink.PrivateEndpoint_DnsRecord) []map[string]interface{} {
+	res := make([]map[string]interface{}, len(dnsRecords))
+	for i, dnsRecord := range dnsRecords {
+		res[i] = map[string]interface{}{
+			"name": dnsRecord.GetName(),
+		}
+	}
+	return res
+}
+
+func flattenPrivateEndpointAddress(endpointAddr *privatelink.PrivateEndpoint_EndpointAddress) []map[string]interface{} {
+	res := make(map[string]interface{})
+	res["address"] = endpointAddr.Address
+	res["address_id"] = endpointAddr.AddressId
+	res["subnet_id"] = endpointAddr.SubnetId
+	return []map[string]interface{}{res}
+}
+
+func flattenPrivateEndpointObjectStorage(_ *privatelink.PrivateEndpoint_ObjectStorage) []map[string]interface{} {
+	// NOTE: Just empty map for now.
+	res := make(map[string]interface{})
+	return []map[string]interface{}{res}
+}

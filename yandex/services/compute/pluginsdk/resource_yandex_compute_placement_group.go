@@ -1,0 +1,252 @@
+package pluginsdk
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	computesdk "github.com/yandex-cloud/go-sdk/services/compute/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+	"google.golang.org/genproto/protobuf/field_mask"
+)
+
+const YandexComputePlacementGroupDefaultTimeout = 1 * time.Minute
+
+func ResourceYandexComputePlacementGroup() *schema.Resource {
+	return &schema.Resource{
+		Description: "A Placement group resource. For more information, see [the official documentation](https://yandex.cloud/docs/compute/concepts/placement-groups).",
+
+		Create: resourceYandexComputePlacementGroupCreate,
+		Read:   resourceYandexComputePlacementGroupRead,
+		Update: resourceYandexComputePlacementGroupUpdate,
+		Delete: resourceYandexComputePlacementGroupDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(YandexComputePlacementGroupDefaultTimeout),
+			Update: schema.DefaultTimeout(YandexComputePlacementGroupDefaultTimeout),
+			Delete: schema.DefaultTimeout(YandexComputePlacementGroupDefaultTimeout),
+		},
+
+		SchemaVersion: 1,
+
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+			},
+
+			"description": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
+			},
+
+			"folder_id": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+			},
+
+			"labels": {
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+			},
+
+			"created_at": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
+			},
+			"placement_strategy_spread": {
+				Type:        schema.TypeBool,
+				Description: "A placement strategy with spread policy of the Placement Group. Should be true or unset (conflicts with placement_strategy_partitions).",
+				Optional:    true,
+			},
+			"placement_strategy_partitions": {
+				Type:        schema.TypeInt,
+				Description: "A number of partitions in the placement strategy with partitions policy of the Placement Group (conflicts with placement_strategy_spread).",
+				Optional:    true,
+			},
+		},
+	}
+}
+
+func resourceYandexComputePlacementGroupCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+
+	folderID, err := sdkcommon.GetFolderID(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting folder ID while creating Placement Group: %s", err)
+	}
+
+	labels, err := sdkcommon.ExpandLabels(d.Get("labels"))
+	if err != nil {
+		return fmt.Errorf("Error expanding labels while creating Placement Group: %s", err)
+	}
+
+	req := compute.CreatePlacementGroupRequest{
+		FolderId:    folderID,
+		Name:        d.Get("name").(string),
+		Labels:      labels,
+		Description: d.Get("description").(string),
+		PlacementStrategy: &compute.CreatePlacementGroupRequest_SpreadPlacementStrategy{
+			SpreadPlacementStrategy: &compute.SpreadPlacementStrategy{},
+		},
+	}
+
+	spreadStrategy, spreadStrategySet := d.GetOk("placement_strategy_spread")
+	partitions, partitionStrategySet := d.GetOk("placement_strategy_partitions")
+	if partitionStrategySet && spreadStrategySet {
+		return fmt.Errorf("Maximum one of 'placement_strategy_spread' or 'placement_strategy_partitions' should be set")
+	}
+	if partitionStrategySet {
+		partitionCount := partitions.(int)
+		req.PlacementStrategy = &compute.CreatePlacementGroupRequest_PartitionPlacementStrategy{
+			PartitionPlacementStrategy: &compute.PartitionPlacementStrategy{
+				Partitions: int64(partitionCount),
+			},
+		}
+	}
+
+	if spreadStrategySet {
+		spreadStrategyVal := spreadStrategy.(bool)
+		if !spreadStrategyVal {
+			return fmt.Errorf("Invalid value for `placement_strategy_spread` should be true or unset")
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	op, err := computesdk.NewPlacementGroupClient(config.SDK).Create(ctx, &req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to create Placement Group: %s", err)
+	}
+
+	md := op.Metadata()
+	d.SetId(md.GetPlacementGroupId())
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while waiting operation to create Placement Group: %s", err)
+	}
+
+	return resourceYandexComputePlacementGroupRead(d, meta)
+}
+
+func resourceYandexComputePlacementGroupRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+
+	placementGroup, err := computesdk.NewPlacementGroupClient(config.SDK).Get(context.Background(),
+		&compute.GetPlacementGroupRequest{
+			PlacementGroupId: d.Id(),
+		})
+
+	if err != nil {
+		return sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("Placement Group %q", d.Id()))
+	}
+
+	d.Set("created_at", sdkcommon.GetTimestamp(placementGroup.CreatedAt))
+	d.Set("name", placementGroup.Name)
+	d.Set("folder_id", placementGroup.FolderId)
+	d.Set("description", placementGroup.Description)
+
+	return d.Set("labels", placementGroup.Labels)
+}
+
+func resourceYandexComputePlacementGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+	req := &compute.UpdatePlacementGroupRequest{
+		PlacementGroupId: d.Id(),
+		UpdateMask:       &field_mask.FieldMask{},
+	}
+
+	if d.HasChange("labels") {
+		labelsProp, err := sdkcommon.ExpandLabels(d.Get("labels"))
+		if err != nil {
+			return err
+		}
+
+		req.Labels = labelsProp
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "labels")
+	}
+
+	if d.HasChange("name") {
+		req.Name = d.Get("name").(string)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "name")
+	}
+
+	if d.HasChange("description") {
+		req.Description = d.Get("description").(string)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
+	}
+
+	if len(req.UpdateMask.Paths) == 0 {
+		return fmt.Errorf("No fields were updated for Placement Group %s", d.Id())
+	}
+
+	err := makePlacementGroupUpdateRequest(req, d, meta)
+	if err != nil {
+		return err
+	}
+
+	return resourceYandexComputePlacementGroupRead(d, meta)
+}
+
+func resourceYandexComputePlacementGroupDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+
+	log.Printf("[DEBUG] Deleting Placement Group %q", d.Id())
+
+	req := &compute.DeletePlacementGroupRequest{
+		PlacementGroupId: d.Id(),
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
+	defer cancel()
+
+	op, err := computesdk.NewPlacementGroupClient(config.SDK).Delete(ctx, req)
+	if err != nil {
+		return sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("Placement Group %q", d.Id()))
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Finished deleting Placement Group %q", d.Id())
+	return nil
+}
+
+func makePlacementGroupUpdateRequest(req *compute.UpdatePlacementGroupRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := computesdk.NewPlacementGroupClient(config.SDK).Update(ctx, req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to update Placement Group %q: %s", d.Id(), err)
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error updating Placement Group %q: %s", d.Id(), err)
+	}
+
+	return nil
+}

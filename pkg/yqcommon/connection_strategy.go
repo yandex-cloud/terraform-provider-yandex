@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
-	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 )
 

@@ -1,0 +1,103 @@
+package pluginsdk
+
+import (
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+)
+
+func DataSourceYandexMDBMySQLUser() *schema.Resource {
+	return &schema.Resource{
+		Description: "Get information about a Yandex Managed MySQL user. For more information, see [the official documentation](https://yandex.cloud/docs/managed-mysql/).",
+
+		Read: dataSourceYandexMDBMySQLUserRead,
+		Schema: map[string]*schema.Schema{
+			"cluster_id": {
+				Type:        schema.TypeString,
+				Description: "The ID of the MySQL cluster.",
+				Required:    true,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Description: "The name of the MySQL user.",
+				Required:    true,
+			},
+			"permission": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Set:      mysqlUserPermissionHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"database_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"roles": {
+							Type: schema.TypeList,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Optional: true,
+						},
+					},
+				},
+			},
+			"global_permissions": {
+				Type:        schema.TypeSet,
+				Description: ResourceYandexMDBMySQLUser().Schema["global_permissions"].Description,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Computed: true,
+			},
+			"connection_limits": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_questions_per_hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"max_updates_per_hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"max_connections_per_hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"max_user_connections": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"authentication_plugin": {
+				Type:        schema.TypeString,
+				Description: ResourceYandexMDBMySQLUser().Schema["authentication_plugin"].Description,
+				Computed:    true,
+			},
+			"connection_manager": {
+				Type:        schema.TypeMap,
+				Description: ResourceYandexMDBMySQLUser().Schema["connection_manager"].Description,
+				Deprecated:  sdkcommon.FieldDeprecatedForAnother("connection_manager", "user_connection_manager"),
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"user_connection_manager": mdbcommon.UserConnectionManagerDataSourceSchema(),
+		},
+	}
+}
+
+func dataSourceYandexMDBMySQLUserRead(d *schema.ResourceData, meta interface{}) error {
+	clusterID := d.Get("cluster_id").(string)
+	username := d.Get("name").(string)
+	userID := sdkcommon.ConstructResourceId(clusterID, username)
+	d.SetId(userID)
+	return resourceYandexMDBMySQLUserRead(d, meta)
+}

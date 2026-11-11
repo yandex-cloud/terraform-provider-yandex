@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/yqsdk"
-	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 )
 

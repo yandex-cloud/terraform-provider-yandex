@@ -1,0 +1,172 @@
+package acceptance
+
+import (
+	"fmt"
+	"reflect"
+	"sort"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
+	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
+	svc_ydb "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/ydb/pluginsdk"
+)
+
+const ydbDatabaseResource = "yandex_ydb_database_serverless.test-database"
+
+func importYDBDatabaseIDFunc(database *ydb.Database, role string) func(*terraform.State) (string, error) {
+	return func(s *terraform.State) (string, error) {
+		return database.Id + "," + role, nil
+	}
+}
+
+func TestAccYDBDatabaseIamBinding_basic(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	var database ydb.Database
+	databaseName := acctest.RandomWithPrefix("tf-ydb-database")
+	ydbLocationId := ydbLocationId
+
+	role := "ydb.viewer"
+	userID := "system:allAuthenticatedUsers"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccYDBDatabaseIamBindingBasic(databaseName, role, userID, ydbLocationId),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexYDBDatabaseServerlessExists(ydbDatabaseResource, &database),
+					suite.testAccCheckYDBDatabaseIam(ydbDatabaseResource, role, []string{userID}),
+				),
+			},
+			{
+				ResourceName:                         "yandex_ydb_database_iam_binding.viewer",
+				ImportStateIdFunc:                    importYDBDatabaseIDFunc(&database, role),
+				ImportState:                          true,
+				ImportStateVerifyIdentifierAttribute: "database_id",
+			},
+		},
+	})
+}
+
+func TestAccYDBDatabaseIamBinding_remove(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	var database ydb.Database
+	databaseName := acctest.RandomWithPrefix("tf-ydb-database")
+	ydbLocationId := ydbLocationId
+
+	role := "ydb.viewer"
+	userID := "system:allAuthenticatedUsers"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		Steps: []resource.TestStep{
+			// Prepare data source
+			{
+				Config: testAccYDBDatabase(databaseName, ydbLocationId),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testYandexYDBDatabaseServerlessExists(ydbDatabaseResource, &database),
+					suite.testAccCheckYDBDatabaseEmptyIam(ydbDatabaseResource),
+				),
+			},
+			// Apply IAM bindings
+			{
+				Config: testAccYDBDatabaseIamBindingBasic(databaseName, role, userID, ydbLocationId),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckYDBDatabaseIam(ydbDatabaseResource, role, []string{userID}),
+				),
+			},
+			// Remove the bindings
+			{
+				Config: testAccYDBDatabase(databaseName, ydbLocationId),
+				Check: resource.ComposeTestCheckFunc(
+					suite.testAccCheckYDBDatabaseEmptyIam(ydbDatabaseResource),
+				),
+			},
+		},
+	})
+}
+
+func testAccYDBDatabaseIamBindingBasic(databaseName, role, userID, ydbLocationId string) string {
+	return fmt.Sprintf(`
+resource "yandex_ydb_database_serverless" "test-database" {
+  name       = "%s"
+  location_id = "%s"
+}
+
+resource "yandex_ydb_database_iam_binding" "viewer" {
+  database_id = yandex_ydb_database_serverless.test-database.id
+  role        = "%s"
+  members     = ["%s"]
+}
+`, databaseName, ydbLocationId, role, userID)
+}
+
+func testAccYDBDatabase(databaseName, ydbLocationId string) string {
+	return fmt.Sprintf(`
+resource "yandex_ydb_database_serverless" "test-database" {
+  name       = "%s"
+  location_id = "%s"
+}
+`, databaseName, ydbLocationId)
+}
+
+func (suite testSuite) testAccCheckYDBDatabaseEmptyIam(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		bindings, err := suite.getYDBDatabaseResourceAccessBindings(s, resourceName)
+		if err != nil {
+			return err
+		}
+
+		if len(bindings) == 0 {
+			return nil
+		}
+
+		return fmt.Errorf("Binding found but expected empty for %s", resourceName)
+	}
+}
+
+func (suite testSuite) testAccCheckYDBDatabaseIam(resourceName, role string, members []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		bindings, err := suite.getYDBDatabaseResourceAccessBindings(s, resourceName)
+		if err != nil {
+			return err
+		}
+
+		var roleMembers []string
+		for _, binding := range bindings {
+			if binding.RoleId == role {
+				member := binding.Subject.Type + ":" + binding.Subject.Id
+				roleMembers = append(roleMembers, member)
+			}
+		}
+		sort.Strings(members)
+		sort.Strings(roleMembers)
+
+		if reflect.DeepEqual(members, roleMembers) {
+			return nil
+		}
+
+		return fmt.Errorf("Binding found but expected members is %v, got %v", members, roleMembers)
+	}
+}
+
+func (suite testSuite) getYDBDatabaseResourceAccessBindings(s *terraform.State, resourceName string) ([]*access.AccessBinding, error) {
+	config, configErr := suite.Config()
+	if configErr != nil {
+		return nil, configErr
+	}
+
+	rs, ok := s.RootModule().Resources[resourceName]
+	if !ok {
+		return nil, fmt.Errorf("can't find %s in state", resourceName)
+	}
+
+	return svc_ydb.GetYDBDatabaseAccessBindings(config.Context(), config, rs.Primary.ID)
+}

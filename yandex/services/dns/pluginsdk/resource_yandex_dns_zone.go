@@ -1,0 +1,411 @@
+package pluginsdk
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"strings"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
+	dnssdk "github.com/yandex-cloud/go-sdk/services/dns/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+	"google.golang.org/grpc/status"
+)
+
+const yandexDnsDefaultTimeout = 5 * time.Minute
+
+func ResourceYandexDnsZone() *schema.Resource {
+	return &schema.Resource{
+		Description: "Manages a DNS Zone.",
+		Create:      resourceYandexDnsZoneCreate,
+		Read:        resourceYandexDnsZoneRead,
+		Update:      resourceYandexDnsZoneUpdate,
+		Delete:      resourceYandexDnsZoneDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		CustomizeDiff: zoneVisibilityChanged,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(yandexDnsDefaultTimeout),
+			Update: schema.DefaultTimeout(yandexDnsDefaultTimeout),
+			Delete: schema.DefaultTimeout(yandexDnsDefaultTimeout),
+		},
+
+		SchemaVersion: 0,
+
+		Schema: map[string]*schema.Schema{
+			"zone": {
+				Type:         schema.TypeString,
+				Description:  "The DNS name of this zone, e.g. `example.com.`. Must ends with dot.",
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateZoneName(),
+			},
+
+			"folder_id": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["folder_id"],
+				Computed:    true,
+				Optional:    true,
+			},
+
+			"name": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["name"],
+				Optional:    true,
+				Default:     "",
+			},
+
+			"description": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["description"],
+				Optional:    true,
+			},
+
+			"labels": {
+				Type:        schema.TypeMap,
+				Description: common.ResourceDescriptions["labels"],
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Set:         schema.HashString,
+			},
+
+			"public": {
+				Type:        schema.TypeBool,
+				Description: "The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.",
+				Optional:    true,
+				Computed:    true,
+			},
+
+			"private_networks": {
+				Type:        schema.TypeSet,
+				Description: "For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.",
+				Optional:    true,
+				Computed:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: schema.HashString,
+			},
+
+			"created_at": {
+				Type:        schema.TypeString,
+				Description: common.ResourceDescriptions["created_at"],
+				Computed:    true,
+			},
+
+			"deletion_protection": {
+				Type:        schema.TypeBool,
+				Description: common.ResourceDescriptions["deletion_protection"],
+				Optional:    true,
+			},
+		},
+	}
+}
+
+func resourceYandexDnsZoneCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+
+	folderID, err := sdkcommon.GetFolderID(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting folder ID while creating DnsZone: %s", err)
+	}
+
+	labels, err := sdkcommon.ExpandLabels(d.Get("labels"))
+	if err != nil {
+		return fmt.Errorf("Error expanding labels while creating DnsZone: %s", err)
+	}
+
+	req := &dns.CreateDnsZoneRequest{
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		Zone:               d.Get("zone").(string),
+		DeletionProtection: d.Get("deletion_protection").(bool),
+	}
+
+	if d.Get("public").(bool) {
+		req.PublicVisibility = &dns.PublicVisibility{}
+	} else {
+		req.PrivateVisibility = &dns.PrivateVisibility{}
+	}
+
+	if n, ok := d.GetOk("private_networks"); ok {
+		if req.PrivateVisibility == nil {
+			req.PrivateVisibility = &dns.PrivateVisibility{}
+		}
+		req.PrivateVisibility.NetworkIds = sdkcommon.ConvertStringSet(n.(*schema.Set))
+	}
+
+	if err := makeDnsZoneCreateRequest(req, d, meta); err != nil {
+		return fmt.Errorf("DnsZone creation failed: %s", err)
+	}
+
+	return resourceYandexDnsZoneRead(d, meta)
+}
+
+func resourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	dnsZone, err := client.Get(config.Context(), &dns.GetDnsZoneRequest{
+		DnsZoneId: d.Id(),
+	})
+
+	if err != nil {
+		return sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("DnsZone %q", d.Get("name").(string)))
+	}
+
+	d.Set("created_at", sdkcommon.GetTimestamp(dnsZone.CreatedAt))
+	d.Set("name", dnsZone.Name)
+	d.Set("folder_id", dnsZone.FolderId)
+	d.Set("zone", dnsZone.Zone)
+	d.Set("description", dnsZone.Description)
+	d.Set("deletion_protection", dnsZone.DeletionProtection)
+
+	d.Set("public", dnsZone.PublicVisibility != nil)
+
+	if dnsZone.PrivateVisibility != nil {
+		if err := d.Set("private_networks", sdkcommon.ConvertStringArrToInterface(dnsZone.PrivateVisibility.GetNetworkIds())); err != nil {
+			return err
+		}
+	}
+	return d.Set("labels", dnsZone.Labels)
+}
+
+func resourceYandexDnsZoneUpdate(d *schema.ResourceData, meta interface{}) error {
+	if shouldReplaceZone(d.Id(), d.HasChange("public"), d.HasChange("private_networks"), d.Get("public").(bool), meta) {
+		err := resourceYandexDnsZoneDelete(d, meta)
+		if err != nil {
+			return err
+		}
+
+		return resourceYandexDnsZoneCreate(d, meta)
+	}
+
+	if d.HasChange("folder_id") {
+		req := &dns.MoveDnsZoneRequest{
+			DnsZoneId:           d.Id(),
+			DestinationFolderId: d.Get("folder_id").(string),
+		}
+
+		err := makeDnsZoneMoveRequest(req, d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
+	req, err := prepareDnsZoneUpdateRequest(d)
+	if err != nil {
+		return err
+	}
+
+	err = makeDnsZoneUpdateRequest(req, d, meta)
+	if err != nil {
+		return err
+	}
+
+	return resourceYandexDnsZoneRead(d, meta)
+}
+
+func resourceYandexDnsZoneDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	log.Printf("[DEBUG] Deleting DnsZone %q", d.Id())
+
+	req := &dns.DeleteDnsZoneRequest{
+		DnsZoneId: d.Id(),
+	}
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
+	defer cancel()
+
+	op, err := client.Delete(ctx, req)
+	if err != nil {
+		return sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("DnsZone %q", d.Get("name").(string)))
+	}
+
+	resp, err := op.Wait(ctx)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Finished deleting DnsZone %q: %#v", d.Id(), resp)
+	return nil
+}
+
+func prepareDnsZoneUpdateRequest(d *schema.ResourceData) (*dns.UpdateDnsZoneRequest, error) {
+	labels, err := sdkcommon.ExpandLabels(d.Get("labels"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding labels while creating instance: %s", err)
+	}
+
+	req := &dns.UpdateDnsZoneRequest{
+		DnsZoneId:          d.Id(),
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		DeletionProtection: d.Get("deletion_protection").(bool),
+	}
+
+	if d.Get("public").(bool) {
+		req.PublicVisibility = &dns.PublicVisibility{}
+	} else {
+		req.PrivateVisibility = &dns.PrivateVisibility{}
+	}
+
+	if n, ok := d.GetOk("private_networks"); ok {
+		if req.PrivateVisibility == nil {
+			req.PrivateVisibility = &dns.PrivateVisibility{}
+		}
+		req.PrivateVisibility.NetworkIds = sdkcommon.ConvertStringSet(n.(*schema.Set))
+	}
+
+	return req, nil
+}
+
+func makeDnsZoneCreateRequest(req *dns.CreateDnsZoneRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	timeouts := []time.Duration{time.Millisecond * 500, time.Second * 2, time.Second * 10}
+
+	op, err := retrySpecificError(timeouts, func() (*dnssdk.DnsZoneCreateOperation, error) {
+		return client.Create(ctx, req)
+	}, isErrNetworkNotFound)
+
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to create DnsZone: %s", err)
+	}
+
+	md := op.Metadata()
+	d.SetId(md.DnsZoneId)
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while waiting operation to create DnsZone: %s", err)
+	}
+
+	return nil
+}
+
+func makeDnsZoneUpdateRequest(req *dns.UpdateDnsZoneRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := client.Update(ctx, req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to update DnsZone %q: %s", d.Id(), err)
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error updating DnsZone %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func makeDnsZoneMoveRequest(req *dns.MoveDnsZoneRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := client.Move(ctx, req)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to move DnsZone %q: %s", d.Id(), err)
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error moving DnsZone %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func validateZoneName() schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (s []string, es []error) {
+		v, ok := i.(string)
+		if !ok {
+			es = append(es, fmt.Errorf("expected type of %s to be string", k))
+			return
+		}
+		if len(v) > 255 {
+			es = append(es, fmt.Errorf("expected length of %s to be less than 256, got %s", k, v))
+		}
+		if !strings.HasSuffix(v, ".") {
+			es = append(es, fmt.Errorf("zone name must ends with '.'"))
+		}
+		return
+	}
+}
+
+func retrySpecificError[T any](timeouts []time.Duration, fn func() (T, error), qualifier func(err error) bool) (T, error) {
+	var op T
+	var err error
+
+	for i := 0; i < len(timeouts); i++ {
+		op, err = fn()
+		if err == nil {
+			return op, nil
+		}
+		if !qualifier(err) {
+			return op, err
+		}
+
+		log.Printf("[DEBUG] retry #%d, timeout %s\n", i, timeouts[i])
+		time.Sleep(timeouts[i])
+	}
+
+	return fn()
+}
+
+func isErrNetworkNotFound(err error) bool {
+	if grpcStatus, ok := status.FromError(err); ok {
+		return strings.HasPrefix(grpcStatus.Message(), "Network not found:")
+	}
+	return false
+}
+
+func zoneVisibilityChanged(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	if shouldReplaceZone(d.Id(), d.HasChange("public"), d.HasChange("private_networks"), d.Get("public").(bool), meta) {
+		d.ForceNew("public")
+		d.ForceNew("private_networks")
+	}
+	return nil
+}
+
+func shouldReplaceZone(id string, hasChangePublicAttr, hasChangePrivateNetworksAttr bool, isPublic bool, meta interface{}) bool {
+	config := meta.(*providerconfig.Config)
+	client := dnssdk.NewDnsZoneClient(config.SDK)
+
+	dnsZone, _ := client.Get(config.Context(), &dns.GetDnsZoneRequest{
+		DnsZoneId: id,
+	})
+	if dnsZone == nil {
+		return false
+	}
+
+	privateNetworkIds := dnsZone.GetPrivateVisibility().GetNetworkIds()
+	networkIdsSet := hasChangePrivateNetworksAttr && privateNetworkIds == nil
+
+	// "public-private -> public" transition is explicitly prohibited
+	return (isPublic && networkIdsSet) || hasChangePublicAttr
+}

@@ -8,21 +8,19 @@ import (
 	"strings"
 	"testing"
 
-	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework"
+	"github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
 
 	"github.com/hashicorp/terraform-plugin-framework/provider"
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
-	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
-	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/go-sdk/v2/pkg/options"
 	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/internal/providermux"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
@@ -67,32 +65,24 @@ var userID2 = "no user id"
 var storageEndpoint = "no.storage.endpoint"
 
 func NewFrameworkProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer, error) {
-	upgradedSdkProvider, _ := tf5to6server.UpgradeServer(
-		context.Background(),
-		yandex.NewSDKProvider().GRPCProvider,
-	)
-	providers := []func() tfprotov6.ProviderServer{
-		providerserver.NewProtocol6(AccProvider),
-		func() tfprotov6.ProviderServer {
-			return upgradedSdkProvider
-		},
-	}
-
-	muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
+	pluginProvider, err := yandex.NewPluginSDKProvider()
 	if err != nil {
 		return nil, err
 	}
-
-	return muxServer.ProviderServer, nil
+	return providermux.New(ctx, pluginProvider, AccProvider)
 }
 
 func init() {
 	AccProvider = yandex_framework.NewFrameworkProvider()
-	testAccProviderFunc, _ := NewFrameworkProviderServer(context.Background())
-	testAccProviderServer = testAccProviderFunc()
+	testAccProviderFunc, err := NewFrameworkProviderServer(context.Background())
+	if err != nil {
+		err = fmt.Errorf("initialize acceptance provider: %w", err)
+	} else {
+		testAccProviderServer = testAccProviderFunc()
+	}
 	AccProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"yandex": func() (tfprotov6.ProviderServer, error) {
-			return testAccProviderServer, nil
+			return testAccProviderServer, err
 		},
 	}
 

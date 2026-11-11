@@ -1,0 +1,2615 @@
+package mdb_postgresql_cluster_v2_test
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"math/rand"
+	"reflect"
+	"regexp"
+	"sort"
+
+	kmssdk "github.com/yandex-cloud/go-sdk/services/kms/v1"
+
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-testing/compare"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	"github.com/hashicorp/terraform-plugin-testing/statecheck"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	pconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
+	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
+	postgresqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/postgresql/v1"
+	provider "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
+	kmsfixtures "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/kms/testfixtures"
+	"google.golang.org/genproto/googleapis/type/dayofweek"
+	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
+)
+
+const (
+	defaultMDBPageSize                      = 1000
+	pgResource                              = "yandex_mdb_postgresql_cluster_v2.foo"
+	pgRestoreBackupId                       = "c9qrbucrcvm6a50tblv2:c9q698sst87e4vhkvrsm"
+	pgRestoreBackupIdEncrypted              = "c9qu0h1fg6rt1jnu62ro:mdb4er3h4lqov20tedc3"
+	pgLatestVersion                         = "18"
+	pgUpgradeSourceVersion                  = "17"
+	pgUpgradeTargetVersion                  = pgLatestVersion
+	pg1CUpgradeSourceVersion                = "17-1c"
+	pg1CUpgradeTargetVersion                = "18-1c"
+	pgRestoreVersion                        = "15"
+	yandexMDBPostgreSQLClusterCreateTimeout = 30 * time.Minute // TODO refactor
+	yandexMDBPostgreSQLClusterDeleteTimeout = 15 * time.Minute
+	yandexMDBPostgreSQLClusterUpdateTimeout = 60 * time.Minute
+)
+
+const pgVPCDependencies = `
+resource "yandex_vpc_network" "mdb-pg-test-net" {}
+
+resource "yandex_vpc_subnet" "mdb-pg-test-subnet-a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.mdb-pg-test-net.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "mdb-pg-test-subnet-b" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.mdb-pg-test-net.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "mdb-pg-test-subnet-d" {
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.mdb-pg-test-net.id
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+
+resource "yandex_vpc_security_group" "sgroup1" {
+  description = "Test security group 1"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+}
+
+resource "yandex_vpc_security_group" "sgroup2" {
+  description = "Test security group 2"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+}
+
+`
+
+const diskEncryptionKeyResource = `
+resource "yandex_kms_symmetric_key" "disk_encrypt" {}
+
+`
+
+var (
+	pgVersions   = [...]string{"15", "16", "17", "18"}
+	pg1CVersions = [...]string{"15-1c", "16-1c", "17-1c", "18-1c"} //nolint:unused
+)
+
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
+func mdbPGClusterImportStep(name string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      name,
+		ImportState:       true,
+		ImportStateVerify: true,
+		ImportStateVerifyIgnore: []string{
+			"health", // volatile value
+			"hosts",  // volatile value
+			// API returns inconsistent result with importing postgresql_config
+			"config.postgresql_config", // volatile value
+		},
+	}
+}
+
+// Test that a PostgreSQL Cluster can be created, updated and destroyed
+func TestAccMDBPostgreSQLCluster_basic(t *testing.T) {
+	t.Parallel()
+
+	version := pgUpgradeSourceVersion
+	versionUpdate := pgUpgradeTargetVersion
+
+	resources := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-hdd"
+	`
+
+	resourcesUpdated := `
+	  resource_preset_id = "s2.micro"
+	  disk_size		  = 12
+	  disk_type_id	   = "network-hdd"
+	`
+
+	log.Printf("TestAccMDBPostgreSQLCluster_basic: version %s", version)
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-basic")
+	resourceId := "cluster_basic_test"
+	clusterResource := "yandex_mdb_postgresql_cluster_v2." + resourceId
+	description := "PostgreSQL Cluster Terraform Test Basic"
+	descriptionUpdated := fmt.Sprintf("%s Updated", description)
+	folderID := test.GetExampleFolderID()
+
+	labels := `
+    key1 = "value1"
+    key2 = "value2"
+    key3 = "value3"
+    `
+	labelsUpdated := `
+    key4 = "value4"
+    `
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create PostgreSQL Cluster
+			{
+				Config: testAccMDBPGClusterBasic(resourceId, clusterName, description, "PRESTABLE", labels, version, resources, ""),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(description)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact("PRESTABLE")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled":                      knownvalue.Bool(false),
+						"advanced_mode":                knownvalue.Bool(false),
+						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
+						"statements_sampling_interval": knownvalue.Int64Exact(600),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"data_lens":     knownvalue.Bool(false),
+							"data_transfer": knownvalue.Bool(false),
+							"web_sql":       knownvalue.Bool(false),
+							"serverless":    knownvalue.Bool(false),
+							"yandex_query":  knownvalue.Bool(false),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"pool_discard": knownvalue.Null(),
+							"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(0),
+						"emergency_usage_threshold": knownvalue.Int64Exact(0),
+						"planned_usage_threshold":   knownvalue.Int64Exact(0),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"type": knownvalue.StringExact("ANYTIME"),
+						"day":  knownvalue.Null(),
+						"hour": knownvalue.Null(),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key1": "value1", "key2": "value2", "key3": "value3"}),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-hdd", 10*1024*1024*1024),
+					testAccCheckClusterDeletionProtectionExact(&cluster, false),
+					testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
+						DataLens:     false,
+						DataTransfer: false,
+						WebSql:       false,
+						Serverless:   false,
+					}),
+					testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &postgresql.PerformanceDiagnostics{
+						Enabled:                    false,
+						SessionsSamplingInterval:   60,
+						StatementsSamplingInterval: 600,
+					}),
+					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+						Hours:   0,
+						Minutes: 0,
+					}),
+					testAccCheckClusterPoolerConfigExact(&cluster, nil),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{}),
+					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
+						Policy: &postgresql.MaintenanceWindow_Anytime{
+							Anytime: &postgresql.AnytimeMaintenanceWindow{},
+						},
+					}),
+					testAccCheckClusterSecurityGroupIdsExact(&cluster, nil),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			// Update PostgreSQL Cluster
+			{
+				Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionUpdated, "PRESTABLE", labelsUpdated, versionUpdate, resourcesUpdated, ""),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact("PRESTABLE")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(versionUpdate)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"data_lens":     knownvalue.Bool(false),
+							"data_transfer": knownvalue.Bool(false),
+							"web_sql":       knownvalue.Bool(false),
+							"serverless":    knownvalue.Bool(false),
+							"yandex_query":  knownvalue.Bool(false),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled":                      knownvalue.Bool(false),
+						"advanced_mode":                knownvalue.Bool(false),
+						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
+						"statements_sampling_interval": knownvalue.Int64Exact(600),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"pool_discard": knownvalue.Null(),
+							"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(0),
+						"emergency_usage_threshold": knownvalue.Int64Exact(0),
+						"planned_usage_threshold":   knownvalue.Int64Exact(0),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"type": knownvalue.StringExact("ANYTIME"),
+						"day":  knownvalue.Null(),
+						"hour": knownvalue.Null(),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key4": "value4"}),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-hdd", 12*1024*1024*1024),
+					testAccCheckClusterDeletionProtectionExact(&cluster, false),
+					testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
+						DataLens:     false,
+						DataTransfer: false,
+						WebSql:       false,
+						Serverless:   false,
+					}),
+					testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &postgresql.PerformanceDiagnostics{
+						Enabled:                    false,
+						SessionsSamplingInterval:   60,
+						StatementsSamplingInterval: 600,
+					}),
+					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+						Hours:   0,
+						Minutes: 0,
+					}),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{}),
+					testAccCheckClusterPoolerConfigExact(&cluster, nil),
+					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
+						Policy: &postgresql.MaintenanceWindow_Anytime{
+							Anytime: &postgresql.AnytimeMaintenanceWindow{},
+						},
+					}),
+					testAccCheckClusterSecurityGroupIdsExact(&cluster, nil),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+		},
+	})
+}
+
+// Test that a PostgreSQL Cluster can be created, updated and destroyed
+// TODO: Check enable and disable pooler_config
+func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
+	t.Parallel()
+
+	version := pg1CUpgradeSourceVersion
+	versionUpdate := pg1CUpgradeTargetVersion
+
+	resources := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+	`
+
+	resources_decrease_disk := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 8
+      disk_type_id       = "network-ssd"
+	`
+
+	log.Printf("TestAccMDBPostgreSQLCluster_full: version %s", version)
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-full")
+
+	resourceId := "cluster_full_test"
+	clusterResource := "yandex_mdb_postgresql_cluster_v2." + resourceId
+
+	description := "PostgreSQL Cluster Terraform Test Full"
+	descriptionUpdated := fmt.Sprintf("%s Updated", description)
+	folderID := test.GetExampleFolderID()
+
+	environment := "PRODUCTION"
+
+	labels := `
+    key1 = "value1"
+    key2 = "value2"
+    key3 = "value3"
+    `
+	labelsUpdated := `
+    key4 = "value4"
+    `
+
+	access := `
+		data_transfer = true
+		web_sql = true
+		serverless = false
+		data_lens = false
+		yandex_query = false
+	`
+
+	accessUpdated := `
+		serverless = true
+		data_lens = true
+		data_transfer = false
+		web_sql = false
+		yandex_query = true
+	`
+
+	performanceDiagnostics := `
+		enabled = true
+		sessions_sampling_interval = 60
+		statements_sampling_interval = 600
+	`
+
+	performanceDiagnosticsUpdated := `
+		sessions_sampling_interval = 500
+		statements_sampling_interval = 1000
+	`
+
+	backupRetainPeriodDays := 7
+	backupRetainPeriodDaysUpdated := 14
+
+	backupWindowStart := `
+		hours = 5
+		minutes = 4
+	`
+
+	backupWindowStartUpdated := `
+		hours = 10
+		minutes = 3
+	`
+
+	postgresqlConfig := `
+		max_connections                = 100
+		enable_parallel_hash           = true
+		autovacuum_vacuum_scale_factor = 0.34
+		default_transaction_isolation  = "TRANSACTION_ISOLATION_READ_COMMITTED"
+		shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+		auto_explain_log_format        = "AUTO_EXPLAIN_LOG_FORMAT_XML"
+	`
+
+	postgresqlConfigUpdated := `
+		max_connections				= 200
+		enable_parallel_hash		   = false
+		autovacuum_vacuum_scale_factor = 0.35
+		default_transaction_isolation  = "TRANSACTION_ISOLATION_REPEATABLE_READ"
+		shared_preload_libraries       = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"
+		auto_explain_log_format        = "AUTO_EXPLAIN_LOG_FORMAT_XML"
+	`
+
+	poolerCfg := `
+		pooling_mode = "TRANSACTION"
+		pool_discard = true
+	`
+
+	poolerCfgUpdated := `
+		pooling_mode = "SESSION"
+		pool_discard = false
+	`
+
+	connectionManagerEnabled := `
+		enabled = true
+	`
+
+	connectionManagerDisabled := `
+		enabled = false
+	`
+
+	connectionManagerWithFolderIDs := fmt.Sprintf(`
+		enabled = true
+		connections_folder_id = "%s"
+		secrets_folder_id     = "%s"
+	`, folderID, folderID)
+
+	managedRepackEnabled := `
+		enabled = true
+	`
+
+	managedRepackDisabled := `
+		enabled = false
+	`
+
+	dsa := `
+		disk_size_limit = 15
+		emergency_usage_threshold = 20
+	`
+
+	dsaUpdate := `
+		disk_size_limit = 20
+		emergency_usage_threshold = 15
+		planned_usage_threshold = 10
+	`
+
+	maintenanceWindow := `
+		type = "ANYTIME"
+	`
+
+	maintenanceWindowUpdated := `
+		type = "WEEKLY"
+		day  = "MON"
+		hour = 5
+	`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create PostgreSQL Cluster
+			{
+				Config: testAccMDBPGClusterFull(
+					resourceId, clusterName, description,
+					environment, labels, version,
+					resources, access,
+					performanceDiagnostics,
+					backupWindowStart,
+					poolerCfg,
+					dsa,
+					postgresqlConfig,
+					maintenanceWindow,
+					connectionManagerEnabled,
+					managedRepackEnabled,
+					backupRetainPeriodDays, true,
+					[]string{
+						"yandex_vpc_security_group.sgroup1.id",
+					},
+				),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(description)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(true)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"data_lens":     knownvalue.Bool(false),
+							"data_transfer": knownvalue.Bool(true),
+							"web_sql":       knownvalue.Bool(true),
+							"serverless":    knownvalue.Bool(false),
+							"yandex_query":  knownvalue.Bool(false),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"enabled":                      knownvalue.Bool(true),
+							"advanced_mode":                knownvalue.Bool(false),
+							"sessions_sampling_interval":   knownvalue.Int64Exact(60),
+							"statements_sampling_interval": knownvalue.Int64Exact(600),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"hours":   knownvalue.Int64Exact(5),
+							"minutes": knownvalue.Int64Exact(4),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_PoolingMode_name[2]),
+						"pool_discard": knownvalue.Bool(true),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled":               knownvalue.Bool(true),
+						"connections_folder_id": knownvalue.Null(),
+						"secrets_folder_id":     knownvalue.Null(),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("managed_repack"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled": knownvalue.Bool(true),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(15),
+						"emergency_usage_threshold": knownvalue.Int64Exact(20),
+						"planned_usage_threshold":   knownvalue.Int64Exact(0),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"max_connections":                knownvalue.StringExact("100"),
+						"enable_parallel_hash":           knownvalue.StringExact("true"),
+						"autovacuum_vacuum_scale_factor": knownvalue.StringExact("0.34"),
+						"default_transaction_isolation":  knownvalue.StringExact("TRANSACTION_ISOLATION_READ_COMMITTED"),
+						"shared_preload_libraries":       knownvalue.StringExact("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"),
+						"auto_explain_log_format":        knownvalue.StringExact("AUTO_EXPLAIN_LOG_FORMAT_XML"),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"type": knownvalue.StringExact("ANYTIME"),
+							"day":  knownvalue.Null(),
+							"hour": knownvalue.Null(),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(1)),
+					statecheck.CompareValueCollection(
+						clusterResource,
+						[]tfjsonpath.Path{
+							tfjsonpath.New("security_group_ids"),
+						},
+						"yandex_vpc_security_group.sgroup1",
+						tfjsonpath.New("id"), compare.ValuesSame(),
+					),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_encryption_key_id"), knownvalue.Null()),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("priority"), knownvalue.Int64Exact(10)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key1": "value1", "key2": "value2", "key3": "value3"}),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckClusterDeletionProtectionExact(&cluster, true),
+					testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
+						DataLens:     false,
+						DataTransfer: true,
+						WebSql:       true,
+						Serverless:   false,
+					}),
+					testAccCheckClusterPerformanceDiagnosticsExact(
+						&cluster,
+						&postgresql.PerformanceDiagnostics{
+							Enabled:                    true,
+							SessionsSamplingInterval:   60,
+							StatementsSamplingInterval: 600,
+						},
+					),
+					testAccCheckClusterManagedRepackExact(&cluster, &postgresql.ManagedRepack{
+						Enabled: wrapperspb.Bool(true),
+					}),
+					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+						Hours:   5,
+						Minutes: 4,
+					}),
+					testAccCheckClusterPoolerConfigExact(&cluster, &postgresql.ConnectionPoolerConfig{
+						PoolingMode: postgresql.ConnectionPoolerConfig_TRANSACTION,
+						PoolDiscard: wrapperspb.Bool(true),
+					}),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+						DiskSizeLimit:           datasize.ToBytes(15),
+						EmergencyUsageThreshold: 20,
+					}),
+					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig17_1C{
+						MaxConnections:              wrapperspb.Int64(100),
+						EnableParallelHash:          wrapperspb.Bool(true),
+						AutovacuumVacuumScaleFactor: wrapperspb.Double(0.34),
+						DefaultTransactionIsolation: pconfig.PostgresqlConfig17_1C_TRANSACTION_ISOLATION_READ_COMMITTED,
+						SharedPreloadLibraries: []pconfig.PostgresqlConfig17_1C_SharedPreloadLibraries{
+							pconfig.PostgresqlConfig17_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
+							pconfig.PostgresqlConfig17_1C_SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN,
+						},
+						AutoExplainLogFormat: pconfig.PostgresqlConfig17_1C_AUTO_EXPLAIN_LOG_FORMAT_XML,
+					}, []string{
+						"MaxConnections",
+						"EnableParallelHash",
+						"AutovacuumVacuumScaleFactor",
+						"DefaultTransactionIsolation",
+						"SharedPreloadLibraries",
+					}),
+					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
+						Policy: &postgresql.MaintenanceWindow_Anytime{
+							Anytime: &postgresql.AnytimeMaintenanceWindow{},
+						},
+					}),
+					testAccCheckClusterSecurityGroupIdsExact(
+						&cluster,
+						[]string{
+							"yandex_vpc_security_group.sgroup1",
+						},
+					),
+					resource.TestCheckNoResourceAttr(clusterResource, `disk_encryption_key_id`),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			{
+				Config: testAccMDBPGClusterFull(
+					resourceId, clusterName, descriptionUpdated,
+					environment, labelsUpdated, versionUpdate, resources, accessUpdated,
+					performanceDiagnosticsUpdated,
+					backupWindowStartUpdated,
+					poolerCfgUpdated,
+					dsaUpdate,
+					postgresqlConfigUpdated,
+					maintenanceWindowUpdated,
+					connectionManagerWithFolderIDs,
+					managedRepackDisabled,
+					backupRetainPeriodDaysUpdated, false,
+					[]string{
+						"yandex_vpc_security_group.sgroup2.id",
+					},
+				),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(versionUpdate)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"data_lens":     knownvalue.Bool(true),
+							"data_transfer": knownvalue.Bool(false),
+							"web_sql":       knownvalue.Bool(false),
+							"serverless":    knownvalue.Bool(true),
+							"yandex_query":  knownvalue.Bool(true),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"enabled":                      knownvalue.Bool(false),
+							"advanced_mode":                knownvalue.Bool(false),
+							"sessions_sampling_interval":   knownvalue.Int64Exact(500),
+							"statements_sampling_interval": knownvalue.Int64Exact(1000),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(14)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"hours":   knownvalue.Int64Exact(10),
+							"minutes": knownvalue.Int64Exact(3),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_PoolingMode_name[1]),
+						"pool_discard": knownvalue.Bool(false),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled":               knownvalue.Bool(true),
+						"connections_folder_id": knownvalue.StringExact(folderID),
+						"secrets_folder_id":     knownvalue.StringExact(folderID),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("managed_repack"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"enabled": knownvalue.Bool(false),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(20),
+						"emergency_usage_threshold": knownvalue.Int64Exact(15),
+						"planned_usage_threshold":   knownvalue.Int64Exact(10),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"max_connections":                knownvalue.StringExact("200"),
+						"enable_parallel_hash":           knownvalue.StringExact("false"),
+						"autovacuum_vacuum_scale_factor": knownvalue.StringExact("0.35"),
+						"default_transaction_isolation":  knownvalue.StringExact("TRANSACTION_ISOLATION_REPEATABLE_READ"),
+						"shared_preload_libraries":       knownvalue.StringExact("SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"),
+						"auto_explain_log_format":        knownvalue.StringExact("AUTO_EXPLAIN_LOG_FORMAT_XML"),
+					})),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
+						map[string]knownvalue.Check{
+							"type": knownvalue.StringExact("WEEKLY"),
+							"day":  knownvalue.StringExact("MON"),
+							"hour": knownvalue.Int64Exact(5),
+						},
+					)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.SetSizeExact(1)),
+					statecheck.CompareValueCollection(
+						clusterResource,
+						[]tfjsonpath.Path{
+							tfjsonpath.New("security_group_ids"),
+						},
+						"yandex_vpc_security_group.sgroup2",
+						tfjsonpath.New("id"), compare.ValuesSame(),
+					),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key4": "value4"}),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckClusterDeletionProtectionExact(&cluster, false),
+					testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
+						DataLens:     true,
+						DataTransfer: false,
+						WebSql:       false,
+						Serverless:   true,
+						YandexQuery:  true,
+					}),
+					testAccCheckClusterPerformanceDiagnosticsExact(
+						&cluster,
+						&postgresql.PerformanceDiagnostics{
+							SessionsSamplingInterval:   500,
+							StatementsSamplingInterval: 1000,
+						},
+					),
+					testAccCheckClusterManagedRepackExact(&cluster, &postgresql.ManagedRepack{
+						Enabled: wrapperspb.Bool(false),
+					}),
+					testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(14)),
+					testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig18_1C{
+						MaxConnections:              wrapperspb.Int64(200),
+						EnableParallelHash:          wrapperspb.Bool(false),
+						AutovacuumVacuumScaleFactor: wrapperspb.Double(0.35),
+						DefaultTransactionIsolation: pconfig.PostgresqlConfig18_1C_TRANSACTION_ISOLATION_REPEATABLE_READ,
+						SharedPreloadLibraries: []pconfig.PostgresqlConfig18_1C_SharedPreloadLibraries{
+							pconfig.PostgresqlConfig18_1C_SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,
+						},
+						AutoExplainLogFormat: pconfig.PostgresqlConfig18_1C_AUTO_EXPLAIN_LOG_FORMAT_XML,
+					}, []string{
+						"MaxConnections",
+						"EnableParallelHash",
+						"AutovacuumVacuumScaleFactor",
+						"DefaultTransactionIsolation",
+						"SharedPreloadLibraries",
+					}),
+					testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+						Hours:   10,
+						Minutes: 3,
+					}),
+					testAccCheckClusterPoolerConfigExact(&cluster, &postgresql.ConnectionPoolerConfig{
+						PoolingMode: postgresql.ConnectionPoolerConfig_SESSION,
+						PoolDiscard: wrapperspb.Bool(false),
+					}),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+						DiskSizeLimit:           datasize.ToBytes(20),
+						EmergencyUsageThreshold: 15,
+						PlannedUsageThreshold:   10,
+					}),
+					testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
+						Policy: &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
+							WeeklyMaintenanceWindow: &postgresql.WeeklyMaintenanceWindow{
+								Day:  postgresql.WeeklyMaintenanceWindow_MON,
+								Hour: 5,
+							},
+						},
+					}),
+					testAccCheckClusterSecurityGroupIdsExact(
+						&cluster,
+						[]string{
+							"yandex_vpc_security_group.sgroup2",
+						},
+					),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			// Try to set enabled = false (should fail)
+			{
+				Config: testAccMDBPGClusterFull(
+					resourceId, clusterName, descriptionUpdated,
+					environment, labelsUpdated, versionUpdate, resources, accessUpdated,
+					performanceDiagnosticsUpdated,
+					backupWindowStartUpdated,
+					poolerCfgUpdated,
+					dsaUpdate,
+					postgresqlConfigUpdated,
+					maintenanceWindowUpdated,
+					connectionManagerDisabled,
+					managedRepackDisabled,
+					backupRetainPeriodDaysUpdated, false,
+					[]string{
+						"yandex_vpc_security_group.sgroup2.id",
+					},
+				),
+				ExpectError: regexp.MustCompile(`connection_manager\.enabled cannot be set to false, disabling Connection Manager integration is not supported`),
+			},
+			// Decrease disk size (nothing changes)
+			{
+				Config: testAccMDBPGClusterFull(
+					resourceId, clusterName, descriptionUpdated,
+					environment, labelsUpdated, versionUpdate, resources_decrease_disk, accessUpdated,
+					performanceDiagnosticsUpdated,
+					backupWindowStartUpdated,
+					poolerCfgUpdated,
+					dsaUpdate,
+					postgresqlConfigUpdated,
+					maintenanceWindowUpdated,
+					connectionManagerWithFolderIDs,
+					managedRepackDisabled,
+					backupRetainPeriodDaysUpdated, false,
+					[]string{
+						"yandex_vpc_security_group.sgroup2.id",
+					},
+				),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+						"disk_size_limit":           knownvalue.Int64Exact(20),
+						"emergency_usage_threshold": knownvalue.Int64Exact(15),
+						"planned_usage_threshold":   knownvalue.Int64Exact(10),
+					})),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					testAccCheckClusterLabelsExact(&cluster, map[string]string{"key4": "value4"}),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+						DiskSizeLimit:           datasize.ToBytes(20),
+						EmergencyUsageThreshold: 15,
+						PlannedUsageThreshold:   10,
+					}),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+		},
+	})
+}
+
+// Test that a cluster whose Connection Manager integration is off does not get
+// connection_manager planned as "(known after apply)" on every subsequent change.
+func TestAccMDBPostgreSQLCluster_connectionManagerDisabled(t *testing.T) {
+	t.Parallel()
+
+	version := pgLatestVersion
+
+	resources := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-hdd"
+	`
+
+	log.Printf("TestAccMDBPostgreSQLCluster_connectionManagerDisabled: version %s", version)
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-cm-disabled")
+	resourceId := "cluster_cm_disabled_test"
+	clusterResource := "yandex_mdb_postgresql_cluster_v2." + resourceId
+	description := "PostgreSQL Cluster Terraform Test Connection Manager Disabled"
+	descriptionUpdated := fmt.Sprintf("%s Updated", description)
+
+	var networkID, subnetID, clusterID string
+
+	connectionManagerDisabledValue := knownvalue.ObjectExact(map[string]knownvalue.Check{
+		"enabled":               knownvalue.Bool(false),
+		"connections_folder_id": knownvalue.Null(),
+		"secrets_folder_id":     knownvalue.Null(),
+	})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			// The cluster is created outside Terraform, so its network has to exist beforehand
+			{
+				Config: pgVPCDependencies,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCaptureResourceID("yandex_vpc_network.mdb-pg-test-net", &networkID),
+					testAccCaptureResourceID("yandex_vpc_subnet.mdb-pg-test-subnet-a", &subnetID),
+				),
+			},
+			// Take the cluster created above under Terraform management
+			{
+				PreConfig: func() {
+					clusterID = testAccCreateMDBPGClusterWithoutConnectionManager(t, clusterName, description, version, networkID, subnetID)
+				},
+				Config:             testAccMDBPGClusterConnectionManager(resourceId, clusterName, description, version, resources),
+				ResourceName:       clusterResource,
+				ImportState:        true,
+				ImportStatePersist: true,
+				ImportStateIdFunc:  func(*terraform.State) (string, error) { return clusterID, nil },
+			},
+			// Settle the imported state against the configuration: an import labels hosts by
+			// FQDN, so this apply is what relabels the single host to "na" and leaves the next
+			// step with a plan that holds nothing but the attribute it changes
+			{
+				Config: testAccMDBPGClusterConnectionManager(resourceId, clusterName, description, version, resources),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), connectionManagerDisabledValue),
+				},
+			},
+			// Change an unrelated attribute: connection_manager must keep its known value
+			// instead of turning into "(known after apply)"
+			{
+				Config: testAccMDBPGClusterConnectionManager(resourceId, clusterName, descriptionUpdated, version, resources),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(clusterResource, plancheck.ResourceActionUpdate),
+						plancheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), connectionManagerDisabledValue),
+					},
+				},
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionUpdated)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("connection_manager"), connectionManagerDisabledValue),
+				},
+			},
+		},
+	})
+}
+
+// testAccCreateMDBPGClusterWithoutConnectionManager creates a cluster with the Connection Manager
+// integration disabled and returns its id. Terraform cannot create one — the resource rejects
+// connection_manager.enabled = false in a configuration — while the API does, and clusters without
+// the integration are exactly what the reading path has to get right.
+func testAccCreateMDBPGClusterWithoutConnectionManager(t *testing.T, name, description, version, networkID, subnetID string) string {
+	t.Helper()
+
+	ctx := context.Background()
+	// The shared provider gets its SDK from the preceding step's apply, so this cannot be
+	// called from a PreConfig of the first step.
+	client := postgresqlsdk.NewClusterClient(test.AccProvider.(*provider.Provider).GetConfig().SDKv2)
+
+	// Registered before the call: a Create that reports an error after the API has accepted the
+	// request leaves a cluster behind and no id to delete it by. It is the last resort — failing
+	// here unwinds through Terraform's own teardown of the network this cluster sits in, and that
+	// teardown cannot remove a subnet while the cluster still holds an address in it.
+	t.Cleanup(func() { testAccDeleteMDBPGClusterByName(t, name) })
+	// fatal does not return. It reports before deleting, so that a deletion which drags on cannot
+	// take the reason for the failure with it.
+	fatal := func(format string, args ...any) {
+		t.Helper()
+		t.Errorf(format, args...)
+		testAccDeleteMDBPGClusterByName(t, name)
+		t.FailNow()
+	}
+
+	op, err := client.Create(ctx, &postgresql.CreateClusterRequest{
+		FolderId:    test.GetExampleFolderID(),
+		Name:        name,
+		Description: description,
+		Environment: postgresql.Cluster_PRESTABLE,
+		NetworkId:   networkID,
+		ConfigSpec: &postgresql.ConfigSpec{
+			Version: version,
+			Resources: &postgresql.Resources{
+				ResourcePresetId: "s2.micro",
+				DiskTypeId:       "network-hdd",
+				DiskSize:         datasize.ToBytes(10),
+			},
+			ConnectionManager: &mdbv1.ClusterConnectionManager{Enabled: wrapperspb.Bool(false)},
+		},
+		HostSpecs: []*postgresql.HostSpec{
+			{
+				ZoneId:   "ru-central1-a",
+				SubnetId: subnetID,
+			},
+		},
+	})
+	if err != nil {
+		fatal("Failed to create PostgreSQL cluster without Connection Manager integration: %s", err)
+	}
+
+	clusterID := op.Metadata().ClusterId
+
+	if _, err := op.Wait(ctx); err != nil {
+		fatal("Failed to wait for PostgreSQL cluster %q creation: %s", clusterID, err)
+	}
+
+	cluster, err := client.Get(ctx, &postgresql.GetClusterRequest{ClusterId: clusterID})
+	if err != nil {
+		fatal("Failed to read PostgreSQL cluster %q back: %s", clusterID, err)
+	}
+	// An absent message and an integration that is off are different answers, and the drift this
+	// test is about lives in that difference: the attribute stays known in a plan only while the
+	// API reports the integration state of a cluster that has the integration off.
+	connectionManager := cluster.GetConfig().GetConnectionManager()
+	if connectionManager.GetEnabled() == nil {
+		fatal("PostgreSQL cluster %q: the API reported no connection_manager.enabled for a cluster created with the integration off, leaving the provider no state to keep the attribute known from", clusterID)
+	}
+	if connectionManager.GetEnabled().GetValue() {
+		fatal("PostgreSQL cluster %q was created with Connection Manager integration enabled, the test needs a cluster without it", clusterID)
+	}
+
+	return clusterID
+}
+
+// testAccDeleteMDBPGClusterByName removes a cluster created outside Terraform. Terraform deletes
+// the cluster itself once it is in the state, so this covers the runs that never got that far —
+// by name, because a Create that reports an error may still have left a cluster behind.
+func testAccDeleteMDBPGClusterByName(t *testing.T, name string) {
+	t.Helper()
+
+	// The same patience the resource grants a delete, so that a stuck one costs this test rather
+	// than the whole acceptance run's timeout.
+	ctx, cancel := context.WithTimeout(context.Background(), yandexMDBPostgreSQLClusterDeleteTimeout)
+	defer cancel()
+	client := postgresqlsdk.NewClusterClient(test.AccProvider.(*provider.Provider).GetConfig().SDKv2)
+
+	resp, err := client.List(ctx, &postgresql.ListClustersRequest{
+		FolderId: test.GetExampleFolderID(),
+		Filter:   fmt.Sprintf("name = %q", name),
+	})
+	if err != nil {
+		t.Errorf("Failed to look PostgreSQL cluster %q up for deletion: %s", name, err)
+		return
+	}
+
+	for _, cluster := range resp.GetClusters() {
+		// The folder is shared by every acceptance test, so the name is checked here as well
+		// and not left to the server-side filter alone.
+		if cluster.GetName() != name {
+			continue
+		}
+		op, err := client.Delete(ctx, &postgresql.DeleteClusterRequest{ClusterId: cluster.GetId()})
+		if err != nil {
+			if validate.IsStatusWithCode(err, codes.NotFound) {
+				continue
+			}
+			t.Errorf("Failed to delete PostgreSQL cluster %q: %s", cluster.GetId(), err)
+			continue
+		}
+		if _, err := op.Wait(ctx); err != nil {
+			t.Errorf("Failed to wait for PostgreSQL cluster %q deletion: %s", cluster.GetId(), err)
+		}
+	}
+}
+
+func testAccCaptureResourceID(resourceName string, id *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+		*id = rs.Primary.ID
+		return nil
+	}
+}
+
+// TODO: Check enable and disable disk_size_autoscaling when fix api
+func TestAccMDBPostgreSQLCluster_mixed(t *testing.T) {
+	t.Parallel()
+
+	version := pgLatestVersion
+
+	log.Printf("TestAccMDBPostgreSQLCluster_mixed: version %s", version)
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-mixed")
+
+	resourceId := "cluster_mixed_test"
+	clusterResource := "yandex_mdb_postgresql_cluster_v2." + resourceId
+
+	folderID := test.GetExampleFolderID()
+
+	descriptionFull := "Cluster test mixed: full"
+	descriptionBasic := "Cluster test mixed: basic"
+
+	environment := "PRODUCTION"
+	labels := `
+		key = "value"
+	`
+
+	access := `
+	data_lens = false
+	serverless = false
+	`
+
+	performanceDiagnostics := `
+		enabled = true
+		advanced_mode = true
+		sessions_sampling_interval = 60
+		statements_sampling_interval = 600
+	`
+	performanceDiagnosticsDisabled := `
+		enabled = false
+		advanced_mode = false
+		sessions_sampling_interval = 60
+		statements_sampling_interval = 600
+	`
+
+	maintenanceWindow := `
+		type = "ANYTIME"
+	`
+
+	backupRetainPeriodDays := 7
+	backupWindowStart := `
+		hours = 0
+		minutes = 0
+	`
+
+	// TODO: Replace to empty when fix api
+	postgresqlConfig := `
+		password_encryption = "PASSWORD_ENCRYPTION_SCRAM_SHA_256"
+	`
+
+	resources := `
+		resource_preset_id = "s2.micro"
+		disk_size = 10
+		disk_type_id = "network-ssd"
+	`
+
+	poolerConfig := `
+			pool_discard = null
+			pooling_mode = "POOLING_MODE_UNSPECIFIED"
+		`
+
+	connectionManagerEnabled := `
+		enabled = true
+	`
+
+	dsa := `
+		disk_size_limit = 20
+    	emergency_usage_threshold = 85
+	`
+
+	stepsFullBasic := []resource.TestStep{
+		{
+			Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version, resources, ""),
+			ConfigStateChecks: []statecheck.StateCheck{
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionBasic)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"data_lens":     knownvalue.Bool(false),
+						"data_transfer": knownvalue.Bool(false),
+						"web_sql":       knownvalue.Bool(false),
+						"serverless":    knownvalue.Bool(false),
+						"yandex_query":  knownvalue.Bool(false),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"enabled":                      knownvalue.Bool(false),
+						"advanced_mode":                knownvalue.Bool(false),
+						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
+						"statements_sampling_interval": knownvalue.Int64Exact(600),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"pool_discard": knownvalue.Null(),
+					"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"disk_size_limit":           knownvalue.Int64Exact(0),
+					"emergency_usage_threshold": knownvalue.Int64Exact(0),
+					"planned_usage_threshold":   knownvalue.Int64Exact(0),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"password_encryption": knownvalue.StringExact("PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"type": knownvalue.StringExact("ANYTIME"),
+						"day":  knownvalue.Null(),
+						"hour": knownvalue.Null(),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
+			},
+			Check: resource.ComposeAggregateTestCheckFunc(
+				testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				testAccCheckClusterLabelsExact(&cluster, map[string]string{"key": "value"}),
+				testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+				testAccCheckClusterDeletionProtectionExact(&cluster, false),
+				testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
+					DataLens:     false,
+					DataTransfer: false,
+					WebSql:       false,
+					Serverless:   false,
+				}),
+				testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &postgresql.PerformanceDiagnostics{
+					Enabled:                    false,
+					SessionsSamplingInterval:   60,
+					StatementsSamplingInterval: 600,
+				}),
+				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+				testAccCheckClusterPoolerConfigExact(&cluster, nil),
+				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{}),
+				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig18{
+					PasswordEncryption: pconfig.PostgresqlConfig18_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
+				}, nil),
+				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+					Hours:   0,
+					Minutes: 0,
+				}),
+				testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
+					Policy: &postgresql.MaintenanceWindow_Anytime{
+						Anytime: &postgresql.AnytimeMaintenanceWindow{},
+					},
+				}),
+				testAccCheckClusterSecurityGroupIdsExact(&cluster, nil),
+			),
+		},
+		{
+			Config: testAccMDBPGClusterFull(
+				resourceId, clusterName, descriptionFull, environment, labels, version, resources, access,
+				performanceDiagnostics,
+				backupWindowStart,
+				poolerConfig,
+				dsa,
+				postgresqlConfig,
+				maintenanceWindow,
+				connectionManagerEnabled,
+				`enabled = false`,
+				backupRetainPeriodDays,
+				false, []string{},
+			),
+			ConfigStateChecks: []statecheck.StateCheck{
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionFull)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"data_lens":     knownvalue.Bool(false),
+						"data_transfer": knownvalue.Bool(false),
+						"web_sql":       knownvalue.Bool(false),
+						"serverless":    knownvalue.Bool(false),
+						"yandex_query":  knownvalue.Bool(false),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"enabled":                      knownvalue.Bool(true),
+						"advanced_mode":                knownvalue.Bool(true),
+						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
+						"statements_sampling_interval": knownvalue.Int64Exact(600),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"pool_discard": knownvalue.Null(),
+					"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"disk_size_limit":           knownvalue.Int64Exact(20),
+					"emergency_usage_threshold": knownvalue.Int64Exact(85),
+					"planned_usage_threshold":   knownvalue.Int64Exact(0),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"password_encryption": knownvalue.StringExact("PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"type": knownvalue.StringExact("ANYTIME"),
+						"day":  knownvalue.Null(),
+						"hour": knownvalue.Null(),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
+			},
+			Check: resource.ComposeAggregateTestCheckFunc(
+				testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				testAccCheckClusterLabelsExact(&cluster, map[string]string{"key": "value"}),
+				testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+				testAccCheckClusterDeletionProtectionExact(&cluster, false),
+				testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
+					DataLens:     false,
+					DataTransfer: false,
+					WebSql:       false,
+					Serverless:   false,
+				}),
+				testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &postgresql.PerformanceDiagnostics{
+					Enabled:                    true,
+					AdvancedMode:               true,
+					SessionsSamplingInterval:   60,
+					StatementsSamplingInterval: 600,
+				}),
+				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+					Hours:   0,
+					Minutes: 0,
+				}),
+				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+				testAccCheckClusterPoolerConfigExact(&cluster, nil),
+				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+					DiskSizeLimit:           datasize.ToBytes(20),
+					PlannedUsageThreshold:   0,
+					EmergencyUsageThreshold: 85,
+				}),
+				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig18{
+					PasswordEncryption: pconfig.PostgresqlConfig18_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
+				}, nil),
+				testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
+					Policy: &postgresql.MaintenanceWindow_Anytime{
+						Anytime: &postgresql.AnytimeMaintenanceWindow{},
+					},
+				}),
+				testAccCheckClusterSecurityGroupIdsExact(&cluster, nil),
+			),
+		},
+		{
+			Config: testAccMDBPGClusterBasic(resourceId, clusterName, descriptionBasic, environment, labels, version, resources, performanceDiagnosticsDisabled),
+			ConfigStateChecks: []statecheck.StateCheck{
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact(descriptionBasic)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("environment"), knownvalue.StringExact(environment)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("network_id"), knownvalue.NotNull()), // TODO write check that network_id is not empty
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("folder_id"), knownvalue.StringExact(folderID)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("version"), knownvalue.StringExact(version)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("access"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"data_lens":     knownvalue.Bool(false),
+						"data_transfer": knownvalue.Bool(false),
+						"web_sql":       knownvalue.Bool(false),
+						"serverless":    knownvalue.Bool(false),
+						"yandex_query":  knownvalue.Bool(false),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("performance_diagnostics"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"enabled":                      knownvalue.Bool(false),
+						"advanced_mode":                knownvalue.Bool(false),
+						"sessions_sampling_interval":   knownvalue.Int64Exact(60),
+						"statements_sampling_interval": knownvalue.Int64Exact(600),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_window_start"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"hours":   knownvalue.Int64Exact(0),
+						"minutes": knownvalue.Int64Exact(0),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("backup_retain_period_days"), knownvalue.Int64Exact(7)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("pooler_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"pool_discard": knownvalue.Null(),
+					"pooling_mode": knownvalue.StringExact(postgresql.ConnectionPoolerConfig_POOLING_MODE_UNSPECIFIED.String()),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("disk_size_autoscaling"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"disk_size_limit":           knownvalue.Int64Exact(20),
+					"emergency_usage_threshold": knownvalue.Int64Exact(85),
+					"planned_usage_threshold":   knownvalue.Int64Exact(0),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("config").AtMapKey("postgresql_config"), knownvalue.ObjectExact(map[string]knownvalue.Check{
+					"password_encryption": knownvalue.StringExact("PASSWORD_ENCRYPTION_SCRAM_SHA_256"),
+				})),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("maintenance_window"), knownvalue.ObjectExact(
+					map[string]knownvalue.Check{
+						"type": knownvalue.StringExact("ANYTIME"),
+						"day":  knownvalue.Null(),
+						"hour": knownvalue.Null(),
+					},
+				)),
+				statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
+			},
+			Check: resource.ComposeAggregateTestCheckFunc(
+				testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				testAccCheckClusterLabelsExact(&cluster, map[string]string{"key": "value"}),
+				testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10*1024*1024*1024),
+				testAccCheckClusterDeletionProtectionExact(&cluster, false),
+				testAccCheckClusterAccessExact(&cluster, &postgresql.Access{
+					DataLens:     false,
+					DataTransfer: false,
+					WebSql:       false,
+					Serverless:   false,
+				}),
+				testAccCheckClusterPerformanceDiagnosticsExact(&cluster, &postgresql.PerformanceDiagnostics{
+					Enabled:                    false,
+					SessionsSamplingInterval:   60,
+					StatementsSamplingInterval: 600,
+				}),
+				testAccCheckClusterBackupRetainPeriodDaysExact(&cluster, wrapperspb.Int64(7)),
+				testAccCheckClusterPoolerConfigExact(&cluster, nil),
+				testAccCheckClusterDiskSizeAutoscalingExact(&cluster, &postgresql.DiskSizeAutoscaling{
+					DiskSizeLimit:           datasize.ToBytes(20),
+					PlannedUsageThreshold:   0,
+					EmergencyUsageThreshold: 85,
+				}),
+				testAccCheckClusterPostgresqlConfigExact(&cluster, &pconfig.PostgresqlConfig18{
+					PasswordEncryption: pconfig.PostgresqlConfig18_PASSWORD_ENCRYPTION_SCRAM_SHA_256,
+				}, nil),
+				testAccCheckClusterBackupWindowStartExact(&cluster, &timeofday.TimeOfDay{
+					Hours:   0,
+					Minutes: 0,
+				}),
+				testAccCheckClusterMaintenanceWindow(&cluster, &postgresql.MaintenanceWindow{
+					Policy: &postgresql.MaintenanceWindow_Anytime{
+						Anytime: &postgresql.AnytimeMaintenanceWindow{},
+					},
+				}),
+				testAccCheckClusterSecurityGroupIdsExact(&cluster, nil),
+			),
+		},
+	}
+
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { test.AccPreCheck(t) },
+			ProtoV6ProviderFactories: test.AccProviderFactories,
+			CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+			Steps:                    stepsFullBasic[:],
+		},
+	)
+}
+
+// Test that a PostgreSQL HA Cluster can be created, updated and destroyed
+func TestAccMDBPostgreSQLCluster_HostTests(t *testing.T) {
+	t.Parallel()
+
+	version := pgVersions[rand.Intn(len(pgVersions))]
+	log.Printf("TestAccMDBPostgreSQLCluster_HostTests: version %s", version)
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-hosts-test")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.cluster_host_tests"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccMDBPGClusterHostsStep0(clusterName, version, "# no hosts section specified"),
+				ExpectError: regexp.MustCompile(`Error: Missing required argument`),
+			},
+			{
+				Config: testAccMDBPGClusterHostsStep1(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 3),
+					resource.TestCheckResourceAttrSet(clusterResource, `hosts.na.fqdn`),
+					resource.TestCheckResourceAttrSet(clusterResource, `hosts.nb.fqdn`),
+					resource.TestCheckResourceAttrSet(clusterResource, `hosts.nd.fqdn`),
+				),
+			},
+			{
+				Config: testAccMDBPGClusterHostsStep2(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				),
+			},
+			{
+				Config: testAccMDBPGClusterHostsStep3(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 3),
+				),
+			},
+			{
+				Config: testAccMDBPGClusterHostsStep4(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 3),
+				),
+			},
+		},
+	})
+}
+
+// Test that a PostgreSQL HA Cluster can be created, updated and destroyed
+func TestAccMDBPostgreSQLCluster_HostSpecialCaseTests(t *testing.T) {
+	t.Parallel()
+
+	version := pgVersions[rand.Intn(len(pgVersions))]
+	log.Printf("TestAccMDBPostgreSQLCluster_HostTests: version %s", version)
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-hosts-special-test")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.cluster_hosts_special_case_tests"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterHostsSpecialCaseStep1(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("lol").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("kek").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("cheburek").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 3),
+				),
+			},
+			{
+				Config: testAccMDBPGClusterHostsSpecialCaseStep2(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("lol").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("lol").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("kek").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("kek").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("cheburek").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("cheburek").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 3),
+				),
+			},
+		},
+	})
+}
+
+// Test that PostgreSQL cluster can be restored
+func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
+	t.Parallel()
+
+	var cluster postgresql.Cluster
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.restore_test"
+	clusterName := acctest.RandomWithPrefix("postgresql-restored-cluster")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterConfigRestore(clusterName, true),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact("PostgreSQL Cluster Restore Test")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(true)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					testAccCheckClusterHasResources(&cluster, "s2.micro", "network-ssd", 10737418240),
+					resource.TestCheckNoResourceAttr(clusterResource, `disk_encryption_key_id`),
+				),
+			},
+			// Uncheck deletion_protection
+			{
+				Config: testAccMDBPGClusterConfigRestore(clusterName, false),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				),
+			},
+		},
+	})
+}
+
+// Test that encrypted PostgreSQL Cluster can be created, updated and destroyed
+func TestAccMDBPostgreSQLCluster_EncryptionTests(t *testing.T) {
+	t.Parallel()
+
+	version := pgVersions[rand.Intn(len(pgVersions))]
+	log.Printf("TestAccMDBPostgreSQLCluster_EncryptionTests: version %s", version)
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-encryption-test")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.encryption_tests"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, kmsfixtures.CheckSymmetricKeysDestroy(func() (kmsfixtures.SymmetricKeyGetter, error) {
+			config := test.AccProvider.(*provider.Provider).GetConfig()
+			return kmssdk.NewSymmetricKeyClient(config.SDKv2), nil
+		})),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterEncryptedStep0(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("disk_encryption_key_id"), knownvalue.NotNull()),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttrSet(clusterResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
+// Test that encrypted PostgreSQL Cluster can restore and remove encryption
+func TestAccMDBPostgreSQLCluster_dropDiskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-drop-disk-encryption")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.restore_with_encryption_test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, kmsfixtures.CheckSymmetricKeysDestroy(func() (kmsfixtures.SymmetricKeyGetter, error) {
+			config := test.AccProvider.(*provider.Provider).GetConfig()
+			return kmssdk.NewSymmetricKeyClient(config.SDKv2), nil
+		})),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterConfigRestoreDropEncryption(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					resource.TestCheckNoResourceAttr(clusterResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
+// Test that encrypted PostgreSQL Cluster can be restored with encryption
+func TestAccMDBPostgreSQLCluster_addDiskEncryption(t *testing.T) {
+	t.Parallel()
+
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-add-disk-encryption")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.restore_with_encryption_test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(testAccCheckMDBPGClusterDestroy, kmsfixtures.CheckSymmetricKeysDestroy(func() (kmsfixtures.SymmetricKeyGetter, error) {
+			config := test.AccProvider.(*provider.Provider).GetConfig()
+			return kmssdk.NewSymmetricKeyClient(config.SDKv2), nil
+		})),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterConfigRestoreAddEncryption(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttrSet(clusterResource, "disk_encryption_key_id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckMDBPGClusterDestroy(s *terraform.State) error {
+	config := test.AccProvider.(*provider.Provider).GetConfig()
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_mdb_postgresql_cluster_v2" {
+			continue
+		}
+
+		_, err := postgresqlsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &postgresql.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+
+		if err == nil {
+			return fmt.Errorf("PostgreSQL Cluster still exists")
+		}
+	}
+
+	return nil
+}
+
+func testAccCheckExistsAndParseMDBPostgreSQLCluster(n string, r *postgresql.Cluster, hosts int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := test.AccProvider.(*provider.Provider).GetConfig()
+
+		found, err := postgresqlsdk.NewClusterClient(config.SDKv2).Get(context.Background(), &postgresql.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("PostgreSQL Cluster not found")
+		}
+
+		*r = *found
+
+		resp, err := postgresqlsdk.NewClusterClient(config.SDKv2).ListHosts(context.Background(), &postgresql.ListClusterHostsRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(resp.Hosts) != hosts {
+			return fmt.Errorf("Expected %d hosts, got %d", hosts, len(resp.Hosts))
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckClusterLabelsExact(r *postgresql.Cluster, expected map[string]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.Labels, expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched labels.\nActual:   %+v\nExpected: %+v", r.Name, r.Labels, expected)
+	}
+}
+
+func testAccCheckClusterDeletionProtectionExact(r *postgresql.Cluster, expected bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if r.GetDeletionProtection() == expected {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config deletion_protection.\nActual:   %+v\nExpected: %+v", r.Name, r.GetDeletionProtection(), expected)
+	}
+}
+
+func testAccCheckClusterSecurityGroupIdsExact(r *postgresql.Cluster, expectedResourceNames []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+
+		rootModule := s.RootModule()
+
+		expectedResourceIds := make([]string, len(expectedResourceNames))
+		for idx, resName := range expectedResourceNames {
+			expectedResourceIds[idx] = rootModule.Resources[resName].Primary.ID
+		}
+
+		if len(r.GetSecurityGroupIds()) == 0 && len(expectedResourceIds) == 0 {
+			return nil
+		}
+
+		sort.Strings(r.SecurityGroupIds)
+		sort.Strings(expectedResourceIds)
+
+		if reflect.DeepEqual(expectedResourceIds, r.SecurityGroupIds) {
+			return nil
+		}
+		return fmt.Errorf(
+			"Cluster %s has mismatched config security_group_ids.\nActual:   %+v\nExpected: %+v", r.Name, r.GetSecurityGroupIds(), expectedResourceIds,
+		)
+	}
+}
+
+func testAccCheckClusterAccessExact(r *postgresql.Cluster, expected *postgresql.Access) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetAccess(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config access.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetAccess(), expected)
+	}
+}
+
+func testAccCheckClusterPerformanceDiagnosticsExact(r *postgresql.Cluster, expected *postgresql.PerformanceDiagnostics) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetPerformanceDiagnostics(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config performance_diagnostics.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetPerformanceDiagnostics(), expected)
+	}
+}
+
+func testAccCheckClusterManagedRepackExact(r *postgresql.Cluster, expected *postgresql.ManagedRepack) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetManagedRepack(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config managed_repack.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetManagedRepack(), expected)
+	}
+}
+
+func testAccCheckClusterBackupRetainPeriodDaysExact(r *postgresql.Cluster, expected *wrapperspb.Int64Value) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetBackupRetainPeriodDays(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config backup_retain_period_days.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetBackupWindowStart(), expected)
+	}
+}
+
+func testAccCheckClusterPoolerConfigExact(r *postgresql.Cluster, expected *postgresql.ConnectionPoolerConfig) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.Config.GetPoolerConfig(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched pooler_config.\nActual:   %+v\nExpected: %+v", r.Name, r.Config.GetPoolerConfig(), expected)
+	}
+}
+
+func testAccCheckClusterBackupWindowStartExact(r *postgresql.Cluster, expected *timeofday.TimeOfDay) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetBackupWindowStart(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config backup_window_start.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetBackupWindowStart(), expected)
+	}
+}
+
+func testAccCheckClusterPostgresqlConfigExact(r *postgresql.Cluster, expectedUserConfig interface{}, checkFields []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		var cmpObj any
+		switch expectedUserConfig.(type) {
+		case *pconfig.PostgresqlConfig15:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_15().GetUserConfig()
+		case *pconfig.PostgresqlConfig15_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_15_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig16:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_16().GetUserConfig()
+		case *pconfig.PostgresqlConfig16_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_16_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig17:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_17().GetUserConfig()
+		case *pconfig.PostgresqlConfig17_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_17_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig18:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_18().GetUserConfig()
+		case *pconfig.PostgresqlConfig18_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_18_1C().GetUserConfig()
+		case *pconfig.PostgresqlConfig19:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_19().GetUserConfig()
+		case *pconfig.PostgresqlConfig19_1C:
+			cmpObj = r.GetConfig().GetPostgresqlConfig_19_1C().GetUserConfig()
+		default:
+			return fmt.Errorf("unsupported expectedUserConfig type %T", expectedUserConfig)
+		}
+
+		actual := reflect.ValueOf(cmpObj)
+		expected := reflect.ValueOf(expectedUserConfig)
+
+		if actual.IsNil() != expected.IsNil() {
+			return fmt.Errorf("Cluster %s has mismatched postgresql config existence.\nActual:   %+v\nExpected: %+v", r.Name, actual.IsNil(), expected.IsNil())
+		}
+
+		actual = actual.Elem()
+		expected = expected.Elem()
+
+		for _, field := range checkFields {
+			actualF := actual.FieldByName(field).Interface()
+			expectedF := expected.FieldByName(field).Interface()
+			if !reflect.DeepEqual(actualF, expectedF) {
+				return fmt.Errorf("Cluster %s has mismatched postgresql config field %s.\nActual:   %+v, %T\nExpected: %+v, %T", r.Name, field, actualF, actualF, expectedF, expectedF)
+			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckClusterDiskSizeAutoscalingExact(r *postgresql.Cluster, expected *postgresql.DiskSizeAutoscaling) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if reflect.DeepEqual(r.GetConfig().GetDiskSizeAutoscaling(), expected) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched config disk_size_autoscaling.\nActual:   %+v\nExpected: %+v", r.Name, r.GetConfig().GetDiskSizeAutoscaling(), expected)
+	}
+}
+
+func testAccCheckClusterMaintenanceWindow(r *postgresql.Cluster, expected *postgresql.MaintenanceWindow) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		modern := &mdbv1.MaintenanceWindows{Policy: &mdbv1.MaintenanceWindows_Anytime{Anytime: &mdbv1.AnytimeMaintenanceWindow{}}}
+		if weekly := expected.GetWeeklyMaintenanceWindow(); weekly != nil {
+			modern.Policy = &mdbv1.MaintenanceWindows_WeeklyMaintenanceSchedule{WeeklyMaintenanceSchedule: &mdbv1.WeeklyMaintenanceSchedule{Slots: []*mdbv1.MaintenanceWindowSlot{{Day: dayofweek.DayOfWeek(weekly.Day), StartTime: &timeofday.TimeOfDay{Hours: int32(weekly.Hour - 1)}, Duration: durationpb.New(time.Hour), AllowTemporaryUnavailability: true}}}}
+		}
+		if proto.Equal(r.GetMaintenanceWindows(), modern) {
+			return nil
+		}
+		return fmt.Errorf("Cluster %s has mismatched maintenance_windows. Actual: %+v Expected: %+v", r.Name, r.GetMaintenanceWindows(), modern)
+	}
+}
+
+func testAccCheckClusterHasResources(r *postgresql.Cluster, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := r.Config.Resources
+		if rs.ResourcePresetId != resourcePresetID {
+			return fmt.Errorf("expected resource preset id '%s', got '%s'", resourcePresetID, rs.ResourcePresetId)
+		}
+		if rs.DiskTypeId != diskType {
+			return fmt.Errorf("expected disk type '%s', got '%s'", diskType, rs.DiskTypeId)
+		}
+		if rs.DiskSize != diskSize {
+			return fmt.Errorf("expected disk size '%d', got '%d'", diskSize, rs.DiskSize)
+		}
+		return nil
+	}
+}
+
+func TestAccMDBPostgreSQLCluster_failedCreateIsCleanedUp(t *testing.T) {
+	t.Parallel()
+
+	clusterName := acctest.RandomWithPrefix("tf-pg-failed-create")
+	version := pgVersions[rand.Intn(len(pgVersions))]
+	resources := `
+	  resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-hdd"
+	`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBPGClusterDestroy,
+			testAccCheckMDBPGClusterAbsentByName(clusterName),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccMDBPGClusterCreateTimeout(clusterName, version, resources, "20s"),
+				ExpectError: regexp.MustCompile("Failed to create resource"),
+			},
+		},
+	})
+}
+
+func testAccCheckMDBPGClusterAbsentByName(name string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := test.AccProvider.(*provider.Provider).GetConfig()
+		resp, err := postgresqlsdk.NewClusterClient(config.SDKv2).List(context.Background(), &postgresql.ListClustersRequest{
+			FolderId: test.GetExampleFolderID(),
+			PageSize: defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+		for _, c := range resp.Clusters {
+			if c.Name == name {
+				return fmt.Errorf("PostgreSQL cluster %q (%s) was left orphaned after a failed create", name, c.Id)
+			}
+		}
+		return nil
+	}
+}
+
+func testAccMDBPGClusterCreateTimeout(name, version, resources, createTimeout string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "foo" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+  }
+
+  config {
+    version = "%s"
+    resources {
+      %s
+    }
+  }
+
+  timeouts = {
+    create = "%s"
+  }
+}
+`, name, version, resources, createTimeout)
+}
+
+func TestAccMDBPostgreSQLCluster_failedRestoreIsCleanedUp(t *testing.T) {
+	t.Parallel()
+
+	clusterName := acctest.RandomWithPrefix("tf-pg-failed-restore")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBPGClusterDestroy,
+			testAccCheckMDBPGClusterAbsentByName(clusterName),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccMDBPGClusterRestoreTimeout(clusterName, "20s"),
+				ExpectError: regexp.MustCompile("Failed to restore resource from backup"),
+			},
+		},
+	})
+}
+
+func testAccMDBPGClusterRestoreTimeout(clusterName, createTimeout string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "foo" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+  folder_id   = "%s"
+
+  restore = {
+    backup_id = "%s"
+  }
+
+  config {
+    version = "%s"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+
+  hosts = {
+    "host" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+  }
+
+  timeouts = {
+    create = "%s"
+  }
+}
+`, clusterName, test.GetExampleFolderID(), pgRestoreBackupId, pgRestoreVersion, createTimeout)
+}
+
+func testAccMDBPGClusterBasic(resourceId, name, description, environment, labels, version, resources, performanceDiagnostics string) string {
+	performanceDiagnosticsBlock := ""
+	if performanceDiagnostics != "" {
+		performanceDiagnosticsBlock = fmt.Sprintf(`
+    performance_diagnostics = {
+      %s
+    }
+`, performanceDiagnostics)
+	}
+
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "%s" {
+  name        = "%s"
+  description = "%s"
+  environment = "%s"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  labels = {
+%s
+  }
+
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+  }
+
+  config {
+    version = "%s"
+    resources {
+      %s
+    }
+    %s
+  }
+}
+`, resourceId, name, description, environment, labels, version, resources, performanceDiagnosticsBlock)
+}
+
+// testAccMDBPGClusterConnectionManager renders a cluster matching the one
+// testAccCreateMDBPGClusterWithoutConnectionManager builds through the API, with no
+// connection_manager block: the block is what the resource reads back from the API.
+func testAccMDBPGClusterConnectionManager(resourceId, name, description, version, resources string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "%s" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+  }
+
+  config {
+    version = "%s"
+    resources {
+      %s
+    }
+  }
+}
+`, resourceId, name, description, version, resources)
+}
+
+func testAccMDBPGClusterFull(
+	resourceId, clusterName, description, environment, labels,
+	version, resources,
+	access,
+	performanceDiagnostics,
+	backupWindowStart,
+	poolerConfig,
+	dsa,
+	pgConfig,
+	maintenanceWindow, connectionManager, managedRepack string, backupRetainPeriodDays int, deletionProtection bool, confSecurityGroupIds []string,
+) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "%s" {
+  name        = "%s"
+  description = "%s"
+  environment = "%s" 
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+
+  labels = {
+%s
+  }
+
+  hosts = {
+    "host" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+	  priority  = 10
+    }
+  }
+
+  config {
+    version = "%s"
+    resources {
+      %s
+    }
+    access = {
+    %s
+    }
+	performance_diagnostics = {
+		%s
+	}
+	backup_retain_period_days = %d
+	backup_window_start = {
+	%s
+	}
+
+	pooler_config = {
+		%s
+	}
+	
+	disk_size_autoscaling = {
+		%s
+	}
+
+	postgresql_config = {
+		%s
+	}
+    connection_manager = {
+		%s
+	}
+	managed_repack = {
+		%s
+	}
+  }
+
+  maintenance_window = {
+	%s
+  }
+
+  deletion_protection = %t
+  %s
+
+}
+`, resourceId, clusterName, description, environment,
+		labels, version, resources, access,
+		performanceDiagnostics, backupRetainPeriodDays, backupWindowStart, poolerConfig, dsa, pgConfig, connectionManager, managedRepack,
+		maintenanceWindow, deletionProtection, testAccMDBPostgreSQLSecurityGroupIds(confSecurityGroupIds),
+	)
+}
+
+func testAccMDBPGClusterHostsStep0(name, version, hosts string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "cluster_host_tests" {
+  name        = "%s"
+  description = "PostgreSQL Cluster Hosts Terraform Test"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+  environment = "PRESTABLE"
+
+  config {
+    version = "%s"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+%s
+}
+`, name, version, hosts)
+}
+
+// Init hosts configuration
+func testAccMDBPGClusterHostsStep1(name, version string) string {
+	return testAccMDBPGClusterHostsStep0(name, version, `
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+    "nb" = {
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    }
+    "nd" = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+    }
+  }
+`)
+}
+
+// Drop some hosts
+func testAccMDBPGClusterHostsStep2(name, version string) string {
+	return testAccMDBPGClusterHostsStep0(name, version, `
+  hosts = {
+    "nb" = {
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    }
+  }
+`)
+}
+
+// Add some hosts back with all possible options
+func testAccMDBPGClusterHostsStep3(name, version string) string {
+	return testAccMDBPGClusterHostsStep0(name, version, `
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      assign_public_ip = true
+    }
+    "nb" = {
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    }
+    "nd" = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+      assign_public_ip = true
+    }
+  }
+`)
+}
+
+// Update Hosts
+func testAccMDBPGClusterHostsStep4(name, version string) string {
+	return testAccMDBPGClusterHostsStep0(name, version, `
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      assign_public_ip = false
+    }
+    "nb" = {
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+      assign_public_ip = true
+    }
+    "nd" = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+      assign_public_ip = false
+    }
+  }
+`)
+}
+
+// Test that an explicitly set host priority is not reset when omitted from config
+func TestAccMDBPostgreSQLCluster_priority(t *testing.T) {
+	t.Parallel()
+
+	version := pgVersions[rand.Intn(len(pgVersions))]
+	var cluster postgresql.Cluster
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-priority")
+	clusterResource := "yandex_mdb_postgresql_cluster_v2.cluster_priority"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterPriorityStep1(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("priority"), knownvalue.Int64Exact(10)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				),
+			},
+			{
+				Config: testAccMDBPGClusterPriorityStep2(clusterName, version),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("priority"), knownvalue.Int64Exact(10)),
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
+				),
+			},
+		},
+	})
+}
+
+func testAccMDBPGClusterPriorityStep0(name, version, hosts string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "cluster_priority" {
+  name        = "%s"
+  description = "PostgreSQL Cluster Priority Terraform Test"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+  environment = "PRESTABLE"
+
+  config {
+    version = "%s"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+%s
+}
+`, name, version, hosts)
+}
+
+// Set host priority explicitly
+func testAccMDBPGClusterPriorityStep1(name, version string) string {
+	return testAccMDBPGClusterPriorityStep0(name, version, `
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      priority  = 10
+    }
+  }
+`)
+}
+
+// Omit priority: the previously set value must be preserved (no reset to 0)
+func testAccMDBPGClusterPriorityStep2(name, version string) string {
+	return testAccMDBPGClusterPriorityStep0(name, version, `
+  hosts = {
+    "na" = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    }
+  }
+`)
+}
+
+func testAccMDBPGClusterHostsSpecialCaseStep0(name, version, hosts string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster_v2" "cluster_hosts_special_case_tests" {
+  name        = "%s"
+  description = "PostgreSQL Cluster Hosts Terraform Test"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+  environment = "PRESTABLE"
+
+  config {
+    version = "%s"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+%s
+}
+`, name, version, hosts)
+}
+
+// Init hosts special case configuration
+func testAccMDBPGClusterHostsSpecialCaseStep1(name, version string) string {
+	return testAccMDBPGClusterHostsSpecialCaseStep0(name, version, `
+  hosts = {
+    "lol" = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+    }
+    "kek" = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+    }
+    "cheburek" = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+    }
+  }
+`)
+}
+
+// Change some options
+func testAccMDBPGClusterHostsSpecialCaseStep2(name, version string) string {
+	return testAccMDBPGClusterHostsSpecialCaseStep0(name, version, `
+  hosts = {
+    "lol" = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+    }
+    "kek" = {
+      zone      = "ru-central1-d"
+	  assign_public_ip = true
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+    }
+    "cheburek" = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+    }
+  }
+`)
+}
+
+func testAccMDBPGClusterEncryptedStep0(name, version string) string {
+	return fmt.Sprintf(pgVPCDependencies+diskEncryptionKeyResource+`
+resource "yandex_mdb_postgresql_cluster_v2" "encryption_tests" {
+  name        = "%s"
+  description = "PostgreSQL Cluster Hosts Terraform Test"
+  network_id  = yandex_vpc_network.mdb-pg-test-net.id
+  environment = "PRESTABLE"
+
+  config {
+    version = "%s"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+	
+  hosts = {
+    "nb" = {
+      zone      = "ru-central1-b"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    }
+  }
+
+  disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
+}
+`, name, version)
+}
+
+func testAccMDBPostgreSQLSecurityGroupIds(ids []string) string {
+	if len(ids) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("security_group_ids = [%s]", strings.Join(ids, ","))
+}
+
+func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection bool) string {
+	return fmt.Sprintf(pgVPCDependencies+`	  
+	resource "yandex_mdb_postgresql_cluster_v2" "restore_test" {
+		name        = "%s"
+		description = "PostgreSQL Cluster Restore Test"
+		environment = "PRESTABLE"
+		network_id  = yandex_vpc_network.mdb-pg-test-net.id
+		folder_id   = "%s"
+
+		restore = {
+			backup_id = "%s"
+		}
+	  
+		config {
+		  version = "%s"
+	  
+		  resources {
+			resource_preset_id = "s2.micro"
+			disk_size          = 10
+			disk_type_id       = "network-ssd"
+		  }
+		}
+	  
+		hosts = {
+			"host" = {
+				zone      = "ru-central1-a"
+				subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+			}
+		}
+	  
+		deletion_protection = %t
+	  }
+`, clusterName, test.GetExampleFolderID(), pgRestoreBackupId, pgRestoreVersion, deletionProtection)
+}
+
+func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId, diskEncryption string) string {
+	return fmt.Sprintf(pgVPCDependencies+`	  
+	resource "yandex_mdb_postgresql_cluster_v2" "restore_with_encryption_test" {
+		name        = "%s"
+		description = "PostgreSQL Cluster Restore With Encryption Test"
+		environment = "PRESTABLE"
+		network_id  = yandex_vpc_network.mdb-pg-test-net.id
+		folder_id = "%s"
+
+		restore = {
+			backup_id = "%s"
+		}
+	  
+		labels = {
+		  test_key = "test_value"
+		}
+
+		maintenance_window = {
+			type = "WEEKLY"
+			day  = "SAT"
+			hour = 12
+		}
+	  
+		config {
+		  version = "%s"
+	  
+		  resources {
+			resource_preset_id = "s2.micro"
+			disk_size          = 10
+			disk_type_id       = "network-ssd"
+		  }
+		  access = {
+			web_sql       = true
+			serverless    = true
+			data_lens     = true
+			data_transfer = true
+			yandex_query  = true
+		  }
+		}
+	  
+		hosts = {
+			"host" = {
+				zone      = "ru-central1-a"
+				subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+			}
+		}
+
+		deletion_protection = false
+		%s
+	  }
+`, clusterName, test.GetExampleFolderID(), backupId, pgRestoreVersion, diskEncryption)
+}
+
+func testAccMDBPGClusterConfigRestoreDropEncryption(clusterName string) string {
+	return testAccMDBPGClusterConfigRestoreWithEncryption(clusterName, pgRestoreBackupIdEncrypted, "")
+}
+
+func testAccMDBPGClusterConfigRestoreAddEncryption(clusterName string) string {
+	return diskEncryptionKeyResource + testAccMDBPGClusterConfigRestoreWithEncryption(
+		clusterName, pgRestoreBackupId, "disk_encryption_key_id = \"${yandex_kms_symmetric_key.disk_encrypt.id}\"")
+}
+
+// func testAccMDBPGClusterConfigHANamedSwitchMaster(name, version string) string
+// func testAccMDBPGClusterConfigHANamedChangePublicIP(name, version string) string
+// func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string

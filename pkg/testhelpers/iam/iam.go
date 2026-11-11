@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-type SDKGetter func() BindingsGetter
+type ClientFactory func() (BindingsGetter, error)
 
 type BindingsGetter interface {
 	ListAccessBindings(ctx context.Context, in *access.ListAccessBindingsRequest, opts ...grpc.CallOption) (*access.ListAccessBindingsResponse, error)
@@ -23,7 +23,7 @@ type idGetter interface {
 	GetId() string
 }
 
-func TestAccCheckIamBindingEqualsMembers(ctx context.Context, sdkGetter SDKGetter, idGetter idGetter, role string, expected []string) resource.TestCheckFunc {
+func TestAccCheckIamBindingEqualsMembers(ctx context.Context, clientForTest ClientFactory, idGetter idGetter, role string, expected []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(expected) == 0 {
 			return fmt.Errorf("expected members list is empty for role %q; use TestAccCheckIamBindingEmpty instead", role)
@@ -31,11 +31,12 @@ func TestAccCheckIamBindingEqualsMembers(ctx context.Context, sdkGetter SDKGette
 
 		id := idGetter.GetId()
 
-		actual, err := getRoleMembers(ctx, sdkGetter, id, role)
+		actual, err := getRoleMembers(ctx, clientForTest, id, role)
 		if err != nil {
 			return err
 		}
 
+		expected := slices.Clone(expected)
 		sort.Strings(expected)
 		sort.Strings(actual)
 
@@ -47,7 +48,7 @@ func TestAccCheckIamBindingEqualsMembers(ctx context.Context, sdkGetter SDKGette
 	}
 }
 
-func TestAccCheckIamBindingContainsMembers(ctx context.Context, sdkGetter SDKGetter, idGetter idGetter, role string, expected []string) resource.TestCheckFunc {
+func TestAccCheckIamBindingContainsMembers(ctx context.Context, clientForTest ClientFactory, idGetter idGetter, role string, expected []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(expected) == 0 {
 			return fmt.Errorf("expected members list is empty for role %q; use TestAccCheckIamBindingEmpty instead", role)
@@ -55,7 +56,7 @@ func TestAccCheckIamBindingContainsMembers(ctx context.Context, sdkGetter SDKGet
 
 		id := idGetter.GetId()
 
-		actual, err := getRoleMembers(ctx, sdkGetter, id, role)
+		actual, err := getRoleMembers(ctx, clientForTest, id, role)
 		if err != nil {
 			return err
 		}
@@ -70,11 +71,11 @@ func TestAccCheckIamBindingContainsMembers(ctx context.Context, sdkGetter SDKGet
 	}
 }
 
-func TestAccCheckIamBindingEmpty(ctx context.Context, sdkGetter SDKGetter, idGetter idGetter, role string) resource.TestCheckFunc {
+func TestAccCheckIamBindingEmpty(ctx context.Context, clientForTest ClientFactory, idGetter idGetter, role string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		id := idGetter.GetId()
 
-		members, err := getRoleMembers(ctx, sdkGetter, id, role)
+		members, err := getRoleMembers(ctx, clientForTest, id, role)
 		if err != nil {
 			return err
 		}
@@ -87,18 +88,30 @@ func TestAccCheckIamBindingEmpty(ctx context.Context, sdkGetter SDKGetter, idGet
 	}
 }
 
-func getRoleMembers(ctx context.Context, sdkGetter SDKGetter, resourceID string, role string) ([]string, error) {
-	bindings, err := sdkGetter().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
-		ResourceId: resourceID,
-	})
+func getRoleMembers(ctx context.Context, clientForTest ClientFactory, resourceID string, role string) ([]string, error) {
+	client, err := clientForTest()
 	if err != nil {
-		return nil, fmt.Errorf("get access bindings for resource id(%s): %w", resourceID, err)
+		return nil, fmt.Errorf("get IAM client: %w", err)
 	}
-
 	var members []string
-	for _, binding := range bindings.AccessBindings {
-		if binding.RoleId == role {
-			members = append(members, binding.Subject.Type+":"+binding.Subject.Id)
+	var pageToken string
+	for {
+		bindings, err := client.ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
+			ResourceId: resourceID,
+			PageToken:  pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("get access bindings for resource id(%s): %w", resourceID, err)
+		}
+
+		for _, binding := range bindings.AccessBindings {
+			if binding.RoleId == role {
+				members = append(members, binding.Subject.Type+":"+binding.Subject.Id)
+			}
+		}
+		pageToken = bindings.NextPageToken
+		if pageToken == "" {
+			break
 		}
 	}
 

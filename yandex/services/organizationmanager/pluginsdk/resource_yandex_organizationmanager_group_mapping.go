@@ -1,0 +1,168 @@
+package pluginsdk
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1"
+	organizationmanagersdk "github.com/yandex-cloud/go-sdk/services/organizationmanager/v1"
+	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+	"google.golang.org/genproto/protobuf/field_mask"
+)
+
+const yandexOrganizationManagerGroupMappingDefaultTimeout = 1 * time.Minute
+
+func ResourceYandexOrganizationManagerGroupMapping() *schema.Resource {
+	return &schema.Resource{
+		CreateContext: resourceYandexOrganizationManagerGroupMappingCreate,
+		ReadContext:   resourceYandexOrganizationManagerGroupMappingRead,
+		UpdateContext: resourceYandexOrganizationManagerGroupMappingUpdate,
+		DeleteContext: resourceYandexOrganizationManagerGroupMappingDelete,
+
+		Description: "Allows management of [Yandex Cloud Organization Manager Group Mapping](https://yandex.cloud/docs/organization/concepts/add-federation#group-mapping). It supports the creation, updating(enabling/disabling), and deletion of group mapping.",
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(yandexOrganizationManagerGroupMappingDefaultTimeout),
+			Read:   schema.DefaultTimeout(yandexOrganizationManagerGroupMappingDefaultTimeout),
+			Update: schema.DefaultTimeout(yandexOrganizationManagerGroupMappingDefaultTimeout),
+			Delete: schema.DefaultTimeout(yandexOrganizationManagerGroupMappingDefaultTimeout),
+		},
+
+		Importer: &schema.ResourceImporter{
+			StateContext: groupMappingImportStateContext,
+		},
+
+		SchemaVersion: 1,
+
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:        schema.TypeBool,
+				Description: "Set \"true\" to enable organization manager group mapping.",
+				Optional:    true,
+				Computed:    true,
+			},
+
+			"federation_id": {
+				Type:         schema.TypeString,
+				Description:  "ID of the SAML Federation.",
+				Required:     true,
+				ValidateFunc: validation.StringLenBetween(0, 50),
+			},
+		},
+	}
+}
+
+func resourceYandexOrganizationManagerGroupMappingCreate(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*providerconfig.Config)
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
+
+	federationID := d.Get("federation_id").(string)
+
+	req := &organizationmanager.CreateGroupMappingRequest{
+		FederationId: federationID,
+		Enabled:      d.Get("enabled").(bool),
+	}
+
+	op, err := client.Create(context, req)
+	if err != nil {
+		return diag.Errorf("Error while requesting API to create group mapping: %s", err)
+	}
+
+	d.SetId(federationID)
+
+	_, err = op.Wait(context)
+	if err != nil {
+		return diag.Errorf("Error while waiting operation to create group mapping: %s", err)
+	}
+
+	return resourceYandexOrganizationManagerGroupMappingRead(context, d, meta)
+}
+
+func resourceYandexOrganizationManagerGroupMappingRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*providerconfig.Config)
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
+
+	req := &organizationmanager.GetGroupMappingRequest{
+		FederationId: d.Get("federation_id").(string),
+	}
+
+	resp, err := client.Get(context, req)
+
+	if err != nil {
+		return diag.FromErr(sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("group_mapping %q", d.Id())))
+	}
+
+	d.Set("federation_id", resp.GetGroupMapping().GetFederationId())
+	d.Set("enabled", resp.GetGroupMapping().GetEnabled())
+
+	return nil
+}
+
+func resourceYandexOrganizationManagerGroupMappingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*providerconfig.Config)
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
+
+	req := &organizationmanager.UpdateGroupMappingRequest{
+		UpdateMask:   &field_mask.FieldMask{},
+		FederationId: d.Get("federation_id").(string),
+		Enabled:      d.Get("enabled").(bool),
+	}
+
+	if d.HasChange("enabled") {
+		req.Enabled = d.Get("enabled").(bool)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "enabled")
+	}
+
+	if len(req.UpdateMask.Paths) > 0 {
+		op, err := client.Update(ctx, req)
+		if err != nil {
+			return diag.Errorf("Error while requesting API to update group mapping: %s", err)
+		}
+
+		_, err = op.Wait(ctx)
+		if err != nil {
+			return diag.Errorf("Error while waiting operation to update group mapping: %s", err)
+
+		}
+
+	}
+
+	return resourceYandexOrganizationManagerGroupMappingRead(ctx, d, meta)
+}
+
+func resourceYandexOrganizationManagerGroupMappingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*providerconfig.Config)
+	client := organizationmanagersdk.NewGroupMappingClient(config.SDK)
+
+	req := &organizationmanager.DeleteGroupMappingRequest{
+		FederationId: d.Get("federation_id").(string),
+	}
+
+	log.Printf("[DEBUG] Delete GroupMapping request: %s", sdkcommon.ProtoDump(req))
+
+	op, err := client.Delete(ctx, req)
+
+	if err != nil {
+		return diag.FromErr(sdkcommon.HandleNotFoundError(err, d, fmt.Sprintf("group_mapping %q", d.Id())))
+	}
+
+	_, err = op.Wait(ctx)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	return nil
+}
+
+func groupMappingImportStateContext(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	if err := d.Set("federation_id", d.Id()); err != nil {
+		return nil, fmt.Errorf("error setting federation_id: %s", err)
+	}
+	return []*schema.ResourceData{d}, nil
+}

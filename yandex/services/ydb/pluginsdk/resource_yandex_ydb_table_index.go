@@ -1,0 +1,77 @@
+package pluginsdk
+
+import (
+	"context"
+
+	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+	"github.com/ydb-platform/terraform-provider-ydb/sdk/terraform/auth"
+	"github.com/ydb-platform/terraform-provider-ydb/sdk/terraform/table/index"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
+
+func ResourceYandexYDBTableIndex() *schema.Resource {
+	return &schema.Resource{
+		Description: "Manage a YDB Table Index.",
+
+		Schema:        index.ResourceSchema(),
+		SchemaVersion: 0,
+		CreateContext: resourceYandexYDBTableIndexCreate,
+		ReadContext:   resourceYandexYDBTableIndexRead,
+		UpdateContext: resourceYandexYDBTableIndexUpdate,
+		DeleteContext: resourceYandexYDBTableIndexDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+		Timeouts: ydbTimeouts(),
+	}
+}
+
+func resourceYandexYDBTableIndexCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
+		config := meta.(*providerconfig.Config)
+		token, err := config.GetIAMToken(ctx)
+		if err != nil {
+			return auth.YdbCredentials{}, err
+		}
+		return auth.YdbCredentials{Token: token}, nil
+	}
+	return index.ResourceCreateFunc(cb)(ctx, d, meta)
+}
+
+func resourceYandexYDBTableIndexRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
+		config := meta.(*providerconfig.Config)
+		token, err := config.GetIAMToken(ctx)
+		if err != nil {
+			return auth.YdbCredentials{}, err
+		}
+		return auth.YdbCredentials{Token: token}, nil
+	}
+	return index.ResourceReadFunc(cb)(ctx, d, meta)
+}
+
+func resourceYandexYDBTableIndexUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
+		config := meta.(*providerconfig.Config)
+		token, err := config.GetIAMToken(ctx)
+		if err != nil {
+			return auth.YdbCredentials{}, err
+		}
+		return auth.YdbCredentials{Token: token}, nil
+	}
+	return index.ResourceUpdateFunc(cb)(ctx, d, meta)
+}
+
+func resourceYandexYDBTableIndexDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
+		config := meta.(*providerconfig.Config)
+		token, err := config.GetIAMToken(ctx)
+		if err != nil {
+			return auth.YdbCredentials{}, err
+		}
+		return auth.YdbCredentials{Token: token}, nil
+	}
+	return index.ResourceDeleteFunc(cb)(ctx, d, meta)
+}

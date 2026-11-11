@@ -3,27 +3,21 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/acceptanceenv"
+
 	"github.com/hashicorp/terraform-plugin-framework/provider"
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
-	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
-	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/stretchr/testify/assert"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
-	resourcemanagersdk "github.com/yandex-cloud/go-sdk/services/resourcemanager/v1"
-	iamsdk "github.com/yandex-cloud/go-sdk/v2/services/iam/v1"
-	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework"
+	"github.com/yandex-cloud/terraform-provider-yandex/internal/providermux"
 )
 
 const providerDefaultValueInsecure = false
@@ -32,10 +26,6 @@ const providerDefaultValueEndpoint = "api.cloud.yandex.net:443"
 
 var testAccProviders map[string]*schema.Provider
 var testAccProviderFactories map[string]func() (*schema.Provider, error)
-
-// WARNING!!!! do not use testAccProviderEmptyFolder in tests, that use testAccCheck***Destroy functions.
-// testAccCheck***Destroy functions tend to use static testAccProvider
-var testAccProviderEmptyFolder map[string]*schema.Provider
 
 var testAccProvider *schema.Provider
 var testAccProviderServer tfprotov6.ProviderServer
@@ -56,40 +46,17 @@ var testAccForAuthEnvVars = []string{
 	"YC_SERVICE_ACCOUNT_KEY_FILE",
 }
 
-var testCloudID = "not initialized"
-var testOrganizationID = "not initialized"
-var testCloudName = "not initialized"
-var testFolderID = "not initialized"
-var testFolderName = "not initialized"
-var testRoleID = "resource-manager.clouds.member"
-var testUserLogin1 = "no user login"
-var testUserLogin2 = "no user login"
-var testUserID1 = "no user id"
-var testUserID2 = "no user id"
-var testStorageEndpoint = "no.storage.endpoint"
-
 func NewFrameworkProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer, error) {
-	upgradedSdkProvider, _ := tf5to6server.UpgradeServer(
-		context.Background(),
-		testAccProvider.GRPCProvider,
-	)
-	providers := []func() tfprotov6.ProviderServer{
-		providerserver.NewProtocol6(accProvider),
-		func() tfprotov6.ProviderServer {
-			return upgradedSdkProvider
-		},
-	}
-
-	muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
-	if err != nil {
-		return nil, err
-	}
-
-	return muxServer.ProviderServer, nil
+	return providermux.New(ctx, testAccProvider, accProvider)
 }
 
 func init() {
-	testAccProvider = NewSDKProvider()
+	var err error
+	testAccProvider, err = NewPluginSDKProvider()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "initialize acceptance provider:", err)
+		os.Exit(1)
+	}
 	testAccProvider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		return providerConfigure(context.Background(), d, testAccProvider, false, true)
 	}
@@ -104,12 +71,12 @@ func init() {
 		},
 	}
 
-	testAccProviderEmptyFolder = map[string]*schema.Provider{
-		"yandex": emptyFolderProvider(),
-	}
-
 	accProvider = yandex_framework.NewFrameworkProvider()
-	testAccProviderFunc, _ := NewFrameworkProviderServer(context.Background())
+	testAccProviderFunc, err := NewFrameworkProviderServer(context.Background())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "initialize acceptance provider mux:", err)
+		os.Exit(1)
+	}
 	testAccProviderServer = testAccProviderFunc()
 	testAccProviderFactoriesV6 = map[string]func() (tfprotov6.ProviderServer, error){
 		"yandex": func() (tfprotov6.ProviderServer, error) {
@@ -118,20 +85,25 @@ func init() {
 	}
 
 	if os.Getenv("TF_ACC") != "" {
-		if err := setTestIDs(); err != nil {
-			panic(err)
-		}
+		acceptanceenv.Load()
 	}
 }
 
 func TestProvider(t *testing.T) {
-	if err := NewSDKProvider().InternalValidate(); err != nil {
+	provider, err := NewPluginSDKProvider()
+	if err != nil {
+		t.Fatalf("create provider: %v", err)
+	}
+	if err := provider.InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProviderWithRawConfig(t *testing.T) {
-	testProvider := NewSDKProvider()
+	testProvider, err := NewPluginSDKProvider()
+	if err != nil {
+		t.Fatalf("create provider: %v", err)
+	}
 
 	raw := map[string]interface{}{
 		"insecure": true,
@@ -157,9 +129,12 @@ func TestProviderWithRawConfig(t *testing.T) {
 func TestProviderDefaultValues(t *testing.T) {
 	// save OS env vars
 	envVars := []string{"YC_INSECURE", "YC_PLAINTEXT", "YC_ENDPOINT"}
-	saveEnvVariable := saveAndUnsetEnvVars(envVars)
+	saveEnvVariable := acceptanceenv.SaveAndUnset(envVars)
 
-	testProvider := NewSDKProvider()
+	testProvider, err := NewPluginSDKProvider()
+	if err != nil {
+		t.Fatalf("create provider: %v", err)
+	}
 
 	raw := map[string]interface{}{
 		"token": "any_string_like_a_oauth",
@@ -201,7 +176,7 @@ func TestProviderDefaultValues(t *testing.T) {
 	}
 
 	// restore OS env vars
-	if err := restoreEnvVars(saveEnvVariable); err != nil {
+	if err := acceptanceenv.Restore(saveEnvVariable); err != nil {
 		t.Fatal("failed to restore OS env vars:", envVars, "after test", t.Name(), " - error:", err)
 	}
 }
@@ -209,15 +184,18 @@ func TestProviderDefaultValues(t *testing.T) {
 func TestProviderOrganizationId(t *testing.T) {
 	// save OS env vars
 	envVars := []string{"YC_ORGANIZATION_ID"}
-	saveEnvVariable := saveAndUnsetEnvVars(envVars)
+	saveEnvVariable := acceptanceenv.SaveAndUnset(envVars)
 	defer func() {
 		// restore OS env vars
-		if err := restoreEnvVars(saveEnvVariable); err != nil {
+		if err := acceptanceenv.Restore(saveEnvVariable); err != nil {
 			t.Fatal("failed to restore OS env vars:", envVars, "after test", t.Name(), " - error:", err)
 		}
 	}()
 
-	testProvider := NewSDKProvider()
+	testProvider, err := NewPluginSDKProvider()
+	if err != nil {
+		t.Fatalf("create provider: %v", err)
+	}
 
 	org := acctest.RandomWithPrefix("org")
 	raw := map[string]interface{}{
@@ -243,7 +221,10 @@ func TestProviderOrganizationId(t *testing.T) {
 }
 
 func TestProviderSharedCredentialsFileAndProfile(t *testing.T) {
-	testProvider := NewSDKProvider()
+	testProvider, err := NewPluginSDKProvider()
+	if err != nil {
+		t.Fatalf("create provider: %v", err)
+	}
 
 	raw := map[string]interface{}{
 		"token":                   "any_string_like_a_oauth",
@@ -282,159 +263,4 @@ func testAccPreCheck(t *testing.T) {
 		}
 	}
 	t.Fatalf("one of the variables: %s must be set for acceptance tests", strings.Join(testAccForAuthEnvVars, ", "))
-}
-
-func getExampleFolderName() string {
-	return testFolderName
-}
-
-func getExampleCloudName() string {
-	return testCloudName
-}
-
-func getExampleRoleID() string {
-	return testRoleID
-}
-
-func getExampleCloudID() string {
-	return testCloudID
-}
-
-func getExampleOrganizationID() string {
-	return testOrganizationID
-}
-
-func getExampleFolderID() string {
-	return testFolderID
-}
-
-func getExampleUserID1() string {
-	return testUserID1
-}
-
-func getExampleUserID2() string {
-	return testUserID2
-}
-
-func getExampleUserLogin1() string {
-	return testUserLogin1
-}
-
-func getExampleUserLogin2() string {
-	return testUserLogin2
-}
-
-func getExampleStorageEndpoint() string {
-	return testStorageEndpoint
-}
-
-func setTestIDs() error {
-	// init sdk client based on env var
-	envEndpoint := os.Getenv("YC_ENDPOINT")
-	if envEndpoint == "" {
-		envEndpoint = common.DefaultEndpoint
-	}
-
-	providerConfig := &Config{
-		Endpoint:                       envEndpoint,
-		Token:                          os.Getenv("YC_TOKEN"),
-		ServiceAccountKeyFileOrContent: os.Getenv("YC_SERVICE_ACCOUNT_KEY_FILE"),
-	}
-	ctx := context.Background()
-	if err := providerConfig.initAndValidate(ctx, "acceptance-tests", false); err != nil {
-		return err
-	}
-
-	// setup example ID values for test cases
-	testCloudID = os.Getenv("YC_CLOUD_ID")
-	testOrganizationID = os.Getenv("YC_ORGANIZATION_ID")
-
-	testFolderID = os.Getenv("YC_FOLDER_ID")
-	folder := getFolderByID(providerConfig, testFolderID)
-	if folder != nil {
-		testFolderName = folder.Name
-		if testCloudID == "" {
-			testCloudID = folder.CloudId
-		} else if testCloudID != folder.CloudId {
-			return fmt.Errorf("Invalid cloud id: %s != %s", testCloudID, folder.CloudId)
-		}
-	} else {
-		testFolderName = "no folder name detected"
-	}
-	testCloudName = getCloudNameByID(providerConfig, testCloudID)
-
-	testUserLogin1 = os.Getenv("YC_LOGIN")
-	testUserLogin2 = os.Getenv("YC_LOGIN_2")
-
-	testUserID1 = loginToUserID(providerConfig, testUserLogin1)
-	testUserID2 = loginToUserID(providerConfig, testUserLogin2)
-
-	testStorageEndpoint = os.Getenv("YC_STORAGE_ENDPOINT_URL")
-
-	return nil
-}
-
-func getCloudNameByID(config *Config, cloudID string) string {
-	client := resourcemanagersdk.NewCloudClient(config.SDK)
-	cloud, err := client.Get(context.Background(), &resourcemanager.GetCloudRequest{
-		CloudId: cloudID,
-	})
-	if err != nil {
-		log.Printf("could not get cloud name for %s: %s", cloudID, err)
-		if reqID, ok := isRequestIDPresent(err); ok {
-			log.Printf("[DEBUG] request ID is %s\n", reqID)
-		}
-		return "no cloud name detected"
-	}
-	return cloud.Name
-}
-
-func getFolderByID(config *Config, folderID string) *resourcemanager.Folder {
-	client := resourcemanagersdk.NewFolderClient(config.SDK)
-	folder, err := client.Get(context.Background(), &resourcemanager.GetFolderRequest{
-		FolderId: folderID,
-	})
-	if err != nil {
-		log.Printf("could not get folder name for %s: %s", folderID, err)
-		if reqID, ok := isRequestIDPresent(err); ok {
-			log.Printf("[DEBUG] request ID is %s\n", reqID)
-		}
-		return nil
-	}
-	return folder
-}
-
-func loginToUserID(config *Config, loginName string) (userID string) {
-	client := iamsdk.NewYandexPassportUserAccountClient(config.SDK)
-	account, err := client.GetByLogin(context.Background(), &iam.GetUserAccountByLoginRequest{
-		Login: loginName,
-	})
-	if err != nil {
-		log.Printf("could not get user Id for %s: %s", loginName, err)
-		if reqID, ok := isRequestIDPresent(err); ok {
-			log.Printf("[DEBUG] request ID is %s\n", reqID)
-		}
-		return "not initialized"
-	}
-	return account.Id
-}
-
-func saveAndUnsetEnvVars(varNames []string) map[string]string {
-	storage := make(map[string]string, len(varNames))
-
-	for _, v := range varNames {
-		storage[v] = os.Getenv(v)
-		os.Unsetenv(v)
-	}
-
-	return storage
-}
-
-func restoreEnvVars(storage map[string]string) error {
-	for varName, varValue := range storage {
-		if err := os.Setenv(varName, varValue); err != nil {
-			return err
-		}
-	}
-	return nil
 }

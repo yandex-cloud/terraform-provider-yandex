@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
-
-	"github.com/yandex-cloud/terraform-provider-yandex/common/mutexkv"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
@@ -18,18 +15,20 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/version"
 )
 
-// Global MutexKV
-var mutexKV = mutexkv.NewMutexKV()
-
-func NewSDKProvider() *schema.Provider {
-	return sdkProvider(false)
+type ProviderOptions struct {
+	ConfigurationContext context.Context
+	IgnoreFolderID       bool
 }
 
-func emptyFolderProvider() *schema.Provider {
-	return sdkProvider(true)
+func NewPluginSDKProvider() (*schema.Provider, error) {
+	return NewPluginSDKProviderWithOptions(ProviderOptions{})
 }
 
-func sdkProvider(emptyFolder bool) *schema.Provider {
+func NewPluginSDKProviderWithOptions(options ProviderOptions) (*schema.Provider, error) {
+	return buildPluginSDKProvider(options.IgnoreFolderID, options)
+}
+
+func buildPluginSDKProvider(emptyFolder bool, options ProviderOptions) (*schema.Provider, error) {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"endpoint": {
@@ -145,221 +144,22 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"yandex_alb_backend_group":                                dataSourceYandexALBBackendGroup(),
-			"yandex_alb_http_router":                                  dataSourceYandexALBHTTPRouter(),
-			"yandex_alb_load_balancer":                                dataSourceYandexALBLoadBalancer(),
-			"yandex_alb_target_group":                                 dataSourceYandexALBTargetGroup(),
-			"yandex_alb_virtual_host":                                 dataSourceYandexALBVirtualHost(),
-			"yandex_api_gateway":                                      dataSourceYandexApiGateway(),
-			"yandex_audit_trails_trail":                               dataSourceYandexAuditTrailsTrail(),
-			"yandex_backup_policy":                                    dataSourceYandexBackupPolicy(),
-			"yandex_client_config":                                    dataSourceYandexClientConfig(),
-			"yandex_cdn_origin_group":                                 dataSourceYandexCDNOriginGroup(),
-			"yandex_cdn_resource":                                     dataSourceYandexCDNResource(),
-			"yandex_cm_certificate":                                   dataSourceYandexCMCertificate(),
-			"yandex_cm_certificate_content":                           dataSourceYandexCMCertificateContent(),
-			"yandex_container_registry":                               dataSourceYandexContainerRegistry(),
-			"yandex_container_registry_ip_permission":                 dataSourceYandexContainerRegistryIPPermission(),
-			"yandex_container_repository":                             dataSourceYandexContainerRepository(),
-			"yandex_container_repository_lifecycle_policy":            dataSourceYandexContainerRepositoryLifecyclePolicy(),
-			"yandex_compute_disk":                                     dataSourceYandexComputeDisk(),
-			"yandex_compute_disk_placement_group":                     dataSourceYandexComputeDiskPlacementGroup(),
-			"yandex_compute_filesystem":                               dataSourceYandexComputeFilesystem(),
-			"yandex_compute_gpu_cluster":                              dataSourceYandexComputeGpuCluster(),
-			"yandex_compute_image":                                    dataSourceYandexComputeImage(),
-			"yandex_compute_instance":                                 dataSourceYandexComputeInstance(),
-			"yandex_compute_instance_group":                           dataSourceYandexComputeInstanceGroup(),
-			"yandex_compute_placement_group":                          dataSourceYandexComputePlacementGroup(),
-			"yandex_compute_snapshot":                                 dataSourceYandexComputeSnapshot(),
-			"yandex_compute_snapshot_schedule":                        dataSourceYandexComputeSnapshotSchedule(),
-			"yandex_dataproc_cluster":                                 dataSourceYandexDataprocCluster(),
-			"yandex_dns_zone":                                         dataSourceYandexDnsZone(),
-			"yandex_serverless_eventrouter_bus":                       dataSourceYandexServerlessEventrouterBus(),
-			"yandex_serverless_eventrouter_connector":                 dataSourceYandexServerlessEventrouterConnector(),
-			"yandex_serverless_eventrouter_rule":                      dataSourceYandexServerlessEventrouterRule(),
-			"yandex_function":                                         dataSourceYandexFunction(),
-			"yandex_function_scaling_policy":                          dataSourceYandexFunctionScalingPolicy(),
-			"yandex_function_trigger":                                 dataSourceYandexFunctionTrigger(),
-			"yandex_iam_policy":                                       dataSourceYandexIAMPolicy(),
-			"yandex_iam_role":                                         dataSourceYandexIAMRole(),
-			"yandex_iam_service_account":                              dataSourceYandexIAMServiceAccount(),
-			"yandex_iam_service_agent":                                dataSourceYandexIamServiceAgent(),
-			"yandex_iam_user":                                         dataSourceYandexIAMUser(),
-			"yandex_iam_workload_identity_oidc_federation":            dataSourceYandexIAMWorkloadIdentityOidcFederation(),
-			"yandex_iot_core_broker":                                  dataSourceYandexIoTCoreBroker(),
-			"yandex_iot_core_device":                                  dataSourceYandexIoTCoreDevice(),
-			"yandex_iot_core_registry":                                dataSourceYandexIoTCoreRegistry(),
-			"yandex_kubernetes_cluster":                               dataSourceYandexKubernetesCluster(),
-			"yandex_kubernetes_node_group":                            dataSourceYandexKubernetesNodeGroup(),
-			"yandex_lb_network_load_balancer":                         dataSourceYandexLBNetworkLoadBalancer(),
-			"yandex_lb_target_group":                                  dataSourceYandexLBTargetGroup(),
-			"yandex_lockbox_secret":                                   dataSourceYandexLockboxSecret(),
-			"yandex_lockbox_secret_version":                           dataSourceYandexLockboxSecretVersion(),
-			"yandex_lockbox_secret_version_entry":                     dataSourceYandexLockboxSecretVersionEntry(),
-			"yandex_kms_symmetric_key":                                dataSourceYandexKMSSymmetricKey(),
-			"yandex_logging_group":                                    dataSourceYandexLoggingGroup(),
-			"yandex_mdb_clickhouse_cluster":                           dataSourceYandexMDBClickHouseCluster(),
-			"yandex_mdb_greenplum_cluster":                            dataSourceYandexMDBGreenplumCluster(),
-			"yandex_mdb_kafka_cluster":                                dataSourceYandexMDBKafkaCluster(),
-			"yandex_mdb_kafka_topic":                                  dataSourceYandexMDBKafkaTopic(),
-			"yandex_mdb_kafka_connector":                              dataSourceYandexMDBKafkaConnector(),
-			"yandex_mdb_kafka_user":                                   dataSourceYandexMDBKafkaUser(),
-			"yandex_mdb_mongodb_cluster":                              dataSourceYandexMDBMongodbCluster(),
-			"yandex_mdb_mysql_cluster":                                dataSourceYandexMDBMySQLCluster(),
-			"yandex_mdb_mysql_database":                               dataSourceYandexMDBMySQLDatabase(),
-			"yandex_mdb_mysql_user":                                   dataSourceYandexMDBMySQLUser(),
-			"yandex_mdb_postgresql_cluster":                           dataSourceYandexMDBPostgreSQLCluster(),
-			"yandex_mdb_postgresql_database":                          dataSourceYandexMDBPostgreSQLDatabase(),
-			"yandex_mdb_postgresql_user":                              dataSourceYandexMDBPostgreSQLUser(),
-			"yandex_mdb_redis_cluster":                                dataSourceYandexMDBRedisCluster(),
-			"yandex_monitoring_dashboard":                             dataSourceYandexMonitoringDashboard(),
-			"yandex_message_queue":                                    dataSourceYandexMessageQueue(),
-			"yandex_organizationmanager_group":                        dataSourceYandexOrganizationManagerGroup(),
-			"yandex_organizationmanager_os_login_settings":            dataSourceYandexOrganizationManagerOsLoginSettings(),
-			"yandex_organizationmanager_saml_federation":              dataSourceYandexOrganizationManagerSamlFederation(),
-			"yandex_organizationmanager_saml_federation_user_account": dataSourceYandexOrganizationManagerSamlFederationUserAccount(),
-			"yandex_resourcemanager_cloud":                            dataSourceYandexResourceManagerCloud(),
-			"yandex_resourcemanager_folder":                           dataSourceYandexResourceManagerFolder(),
-			"yandex_serverless_container":                             dataSourceYandexServerlessContainer(),
-			"yandex_vpc_address":                                      dataSourceYandexVPCAddress(),
-			"yandex_vpc_gateway":                                      dataSourceYandexVPCGateway(),
-			"yandex_vpc_network":                                      dataSourceYandexVPCNetwork(),
-			"yandex_vpc_route_table":                                  dataSourceYandexVPCRouteTable(),
-			"yandex_vpc_security_group":                               dataSourceYandexVPCSecurityGroup(),
-			"yandex_vpc_subnet":                                       dataSourceYandexVPCSubnet(),
-			"yandex_vpc_private_endpoint":                             dataSourceYandexVPCPrivateEndpoint(),
-			"yandex_ydb_database_dedicated":                           dataSourceYandexYDBDatabaseDedicated(),
-			"yandex_ydb_database_serverless":                          dataSourceYandexYDBDatabaseServerless(),
+			"yandex_client_config": dataSourceYandexClientConfig(),
 		},
+	}
 
-		ResourcesMap: map[string]*schema.Resource{
-			"yandex_alb_backend_group":                                resourceYandexALBBackendGroup(),
-			"yandex_alb_http_router":                                  resourceYandexALBHTTPRouter(),
-			"yandex_alb_load_balancer":                                resourceYandexALBLoadBalancer(),
-			"yandex_alb_target_group":                                 resourceYandexALBTargetGroup(),
-			"yandex_alb_virtual_host":                                 addPassthroughImport(withALBVirtualHostID(resourceYandexALBVirtualHost())),
-			"yandex_api_gateway":                                      resourceYandexApiGateway(),
-			"yandex_audit_trails_trail":                               resourceYandexAuditTrailsTrail(),
-			"yandex_backup_policy":                                    resourceYandexBackupPolicy(),
-			"yandex_backup_policy_bindings":                           resourceYandexBackupPolicyBindings(),
-			"yandex_container_registry_ip_permission":                 resourceYandexContainerRegistryIPPermission(),
-			"yandex_container_repository_lifecycle_policy":            resourceYandexContainerRepositoryLifecyclePolicy(),
-			"yandex_cdn_origin_group":                                 resourceYandexCDNOriginGroup(),
-			"yandex_cdn_resource":                                     resourceYandexCDNResource(),
-			"yandex_cm_certificate":                                   resourceYandexCMCertificate(),
-			"yandex_compute_disk":                                     resourceYandexComputeDisk(),
-			"yandex_compute_image":                                    resourceYandexComputeImage(),
-			"yandex_compute_instance":                                 resourceYandexComputeInstance(),
-			"yandex_compute_instance_group":                           resourceYandexComputeInstanceGroup(),
-			"yandex_compute_placement_group":                          resourceYandexComputePlacementGroup(),
-			"yandex_compute_snapshot":                                 resourceYandexComputeSnapshot(),
-			"yandex_compute_snapshot_schedule":                        resourceYandexComputeSnapshotSchedule(),
-			"yandex_dataproc_cluster":                                 resourceYandexDataprocCluster(),
-			"yandex_dns_recordset":                                    resourceYandexDnsRecordSet(),
-			"yandex_dns_zone":                                         resourceYandexDnsZone(),
-			"yandex_serverless_eventrouter_connector":                 resourceYandexServerlessEventrouterConnector(),
-			"yandex_serverless_eventrouter_rule":                      resourceYandexServerlessEventrouterRule(),
-			"yandex_function":                                         resourceYandexFunction(),
-			"yandex_function_scaling_policy":                          resourceYandexFunctionScalingPolicy(),
-			"yandex_function_trigger":                                 resourceYandexFunctionTrigger(),
-			"yandex_iam_oauth_client_secret":                          resourceYandexIAMOAuthClientSecret(),
-			"yandex_iam_service_account_api_key":                      resourceYandexIAMServiceAccountAPIKey(),
-			"yandex_iam_service_account_iam_policy":                   resourceYandexIAMServiceAccountIAMPolicy(),
-			"yandex_iam_service_account_key":                          resourceYandexIAMServiceAccountKey(),
-			"yandex_iam_service_account_static_access_key":            resourceYandexIAMServiceAccountStaticAccessKey(),
-			"yandex_iot_core_broker":                                  resourceYandexIoTCoreBroker(),
-			"yandex_iot_core_device":                                  resourceYandexIoTCoreDevice(),
-			"yandex_iot_core_registry":                                resourceYandexIoTCoreRegistry(),
-			"yandex_kms_secret_ciphertext":                            resourceYandexKMSSecretCiphertext(),
-			"yandex_kubernetes_cluster":                               resourceYandexKubernetesCluster(),
-			"yandex_kubernetes_node_group":                            resourceYandexKubernetesNodeGroup(),
-			"yandex_lb_network_load_balancer":                         resourceYandexLBNetworkLoadBalancer(),
-			"yandex_lockbox_secret":                                   resourceYandexLockboxSecret(),
-			"yandex_lockbox_secret_version":                           resourceYandexLockboxSecretVersion(),
-			"yandex_lockbox_secret_version_hashed":                    resourceYandexLockboxSecretVersionHashed(),
-			"yandex_mdb_clickhouse_cluster":                           resourceYandexMDBClickHouseCluster(),
-			"yandex_mdb_greenplum_cluster":                            resourceYandexMDBGreenplumCluster(),
-			"yandex_mdb_kafka_cluster":                                resourceYandexMDBKafkaCluster(),
-			"yandex_mdb_kafka_topic":                                  resourceYandexMDBKafkaTopic(),
-			"yandex_mdb_kafka_connector":                              resourceYandexMDBKafkaConnector(),
-			"yandex_mdb_kafka_user":                                   resourceYandexMDBKafkaUser(),
-			"yandex_mdb_mongodb_cluster":                              resourceYandexMDBMongodbCluster(),
-			"yandex_mdb_mysql_cluster":                                resourceYandexMDBMySQLCluster(),
-			"yandex_mdb_mysql_database":                               resourceYandexMDBMySQLDatabase(),
-			"yandex_mdb_mysql_user":                                   resourceYandexMDBMySQLUser(),
-			"yandex_mdb_postgresql_cluster":                           resourceYandexMDBPostgreSQLCluster(),
-			"yandex_mdb_postgresql_database":                          resourceYandexMDBPostgreSQLDatabase(),
-			"yandex_mdb_postgresql_user":                              resourceYandexMDBPostgreSQLUser(),
-			"yandex_mdb_redis_cluster":                                resourceYandexMDBRedisCluster(),
-			"yandex_message_queue":                                    resourceYandexMessageQueue(),
-			"yandex_monitoring_dashboard":                             resourceYandexMonitoringDashboard(),
-			"yandex_organizationmanager_saml_federation":              resourceYandexOrganizationManagerSamlFederation(),
-			"yandex_organizationmanager_saml_federation_user_account": resourceYandexOrganizationManagerSamlFederationUserAccount(),
-			"yandex_organizationmanager_group_mapping":                resourceYandexOrganizationManagerGroupMapping(),
-			"yandex_organizationmanager_group_mapping_item":           resourceYandexOrganizationManagerGroupMappingItem(),
-			"yandex_organizationmanager_group_membership":             resourceYandexOrganizationManagerGroupMembership(),
-			"yandex_organizationmanager_os_login_settings":            resourceYandexOrganizationManagerOsLoginSettings(),
-			"yandex_resourcemanager_folder_iam_policy":                resourceYandexResourceManagerFolderIAMPolicy(),
-			"yandex_serverless_container":                             resourceYandexServerlessContainer(),
-			"yandex_storage_bucket":                                   resourceYandexStorageBucket(),
-			"yandex_storage_object":                                   resourceYandexStorageObject(),
-			"yandex_vpc_address":                                      resourceYandexVPCAddress(),
-			"yandex_vpc_default_security_group":                       resourceYandexVPCDefaultSecurityGroup(),
-			"yandex_vpc_gateway":                                      resourceYandexVPCGateway(),
-			"yandex_vpc_network":                                      resourceYandexVPCNetwork(),
-			"yandex_vpc_route_table":                                  resourceYandexVPCRouteTable(),
-			"yandex_vpc_security_group":                               resourceYandexVPCSecurityGroup(),
-			"yandex_vpc_subnet":                                       resourceYandexVPCSubnet(),
-			"yandex_vpc_private_endpoint":                             resourceYandexVPCPrivateEndpoint(),
-			"yandex_ydb_database_dedicated":                           resourceYandexYDBDatabaseDedicated(),
-			"yandex_ydb_database_serverless":                          resourceYandexYDBDatabaseServerless(),
-			"yandex_ydb_topic":                                        resourceYandexYDBTopic(),
-			"yandex_ydb_table":                                        resourceYandexYDBTable(),
-			"yandex_ydb_table_changefeed":                             resourceYandexYDBTableChangefeed(),
-			"yandex_ydb_table_index":                                  resourceYandexYDBTableIndex(),
-
-			"yandex_sws_security_profile_advanced_rate_limiter_profile_attachment": resourceYandexSWSSecurityProfileAdvancedRateLimiterProfileAttachment(),
-			"yandex_sws_security_profile_waf_profile_attachment":                   resourceYandexSWSSecurityProfileWAFProfileAttachment(),
-		},
+	if err := registerServices(provider); err != nil {
+		return nil, err
 	}
 
 	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		if options.ConfigurationContext != nil {
+			return providerConfigure(options.ConfigurationContext, d, provider, emptyFolder, false)
+		}
 		return providerConfigure(ctx, d, provider, emptyFolder, false)
 	}
 
-	return provider
-}
-
-func addPassthroughImport(r *schema.Resource) *schema.Resource {
-	r.Importer = &schema.ResourceImporter{
-		State: schema.ImportStatePassthrough,
-	}
-	return r
-}
-
-type crudFunc = func(d *schema.ResourceData, meta interface{}) error
-
-func withALBVirtualHostID(r *schema.Resource) *schema.Resource {
-	r.Read = wrapParseVirtualHostID(r.Read)
-	r.Update = wrapParseVirtualHostID(r.Update)
-	r.Delete = wrapParseVirtualHostID(r.Delete)
-	return r
-}
-
-func wrapParseVirtualHostID(f crudFunc) crudFunc {
-	return func(d *schema.ResourceData, meta interface{}) error {
-		attrs := strings.Split(d.Id(), "/")
-		if len(attrs) < 2 {
-			return fmt.Errorf("error reading virtual_host, wrong id: %q", d.Id())
-		}
-		if err := d.Set("http_router_id", attrs[0]); err != nil {
-			return err
-		}
-		if err := d.Set("name", attrs[1]); err != nil {
-			return err
-		}
-		return f(d, meta)
-	}
+	return provider, nil
 }
 
 func setToDefaultIfNeeded(field string, osEnvName string, defaultVal string) string {
@@ -407,8 +207,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		MaxRetries:            d.Get("max_retries").(int),
 		SharedCredentialsFile: d.Get("shared_credentials_file").(string),
 		Profile:               d.Get("profile").(string),
-		userAgent:             p.UserAgent("terraform-provider-yandex", version.ProviderVersion),
 	}
+
+	config.SetUserAgent(p.UserAgent("terraform-provider-yandex", version.ProviderVersion))
 
 	if len(config.Profile) == 0 {
 		config.Profile = "default"
@@ -436,7 +237,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		terraformVersion = "0.11+compatible"
 	}
 
-	if err := config.initAndValidate(stopCtx, terraformVersion, false); err != nil {
+	if err := config.InitAndValidate(stopCtx, terraformVersion, false); err != nil {
 		return nil, diag.FromErr(err)
 	}
 
