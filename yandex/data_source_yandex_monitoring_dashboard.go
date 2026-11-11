@@ -181,163 +181,369 @@ func dataSourceYandexMonitoringDashboard() *schema.Resource {
 				Computed:    true,
 			},
 			"widgets": {
+				Type:        schema.TypeList,
+				Elem:        dataSourceMonitoringDashboardWidgetSchema(true),
+				Computed:    true,
+				Description: "Widgets",
+			},
+		},
+	}
+}
+
+func dataSourceMonitoringDashboardWidgetSchema(includeGroup bool) *schema.Resource {
+	widgetSchema := &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"chart": {
 				Type: schema.TypeList,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"chart": {
+						"chart_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Chart ID",
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Chart description in dashboard (not enabled in UI)",
+						},
+						"display_legend": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Enable legend under chart",
+						},
+						"freeze": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Fixed time interval for chart",
+						},
+						"name_hiding_settings": {
 							Type: schema.TypeList,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"chart_id": {
-										Type:        schema.TypeString,
+									"names": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 										Computed:    true,
-										Description: "Chart ID",
+										Description: "",
 									},
-									"description": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Chart description in dashboard (not enabled in UI)",
-									},
-									"display_legend": {
+									"positive": {
 										Type:        schema.TypeBool,
 										Computed:    true,
-										Description: "Enable legend under chart",
+										Description: "True if we want to show concrete series names only, false if we want to hide concrete series names",
 									},
-									"freeze": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Fixed time interval for chart",
-									},
-									"name_hiding_settings": {
+								},
+							},
+							Computed:    true,
+							Description: "Name hiding settings",
+						},
+						"queries": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"downsampling": {
 										Type: schema.TypeList,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"names": {
-													Type: schema.TypeList,
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
-													Computed:    true,
-													Description: "",
-												},
-												"positive": {
+												"disabled": {
 													Type:        schema.TypeBool,
 													Computed:    true,
-													Description: "True if we want to show concrete series names only, false if we want to hide concrete series names",
+													Description: "Disable downsampling",
+												},
+												"gap_filling": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Parameters for filling gaps in data",
+												},
+												"grid_aggregation": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Function that is used for downsampling",
+												},
+												"grid_interval": {
+													Type:     schema.TypeInt,
+													Computed: true,
+													Description: "Time interval (grid) for downsampling in milliseconds. " +
+														"Points in the specified range are aggregated into one time point",
+												},
+
+												"max_points": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: "Maximum number of points to be returned",
 												},
 											},
 										},
 										Computed:    true,
-										Description: "Name hiding settings",
+										Description: "Downsampling settings",
 									},
-									"queries": {
+
+									"target": {
 										Type: schema.TypeList,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"downsampling": {
-													Type: schema.TypeList,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"disabled": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: "Disable downsampling",
-															},
-															"gap_filling": {
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Parameters for filling gaps in data",
-															},
-															"grid_aggregation": {
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Function that is used for downsampling",
-															},
-															"grid_interval": {
-																Type:     schema.TypeInt,
-																Computed: true,
-																Description: "Time interval (grid) for downsampling in milliseconds. " +
-																	"Points in the specified range are aggregated into one time point",
-															},
-
-															"max_points": {
-																Type:        schema.TypeInt,
-																Computed:    true,
-																Description: "Maximum number of points to be returned",
-															},
-														},
-													},
+												"hidden": {
+													Type:        schema.TypeBool,
 													Computed:    true,
-													Description: "Downsampling settings",
+													Description: "Checks that target is visible or invisible",
 												},
 
-												"target": {
-													Type: schema.TypeList,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"hidden": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: "Checks that target is visible or invisible",
-															},
-
-															"query": {
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Query",
-															},
-
-															"text_mode": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: "Text mode",
-															},
-														},
-													},
+												"query": {
+													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Downsampling settings",
+													Description: "Query",
+												},
+
+												"text_mode": {
+													Type:        schema.TypeBool,
+													Computed:    true,
+													Description: "Text mode",
 												},
 											},
 										},
 										Computed:    true,
-										Description: "Queries",
+										Description: "Downsampling settings",
 									},
-									"series_overrides": {
+								},
+							},
+							Computed:    true,
+							Description: "Queries",
+						},
+						"series_overrides": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Series name",
+									},
+
+									"settings": {
 										Type: schema.TypeList,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"color": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Series color or empty",
+												},
+
+												"grow_down": {
+													Type:        schema.TypeBool,
+													Computed:    true,
+													Description: "Stack grow down",
+												},
+
 												"name": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Series name",
+													Description: "Series name or empty",
 												},
 
-												"settings": {
+												"stack_name": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Stack name or empty",
+												},
+
+												"type": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Type",
+												},
+
+												"yaxis_position": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Yaxis position",
+												},
+											},
+										},
+										Computed:    true,
+										Description: "Override settings",
+									},
+
+									"target_index": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Target index",
+									},
+								},
+							},
+							Computed:    true,
+							Description: "",
+						},
+						"title": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Chart widget title",
+						},
+						"visualization_settings": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"aggregation": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Aggregation",
+									},
+
+									"color_scheme_settings": {
+										Type: schema.TypeList,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"automatic": {
+													Type: schema.TypeList,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Computed:    true,
+													Description: "Automatic color scheme",
+												},
+
+												"gradient": {
 													Type: schema.TypeList,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"color": {
+															"green_value": {
 																Type:        schema.TypeString,
 																Computed:    true,
-																Description: "Series color or empty",
+																Description: "Gradient green value",
 															},
 
-															"grow_down": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: "Stack grow down",
-															},
-
-															"name": {
+															"red_value": {
 																Type:        schema.TypeString,
 																Computed:    true,
-																Description: "Series name or empty",
+																Description: "Gradient red value",
 															},
 
-															"stack_name": {
+															"violet_value": {
 																Type:        schema.TypeString,
 																Computed:    true,
-																Description: "Stack name or empty",
+																Description: "Gradient violet value",
+															},
+
+															"yellow_value": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Gradient yellow value",
+															},
+														},
+													},
+													Computed:    true,
+													Description: "Gradient color scheme",
+												},
+
+												"standard": {
+													Type: schema.TypeList,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Computed:    true,
+													Description: "Standard color scheme",
+												},
+											},
+										},
+										Computed:    true,
+										Description: "Color scheme settings",
+									},
+
+									"heatmap_settings": {
+										Type: schema.TypeList,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"green_value": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Heatmap green value",
+												},
+
+												"red_value": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Heatmap red value",
+												},
+
+												"violet_value": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Heatmap violet_value",
+												},
+
+												"yellow_value": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Heatmap yellow value",
+												},
+											},
+										},
+										Computed:    true,
+										Description: "Heatmap settings",
+									},
+
+									"interpolate": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Interpolate",
+									},
+
+									"normalize": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: "Normalize",
+									},
+
+									"show_labels": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: "Show chart labels",
+									},
+
+									"title": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Inside chart title",
+									},
+
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Visualization type",
+									},
+
+									"yaxis_settings": {
+										Type: schema.TypeList,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"left": {
+													Type: schema.TypeList,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"max": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Max value in extended number format or empty",
+															},
+
+															"min": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Min value in extended number format or empty",
+															},
+
+															"precision": {
+																Type:        schema.TypeInt,
+																Computed:    true,
+																Description: "Tick value precision (null as default, 0-7 in other cases)",
+															},
+
+															"title": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Title or empty",
 															},
 
 															"type": {
@@ -346,346 +552,203 @@ func dataSourceYandexMonitoringDashboard() *schema.Resource {
 																Description: "Type",
 															},
 
-															"yaxis_position": {
+															"unit_format": {
 																Type:        schema.TypeString,
 																Computed:    true,
-																Description: "Yaxis position",
+																Description: "Unit format",
 															},
 														},
 													},
 													Computed:    true,
-													Description: "Override settings",
+													Description: "Left Y axis settings",
 												},
 
-												"target_index": {
-													Type:        schema.TypeString,
+												"right": {
+													Type: schema.TypeList,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"max": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Max value in extended number format or empty",
+															},
+
+															"min": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Min value in extended number format or empty",
+															},
+
+															"precision": {
+																Type:        schema.TypeInt,
+																Computed:    true,
+																Description: "Tick value precision (null as default, 0-7 in other cases)",
+															},
+
+															"title": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Title or empty",
+															},
+
+															"type": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Type",
+															},
+
+															"unit_format": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Unit format",
+															},
+														},
+													},
 													Computed:    true,
-													Description: "Target index",
+													Description: "Right Y axis settings",
 												},
 											},
 										},
 										Computed:    true,
-										Description: "",
-									},
-									"title": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Chart widget title",
-									},
-									"visualization_settings": {
-										Type: schema.TypeList,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"aggregation": {
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Aggregation",
-												},
-
-												"color_scheme_settings": {
-													Type: schema.TypeList,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"automatic": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{},
-																},
-																Computed:    true,
-																Description: "Automatic color scheme",
-															},
-
-															"gradient": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"green_value": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Gradient green value",
-																		},
-
-																		"red_value": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Gradient red value",
-																		},
-
-																		"violet_value": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Gradient violet value",
-																		},
-
-																		"yellow_value": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Gradient yellow value",
-																		},
-																	},
-																},
-																Computed:    true,
-																Description: "Gradient color scheme",
-															},
-
-															"standard": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{},
-																},
-																Computed:    true,
-																Description: "Standard color scheme",
-															},
-														},
-													},
-													Computed:    true,
-													Description: "Color scheme settings",
-												},
-
-												"heatmap_settings": {
-													Type: schema.TypeList,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"green_value": {
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Heatmap green value",
-															},
-
-															"red_value": {
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Heatmap red value",
-															},
-
-															"violet_value": {
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Heatmap violet_value",
-															},
-
-															"yellow_value": {
-																Type:        schema.TypeString,
-																Computed:    true,
-																Description: "Heatmap yellow value",
-															},
-														},
-													},
-													Computed:    true,
-													Description: "Heatmap settings",
-												},
-
-												"interpolate": {
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Interpolate",
-												},
-
-												"normalize": {
-													Type:        schema.TypeBool,
-													Computed:    true,
-													Description: "Normalize",
-												},
-
-												"show_labels": {
-													Type:        schema.TypeBool,
-													Computed:    true,
-													Description: "Show chart labels",
-												},
-
-												"title": {
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Inside chart title",
-												},
-
-												"type": {
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Visualization type",
-												},
-
-												"yaxis_settings": {
-													Type: schema.TypeList,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"left": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"max": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Max value in extended number format or empty",
-																		},
-
-																		"min": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Min value in extended number format or empty",
-																		},
-
-																		"precision": {
-																			Type:        schema.TypeInt,
-																			Computed:    true,
-																			Description: "Tick value precision (null as default, 0-7 in other cases)",
-																		},
-
-																		"title": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Title or empty",
-																		},
-
-																		"type": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Type",
-																		},
-
-																		"unit_format": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Unit format",
-																		},
-																	},
-																},
-																Computed:    true,
-																Description: "Left Y axis settings",
-															},
-
-															"right": {
-																Type: schema.TypeList,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"max": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Max value in extended number format or empty",
-																		},
-
-																		"min": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Min value in extended number format or empty",
-																		},
-
-																		"precision": {
-																			Type:        schema.TypeInt,
-																			Computed:    true,
-																			Description: "Tick value precision (null as default, 0-7 in other cases)",
-																		},
-
-																		"title": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Title or empty",
-																		},
-
-																		"type": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Type",
-																		},
-
-																		"unit_format": {
-																			Type:        schema.TypeString,
-																			Computed:    true,
-																			Description: "Unit format",
-																		},
-																	},
-																},
-																Computed:    true,
-																Description: "Right Y axis settings",
-															},
-														},
-													},
-													Computed:    true,
-													Description: "Y axis settings",
-												},
-											},
-										},
-										Computed:    true,
-										Description: "Visualization settings",
+										Description: "Y axis settings",
 									},
 								},
 							},
 							Computed:    true,
-							Description: "Chart widget",
-						},
-						"position": {
-							Type: schema.TypeList,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"h": {
-										Type:        schema.TypeInt,
-										Computed:    true,
-										Description: "Height",
-									},
-
-									"w": {
-										Type:        schema.TypeInt,
-										Computed:    true,
-										Description: "Width",
-									},
-
-									"x": {
-										Type:        schema.TypeInt,
-										Computed:    true,
-										Description: "X-axis top-left corner coordinate",
-									},
-
-									"y": {
-										Type:        schema.TypeInt,
-										Computed:    true,
-										Description: "Y-axis top-left corner coordinate",
-									},
-								},
-							},
-							Computed:    true,
-							Description: "Widget layout position",
-						},
-						"text": {
-							Type: schema.TypeList,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"text": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Text",
-									},
-								},
-							},
-							Computed:    true,
-							Description: "Text widget",
-						},
-						"title": {
-							Type: schema.TypeList,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"size": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Title size",
-									},
-
-									"text": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Title text",
-									},
-								},
-							},
-							Computed:    true,
-							Description: "Title widget",
+							Description: "Visualization settings",
 						},
 					},
 				},
 				Computed:    true,
-				Description: "Widgets",
+				Description: "Chart widget",
+			},
+			"position": {
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"h": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Height",
+						},
+
+						"w": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Width",
+						},
+
+						"x": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "X-axis top-left corner coordinate",
+						},
+
+						"y": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Y-axis top-left corner coordinate",
+						},
+					},
+				},
+				Computed:    true,
+				Description: "Widget layout position",
+			},
+			"text": {
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"text": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Text",
+						},
+					},
+				},
+				Computed:    true,
+				Description: "Text widget",
+			},
+			"title": {
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"size": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Title size",
+						},
+
+						"text": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Title text",
+						},
+					},
+				},
+				Computed:    true,
+				Description: "Title widget",
 			},
 		},
 	}
+
+	if includeGroup {
+		widgetSchema.Schema["group"] = &schema.Schema{
+			Type:        schema.TypeList,
+			Description: "Group widget",
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"group_id": {
+						Type:        schema.TypeString,
+						Computed:    true,
+						Description: "Group ID",
+					},
+					"title": {
+						Type:        schema.TypeString,
+						Computed:    true,
+						Description: "Group title",
+					},
+					"collapsed": {
+						Type:        schema.TypeBool,
+						Computed:    true,
+						Description: "Whether the group is collapsed by default",
+					},
+					"repeat_settings": {
+						Type: schema.TypeList,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"repeat_by": {
+									Type: schema.TypeList,
+									Elem: &schema.Schema{
+										Type: schema.TypeString,
+									},
+									Computed:    true,
+									Description: "Labels to repeat the group by",
+								},
+							},
+						},
+						Computed:    true,
+						Description: "Settings for repeating the group",
+					},
+					"widgets": {
+						Type:        schema.TypeList,
+						Elem:        dataSourceMonitoringDashboardWidgetSchema(false),
+						Computed:    true,
+						Description: "Widgets inside the group",
+					},
+				},
+			},
+			Computed: true,
+		}
+	} else {
+		// The API requires an explicit id on each widget nested inside a group; top-level widgets have no such field.
+		widgetSchema.Schema["widget_id"] = &schema.Schema{
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: "Widget ID",
+		}
+	}
+
+	return widgetSchema
 }
 
 func dataSourceYandexMonitoringDashboardRead(ctxParent context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
