@@ -34,7 +34,6 @@ import (
 	kmssweep "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/kms/sweep"
 	network_load_balancersweep "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/loadbalancer/sweep"
 	lockboxsweep "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/lockbox/sweep"
-	cloud_loggingsweep "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/logging/sweep"
 	clickhousesweep "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/sweep"
 	greenplumsweep "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/greenplum/sweep"
 	kafkasweep "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/kafka/sweep"
@@ -94,7 +93,6 @@ func TestMain(m *testing.M) {
 	certificate_managersweep.Register(add)
 	clickhousesweep.Register(add)
 	cloud_functionssweep.Register(add)
-	cloud_loggingsweep.Register(add)
 	computesweep.Register(add)
 	data_procsweep.Register(add)
 	datatransfersweep.Register(add)
