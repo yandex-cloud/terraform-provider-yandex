@@ -28,12 +28,12 @@ var File_yandex_cloud_mdb_spqr_v1_change_freeze_service_proto protoreflect.FileD
 
 const file_yandex_cloud_mdb_spqr_v1_change_freeze_service_proto_rawDesc = "" +
 	"\n" +
-	"4yandex/cloud/mdb/spqr/v1/change_freeze_service.proto\x12\x18yandex.cloud.mdb.spqr.v1\x1a\x1cgoogle/api/annotations.proto\x1a yandex/cloud/api/operation.proto\x1a/yandex/cloud/maintenance/v2/change_freeze.proto\x1a&yandex/cloud/operation/operation.proto2\xae\b\n" +
+	"4yandex/cloud/mdb/spqr/v1/change_freeze_service.proto\x12\x18yandex.cloud.mdb.spqr.v1\x1a\x1cgoogle/api/annotations.proto\x1a yandex/cloud/api/operation.proto\x1a/yandex/cloud/maintenance/v2/change_freeze.proto\x1a&yandex/cloud/operation/operation.proto2\xb6\b\n" +
 	"\x13ChangeFreezeService\x12\xf5\x01\n" +
 	"\x06Create\x126.yandex.cloud.maintenance.v2.CreateChangeFreezeRequest\x1a!.yandex.cloud.operation.Operation\"\x8f\x01\xb2\xd2*b\n" +
 	"6yandex.cloud.maintenance.v2.CreateChangeFreezeMetadata\x12(yandex.cloud.maintenance.v2.ChangeFreeze\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/managed-spqr/v1/changeFreezes\x12\xa0\x01\n" +
-	"\x03Get\x123.yandex.cloud.maintenance.v2.GetChangeFreezeRequest\x1a).yandex.cloud.maintenance.v2.ChangeFreeze\"9\x82\xd3\xe4\x93\x023\x121/managed-spqr/v1/changeFreezes/{change_freeze_id}\x12\x9d\x01\n" +
-	"\x04List\x125.yandex.cloud.maintenance.v2.ListChangeFreezesRequest\x1a6.yandex.cloud.maintenance.v2.ListChangeFreezesResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/managed-spqr/v1/changeFreezes\x12\xac\x02\n" +
+	"\x03Get\x123.yandex.cloud.maintenance.v2.GetChangeFreezeRequest\x1a).yandex.cloud.maintenance.v2.ChangeFreeze\"9\x82\xd3\xe4\x93\x023\x121/managed-spqr/v1/changeFreezes/{change_freeze_id}\x12\xa5\x01\n" +
+	"\x04List\x125.yandex.cloud.maintenance.v2.ListChangeFreezesRequest\x1a6.yandex.cloud.maintenance.v2.ListChangeFreezesResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/managed-spqr/v1/changeFreezes:list\x12\xac\x02\n" +
 	"\tTerminate\x129.yandex.cloud.maintenance.v2.TerminateChangeFreezeRequest\x1a!.yandex.cloud.operation.Operation\"\xc0\x01\xb2\xd2*v\n" +
 	"9yandex.cloud.maintenance.v2.TerminateChangeFreezeMetadata\x129yandex.cloud.maintenance.v2.TerminateChangeFreezeResponse\x82\xd3\xe4\x93\x02@:\x01*\";/managed-spqr/v1/changeFreezes/{change_freeze_id}:terminate\x12\xac\x01\n" +
 	"\tGetLimits\x129.yandex.cloud.maintenance.v2.GetChangeFreezeLimitsRequest\x1a7.yandex.cloud.maintenance.v2.ChangeFreezeLimitsResponse\"+\x82\xd3\xe4\x93\x02%\x12#/managed-spqr/v1/changeFreezeLimitsBa\n" +

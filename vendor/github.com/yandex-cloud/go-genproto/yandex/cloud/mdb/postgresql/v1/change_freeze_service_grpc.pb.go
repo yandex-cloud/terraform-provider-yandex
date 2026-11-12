@@ -37,6 +37,9 @@ type ChangeFreezeServiceClient interface {
 	// Retrieves the specific change freeze by ID.
 	Get(ctx context.Context, in *v2.GetChangeFreezeRequest, opts ...grpc.CallOption) (*v2.ChangeFreeze, error)
 	// Lists change freezes by conditions, specified in request.
+	// (-- api-linter: yc::1705::http-method-mapping=disabled
+	//
+	//	aip.dev/not-precedent: The existing repeated resource_path requires a JSON request body. --)
 	List(ctx context.Context, in *v2.ListChangeFreezesRequest, opts ...grpc.CallOption) (*v2.ListChangeFreezesResponse, error)
 	// Terminates the specified change freeze.
 	Terminate(ctx context.Context, in *v2.TerminateChangeFreezeRequest, opts ...grpc.CallOption) (*operation.Operation, error)
@@ -111,6 +114,9 @@ type ChangeFreezeServiceServer interface {
 	// Retrieves the specific change freeze by ID.
 	Get(context.Context, *v2.GetChangeFreezeRequest) (*v2.ChangeFreeze, error)
 	// Lists change freezes by conditions, specified in request.
+	// (-- api-linter: yc::1705::http-method-mapping=disabled
+	//
+	//	aip.dev/not-precedent: The existing repeated resource_path requires a JSON request body. --)
 	List(context.Context, *v2.ListChangeFreezesRequest) (*v2.ListChangeFreezesResponse, error)
 	// Terminates the specified change freeze.
 	Terminate(context.Context, *v2.TerminateChangeFreezeRequest) (*operation.Operation, error)

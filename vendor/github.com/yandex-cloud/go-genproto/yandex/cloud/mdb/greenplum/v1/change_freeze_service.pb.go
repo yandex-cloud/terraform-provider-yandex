@@ -28,12 +28,12 @@ var File_yandex_cloud_mdb_greenplum_v1_change_freeze_service_proto protoreflect.
 
 const file_yandex_cloud_mdb_greenplum_v1_change_freeze_service_proto_rawDesc = "" +
 	"\n" +
-	"9yandex/cloud/mdb/greenplum/v1/change_freeze_service.proto\x12\x1dyandex.cloud.mdb.greenplum.v1\x1a\x1cgoogle/api/annotations.proto\x1a yandex/cloud/api/operation.proto\x1a/yandex/cloud/maintenance/v2/change_freeze.proto\x1a&yandex/cloud/operation/operation.proto2\xc7\b\n" +
+	"9yandex/cloud/mdb/greenplum/v1/change_freeze_service.proto\x12\x1dyandex.cloud.mdb.greenplum.v1\x1a\x1cgoogle/api/annotations.proto\x1a yandex/cloud/api/operation.proto\x1a/yandex/cloud/maintenance/v2/change_freeze.proto\x1a&yandex/cloud/operation/operation.proto2\xcf\b\n" +
 	"\x13ChangeFreezeService\x12\xfa\x01\n" +
 	"\x06Create\x126.yandex.cloud.maintenance.v2.CreateChangeFreezeRequest\x1a!.yandex.cloud.operation.Operation\"\x94\x01\xb2\xd2*b\n" +
 	"6yandex.cloud.maintenance.v2.CreateChangeFreezeMetadata\x12(yandex.cloud.maintenance.v2.ChangeFreeze\x82\xd3\xe4\x93\x02(:\x01*\"#/managed-greenplum/v1/changeFreezes\x12\xa5\x01\n" +
-	"\x03Get\x123.yandex.cloud.maintenance.v2.GetChangeFreezeRequest\x1a).yandex.cloud.maintenance.v2.ChangeFreeze\">\x82\xd3\xe4\x93\x028\x126/managed-greenplum/v1/changeFreezes/{change_freeze_id}\x12\xa2\x01\n" +
-	"\x04List\x125.yandex.cloud.maintenance.v2.ListChangeFreezesRequest\x1a6.yandex.cloud.maintenance.v2.ListChangeFreezesResponse\"+\x82\xd3\xe4\x93\x02%\x12#/managed-greenplum/v1/changeFreezes\x12\xb1\x02\n" +
+	"\x03Get\x123.yandex.cloud.maintenance.v2.GetChangeFreezeRequest\x1a).yandex.cloud.maintenance.v2.ChangeFreeze\">\x82\xd3\xe4\x93\x028\x126/managed-greenplum/v1/changeFreezes/{change_freeze_id}\x12\xaa\x01\n" +
+	"\x04List\x125.yandex.cloud.maintenance.v2.ListChangeFreezesRequest\x1a6.yandex.cloud.maintenance.v2.ListChangeFreezesResponse\"3\x82\xd3\xe4\x93\x02-:\x01*\"(/managed-greenplum/v1/changeFreezes:list\x12\xb1\x02\n" +
 	"\tTerminate\x129.yandex.cloud.maintenance.v2.TerminateChangeFreezeRequest\x1a!.yandex.cloud.operation.Operation\"\xc5\x01\xb2\xd2*v\n" +
 	"9yandex.cloud.maintenance.v2.TerminateChangeFreezeMetadata\x129yandex.cloud.maintenance.v2.TerminateChangeFreezeResponse\x82\xd3\xe4\x93\x02E:\x01*\"@/managed-greenplum/v1/changeFreezes/{change_freeze_id}:terminate\x12\xb1\x01\n" +
 	"\tGetLimits\x129.yandex.cloud.maintenance.v2.GetChangeFreezeLimitsRequest\x1a7.yandex.cloud.maintenance.v2.ChangeFreezeLimitsResponse\"0\x82\xd3\xe4\x93\x02*\x12(/managed-greenplum/v1/changeFreezeLimitsBp\n" +

@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.247.0 (November 12, 2026)
+
+##### BUG FIXES:
+* logging: allow explicitly skipping the log group sweeper with YC_SKIP_LOGGING_GROUP_SWEEPING=1 when Cloud Logging is unavailable in the test environment
+
+
+
 ## 0.246.0 (November 11, 2026)
 
 ##### FEATURES:

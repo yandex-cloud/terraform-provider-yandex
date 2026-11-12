@@ -28,12 +28,12 @@ var File_yandex_cloud_airflow_v1_change_freeze_service_proto protoreflect.FileDe
 
 const file_yandex_cloud_airflow_v1_change_freeze_service_proto_rawDesc = "" +
 	"\n" +
-	"3yandex/cloud/airflow/v1/change_freeze_service.proto\x12\x17yandex.cloud.airflow.v1\x1a\x1cgoogle/api/annotations.proto\x1a yandex/cloud/api/operation.proto\x1a/yandex/cloud/maintenance/v2/change_freeze.proto\x1a&yandex/cloud/operation/operation.proto2\xbd\b\n" +
+	"3yandex/cloud/airflow/v1/change_freeze_service.proto\x12\x17yandex.cloud.airflow.v1\x1a\x1cgoogle/api/annotations.proto\x1a yandex/cloud/api/operation.proto\x1a/yandex/cloud/maintenance/v2/change_freeze.proto\x1a&yandex/cloud/operation/operation.proto2\xc5\b\n" +
 	"\x13ChangeFreezeService\x12\xf8\x01\n" +
 	"\x06Create\x126.yandex.cloud.maintenance.v2.CreateChangeFreezeRequest\x1a!.yandex.cloud.operation.Operation\"\x92\x01\xb2\xd2*b\n" +
 	"6yandex.cloud.maintenance.v2.CreateChangeFreezeMetadata\x12(yandex.cloud.maintenance.v2.ChangeFreeze\x82\xd3\xe4\x93\x02&:\x01*\"!/managed-airflow/v1/changeFreezes\x12\xa3\x01\n" +
-	"\x03Get\x123.yandex.cloud.maintenance.v2.GetChangeFreezeRequest\x1a).yandex.cloud.maintenance.v2.ChangeFreeze\"<\x82\xd3\xe4\x93\x026\x124/managed-airflow/v1/changeFreezes/{change_freeze_id}\x12\xa0\x01\n" +
-	"\x04List\x125.yandex.cloud.maintenance.v2.ListChangeFreezesRequest\x1a6.yandex.cloud.maintenance.v2.ListChangeFreezesResponse\")\x82\xd3\xe4\x93\x02#\x12!/managed-airflow/v1/changeFreezes\x12\xaf\x02\n" +
+	"\x03Get\x123.yandex.cloud.maintenance.v2.GetChangeFreezeRequest\x1a).yandex.cloud.maintenance.v2.ChangeFreeze\"<\x82\xd3\xe4\x93\x026\x124/managed-airflow/v1/changeFreezes/{change_freeze_id}\x12\xa8\x01\n" +
+	"\x04List\x125.yandex.cloud.maintenance.v2.ListChangeFreezesRequest\x1a6.yandex.cloud.maintenance.v2.ListChangeFreezesResponse\"1\x82\xd3\xe4\x93\x02+:\x01*\"&/managed-airflow/v1/changeFreezes:list\x12\xaf\x02\n" +
 	"\tTerminate\x129.yandex.cloud.maintenance.v2.TerminateChangeFreezeRequest\x1a!.yandex.cloud.operation.Operation\"\xc3\x01\xb2\xd2*v\n" +
 	"9yandex.cloud.maintenance.v2.TerminateChangeFreezeMetadata\x129yandex.cloud.maintenance.v2.TerminateChangeFreezeResponse\x82\xd3\xe4\x93\x02C:\x01*\">/managed-airflow/v1/changeFreezes/{change_freeze_id}:terminate\x12\xaf\x01\n" +
 	"\tGetLimits\x129.yandex.cloud.maintenance.v2.GetChangeFreezeLimitsRequest\x1a7.yandex.cloud.maintenance.v2.ChangeFreezeLimitsResponse\".\x82\xd3\xe4\x93\x02(\x12&/managed-airflow/v1/changeFreezeLimitsBb\n" +
