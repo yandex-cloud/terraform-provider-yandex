@@ -208,6 +208,28 @@ func TestKubernetesClusterCIDRAttributesConflict(t *testing.T) {
 	}
 }
 
+func TestKubernetesClusterMasterLoggingLogGroupIDDeprecated(t *testing.T) {
+	const expectedDeprecationMessage = "`log_group_id` is deprecated because Yandex Cloud Logging is no longer supported. Remove this attribute from the configuration; there is no replacement. It is retained temporarily for compatibility with existing Terraform state and will be removed in a future major version of the provider."
+
+	resource := svc_managed_kubernetes.ResourceYandexKubernetesCluster()
+	resourceMasterLoggingSchema := resource.Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema
+	resourceLogGroupIDSchema := resourceMasterLoggingSchema["log_group_id"]
+
+	assert.Equal(t, expectedDeprecationMessage, resourceLogGroupIDSchema.Deprecated)
+	assert.True(t, resourceLogGroupIDSchema.Optional)
+	assert.False(t, resourceLogGroupIDSchema.ForceNew)
+	assert.Equal(t, []string{"master.0.master_logging.0.folder_id"}, resourceLogGroupIDSchema.ConflictsWith)
+	require.NoError(t, resource.InternalValidate(nil, true))
+
+	dataSource := svc_managed_kubernetes.DataSourceYandexKubernetesCluster()
+	dataSourceMasterLoggingSchema := dataSource.Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema
+	dataSourceLogGroupIDSchema := dataSourceMasterLoggingSchema["log_group_id"]
+
+	assert.Equal(t, expectedDeprecationMessage, dataSourceLogGroupIDSchema.Deprecated)
+	assert.True(t, dataSourceLogGroupIDSchema.Computed)
+	require.NoError(t, dataSource.InternalValidate(nil, false))
+}
+
 func TestKubernetesClusterCIDRListUpdateFieldsMap(t *testing.T) {
 	assert.Equal(t, "ip_allocation_policy.cluster_ipv4_cidr_blocks", svc_managed_kubernetes.UpdateKubernetesClusterFieldsMap["cluster_ipv4_ranges"])
 	assert.Equal(t, "ip_allocation_policy.cluster_ipv6_cidr_blocks", svc_managed_kubernetes.UpdateKubernetesClusterFieldsMap["cluster_ipv6_ranges"])

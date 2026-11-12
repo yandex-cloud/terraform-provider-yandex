@@ -298,6 +298,7 @@ func DataSourceYandexKubernetesCluster() *schema.Resource {
 										Type:        schema.TypeString,
 										Description: ResourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema["log_group_id"].Description,
 										Computed:    true,
+										Deprecated:  ResourceYandexKubernetesCluster().Schema["master"].Elem.(*schema.Resource).Schema["master_logging"].Elem.(*schema.Resource).Schema["log_group_id"].Deprecated,
 									},
 									"folder_id": {
 										Type:        schema.TypeString,

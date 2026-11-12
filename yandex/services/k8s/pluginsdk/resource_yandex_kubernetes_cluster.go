@@ -324,6 +324,7 @@ func ResourceYandexKubernetesCluster() *schema.Resource {
 										Description:   "ID of the Yandex Cloud Logging [Log group](https://yandex.cloud/docs/logging/concepts/log-group).",
 										Optional:      true,
 										ConflictsWith: []string{"master.0.master_logging.0.folder_id"},
+										Deprecated:    "`log_group_id` is deprecated because Yandex Cloud Logging is no longer supported. Remove this attribute from the configuration; there is no replacement. It is retained temporarily for compatibility with existing Terraform state and will be removed in a future major version of the provider.",
 									},
 									"folder_id": {
 										Type:          schema.TypeString,
