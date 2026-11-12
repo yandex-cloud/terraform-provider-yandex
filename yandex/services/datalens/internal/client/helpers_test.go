@@ -1,4 +1,4 @@
-package datalens
+package client
 
 import (
 	"testing"

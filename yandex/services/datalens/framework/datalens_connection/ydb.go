@@ -2,7 +2,7 @@ package datalens_connection
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datalens"
+	datalens "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/datalens/internal/client"
 )
 
 func flattenYdbToMap(ydb *ydbConfigModel, m map[string]interface{}) {

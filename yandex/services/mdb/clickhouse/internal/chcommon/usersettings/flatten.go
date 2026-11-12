@@ -7,8 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/internal/chcommon"
 )
 
 func flattenJoinAlgorithmSettings(ctx context.Context, algoEnumSlice []clickhouse.UserSettings_JoinAlgorithm, diags *diag.Diagnostics) types.Set {

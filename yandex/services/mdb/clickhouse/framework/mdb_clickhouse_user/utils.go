@@ -5,7 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/internal/chcommon"
 	"google.golang.org/grpc/status"
 )
 

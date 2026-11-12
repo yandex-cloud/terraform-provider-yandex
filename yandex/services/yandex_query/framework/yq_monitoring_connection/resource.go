@@ -12,7 +12,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/validate"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/yqcommon"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/yandex_query/internal/yqcommon"
 	"github.com/ydb-platform/ydb-go-genproto/draft/protos/Ydb_FederatedQuery"
 )
 

@@ -3,8 +3,8 @@ package mdb_clickhouse_user
 import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/internal/chcommon/usersettings"
 )
 
 func DataSourceUserSchema() schema.Schema {

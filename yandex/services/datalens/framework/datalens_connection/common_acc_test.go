@@ -10,9 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datalens"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	datalens "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/datalens/internal/client"
 )
 
 const (

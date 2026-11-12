@@ -13,9 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/internal/chcommon/usersettings"
 )
 
 // TestMain - add sweepers flag to the go test command

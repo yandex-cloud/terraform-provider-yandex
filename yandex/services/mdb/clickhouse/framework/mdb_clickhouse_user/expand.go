@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/internal/chcommon"
 )
 
 func expandPermissionsFromState(ctx context.Context, permissionsSet types.Set, diags *diag.Diagnostics) []*clickhouse.Permission {

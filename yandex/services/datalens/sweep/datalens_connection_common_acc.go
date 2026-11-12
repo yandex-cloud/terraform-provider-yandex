@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datalens"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
+	datalens "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/datalens/internal/client"
 )
 
 func registerDatalensConnectionCommonAcc(add func(string, *resource.Sweeper)) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datalens"
+	datalens "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/datalens/internal/client"
 )
 
 type connectionClient struct {

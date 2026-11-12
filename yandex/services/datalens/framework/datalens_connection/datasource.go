@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datalens"
+	datalens "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/datalens/internal/client"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.

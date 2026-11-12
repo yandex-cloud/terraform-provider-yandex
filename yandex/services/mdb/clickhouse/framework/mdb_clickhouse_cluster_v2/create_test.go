@@ -20,11 +20,11 @@ import (
 
 	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/framework/mdb_clickhouse_cluster_v2/models"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/framework/mdb_clickhouse_cluster_v2/utils"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/internal/chcommon/usersettings"
 )
 
 func makeDefaultUserSettingsTF(settings usersettings.Setting) types.Object {

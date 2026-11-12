@@ -14,9 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/resourceid"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/internal/chcommon/usersettings"
 )
 
 const (

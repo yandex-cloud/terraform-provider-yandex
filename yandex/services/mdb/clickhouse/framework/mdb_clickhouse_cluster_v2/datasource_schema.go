@@ -7,8 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	"github.com/yandex-cloud/terraform-provider-yandex/pkg/chcommon/usersettings"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/internal/chcommon/usersettings"
 )
 
 func DataSourceClusterSchema(ctx context.Context) schema.Schema {
