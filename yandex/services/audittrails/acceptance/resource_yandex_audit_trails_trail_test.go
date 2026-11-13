@@ -134,6 +134,40 @@ func TestAccResourceAuditTrailsTrail_logging(t *testing.T) {
 	})
 }
 
+func TestAccResourceAuditTrailsTrail_monium(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	saName := acctest.RandomWithPrefix("tf-acc-trail-monium-sa")
+	trailTestName := acctest.RandomWithPrefix("tf-acc-trail")
+	tfBaseConfig := auditTrailsServiceAccountConfig(saName)
+	initialTrail := auditTrailsMoniumConfig(trailTestName, saName)
+
+	updatedTrail := initialTrail
+	updatedTrail.Description = "updated Monium trail"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckYandexAuditTrailsTrailAllDestroyed,
+		Steps: []resource.TestStep{
+			{
+				Config: tfBaseConfig,
+			},
+			{
+				Config: tfBaseConfig + initialTrail.toTerraformResource(),
+				Check:  checkTrail(initialTrail, false),
+			},
+			auditTrailsTrailImportStep(trailTestName),
+			{
+				Config: tfBaseConfig + updatedTrail.toTerraformResource(),
+				Check:  checkTrail(updatedTrail, false),
+			},
+			auditTrailsTrailImportStep(trailTestName),
+		},
+	})
+}
+
 func TestAccResourceAuditTrailsTrail_dataStream(t *testing.T) {
 	suite := testSuite{acceptance.New(t)}
 	t.Parallel()
@@ -239,6 +273,12 @@ func checkTrail(trail yandexAuditTrailsTrail, dataSourceCheck bool) resource.Tes
 			"data_stream_destination.0.codec", getCodec(dataStreamConfig)))
 	} else {
 		checks = append(checks, resource.TestCheckResourceAttr(resourceName, "data_stream_destination.#", "0"))
+	}
+
+	if trail.MoniumDestination {
+		checks = append(checks, resource.TestCheckResourceAttr(resourceName, "monium_destination.#", "1"))
+	} else {
+		checks = append(checks, resource.TestCheckResourceAttr(resourceName, "monium_destination.#", "0"))
 	}
 
 	managementFilter := trail.FilteringPolicy.ManagementFilter
@@ -607,6 +647,27 @@ func auditTrailsLoggingConfig(trailResourceName, logGroupName, saName string) ya
 	}
 }
 
+func auditTrailsMoniumConfig(trailResourceName, saName string) yandexAuditTrailsTrail {
+	return yandexAuditTrailsTrail{
+		Name:               trailResourceName,
+		FolderID:           acceptance.FolderID(),
+		Description:        "some desc",
+		Labels:             map[string]string{"a": "b"},
+		ServiceAccountName: saName,
+		MoniumDestination:  true,
+		FilteringPolicy: trailFilteringPolicy{
+			ManagementFilter: trailManagementFilter{
+				ResourceScope: []trailResourceEntry{
+					{
+						ResourceId:   acceptance.FolderID(),
+						ResourceType: "resource-manager.folder",
+					},
+				},
+			},
+		},
+	}
+}
+
 func auditTrailsStorageConfig(trailResourceName, bucketName, saName, aggregationPeriod string) yandexAuditTrailsTrail {
 	return yandexAuditTrailsTrail{
 		Name:               trailResourceName,
@@ -837,6 +898,10 @@ resource "yandex_audit_trails_trail" "{{.Name}}" {
  {{end}}
  {{end}}
 
+ {{if .MoniumDestination}}
+ monium_destination {}
+ {{end}}
+
  filtering_policy {
     {{if .FilteringPolicy.ManagementFilter}}
 	management_events_filter {
@@ -1015,6 +1080,7 @@ type yandexAuditTrailsTrail struct {
 	LoggingDestination trailLoggingDestination
 	YDSDestination     trailDataStreamDestination
 	StorageDestination trailStorageDestination
+	MoniumDestination  bool
 	FilteringPolicy    trailFilteringPolicy
 }
 

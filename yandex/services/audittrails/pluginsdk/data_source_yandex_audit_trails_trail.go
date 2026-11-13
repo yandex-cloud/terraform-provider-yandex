@@ -198,7 +198,7 @@ func DataSourceYandexAuditTrailsTrail() *schema.Resource {
 			"storage_destination": {
 				Computed:    true,
 				Type:        schema.TypeList,
-				Description: "Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`.",
+				Description: "Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination`, `data_stream_destination` and `monium_destination`.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bucket_name": {
@@ -222,7 +222,7 @@ func DataSourceYandexAuditTrailsTrail() *schema.Resource {
 			"logging_destination": {
 				Computed:    true,
 				Type:        schema.TypeList,
-				Description: "Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`.",
+				Description: "Structure describing destination log group of the trail. Mutually exclusive with `storage_destination`, `data_stream_destination` and `monium_destination`.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"log_group_id": {
@@ -236,7 +236,7 @@ func DataSourceYandexAuditTrailsTrail() *schema.Resource {
 			"data_stream_destination": {
 				Computed:    true,
 				Type:        schema.TypeList,
-				Description: "Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`.",
+				Description: "Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination`, `storage_destination` and `monium_destination`.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"database_id": {
@@ -255,6 +255,14 @@ func DataSourceYandexAuditTrailsTrail() *schema.Resource {
 							Computed:    true,
 						},
 					},
+				},
+			},
+			"monium_destination": {
+				Computed:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing Monium destination of the trail. Mutually exclusive with `storage_destination`, `logging_destination` and `data_stream_destination`. This block has no configurable parameters.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{},
 				},
 			},
 			"filtering_policy": {
@@ -462,6 +470,12 @@ func unpackProtoTrailIntoResourceData(trail *audittrails.Trail, data *schema.Res
 		result = setAndAppendError(data, "storage_destination", []interface{}{bucket}, result)
 	} else {
 		result = setAndAppendError(data, "storage_destination", nil, result)
+	}
+
+	if moniumDestination := trail.GetDestination().GetMonium(); moniumDestination != nil {
+		result = setAndAppendError(data, "monium_destination", []interface{}{map[string]interface{}{}}, result)
+	} else {
+		result = setAndAppendError(data, "monium_destination", nil, result)
 	}
 
 	flatTrailFilteringPolicy := map[string]interface{}{}

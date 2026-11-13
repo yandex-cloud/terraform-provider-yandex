@@ -79,6 +79,31 @@ func TestAccDataSourceAuditTrailsTrail_loggingByID(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceAuditTrailsTrail_moniumByID(t *testing.T) {
+	suite := testSuite{acceptance.New(t)}
+	t.Parallel()
+
+	saName := acctest.RandomWithPrefix("tf-data-acc-trail-monium-sa")
+	trailTestName := acctest.RandomWithPrefix("tf-data-acc-trail")
+	tfBaseConfig := auditTrailsServiceAccountConfig(saName)
+	trailConfig := auditTrailsMoniumConfig(trailTestName, saName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptance.PreCheck(t) },
+		ProtoV6ProviderFactories: suite.Protocol6Factories(),
+		CheckDestroy:             suite.testAccCheckYandexAuditTrailsTrailAllDestroyed,
+		Steps: []resource.TestStep{
+			{
+				Config: tfBaseConfig,
+			},
+			{
+				Config: tfBaseConfig + trailConfig.toTerraformResource() + trailConfig.toTerraformData(),
+				Check:  checkTrail(trailConfig, true),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceAuditTrailsTrail_dataStreamByID(t *testing.T) {
 	suite := testSuite{acceptance.New(t)}
 	t.Parallel()

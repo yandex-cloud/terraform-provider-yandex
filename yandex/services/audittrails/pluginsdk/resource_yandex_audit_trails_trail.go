@@ -144,10 +144,11 @@ func ResourceYandexAuditTrailsTrail() *schema.Resource {
 					"storage_destination",
 					"logging_destination",
 					"data_stream_destination",
+					"monium_destination",
 				},
 				Optional:    true,
 				Type:        schema.TypeList,
-				Description: "Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and `data_stream_destination`.",
+				Description: "Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination`, `data_stream_destination` and `monium_destination`.",
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -176,10 +177,11 @@ func ResourceYandexAuditTrailsTrail() *schema.Resource {
 					"storage_destination",
 					"logging_destination",
 					"data_stream_destination",
+					"monium_destination",
 				},
 				Optional:    true,
 				Type:        schema.TypeList,
-				Description: "Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and `data_stream_destination`.",
+				Description: "Structure describing destination log group of the trail. Mutually exclusive with `storage_destination`, `data_stream_destination` and `monium_destination`.",
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -196,10 +198,11 @@ func ResourceYandexAuditTrailsTrail() *schema.Resource {
 					"storage_destination",
 					"logging_destination",
 					"data_stream_destination",
+					"monium_destination",
 				},
 				Optional:    true,
 				Type:        schema.TypeList,
-				Description: "Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and `storage_destination`.",
+				Description: "Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination`, `storage_destination` and `monium_destination`.",
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -223,6 +226,21 @@ func ResourceYandexAuditTrailsTrail() *schema.Resource {
 							Description: "Codec for compressing events. Allowed values: RAW, GZIP, ZSTD. Default: RAW",
 						},
 					},
+				},
+			},
+			"monium_destination": {
+				ExactlyOneOf: []string{
+					"storage_destination",
+					"logging_destination",
+					"data_stream_destination",
+					"monium_destination",
+				},
+				Optional:    true,
+				Type:        schema.TypeList,
+				Description: "Structure describing Monium destination of the trail. Mutually exclusive with `storage_destination`, `logging_destination` and `data_stream_destination`. This block has no configurable parameters.",
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{},
 				},
 			},
 			"filtering_policy": {
@@ -910,6 +928,14 @@ func packResourceDataIntoDestination(data *schema.ResourceData) (*audittrails.Tr
 					StreamName: data.Get("data_stream_destination.0.stream_name").(string),
 					Codec:      audittrails.Trail_Codec(audittrails.Trail_Codec_value[data.Get("data_stream_destination.0.codec").(string)]),
 				},
+			},
+		}, nil
+	}
+
+	if _, exists := data.GetOk("monium_destination"); exists {
+		return &audittrails.Trail_Destination{
+			Destination: &audittrails.Trail_Destination_Monium{
+				Monium: &audittrails.Trail_Monium{},
 			},
 		}, nil
 	}
