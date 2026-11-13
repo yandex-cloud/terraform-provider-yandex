@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'kubernetes: deprecate `master.master_logging.log_group_id` in `yandex_kubernetes_cluster`; remove it from configurations because Yandex Cloud Logging is decommissioned'
-time: 2026-11-10T16:40:52.440923+01:00

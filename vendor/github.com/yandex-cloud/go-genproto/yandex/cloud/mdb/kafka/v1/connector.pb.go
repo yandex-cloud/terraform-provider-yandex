@@ -72,7 +72,7 @@ func (x Connector_Health) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Connector_Health.Descriptor instead.
 func (Connector_Health) EnumDescriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{20, 0}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{22, 0}
 }
 
 type Connector_Status int32
@@ -128,7 +128,111 @@ func (x Connector_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Connector_Status.Descriptor instead.
 func (Connector_Status) EnumDescriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{20, 1}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{22, 1}
+}
+
+type ConnectorConfigMirrorCheckpoint_ReplicationPolicy int32
+
+const (
+	// Use source settings captured at creation.
+	ConnectorConfigMirrorCheckpoint_REPLICATION_POLICY_UNSPECIFIED ConnectorConfigMirrorCheckpoint_ReplicationPolicy = 0
+	// Prefix replicated topic names with the source cluster alias.
+	ConnectorConfigMirrorCheckpoint_DEFAULT ConnectorConfigMirrorCheckpoint_ReplicationPolicy = 1
+	// Preserve original topic names.
+	ConnectorConfigMirrorCheckpoint_IDENTITY ConnectorConfigMirrorCheckpoint_ReplicationPolicy = 2
+)
+
+// Enum value maps for ConnectorConfigMirrorCheckpoint_ReplicationPolicy.
+var (
+	ConnectorConfigMirrorCheckpoint_ReplicationPolicy_name = map[int32]string{
+		0: "REPLICATION_POLICY_UNSPECIFIED",
+		1: "DEFAULT",
+		2: "IDENTITY",
+	}
+	ConnectorConfigMirrorCheckpoint_ReplicationPolicy_value = map[string]int32{
+		"REPLICATION_POLICY_UNSPECIFIED": 0,
+		"DEFAULT":                        1,
+		"IDENTITY":                       2,
+	}
+)
+
+func (x ConnectorConfigMirrorCheckpoint_ReplicationPolicy) Enum() *ConnectorConfigMirrorCheckpoint_ReplicationPolicy {
+	p := new(ConnectorConfigMirrorCheckpoint_ReplicationPolicy)
+	*p = x
+	return p
+}
+
+func (x ConnectorConfigMirrorCheckpoint_ReplicationPolicy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ConnectorConfigMirrorCheckpoint_ReplicationPolicy) Descriptor() protoreflect.EnumDescriptor {
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_enumTypes[2].Descriptor()
+}
+
+func (ConnectorConfigMirrorCheckpoint_ReplicationPolicy) Type() protoreflect.EnumType {
+	return &file_yandex_cloud_mdb_kafka_v1_connector_proto_enumTypes[2]
+}
+
+func (x ConnectorConfigMirrorCheckpoint_ReplicationPolicy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ConnectorConfigMirrorCheckpoint_ReplicationPolicy.Descriptor instead.
+func (ConnectorConfigMirrorCheckpoint_ReplicationPolicy) EnumDescriptor() ([]byte, []int) {
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{23, 0}
+}
+
+type ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation int32
+
+const (
+	// Use source settings captured at creation.
+	ConnectorConfigMirrorCheckpoint_OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation = 0
+	// Read offset mappings from the source cluster.
+	ConnectorConfigMirrorCheckpoint_SOURCE ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation = 1
+	// Read offset mappings from the target cluster.
+	ConnectorConfigMirrorCheckpoint_TARGET ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation = 2
+)
+
+// Enum value maps for ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation.
+var (
+	ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation_name = map[int32]string{
+		0: "OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED",
+		1: "SOURCE",
+		2: "TARGET",
+	}
+	ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation_value = map[string]int32{
+		"OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED": 0,
+		"SOURCE": 1,
+		"TARGET": 2,
+	}
+)
+
+func (x ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation) Enum() *ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation {
+	p := new(ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation)
+	*p = x
+	return p
+}
+
+func (x ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation) Descriptor() protoreflect.EnumDescriptor {
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_enumTypes[3].Descriptor()
+}
+
+func (ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation) Type() protoreflect.EnumType {
+	return &file_yandex_cloud_mdb_kafka_v1_connector_proto_enumTypes[3]
+}
+
+func (x ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation.Descriptor instead.
+func (ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation) EnumDescriptor() ([]byte, []int) {
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{23, 1}
 }
 
 // An object that represents an Apache Kafka® connector.
@@ -151,6 +255,7 @@ type ConnectorSpec struct {
 	//	*ConnectorSpec_ConnectorConfigMirrormaker
 	//	*ConnectorSpec_ConnectorConfigS3Sink
 	//	*ConnectorSpec_ConnectorConfigIcebergSink
+	//	*ConnectorSpec_ConnectorConfigMirrorCheckpoint
 	ConnectorConfig isConnectorSpec_ConnectorConfig `protobuf_oneof:"connector_config"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -248,6 +353,15 @@ func (x *ConnectorSpec) GetConnectorConfigIcebergSink() *ConnectorConfigIcebergS
 	return nil
 }
 
+func (x *ConnectorSpec) GetConnectorConfigMirrorCheckpoint() *ConnectorConfigMirrorCheckpointSpec {
+	if x != nil {
+		if x, ok := x.ConnectorConfig.(*ConnectorSpec_ConnectorConfigMirrorCheckpoint); ok {
+			return x.ConnectorConfigMirrorCheckpoint
+		}
+	}
+	return nil
+}
+
 type isConnectorSpec_ConnectorConfig interface {
 	isConnectorSpec_ConnectorConfig()
 }
@@ -267,11 +381,18 @@ type ConnectorSpec_ConnectorConfigIcebergSink struct {
 	ConnectorConfigIcebergSink *ConnectorConfigIcebergSinkSpec `protobuf:"bytes,12,opt,name=connector_config_iceberg_sink,json=connectorConfigIcebergSink,proto3,oneof"`
 }
 
+type ConnectorSpec_ConnectorConfigMirrorCheckpoint struct {
+	// MirrorCheckpoint connector configuration.
+	ConnectorConfigMirrorCheckpoint *ConnectorConfigMirrorCheckpointSpec `protobuf:"bytes,14,opt,name=connector_config_mirror_checkpoint,json=connectorConfigMirrorCheckpoint,proto3,oneof"`
+}
+
 func (*ConnectorSpec_ConnectorConfigMirrormaker) isConnectorSpec_ConnectorConfig() {}
 
 func (*ConnectorSpec_ConnectorConfigS3Sink) isConnectorSpec_ConnectorConfig() {}
 
 func (*ConnectorSpec_ConnectorConfigIcebergSink) isConnectorSpec_ConnectorConfig() {}
+
+func (*ConnectorSpec_ConnectorConfigMirrorCheckpoint) isConnectorSpec_ConnectorConfig() {}
 
 // Connector worker placement.
 // By default, workers run on Kafka broker hosts.
@@ -334,6 +455,7 @@ type UpdateConnectorSpec struct {
 	//	*UpdateConnectorSpec_ConnectorConfigMirrormaker
 	//	*UpdateConnectorSpec_ConnectorConfigS3Sink
 	//	*UpdateConnectorSpec_ConnectorConfigIcebergSink
+	//	*UpdateConnectorSpec_ConnectorConfigMirrorCheckpoint
 	ConnectorConfig isUpdateConnectorSpec_ConnectorConfig `protobuf_oneof:"connector_config"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -417,6 +539,15 @@ func (x *UpdateConnectorSpec) GetConnectorConfigIcebergSink() *UpdateConnectorCo
 	return nil
 }
 
+func (x *UpdateConnectorSpec) GetConnectorConfigMirrorCheckpoint() *UpdateConnectorConfigMirrorCheckpointSpec {
+	if x != nil {
+		if x, ok := x.ConnectorConfig.(*UpdateConnectorSpec_ConnectorConfigMirrorCheckpoint); ok {
+			return x.ConnectorConfigMirrorCheckpoint
+		}
+	}
+	return nil
+}
+
 type isUpdateConnectorSpec_ConnectorConfig interface {
 	isUpdateConnectorSpec_ConnectorConfig()
 }
@@ -436,11 +567,153 @@ type UpdateConnectorSpec_ConnectorConfigIcebergSink struct {
 	ConnectorConfigIcebergSink *UpdateConnectorConfigIcebergSinkSpec `protobuf:"bytes,12,opt,name=connector_config_iceberg_sink,json=connectorConfigIcebergSink,proto3,oneof"`
 }
 
+type UpdateConnectorSpec_ConnectorConfigMirrorCheckpoint struct {
+	// Updated configuration of the MirrorCheckpoint connector.
+	ConnectorConfigMirrorCheckpoint *UpdateConnectorConfigMirrorCheckpointSpec `protobuf:"bytes,14,opt,name=connector_config_mirror_checkpoint,json=connectorConfigMirrorCheckpoint,proto3,oneof"`
+}
+
 func (*UpdateConnectorSpec_ConnectorConfigMirrormaker) isUpdateConnectorSpec_ConnectorConfig() {}
 
 func (*UpdateConnectorSpec_ConnectorConfigS3Sink) isUpdateConnectorSpec_ConnectorConfig() {}
 
 func (*UpdateConnectorSpec_ConnectorConfigIcebergSink) isUpdateConnectorSpec_ConnectorConfig() {}
+
+func (*UpdateConnectorSpec_ConnectorConfigMirrorCheckpoint) isUpdateConnectorSpec_ConnectorConfig() {}
+
+type ConnectorConfigMirrorCheckpointSpec struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Existing MirrorMaker connector in this cluster whose settings are copied at creation.
+	SourceConnectorName string `protobuf:"bytes,1,opt,name=source_connector_name,json=sourceConnectorName,proto3" json:"source_connector_name,omitempty"`
+	// Literal consumer group names to synchronize.
+	Groups []string `protobuf:"bytes,2,rep,name=groups,proto3" json:"groups,omitempty"`
+	// Replication policy; unspecified uses the source settings captured at creation.
+	ReplicationPolicy ConnectorConfigMirrorCheckpoint_ReplicationPolicy `protobuf:"varint,3,opt,name=replication_policy,json=replicationPolicy,proto3,enum=yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint_ReplicationPolicy" json:"replication_policy,omitempty"`
+	// Offset-mapping location; unspecified uses the source settings captured at creation.
+	OffsetSyncsTopicLocation ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation `protobuf:"varint,4,opt,name=offset_syncs_topic_location,json=offsetSyncsTopicLocation,proto3,enum=yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation" json:"offset_syncs_topic_location,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *ConnectorConfigMirrorCheckpointSpec) Reset() {
+	*x = ConnectorConfigMirrorCheckpointSpec{}
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectorConfigMirrorCheckpointSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectorConfigMirrorCheckpointSpec) ProtoMessage() {}
+
+func (x *ConnectorConfigMirrorCheckpointSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectorConfigMirrorCheckpointSpec.ProtoReflect.Descriptor instead.
+func (*ConnectorConfigMirrorCheckpointSpec) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ConnectorConfigMirrorCheckpointSpec) GetSourceConnectorName() string {
+	if x != nil {
+		return x.SourceConnectorName
+	}
+	return ""
+}
+
+func (x *ConnectorConfigMirrorCheckpointSpec) GetGroups() []string {
+	if x != nil {
+		return x.Groups
+	}
+	return nil
+}
+
+func (x *ConnectorConfigMirrorCheckpointSpec) GetReplicationPolicy() ConnectorConfigMirrorCheckpoint_ReplicationPolicy {
+	if x != nil {
+		return x.ReplicationPolicy
+	}
+	return ConnectorConfigMirrorCheckpoint_REPLICATION_POLICY_UNSPECIFIED
+}
+
+func (x *ConnectorConfigMirrorCheckpointSpec) GetOffsetSyncsTopicLocation() ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation {
+	if x != nil {
+		return x.OffsetSyncsTopicLocation
+	}
+	return ConnectorConfigMirrorCheckpoint_OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED
+}
+
+type UpdateConnectorConfigMirrorCheckpointSpec struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Replaces the list of literal consumer group names to synchronize.
+	Groups []string `protobuf:"bytes,2,rep,name=groups,proto3" json:"groups,omitempty"`
+	// Replication policy; unspecified restores the source setting captured at creation.
+	ReplicationPolicy ConnectorConfigMirrorCheckpoint_ReplicationPolicy `protobuf:"varint,3,opt,name=replication_policy,json=replicationPolicy,proto3,enum=yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint_ReplicationPolicy" json:"replication_policy,omitempty"`
+	// Offset-mapping location; unspecified restores the source setting captured at creation.
+	OffsetSyncsTopicLocation ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation `protobuf:"varint,4,opt,name=offset_syncs_topic_location,json=offsetSyncsTopicLocation,proto3,enum=yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation" json:"offset_syncs_topic_location,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *UpdateConnectorConfigMirrorCheckpointSpec) Reset() {
+	*x = UpdateConnectorConfigMirrorCheckpointSpec{}
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateConnectorConfigMirrorCheckpointSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateConnectorConfigMirrorCheckpointSpec) ProtoMessage() {}
+
+func (x *UpdateConnectorConfigMirrorCheckpointSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateConnectorConfigMirrorCheckpointSpec.ProtoReflect.Descriptor instead.
+func (*UpdateConnectorConfigMirrorCheckpointSpec) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UpdateConnectorConfigMirrorCheckpointSpec) GetGroups() []string {
+	if x != nil {
+		return x.Groups
+	}
+	return nil
+}
+
+func (x *UpdateConnectorConfigMirrorCheckpointSpec) GetReplicationPolicy() ConnectorConfigMirrorCheckpoint_ReplicationPolicy {
+	if x != nil {
+		return x.ReplicationPolicy
+	}
+	return ConnectorConfigMirrorCheckpoint_REPLICATION_POLICY_UNSPECIFIED
+}
+
+func (x *UpdateConnectorConfigMirrorCheckpointSpec) GetOffsetSyncsTopicLocation() ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation {
+	if x != nil {
+		return x.OffsetSyncsTopicLocation
+	}
+	return ConnectorConfigMirrorCheckpoint_OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED
+}
 
 type ConnectorConfigMirrorMakerSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -458,7 +731,7 @@ type ConnectorConfigMirrorMakerSpec struct {
 
 func (x *ConnectorConfigMirrorMakerSpec) Reset() {
 	*x = ConnectorConfigMirrorMakerSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[3]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -470,7 +743,7 @@ func (x *ConnectorConfigMirrorMakerSpec) String() string {
 func (*ConnectorConfigMirrorMakerSpec) ProtoMessage() {}
 
 func (x *ConnectorConfigMirrorMakerSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[3]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -483,7 +756,7 @@ func (x *ConnectorConfigMirrorMakerSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectorConfigMirrorMakerSpec.ProtoReflect.Descriptor instead.
 func (*ConnectorConfigMirrorMakerSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{3}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ConnectorConfigMirrorMakerSpec) GetSourceCluster() *ClusterConnectionSpec {
@@ -532,7 +805,7 @@ type ClusterConnectionSpec struct {
 
 func (x *ClusterConnectionSpec) Reset() {
 	*x = ClusterConnectionSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[4]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -544,7 +817,7 @@ func (x *ClusterConnectionSpec) String() string {
 func (*ClusterConnectionSpec) ProtoMessage() {}
 
 func (x *ClusterConnectionSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[4]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -557,7 +830,7 @@ func (x *ClusterConnectionSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterConnectionSpec.ProtoReflect.Descriptor instead.
 func (*ClusterConnectionSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{4}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ClusterConnectionSpec) GetAlias() string {
@@ -618,7 +891,7 @@ type ThisClusterSpec struct {
 
 func (x *ThisClusterSpec) Reset() {
 	*x = ThisClusterSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[5]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -630,7 +903,7 @@ func (x *ThisClusterSpec) String() string {
 func (*ThisClusterSpec) ProtoMessage() {}
 
 func (x *ThisClusterSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[5]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -643,7 +916,7 @@ func (x *ThisClusterSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThisClusterSpec.ProtoReflect.Descriptor instead.
 func (*ThisClusterSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{5}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{7}
 }
 
 type ExternalClusterConnectionSpec struct {
@@ -667,7 +940,7 @@ type ExternalClusterConnectionSpec struct {
 
 func (x *ExternalClusterConnectionSpec) Reset() {
 	*x = ExternalClusterConnectionSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[6]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -679,7 +952,7 @@ func (x *ExternalClusterConnectionSpec) String() string {
 func (*ExternalClusterConnectionSpec) ProtoMessage() {}
 
 func (x *ExternalClusterConnectionSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[6]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -692,7 +965,7 @@ func (x *ExternalClusterConnectionSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalClusterConnectionSpec.ProtoReflect.Descriptor instead.
 func (*ExternalClusterConnectionSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{6}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ExternalClusterConnectionSpec) GetBootstrapServers() string {
@@ -756,7 +1029,7 @@ type ConnectorConfigS3SinkSpec struct {
 
 func (x *ConnectorConfigS3SinkSpec) Reset() {
 	*x = ConnectorConfigS3SinkSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[7]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -768,7 +1041,7 @@ func (x *ConnectorConfigS3SinkSpec) String() string {
 func (*ConnectorConfigS3SinkSpec) ProtoMessage() {}
 
 func (x *ConnectorConfigS3SinkSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[7]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -781,7 +1054,7 @@ func (x *ConnectorConfigS3SinkSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectorConfigS3SinkSpec.ProtoReflect.Descriptor instead.
 func (*ConnectorConfigS3SinkSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{7}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ConnectorConfigS3SinkSpec) GetTopics() string {
@@ -827,7 +1100,7 @@ type UpdateConnectorConfigS3SinkSpec struct {
 
 func (x *UpdateConnectorConfigS3SinkSpec) Reset() {
 	*x = UpdateConnectorConfigS3SinkSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[8]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -839,7 +1112,7 @@ func (x *UpdateConnectorConfigS3SinkSpec) String() string {
 func (*UpdateConnectorConfigS3SinkSpec) ProtoMessage() {}
 
 func (x *UpdateConnectorConfigS3SinkSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[8]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -852,7 +1125,7 @@ func (x *UpdateConnectorConfigS3SinkSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateConnectorConfigS3SinkSpec.ProtoReflect.Descriptor instead.
 func (*UpdateConnectorConfigS3SinkSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{8}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateConnectorConfigS3SinkSpec) GetTopics() string {
@@ -894,7 +1167,7 @@ type S3ConnectionSpec struct {
 
 func (x *S3ConnectionSpec) Reset() {
 	*x = S3ConnectionSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[9]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -906,7 +1179,7 @@ func (x *S3ConnectionSpec) String() string {
 func (*S3ConnectionSpec) ProtoMessage() {}
 
 func (x *S3ConnectionSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[9]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -919,7 +1192,7 @@ func (x *S3ConnectionSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use S3ConnectionSpec.ProtoReflect.Descriptor instead.
 func (*S3ConnectionSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{9}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *S3ConnectionSpec) GetBucketName() string {
@@ -972,7 +1245,7 @@ type ExternalS3StorageSpec struct {
 
 func (x *ExternalS3StorageSpec) Reset() {
 	*x = ExternalS3StorageSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[10]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -984,7 +1257,7 @@ func (x *ExternalS3StorageSpec) String() string {
 func (*ExternalS3StorageSpec) ProtoMessage() {}
 
 func (x *ExternalS3StorageSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[10]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -997,7 +1270,7 @@ func (x *ExternalS3StorageSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalS3StorageSpec.ProtoReflect.Descriptor instead.
 func (*ExternalS3StorageSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{10}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ExternalS3StorageSpec) GetAccessKeyId() string {
@@ -1059,7 +1332,7 @@ type ConnectorConfigIcebergSinkSpec struct {
 
 func (x *ConnectorConfigIcebergSinkSpec) Reset() {
 	*x = ConnectorConfigIcebergSinkSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[11]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1071,7 +1344,7 @@ func (x *ConnectorConfigIcebergSinkSpec) String() string {
 func (*ConnectorConfigIcebergSinkSpec) ProtoMessage() {}
 
 func (x *ConnectorConfigIcebergSinkSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[11]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1084,7 +1357,7 @@ func (x *ConnectorConfigIcebergSinkSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectorConfigIcebergSinkSpec.ProtoReflect.Descriptor instead.
 func (*ConnectorConfigIcebergSinkSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{11}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ConnectorConfigIcebergSinkSpec) GetTopicsSource() isConnectorConfigIcebergSinkSpec_TopicsSource {
@@ -1233,7 +1506,7 @@ type UpdateConnectorConfigIcebergSinkSpec struct {
 
 func (x *UpdateConnectorConfigIcebergSinkSpec) Reset() {
 	*x = UpdateConnectorConfigIcebergSinkSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[12]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1245,7 +1518,7 @@ func (x *UpdateConnectorConfigIcebergSinkSpec) String() string {
 func (*UpdateConnectorConfigIcebergSinkSpec) ProtoMessage() {}
 
 func (x *UpdateConnectorConfigIcebergSinkSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[12]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1258,7 +1531,7 @@ func (x *UpdateConnectorConfigIcebergSinkSpec) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use UpdateConnectorConfigIcebergSinkSpec.ProtoReflect.Descriptor instead.
 func (*UpdateConnectorConfigIcebergSinkSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{12}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *UpdateConnectorConfigIcebergSinkSpec) GetTopicsSource() isUpdateConnectorConfigIcebergSinkSpec_TopicsSource {
@@ -1351,7 +1624,7 @@ type StaticTablesSpec struct {
 
 func (x *StaticTablesSpec) Reset() {
 	*x = StaticTablesSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[13]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1363,7 +1636,7 @@ func (x *StaticTablesSpec) String() string {
 func (*StaticTablesSpec) ProtoMessage() {}
 
 func (x *StaticTablesSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[13]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1376,7 +1649,7 @@ func (x *StaticTablesSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StaticTablesSpec.ProtoReflect.Descriptor instead.
 func (*StaticTablesSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{13}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *StaticTablesSpec) GetTables() string {
@@ -1397,7 +1670,7 @@ type DynamicTablesSpec struct {
 
 func (x *DynamicTablesSpec) Reset() {
 	*x = DynamicTablesSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[14]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1409,7 +1682,7 @@ func (x *DynamicTablesSpec) String() string {
 func (*DynamicTablesSpec) ProtoMessage() {}
 
 func (x *DynamicTablesSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[14]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1422,7 +1695,7 @@ func (x *DynamicTablesSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DynamicTablesSpec.ProtoReflect.Descriptor instead.
 func (*DynamicTablesSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{14}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *DynamicTablesSpec) GetRouteField() string {
@@ -1447,7 +1720,7 @@ type MetastoreConnectionSpec struct {
 
 func (x *MetastoreConnectionSpec) Reset() {
 	*x = MetastoreConnectionSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[15]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1459,7 +1732,7 @@ func (x *MetastoreConnectionSpec) String() string {
 func (*MetastoreConnectionSpec) ProtoMessage() {}
 
 func (x *MetastoreConnectionSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[15]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1472,7 +1745,7 @@ func (x *MetastoreConnectionSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetastoreConnectionSpec.ProtoReflect.Descriptor instead.
 func (*MetastoreConnectionSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{15}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *MetastoreConnectionSpec) GetCatalogUri() string {
@@ -1505,7 +1778,7 @@ type IcebergS3ConnectionSpec struct {
 
 func (x *IcebergS3ConnectionSpec) Reset() {
 	*x = IcebergS3ConnectionSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[16]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1517,7 +1790,7 @@ func (x *IcebergS3ConnectionSpec) String() string {
 func (*IcebergS3ConnectionSpec) ProtoMessage() {}
 
 func (x *IcebergS3ConnectionSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[16]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1530,7 +1803,7 @@ func (x *IcebergS3ConnectionSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IcebergS3ConnectionSpec.ProtoReflect.Descriptor instead.
 func (*IcebergS3ConnectionSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{16}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *IcebergS3ConnectionSpec) GetStorage() isIcebergS3ConnectionSpec_Storage {
@@ -1576,7 +1849,7 @@ type ExternalIcebergS3StorageSpec struct {
 
 func (x *ExternalIcebergS3StorageSpec) Reset() {
 	*x = ExternalIcebergS3StorageSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[17]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1588,7 +1861,7 @@ func (x *ExternalIcebergS3StorageSpec) String() string {
 func (*ExternalIcebergS3StorageSpec) ProtoMessage() {}
 
 func (x *ExternalIcebergS3StorageSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[17]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1601,7 +1874,7 @@ func (x *ExternalIcebergS3StorageSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalIcebergS3StorageSpec.ProtoReflect.Descriptor instead.
 func (*ExternalIcebergS3StorageSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{17}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ExternalIcebergS3StorageSpec) GetAccessKeyId() string {
@@ -1663,7 +1936,7 @@ type IcebergTablesConfigSpec struct {
 
 func (x *IcebergTablesConfigSpec) Reset() {
 	*x = IcebergTablesConfigSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[18]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1675,7 +1948,7 @@ func (x *IcebergTablesConfigSpec) String() string {
 func (*IcebergTablesConfigSpec) ProtoMessage() {}
 
 func (x *IcebergTablesConfigSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[18]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1688,7 +1961,7 @@ func (x *IcebergTablesConfigSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IcebergTablesConfigSpec.ProtoReflect.Descriptor instead.
 func (*IcebergTablesConfigSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{18}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *IcebergTablesConfigSpec) GetDefaultCommitBranch() string {
@@ -1756,7 +2029,7 @@ type IcebergControlSpec struct {
 
 func (x *IcebergControlSpec) Reset() {
 	*x = IcebergControlSpec{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[19]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1768,7 +2041,7 @@ func (x *IcebergControlSpec) String() string {
 func (*IcebergControlSpec) ProtoMessage() {}
 
 func (x *IcebergControlSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[19]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1781,7 +2054,7 @@ func (x *IcebergControlSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IcebergControlSpec.ProtoReflect.Descriptor instead.
 func (*IcebergControlSpec) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{19}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *IcebergControlSpec) GetGroupIdPrefix() string {
@@ -1843,6 +2116,7 @@ type Connector struct {
 	//	*Connector_ConnectorConfigMirrormaker
 	//	*Connector_ConnectorConfigS3Sink
 	//	*Connector_ConnectorConfigIcebergSink
+	//	*Connector_ConnectorConfigMirrorCheckpoint
 	ConnectorConfig isConnector_ConnectorConfig `protobuf_oneof:"connector_config"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -1850,7 +2124,7 @@ type Connector struct {
 
 func (x *Connector) Reset() {
 	*x = Connector{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[20]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1862,7 +2136,7 @@ func (x *Connector) String() string {
 func (*Connector) ProtoMessage() {}
 
 func (x *Connector) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[20]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1875,7 +2149,7 @@ func (x *Connector) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Connector.ProtoReflect.Descriptor instead.
 func (*Connector) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{20}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *Connector) GetName() string {
@@ -1961,6 +2235,15 @@ func (x *Connector) GetConnectorConfigIcebergSink() *ConnectorConfigIcebergSink 
 	return nil
 }
 
+func (x *Connector) GetConnectorConfigMirrorCheckpoint() *ConnectorConfigMirrorCheckpoint {
+	if x != nil {
+		if x, ok := x.ConnectorConfig.(*Connector_ConnectorConfigMirrorCheckpoint); ok {
+			return x.ConnectorConfigMirrorCheckpoint
+		}
+	}
+	return nil
+}
+
 type isConnector_ConnectorConfig interface {
 	isConnector_ConnectorConfig()
 }
@@ -1980,11 +2263,90 @@ type Connector_ConnectorConfigIcebergSink struct {
 	ConnectorConfigIcebergSink *ConnectorConfigIcebergSink `protobuf:"bytes,12,opt,name=connector_config_iceberg_sink,json=connectorConfigIcebergSink,proto3,oneof"`
 }
 
+type Connector_ConnectorConfigMirrorCheckpoint struct {
+	// MirrorCheckpoint connector configuration.
+	ConnectorConfigMirrorCheckpoint *ConnectorConfigMirrorCheckpoint `protobuf:"bytes,14,opt,name=connector_config_mirror_checkpoint,json=connectorConfigMirrorCheckpoint,proto3,oneof"`
+}
+
 func (*Connector_ConnectorConfigMirrormaker) isConnector_ConnectorConfig() {}
 
 func (*Connector_ConnectorConfigS3Sink) isConnector_ConnectorConfig() {}
 
 func (*Connector_ConnectorConfigIcebergSink) isConnector_ConnectorConfig() {}
+
+func (*Connector_ConnectorConfigMirrorCheckpoint) isConnector_ConnectorConfig() {}
+
+type ConnectorConfigMirrorCheckpoint struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// MirrorMaker connector whose settings were copied at creation.
+	SourceConnectorName string `protobuf:"bytes,1,opt,name=source_connector_name,json=sourceConnectorName,proto3" json:"source_connector_name,omitempty"`
+	// Literal consumer group names whose offsets are synchronized.
+	Groups []string `protobuf:"bytes,2,rep,name=groups,proto3" json:"groups,omitempty"`
+	// Replication policy; unspecified uses the captured source settings.
+	ReplicationPolicy ConnectorConfigMirrorCheckpoint_ReplicationPolicy `protobuf:"varint,3,opt,name=replication_policy,json=replicationPolicy,proto3,enum=yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint_ReplicationPolicy" json:"replication_policy,omitempty"`
+	// Offset-mapping location; unspecified uses the captured source settings.
+	OffsetSyncsTopicLocation ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation `protobuf:"varint,4,opt,name=offset_syncs_topic_location,json=offsetSyncsTopicLocation,proto3,enum=yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation" json:"offset_syncs_topic_location,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *ConnectorConfigMirrorCheckpoint) Reset() {
+	*x = ConnectorConfigMirrorCheckpoint{}
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectorConfigMirrorCheckpoint) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectorConfigMirrorCheckpoint) ProtoMessage() {}
+
+func (x *ConnectorConfigMirrorCheckpoint) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectorConfigMirrorCheckpoint.ProtoReflect.Descriptor instead.
+func (*ConnectorConfigMirrorCheckpoint) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *ConnectorConfigMirrorCheckpoint) GetSourceConnectorName() string {
+	if x != nil {
+		return x.SourceConnectorName
+	}
+	return ""
+}
+
+func (x *ConnectorConfigMirrorCheckpoint) GetGroups() []string {
+	if x != nil {
+		return x.Groups
+	}
+	return nil
+}
+
+func (x *ConnectorConfigMirrorCheckpoint) GetReplicationPolicy() ConnectorConfigMirrorCheckpoint_ReplicationPolicy {
+	if x != nil {
+		return x.ReplicationPolicy
+	}
+	return ConnectorConfigMirrorCheckpoint_REPLICATION_POLICY_UNSPECIFIED
+}
+
+func (x *ConnectorConfigMirrorCheckpoint) GetOffsetSyncsTopicLocation() ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation {
+	if x != nil {
+		return x.OffsetSyncsTopicLocation
+	}
+	return ConnectorConfigMirrorCheckpoint_OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED
+}
 
 type ConnectorConfigMirrorMaker struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2002,7 +2364,7 @@ type ConnectorConfigMirrorMaker struct {
 
 func (x *ConnectorConfigMirrorMaker) Reset() {
 	*x = ConnectorConfigMirrorMaker{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[21]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2014,7 +2376,7 @@ func (x *ConnectorConfigMirrorMaker) String() string {
 func (*ConnectorConfigMirrorMaker) ProtoMessage() {}
 
 func (x *ConnectorConfigMirrorMaker) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[21]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2027,7 +2389,7 @@ func (x *ConnectorConfigMirrorMaker) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectorConfigMirrorMaker.ProtoReflect.Descriptor instead.
 func (*ConnectorConfigMirrorMaker) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{21}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ConnectorConfigMirrorMaker) GetSourceCluster() *ClusterConnection {
@@ -2076,7 +2438,7 @@ type ClusterConnection struct {
 
 func (x *ClusterConnection) Reset() {
 	*x = ClusterConnection{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[22]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2088,7 +2450,7 @@ func (x *ClusterConnection) String() string {
 func (*ClusterConnection) ProtoMessage() {}
 
 func (x *ClusterConnection) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[22]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2101,7 +2463,7 @@ func (x *ClusterConnection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterConnection.ProtoReflect.Descriptor instead.
 func (*ClusterConnection) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{22}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ClusterConnection) GetAlias() string {
@@ -2162,7 +2524,7 @@ type ThisCluster struct {
 
 func (x *ThisCluster) Reset() {
 	*x = ThisCluster{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[23]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2174,7 +2536,7 @@ func (x *ThisCluster) String() string {
 func (*ThisCluster) ProtoMessage() {}
 
 func (x *ThisCluster) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[23]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2187,7 +2549,7 @@ func (x *ThisCluster) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ThisCluster.ProtoReflect.Descriptor instead.
 func (*ThisCluster) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{23}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{26}
 }
 
 type ExternalClusterConnection struct {
@@ -2206,7 +2568,7 @@ type ExternalClusterConnection struct {
 
 func (x *ExternalClusterConnection) Reset() {
 	*x = ExternalClusterConnection{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[24]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2218,7 +2580,7 @@ func (x *ExternalClusterConnection) String() string {
 func (*ExternalClusterConnection) ProtoMessage() {}
 
 func (x *ExternalClusterConnection) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[24]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2231,7 +2593,7 @@ func (x *ExternalClusterConnection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalClusterConnection.ProtoReflect.Descriptor instead.
 func (*ExternalClusterConnection) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{24}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ExternalClusterConnection) GetBootstrapServers() string {
@@ -2282,7 +2644,7 @@ type ConnectorConfigS3Sink struct {
 
 func (x *ConnectorConfigS3Sink) Reset() {
 	*x = ConnectorConfigS3Sink{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[25]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2294,7 +2656,7 @@ func (x *ConnectorConfigS3Sink) String() string {
 func (*ConnectorConfigS3Sink) ProtoMessage() {}
 
 func (x *ConnectorConfigS3Sink) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[25]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2307,7 +2669,7 @@ func (x *ConnectorConfigS3Sink) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectorConfigS3Sink.ProtoReflect.Descriptor instead.
 func (*ConnectorConfigS3Sink) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{25}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ConnectorConfigS3Sink) GetTopics() string {
@@ -2356,7 +2718,7 @@ type S3Connection struct {
 
 func (x *S3Connection) Reset() {
 	*x = S3Connection{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[26]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2368,7 +2730,7 @@ func (x *S3Connection) String() string {
 func (*S3Connection) ProtoMessage() {}
 
 func (x *S3Connection) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[26]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2381,7 +2743,7 @@ func (x *S3Connection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use S3Connection.ProtoReflect.Descriptor instead.
 func (*S3Connection) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{26}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *S3Connection) GetBucketName() string {
@@ -2432,7 +2794,7 @@ type ExternalS3Storage struct {
 
 func (x *ExternalS3Storage) Reset() {
 	*x = ExternalS3Storage{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[27]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2444,7 +2806,7 @@ func (x *ExternalS3Storage) String() string {
 func (*ExternalS3Storage) ProtoMessage() {}
 
 func (x *ExternalS3Storage) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[27]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2457,7 +2819,7 @@ func (x *ExternalS3Storage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalS3Storage.ProtoReflect.Descriptor instead.
 func (*ExternalS3Storage) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{27}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ExternalS3Storage) GetAccessKeyId() string {
@@ -2512,7 +2874,7 @@ type ConnectorConfigIcebergSink struct {
 
 func (x *ConnectorConfigIcebergSink) Reset() {
 	*x = ConnectorConfigIcebergSink{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[28]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2524,7 +2886,7 @@ func (x *ConnectorConfigIcebergSink) String() string {
 func (*ConnectorConfigIcebergSink) ProtoMessage() {}
 
 func (x *ConnectorConfigIcebergSink) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[28]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2537,7 +2899,7 @@ func (x *ConnectorConfigIcebergSink) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectorConfigIcebergSink.ProtoReflect.Descriptor instead.
 func (*ConnectorConfigIcebergSink) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{28}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ConnectorConfigIcebergSink) GetTopicsSource() isConnectorConfigIcebergSink_TopicsSource {
@@ -2671,7 +3033,7 @@ type StaticTables struct {
 
 func (x *StaticTables) Reset() {
 	*x = StaticTables{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[29]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2683,7 +3045,7 @@ func (x *StaticTables) String() string {
 func (*StaticTables) ProtoMessage() {}
 
 func (x *StaticTables) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[29]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2696,7 +3058,7 @@ func (x *StaticTables) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StaticTables.ProtoReflect.Descriptor instead.
 func (*StaticTables) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{29}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *StaticTables) GetTables() string {
@@ -2717,7 +3079,7 @@ type DynamicTables struct {
 
 func (x *DynamicTables) Reset() {
 	*x = DynamicTables{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[30]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2729,7 +3091,7 @@ func (x *DynamicTables) String() string {
 func (*DynamicTables) ProtoMessage() {}
 
 func (x *DynamicTables) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[30]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2742,7 +3104,7 @@ func (x *DynamicTables) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DynamicTables.ProtoReflect.Descriptor instead.
 func (*DynamicTables) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{30}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *DynamicTables) GetRouteField() string {
@@ -2767,7 +3129,7 @@ type MetastoreConnection struct {
 
 func (x *MetastoreConnection) Reset() {
 	*x = MetastoreConnection{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[31]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2779,7 +3141,7 @@ func (x *MetastoreConnection) String() string {
 func (*MetastoreConnection) ProtoMessage() {}
 
 func (x *MetastoreConnection) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[31]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2792,7 +3154,7 @@ func (x *MetastoreConnection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetastoreConnection.ProtoReflect.Descriptor instead.
 func (*MetastoreConnection) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{31}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *MetastoreConnection) GetCatalogUri() string {
@@ -2825,7 +3187,7 @@ type IcebergS3Connection struct {
 
 func (x *IcebergS3Connection) Reset() {
 	*x = IcebergS3Connection{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[32]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2837,7 +3199,7 @@ func (x *IcebergS3Connection) String() string {
 func (*IcebergS3Connection) ProtoMessage() {}
 
 func (x *IcebergS3Connection) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[32]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2850,7 +3212,7 @@ func (x *IcebergS3Connection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IcebergS3Connection.ProtoReflect.Descriptor instead.
 func (*IcebergS3Connection) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{32}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *IcebergS3Connection) GetStorage() isIcebergS3Connection_Storage {
@@ -2894,7 +3256,7 @@ type ExternalIcebergS3Storage struct {
 
 func (x *ExternalIcebergS3Storage) Reset() {
 	*x = ExternalIcebergS3Storage{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[33]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2906,7 +3268,7 @@ func (x *ExternalIcebergS3Storage) String() string {
 func (*ExternalIcebergS3Storage) ProtoMessage() {}
 
 func (x *ExternalIcebergS3Storage) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[33]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2919,7 +3281,7 @@ func (x *ExternalIcebergS3Storage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalIcebergS3Storage.ProtoReflect.Descriptor instead.
 func (*ExternalIcebergS3Storage) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{33}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ExternalIcebergS3Storage) GetAccessKeyId() string {
@@ -2974,7 +3336,7 @@ type IcebergTablesConfig struct {
 
 func (x *IcebergTablesConfig) Reset() {
 	*x = IcebergTablesConfig{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[34]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2986,7 +3348,7 @@ func (x *IcebergTablesConfig) String() string {
 func (*IcebergTablesConfig) ProtoMessage() {}
 
 func (x *IcebergTablesConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[34]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2999,7 +3361,7 @@ func (x *IcebergTablesConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IcebergTablesConfig.ProtoReflect.Descriptor instead.
 func (*IcebergTablesConfig) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{34}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *IcebergTablesConfig) GetDefaultCommitBranch() string {
@@ -3067,7 +3429,7 @@ type IcebergControl struct {
 
 func (x *IcebergControl) Reset() {
 	*x = IcebergControl{}
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[35]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3079,7 +3441,7 @@ func (x *IcebergControl) String() string {
 func (*IcebergControl) ProtoMessage() {}
 
 func (x *IcebergControl) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[35]
+	mi := &file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3092,7 +3454,7 @@ func (x *IcebergControl) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IcebergControl.ProtoReflect.Descriptor instead.
 func (*IcebergControl) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{35}
+	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *IcebergControl) GetGroupIdPrefix() string {
@@ -3134,7 +3496,7 @@ var File_yandex_cloud_mdb_kafka_v1_connector_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDesc = "" +
 	"\n" +
-	")yandex/cloud/mdb/kafka/v1/connector.proto\x12\x19yandex.cloud.mdb.kafka.v1\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\xcd\x05\n" +
+	")yandex/cloud/mdb/kafka/v1/connector.proto\x12\x19yandex.cloud.mdb.kafka.v1\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\xdd\x06\n" +
 	"\rConnectorSpec\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x128\n" +
 	"\ttasks_max\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueR\btasksMax\x12X\n" +
@@ -3145,14 +3507,15 @@ const file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDesc = "" +
 	"\x1cconnector_config_mirrormaker\x18\n" +
 	" \x01(\v29.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpecH\x00R\x1aconnectorConfigMirrormaker\x12o\n" +
 	"\x18connector_config_s3_sink\x18\v \x01(\v24.yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkSpecH\x00R\x15connectorConfigS3Sink\x12~\n" +
-	"\x1dconnector_config_iceberg_sink\x18\f \x01(\v29.yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpecH\x00R\x1aconnectorConfigIcebergSink\x1a=\n" +
+	"\x1dconnector_config_iceberg_sink\x18\f \x01(\v29.yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpecH\x00R\x1aconnectorConfigIcebergSink\x12\x8d\x01\n" +
+	"\"connector_config_mirror_checkpoint\x18\x0e \x01(\v2>.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpointSpecH\x00R\x1fconnectorConfigMirrorCheckpoint\x1a=\n" +
 	"\x0fPropertiesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x12\n" +
 	"\x10connector_configJ\x04\b\x04\x10\n" +
 	"\"2\n" +
 	"\x12ConnectorPlacement\x12\x1c\n" +
-	"\tdedicated\x18\x01 \x01(\bR\tdedicated\"\x85\x05\n" +
+	"\tdedicated\x18\x01 \x01(\bR\tdedicated\"\xa1\x06\n" +
 	"\x13UpdateConnectorSpec\x128\n" +
 	"\ttasks_max\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueR\btasksMax\x12^\n" +
 	"\n" +
@@ -3161,12 +3524,22 @@ const file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDesc = "" +
 	"\x1cconnector_config_mirrormaker\x18\n" +
 	" \x01(\v29.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpecH\x00R\x1aconnectorConfigMirrormaker\x12u\n" +
 	"\x18connector_config_s3_sink\x18\v \x01(\v2:.yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigS3SinkSpecH\x00R\x15connectorConfigS3Sink\x12\x84\x01\n" +
-	"\x1dconnector_config_iceberg_sink\x18\f \x01(\v2?.yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpecH\x00R\x1aconnectorConfigIcebergSink\x1a=\n" +
+	"\x1dconnector_config_iceberg_sink\x18\f \x01(\v2?.yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpecH\x00R\x1aconnectorConfigIcebergSink\x12\x93\x01\n" +
+	"\"connector_config_mirror_checkpoint\x18\x0e \x01(\v2D.yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigMirrorCheckpointSpecH\x00R\x1fconnectorConfigMirrorCheckpoint\x1a=\n" +
 	"\x0fPropertiesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x12\n" +
 	"\x10connector_configJ\x04\b\x03\x10\n" +
-	"\"\xb6\x02\n" +
+	"J\x04\b\r\x10\x0e\"\x83\x03\n" +
+	"#ConnectorConfigMirrorCheckpointSpec\x122\n" +
+	"\x15source_connector_name\x18\x01 \x01(\tR\x13sourceConnectorName\x12\x16\n" +
+	"\x06groups\x18\x02 \x03(\tR\x06groups\x12{\n" +
+	"\x12replication_policy\x18\x03 \x01(\x0e2L.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.ReplicationPolicyR\x11replicationPolicy\x12\x92\x01\n" +
+	"\x1boffset_syncs_topic_location\x18\x04 \x01(\x0e2S.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.OffsetSyncsTopicLocationR\x18offsetSyncsTopicLocation\"\xf2\x02\n" +
+	")UpdateConnectorConfigMirrorCheckpointSpec\x12\x16\n" +
+	"\x06groups\x18\x02 \x03(\tR\x06groups\x12{\n" +
+	"\x12replication_policy\x18\x03 \x01(\x0e2L.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.ReplicationPolicyR\x11replicationPolicy\x12\x92\x01\n" +
+	"\x1boffset_syncs_topic_location\x18\x04 \x01(\x0e2S.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.OffsetSyncsTopicLocationR\x18offsetSyncsTopicLocationJ\x04\b\x01\x10\x02R\x15source_connector_name\"\xb6\x02\n" +
 	"\x1eConnectorConfigMirrorMakerSpec\x12W\n" +
 	"\x0esource_cluster\x18\x01 \x01(\v20.yandex.cloud.mdb.kafka.v1.ClusterConnectionSpecR\rsourceCluster\x12W\n" +
 	"\x0etarget_cluster\x18\x02 \x01(\v20.yandex.cloud.mdb.kafka.v1.ClusterConnectionSpecR\rtargetCluster\x12\x16\n" +
@@ -3257,7 +3630,7 @@ const file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDesc = "" +
 	"\x12commit_interval_ms\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueR\x10commitIntervalMs\x12G\n" +
 	"\x11commit_timeout_ms\x18\x03 \x01(\v2\x1b.google.protobuf.Int64ValueR\x0fcommitTimeoutMs\x12B\n" +
 	"\x0ecommit_threads\x18\x04 \x01(\v2\x1b.google.protobuf.Int64ValueR\rcommitThreads\x121\n" +
-	"\x14transactional_prefix\x18\x05 \x01(\tR\x13transactionalPrefix\"\xd7\a\n" +
+	"\x14transactional_prefix\x18\x05 \x01(\tR\x13transactionalPrefix\"\xe3\b\n" +
 	"\tConnector\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x128\n" +
 	"\ttasks_max\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueR\btasksMax\x12T\n" +
@@ -3272,7 +3645,8 @@ const file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDesc = "" +
 	"\x1cconnector_config_mirrormaker\x18\n" +
 	" \x01(\v25.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerH\x00R\x1aconnectorConfigMirrormaker\x12k\n" +
 	"\x18connector_config_s3_sink\x18\v \x01(\v20.yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkH\x00R\x15connectorConfigS3Sink\x12z\n" +
-	"\x1dconnector_config_iceberg_sink\x18\f \x01(\v25.yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkH\x00R\x1aconnectorConfigIcebergSink\x1a=\n" +
+	"\x1dconnector_config_iceberg_sink\x18\f \x01(\v25.yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkH\x00R\x1aconnectorConfigIcebergSink\x12\x89\x01\n" +
+	"\"connector_config_mirror_checkpoint\x18\x0e \x01(\v2:.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpointH\x00R\x1fconnectorConfigMirrorCheckpoint\x1a=\n" +
 	"\x0fPropertiesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"1\n" +
@@ -3287,7 +3661,22 @@ const file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDesc = "" +
 	"\n" +
 	"\x06PAUSED\x10\x03B\x12\n" +
 	"\x10connector_configJ\x04\b\a\x10\n" +
-	"\"\xaa\x02\n" +
+	"\"\xb4\x04\n" +
+	"\x1fConnectorConfigMirrorCheckpoint\x122\n" +
+	"\x15source_connector_name\x18\x01 \x01(\tR\x13sourceConnectorName\x12\x16\n" +
+	"\x06groups\x18\x02 \x03(\tR\x06groups\x12{\n" +
+	"\x12replication_policy\x18\x03 \x01(\x0e2L.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.ReplicationPolicyR\x11replicationPolicy\x12\x92\x01\n" +
+	"\x1boffset_syncs_topic_location\x18\x04 \x01(\x0e2S.yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.OffsetSyncsTopicLocationR\x18offsetSyncsTopicLocation\"R\n" +
+	"\x11ReplicationPolicy\x12\"\n" +
+	"\x1eREPLICATION_POLICY_UNSPECIFIED\x10\x00\x12\v\n" +
+	"\aDEFAULT\x10\x01\x12\f\n" +
+	"\bIDENTITY\x10\x02\"_\n" +
+	"\x18OffsetSyncsTopicLocation\x12+\n" +
+	"'OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED\x10\x00\x12\n" +
+	"\n" +
+	"\x06SOURCE\x10\x01\x12\n" +
+	"\n" +
+	"\x06TARGET\x10\x02\"\xaa\x02\n" +
 	"\x1aConnectorConfigMirrorMaker\x12S\n" +
 	"\x0esource_cluster\x18\x01 \x01(\v2,.yandex.cloud.mdb.kafka.v1.ClusterConnectionR\rsourceCluster\x12S\n" +
 	"\x0etarget_cluster\x18\x02 \x01(\v2,.yandex.cloud.mdb.kafka.v1.ClusterConnectionR\rtargetCluster\x12\x16\n" +
@@ -3375,119 +3764,133 @@ func file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescGZIP() []byte {
 	return file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDescData
 }
 
-var file_yandex_cloud_mdb_kafka_v1_connector_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
+var file_yandex_cloud_mdb_kafka_v1_connector_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
 var file_yandex_cloud_mdb_kafka_v1_connector_proto_goTypes = []any{
-	(Connector_Health)(0),                        // 0: yandex.cloud.mdb.kafka.v1.Connector.Health
-	(Connector_Status)(0),                        // 1: yandex.cloud.mdb.kafka.v1.Connector.Status
-	(*ConnectorSpec)(nil),                        // 2: yandex.cloud.mdb.kafka.v1.ConnectorSpec
-	(*ConnectorPlacement)(nil),                   // 3: yandex.cloud.mdb.kafka.v1.ConnectorPlacement
-	(*UpdateConnectorSpec)(nil),                  // 4: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec
-	(*ConnectorConfigMirrorMakerSpec)(nil),       // 5: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec
-	(*ClusterConnectionSpec)(nil),                // 6: yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec
-	(*ThisClusterSpec)(nil),                      // 7: yandex.cloud.mdb.kafka.v1.ThisClusterSpec
-	(*ExternalClusterConnectionSpec)(nil),        // 8: yandex.cloud.mdb.kafka.v1.ExternalClusterConnectionSpec
-	(*ConnectorConfigS3SinkSpec)(nil),            // 9: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkSpec
-	(*UpdateConnectorConfigS3SinkSpec)(nil),      // 10: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigS3SinkSpec
-	(*S3ConnectionSpec)(nil),                     // 11: yandex.cloud.mdb.kafka.v1.S3ConnectionSpec
-	(*ExternalS3StorageSpec)(nil),                // 12: yandex.cloud.mdb.kafka.v1.ExternalS3StorageSpec
-	(*ConnectorConfigIcebergSinkSpec)(nil),       // 13: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec
-	(*UpdateConnectorConfigIcebergSinkSpec)(nil), // 14: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec
-	(*StaticTablesSpec)(nil),                     // 15: yandex.cloud.mdb.kafka.v1.StaticTablesSpec
-	(*DynamicTablesSpec)(nil),                    // 16: yandex.cloud.mdb.kafka.v1.DynamicTablesSpec
-	(*MetastoreConnectionSpec)(nil),              // 17: yandex.cloud.mdb.kafka.v1.MetastoreConnectionSpec
-	(*IcebergS3ConnectionSpec)(nil),              // 18: yandex.cloud.mdb.kafka.v1.IcebergS3ConnectionSpec
-	(*ExternalIcebergS3StorageSpec)(nil),         // 19: yandex.cloud.mdb.kafka.v1.ExternalIcebergS3StorageSpec
-	(*IcebergTablesConfigSpec)(nil),              // 20: yandex.cloud.mdb.kafka.v1.IcebergTablesConfigSpec
-	(*IcebergControlSpec)(nil),                   // 21: yandex.cloud.mdb.kafka.v1.IcebergControlSpec
-	(*Connector)(nil),                            // 22: yandex.cloud.mdb.kafka.v1.Connector
-	(*ConnectorConfigMirrorMaker)(nil),           // 23: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker
-	(*ClusterConnection)(nil),                    // 24: yandex.cloud.mdb.kafka.v1.ClusterConnection
-	(*ThisCluster)(nil),                          // 25: yandex.cloud.mdb.kafka.v1.ThisCluster
-	(*ExternalClusterConnection)(nil),            // 26: yandex.cloud.mdb.kafka.v1.ExternalClusterConnection
-	(*ConnectorConfigS3Sink)(nil),                // 27: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3Sink
-	(*S3Connection)(nil),                         // 28: yandex.cloud.mdb.kafka.v1.S3Connection
-	(*ExternalS3Storage)(nil),                    // 29: yandex.cloud.mdb.kafka.v1.ExternalS3Storage
-	(*ConnectorConfigIcebergSink)(nil),           // 30: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink
-	(*StaticTables)(nil),                         // 31: yandex.cloud.mdb.kafka.v1.StaticTables
-	(*DynamicTables)(nil),                        // 32: yandex.cloud.mdb.kafka.v1.DynamicTables
-	(*MetastoreConnection)(nil),                  // 33: yandex.cloud.mdb.kafka.v1.MetastoreConnection
-	(*IcebergS3Connection)(nil),                  // 34: yandex.cloud.mdb.kafka.v1.IcebergS3Connection
-	(*ExternalIcebergS3Storage)(nil),             // 35: yandex.cloud.mdb.kafka.v1.ExternalIcebergS3Storage
-	(*IcebergTablesConfig)(nil),                  // 36: yandex.cloud.mdb.kafka.v1.IcebergTablesConfig
-	(*IcebergControl)(nil),                       // 37: yandex.cloud.mdb.kafka.v1.IcebergControl
-	nil,                                          // 38: yandex.cloud.mdb.kafka.v1.ConnectorSpec.PropertiesEntry
-	nil,                                          // 39: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.PropertiesEntry
-	nil,                                          // 40: yandex.cloud.mdb.kafka.v1.Connector.PropertiesEntry
-	(*wrapperspb.Int64Value)(nil),                // 41: google.protobuf.Int64Value
+	(Connector_Health)(0), // 0: yandex.cloud.mdb.kafka.v1.Connector.Health
+	(Connector_Status)(0), // 1: yandex.cloud.mdb.kafka.v1.Connector.Status
+	(ConnectorConfigMirrorCheckpoint_ReplicationPolicy)(0),        // 2: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.ReplicationPolicy
+	(ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation)(0), // 3: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.OffsetSyncsTopicLocation
+	(*ConnectorSpec)(nil),                             // 4: yandex.cloud.mdb.kafka.v1.ConnectorSpec
+	(*ConnectorPlacement)(nil),                        // 5: yandex.cloud.mdb.kafka.v1.ConnectorPlacement
+	(*UpdateConnectorSpec)(nil),                       // 6: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec
+	(*ConnectorConfigMirrorCheckpointSpec)(nil),       // 7: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpointSpec
+	(*UpdateConnectorConfigMirrorCheckpointSpec)(nil), // 8: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigMirrorCheckpointSpec
+	(*ConnectorConfigMirrorMakerSpec)(nil),            // 9: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec
+	(*ClusterConnectionSpec)(nil),                     // 10: yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec
+	(*ThisClusterSpec)(nil),                           // 11: yandex.cloud.mdb.kafka.v1.ThisClusterSpec
+	(*ExternalClusterConnectionSpec)(nil),             // 12: yandex.cloud.mdb.kafka.v1.ExternalClusterConnectionSpec
+	(*ConnectorConfigS3SinkSpec)(nil),                 // 13: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkSpec
+	(*UpdateConnectorConfigS3SinkSpec)(nil),           // 14: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigS3SinkSpec
+	(*S3ConnectionSpec)(nil),                          // 15: yandex.cloud.mdb.kafka.v1.S3ConnectionSpec
+	(*ExternalS3StorageSpec)(nil),                     // 16: yandex.cloud.mdb.kafka.v1.ExternalS3StorageSpec
+	(*ConnectorConfigIcebergSinkSpec)(nil),            // 17: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec
+	(*UpdateConnectorConfigIcebergSinkSpec)(nil),      // 18: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec
+	(*StaticTablesSpec)(nil),                          // 19: yandex.cloud.mdb.kafka.v1.StaticTablesSpec
+	(*DynamicTablesSpec)(nil),                         // 20: yandex.cloud.mdb.kafka.v1.DynamicTablesSpec
+	(*MetastoreConnectionSpec)(nil),                   // 21: yandex.cloud.mdb.kafka.v1.MetastoreConnectionSpec
+	(*IcebergS3ConnectionSpec)(nil),                   // 22: yandex.cloud.mdb.kafka.v1.IcebergS3ConnectionSpec
+	(*ExternalIcebergS3StorageSpec)(nil),              // 23: yandex.cloud.mdb.kafka.v1.ExternalIcebergS3StorageSpec
+	(*IcebergTablesConfigSpec)(nil),                   // 24: yandex.cloud.mdb.kafka.v1.IcebergTablesConfigSpec
+	(*IcebergControlSpec)(nil),                        // 25: yandex.cloud.mdb.kafka.v1.IcebergControlSpec
+	(*Connector)(nil),                                 // 26: yandex.cloud.mdb.kafka.v1.Connector
+	(*ConnectorConfigMirrorCheckpoint)(nil),           // 27: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint
+	(*ConnectorConfigMirrorMaker)(nil),                // 28: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker
+	(*ClusterConnection)(nil),                         // 29: yandex.cloud.mdb.kafka.v1.ClusterConnection
+	(*ThisCluster)(nil),                               // 30: yandex.cloud.mdb.kafka.v1.ThisCluster
+	(*ExternalClusterConnection)(nil),                 // 31: yandex.cloud.mdb.kafka.v1.ExternalClusterConnection
+	(*ConnectorConfigS3Sink)(nil),                     // 32: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3Sink
+	(*S3Connection)(nil),                              // 33: yandex.cloud.mdb.kafka.v1.S3Connection
+	(*ExternalS3Storage)(nil),                         // 34: yandex.cloud.mdb.kafka.v1.ExternalS3Storage
+	(*ConnectorConfigIcebergSink)(nil),                // 35: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink
+	(*StaticTables)(nil),                              // 36: yandex.cloud.mdb.kafka.v1.StaticTables
+	(*DynamicTables)(nil),                             // 37: yandex.cloud.mdb.kafka.v1.DynamicTables
+	(*MetastoreConnection)(nil),                       // 38: yandex.cloud.mdb.kafka.v1.MetastoreConnection
+	(*IcebergS3Connection)(nil),                       // 39: yandex.cloud.mdb.kafka.v1.IcebergS3Connection
+	(*ExternalIcebergS3Storage)(nil),                  // 40: yandex.cloud.mdb.kafka.v1.ExternalIcebergS3Storage
+	(*IcebergTablesConfig)(nil),                       // 41: yandex.cloud.mdb.kafka.v1.IcebergTablesConfig
+	(*IcebergControl)(nil),                            // 42: yandex.cloud.mdb.kafka.v1.IcebergControl
+	nil,                                               // 43: yandex.cloud.mdb.kafka.v1.ConnectorSpec.PropertiesEntry
+	nil,                                               // 44: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.PropertiesEntry
+	nil,                                               // 45: yandex.cloud.mdb.kafka.v1.Connector.PropertiesEntry
+	(*wrapperspb.Int64Value)(nil),                     // 46: google.protobuf.Int64Value
 }
 var file_yandex_cloud_mdb_kafka_v1_connector_proto_depIdxs = []int32{
-	41, // 0: yandex.cloud.mdb.kafka.v1.ConnectorSpec.tasks_max:type_name -> google.protobuf.Int64Value
-	38, // 1: yandex.cloud.mdb.kafka.v1.ConnectorSpec.properties:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorSpec.PropertiesEntry
-	3,  // 2: yandex.cloud.mdb.kafka.v1.ConnectorSpec.placement:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorPlacement
-	5,  // 3: yandex.cloud.mdb.kafka.v1.ConnectorSpec.connector_config_mirrormaker:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec
-	9,  // 4: yandex.cloud.mdb.kafka.v1.ConnectorSpec.connector_config_s3_sink:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkSpec
-	13, // 5: yandex.cloud.mdb.kafka.v1.ConnectorSpec.connector_config_iceberg_sink:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec
-	41, // 6: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.tasks_max:type_name -> google.protobuf.Int64Value
-	39, // 7: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.properties:type_name -> yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.PropertiesEntry
-	5,  // 8: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.connector_config_mirrormaker:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec
-	10, // 9: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.connector_config_s3_sink:type_name -> yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigS3SinkSpec
-	14, // 10: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.connector_config_iceberg_sink:type_name -> yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec
-	6,  // 11: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec.source_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec
-	6,  // 12: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec.target_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec
-	41, // 13: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec.replication_factor:type_name -> google.protobuf.Int64Value
-	7,  // 14: yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec.this_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ThisClusterSpec
-	8,  // 15: yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec.external_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ExternalClusterConnectionSpec
-	41, // 16: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkSpec.file_max_records:type_name -> google.protobuf.Int64Value
-	11, // 17: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkSpec.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.S3ConnectionSpec
-	41, // 18: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigS3SinkSpec.file_max_records:type_name -> google.protobuf.Int64Value
-	11, // 19: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigS3SinkSpec.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.S3ConnectionSpec
-	12, // 20: yandex.cloud.mdb.kafka.v1.S3ConnectionSpec.external_s3:type_name -> yandex.cloud.mdb.kafka.v1.ExternalS3StorageSpec
-	17, // 21: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.metastore_connection:type_name -> yandex.cloud.mdb.kafka.v1.MetastoreConnectionSpec
-	18, // 22: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.IcebergS3ConnectionSpec
-	15, // 23: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.static_tables:type_name -> yandex.cloud.mdb.kafka.v1.StaticTablesSpec
-	16, // 24: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.dynamic_tables:type_name -> yandex.cloud.mdb.kafka.v1.DynamicTablesSpec
-	20, // 25: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.tables_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergTablesConfigSpec
-	21, // 26: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.control_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergControlSpec
-	17, // 27: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec.metastore_connection:type_name -> yandex.cloud.mdb.kafka.v1.MetastoreConnectionSpec
-	18, // 28: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.IcebergS3ConnectionSpec
-	20, // 29: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec.tables_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergTablesConfigSpec
-	21, // 30: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec.control_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergControlSpec
-	19, // 31: yandex.cloud.mdb.kafka.v1.IcebergS3ConnectionSpec.external_s3:type_name -> yandex.cloud.mdb.kafka.v1.ExternalIcebergS3StorageSpec
-	41, // 32: yandex.cloud.mdb.kafka.v1.IcebergControlSpec.commit_interval_ms:type_name -> google.protobuf.Int64Value
-	41, // 33: yandex.cloud.mdb.kafka.v1.IcebergControlSpec.commit_timeout_ms:type_name -> google.protobuf.Int64Value
-	41, // 34: yandex.cloud.mdb.kafka.v1.IcebergControlSpec.commit_threads:type_name -> google.protobuf.Int64Value
-	41, // 35: yandex.cloud.mdb.kafka.v1.Connector.tasks_max:type_name -> google.protobuf.Int64Value
-	40, // 36: yandex.cloud.mdb.kafka.v1.Connector.properties:type_name -> yandex.cloud.mdb.kafka.v1.Connector.PropertiesEntry
-	0,  // 37: yandex.cloud.mdb.kafka.v1.Connector.health:type_name -> yandex.cloud.mdb.kafka.v1.Connector.Health
-	1,  // 38: yandex.cloud.mdb.kafka.v1.Connector.status:type_name -> yandex.cloud.mdb.kafka.v1.Connector.Status
-	3,  // 39: yandex.cloud.mdb.kafka.v1.Connector.placement:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorPlacement
-	23, // 40: yandex.cloud.mdb.kafka.v1.Connector.connector_config_mirrormaker:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker
-	27, // 41: yandex.cloud.mdb.kafka.v1.Connector.connector_config_s3_sink:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigS3Sink
-	30, // 42: yandex.cloud.mdb.kafka.v1.Connector.connector_config_iceberg_sink:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink
-	24, // 43: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker.source_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ClusterConnection
-	24, // 44: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker.target_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ClusterConnection
-	41, // 45: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker.replication_factor:type_name -> google.protobuf.Int64Value
-	25, // 46: yandex.cloud.mdb.kafka.v1.ClusterConnection.this_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ThisCluster
-	26, // 47: yandex.cloud.mdb.kafka.v1.ClusterConnection.external_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ExternalClusterConnection
-	41, // 48: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3Sink.file_max_records:type_name -> google.protobuf.Int64Value
-	28, // 49: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3Sink.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.S3Connection
-	29, // 50: yandex.cloud.mdb.kafka.v1.S3Connection.external_s3:type_name -> yandex.cloud.mdb.kafka.v1.ExternalS3Storage
-	33, // 51: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.metastore_connection:type_name -> yandex.cloud.mdb.kafka.v1.MetastoreConnection
-	34, // 52: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.IcebergS3Connection
-	31, // 53: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.static_tables:type_name -> yandex.cloud.mdb.kafka.v1.StaticTables
-	32, // 54: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.dynamic_tables:type_name -> yandex.cloud.mdb.kafka.v1.DynamicTables
-	36, // 55: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.tables_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergTablesConfig
-	37, // 56: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.control_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergControl
-	35, // 57: yandex.cloud.mdb.kafka.v1.IcebergS3Connection.external_s3:type_name -> yandex.cloud.mdb.kafka.v1.ExternalIcebergS3Storage
-	41, // 58: yandex.cloud.mdb.kafka.v1.IcebergControl.commit_interval_ms:type_name -> google.protobuf.Int64Value
-	41, // 59: yandex.cloud.mdb.kafka.v1.IcebergControl.commit_timeout_ms:type_name -> google.protobuf.Int64Value
-	41, // 60: yandex.cloud.mdb.kafka.v1.IcebergControl.commit_threads:type_name -> google.protobuf.Int64Value
-	61, // [61:61] is the sub-list for method output_type
-	61, // [61:61] is the sub-list for method input_type
-	61, // [61:61] is the sub-list for extension type_name
-	61, // [61:61] is the sub-list for extension extendee
-	0,  // [0:61] is the sub-list for field type_name
+	46, // 0: yandex.cloud.mdb.kafka.v1.ConnectorSpec.tasks_max:type_name -> google.protobuf.Int64Value
+	43, // 1: yandex.cloud.mdb.kafka.v1.ConnectorSpec.properties:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorSpec.PropertiesEntry
+	5,  // 2: yandex.cloud.mdb.kafka.v1.ConnectorSpec.placement:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorPlacement
+	9,  // 3: yandex.cloud.mdb.kafka.v1.ConnectorSpec.connector_config_mirrormaker:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec
+	13, // 4: yandex.cloud.mdb.kafka.v1.ConnectorSpec.connector_config_s3_sink:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkSpec
+	17, // 5: yandex.cloud.mdb.kafka.v1.ConnectorSpec.connector_config_iceberg_sink:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec
+	7,  // 6: yandex.cloud.mdb.kafka.v1.ConnectorSpec.connector_config_mirror_checkpoint:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpointSpec
+	46, // 7: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.tasks_max:type_name -> google.protobuf.Int64Value
+	44, // 8: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.properties:type_name -> yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.PropertiesEntry
+	9,  // 9: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.connector_config_mirrormaker:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec
+	14, // 10: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.connector_config_s3_sink:type_name -> yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigS3SinkSpec
+	18, // 11: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.connector_config_iceberg_sink:type_name -> yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec
+	8,  // 12: yandex.cloud.mdb.kafka.v1.UpdateConnectorSpec.connector_config_mirror_checkpoint:type_name -> yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigMirrorCheckpointSpec
+	2,  // 13: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpointSpec.replication_policy:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.ReplicationPolicy
+	3,  // 14: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpointSpec.offset_syncs_topic_location:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.OffsetSyncsTopicLocation
+	2,  // 15: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigMirrorCheckpointSpec.replication_policy:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.ReplicationPolicy
+	3,  // 16: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigMirrorCheckpointSpec.offset_syncs_topic_location:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.OffsetSyncsTopicLocation
+	10, // 17: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec.source_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec
+	10, // 18: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec.target_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec
+	46, // 19: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMakerSpec.replication_factor:type_name -> google.protobuf.Int64Value
+	11, // 20: yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec.this_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ThisClusterSpec
+	12, // 21: yandex.cloud.mdb.kafka.v1.ClusterConnectionSpec.external_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ExternalClusterConnectionSpec
+	46, // 22: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkSpec.file_max_records:type_name -> google.protobuf.Int64Value
+	15, // 23: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3SinkSpec.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.S3ConnectionSpec
+	46, // 24: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigS3SinkSpec.file_max_records:type_name -> google.protobuf.Int64Value
+	15, // 25: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigS3SinkSpec.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.S3ConnectionSpec
+	16, // 26: yandex.cloud.mdb.kafka.v1.S3ConnectionSpec.external_s3:type_name -> yandex.cloud.mdb.kafka.v1.ExternalS3StorageSpec
+	21, // 27: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.metastore_connection:type_name -> yandex.cloud.mdb.kafka.v1.MetastoreConnectionSpec
+	22, // 28: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.IcebergS3ConnectionSpec
+	19, // 29: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.static_tables:type_name -> yandex.cloud.mdb.kafka.v1.StaticTablesSpec
+	20, // 30: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.dynamic_tables:type_name -> yandex.cloud.mdb.kafka.v1.DynamicTablesSpec
+	24, // 31: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.tables_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergTablesConfigSpec
+	25, // 32: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSinkSpec.control_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergControlSpec
+	21, // 33: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec.metastore_connection:type_name -> yandex.cloud.mdb.kafka.v1.MetastoreConnectionSpec
+	22, // 34: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.IcebergS3ConnectionSpec
+	24, // 35: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec.tables_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergTablesConfigSpec
+	25, // 36: yandex.cloud.mdb.kafka.v1.UpdateConnectorConfigIcebergSinkSpec.control_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergControlSpec
+	23, // 37: yandex.cloud.mdb.kafka.v1.IcebergS3ConnectionSpec.external_s3:type_name -> yandex.cloud.mdb.kafka.v1.ExternalIcebergS3StorageSpec
+	46, // 38: yandex.cloud.mdb.kafka.v1.IcebergControlSpec.commit_interval_ms:type_name -> google.protobuf.Int64Value
+	46, // 39: yandex.cloud.mdb.kafka.v1.IcebergControlSpec.commit_timeout_ms:type_name -> google.protobuf.Int64Value
+	46, // 40: yandex.cloud.mdb.kafka.v1.IcebergControlSpec.commit_threads:type_name -> google.protobuf.Int64Value
+	46, // 41: yandex.cloud.mdb.kafka.v1.Connector.tasks_max:type_name -> google.protobuf.Int64Value
+	45, // 42: yandex.cloud.mdb.kafka.v1.Connector.properties:type_name -> yandex.cloud.mdb.kafka.v1.Connector.PropertiesEntry
+	0,  // 43: yandex.cloud.mdb.kafka.v1.Connector.health:type_name -> yandex.cloud.mdb.kafka.v1.Connector.Health
+	1,  // 44: yandex.cloud.mdb.kafka.v1.Connector.status:type_name -> yandex.cloud.mdb.kafka.v1.Connector.Status
+	5,  // 45: yandex.cloud.mdb.kafka.v1.Connector.placement:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorPlacement
+	28, // 46: yandex.cloud.mdb.kafka.v1.Connector.connector_config_mirrormaker:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker
+	32, // 47: yandex.cloud.mdb.kafka.v1.Connector.connector_config_s3_sink:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigS3Sink
+	35, // 48: yandex.cloud.mdb.kafka.v1.Connector.connector_config_iceberg_sink:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink
+	27, // 49: yandex.cloud.mdb.kafka.v1.Connector.connector_config_mirror_checkpoint:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint
+	2,  // 50: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.replication_policy:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.ReplicationPolicy
+	3,  // 51: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.offset_syncs_topic_location:type_name -> yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorCheckpoint.OffsetSyncsTopicLocation
+	29, // 52: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker.source_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ClusterConnection
+	29, // 53: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker.target_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ClusterConnection
+	46, // 54: yandex.cloud.mdb.kafka.v1.ConnectorConfigMirrorMaker.replication_factor:type_name -> google.protobuf.Int64Value
+	30, // 55: yandex.cloud.mdb.kafka.v1.ClusterConnection.this_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ThisCluster
+	31, // 56: yandex.cloud.mdb.kafka.v1.ClusterConnection.external_cluster:type_name -> yandex.cloud.mdb.kafka.v1.ExternalClusterConnection
+	46, // 57: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3Sink.file_max_records:type_name -> google.protobuf.Int64Value
+	33, // 58: yandex.cloud.mdb.kafka.v1.ConnectorConfigS3Sink.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.S3Connection
+	34, // 59: yandex.cloud.mdb.kafka.v1.S3Connection.external_s3:type_name -> yandex.cloud.mdb.kafka.v1.ExternalS3Storage
+	38, // 60: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.metastore_connection:type_name -> yandex.cloud.mdb.kafka.v1.MetastoreConnection
+	39, // 61: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.s3_connection:type_name -> yandex.cloud.mdb.kafka.v1.IcebergS3Connection
+	36, // 62: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.static_tables:type_name -> yandex.cloud.mdb.kafka.v1.StaticTables
+	37, // 63: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.dynamic_tables:type_name -> yandex.cloud.mdb.kafka.v1.DynamicTables
+	41, // 64: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.tables_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergTablesConfig
+	42, // 65: yandex.cloud.mdb.kafka.v1.ConnectorConfigIcebergSink.control_config:type_name -> yandex.cloud.mdb.kafka.v1.IcebergControl
+	40, // 66: yandex.cloud.mdb.kafka.v1.IcebergS3Connection.external_s3:type_name -> yandex.cloud.mdb.kafka.v1.ExternalIcebergS3Storage
+	46, // 67: yandex.cloud.mdb.kafka.v1.IcebergControl.commit_interval_ms:type_name -> google.protobuf.Int64Value
+	46, // 68: yandex.cloud.mdb.kafka.v1.IcebergControl.commit_timeout_ms:type_name -> google.protobuf.Int64Value
+	46, // 69: yandex.cloud.mdb.kafka.v1.IcebergControl.commit_threads:type_name -> google.protobuf.Int64Value
+	70, // [70:70] is the sub-list for method output_type
+	70, // [70:70] is the sub-list for method input_type
+	70, // [70:70] is the sub-list for extension type_name
+	70, // [70:70] is the sub-list for extension extendee
+	0,  // [0:70] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_kafka_v1_connector_proto_init() }
@@ -3499,51 +3902,54 @@ func file_yandex_cloud_mdb_kafka_v1_connector_proto_init() {
 		(*ConnectorSpec_ConnectorConfigMirrormaker)(nil),
 		(*ConnectorSpec_ConnectorConfigS3Sink)(nil),
 		(*ConnectorSpec_ConnectorConfigIcebergSink)(nil),
+		(*ConnectorSpec_ConnectorConfigMirrorCheckpoint)(nil),
 	}
 	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[2].OneofWrappers = []any{
 		(*UpdateConnectorSpec_ConnectorConfigMirrormaker)(nil),
 		(*UpdateConnectorSpec_ConnectorConfigS3Sink)(nil),
 		(*UpdateConnectorSpec_ConnectorConfigIcebergSink)(nil),
+		(*UpdateConnectorSpec_ConnectorConfigMirrorCheckpoint)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[4].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[6].OneofWrappers = []any{
 		(*ClusterConnectionSpec_ThisCluster)(nil),
 		(*ClusterConnectionSpec_ExternalCluster)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[9].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[11].OneofWrappers = []any{
 		(*S3ConnectionSpec_ExternalS3)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[11].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[13].OneofWrappers = []any{
 		(*ConnectorConfigIcebergSinkSpec_Topics)(nil),
 		(*ConnectorConfigIcebergSinkSpec_TopicsRegex)(nil),
 		(*ConnectorConfigIcebergSinkSpec_StaticTables)(nil),
 		(*ConnectorConfigIcebergSinkSpec_DynamicTables)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[12].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[14].OneofWrappers = []any{
 		(*UpdateConnectorConfigIcebergSinkSpec_Topics)(nil),
 		(*UpdateConnectorConfigIcebergSinkSpec_TopicsRegex)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[16].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[18].OneofWrappers = []any{
 		(*IcebergS3ConnectionSpec_ExternalS3)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[20].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[22].OneofWrappers = []any{
 		(*Connector_ConnectorConfigMirrormaker)(nil),
 		(*Connector_ConnectorConfigS3Sink)(nil),
 		(*Connector_ConnectorConfigIcebergSink)(nil),
+		(*Connector_ConnectorConfigMirrorCheckpoint)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[22].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[25].OneofWrappers = []any{
 		(*ClusterConnection_ThisCluster)(nil),
 		(*ClusterConnection_ExternalCluster)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[26].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[29].OneofWrappers = []any{
 		(*S3Connection_ExternalS3)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[28].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[31].OneofWrappers = []any{
 		(*ConnectorConfigIcebergSink_Topics)(nil),
 		(*ConnectorConfigIcebergSink_TopicsRegex)(nil),
 		(*ConnectorConfigIcebergSink_StaticTables)(nil),
 		(*ConnectorConfigIcebergSink_DynamicTables)(nil),
 	}
-	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[32].OneofWrappers = []any{
+	file_yandex_cloud_mdb_kafka_v1_connector_proto_msgTypes[35].OneofWrappers = []any{
 		(*IcebergS3Connection_ExternalS3)(nil),
 	}
 	type x struct{}
@@ -3551,8 +3957,8 @@ func file_yandex_cloud_mdb_kafka_v1_connector_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDesc), len(file_yandex_cloud_mdb_kafka_v1_connector_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   39,
+			NumEnums:      4,
+			NumMessages:   42,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

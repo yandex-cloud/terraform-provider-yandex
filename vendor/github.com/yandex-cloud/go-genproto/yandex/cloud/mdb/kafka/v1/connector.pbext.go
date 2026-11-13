@@ -46,6 +46,12 @@ func (m *ConnectorSpec) SetConnectorConfigIcebergSink(v *ConnectorConfigIcebergS
 	}
 }
 
+func (m *ConnectorSpec) SetConnectorConfigMirrorCheckpoint(v *ConnectorConfigMirrorCheckpointSpec) {
+	m.ConnectorConfig = &ConnectorSpec_ConnectorConfigMirrorCheckpoint{
+		ConnectorConfigMirrorCheckpoint: v,
+	}
+}
+
 func (m *ConnectorPlacement) SetDedicated(v bool) {
 	m.Dedicated = v
 }
@@ -80,6 +86,40 @@ func (m *UpdateConnectorSpec) SetConnectorConfigIcebergSink(v *UpdateConnectorCo
 	m.ConnectorConfig = &UpdateConnectorSpec_ConnectorConfigIcebergSink{
 		ConnectorConfigIcebergSink: v,
 	}
+}
+
+func (m *UpdateConnectorSpec) SetConnectorConfigMirrorCheckpoint(v *UpdateConnectorConfigMirrorCheckpointSpec) {
+	m.ConnectorConfig = &UpdateConnectorSpec_ConnectorConfigMirrorCheckpoint{
+		ConnectorConfigMirrorCheckpoint: v,
+	}
+}
+
+func (m *ConnectorConfigMirrorCheckpointSpec) SetSourceConnectorName(v string) {
+	m.SourceConnectorName = v
+}
+
+func (m *ConnectorConfigMirrorCheckpointSpec) SetGroups(v []string) {
+	m.Groups = v
+}
+
+func (m *ConnectorConfigMirrorCheckpointSpec) SetReplicationPolicy(v ConnectorConfigMirrorCheckpoint_ReplicationPolicy) {
+	m.ReplicationPolicy = v
+}
+
+func (m *ConnectorConfigMirrorCheckpointSpec) SetOffsetSyncsTopicLocation(v ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation) {
+	m.OffsetSyncsTopicLocation = v
+}
+
+func (m *UpdateConnectorConfigMirrorCheckpointSpec) SetGroups(v []string) {
+	m.Groups = v
+}
+
+func (m *UpdateConnectorConfigMirrorCheckpointSpec) SetReplicationPolicy(v ConnectorConfigMirrorCheckpoint_ReplicationPolicy) {
+	m.ReplicationPolicy = v
+}
+
+func (m *UpdateConnectorConfigMirrorCheckpointSpec) SetOffsetSyncsTopicLocation(v ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation) {
+	m.OffsetSyncsTopicLocation = v
 }
 
 func (m *ConnectorConfigMirrorMakerSpec) SetSourceCluster(v *ClusterConnectionSpec) {
@@ -436,6 +476,28 @@ func (m *Connector) SetConnectorConfigIcebergSink(v *ConnectorConfigIcebergSink)
 	m.ConnectorConfig = &Connector_ConnectorConfigIcebergSink{
 		ConnectorConfigIcebergSink: v,
 	}
+}
+
+func (m *Connector) SetConnectorConfigMirrorCheckpoint(v *ConnectorConfigMirrorCheckpoint) {
+	m.ConnectorConfig = &Connector_ConnectorConfigMirrorCheckpoint{
+		ConnectorConfigMirrorCheckpoint: v,
+	}
+}
+
+func (m *ConnectorConfigMirrorCheckpoint) SetSourceConnectorName(v string) {
+	m.SourceConnectorName = v
+}
+
+func (m *ConnectorConfigMirrorCheckpoint) SetGroups(v []string) {
+	m.Groups = v
+}
+
+func (m *ConnectorConfigMirrorCheckpoint) SetReplicationPolicy(v ConnectorConfigMirrorCheckpoint_ReplicationPolicy) {
+	m.ReplicationPolicy = v
+}
+
+func (m *ConnectorConfigMirrorCheckpoint) SetOffsetSyncsTopicLocation(v ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation) {
+	m.OffsetSyncsTopicLocation = v
 }
 
 func (m *ConnectorConfigMirrorMaker) SetSourceCluster(v *ClusterConnection) {

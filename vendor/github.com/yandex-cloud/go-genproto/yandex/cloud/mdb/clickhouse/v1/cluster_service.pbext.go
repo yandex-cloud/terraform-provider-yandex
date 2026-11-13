@@ -824,6 +824,86 @@ func (m *UpdateClusterShardGroupMetadata) SetShardGroupName(v string) {
 	m.ShardGroupName = v
 }
 
+func (m *UpdateClusterShardGroupsRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *UpdateClusterShardGroupsRequest) SetShardGroupSpecs(v []*UpdateShardGroupSpec) {
+	m.ShardGroupSpecs = v
+}
+
+func (m *UpdateShardGroupSpec) SetShardGroupName(v string) {
+	m.ShardGroupName = v
+}
+
+func (m *UpdateShardGroupSpec) SetUpdateMask(v *fieldmaskpb.FieldMask) {
+	m.UpdateMask = v
+}
+
+func (m *UpdateShardGroupSpec) SetShardNames(v []string) {
+	m.ShardNames = v
+}
+
+func (m *UpdateShardGroupSpec) SetExternalShardSpecs(v []*UpdateShardGroupSpec_ExternalShard) {
+	m.ExternalShardSpecs = v
+}
+
+func (m *UpdateShardGroupSpec) SetDescription(v string) {
+	m.Description = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard) SetName(v string) {
+	m.Name = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard) SetUpdateMask(v *fieldmaskpb.FieldMask) {
+	m.UpdateMask = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard) SetWeight(v *wrapperspb.Int64Value) {
+	m.Weight = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard) SetReplicaSpecs(v []*UpdateShardGroupSpec_ExternalShard_Replica) {
+	m.ReplicaSpecs = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard_Replica) SetHost(v string) {
+	m.Host = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard_Replica) SetUpdateMask(v *fieldmaskpb.FieldMask) {
+	m.UpdateMask = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard_Replica) SetPort(v *wrapperspb.Int64Value) {
+	m.Port = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard_Replica) SetSecure(v *wrapperspb.BoolValue) {
+	m.Secure = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard_Replica) SetUser(v string) {
+	m.User = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard_Replica) SetPassword(v string) {
+	m.Password = v
+}
+
+func (m *UpdateShardGroupSpec_ExternalShard_Replica) SetPriority(v *wrapperspb.Int64Value) {
+	m.Priority = v
+}
+
+func (m *UpdateClusterShardGroupsMetadata) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *UpdateClusterShardGroupsMetadata) SetShardGroupNames(v []string) {
+	m.ShardGroupNames = v
+}
+
 func (m *DeleteClusterShardGroupRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }

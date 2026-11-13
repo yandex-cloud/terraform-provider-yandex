@@ -54,6 +54,7 @@ const (
 	ClusterService_ListShardGroups_FullMethodName          = "/yandex.cloud.mdb.clickhouse.v1.ClusterService/ListShardGroups"
 	ClusterService_CreateShardGroup_FullMethodName         = "/yandex.cloud.mdb.clickhouse.v1.ClusterService/CreateShardGroup"
 	ClusterService_UpdateShardGroup_FullMethodName         = "/yandex.cloud.mdb.clickhouse.v1.ClusterService/UpdateShardGroup"
+	ClusterService_UpdateShardGroups_FullMethodName        = "/yandex.cloud.mdb.clickhouse.v1.ClusterService/UpdateShardGroups"
 	ClusterService_DeleteShardGroup_FullMethodName         = "/yandex.cloud.mdb.clickhouse.v1.ClusterService/DeleteShardGroup"
 	ClusterService_ListExternalDictionaries_FullMethodName = "/yandex.cloud.mdb.clickhouse.v1.ClusterService/ListExternalDictionaries"
 	ClusterService_CreateExternalDictionary_FullMethodName = "/yandex.cloud.mdb.clickhouse.v1.ClusterService/CreateExternalDictionary"
@@ -148,6 +149,9 @@ type ClusterServiceClient interface {
 	CreateShardGroup(ctx context.Context, in *CreateClusterShardGroupRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Updates the specified shard group.
 	UpdateShardGroup(ctx context.Context, in *UpdateClusterShardGroupRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Updates the specified shard groups.
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
+	UpdateShardGroups(ctx context.Context, in *UpdateClusterShardGroupsRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Deletes the specified shard group.
 	DeleteShardGroup(ctx context.Context, in *DeleteClusterShardGroupRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Retrieves a list of external dictionaries that belong to specified cluster.
@@ -517,6 +521,16 @@ func (c *clusterServiceClient) UpdateShardGroup(ctx context.Context, in *UpdateC
 	return out, nil
 }
 
+func (c *clusterServiceClient) UpdateShardGroups(ctx context.Context, in *UpdateClusterShardGroupsRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, ClusterService_UpdateShardGroups_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *clusterServiceClient) DeleteShardGroup(ctx context.Context, in *DeleteClusterShardGroupRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(operation.Operation)
@@ -681,6 +695,9 @@ type ClusterServiceServer interface {
 	CreateShardGroup(context.Context, *CreateClusterShardGroupRequest) (*operation.Operation, error)
 	// Updates the specified shard group.
 	UpdateShardGroup(context.Context, *UpdateClusterShardGroupRequest) (*operation.Operation, error)
+	// Updates the specified shard groups.
+	// (-- api-linter: yc::1705::http-method-mapping=disabled --)
+	UpdateShardGroups(context.Context, *UpdateClusterShardGroupsRequest) (*operation.Operation, error)
 	// Deletes the specified shard group.
 	DeleteShardGroup(context.Context, *DeleteClusterShardGroupRequest) (*operation.Operation, error)
 	// Retrieves a list of external dictionaries that belong to specified cluster.
@@ -806,6 +823,9 @@ func (UnimplementedClusterServiceServer) CreateShardGroup(context.Context, *Crea
 }
 func (UnimplementedClusterServiceServer) UpdateShardGroup(context.Context, *UpdateClusterShardGroupRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateShardGroup not implemented")
+}
+func (UnimplementedClusterServiceServer) UpdateShardGroups(context.Context, *UpdateClusterShardGroupsRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateShardGroups not implemented")
 }
 func (UnimplementedClusterServiceServer) DeleteShardGroup(context.Context, *DeleteClusterShardGroupRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteShardGroup not implemented")
@@ -1438,6 +1458,24 @@ func _ClusterService_UpdateShardGroup_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClusterService_UpdateShardGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateClusterShardGroupsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServiceServer).UpdateShardGroups(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClusterService_UpdateShardGroups_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServiceServer).UpdateShardGroups(ctx, req.(*UpdateClusterShardGroupsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ClusterService_DeleteShardGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteClusterShardGroupRequest)
 	if err := dec(in); err != nil {
@@ -1716,6 +1754,10 @@ var ClusterService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateShardGroup",
 			Handler:    _ClusterService_UpdateShardGroup_Handler,
+		},
+		{
+			MethodName: "UpdateShardGroups",
+			Handler:    _ClusterService_UpdateShardGroups_Handler,
 		},
 		{
 			MethodName: "DeleteShardGroup",

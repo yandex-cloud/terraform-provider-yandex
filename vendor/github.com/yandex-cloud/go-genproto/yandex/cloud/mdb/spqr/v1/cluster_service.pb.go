@@ -2345,10 +2345,8 @@ type SpqrSpec struct {
 	// Configuration and resource allocation for PostgreSQL hosts.
 	Postgresql *SpqrSpec_PostgreSQL `protobuf:"bytes,3,opt,name=postgresql,proto3" json:"postgresql,omitempty"`
 	// Configuration and resource allocation for SPQR Infra (router+coordinator) hosts.
-	Infra *SpqrSpec_Infra `protobuf:"bytes,5,opt,name=infra,proto3" json:"infra,omitempty"`
-	// Password of the SPQR console.
-	ConsolePassword string   `protobuf:"bytes,6,opt,name=console_password,json=consolePassword,proto3" json:"console_password,omitempty"`
-	LogLevel        LogLevel `protobuf:"varint,7,opt,name=log_level,json=logLevel,proto3,enum=yandex.cloud.mdb.spqr.v1.LogLevel" json:"log_level,omitempty"`
+	Infra    *SpqrSpec_Infra `protobuf:"bytes,5,opt,name=infra,proto3" json:"infra,omitempty"`
+	LogLevel LogLevel        `protobuf:"varint,7,opt,name=log_level,json=logLevel,proto3,enum=yandex.cloud.mdb.spqr.v1.LogLevel" json:"log_level,omitempty"`
 	// Configuration for SPQR Balancer.
 	Balancer                 *BalancerSettings     `protobuf:"bytes,8,opt,name=balancer,proto3" json:"balancer,omitempty"`
 	UseSpqrguard             *wrapperspb.BoolValue `protobuf:"bytes,9,opt,name=use_spqrguard,json=useSpqrguard,proto3" json:"use_spqrguard,omitempty"`
@@ -2413,13 +2411,6 @@ func (x *SpqrSpec) GetInfra() *SpqrSpec_Infra {
 		return x.Infra
 	}
 	return nil
-}
-
-func (x *SpqrSpec) GetConsolePassword() string {
-	if x != nil {
-		return x.ConsolePassword
-	}
-	return ""
 }
 
 func (x *SpqrSpec) GetLogLevel() LogLevel {
@@ -4174,7 +4165,7 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_rawDesc = "" +
 	"page_token\x18\x03 \x01(\tB\t\x8a\xc81\x05<=100R\tpageToken\"\x80\x01\n" +
 	"\x1aListClusterBackupsResponse\x12:\n" +
 	"\abackups\x18\x01 \x03(\v2 .yandex.cloud.mdb.spqr.v1.BackupR\abackups\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xac\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x87\n" +
 	"\n" +
 	"\bSpqrSpec\x12A\n" +
 	"\x06router\x18\x01 \x01(\v2).yandex.cloud.mdb.spqr.v1.SpqrSpec.RouterR\x06router\x12P\n" +
@@ -4182,8 +4173,7 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_rawDesc = "" +
 	"\n" +
 	"postgresql\x18\x03 \x01(\v2-.yandex.cloud.mdb.spqr.v1.SpqrSpec.PostgreSQLR\n" +
 	"postgresql\x12>\n" +
-	"\x05infra\x18\x05 \x01(\v2(.yandex.cloud.mdb.spqr.v1.SpqrSpec.InfraR\x05infra\x12)\n" +
-	"\x10console_password\x18\x06 \x01(\tR\x0fconsolePassword\x12?\n" +
+	"\x05infra\x18\x05 \x01(\v2(.yandex.cloud.mdb.spqr.v1.SpqrSpec.InfraR\x05infra\x12?\n" +
 	"\tlog_level\x18\a \x01(\x0e2\".yandex.cloud.mdb.spqr.v1.LogLevelR\blogLevel\x12F\n" +
 	"\bbalancer\x18\b \x01(\v2*.yandex.cloud.mdb.spqr.v1.BalancerSettingsR\bbalancer\x12?\n" +
 	"\ruse_spqrguard\x18\t \x01(\v2\x1a.google.protobuf.BoolValueR\fuseSpqrguard\x12Y\n" +
@@ -4202,7 +4192,7 @@ const file_yandex_cloud_mdb_spqr_v1_cluster_service_proto_rawDesc = "" +
 	"\x05Infra\x12A\n" +
 	"\tresources\x18\x02 \x01(\v2#.yandex.cloud.mdb.spqr.v1.ResourcesR\tresources\x12@\n" +
 	"\x06router\x18\x03 \x01(\v2(.yandex.cloud.mdb.spqr.v1.RouterSettingsR\x06router\x12O\n" +
-	"\vcoordinator\x18\x04 \x01(\v2-.yandex.cloud.mdb.spqr.v1.CoordinatorSettingsR\vcoordinatorJ\x04\b\x01\x10\x02J\x04\b\x04\x10\x05\"\xe0\x02\n" +
+	"\vcoordinator\x18\x04 \x01(\v2-.yandex.cloud.mdb.spqr.v1.CoordinatorSettingsR\vcoordinatorJ\x04\b\x01\x10\x02J\x04\b\x04\x10\x05J\x04\b\x06\x10\a\"\xe0\x02\n" +
 	"\n" +
 	"ConfigSpec\x12?\n" +
 	"\tspqr_spec\x18\x01 \x01(\v2\".yandex.cloud.mdb.spqr.v1.SpqrSpecR\bspqrSpec\x12F\n" +

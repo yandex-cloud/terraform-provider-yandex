@@ -447,10 +447,6 @@ func (m *SpqrSpec) SetInfra(v *SpqrSpec_Infra) {
 	m.Infra = v
 }
 
-func (m *SpqrSpec) SetConsolePassword(v string) {
-	m.ConsolePassword = v
-}
-
 func (m *SpqrSpec) SetLogLevel(v LogLevel) {
 	m.LogLevel = v
 }

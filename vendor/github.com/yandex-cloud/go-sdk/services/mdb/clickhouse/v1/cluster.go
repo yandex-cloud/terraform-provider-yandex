@@ -51,6 +51,7 @@ type ClusterClient interface {
 	ListShardGroups(context.Context, *clickhouse.ListClusterShardGroupsRequest, ...grpc.CallOption) (*clickhouse.ListClusterShardGroupsResponse, error)
 	CreateShardGroup(context.Context, *clickhouse.CreateClusterShardGroupRequest, ...grpc.CallOption) (*ClusterCreateShardGroupOperation, error)
 	UpdateShardGroup(context.Context, *clickhouse.UpdateClusterShardGroupRequest, ...grpc.CallOption) (*ClusterUpdateShardGroupOperation, error)
+	UpdateShardGroups(context.Context, *clickhouse.UpdateClusterShardGroupsRequest, ...grpc.CallOption) (*ClusterUpdateShardGroupsOperation, error)
 	DeleteShardGroup(context.Context, *clickhouse.DeleteClusterShardGroupRequest, ...grpc.CallOption) (*ClusterDeleteShardGroupOperation, error)
 	ListExternalDictionaries(context.Context, *clickhouse.ListClusterExternalDictionariesRequest, ...grpc.CallOption) (*clickhouse.ListClusterExternalDictionariesResponse, error)
 	CreateExternalDictionary(context.Context, *clickhouse.CreateClusterExternalDictionaryRequest, ...grpc.CallOption) (*ClusterCreateExternalDictionaryOperation, error)
@@ -1359,6 +1360,60 @@ func (c clusterClient) UpdateShardGroup(ctx context.Context, in *clickhouse.Upda
 	return &ClusterUpdateShardGroupOperation{*op}, nil
 }
 
+// ClusterUpdateShardGroupsOperation is used to monitor the state of UpdateShardGroups operations.
+type ClusterUpdateShardGroupsOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *ClusterUpdateShardGroupsOperation) Metadata() *clickhouse.UpdateClusterShardGroupsMetadata {
+	return o.Operation.Metadata().(*clickhouse.UpdateClusterShardGroupsMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *ClusterUpdateShardGroupsOperation) Response() *emptypb.Empty {
+	return o.Operation.Response().(*emptypb.Empty)
+}
+
+// Wait polls the operation until it's done.
+func (o *ClusterUpdateShardGroupsOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*emptypb.Empty)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *ClusterUpdateShardGroupsOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*emptypb.Empty)
+	return response, err
+}
+
+// UpdateShardGroups is an operation of Yandex.Cloud Clickhouse Cluster service.
+// It returns an object which should be used to monitor the operation state.
+func (c clusterClient) UpdateShardGroups(ctx context.Context, in *clickhouse.UpdateClusterShardGroupsRequest, opts ...grpc.CallOption) (*ClusterUpdateShardGroupsOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, ClusterUpdateShardGroups, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := clickhouse.NewClusterServiceClient(connection).UpdateShardGroups(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll: c.pollOperation,
+		GetResourceID: func(metadata proto.Message) string {
+			return metadata.(*clickhouse.UpdateClusterShardGroupsMetadata).GetClusterId()
+		},
+		MetadataType: (*clickhouse.UpdateClusterShardGroupsMetadata)(nil),
+		ResponseType: (*emptypb.Empty)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ClusterUpdateShardGroupsOperation{*op}, nil
+}
+
 // ClusterDeleteShardGroupOperation is used to monitor the state of DeleteShardGroup operations.
 type ClusterDeleteShardGroupOperation struct {
 	sdkop.Operation
@@ -1738,6 +1793,7 @@ var (
 	ClusterListShardGroups          = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.ClusterService.ListShardGroups")
 	ClusterCreateShardGroup         = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.ClusterService.CreateShardGroup")
 	ClusterUpdateShardGroup         = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.ClusterService.UpdateShardGroup")
+	ClusterUpdateShardGroups        = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.ClusterService.UpdateShardGroups")
 	ClusterDeleteShardGroup         = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.ClusterService.DeleteShardGroup")
 	ClusterListExternalDictionaries = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.ClusterService.ListExternalDictionaries")
 	ClusterCreateExternalDictionary = protoreflect.FullName("yandex.cloud.mdb.clickhouse.v1.ClusterService.CreateExternalDictionary")

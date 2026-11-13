@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.248.0 (November 13, 2026)
+
+##### WARNING:
+* kubernetes: deprecate `master.master_logging.log_group_id` in `yandex_kubernetes_cluster`; remove it from configurations because Yandex Cloud Logging is decommissioned
+
+
+
 ## 0.247.0 (November 12, 2026)
 
 ##### BUG FIXES:

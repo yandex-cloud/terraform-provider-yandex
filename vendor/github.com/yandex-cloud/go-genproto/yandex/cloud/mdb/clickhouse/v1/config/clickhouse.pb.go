@@ -2475,7 +2475,7 @@ type ClickhouseConfig_MergeTree struct {
 	LightweightMutationProjectionMode ClickhouseConfig_MergeTree_LightweightMutationProjectionMode `protobuf:"varint,30,opt,name=lightweight_mutation_projection_mode,json=lightweightMutationProjectionMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfig_MergeTree_LightweightMutationProjectionMode" json:"lightweight_mutation_projection_mode,omitempty"`
 	// The number of most recently inserted blocks for which ClickHouse Keeper stores hash sums to check for duplicates.
 	//
-	// Default value: **10000** for versions 25.9 and higher, **1000** for versions from 23.11 to 25.8, **100** for versions 23.10 and lower.
+	// Default value: **10000** for versions 25.9 and higher, **1000** for versions 25.8 and lower.
 	//
 	// For details, see [ClickHouse documentation](https://clickhouse.com/docs/operations/settings/merge-tree-settings#replicated_deduplication_window).
 	ReplicatedDeduplicationWindow *wrapperspb.Int64Value `protobuf:"bytes,1,opt,name=replicated_deduplication_window,json=replicatedDeduplicationWindow,proto3" json:"replicated_deduplication_window,omitempty"`
