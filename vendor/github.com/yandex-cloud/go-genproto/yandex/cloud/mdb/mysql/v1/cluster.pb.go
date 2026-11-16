@@ -723,6 +723,7 @@ type ClusterConfig struct {
 	//	*ClusterConfig_MysqlConfig_5_7
 	//	*ClusterConfig_MysqlConfig_8_0
 	//	*ClusterConfig_MysqlConfig_8_4
+	//	*ClusterConfig_MysqlConfig_9_7
 	MysqlConfig isClusterConfig_MysqlConfig `protobuf_oneof:"mysql_config"`
 	// Resource preset for the cluster hosts.
 	Resources *Resources `protobuf:"bytes,3,opt,name=resources,proto3" json:"resources,omitempty"`
@@ -815,6 +816,15 @@ func (x *ClusterConfig) GetMysqlConfig_8_4() *config.MysqlConfigSet8_4 {
 	return nil
 }
 
+func (x *ClusterConfig) GetMysqlConfig_9_7() *config.MysqlConfigSet9_7 {
+	if x != nil {
+		if x, ok := x.MysqlConfig.(*ClusterConfig_MysqlConfig_9_7); ok {
+			return x.MysqlConfig_9_7
+		}
+	}
+	return nil
+}
+
 func (x *ClusterConfig) GetResources() *Resources {
 	if x != nil {
 		return x.Resources
@@ -890,11 +900,18 @@ type ClusterConfig_MysqlConfig_8_4 struct {
 	MysqlConfig_8_4 *config.MysqlConfigSet8_4 `protobuf:"bytes,10,opt,name=mysql_config_8_4,json=mysqlConfig_8_4,proto3,oneof"`
 }
 
+type ClusterConfig_MysqlConfig_9_7 struct {
+	// Configuration of a MySQL 9.7 server.
+	MysqlConfig_9_7 *config.MysqlConfigSet9_7 `protobuf:"bytes,18,opt,name=mysql_config_9_7,json=mysqlConfig_9_7,proto3,oneof"`
+}
+
 func (*ClusterConfig_MysqlConfig_5_7) isClusterConfig_MysqlConfig() {}
 
 func (*ClusterConfig_MysqlConfig_8_0) isClusterConfig_MysqlConfig() {}
 
 func (*ClusterConfig_MysqlConfig_8_4) isClusterConfig_MysqlConfig() {}
+
+func (*ClusterConfig_MysqlConfig_9_7) isClusterConfig_MysqlConfig() {}
 
 type Host struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1371,7 +1388,7 @@ var File_yandex_cloud_mdb_mysql_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_mdb_mysql_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"'yandex/cloud/mdb/mysql/v1/cluster.proto\x12\x19yandex.cloud.mdb.mysql.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a/yandex/cloud/mdb/mysql/v1/config/mysql5_7.proto\x1a/yandex/cloud/mdb/mysql/v1/config/mysql8_0.proto\x1a/yandex/cloud/mdb/mysql/v1/config/mysql8_4.proto\x1a+yandex/cloud/mdb/mysql/v1/maintenance.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xbd\v\n" +
+	"'yandex/cloud/mdb/mysql/v1/cluster.proto\x12\x19yandex.cloud.mdb.mysql.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a/yandex/cloud/mdb/mysql/v1/config/mysql5_7.proto\x1a/yandex/cloud/mdb/mysql/v1/config/mysql8_0.proto\x1a/yandex/cloud/mdb/mysql/v1/config/mysql8_4.proto\x1a/yandex/cloud/mdb/mysql/v1/config/mysql9_7.proto\x1a+yandex/cloud/mdb/mysql/v1/maintenance.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xbd\v\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -1424,13 +1441,14 @@ const file_yandex_cloud_mdb_mysql_v1_cluster_proto_rawDesc = "" +
 	"Monitoring\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x12\n" +
-	"\x04link\x18\x03 \x01(\tR\x04link\"\xdf\a\n" +
+	"\x04link\x18\x03 \x01(\tR\x04link\"\xc7\b\n" +
 	"\rClusterConfig\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12`\n" +
 	"\x10mysql_config_5_7\x18\x02 \x01(\v23.yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet5_7H\x00R\x0fmysqlConfig_5_7\x12`\n" +
 	"\x10mysql_config_8_0\x18\x06 \x01(\v23.yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet8_0H\x00R\x0fmysqlConfig_8_0\x12`\n" +
 	"\x10mysql_config_8_4\x18\n" +
-	" \x01(\v23.yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet8_4H\x00R\x0fmysqlConfig_8_4\x12B\n" +
+	" \x01(\v23.yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet8_4H\x00R\x0fmysqlConfig_8_4\x12`\n" +
+	"\x10mysql_config_9_7\x18\x12 \x01(\v23.yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet9_7H\x00R\x0fmysqlConfig_9_7\x12B\n" +
 	"\tresources\x18\x03 \x01(\v2$.yandex.cloud.mdb.mysql.v1.ResourcesR\tresources\x12F\n" +
 	"\x13backup_window_start\x18\x04 \x01(\v2\x16.google.type.TimeOfDayR\x11backupWindowStart\x129\n" +
 	"\x06access\x18\x05 \x01(\v2!.yandex.cloud.mdb.mysql.v1.AccessR\x06access\x12j\n" +
@@ -1439,7 +1457,7 @@ const file_yandex_cloud_mdb_mysql_v1_cluster_proto_rawDesc = "" +
 	"\x15disk_size_autoscaling\x18\t \x01(\v2..yandex.cloud.mdb.mysql.v1.DiskSizeAutoscalingR\x13diskSizeAutoscaling\x12!\n" +
 	"\ffull_version\x18\v \x01(\tR\vfullVersion\x12\\\n" +
 	"\x12connection_manager\x18\x10 \x01(\v2-.yandex.cloud.mdb.v1.ClusterConnectionManagerR\x11connectionManagerB\x0e\n" +
-	"\fmysql_configJ\x04\b\f\x10\x10\"\xa3\x05\n" +
+	"\fmysql_configJ\x04\b\f\x10\x10J\x04\b\x11\x10\x12\"\xa3\x05\n" +
 	"\x04Host\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
@@ -1537,9 +1555,10 @@ var file_yandex_cloud_mdb_mysql_v1_cluster_proto_goTypes = []any{
 	(*config.MysqlConfigSet5_7)(nil),    // 22: yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet5_7
 	(*config.MysqlConfigSet8_0)(nil),    // 23: yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet8_0
 	(*config.MysqlConfigSet8_4)(nil),    // 24: yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet8_4
-	(*timeofday.TimeOfDay)(nil),         // 25: google.type.TimeOfDay
-	(*wrapperspb.Int64Value)(nil),       // 26: google.protobuf.Int64Value
-	(*v1.ClusterConnectionManager)(nil), // 27: yandex.cloud.mdb.v1.ClusterConnectionManager
+	(*config.MysqlConfigSet9_7)(nil),    // 25: yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet9_7
+	(*timeofday.TimeOfDay)(nil),         // 26: google.type.TimeOfDay
+	(*wrapperspb.Int64Value)(nil),       // 27: google.protobuf.Int64Value
+	(*v1.ClusterConnectionManager)(nil), // 28: yandex.cloud.mdb.v1.ClusterConnectionManager
 }
 var file_yandex_cloud_mdb_mysql_v1_cluster_proto_depIdxs = []int32{
 	17, // 0: yandex.cloud.mdb.mysql.v1.Cluster.created_at:type_name -> google.protobuf.Timestamp
@@ -1556,24 +1575,25 @@ var file_yandex_cloud_mdb_mysql_v1_cluster_proto_depIdxs = []int32{
 	22, // 11: yandex.cloud.mdb.mysql.v1.ClusterConfig.mysql_config_5_7:type_name -> yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet5_7
 	23, // 12: yandex.cloud.mdb.mysql.v1.ClusterConfig.mysql_config_8_0:type_name -> yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet8_0
 	24, // 13: yandex.cloud.mdb.mysql.v1.ClusterConfig.mysql_config_8_4:type_name -> yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet8_4
-	12, // 14: yandex.cloud.mdb.mysql.v1.ClusterConfig.resources:type_name -> yandex.cloud.mdb.mysql.v1.Resources
-	25, // 15: yandex.cloud.mdb.mysql.v1.ClusterConfig.backup_window_start:type_name -> google.type.TimeOfDay
-	13, // 16: yandex.cloud.mdb.mysql.v1.ClusterConfig.access:type_name -> yandex.cloud.mdb.mysql.v1.Access
-	14, // 17: yandex.cloud.mdb.mysql.v1.ClusterConfig.performance_diagnostics:type_name -> yandex.cloud.mdb.mysql.v1.PerformanceDiagnostics
-	26, // 18: yandex.cloud.mdb.mysql.v1.ClusterConfig.backup_retain_period_days:type_name -> google.protobuf.Int64Value
-	15, // 19: yandex.cloud.mdb.mysql.v1.ClusterConfig.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mysql.v1.DiskSizeAutoscaling
-	27, // 20: yandex.cloud.mdb.mysql.v1.ClusterConfig.connection_manager:type_name -> yandex.cloud.mdb.v1.ClusterConnectionManager
-	12, // 21: yandex.cloud.mdb.mysql.v1.Host.resources:type_name -> yandex.cloud.mdb.mysql.v1.Resources
-	3,  // 22: yandex.cloud.mdb.mysql.v1.Host.role:type_name -> yandex.cloud.mdb.mysql.v1.Host.Role
-	4,  // 23: yandex.cloud.mdb.mysql.v1.Host.health:type_name -> yandex.cloud.mdb.mysql.v1.Host.Health
-	11, // 24: yandex.cloud.mdb.mysql.v1.Host.services:type_name -> yandex.cloud.mdb.mysql.v1.Service
-	5,  // 25: yandex.cloud.mdb.mysql.v1.Service.type:type_name -> yandex.cloud.mdb.mysql.v1.Service.Type
-	6,  // 26: yandex.cloud.mdb.mysql.v1.Service.health:type_name -> yandex.cloud.mdb.mysql.v1.Service.Health
-	27, // [27:27] is the sub-list for method output_type
-	27, // [27:27] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	25, // 14: yandex.cloud.mdb.mysql.v1.ClusterConfig.mysql_config_9_7:type_name -> yandex.cloud.mdb.mysql.v1.config.MysqlConfigSet9_7
+	12, // 15: yandex.cloud.mdb.mysql.v1.ClusterConfig.resources:type_name -> yandex.cloud.mdb.mysql.v1.Resources
+	26, // 16: yandex.cloud.mdb.mysql.v1.ClusterConfig.backup_window_start:type_name -> google.type.TimeOfDay
+	13, // 17: yandex.cloud.mdb.mysql.v1.ClusterConfig.access:type_name -> yandex.cloud.mdb.mysql.v1.Access
+	14, // 18: yandex.cloud.mdb.mysql.v1.ClusterConfig.performance_diagnostics:type_name -> yandex.cloud.mdb.mysql.v1.PerformanceDiagnostics
+	27, // 19: yandex.cloud.mdb.mysql.v1.ClusterConfig.backup_retain_period_days:type_name -> google.protobuf.Int64Value
+	15, // 20: yandex.cloud.mdb.mysql.v1.ClusterConfig.disk_size_autoscaling:type_name -> yandex.cloud.mdb.mysql.v1.DiskSizeAutoscaling
+	28, // 21: yandex.cloud.mdb.mysql.v1.ClusterConfig.connection_manager:type_name -> yandex.cloud.mdb.v1.ClusterConnectionManager
+	12, // 22: yandex.cloud.mdb.mysql.v1.Host.resources:type_name -> yandex.cloud.mdb.mysql.v1.Resources
+	3,  // 23: yandex.cloud.mdb.mysql.v1.Host.role:type_name -> yandex.cloud.mdb.mysql.v1.Host.Role
+	4,  // 24: yandex.cloud.mdb.mysql.v1.Host.health:type_name -> yandex.cloud.mdb.mysql.v1.Host.Health
+	11, // 25: yandex.cloud.mdb.mysql.v1.Host.services:type_name -> yandex.cloud.mdb.mysql.v1.Service
+	5,  // 26: yandex.cloud.mdb.mysql.v1.Service.type:type_name -> yandex.cloud.mdb.mysql.v1.Service.Type
+	6,  // 27: yandex.cloud.mdb.mysql.v1.Service.health:type_name -> yandex.cloud.mdb.mysql.v1.Service.Health
+	28, // [28:28] is the sub-list for method output_type
+	28, // [28:28] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_mysql_v1_cluster_proto_init() }
@@ -1586,6 +1606,7 @@ func file_yandex_cloud_mdb_mysql_v1_cluster_proto_init() {
 		(*ClusterConfig_MysqlConfig_5_7)(nil),
 		(*ClusterConfig_MysqlConfig_8_0)(nil),
 		(*ClusterConfig_MysqlConfig_8_4)(nil),
+		(*ClusterConfig_MysqlConfig_9_7)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.249.0 (November 16, 2026)
+
+##### ENHANCEMENTS:
+* audit_trails: support delivering trail events to Monium
+
+
+
 ## 0.248.0 (November 13, 2026)
 
 ##### WARNING:
