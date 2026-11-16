@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	airflow "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/airflow/framework"
 	billing "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/billing/framework"
-	cloud_desktop "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/clouddesktop/framework"
 	cloud_registry "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/cloudregistry/framework"
 	datalens "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/datalens/framework"
 	datasphere "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/datasphere/framework"
@@ -36,7 +35,6 @@ func (p *Provider) Resources(ctx context.Context) []func() resource.Resource {
 		airflow.Resources(),
 		billing.Resources(),
 		clickhouse.Resources(),
-		cloud_desktop.Resources(),
 		cloud_registry.Resources(),
 		datalens.Resources(),
 		datasphere.Resources(),
@@ -64,7 +62,6 @@ func (p *Provider) DataSources(ctx context.Context) []func() datasource.DataSour
 		airflow.DataSources(),
 		billing.DataSources(),
 		clickhouse.DataSources(),
-		cloud_desktop.DataSources(),
 		cloud_registry.DataSources(),
 		datalens.DataSources(),
 		datasphere.DataSources(),

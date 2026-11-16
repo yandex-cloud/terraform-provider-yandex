@@ -48,7 +48,6 @@ require (
 	github.com/yandex-cloud/go-sdk/services/cdn v0.0.0-tf.4fe062e49b2ee085652b7057e8eccf3aa19e4ebc
 	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.0-tf.4fe062e49b2ee085652b7057e8eccf3aa19e4ebc
 	github.com/yandex-cloud/go-sdk/services/cic v0.0.0-tf.4fe062e49b2ee085652b7057e8eccf3aa19e4ebc
-	github.com/yandex-cloud/go-sdk/services/clouddesktop v0.0.0-tf.4fe062e49b2ee085652b7057e8eccf3aa19e4ebc
 	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.0-tf.4fe062e49b2ee085652b7057e8eccf3aa19e4ebc
 	github.com/yandex-cloud/go-sdk/services/cloudrouter v0.0.0-tf.4fe062e49b2ee085652b7057e8eccf3aa19e4ebc
 	github.com/yandex-cloud/go-sdk/services/compute v0.0.0-tf.4fe062e49b2ee085652b7057e8eccf3aa19e4ebc
