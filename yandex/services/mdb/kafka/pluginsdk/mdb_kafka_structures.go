@@ -1153,6 +1153,62 @@ func flattenKafkaUsers(users []*kafka.User, passwords map[string]string) *schema
 	return result
 }
 
+// The cluster API exposes subnets only through its hosts. Keep the existing
+// list order for IDs that are still present, then append new IDs deterministically.
+func flattenKafkaSubnetIDs(hosts []*kafka.Host, previous []interface{}) []string {
+	subnets := make(map[string]struct{}, len(hosts))
+	for _, host := range hosts {
+		if id := host.GetSubnetId(); id != "" {
+			subnets[id] = struct{}{}
+		}
+	}
+
+	result := make([]string, 0, len(subnets))
+	for _, value := range previous {
+		id := value.(string)
+		if _, ok := subnets[id]; ok {
+			result = append(result, id)
+			delete(subnets, id)
+		}
+	}
+	remaining := make([]string, 0, len(subnets))
+	for id := range subnets {
+		remaining = append(remaining, id)
+	}
+	sort.Strings(remaining)
+	return append(result, remaining...)
+}
+
+// An explicit empty list requests automatic subnet selection. Keep the IDs
+// discovered during Read instead of planning an update to remove them.
+// Nonempty subnet_ids remains a list for state compatibility, but its order
+// has no API meaning and cannot be recovered during import.
+func suppressKafkaSubnetIDsDiff(_, _, _ string, d *schema.ResourceData) bool {
+	if config := d.GetRawConfig(); config.IsKnown() && !config.IsNull() {
+		subnets := config.GetAttr("subnet_ids")
+		if subnets.IsKnown() && !subnets.IsNull() && subnets.LengthInt() == 0 {
+			return true
+		}
+	}
+
+	oldValue, newValue := d.GetChange("subnet_ids")
+	oldIDs, newIDs := oldValue.([]interface{}), newValue.([]interface{})
+	if len(oldIDs) == 0 || len(oldIDs) != len(newIDs) {
+		return false
+	}
+	counts := make(map[string]int, len(oldIDs))
+	for _, id := range oldIDs {
+		counts[id.(string)]++
+	}
+	for _, id := range newIDs {
+		if counts[id.(string)] == 0 {
+			return false
+		}
+		counts[id.(string)]--
+	}
+	return true
+}
+
 func flattenKafkaHosts(hosts []*kafka.Host) *schema.Set {
 	result := schema.NewSet(kafkaHostHash, nil)
 

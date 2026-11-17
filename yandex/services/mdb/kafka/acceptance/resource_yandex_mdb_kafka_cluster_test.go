@@ -207,11 +207,10 @@ func mdbKafkaClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"host",       // prevent failure if health is not the same
-			"user",       // passwords are not returned
-			"topic",      // order may differs
-			"subnet_ids", // subnets not returned
-			"health",     // volatile value
+			"host",   // prevent failure if health is not the same
+			"user",   // passwords are not returned
+			"topic",  // order may differs
+			"health", // volatile value
 		},
 	}
 }
@@ -2046,11 +2045,12 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	labels = {
 	  test_key = "test_value"
 	}
-	subnet_ids = [
+	# Import returns subnet IDs in sorted order.
+	subnet_ids = sort([
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-a.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-d.id
-	]
+	])
 
 	config {
 	  version          = "%s"
@@ -2131,11 +2131,12 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  test_key = "test_value"
 	  new_key  = "new_value"
 	}
-	subnet_ids = [
+	# Import returns subnet IDs in sorted order.
+	subnet_ids = sort([
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-a.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-d.id
-	]
+	])
 
 	config {
 	  version          = "%s"

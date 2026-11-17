@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'mdb_kafka_cluster: restore subnet_ids from cluster hosts during refresh and import, expose them in the data source, and avoid updates caused only by subnet order'
+time: 2026-11-12T23:48:00+03:00
