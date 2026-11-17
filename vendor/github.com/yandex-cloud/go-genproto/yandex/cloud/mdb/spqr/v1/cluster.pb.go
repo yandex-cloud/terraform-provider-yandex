@@ -575,7 +575,6 @@ type Access struct {
 	// Allow access for DataTransfer.
 	DataTransfer bool `protobuf:"varint,3,opt,name=data_transfer,json=dataTransfer,proto3" json:"data_transfer,omitempty"`
 	// Allow access for Serverless.
-	// NOTE: Do not propagate to public API until Serverless integration is required.
 	Serverless    bool `protobuf:"varint,4,opt,name=serverless,proto3" json:"serverless,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

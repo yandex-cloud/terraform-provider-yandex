@@ -723,11 +723,11 @@ var File_yandex_cloud_resourcemanager_v1_folder_service_proto protoreflect.FileD
 
 const file_yandex_cloud_resourcemanager_v1_folder_service_proto_rawDesc = "" +
 	"\n" +
-	"4yandex/cloud/resourcemanager/v1/folder_service.proto\x12\x1fyandex.cloud.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a&yandex/cloud/operation/operation.proto\x1a,yandex/cloud/resourcemanager/v1/folder.proto\x1a\x1dyandex/cloud/validation.proto\"=\n" +
-	"\x10GetFolderRequest\x12)\n" +
-	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\"\xb5\x01\n" +
-	"\x12ListFoldersRequest\x12'\n" +
-	"\bcloud_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\acloudId\x12'\n" +
+	"4yandex/cloud/resourcemanager/v1/folder_service.proto\x12\x1fyandex.cloud.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a&yandex/cloud/operation/operation.proto\x1a,yandex/cloud/resourcemanager/v1/folder.proto\x1a\x1dyandex/cloud/validation.proto\"U\n" +
+	"\x10GetFolderRequest\x12A\n" +
+	"\tfolder_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\bfolderId\"\xcd\x01\n" +
+	"\x12ListFoldersRequest\x12?\n" +
+	"\bcloud_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\acloudId\x12'\n" +
 	"\tpage_size\x18\x02 \x01(\x03B\n" +
 	"\xfa\xc71\x060-1000R\bpageSize\x12)\n" +
 	"\n" +
@@ -737,9 +737,9 @@ const file_yandex_cloud_resourcemanager_v1_folder_service_proto_rawDesc = "" +
 	"\x8a\xc81\x06<=1000R\x06filter\"\x80\x01\n" +
 	"\x13ListFoldersResponse\x12A\n" +
 	"\afolders\x18\x01 \x03(\v2'.yandex.cloud.resourcemanager.v1.FolderR\afolders\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xfb\x02\n" +
-	"\x13CreateFolderRequest\x12'\n" +
-	"\bcloud_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\acloudId\x12;\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x93\x03\n" +
+	"\x13CreateFolderRequest\x12?\n" +
+	"\bcloud_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\acloudId\x12;\n" +
 	"\x04name\x18\x02 \x01(\tB'\xe8\xc71\x01\xf2\xc71\x1f[a-z]([-a-z0-9]{0,61}[a-z0-9])?R\x04name\x12+\n" +
 	"\vdescription\x18\x03 \x01(\tB\t\x8a\xc81\x05<=256R\vdescription\x12\x95\x01\n" +
 	"\x06labels\x18\x04 \x03(\v2@.yandex.cloud.resourcemanager.v1.CreateFolderRequest.LabelsEntryB;\xf2\xc71\v[-_0-9a-z]*\x82\xc81\x04<=64\x8a\xc81\x04<=63\xb2\xc81\x18\x12\x10[a-z][-_0-9a-z]*\x1a\x041-63R\x06labels\x1a9\n" +
@@ -747,9 +747,9 @@ const file_yandex_cloud_resourcemanager_v1_folder_service_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"3\n" +
 	"\x14CreateFolderMetadata\x12\x1b\n" +
-	"\tfolder_id\x18\x01 \x01(\tR\bfolderId\"\xb7\x03\n" +
-	"\x13UpdateFolderRequest\x12)\n" +
-	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x12;\n" +
+	"\tfolder_id\x18\x01 \x01(\tR\bfolderId\"\xcf\x03\n" +
+	"\x13UpdateFolderRequest\x12A\n" +
+	"\tfolder_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\bfolderId\x12;\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\x128\n" +
 	"\x04name\x18\x03 \x01(\tB$\xf2\xc71 |[a-z]([-a-z0-9]{0,61}[a-z0-9])?R\x04name\x12+\n" +
@@ -759,17 +759,17 @@ const file_yandex_cloud_resourcemanager_v1_folder_service_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"3\n" +
 	"\x14UpdateFolderMetadata\x12\x1b\n" +
-	"\tfolder_id\x18\x01 \x01(\tR\bfolderId\"\xb8\x01\n" +
-	"\x13DeleteFolderRequest\x12)\n" +
-	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x12v\n" +
+	"\tfolder_id\x18\x01 \x01(\tR\bfolderId\"\xd0\x01\n" +
+	"\x13DeleteFolderRequest\x12A\n" +
+	"\tfolder_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\bfolderId\x12v\n" +
 	"\fdelete_after\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB7\xfa\xc71319700101T000000.000000000-21051231T235959.999999999R\vdeleteAfter\"\x8d\x02\n" +
 	"\x14DeleteFolderMetadata\x12\x1b\n" +
 	"\tfolder_id\x18\x01 \x01(\tR\bfolderId\x12v\n" +
 	"\fdelete_after\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB7\xfa\xc71319700101T000000.000000000-21051231T235959.999999999R\vdeleteAfter\x12!\n" +
 	"\fcancelled_by\x18\x03 \x01(\tR\vcancelledBy\x12=\n" +
-	"\fcancelled_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vcancelledAt\"\x9c\x01\n" +
-	"\x1bListFolderOperationsRequest\x12)\n" +
-	"\tfolder_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\bfolderId\x12'\n" +
+	"\fcancelled_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vcancelledAt\"\xb4\x01\n" +
+	"\x1bListFolderOperationsRequest\x12A\n" +
+	"\tfolder_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\bfolderId\x12'\n" +
 	"\tpage_size\x18\x02 \x01(\x03B\n" +
 	"\xfa\xc71\x060-1000R\bpageSize\x12)\n" +
 	"\n" +

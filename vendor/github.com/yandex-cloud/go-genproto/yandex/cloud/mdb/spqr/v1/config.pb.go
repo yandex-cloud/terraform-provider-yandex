@@ -28,11 +28,16 @@ type LogLevel int32
 
 const (
 	LogLevel_LOG_LEVEL_UNSPECIFIED LogLevel = 0
-	LogLevel_DEBUG                 LogLevel = 1
-	LogLevel_INFO                  LogLevel = 2
-	LogLevel_WARNING               LogLevel = 3
-	LogLevel_ERROR                 LogLevel = 4
-	LogLevel_FATAL                 LogLevel = 5
+	// Provides diagnostic information for developers.
+	LogLevel_DEBUG LogLevel = 1
+	// Reports information implicitly requested by the user.
+	LogLevel_INFO LogLevel = 2
+	// Reports a warning about a likely problem.
+	LogLevel_WARNING LogLevel = 3
+	// Reports an error that aborts the current command.
+	LogLevel_ERROR LogLevel = 4
+	// Reports an error that aborts the current session.
+	LogLevel_FATAL LogLevel = 5
 )
 
 // Enum value maps for LogLevel.
@@ -241,11 +246,10 @@ func (RouterSettings_CommitStrategy) EnumDescriptor() ([]byte, []int) {
 	return file_yandex_cloud_mdb_spqr_v1_config_proto_rawDescGZIP(), []int{7, 2}
 }
 
-// TODO move to hosts.proto when it's created
-// Configuration for MDB PostgreSQL host
 type MDBPostgreSQL struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the Managed PostgreSQL cluster
+	ClusterId     string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -300,7 +304,10 @@ type SPQRConfig struct {
 	// SPQR Balancer settings.
 	Balancer *BalancerSettings `protobuf:"bytes,7,opt,name=balancer,proto3" json:"balancer,omitempty"`
 	// SPQR default log level
-	LogLevel                 LogLevel              `protobuf:"varint,6,opt,name=log_level,json=logLevel,proto3,enum=yandex.cloud.mdb.spqr.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,6,opt,name=log_level,json=logLevel,proto3,enum=yandex.cloud.mdb.spqr.v1.LogLevel" json:"log_level,omitempty"`
+	// Tells SPQR to use spqrguard extension. Extension must be enabled on shards.
+	//
+	// For details, see [documentation](https://github.com/pg-sharding/spqr/blob/master/docs/deployment/spqrguard.mdx)
 	UseSpqrguard             *wrapperspb.BoolValue `protobuf:"bytes,8,opt,name=use_spqrguard,json=useSpqrguard,proto3" json:"use_spqrguard,omitempty"`
 	ForbidDirectShardQueries *wrapperspb.BoolValue `protobuf:"bytes,9,opt,name=forbid_direct_shard_queries,json=forbidDirectShardQueries,proto3" json:"forbid_direct_shard_queries,omitempty"`
 	unknownFields            protoimpl.UnknownFields
@@ -394,9 +401,11 @@ func (x *SPQRConfig) GetForbidDirectShardQueries() *wrapperspb.BoolValue {
 }
 
 type RouterConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Config        *RouterSettings        `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
-	Resources     *Resources             `protobuf:"bytes,2,opt,name=resources,proto3" json:"resources,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Configuration for router hosts.
+	Config *RouterSettings `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	// Resources allocated to router hosts.
+	Resources     *Resources `protobuf:"bytes,2,opt,name=resources,proto3" json:"resources,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -446,9 +455,11 @@ func (x *RouterConfig) GetResources() *Resources {
 }
 
 type CoordinatorConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Config        *CoordinatorSettings   `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
-	Resources     *Resources             `protobuf:"bytes,2,opt,name=resources,proto3" json:"resources,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Configuration for coordinator hosts.
+	Config *CoordinatorSettings `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	// Resources allocated to coordinator hosts.
+	Resources     *Resources `protobuf:"bytes,2,opt,name=resources,proto3" json:"resources,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -498,9 +509,11 @@ func (x *CoordinatorConfig) GetResources() *Resources {
 }
 
 type PostgreSQLConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Config        *PostgreSQLSettings    `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
-	Resources     *Resources             `protobuf:"bytes,2,opt,name=resources,proto3" json:"resources,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Configuration for PostgreSQL hosts.
+	Config *PostgreSQLSettings `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	// Resources allocated to PostgreSQL hosts.
+	Resources     *Resources `protobuf:"bytes,2,opt,name=resources,proto3" json:"resources,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -550,10 +563,13 @@ func (x *PostgreSQLConfig) GetResources() *Resources {
 }
 
 type InfraConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Resources     *Resources             `protobuf:"bytes,2,opt,name=resources,proto3" json:"resources,omitempty"`
-	Router        *RouterSettings        `protobuf:"bytes,3,opt,name=router,proto3" json:"router,omitempty"`
-	Coordinator   *CoordinatorSettings   `protobuf:"bytes,4,opt,name=coordinator,proto3" json:"coordinator,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Resources allocated to infra hosts.
+	Resources *Resources `protobuf:"bytes,2,opt,name=resources,proto3" json:"resources,omitempty"`
+	// Configuration for router.
+	Router *RouterSettings `protobuf:"bytes,3,opt,name=router,proto3" json:"router,omitempty"`
+	// Configuration for coordinator.
+	Coordinator   *CoordinatorSettings `protobuf:"bytes,4,opt,name=coordinator,proto3" json:"coordinator,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -695,20 +711,30 @@ func (x *BalancerSettings) GetTimeout() *wrapperspb.Int64Value {
 
 // Configuration of a SPQR router.
 type RouterSettings struct {
-	state                        protoimpl.MessageState              `protogen:"open.v1"`
-	ShowNoticeMessages           *wrapperspb.BoolValue               `protobuf:"bytes,1,opt,name=show_notice_messages,json=showNoticeMessages,proto3" json:"show_notice_messages,omitempty"`
-	TimeQuantiles                []float64                           `protobuf:"fixed64,2,rep,packed,name=time_quantiles,json=timeQuantiles,proto3" json:"time_quantiles,omitempty"`
-	DefaultRouteBehavior         RouterSettings_DefaultRouteBehavior `protobuf:"varint,4,opt,name=default_route_behavior,json=defaultRouteBehavior,proto3,enum=yandex.cloud.mdb.spqr.v1.RouterSettings_DefaultRouteBehavior" json:"default_route_behavior,omitempty"`
-	PreferSameAvailabilityZone   *wrapperspb.BoolValue               `protobuf:"bytes,5,opt,name=prefer_same_availability_zone,json=preferSameAvailabilityZone,proto3" json:"prefer_same_availability_zone,omitempty"`
-	EnhancedMultishardProcessing *wrapperspb.BoolValue               `protobuf:"bytes,6,opt,name=enhanced_multishard_processing,json=enhancedMultishardProcessing,proto3" json:"enhanced_multishard_processing,omitempty"`
-	DefaultTargetSessionAttrs    RouterSettings_TargetSessionAttrs   `protobuf:"varint,7,opt,name=default_target_session_attrs,json=defaultTargetSessionAttrs,proto3,enum=yandex.cloud.mdb.spqr.v1.RouterSettings_TargetSessionAttrs" json:"default_target_session_attrs,omitempty"`
-	DefaultCommitStrategy        RouterSettings_CommitStrategy       `protobuf:"varint,8,opt,name=default_commit_strategy,json=defaultCommitStrategy,proto3,enum=yandex.cloud.mdb.spqr.v1.RouterSettings_CommitStrategy" json:"default_commit_strategy,omitempty"`
-	AllowPostprocessing          *wrapperspb.BoolValue               `protobuf:"bytes,9,opt,name=allow_postprocessing,json=allowPostprocessing,proto3" json:"allow_postprocessing,omitempty"`
-	AutoRouteRoOnStandby         *wrapperspb.BoolValue               `protobuf:"bytes,10,opt,name=auto_route_ro_on_standby,json=autoRouteRoOnStandby,proto3" json:"auto_route_ro_on_standby,omitempty"`
-	AllowTwoPhaseCommit          *wrapperspb.BoolValue               `protobuf:"bytes,11,opt,name=allow_two_phase_commit,json=allowTwoPhaseCommit,proto3" json:"allow_two_phase_commit,omitempty"`
-	AllowAutoprotectTwoPhase     *wrapperspb.BoolValue               `protobuf:"bytes,12,opt,name=allow_autoprotect_two_phase,json=allowAutoprotectTwoPhase,proto3" json:"allow_autoprotect_two_phase,omitempty"`
-	unknownFields                protoimpl.UnknownFields
-	sizeCache                    protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Enables notice messages.
+	ShowNoticeMessages *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=show_notice_messages,json=showNoticeMessages,proto3" json:"show_notice_messages,omitempty"`
+	// Time quantiles for query execution statistics.
+	TimeQuantiles []float64 `protobuf:"fixed64,2,rep,packed,name=time_quantiles,json=timeQuantiles,proto3" json:"time_quantiles,omitempty"`
+	// Sets mode for multishard queries.
+	DefaultRouteBehavior RouterSettings_DefaultRouteBehavior `protobuf:"varint,4,opt,name=default_route_behavior,json=defaultRouteBehavior,proto3,enum=yandex.cloud.mdb.spqr.v1.RouterSettings_DefaultRouteBehavior" json:"default_route_behavior,omitempty"`
+	// Prefers hosts in the same availability zone.
+	PreferSameAvailabilityZone *wrapperspb.BoolValue `protobuf:"bytes,5,opt,name=prefer_same_availability_zone,json=preferSameAvailabilityZone,proto3" json:"prefer_same_availability_zone,omitempty"`
+	// Enables engine V2 with enhanced multishard query processing,
+	EnhancedMultishardProcessing *wrapperspb.BoolValue `protobuf:"bytes,6,opt,name=enhanced_multishard_processing,json=enhancedMultishardProcessing,proto3" json:"enhanced_multishard_processing,omitempty"`
+	// Default [target_session_attrs](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-TARGET-SESSION-ATTRS) for connections.
+	DefaultTargetSessionAttrs RouterSettings_TargetSessionAttrs `protobuf:"varint,7,opt,name=default_target_session_attrs,json=defaultTargetSessionAttrs,proto3,enum=yandex.cloud.mdb.spqr.v1.RouterSettings_TargetSessionAttrs" json:"default_target_session_attrs,omitempty"`
+	// Default commit strategy for distributed transactions
+	DefaultCommitStrategy RouterSettings_CommitStrategy `protobuf:"varint,8,opt,name=default_commit_strategy,json=defaultCommitStrategy,proto3,enum=yandex.cloud.mdb.spqr.v1.RouterSettings_CommitStrategy" json:"default_commit_strategy,omitempty"`
+	// Enables postprocessing for multishard queries.
+	AllowPostprocessing *wrapperspb.BoolValue `protobuf:"bytes,9,opt,name=allow_postprocessing,json=allowPostprocessing,proto3" json:"allow_postprocessing,omitempty"`
+	// Whether to automatically route read-only queries to standby hosts.
+	AutoRouteRoOnStandby *wrapperspb.BoolValue `protobuf:"bytes,10,opt,name=auto_route_ro_on_standby,json=autoRouteRoOnStandby,proto3" json:"auto_route_ro_on_standby,omitempty"`
+	// Enables two-phase commit for modifying reference relations.
+	AllowTwoPhaseCommit      *wrapperspb.BoolValue `protobuf:"bytes,11,opt,name=allow_two_phase_commit,json=allowTwoPhaseCommit,proto3" json:"allow_two_phase_commit,omitempty"`
+	AllowAutoprotectTwoPhase *wrapperspb.BoolValue `protobuf:"bytes,12,opt,name=allow_autoprotect_two_phase,json=allowAutoprotectTwoPhase,proto3" json:"allow_autoprotect_two_phase,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *RouterSettings) Reset() {
@@ -820,15 +846,21 @@ func (x *RouterSettings) GetAllowAutoprotectTwoPhase() *wrapperspb.BoolValue {
 
 // Configuration of a SPQR coordinator.
 type CoordinatorSettings struct {
-	state                  protoimpl.MessageState `protogen:"open.v1"`
-	IterationTimeout       *durationpb.Duration   `protobuf:"bytes,1,opt,name=iteration_timeout,json=iterationTimeout,proto3" json:"iteration_timeout,omitempty"`
-	LockIterationTimeout   *durationpb.Duration   `protobuf:"bytes,2,opt,name=lock_iteration_timeout,json=lockIterationTimeout,proto3" json:"lock_iteration_timeout,omitempty"`
-	RouterKeepaliveTime    *durationpb.Duration   `protobuf:"bytes,3,opt,name=router_keepalive_time,json=routerKeepaliveTime,proto3" json:"router_keepalive_time,omitempty"`
-	RouterKeepaliveTimeout *durationpb.Duration   `protobuf:"bytes,4,opt,name=router_keepalive_timeout,json=routerKeepaliveTimeout,proto3" json:"router_keepalive_timeout,omitempty"`
-	EtcdMaxSendBytes       *wrapperspb.Int64Value `protobuf:"bytes,5,opt,name=etcd_max_send_bytes,json=etcdMaxSendBytes,proto3" json:"etcd_max_send_bytes,omitempty"`
-	EtcdMaxTxnOps          *wrapperspb.Int64Value `protobuf:"bytes,6,opt,name=etcd_max_txn_ops,json=etcdMaxTxnOps,proto3" json:"etcd_max_txn_ops,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Sleep duration between routers sync iterations.
+	IterationTimeout *durationpb.Duration `protobuf:"bytes,1,opt,name=iteration_timeout,json=iterationTimeout,proto3" json:"iteration_timeout,omitempty"`
+	// Sleep duration between attempts to acquire the coordinator lock when starting up.
+	LockIterationTimeout *durationpb.Duration `protobuf:"bytes,2,opt,name=lock_iteration_timeout,json=lockIterationTimeout,proto3" json:"lock_iteration_timeout,omitempty"`
+	// Interval for sending gRPC keepalive pings to routers.
+	RouterKeepaliveTime *durationpb.Duration `protobuf:"bytes,3,opt,name=router_keepalive_time,json=routerKeepaliveTime,proto3" json:"router_keepalive_time,omitempty"`
+	// Time to wait for keepalive ping response before considering connection dead.
+	RouterKeepaliveTimeout *durationpb.Duration `protobuf:"bytes,4,opt,name=router_keepalive_timeout,json=routerKeepaliveTimeout,proto3" json:"router_keepalive_timeout,omitempty"`
+	// Maximum request size in bytes that the etcd client (QDB implementation) is allowed to send.
+	EtcdMaxSendBytes *wrapperspb.Int64Value `protobuf:"bytes,5,opt,name=etcd_max_send_bytes,json=etcdMaxSendBytes,proto3" json:"etcd_max_send_bytes,omitempty"`
+	// Maximum number of subcommands allowed in a single etcd transaction.
+	EtcdMaxTxnOps *wrapperspb.Int64Value `protobuf:"bytes,6,opt,name=etcd_max_txn_ops,json=etcdMaxTxnOps,proto3" json:"etcd_max_txn_ops,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CoordinatorSettings) Reset() {

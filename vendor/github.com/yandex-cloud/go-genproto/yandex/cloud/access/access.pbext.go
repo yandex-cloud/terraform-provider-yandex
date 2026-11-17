@@ -18,6 +18,10 @@ func (m *AccessBinding) SetSubject(v *Subject) {
 	m.Subject = v
 }
 
+func (m *AccessBinding) SetCelExpression(v string) {
+	m.CelExpression = v
+}
+
 func (m *AccessPolicy) SetId(v string) {
 	m.Id = v
 }

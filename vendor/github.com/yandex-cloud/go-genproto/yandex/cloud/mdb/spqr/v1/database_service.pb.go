@@ -371,8 +371,9 @@ func (x *DeleteDatabaseRequest) GetDatabaseName() string {
 }
 
 type DeleteDatabaseMetadata struct {
-	state     protoimpl.MessageState `protogen:"open.v1"`
-	ClusterId string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID of the SPQR cluster where a database is being deleted.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	// Name of the SPQR database that is being deleted.
 	DatabaseName  string `protobuf:"bytes,2,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
 	unknownFields protoimpl.UnknownFields

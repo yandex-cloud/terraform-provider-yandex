@@ -156,7 +156,14 @@ type AccessBinding struct {
 	RoleId string `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	// Identity for which access binding is being created.
 	// It can represent an account with a unique ID or several accounts with a system identifier.
-	Subject       *Subject `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	Subject *Subject `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	// CEL expression that must evaluate to true for the binding to apply.
+	// An empty expression does not restrict the binding.
+	// Only supported for services:
+	// * [yandex.cloud.resourcemanager.v1.CloudService]
+	// * [yandex.cloud.resourcemanager.v1.FolderService]
+	// * [yandex.cloud.organizationmanager.v1.OrganizationService]
+	CelExpression string `protobuf:"bytes,3,opt,name=cel_expression,json=celExpression,proto3" json:"cel_expression,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -203,6 +210,13 @@ func (x *AccessBinding) GetSubject() *Subject {
 		return x.Subject
 	}
 	return nil
+}
+
+func (x *AccessBinding) GetCelExpression() string {
+	if x != nil {
+		return x.CelExpression
+	}
+	return ""
 }
 
 type AccessPolicy struct {
@@ -1322,10 +1336,12 @@ const file_yandex_cloud_access_access_proto_rawDesc = "" +
 	" yandex/cloud/access/access.proto\x12\x13yandex.cloud.access\x1a\x1dyandex/cloud/validation.proto\"K\n" +
 	"\aSubject\x12\x1d\n" +
 	"\x02id\x18\x01 \x01(\tB\r\xe8\xc71\x01\x8a\xc81\x05<=100R\x02id\x12!\n" +
-	"\x04type\x18\x02 \x01(\tB\r\xe8\xc71\x01\x8a\xc81\x05<=100R\x04type\"t\n" +
+	"\x04type\x18\x02 \x01(\tB\r\xe8\xc71\x01\x8a\xc81\x05<=100R\x04type\"\xa7\x01\n" +
 	"\rAccessBinding\x12%\n" +
 	"\arole_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=64R\x06roleId\x12<\n" +
-	"\asubject\x18\x02 \x01(\v2\x1c.yandex.cloud.access.SubjectB\x04\xe8\xc71\x01R\asubject\"T\n" +
+	"\asubject\x18\x02 \x01(\v2\x1c.yandex.cloud.access.SubjectB\x04\xe8\xc71\x01R\asubject\x121\n" +
+	"\x0ecel_expression\x18\x03 \x01(\tB\n" +
+	"\x8a\xc81\x06<=1024R\rcelExpression\"T\n" +
 	"\fAccessPolicy\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +

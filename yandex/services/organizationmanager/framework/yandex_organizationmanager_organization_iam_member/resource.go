@@ -4,6 +4,7 @@ package yandex_organizationmanager_organization_iam_member
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"strings"
 	"time"
@@ -68,6 +69,13 @@ func (u *IAMMemberUpdater) Schema(_ context.Context, _ resource.SchemaRequest, r
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"cel_expression": schema.StringAttribute{
+				MarkdownDescription: "CEL condition for the access binding. Changing the expression replaces the binding.",
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
 			"organization_id": schema.StringAttribute{
 				MarkdownDescription: "The ID of the `organization` to attach the policy to.",
 				Required:            true,
@@ -113,12 +121,12 @@ func (r *IAMMemberUpdater) Metadata(_ context.Context, req resource.MetadataRequ
 }
 
 func (r *IAMMemberUpdater) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, ",")
+	idParts := strings.SplitN(req.ID, ",", 4)
 
-	if len(idParts) != 3 {
+	if len(idParts) < 3 {
 		resp.Diagnostics.AddError(
 			"Invalid import ID",
-			"Expected import ID in format 'organization_id,role,member'",
+			"Expected import ID in format 'organization_id,role,member[,cel_expression]' (use the full CEL expression, not its hash)",
 		)
 		return
 	}
@@ -136,7 +144,35 @@ func (r *IAMMemberUpdater) ImportState(ctx context.Context, req resource.ImportS
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("organization_id"), idParts[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("role"), idParts[1])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("member"), idParts[2])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0]+"/"+idParts[1]+"/"+idParts[2])...)
+	expression := types.StringNull()
+	if len(idParts) == 4 {
+		expression = types.StringValue(idParts[3])
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("cel_expression"), expression)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), iamMemberID(idParts[0], idParts[1], idParts[2], expression.ValueString()))...)
+}
+
+func iamMemberID(resourceID, role, member, expression string) string {
+	id := resourceID + "/" + role + "/" + member
+	if expression != "" {
+		hash := sha256.Sum256([]byte(expression))
+		id += fmt.Sprintf("/&%x", hash[:8])
+	}
+	return id
+}
+
+func getResourceIamMember(ctx context.Context, state accessbinding.Extractable, diagnostics *diag.Diagnostics) *access.AccessBinding {
+	member := accessbinding.GetResourceIamMemberFromState(ctx, state, diagnostics)
+	if member == nil || diagnostics.HasError() {
+		return nil
+	}
+	var expression types.String
+	diagnostics.Append(state.GetAttribute(ctx, path.Root("cel_expression"), &expression)...)
+	if diagnostics.HasError() {
+		return nil
+	}
+	member.CelExpression = expression.ValueString()
+	return member
 }
 
 func (u *IAMMemberUpdater) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -148,7 +184,7 @@ func (u *IAMMemberUpdater) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	member := accessbinding.GetResourceIamMemberFromState(ctx, req.Plan, &resp.Diagnostics)
+	member := getResourceIamMember(ctx, req.Plan, &resp.Diagnostics)
 	if member == nil {
 		resp.Diagnostics.AddError("IAM Member with incorrect member",
 			"Member should be a colon-separated string. If reading existed resource, remove it from state and use terraform import command.")
@@ -226,7 +262,7 @@ func (u *IAMMemberUpdater) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	member := accessbinding.GetResourceIamMemberFromState(ctx, req.State, &resp.Diagnostics)
+	member := getResourceIamMember(ctx, req.State, &resp.Diagnostics)
 	if member == nil {
 		resp.Diagnostics.AddWarning("IAM Member with incorrect member",
 			"Found IAM Member with incorrect member. Resource will be deleted only from state.")
@@ -334,7 +370,7 @@ func (u *IAMMemberUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *
 }
 
 func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbinding.Extractable, resp accessbinding.Settable, diag *diag.Diagnostics) {
-	member := accessbinding.GetResourceIamMemberFromState(ctx, req, diag)
+	member := getResourceIamMember(ctx, req, diag)
 	if member == nil {
 		diag.AddWarning("IAM Member with incorrect member",
 			"Found IAM Member with incorrect member. Resource will be deleted from state.")
@@ -394,7 +430,7 @@ func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbin
 	memberExists := false
 	canonicalMemberValue := accessbinding.CanonicalMember(member)
 	for _, b := range roleBindings {
-		if accessbinding.CanonicalMember(b) == canonicalMemberValue {
+		if accessbinding.CanonicalMember(b) == canonicalMemberValue && b.GetCelExpression() == member.GetCelExpression() {
 			memberExists = true
 			break
 		}
@@ -417,5 +453,8 @@ func (u *IAMMemberUpdater) refreshMemberState(ctx context.Context, req accessbin
 	var sleep types.Int64
 	req.GetAttribute(ctx, path.Root("sleep_after"), &sleep)
 	diag.Append(resp.SetAttribute(ctx, path.Root("sleep_after"), sleep)...)
-	diag.Append(resp.SetAttribute(ctx, path.Root("id"), u.organizationId+"/"+member.RoleId+"/"+canonicalMemberValue)...)
+	var expression types.String
+	diag.Append(req.GetAttribute(ctx, path.Root("cel_expression"), &expression)...)
+	diag.Append(resp.SetAttribute(ctx, path.Root("cel_expression"), expression)...)
+	diag.Append(resp.SetAttribute(ctx, path.Root("id"), iamMemberID(u.organizationId, member.RoleId, canonicalMemberValue, member.CelExpression))...)
 }

@@ -70,6 +70,7 @@ type ClusterServiceClient interface {
 	Update(ctx context.Context, in *UpdateClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Deletes the specified SPQR cluster.
 	Delete(ctx context.Context, in *DeleteClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Adds a subcluster to the specified SPQR cluster.
 	AddSubcluster(ctx context.Context, in *AddSubclusterRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Start the specified SPQR cluster.
 	Start(ctx context.Context, in *StartClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error)
@@ -445,6 +446,7 @@ type ClusterServiceServer interface {
 	Update(context.Context, *UpdateClusterRequest) (*operation.Operation, error)
 	// Deletes the specified SPQR cluster.
 	Delete(context.Context, *DeleteClusterRequest) (*operation.Operation, error)
+	// Adds a subcluster to the specified SPQR cluster.
 	AddSubcluster(context.Context, *AddSubclusterRequest) (*operation.Operation, error)
 	// Start the specified SPQR cluster.
 	Start(context.Context, *StartClusterRequest) (*operation.Operation, error)

@@ -527,8 +527,9 @@ type DeleteCloudMetadata struct {
 	CloudId string `protobuf:"bytes,1,opt,name=cloud_id,json=cloudId,proto3" json:"cloud_id,omitempty"`
 	// The timestamp after which the process of deleting the cloud should begin.
 	DeleteAfter *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=delete_after,json=deleteAfter,proto3" json:"delete_after,omitempty"`
-	// Information about operation cancellation
-	CancelledBy   string                 `protobuf:"bytes,3,opt,name=cancelled_by,json=cancelledBy,proto3" json:"cancelled_by,omitempty"`
+	// ID of the subject that initiated cancellation of the operation.
+	CancelledBy string `protobuf:"bytes,3,opt,name=cancelled_by,json=cancelledBy,proto3" json:"cancelled_by,omitempty"`
+	// Timestamp when cancellation of the operation was initiated.
 	CancelledAt   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=cancelled_at,json=cancelledAt,proto3" json:"cancelled_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -721,9 +722,9 @@ var File_yandex_cloud_resourcemanager_v1_cloud_service_proto protoreflect.FileDe
 
 const file_yandex_cloud_resourcemanager_v1_cloud_service_proto_rawDesc = "" +
 	"\n" +
-	"3yandex/cloud/resourcemanager/v1/cloud_service.proto\x12\x1fyandex.cloud.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a&yandex/cloud/operation/operation.proto\x1a+yandex/cloud/resourcemanager/v1/cloud.proto\x1a\x1dyandex/cloud/validation.proto\":\n" +
-	"\x0fGetCloudRequest\x12'\n" +
-	"\bcloud_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\acloudId\"\xbe\x01\n" +
+	"3yandex/cloud/resourcemanager/v1/cloud_service.proto\x12\x1fyandex.cloud.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a&yandex/cloud/operation/operation.proto\x1a+yandex/cloud/resourcemanager/v1/cloud.proto\x1a\x1dyandex/cloud/validation.proto\"R\n" +
+	"\x0fGetCloudRequest\x12?\n" +
+	"\bcloud_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\acloudId\"\xbe\x01\n" +
 	"\x11ListCloudsRequest\x12'\n" +
 	"\tpage_size\x18\x01 \x01(\x03B\n" +
 	"\xfa\xc71\x060-1000R\bpageSize\x12)\n" +
@@ -745,9 +746,9 @@ const file_yandex_cloud_resourcemanager_v1_cloud_service_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"0\n" +
 	"\x13CreateCloudMetadata\x12\x19\n" +
-	"\bcloud_id\x18\x01 \x01(\tR\acloudId\"\xb3\x03\n" +
-	"\x12UpdateCloudRequest\x12'\n" +
-	"\bcloud_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\acloudId\x12;\n" +
+	"\bcloud_id\x18\x01 \x01(\tR\acloudId\"\xcb\x03\n" +
+	"\x12UpdateCloudRequest\x12?\n" +
+	"\bcloud_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\acloudId\x12;\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\x128\n" +
 	"\x04name\x18\x03 \x01(\tB$\xf2\xc71 |[a-z]([-a-z0-9]{0,61}[a-z0-9])?R\x04name\x12+\n" +
@@ -757,17 +758,17 @@ const file_yandex_cloud_resourcemanager_v1_cloud_service_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"0\n" +
 	"\x13UpdateCloudMetadata\x12\x19\n" +
-	"\bcloud_id\x18\x01 \x01(\tR\acloudId\"\xb5\x01\n" +
-	"\x12DeleteCloudRequest\x12'\n" +
-	"\bcloud_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\acloudId\x12v\n" +
+	"\bcloud_id\x18\x01 \x01(\tR\acloudId\"\xcd\x01\n" +
+	"\x12DeleteCloudRequest\x12?\n" +
+	"\bcloud_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\acloudId\x12v\n" +
 	"\fdelete_after\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB7\xfa\xc71319700101T000000.000000000-21051231T235959.999999999R\vdeleteAfter\"\xd1\x01\n" +
 	"\x13DeleteCloudMetadata\x12\x19\n" +
 	"\bcloud_id\x18\x01 \x01(\tR\acloudId\x12=\n" +
 	"\fdelete_after\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vdeleteAfter\x12!\n" +
 	"\fcancelled_by\x18\x03 \x01(\tR\vcancelledBy\x12=\n" +
-	"\fcancelled_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vcancelledAt\"\x99\x01\n" +
-	"\x1aListCloudOperationsRequest\x12'\n" +
-	"\bcloud_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\acloudId\x12'\n" +
+	"\fcancelled_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vcancelledAt\"\xb1\x01\n" +
+	"\x1aListCloudOperationsRequest\x12?\n" +
+	"\bcloud_id\x18\x01 \x01(\tB$\xe8\xc71\x01\xf2\xc71\x14[a-z][-_0-9a-zA-Z.]*\x8a\xc81\x04<=50R\acloudId\x12'\n" +
 	"\tpage_size\x18\x02 \x01(\x03B\n" +
 	"\xfa\xc71\x060-1000R\bpageSize\x12)\n" +
 	"\n" +

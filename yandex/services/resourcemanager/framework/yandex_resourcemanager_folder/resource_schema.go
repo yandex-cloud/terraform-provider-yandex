@@ -42,6 +42,7 @@ func YandexResourcemanagerFolderResourceSchema(ctx context.Context) schema.Schem
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
+					stringvalidator.RegexMatches(regexp.MustCompile("^([a-z][-_0-9a-zA-Z.]*)$"), "error validating regexp"),
 					stringvalidator.LengthBetween(0, 50),
 				},
 			},
@@ -93,6 +94,7 @@ func YandexResourcemanagerFolderResourceSchema(ctx context.Context) schema.Schem
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
+					stringvalidator.RegexMatches(regexp.MustCompile("^([a-z][-_0-9a-zA-Z.]*)$"), "error validating regexp"),
 					stringvalidator.LengthBetween(0, 50),
 				},
 			},
@@ -114,6 +116,7 @@ func YandexResourcemanagerFolderResourceSchema(ctx context.Context) schema.Schem
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Validators: []validator.String{
+					stringvalidator.RegexMatches(regexp.MustCompile("^([a-z][-_0-9a-zA-Z.]*)$"), "error validating regexp"),
 					stringvalidator.LengthBetween(0, 50),
 				},
 			},

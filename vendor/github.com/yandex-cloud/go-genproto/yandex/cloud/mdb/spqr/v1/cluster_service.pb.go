@@ -146,11 +146,14 @@ type StreamClusterLogsRequest_ServiceType int32
 
 const (
 	StreamClusterLogsRequest_SERVICE_TYPE_UNSPECIFIED StreamClusterLogsRequest_ServiceType = 0
-	// Logs of SPQR activity.
-	StreamClusterLogsRequest_POSTGRESQL  StreamClusterLogsRequest_ServiceType = 1
-	StreamClusterLogsRequest_ROUTER      StreamClusterLogsRequest_ServiceType = 2
+	// Activity logs of PostgreSQL shards.
+	StreamClusterLogsRequest_POSTGRESQL StreamClusterLogsRequest_ServiceType = 1
+	// Activity logs of routers.
+	StreamClusterLogsRequest_ROUTER StreamClusterLogsRequest_ServiceType = 2
+	// Activity logs of coordinators.
 	StreamClusterLogsRequest_COORDINATOR StreamClusterLogsRequest_ServiceType = 3
-	StreamClusterLogsRequest_INFRA       StreamClusterLogsRequest_ServiceType = 4
+	// Activity logs of INFRA hosts.
+	StreamClusterLogsRequest_INFRA StreamClusterLogsRequest_ServiceType = 4
 )
 
 // Enum value maps for StreamClusterLogsRequest_ServiceType.
@@ -2345,10 +2348,14 @@ type SpqrSpec struct {
 	// Configuration and resource allocation for PostgreSQL hosts.
 	Postgresql *SpqrSpec_PostgreSQL `protobuf:"bytes,3,opt,name=postgresql,proto3" json:"postgresql,omitempty"`
 	// Configuration and resource allocation for SPQR Infra (router+coordinator) hosts.
-	Infra    *SpqrSpec_Infra `protobuf:"bytes,5,opt,name=infra,proto3" json:"infra,omitempty"`
-	LogLevel LogLevel        `protobuf:"varint,7,opt,name=log_level,json=logLevel,proto3,enum=yandex.cloud.mdb.spqr.v1.LogLevel" json:"log_level,omitempty"`
+	Infra *SpqrSpec_Infra `protobuf:"bytes,5,opt,name=infra,proto3" json:"infra,omitempty"`
+	// Sets the message levels that are logged.
+	LogLevel LogLevel `protobuf:"varint,7,opt,name=log_level,json=logLevel,proto3,enum=yandex.cloud.mdb.spqr.v1.LogLevel" json:"log_level,omitempty"`
 	// Configuration for SPQR Balancer.
-	Balancer                 *BalancerSettings     `protobuf:"bytes,8,opt,name=balancer,proto3" json:"balancer,omitempty"`
+	Balancer *BalancerSettings `protobuf:"bytes,8,opt,name=balancer,proto3" json:"balancer,omitempty"`
+	// Tells SPQR to use spqrguard extension. Extension must be enabled on shards.
+	//
+	// For details, see [documentation](https://github.com/pg-sharding/spqr/blob/master/docs/deployment/spqrguard.mdx)
 	UseSpqrguard             *wrapperspb.BoolValue `protobuf:"bytes,9,opt,name=use_spqrguard,json=useSpqrguard,proto3" json:"use_spqrguard,omitempty"`
 	ForbidDirectShardQueries *wrapperspb.BoolValue `protobuf:"bytes,10,opt,name=forbid_direct_shard_queries,json=forbidDirectShardQueries,proto3" json:"forbid_direct_shard_queries,omitempty"`
 	unknownFields            protoimpl.UnknownFields

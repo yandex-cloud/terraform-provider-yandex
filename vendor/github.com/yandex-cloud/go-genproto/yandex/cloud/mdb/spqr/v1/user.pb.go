@@ -23,6 +23,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// A SPQR User resource. For more information, see the
+// [Developer's Guide](/docs/managed-spqr/concepts).
 type User struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Name of the SPQR user.
@@ -249,8 +251,10 @@ func (x *UserSpec) GetDeletionProtection() *wrapperspb.BoolValue {
 }
 
 type UserSettings struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	ConnectionLimit   *wrapperspb.Int64Value `protobuf:"bytes,1,opt,name=connection_limit,json=connectionLimit,proto3" json:"connection_limit,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The maximum number of connections allowed to the backend.
+	ConnectionLimit *wrapperspb.Int64Value `protobuf:"bytes,1,opt,name=connection_limit,json=connectionLimit,proto3" json:"connection_limit,omitempty"`
+	// The number of retries for a failed connection attempt.
 	ConnectionRetries *wrapperspb.Int64Value `protobuf:"bytes,2,opt,name=connection_retries,json=connectionRetries,proto3" json:"connection_retries,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache

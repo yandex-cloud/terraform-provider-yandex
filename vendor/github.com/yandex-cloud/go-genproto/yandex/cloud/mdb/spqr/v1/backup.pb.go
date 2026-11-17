@@ -141,7 +141,7 @@ type Backup struct {
 	StartedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
 	// Shard names used as a source for backup.
 	SourceShardNames []string `protobuf:"bytes,6,rep,name=source_shard_names,json=sourceShardNames,proto3" json:"source_shard_names,omitempty"`
-	// Size of backup in bytes
+	// Size of the backup in bytes
 	Size int64 `protobuf:"varint,7,opt,name=size,proto3" json:"size,omitempty"`
 	// How this backup was created (manual/automatic/etc...)
 	Type Backup_BackupCreationType `protobuf:"varint,8,opt,name=type,proto3,enum=yandex.cloud.mdb.spqr.v1.Backup_BackupCreationType" json:"type,omitempty"`
