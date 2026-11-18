@@ -104,6 +104,7 @@ data yandex_compute_disk_placement_group pgd {
 }
 
 resource yandex_compute_disk_placement_group pgr {
+  zone        = "ru-central1-a"
   name        = "my-group"
   description = "my description"
   labels = {
@@ -120,6 +121,7 @@ data yandex_compute_disk_placement_group pgd {
 }
 
 resource yandex_compute_disk_placement_group pgr {
+  zone        = "ru-central1-a"
   name        = "my-group"
   description = "my description"
   labels = {

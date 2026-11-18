@@ -238,7 +238,7 @@ resource "yandex_compute_instance" "foo" {
   name        = "%s"
   hostname    = "%s"
   description = "description"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-a"
   platform_id = "gpu-standard-v1"
 
   resources {
@@ -288,7 +288,7 @@ resource "yandex_vpc_network" "inst-test-network" {}
 resource "yandex_kms_symmetric_key" "disk-encrypt" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }`, instanceName, instanceName)

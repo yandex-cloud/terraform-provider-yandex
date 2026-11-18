@@ -2267,7 +2267,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-a"
   platform_id = "gpu-standard-v1"
 
   resources {
@@ -2301,7 +2301,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -2490,7 +2490,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic6"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-a"
   platform_id = "standard-v2"
 
   resources {
@@ -2517,7 +2517,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.inst-test-network.id
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -2533,7 +2533,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic6"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-a"
   platform_id = "standard-v2"
 
   resources {
@@ -2585,7 +2585,7 @@ resource "yandex_vpc_security_group" "sg1" {
 }
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -3967,7 +3967,7 @@ data "yandex_compute_image" "ubuntu" {
 
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
-  zone = "ru-central1-b"
+  zone = "ru-central1-a"
   platform_id = "standard-v2"
 
   allow_stopping_for_update = true
@@ -3991,7 +3991,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -4006,7 +4006,7 @@ data "yandex_compute_image" "ubuntu" {
 
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-a"
   platform_id = "standard-v2"
 
   allow_stopping_for_update = true
@@ -4031,7 +4031,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -4046,7 +4046,7 @@ data "yandex_compute_image" "ubuntu" {
 
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-a"
   platform_id = "standard-v2"
 
   allow_stopping_for_update = true
@@ -4071,7 +4071,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -4087,7 +4087,7 @@ data "yandex_compute_image" "ubuntu" {
 
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
-  zone = "ru-central1-b"
+  zone = "ru-central1-a"
   platform_id = "standard-v2"
 
   allow_stopping_for_update = true
@@ -4111,7 +4111,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -4127,7 +4127,7 @@ data "yandex_compute_image" "ubuntu" {
 
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
-  zone        = "ru-central1-b"
+  zone        = "ru-central1-a"
   platform_id = "standard-v2"
 
   allow_stopping_for_update = true
@@ -4152,7 +4152,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }

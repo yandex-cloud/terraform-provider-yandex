@@ -1745,7 +1745,7 @@ resource "yandex_compute_instance_group" "group1" {
   }
 
   allocation_policy {
-    zones = ["ru-central1-b"]
+    zones = ["ru-central1-a"]
   }
 
   deploy_policy {
@@ -1762,7 +1762,7 @@ resource "yandex_vpc_network" "inst-group-test-network" {
 
 resource "yandex_vpc_subnet" "inst-group-test-subnet" {
   description    = "tf-test"
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -1829,7 +1829,7 @@ resource "yandex_compute_instance_group" "group1" {
   }
 
   allocation_policy {
-    zones = ["ru-central1-b"]
+    zones = ["ru-central1-a"]
   }
 
   deploy_policy {
@@ -1846,7 +1846,7 @@ resource "yandex_vpc_network" "inst-group-test-network" {
 
 resource "yandex_vpc_subnet" "inst-group-test-subnet" {
   description    = "tf-test"
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -1922,7 +1922,7 @@ resource "yandex_compute_instance_group" "group1" {
   }
 
   allocation_policy {
-    zones = ["ru-central1-b"]
+    zones = ["ru-central1-a"]
   }
 
   deploy_policy {
@@ -1939,7 +1939,7 @@ resource "yandex_vpc_network" "inst-group-test-network" {
 
 resource "yandex_vpc_subnet" "inst-group-test-subnet" {
   description    = "tf-test"
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -2007,7 +2007,7 @@ resource "yandex_compute_instance_group" "group1" {
   }
 
   allocation_policy {
-    zones = ["ru-central1-b"]
+    zones = ["ru-central1-a"]
   }
 
   deploy_policy {
@@ -2024,7 +2024,7 @@ resource "yandex_vpc_network" "inst-group-test-network" {
 
 resource "yandex_vpc_subnet" "inst-group-test-subnet" {
   description    = "tf-test"
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -2093,7 +2093,7 @@ resource "yandex_compute_instance_group" "group1" {
   }
 
   allocation_policy {
-    zones = ["ru-central1-b"]
+    zones = ["ru-central1-a"]
   }
 
   deploy_policy {
@@ -2110,7 +2110,7 @@ resource "yandex_vpc_network" "inst-group-test-network" {
 
 resource "yandex_vpc_subnet" "inst-group-test-subnet" {
   description    = "tf-test"
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -2530,7 +2530,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     network_interface {
       network_id = "${yandex_vpc_network.inst-group-test-network.id}"
-      subnet_ids = ["${yandex_vpc_subnet.subnet-a.id}", "${yandex_vpc_subnet.subnet-b.id}", "${yandex_vpc_subnet.subnet-c.id}"]
+      subnet_ids = ["${yandex_vpc_subnet.subnet-a.id}", "${yandex_vpc_subnet.subnet-d.id}", "${yandex_vpc_subnet.subnet-e.id}"]
     }
   }
 
@@ -2541,18 +2541,18 @@ resource "yandex_compute_instance_group" "group1" {
   }
 
   allocation_policy {
-    zones = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
+    zones = ["ru-central1-a", "ru-central1-d", "ru-central1-e"]
     instance_tags_pool {
       zone = "ru-central1-a"
       tags = ["atag"]
     }
     instance_tags_pool {
-      zone = "ru-central1-b"
-      tags = ["btag"]
+      zone = "ru-central1-d"
+      tags = ["dtag"]
     }
     instance_tags_pool {
-      zone = "ru-central1-d"
-      tags = ["ctag"]
+      zone = "ru-central1-e"
+      tags = ["etag"]
     }
   }
 
@@ -2575,16 +2575,16 @@ resource "yandex_vpc_subnet" "subnet-a" {
   v4_cidr_blocks = ["192.168.11.0/24"]
 }
 
-resource "yandex_vpc_subnet" "subnet-b" {
+resource "yandex_vpc_subnet" "subnet-d" {
   description    = "tf-test"
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
   v4_cidr_blocks = ["192.168.12.0/24"]
 }
 
-resource "yandex_vpc_subnet" "subnet-c" {
+resource "yandex_vpc_subnet" "subnet-e" {
   description    = "tf-test"
-  zone           = "ru-central1-d"
+  zone           = "ru-central1-e"
   network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
   v4_cidr_blocks = ["192.168.13.0/24"]
 }
@@ -3069,11 +3069,11 @@ func testAccCheckComputeInstanceGroupHasInstanceTagsPool(ig *instancegroup.Insta
 		if err != nil {
 			return err
 		}
-		err = assertZoneExists(ig.AllocationPolicy.Zones, "ru-central1-b", []string{"btag"})
+		err = assertZoneExists(ig.AllocationPolicy.Zones, "ru-central1-d", []string{"dtag"})
 		if err != nil {
 			return err
 		}
-		err = assertZoneExists(ig.AllocationPolicy.Zones, "ru-central1-d", []string{"ctag"})
+		err = assertZoneExists(ig.AllocationPolicy.Zones, "ru-central1-e", []string{"etag"})
 		if err != nil {
 			return err
 		}

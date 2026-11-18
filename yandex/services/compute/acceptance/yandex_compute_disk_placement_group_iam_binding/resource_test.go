@@ -62,7 +62,7 @@ func testAccDiskPlacementGroupWithIAMMember(diskPlacementName, role, userID stri
 	// language=tf
 	return fmt.Sprintf(`
 resource yandex_compute_disk_placement_group pg {
-  zone = "ru-central1-b"
+  zone = "ru-central1-a"
   name = "%s"
 }
 

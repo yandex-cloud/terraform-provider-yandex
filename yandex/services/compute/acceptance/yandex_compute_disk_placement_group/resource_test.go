@@ -196,7 +196,7 @@ resource yandex_compute_disk foobar {
   name = "%s"
   size = 93
   type = "network-ssd-nonreplicated"
-  zone = "ru-central1-b"
+  zone = "ru-central1-a"
 
   disk_placement_policy {
     disk_placement_group_id = yandex_compute_disk_placement_group.pg.id
@@ -204,7 +204,7 @@ resource yandex_compute_disk foobar {
 }
 
 resource yandex_compute_disk_placement_group pg {
-  zone = "ru-central1-b"
+  zone = "ru-central1-a"
 }
 `, disk)
 }
@@ -216,7 +216,7 @@ resource yandex_compute_disk foobar {
   name = "%s"
   size = 93
   type = "network-ssd-nonreplicated"
-  zone = "ru-central1-b"
+  zone = "ru-central1-a"
 
   disk_placement_policy {
     disk_placement_group_id = ""
@@ -224,7 +224,7 @@ resource yandex_compute_disk foobar {
 }
 
 resource yandex_compute_disk_placement_group pg {
-  zone = "ru-central1-b"
+  zone = "ru-central1-a"
 }
 `, instance)
 }
