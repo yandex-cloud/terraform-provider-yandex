@@ -1436,6 +1436,15 @@ func flattenKafkaUI(c *kafka.ConfigSpec) []map[string]interface{} {
 	return []map[string]interface{}{out}
 }
 
+func FlattenKafkaConnectorMirrorCheckpoint(checkpoint *kafka.ConnectorConfigMirrorCheckpoint) []map[string]interface{} {
+	return []map[string]interface{}{{
+		"source_connector_name":       checkpoint.SourceConnectorName,
+		"groups":                      checkpoint.Groups,
+		"replication_policy":          checkpoint.ReplicationPolicy.String(),
+		"offset_syncs_topic_location": checkpoint.OffsetSyncsTopicLocation.String(),
+	}}
+}
+
 func FlattenKafkaConnectorMirrormaker(mm *kafka.ConnectorConfigMirrorMaker, d *schema.ResourceData) ([]map[string]interface{}, error) {
 	config := map[string]interface{}{
 		"topics":             mm.Topics,

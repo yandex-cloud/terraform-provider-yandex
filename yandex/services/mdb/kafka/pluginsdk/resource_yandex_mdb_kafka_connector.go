@@ -9,6 +9,7 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	kafkasdk "github.com/yandex-cloud/go-sdk/services/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
@@ -94,6 +95,47 @@ func ResourceYandexMDBKafkaConnector() *schema.Resource {
 							Type:        schema.TypeInt,
 							Description: "Replication factor for topics created in target cluster.",
 							Required:    true,
+						},
+					},
+				},
+			},
+			"connector_config_mirror_checkpoint": {
+				Type:        schema.TypeList,
+				Description: "Settings for MirrorCheckpoint connector.",
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"source_connector_name": {
+							Type:         schema.TypeString,
+							Description:  "Name of an existing MirrorMaker connector in the same cluster whose settings are copied at creation. Cannot be changed.",
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringIsNotEmpty,
+						},
+						"groups": {
+							Type:        schema.TypeSet,
+							Description: "Consumer group names whose offsets are transferred, without regular expressions.",
+							Required:    true,
+							MinItems:    1,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringIsNotEmpty,
+							},
+						},
+						"replication_policy": {
+							Type:         schema.TypeString,
+							Description:  "Topic naming policy: DEFAULT adds the source alias, IDENTITY preserves names, REPLICATION_POLICY_UNSPECIFIED inherits the source settings captured at creation.",
+							Optional:     true,
+							Default:      "REPLICATION_POLICY_UNSPECIFIED",
+							ValidateFunc: validation.StringInSlice([]string{"REPLICATION_POLICY_UNSPECIFIED", "DEFAULT", "IDENTITY"}, false),
+						},
+						"offset_syncs_topic_location": {
+							Type:         schema.TypeString,
+							Description:  "Offset mapping topic location: SOURCE, TARGET or OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED to inherit the source settings captured at creation.",
+							Optional:     true,
+							Default:      "OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED",
+							ValidateFunc: validation.StringInSlice([]string{"OFFSET_SYNCS_TOPIC_LOCATION_UNSPECIFIED", "SOURCE", "TARGET"}, false),
 						},
 					},
 				},
@@ -618,6 +660,10 @@ func resourceYandexMDBKafkaConnectorRead(d *schema.ResourceData, meta interface{
 	}
 
 	switch conn.GetConnectorConfig().(type) {
+	case *kafka.Connector_ConnectorConfigMirrorCheckpoint:
+		if err = d.Set("connector_config_mirror_checkpoint", FlattenKafkaConnectorMirrorCheckpoint(conn.GetConnectorConfigMirrorCheckpoint())); err != nil {
+			return err
+		}
 	case *kafka.Connector_ConnectorConfigMirrormaker:
 		cfg, err := FlattenKafkaConnectorMirrormaker(conn.GetConnectorConfigMirrormaker(), d)
 		if err != nil {
@@ -824,6 +870,10 @@ func BuildKafkaConnectorSpec(d *schema.ResourceData) (*kafka.ConnectorSpec, erro
 		connSpec.SetConnectorConfigMirrormaker(buildKafkaMirrorMakerSpec(d))
 		countOfSpecificConnectorConfigs++
 	}
+	if _, ok := d.GetOk("connector_config_mirror_checkpoint"); ok {
+		connSpec.SetConnectorConfigMirrorCheckpoint(buildKafkaMirrorCheckpointSpec(d))
+		countOfSpecificConnectorConfigs++
+	}
 	if _, ok := d.GetOk("connector_config_s3_sink"); ok {
 		connSpec.SetConnectorConfigS3Sink(buildKafkaS3SinkConnectorSpec(d))
 		countOfSpecificConnectorConfigs++
@@ -856,6 +906,15 @@ func BuildKafkaConnectorUpdateSpec(d *schema.ResourceData) (*kafka.UpdateConnect
 		connSpec.SetConnectorConfigMirrormaker(buildKafkaMirrorMakerSpec(d))
 		countOfSpecificConnectorConfigs++
 	}
+	if _, ok := d.GetOk("connector_config_mirror_checkpoint"); ok {
+		checkpoint := buildKafkaMirrorCheckpointSpec(d)
+		connSpec.SetConnectorConfigMirrorCheckpoint(&kafka.UpdateConnectorConfigMirrorCheckpointSpec{
+			Groups:                   checkpoint.Groups,
+			ReplicationPolicy:        checkpoint.ReplicationPolicy,
+			OffsetSyncsTopicLocation: checkpoint.OffsetSyncsTopicLocation,
+		})
+		countOfSpecificConnectorConfigs++
+	}
 	if _, ok := d.GetOk("connector_config_s3_sink"); ok {
 		connSpec.SetConnectorConfigS3Sink(buildKafkaS3SinkConnectorSpecUpdate(d))
 		countOfSpecificConnectorConfigs++
@@ -868,6 +927,16 @@ func BuildKafkaConnectorUpdateSpec(d *schema.ResourceData) (*kafka.UpdateConnect
 		return nil, fmt.Errorf("must be specified only one connector-specific config")
 	}
 	return connSpec, nil
+}
+
+func buildKafkaMirrorCheckpointSpec(d *schema.ResourceData) *kafka.ConnectorConfigMirrorCheckpointSpec {
+	const prefix = "connector_config_mirror_checkpoint.0."
+	return &kafka.ConnectorConfigMirrorCheckpointSpec{
+		SourceConnectorName:      d.Get(prefix + "source_connector_name").(string),
+		Groups:                   ParseSetToStringArray(d.Get(prefix + "groups").(*schema.Set)),
+		ReplicationPolicy:        kafka.ConnectorConfigMirrorCheckpoint_ReplicationPolicy(kafka.ConnectorConfigMirrorCheckpoint_ReplicationPolicy_value[d.Get(prefix+"replication_policy").(string)]),
+		OffsetSyncsTopicLocation: kafka.ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation(kafka.ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation_value[d.Get(prefix+"offset_syncs_topic_location").(string)]),
+	}
 }
 
 func buildKafkaMirrorMakerSpec(d *schema.ResourceData) *kafka.ConnectorConfigMirrorMakerSpec {
@@ -1114,6 +1183,9 @@ func init() {
 	MdbKafkaConnectorUpdateFieldsMap[keyPrefix+"tasks_max"] = valPrefix + "tasks_max"
 	MdbKafkaConnectorUpdateFieldsMap[keyPrefix+"properties"] = valPrefix + "properties"
 	addMirrormakerUpdatePathsToFieldsMap(keyPrefix, valPrefix)
+	for _, field := range []string{"groups", "replication_policy", "offset_syncs_topic_location"} {
+		MdbKafkaConnectorUpdateFieldsMap["connector_config_mirror_checkpoint.0."+field] = valPrefix + "connector_config_mirror_checkpoint." + field
+	}
 	addS3SinkUpdatePathsToFieldsMap(keyPrefix, valPrefix)
 	addIcebergSinkUpdatePathsToFieldsMap(keyPrefix, valPrefix)
 }

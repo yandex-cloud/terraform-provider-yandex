@@ -28,6 +28,16 @@ resource "yandex_mdb_kafka_connector" "my_conn" {
   }
 }
 
+resource "yandex_mdb_kafka_connector" "checkpoint" {
+  cluster_id = yandex_mdb_kafka_cluster.my_cluster.id
+  name       = "mirror-checkpoint"
+
+  connector_config_mirror_checkpoint {
+    source_connector_name = yandex_mdb_kafka_connector.my_conn.name
+    groups                = ["orders-reader", "billing-reader"]
+  }
+}
+
 resource "yandex_mdb_kafka_connector" "connector" {
   cluster_id = yandex_mdb_kafka_cluster.my_cluster.id
   name       = "s3-sink"
@@ -109,7 +119,7 @@ resource "yandex_mdb_kafka_cluster" "my_cluster" {
   network_id = "c64vs98keiqc7f24pvkd"
 
   config {
-    version = "2.8"
+    version = "3.9"
     zones   = ["ru-central1-a"]
     kafka {
       resources {

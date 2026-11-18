@@ -1,17 +1,186 @@
 package pluginsdk_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	svc_kafka "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/kafka/pluginsdk"
 )
+
+func TestKafkaConnectorMirrorCheckpoint(t *testing.T) {
+	for _, tt := range []struct {
+		name     string
+		policy   kafka.ConnectorConfigMirrorCheckpoint_ReplicationPolicy
+		location kafka.ConnectorConfigMirrorCheckpoint_OffsetSyncsTopicLocation
+	}{
+		{name: "inherited"},
+		{name: "identity target", policy: kafka.ConnectorConfigMirrorCheckpoint_IDENTITY, location: kafka.ConnectorConfigMirrorCheckpoint_TARGET},
+		{name: "default source", policy: kafka.ConnectorConfigMirrorCheckpoint_DEFAULT, location: kafka.ConnectorConfigMirrorCheckpoint_SOURCE},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			config := map[string]any{
+				"source_connector_name": "mirror-source",
+				"groups":                []any{"orders.reader", "billing-*"},
+			}
+			if tt.policy != 0 {
+				config["replication_policy"] = tt.policy.String()
+				config["offset_syncs_topic_location"] = tt.location.String()
+			}
+			raw := kafkaConnectorMirrorCheckpointRaw(config)
+			raw["tasks_max"] = 1
+			raw["properties"] = map[string]any{"sync.group.offsets.enabled": "false"}
+			resource := svc_kafka.ResourceYandexMDBKafkaConnector()
+			data := schema.TestResourceDataRaw(t, resource.Schema, raw)
+			created, err := svc_kafka.BuildKafkaConnectorSpec(data)
+			require.NoError(t, err)
+			checkpoint := created.GetConnectorConfigMirrorCheckpoint()
+			require.NotNil(t, checkpoint)
+			assert.Equal(t, "mirror-source", checkpoint.SourceConnectorName)
+			assert.ElementsMatch(t, []string{"orders.reader", "billing-*"}, checkpoint.Groups)
+			assert.Equal(t, tt.policy, checkpoint.ReplicationPolicy)
+			assert.Equal(t, tt.location, checkpoint.OffsetSyncsTopicLocation)
+			assert.EqualValues(t, 1, created.TasksMax.Value)
+			assert.Equal(t, "false", created.Properties["sync.group.offsets.enabled"])
+
+			updated, err := svc_kafka.BuildKafkaConnectorUpdateSpec(data)
+			require.NoError(t, err)
+			assert.Equal(t, &kafka.UpdateConnectorConfigMirrorCheckpointSpec{
+				Groups:                   checkpoint.Groups,
+				ReplicationPolicy:        tt.policy,
+				OffsetSyncsTopicLocation: tt.location,
+			}, updated.GetConnectorConfigMirrorCheckpoint())
+
+			response := &kafka.ConnectorConfigMirrorCheckpoint{
+				SourceConnectorName:      checkpoint.SourceConnectorName,
+				Groups:                   []string{"billing-*", "orders.reader"},
+				ReplicationPolicy:        tt.policy,
+				OffsetSyncsTopicLocation: tt.location,
+			}
+			data.SetId("cluster-id:checkpoint")
+			require.NoError(t, data.Set("connector_config_mirror_checkpoint", svc_kafka.FlattenKafkaConnectorMirrorCheckpoint(response)))
+			diff, err := resource.Diff(context.Background(), data.State(), terraform.NewResourceConfigRaw(raw), nil)
+			require.NoError(t, err)
+			assert.True(t, diff.Empty(), "%+v", diff)
+		})
+	}
+}
+
+func TestKafkaConnectorMirrorCheckpointUpdateDiff(t *testing.T) {
+	resource := svc_kafka.ResourceYandexMDBKafkaConnector()
+	initial := kafkaConnectorMirrorCheckpointRaw(map[string]any{
+		"source_connector_name":       "mirror-source",
+		"groups":                      []any{"old-group"},
+		"replication_policy":          "IDENTITY",
+		"offset_syncs_topic_location": "TARGET",
+	})
+	data := schema.TestResourceDataRaw(t, resource.Schema, initial)
+	data.SetId("cluster-id:checkpoint")
+	updated := kafkaConnectorMirrorCheckpointRaw(map[string]any{
+		"source_connector_name": "mirror-source",
+		"groups":                []any{"new-group"},
+	})
+	diff, err := resource.Diff(context.Background(), data.State(), terraform.NewResourceConfigRaw(updated), nil)
+	require.NoError(t, err)
+	require.False(t, diff.RequiresNew())
+	updatedData, err := schema.InternalMap(resource.Schema).Data(data.State(), diff)
+	require.NoError(t, err)
+	var paths []string
+	for field, path := range svc_kafka.MdbKafkaConnectorUpdateFieldsMap {
+		if updatedData.HasChange(field) {
+			paths = append(paths, path)
+		}
+	}
+	assert.ElementsMatch(t, []string{
+		"connector_spec.connector_config_mirror_checkpoint.groups",
+		"connector_spec.connector_config_mirror_checkpoint.replication_policy",
+		"connector_spec.connector_config_mirror_checkpoint.offset_syncs_topic_location",
+	}, paths)
+	spec, err := svc_kafka.BuildKafkaConnectorUpdateSpec(updatedData)
+	require.NoError(t, err)
+	assert.Equal(t, &kafka.UpdateConnectorConfigMirrorCheckpointSpec{Groups: []string{"new-group"}}, spec.GetConnectorConfigMirrorCheckpoint())
+
+	updated["connector_config_mirror_checkpoint"].([]any)[0].(map[string]any)["source_connector_name"] = "another-source"
+	diff, err = resource.Diff(context.Background(), data.State(), terraform.NewResourceConfigRaw(updated), nil)
+	require.NoError(t, err)
+	assert.True(t, diff.RequiresNew())
+	assert.NotContains(t, svc_kafka.MdbKafkaConnectorUpdateFieldsMap, "connector_config_mirror_checkpoint.0.source_connector_name")
+
+	mirrorMaker := kafkaConnectorMirrorMakerRaw(nil, nil)
+	mirrorMaker["name"] = "checkpoint"
+	diff, err = resource.Diff(context.Background(), data.State(), terraform.NewResourceConfigRaw(mirrorMaker), nil)
+	require.NoError(t, err)
+	assert.True(t, diff.RequiresNew())
+	mirrorMakerData := schema.TestResourceDataRaw(t, resource.Schema, mirrorMaker)
+	mirrorMakerData.SetId("cluster-id:checkpoint")
+	diff, err = resource.Diff(context.Background(), mirrorMakerData.State(), terraform.NewResourceConfigRaw(initial), nil)
+	require.NoError(t, err)
+	assert.True(t, diff.RequiresNew())
+}
+
+func TestKafkaConnectorMirrorCheckpointValidation(t *testing.T) {
+	resource := svc_kafka.ResourceYandexMDBKafkaConnector()
+	for _, tt := range []struct {
+		name  string
+		field string
+		value any
+	}{
+		{name: "empty source", field: "source_connector_name", value: ""},
+		{name: "no groups", field: "groups", value: []any{}},
+		{name: "empty group", field: "groups", value: []any{""}},
+		{name: "invalid policy", field: "replication_policy", value: "CUSTOM"},
+		{name: "invalid location", field: "offset_syncs_topic_location", value: "REMOTE"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			config := map[string]any{"source_connector_name": "source", "groups": []any{"group"}}
+			config[tt.field] = tt.value
+			diagnostics := resource.Validate(terraform.NewResourceConfigRaw(kafkaConnectorMirrorCheckpointRaw(config)))
+			assert.True(t, diagnostics.HasError(), "%+v", diagnostics)
+		})
+	}
+	raw := kafkaConnectorMirrorMakerRaw(nil, nil)
+	raw["connector_config_mirror_checkpoint"] = []any{map[string]any{"source_connector_name": "source", "groups": []any{"group"}}}
+	data := schema.TestResourceDataRaw(t, resource.Schema, raw)
+	_, err := svc_kafka.BuildKafkaConnectorSpec(data)
+	assert.ErrorContains(t, err, "only one connector-specific config")
+	_, err = svc_kafka.BuildKafkaConnectorUpdateSpec(data)
+	assert.ErrorContains(t, err, "only one connector-specific config")
+}
+
+func TestKafkaConnectorMirrorCheckpointDataSource(t *testing.T) {
+	dataSource := svc_kafka.DataSourceYandexMDBKafkaConnector()
+	checkpoint := dataSource.Schema["connector_config_mirror_checkpoint"]
+	assert.True(t, checkpoint.Computed)
+	for _, field := range checkpoint.Elem.(*schema.Resource).Schema {
+		assert.True(t, field.Computed)
+		assert.False(t, field.Required)
+	}
+	data := schema.TestResourceDataRaw(t, dataSource.Schema, map[string]any{"cluster_id": "cluster-id", "name": "checkpoint"})
+	require.NoError(t, data.Set("connector_config_mirror_checkpoint", svc_kafka.FlattenKafkaConnectorMirrorCheckpoint(&kafka.ConnectorConfigMirrorCheckpoint{
+		SourceConnectorName:      "mirror-source",
+		Groups:                   []string{"group"},
+		ReplicationPolicy:        kafka.ConnectorConfigMirrorCheckpoint_IDENTITY,
+		OffsetSyncsTopicLocation: kafka.ConnectorConfigMirrorCheckpoint_TARGET,
+	})))
+	assert.Equal(t, "mirror-source", data.Get("connector_config_mirror_checkpoint.0.source_connector_name"))
+	assert.Equal(t, "IDENTITY", data.Get("connector_config_mirror_checkpoint.0.replication_policy"))
+	assert.Equal(t, "TARGET", data.Get("connector_config_mirror_checkpoint.0.offset_syncs_topic_location"))
+}
+
+func kafkaConnectorMirrorCheckpointRaw(config map[string]any) map[string]any {
+	return map[string]any{
+		"cluster_id":                         "cluster-id",
+		"name":                               "checkpoint",
+		"connector_config_mirror_checkpoint": []any{config},
+	}
+}
 
 func TestKafkaConnectorSASLPassword(t *testing.T) {
 	prefix := svc_kafka.KafkaConnectorSASLPasswordPrefixes[0]
