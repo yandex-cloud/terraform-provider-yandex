@@ -1361,8 +1361,8 @@ hosts = {
 	}
 	"h2" = {
 		type      = "CLICKHOUSE"
-		zone      = "ru-central1-b"
-		subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
+		zone      = "ru-central1-d"
+		subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
 		shard_name = "shard2"
 		assign_public_ip = false
 	}
@@ -1954,8 +1954,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
     }
 	"zb" = {
 	  type      = "KEEPER"
-	  zone      = "ru-central1-b"
-	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
+	  zone      = "ru-central1-d"
+	  subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
     }
 	"zd" = {
 	  type      = "KEEPER"
@@ -2258,8 +2258,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "migrate_to_keeper" {
     }
     "zb" = {
       type      = "%s"
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-d.id
     }
     "zd" = {
       type      = "%s"
@@ -2302,8 +2302,8 @@ func testAccMDBClickHouseClusterCoordinatorHosts(coordinatorType string) string 
     }
     "zb" = {
       type      = "%[1]s"
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-d.id
     }
     "zd" = {
       type      = "%[1]s"
@@ -2896,12 +2896,6 @@ resource "yandex_vpc_subnet" "mdb-ch-test-subnet-a" {
   zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "mdb-ch-test-subnet-b" {
-  zone           = "ru-central1-b"
-  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
-  v4_cidr_blocks = ["10.2.0.0/24"]
 }
 
 resource "yandex_vpc_subnet" "mdb-ch-test-subnet-d" {

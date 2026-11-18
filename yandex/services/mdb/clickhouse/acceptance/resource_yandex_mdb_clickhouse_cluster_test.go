@@ -1947,13 +1947,7 @@ resource "yandex_vpc_subnet" "mdb-ch-test-subnet-a" {
   v4_cidr_blocks = ["10.1.0.0/24"]
 }
 
-resource "yandex_vpc_subnet" "mdb-ch-test-subnet-b" {
-  zone           = "ru-central1-b"
-  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "mdb-ch-test-subnet-c" {
+resource "yandex_vpc_subnet" "mdb-ch-test-subnet-d" {
   zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
@@ -2826,14 +2820,14 @@ func testAccMDBClickHouseClusterResourceCoordinators(name, desc, bucket string, 
 
   host {
     type      = "%[1]s"
-    zone      = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   host {
     type      = "%[1]s"
     zone      = "ru-central1-d"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 `, coordinatorType)
 	}
@@ -2881,8 +2875,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 %s
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
@@ -2952,8 +2946,8 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
 
   host {
     type             = "CLICKHOUSE"
-    zone             = "ru-central1-b"
-    subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-b.id
+    zone             = "ru-central1-d"
+    subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-d.id
     shard_name       = "shard2"
     assign_public_ip = false
   }
@@ -3024,7 +3018,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
   host {
     type             = "CLICKHOUSE"
     zone             = "ru-central1-d"
-    subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-c.id
+    subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-d.id
     shard_name       = "shard3"
     assign_public_ip = true
   }

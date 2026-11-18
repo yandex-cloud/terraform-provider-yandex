@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'clickhouse: replace unavailable ru-central1-b with ru-central1-d in resource acceptance tests and shared subnet fixtures'
+time: 2026-11-18T18:04:37.433088+03:00
