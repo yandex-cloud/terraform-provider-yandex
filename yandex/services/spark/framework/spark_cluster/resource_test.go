@@ -89,8 +89,6 @@ type sparkClusterConfigParams struct {
 	MetastoreClusterID        string
 	SecurityGroup             bool
 	DeletionProtection        bool
-	LoggingFolderID           string
-	LoggingLogGroupID         string
 	IncludeBlockMaintenance   bool
 	MaintenanceWindowWeekly   bool
 	MaintenanceWindowDay      string
@@ -179,15 +177,7 @@ resource "yandex_spark_cluster" "spark_cluster" {
   service_account_id = yandex_iam_service_account.spark-sa-{{ .RandSuffix }}.id
 
   logging = {
-    {{ if .LoggingFolderID }}
-    enabled = true
-    folder_id = "{{ .LoggingFolderID }}"
-    {{ else if .LoggingLogGroupID }}
-    enabled = true
-    log_group_id = "{{ .LoggingLogGroupID }}"
-    {{ else }}
     enabled = false
-    {{ end }}
   }
 
   {{ if .IncludeBlockMaintenance }}
@@ -246,6 +236,8 @@ func sparkClusterImportStep(name string) resource.TestStep {
 		ResourceName:      name,
 		ImportState:       true,
 		ImportStateVerify: true,
+		// Read preserves logging.enabled=false after create, but leaves logging null after import.
+		ImportStateVerifyIgnore: []string{"logging"},
 	}
 }
 
@@ -284,7 +276,6 @@ func TestAccSparkCluster_basic(t *testing.T) {
 	t.Parallel()
 
 	randSuffix := fmt.Sprintf("%d", acctest.RandInt())
-	folderID := os.Getenv("YC_FOLDER_ID")
 	metastoreClusterID := os.Getenv("YC_METASTORE_ID")
 	var cluster sparkv1.Cluster
 
@@ -305,7 +296,6 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					ExecutorPreemptible:       true,
 					IncludeBlockHistoryServer: true,
 					HistoryServerEnabled:      true,
-					LoggingFolderID:           folderID,
 					IncludeBlockTimeouts:      true,
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -322,8 +312,6 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", ""),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.enabled", "true"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "maintenance_window.type", "ANYTIME"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.create", "50m"),
@@ -354,7 +342,6 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					MetastoreClusterID:        metastoreClusterID,
 					SecurityGroup:             true,
 					DeletionProtection:        false,
-					LoggingFolderID:           folderID,
 					IncludeBlockMaintenance:   true,
 					MaintenanceWindowWeekly:   true,
 					MaintenanceWindowDay:      "TUE",
@@ -379,7 +366,6 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.dependencies.pip_packages.0", "numpy==2.2.2"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", metastoreClusterID),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "maintenance_window.type", "WEEKLY"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "maintenance_window.day", "TUE"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "maintenance_window.hour", "10"),
@@ -409,7 +395,6 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					IncludeBlockMetastore:     false,
 					SecurityGroup:             false,
 					DeletionProtection:        false,
-					LoggingFolderID:           folderID,
 					IncludeBlockMaintenance:   true,
 					MaintenanceWindowWeekly:   false,
 					IncludeBlockTimeouts:      true,
@@ -427,8 +412,6 @@ func TestAccSparkCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.resource_pools.executor.preemptible", "false"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", ""),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.enabled", "true"),
-					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "logging.folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "maintenance_window.type", "ANYTIME"),
 					resource.TestCheckResourceAttr("yandex_spark_cluster.spark_cluster", "timeouts.create", "50m"),

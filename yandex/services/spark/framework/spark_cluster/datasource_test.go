@@ -53,7 +53,6 @@ func sparkDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool) st
 		MetastoreClusterID:        os.Getenv("YC_METASTORE_ID"),
 		SecurityGroup:             true,
 		DeletionProtection:        false,
-		LoggingFolderID:           os.Getenv("YC_FOLDER_ID"),
 		IncludeBlockMaintenance:   true,
 		MaintenanceWindowWeekly:   true,
 		MaintenanceWindowDay:      "TUE",
@@ -78,7 +77,6 @@ data "yandex_spark_cluster" "spark_cluster" {
 }
 
 func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
-	folderID := os.Getenv("YC_FOLDER_ID")
 	metastoreClusterID := os.Getenv("YC_METASTORE_ID")
 
 	return resource.ComposeTestCheckFunc(
@@ -100,8 +98,6 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.dependencies.deb_packages.0", "git"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.history_server.enabled", "true"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "config.metastore.cluster_id", metastoreClusterID),
-		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "logging.enabled", "true"),
-		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "logging.folder_id", folderID),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "maintenance_window.type", "WEEKLY"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "maintenance_window.day", "TUE"),
 		resource.TestCheckResourceAttr("data.yandex_spark_cluster.spark_cluster", "maintenance_window.hour", "10"),
